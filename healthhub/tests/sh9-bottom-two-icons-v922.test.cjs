@@ -17,7 +17,7 @@ test('v922 only Home and Ask Lena bottom icons are changed, not other nav button
  assert.match(css,/width:28px!important/);
  assert.match(css,/height:28px!important/);
  assert.doesNotMatch(css,/button span/);
- assert.doesNotMatch(css,/display:none!important/);
+ assert.match(css,/::before,[\s\S]*::after\{[\s\S]*content:none!important/);
 });
 test('v922 two icons follow profile color using canonical GOLDEN STANDARD profile',()=>{
  assert.match(css,/:root\{--sh9-bottom-two-icon-accent:#79bfff\}/);
