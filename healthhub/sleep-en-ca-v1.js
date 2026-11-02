@@ -120,6 +120,8 @@
   ['❤️ ÁTLAG PULZUS','❤️ AVERAGE HEART RATE'],
   ['↕ PULZUSTARTOMÁNY','↕ HEART-RATE RANGE'],
   ['🫁 ÁTLAG SpO₂','🫁 AVERAGE SpO₂'],['↓ MIN. SpO₂','↓ MIN. SpO₂'],
+  ['Lassan engedd el a napot.','Let the day gently fade away.'],
+  ['Tájékoztató, nem orvosilag validált saját mutató. Az alvásidő maximum 65 pontot ér (8 óra esetén), az alváshatékonyság maximum 35 pontot (90% felett). A 6 óránál rövidebb alvás legfeljebb 59, a 6–7 órás vagy 75% alatti hatékonyság legfeljebb 79 pontot kaphat. 80%-nál hiányosabb alvásfázis-idővonalból nem számolunk pontszámot. Az index nem hasonlítható közvetlenül a Samsung 0–100 értékéhez.','This is an informational index, not a clinically validated measure. Sleep duration contributes up to 65 points (at 8 hours), and sleep efficiency contributes up to 35 points (above 90%). Sleep under 6 hours is capped at 59 points; 6–7 hours or efficiency below 75% is capped at 79. No score is calculated when sleep-stage coverage is below 80%. This index is not directly comparable with Samsung’s 0–100 score.'],
   ['ÉJSZAKAI ADATOK','OVERNIGHT MEASUREMENTS'],
   ['Pulzus és oxigénszint','Heart Rate & Blood Oxygen'],
   ['Ehhez az éjszakához most nincs időbélyegzett pulzus- vagy SpO₂-adat a szinkronizált Health Connect csomagban.','No timestamped heart-rate or SpO₂ measurements are available for this night in the synchronized Health Connect data.']
@@ -175,6 +177,23 @@
     'Deep, REM and light sleep tiles are informational; wearable sleep-stage data are not diagnoses.');
   s=s.replace(/🔴 Rövidebb \/ kedvezőtlenebb · 🟠 figyelendő · 🟢 kedvezőbb\./g,
     '🔴 Shorter / less favourable · 🟠 monitor · 🟢 more favourable.');
+  s=s.replace(/^💬 Léna · (Kevés adat|Pihenésre fel!|Van még tartalék|Jól néz ki|Hosszabb pihenés)$/,function(_,title){
+   return '💬 Léna · '+(dictionary.get(title)||title);
+  });
+  s=s.replace(/^(Ébren|Könnyű|Mély|Alvás|Ágyon kívül|Ébren \(ágyban\)) · /,function(_,stage){
+   return (dictionary.get(stage)||stage)+' · ';
+  });
+  // Date text is presentation-only: keep timestamps and ISO date keys intact.
+  [
+   ['január','January'],['február','February'],['március','March'],['április','April'],
+   ['május','May'],['június','June'],['július','July'],['augusztus','August'],
+   ['szeptember','September'],['október','October'],['november','November'],['december','December'],
+   ['hétfő','Monday'],['kedd','Tuesday'],['szerda','Wednesday'],['csütörtök','Thursday'],
+   ['péntek','Friday'],['szombat','Saturday'],['vasárnap','Sunday'],
+   ['jan.','Jan.'],['febr.','Feb.'],['márc.','Mar.'],['ápr.','Apr.'],
+   ['jún.','Jun.'],['júl.','Jul.'],['aug.','Aug.'],['szept.','Sept.'],
+   ['okt.','Oct.'],['nov.','Nov.'],['dec.','Dec.']
+  ].forEach(function(pair){s=s.replaceAll(pair[0],pair[1]);});
   s=s.replace(/Kijelölt (hét|nap): /g,function(_,kind){return 'Selected '+(kind==='hét'?'week':'day')+': ';});
   s=s.replace(/(\d+) mért éjszaka átlaga/g,'average of $1 recorded nights');
   s=s.replace(/(\d+) mért éjszaka/g,'$1 recorded nights');
