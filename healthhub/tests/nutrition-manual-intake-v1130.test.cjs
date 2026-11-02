@@ -11,11 +11,18 @@ assert.match(core,/hhDiaryEntryCount1134/);
 assert.match(html,/id="hhDiaryEntryCount1134"/);
 for(const [name,source] of [['manual',ui],['core',core],['bevitel',bevitel]])new vm.Script(source,{filename:name+'.js'});
 const before=needle=>html.indexOf(needle);
-assert.ok(before('id="hhQuickLaunch"')<before('id="hhManualLaunch1130"'));
+assert.ok(before('id="hhManualLaunch1130"')<before('id="hhQuickLaunch"'));
 assert.ok(before('id="hhManualLaunch1130"')<before('class="hh-bevitel-section"'));
 assert.equal((html.match(/id="hhManualLaunch1130"/g)||[]).length,1);
+assert.match(html,/id="hhNutritionQuickGridV1137"/);
+assert.match(html,/id="hhQuickOwnFoodsV1137"/);
+assert.match(html,/id="hhQuickDiaryV1137"/);
+assert.match(html,/hh-nutrition-quick-glass-v1137.css\?v=1137-premium-four-tiles/);
+assert.match(html,/hh-nutrition-quick-glass-v1137.js\?v=1137-quick-buttons-tada/);
+assert.match(ui,/hh:nutrition:manual-saved/);
+
 assert.ok(html.includes('hh-manual-intake-v1130.css?v=1135-click-save-feedback'));
-assert.ok(html.includes('hh-manual-intake-v1130.js?v=1135-click-save-diagnostic'));
+assert.ok(html.includes('hh-manual-intake-v1130.js?v=1137-profile-tada-after-save'));
 assert.ok(html.includes('nutrition-preview-v592.js?v=1135-write-display-protection'));
 assert.ok(html.includes('hh-bevitel-premium-v643.js?v=1130-personal-food-image'));
 assert.match(css,/#hhManualLaunch1130/);
@@ -117,6 +124,6 @@ async function scenario(options={}){
  assert.equal(failed.calls.length,1);
  assert.equal(failed.calls[0],'diary');
  assert.equal(failed.notice.hidden,true);
- assert.match(failed.status.textContent,/Nem sikerült a Napi napló mentése/);
+ assert.match(failed.status.textContent,/NEM MENTETTEM/);
  console.log('Nutrition v1133: diary-first behavior, visible confirmation, error isolation & profile checks OK');
 })().catch(error=>{console.error(error);process.exitCode=1});
