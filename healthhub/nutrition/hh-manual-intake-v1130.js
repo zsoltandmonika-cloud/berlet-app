@@ -8,7 +8,7 @@ if(w.HH_NUTRITION_MANUAL_V1130)return;
 const $=id=>d.getElementById(id),api=()=>w.HH_NUTRITION_QUICK_API;
 const KEYS=['kcal','protein','carbs','fat'];
 const MEALS=['Reggeli','Tízórai','Ebéd','Uzsonna','Vacsora','Egyéb'];
-let session='',busy=false,known=[],matched=null,imageData='',recognition=null,aiPromise=null;
+let session='',busy=false,known=[],matched=null,imageData='',recognition=null,aiPromise=null,aiEstimated=false;
 const text=v=>String(v??'').trim().replace(/\s+/g,' ');
 const lower=v=>text(v).toLocaleLowerCase('hu-HU');
 const field=k=>$('hhManual'+k[0].toUpperCase()+k.slice(1)+'1130');
@@ -23,6 +23,10 @@ function amount(){
  category:$('hhManualCategory1130').value,nutrients};
 }
 function clearImage(){imageData='';const img=$('hhManualPhoto1130');img.src='';img.hidden=true}
+function invalidateNutrition(){
+ if(aiEstimated||matched){for(const k of KEYS)field(k).value='';tell('Az étel vagy adag megváltozott. Frissítsd a tápértékbecslést.');}
+ aiEstimated=false;matched=null;
+}
 function suggestions(){
  const items=api()?.getManualSuggestions?.()||[];
  const saved=api()?.getData?.()?.quickRecipes||[];
@@ -52,7 +56,7 @@ function showPredictions(){
   offered.add(key);
   const button=d.createElement('button');button.type='button';button.textContent=name;
   button.addEventListener('click',()=>{
-   $('hhManualName1130').value=name;box.hidden=true;clearImage();predict();
+   invalidateNutrition();$('hhManualName1130').value=name;box.hidden=true;clearImage();predict();
   });
   box.append(button);
   if(offered.size===5)break;
@@ -66,17 +70,17 @@ function predict(){
  const cat=$('hhManualCategory1130');
  if(item.category&&[...cat.options].some(o=>o.value===item.category))cat.value=item.category;
  if(item.source==='catalog'&&item.per100){
-  matched=item;const portion=Number($('hhManualQty1130').value);
+  matched=item;aiEstimated=false;const portion=Number($('hhManualQty1130').value);
   for(const k of KEYS)field(k).value=item.per100[k]==null?'':(Number(item.per100[k])*portion/100).toFixed(1);
   tell('📚 A meglévő élelmiszer tápértéke az adagra számolva. Ellenőrizd.');
  }else if(item.nutrients){
-  matched=null;for(const k of KEYS)field(k).value=item.nutrients[k]??'';
+  matched=null;aiEstimated=false;for(const k of KEYS)field(k).value=item.nutrients[k]??'';
   tell('⭐ Mentett adag értékei betöltve. Más adagnál kérj új becslést.');
  }
 }
 function open(){
  if(!api()?.recordManualMeal)return w.alert('A kézi bevitel még nem töltődött be. Frissítsd az oldalt.');
- session=api().getProfile();matched=null;busy=false;clearImage();
+ session=api().getProfile();matched=null;aiEstimated=false;busy=false;clearImage();
  $('hhManualForm1130').reset();$('hhManualQty1130').value='250';
  const hour=new Date().getHours();
  $('hhManualMeal1130').value=hour<10?'Reggeli':hour<12?'Tízórai':hour<15?'Ebéd':hour<18?'Uzsonna':hour<21?'Vacsora':'Egyéb';
@@ -100,7 +104,7 @@ function speechResult(result){
   ['Ebéd',/^ebédre\s+/i],['Uzsonna',/^uzsonnára\s+/i],['Vacsora',/^vacsorára\s+/i]]){
   if(pattern.test(remaining)){$('hhManualMeal1130').value=meal;remaining=text(remaining.replace(pattern,''));break}
  }
- $('hhManualName1130').value=(remaining||phrase).slice(0,80);matched=null;predict();
+ invalidateNutrition();$('hhManualName1130').value=(remaining||phrase).slice(0,80);predict();
  tell('🎤 Felismertem. Ellenőrizd az étel nevét és adagját.');
 }
 function voice(){
@@ -156,7 +160,7 @@ async function estimate(){
   if(started!==api()?.getProfile()||!$('hhManualDialog1130').open||
      text($('hhManualName1130').value)!==info.name||Number($('hhManualQty1130').value)!==info.quantity)
    throw Error('Az étel, az adag vagy a profil közben változott.');
-  matched=null;for(const [k,v] of Object.entries(result.out))field(k).value=v;
+  matched=null;aiEstimated=true;for(const [k,v] of Object.entries(result.out))field(k).value=v;
   tell('✨ Becsült érték, nem mérés. '+(result.note||'Kérlek, ellenőrizd a tápértéket.'));
  }catch(e){tell('⚠ AI-becslés nem sikerült: '+String(e.message||e).slice(0,155),true)}
  finally{busy=false;$('hhManualEstimate1130').disabled=false}
@@ -234,8 +238,10 @@ function init(){
  $('hhManualClose1130').addEventListener('click',()=>$('hhManualDialog1130').close());
  $('hhManualVoice1130').addEventListener('click',voice);
  $('hhManualName1130').addEventListener('change',()=>{clearImage();predict()});
- $('hhManualName1130').addEventListener('input',()=>{matched=null;clearImage();showPredictions()});
- $('hhManualQty1130').addEventListener('change',()=>{if(matched)predict()});
+ $('hhManualName1130').addEventListener('input',()=>{invalidateNutrition();clearImage();showPredictions()});
+ $('hhManualQty1130').addEventListener('change',()=>{if(matched)predict();else invalidateNutrition()});
+ $('hhManualUnit1130').addEventListener('change',invalidateNutrition);
+ for(const k of KEYS)field(k).addEventListener('input',()=>{aiEstimated=false;matched=null});
  $('hhManualEstimate1130').addEventListener('click',estimate);
  $('hhManualImage1130').addEventListener('click',image);
  $('hhManualForm1130').addEventListener('submit',save);
