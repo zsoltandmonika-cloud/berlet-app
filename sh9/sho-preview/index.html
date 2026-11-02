@@ -52,6 +52,8 @@ button{font:inherit;color:inherit;cursor:pointer}button:focus-visible{outline:2p
 input[type=file]{display:none}
 @media (max-height:740px){.head{height:205px}.tile{height:80px}.info{flex-basis:61px}}
 @media (max-width:350px){.head{height:203px}.tile b{font-size:10px}.pills{gap:3px}.pill{min-width:76px;padding:0 8px}}
+/* Live OTA/GPS data is not read here: this lamp is a link, not status proof. */
+.head .led:before{background:#b8cbe0;box-shadow:0 0 8px rgba(184,203,224,.4)}
 /* SHO Preview B · centered artwork, real module links and shared nav */
 .head{
  background:#061329 url('./sho-hero-minimal-b-v1.avif') 50% 48%/cover no-repeat;
