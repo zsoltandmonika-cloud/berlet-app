@@ -1,0 +1,61 @@
+'use strict';
+const test=require('node:test'),assert=require('node:assert/strict');
+const fs=require('node:fs'),path=require('node:path');
+const root=path.resolve(__dirname,'../..');
+const read=p=>fs.readFileSync(path.join(root,p),'utf8');
+
+test('Leletek + Gyógyszerek render the same working search in Hero and Golden Dock BELOW',()=>{
+ const js=read('sh9/shared/sh9-golden-controls-v1.js');
+ const h=read('healthhub/index.html');
+ const search=read('healthhub/health-records-hero-search-v1016.js');
+ const css=read('healthhub/health-records-meds-plan-b-v1043.css');
+ assert.match(js,/w\.healthSectionKind==='records'\|\|w\.healthSectionKind==='medications'/);
+ assert.match(js,/hero\.insertAdjacentElement\('afterend',slot\)/);
+ assert.match(js,/return slot;/);
+ assert.match(js,/if\(slot&&!slot\.hidden\)slot\.hidden=true/);
+ assert.match(js,/return hero\|\|sub/);
+ assert.match(search,/search\.parentNode!==hero/);
+ assert.match(search,/hero\.appendChild\(search\)/);
+ assert.match(search,/input\.placeholder=records\?/);
+ assert.match(h,/health-records-hero-search-v1016\.js\?v=1017-en-search/);
+ assert.match(h,/health-records-meds-plan-b-v1043\.css\?v=1043-search-top-dock-below/);
+ assert.equal((h.match(/sh9-golden-controls-v1\.js\?v=1043-records-meds-dock-plan-b/g)||[]).length,2);
+ assert.equal((h.match(/sh9-golden-controls-v1\.css\?v=1043-records-meds-dock-plan-b/g)||[]).length,2);
+ assert.match(css,/\.healthSubHero > \.healthSearchWrap\[data-hh-records-search-pill="on"\]/);
+ assert.match(css,/top:10px!important;bottom:auto!important/);
+ assert.match(css,/height:34px!important/);
+ assert.match(css,/#hhRecordsMedsGoldenDockSlotV1043/);
+ assert.match(css,/height:50px!important/);
+ assert.match(css,/position:absolute!important;z-index:210!important/);
+ assert.match(h,/health-medications-vertical-v1018\.js/);
+ assert.match(h,/sh9-golden-bottom-nav-v924\.js/);
+});
+test('v1043 host selection hides slot on unrelated HealthRadar subpages',()=>{
+ const js=read('sh9/shared/sh9-golden-controls-v1.js');
+ const a=js.indexOf(' function healthHost(){'),b=js.indexOf(' function resolveHost(){',a);
+ assert.ok(a>0&&b>a);
+ const w={healthSectionKind:'records'};
+ const nodes=new Map();
+ const hero={id:'medicalHero',parentElement:{},insertAdjacentElement(position,el){
+  assert.equal(position,'afterend');el.previousElementSibling=this;el.isConnected=true;nodes.set(el.id,el);
+ }};
+ const sub={dataset:{},querySelector:q=>q==='.healthSubHero'?hero:null};
+ const doc={createElement:tag=>({tagName:tag.toUpperCase(),setAttribute(k,v){this[k]=v}}),querySelectorAll:()=>[]};
+ const $=id=>nodes.get(id)||null;
+ const visibleOverlay=id=>id==='healthSection'?sub:null;
+ const healthHost=new Function('visibleOverlay','w','d','$',js.slice(a,b)+'return healthHost;')
+ (visibleOverlay,w,doc,$);
+ const records=healthHost();
+ assert.equal(records.id,'hhRecordsMedsGoldenDockSlotV1043');
+ assert.equal(records.previousElementSibling,hero);
+ assert.equal(sub.dataset.hhRecordsMedsDockV1043,'on');
+ w.healthSectionKind='medications';
+ assert.equal(healthHost(),records,'same slot reused for medications');
+ w.healthSectionKind='overview';
+ assert.equal(healthHost(),hero);
+ assert.equal(records.hidden,true,'slot hidden on other HealthRadar screens');
+ assert.equal(sub.dataset.hhRecordsMedsDockV1043,undefined);
+ w.healthSectionKind='records';
+ assert.equal(healthHost(),records,'slot reused on return');
+ assert.equal(records.hidden,false);
+});
