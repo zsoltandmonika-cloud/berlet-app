@@ -8,7 +8,7 @@
  if(w.SH9_GOLDEN_BOTTOM_NAV_V924)return;
  const ROOT='/berlet-app/',HH=ROOT+'healthhub/index.html',HOME=ROOT+'sh9/';
  const ASK_FALLBACK=HH+'?sh9nav=admin&sh9cfg=asklena';
- const NAVS='nav.sh9GlobalNavV24,nav[aria-label="SH9 Golden Standard navigáció"],nav.sh9GlobalNavV24,nav.hhBottomNav,nav.fh-standard-nav,nav.st-nav,nav.mt-nav,nav.st22-nav,nav.bottom-nav,nav.sh9-golden-fallback-v924';
+ const NAVS='nav#sh9GlobalNavV24,nav.nav,nav.bottom,nav[aria-label="SH9 Golden Standard navigáció"],nav.hhBottomNav,nav.fh-standard-nav,nav.st-nav,nav.mt-nav,nav.st22-nav,nav.bottom-nav,nav.sh9-golden-fallback-v924';
  const paths={
   home:'<path d="m3 11 9-8 9 8v10h-7v-7h-4v7H3z"/>',
   ask:'<path d="M20.5 11.3c0 4.5-3.7 8.2-8.2 8.2-1.5 0-3-.4-4.2-1.1L3 20l1.5-4.6A8.25 8.25 0 1 1 20.5 11.3Z"/><path d="M9 11h6"/>',
@@ -40,7 +40,11 @@
   if(!home&&nav.classList.contains('bottom-nav'))home=entries.find(e=>e.id==='navHome');
   if(!home)return null;
   let askNode=entries.find(e=>e.id==='navAsk'||e.dataset.nav==='Ask Léna'||hasText(e,'ask léna')||hasText(e,'kérdezd lénát'));
-  if(!askNode&&entries.length>=2)askNode=entries[1];
+  // Only the former timeline slot is an approved Ask replacement.
+  // Never overwrite HealthRadar, Nutrition, Favorites or other module actions.
+  if(!askNode&&entries.length>=2&&
+    (hasText(entries[1],'idővonal')||hasText(entries[1],'timeline')))
+    askNode=entries[1];
   if(!askNode)return null;
   return {home,askNode,nav};
  }
