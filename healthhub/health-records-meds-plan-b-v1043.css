@@ -1,6 +1,7 @@
-/* HealthHub v1043 · Leletek + Gyógyszerek Plan B.
+/* HealthHub v1044 · Leletek + Gyógyszerek Plan B search refinement.
  * The same original functional search input stays in its Hero,
- * now smaller and at the TOP, clear of the menu and back arrow.
+ * now exactly 25% shorter (width), 5px higher than v1043 at the TOP,
+ * clear of the menu and back arrow. Both views use the very same search.
  * The Golden four-zone dock is physically BELOW the Hero image.
  * Scoped to active records/medications ONLY, never Health overview,
  * measurements, other HealthHub modules, private data or native actions. */
@@ -11,10 +12,10 @@ html[data-hh-system-glass="on"][data-hh-records-v1015="on"]
  position:absolute!important;
  z-index:35!important;
  display:flex!important;align-items:center!important;
- top:10px!important;bottom:auto!important;
+ top:5px!important;bottom:auto!important;
  left:clamp(66px,18%,82px)!important;right:auto!important;
- width:min(238px,calc(100% - 145px))!important;
- max-width:calc(100% - 145px)!important;min-width:0!important;
+ width:min(178.5px,calc(75% - 108.75px))!important;
+ max-width:calc(75% - 108.75px)!important;min-width:0!important;
  height:34px!important;min-height:34px!important;
  padding:0 10px!important;
  margin:0!important;
@@ -75,10 +76,10 @@ body[data-sh9-golden-unified="on"]
  html[data-hh-system-glass="on"][data-hh-records-v1015="on"]
  #healthSection.page.on[data-hh-records-meds-dock-v1043="on"]
  .healthSubHero > .healthSearchWrap[data-hh-records-search-pill="on"] {
-  top:9px!important;
+  top:4px!important;
   left:62px!important;
-  width:calc(100% - 132px)!important;
-  max-width:calc(100% - 132px)!important;
+  width:calc(75% - 99px)!important;
+  max-width:calc(75% - 99px)!important;
   height:33px!important;min-height:33px!important;
   padding:0 7px!important;
  }
