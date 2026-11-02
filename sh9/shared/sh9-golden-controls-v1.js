@@ -246,6 +246,13 @@
   const fixed=host===d.body;
   if(lift5For(host))d.body.setAttribute('data-sh9-dock-lift5','on');
   else d.body.removeAttribute('data-sh9-dock-lift5');
+  // v936: Sleep gets 5px EXTRA lift on top of the existing 5px rule.
+  // The active Sleep overlay alone qualifies; Activity stays at 5px.
+  const sleepActive=healthShell()&&(
+   host.id==='hhSleepPage'||!!host.closest?.('#hhSleepPage.on')
+  );
+  if(sleepActive)d.body.setAttribute('data-sh9-dock-lift10','on');
+  else d.body.removeAttribute('data-sh9-dock-lift10');
   if(fixed)d.body.setAttribute('data-sh9-golden-floating','on');
   else d.body.removeAttribute('data-sh9-golden-floating');
   if(d.body.getAttribute('data-sh9-golden-unified')==='on')mountDock(host);
