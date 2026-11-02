@@ -109,6 +109,12 @@
   return el&&el.classList?.contains('on')?el:null;
  }
  function healthHost(){
+  // The Health screen and the dynamically-created Symptom Diary must receive
+  // the same three golden pills as the Home screen, not inherit a stale hero.
+  const journal=visibleOverlay('hhSymptomJournal307');
+  if(journal)return journal.querySelector('.hhSJHero')||journal;
+  const health=visibleOverlay('health');
+  if(health)return health.querySelector('#heroH')||health.querySelector('.hero')||health;
   // HealthHub contains many page branches in ONE document. Choose the
   // currently visible Hero, not the scrollable BODY (v918 regression).
   const activity=visibleOverlay('hhActivityPage191');
