@@ -31,10 +31,14 @@ async function ensureApi(){
    storageKey:'hh-guardian-family-auth-v785',persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,flowType:'implicit'
   }});
   api.auth.onAuthStateChange((event,session)=>{
-    // Token refresh and repeated SIGNED_IN on tab focus are not data changes.
+    // v917 firebreak: the initial SIGNED_IN event normally arrives while the
+    // first join is already authenticating. Do not queue a duplicate join.
+    // TOKEN_REFRESHED and repeated SIGNED_IN for the same account are not
+    // authorization or profile changes.
+    if(event==='SIGNED_IN'&&joinInProgress&&!user)return;
     if(event==='SIGNED_OUT'||event==='USER_UPDATED'||
        (event==='SIGNED_IN'&&(!user||session?.user?.id!==user.id)))
-     w.setTimeout(()=>join(true),0);
+      w.setTimeout(()=>join(true),0);
    });
   return true;
  }catch(_){return false}finally{apiRequested=false}
@@ -264,8 +268,12 @@ function announce(e){
  pending.push(e);pending.sort((a,b)=>Number(a.id)-Number(b.id));
  drawPending();
 }
+let unreadInFlight=null;
 async function readUnread(){
  if(!api||!user)return;
+ // Realtime and visibility events may coincide; one bounded fetch is enough.
+ if(unreadInFlight)return unreadInFlight;
+ unreadInFlight=(async()=>{
  const p=currentProfile;
  const {data,error}=await api.from('hh_family_task_events')
  .select('id,task_id,title_snapshot,event_type,actor_profile,recipient_profile,current_value,created_at')
@@ -292,8 +300,11 @@ async function readUnread(){
  const unread=items.filter(x=>Number(x.id)>seen(p)).length;
  const n=badge.querySelector('.fh-badge-count');if(n){n.textContent=unread>49?'50+':String(unread);n.hidden=!unread}
  badge.setAttribute('aria-label','Family Tasks · '+unread+' olvasatlan esemény');
+ })();
+ try{return await unreadInFlight}finally{unreadInFlight=null}
 }
-/* v915: reconnect at most once per meaningful auth/profile change. */
+/* v917: reconnect only on actual auth/profile changes; no browser-event
+   object may accidentally act as a truthy force=true flag. */
 let joinInProgress=false,queuedJoin=false,lastJoinedAt=0,lastForegroundReadAt=0;
 async function join(force=false){
  if(joinInProgress){if(force||profile()!==currentProfile)queuedJoin=true;return}
@@ -334,12 +345,12 @@ function initialize(){
  d.addEventListener('pointerdown',armSound,{once:true,passive:true});
  d.addEventListener('touchstart',armSound,{once:true,passive:true});
  d.addEventListener('keydown',armSound,{once:true});
- w.addEventListener('hh-family-profile-changed',join);
+ w.addEventListener('hh-family-profile-changed',()=>join());
  w.addEventListener('storage',e=>{if(e.key==='hh-profile')join()});
  d.addEventListener('visibilitychange',()=>{
   if(d.visibilityState==='visible'){
    if(profile()!==currentProfile)join();
-   else if(api&&user&&Date.now()-lastForegroundReadAt>=45000){
+   else if(api&&user&&ch&&Date.now()-lastForegroundReadAt>=180000){
     lastForegroundReadAt=Date.now();
     loadCloudAck(currentProfile).then(()=>readUnread()).catch(()=>{});
    }
