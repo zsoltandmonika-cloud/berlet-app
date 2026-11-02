@@ -55,3 +55,9 @@
 #hhManualDiaryNotice1131[data-state=partial]{border-color:#ffce9780;color:#ffe9d0}
 #log .entry.hh-manual-saved-row-v1131{outline:2px solid var(--accent);outline-offset:3px;
  border-radius:10px;background:color-mix(in srgb,var(--accent) 8%,transparent)}
+
+/* v1134 · Diary item visibility: clear count, readable expanded meal breakdown. */
+.hh-diary-entry-count-v1134{display:block;font:650 11px/1.4 system-ui;color:var(--accent);
+ margin-top:3px;white-space:nowrap;letter-spacing:.01em}
+#log details.hh-meal-diary-group[open] > .hh-meal-diary-content{display:block}
+#log details.hh-meal-diary-group[open] > .hh-meal-diary-content .entry{display:grid}
