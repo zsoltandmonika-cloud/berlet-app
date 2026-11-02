@@ -190,7 +190,8 @@ main{
 .heading #profileLabel:active{transform:scale(.96);filter:brightness(1.13)}
 @media(prefers-reduced-motion:reduce){.heading #profileLabel{transition:none}}
 
-</style><link rel="stylesheet" href="./bkk-grand-v2.css"></head><body>
+</style><link rel="stylesheet" href="./bkk-grand-v2.css"><link rel="stylesheet" href="/berlet-app/sh9/shared/sh9-golden-controls-v1.css?v=918-global-all">
+</head><body>
 <main>
 <div class="bkk-first-fold">
 <figure class="hero"><img src="./bkk-hero-approved.webp" width="1672" height="941" alt="A 260-as BKK-busz ajtajában Léna sofőrként várja Zsoltot, Mónikát és Corkyt; Budapest látképe naplementében." fetchpriority="high"></figure>
@@ -305,4 +306,5 @@ function renderCatalog(){const host=$('catalogResults'),more=$('catalogMore');ho
 async function findRoutes(){const q=$('routeSearch').value.trim().slice(0,60).toLocaleLowerCase('hu-HU');if(!q){$('catalogResults').hidden=true;$('catalogMore').hidden=true;$('catalogMeta').textContent='Írj be egy járatszámot vagy járatnevet.';return}$('catalogMeta').textContent='A hiteles járatkatalógus betöltése…';const doc=await getCatalog();if(!doc){$('catalogMeta').textContent='A hiteles BKK-katalógus nem érhető el vagy elavult. Használd a hivatalos menetrendoldalt.';$('catalogResults').hidden=true;$('catalogMore').hidden=true;return}shown=12;searchMatches=doc.routes.filter(r=>(r.id+' '+r.name+' '+(r.directions||[]).join(' ')).toLocaleLowerCase('hu-HU').includes(q));renderCatalog()}
 $('profileLabel').addEventListener('click',toggleProfile);$('routeSearchBtn').addEventListener('click',findRoutes);$('routeSearch').addEventListener('keydown',e=>{if(e.key==='Enter')findRoutes()});$('catalogMore').addEventListener('click',()=>{shown+=12;renderCatalog()});$('notifications').addEventListener('click',()=>{$('notice').hidden=!$('notice').hidden});window.addEventListener('storage',e=>{if(e.key==='hh-profile'||e.key===STORE)syncProfile()});window.addEventListener('pageshow',syncProfile);document.addEventListener('visibilitychange',()=>{if(!document.hidden)syncProfile()});syncProfile();
 })();
-</script><script src="./bkk-grand-v2.js" defer></script></body></html>
+</script><script src="./bkk-grand-v2.js" defer></script><script defer src="/berlet-app/sh9/shared/sh9-golden-controls-v1.js?v=918-global-all"></script>
+</body></html>
