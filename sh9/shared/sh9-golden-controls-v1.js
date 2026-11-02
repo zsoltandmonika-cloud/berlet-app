@@ -141,7 +141,9 @@
   if(/\/healthhub\/digital-health\/(?:index\.html)?$/.test(currentPath())||
      /\/healthhub\/digital-wellbeing-preview\/(?:index\.html)?$/.test(currentPath()))
     return d.body;
-  // Nutrition's hero is a role=img and cannot contain interactive buttons.
+  // Nutrition's hero remains role=img. Place interactive Golden controls
+  // in its sibling overlay host, never inside the image or at page bottom.
+  if($('nutritionGoldenHeroHost'))return $('nutritionGoldenHeroHost');
   if($('nutritionApprovedHero')||$('profileBtn')||d.querySelector('.app-header')||d.querySelector('.topbar'))
    return d.body;
   for(const selector of heroSelectors){
