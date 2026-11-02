@@ -103,6 +103,13 @@
   '.app-header','.topbar','.hero','#heroH'
  ];
  function resolveHost(){
+  // HealthHub's multi-page shell and Digital Health switch views in place.
+  // Mount the controls on BODY so category branches cannot hide the Hero host.
+  const currentPath=w.location?.pathname||'';
+  if(/\/healthhub\/(?:index\.html)?$/.test(currentPath)||
+     /\/healthhub\/digital-health\/(?:index\.html)?$/.test(currentPath)||
+     /\/healthhub\/digital-wellbeing-preview\/(?:index\.html)?$/.test(currentPath))
+    return d.body;
   // Recipe Studio can render a hidden modal Hero: prefer its visible header.
   // Nutrition's decorative role=img must not contain interactive controls.
   if(d.getElementById('nutritionApprovedHero')||d.getElementById('profileBtn')||d.querySelector('.app-header')||d.querySelector('.topbar'))return d.body;
