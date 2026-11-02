@@ -140,7 +140,9 @@
   w.addEventListener?.('healthhub:profile-changed',paint);
   w.addEventListener?.('storage',e=>{if(e.key==='hh-profile')paint()});
   w.addEventListener?.('pageshow',apply);
-  w.addEventListener?.('focus',paint);
+  w.addEventListener?.('sh9-language-change',apply);
+  w.addEventListener?.('storage',e=>{if(e.key==='sh9-language-v1')apply()});
+  w.addEventListener?.('focus',apply);
   if(/\/healthhub\/(?:index\.html)?$/.test(w.location.pathname))
    w.setTimeout?.(apply,1100);
  }
