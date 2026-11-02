@@ -394,3 +394,15 @@ body[data-sh9-golden-unified="on"][data-sh9-dock-lift5="on"][data-sh9-golden-flo
  top:calc(39px + env(safe-area-inset-top,0px))!important;
  bottom:auto!important;
 }
+
+/* v936 | Alvás only: 5px EXTRA lift beyond v935.
+   Normal dock bottom 1px → 6px → 11px (total +10px).
+   Floating dock top 44px → 39px → 34px (total +10px).
+   All other pages stay on their existing offsets. */
+body[data-sh9-golden-unified="on"][data-sh9-dock-lift10="on"]:not([data-sh9-golden-floating="on"]) #sh9UnifiedGlassDockV34 {
+ bottom:11px!important;
+}
+body[data-sh9-golden-unified="on"][data-sh9-dock-lift10="on"][data-sh9-golden-floating="on"] #sh9UnifiedGlassDockV34 {
+ top:calc(34px + env(safe-area-inset-top,0px))!important;
+ bottom:auto!important;
+}
