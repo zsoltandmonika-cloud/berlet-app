@@ -15,7 +15,7 @@ test('SHO grid is exactly 4×3: Wallet takes former Family updates spot, bottom 
  assert.doesNotMatch(html,/data-module="Családi aktualitások"/);
  assert.doesNotMatch(html,/class="tile wallet"/);
  assert.equal((html.match(/<button class="tile" data-module=/g)||[]).length,12);
- assert.match(html,/sho-wiring-v2\.js\?v=27-smart-wallet-three-health/);
+ assert.match(html,/sho-wiring-v2\.js\?v=32-sho-unified-dock/);
 });
 
 test('SHO keeps shared taskbar, native OTA and Outlook bindings',()=>{
@@ -48,4 +48,31 @@ test('Sleep and Activity bridge opens only canonical HealthHub modules, on expli
  assert.match(js,/root\.hh225OpenSleep\|\|root\.hhOpenSleep/);
  assert.match(js,/if\(target!=='activity'&&target!=='sleep'\)return/);
  assert.doesNotMatch(js,/fetch\(|supabase|\.from\(/i);
+});
+
+test('SHO production unified glass dock preserves four canonical controls and critical integrations',()=>{
+ const html=src('sh9/index.html');
+ const js=src('sh9/sho-preview/sho-wiring-v2.js');
+ const preview=src('sh9/sho-preview/index.html');
+ assert.match(html,/class="sho-unified-dock"/);
+ assert.match(html,/background:rgba\(8,42,80,\.60\)/);
+ assert.equal((html.match(/class="sho-dock-cell/g)||[]).length,4);
+ for(const id of ['profile','tasks','heroWallet','hu','en']){
+  assert.equal((html.match(new RegExp('id="'+id+'"','g'))||[]).length,1,id);
+ }
+ assert.match(html,/🇭🇺/);
+ assert.match(html,/🇨🇦/);
+ assert.match(html,/id="sh9OtaIndicatorV1043"/);
+ assert.match(html,/id="sh9CalendarCell"/);
+ assert.match(html,/sh9-ota-browser-v1067\.js/);
+ assert.match(html,/outlook-agenda-v1\.js/);
+ assert.match(html,/sh9-golden-bottom-nav-v924\.js/);
+ assert.equal((html.match(/data-module="/g)||[]).length,12);
+ assert.match(html,/sho-security-emblem/);
+ assert.match(html,/🛡️/);
+ assert.match(html,/sh9-i18n-v1\.js\?v=32-sho-unified-dock/);
+ assert.match(js,/i18n\.setLanguage\(value\)/);
+ assert.match(js,/FAMILY_TASKS=SH9\+'family-hub\/'/);
+ assert.match(js,/\$\('heroWallet'\)\.onclick=wallet/);
+ assert.match(preview,/class="sho-unified-dock"/);
 });
