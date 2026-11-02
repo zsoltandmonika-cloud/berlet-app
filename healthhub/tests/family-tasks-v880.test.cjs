@@ -80,7 +80,7 @@ test('v917 Buddy anti-spike guard keeps notifications live and avoids fake profi
  assert.match(notice,/w\.addEventListener\('hh-family-profile-changed',\(\)=>join\(\)\)/);
  assert.doesNotMatch(notice,/w\.addEventListener\('hh-family-profile-changed',join\)/);
  assert.match(notice,/event==='SIGNED_IN'&&joinInProgress&&!user/);
- assert.match(notice,/if\(unreadInFlight\)return unreadInFlight/);
+ assert.match(notice,/if\(unreadInFlight\.has\(p\)\)return unreadInFlight\.get\(p\)/);
  assert.match(notice,/const merged=new Map/);
  assert.match(notice,/newer\.filter\(e=>Number\(e\.id\)>seen\(p\)/);
  assert.match(notice,/api\.channel\('hh-family-notifier-v880-'/);
