@@ -34,7 +34,7 @@ test('Golden Standard dock appears on every navigable category tree page and lea
   const health=file==='healthhub/index.html';
   if(file==='sh9/index.html'){ assert.match(html,/class="sho-unified-dock"/);continue; }
   const count=health?2:1; // Fallback is a reconstructed document.
-  const version=lift5Pages.has(file)?'935-selective-dock-lift5':'934-unified-glass-dock';
+  const version=file==='healthhub/index.html'?'936-sleep-extra-lift5':lift5Pages.has(file)?'935-selective-dock-lift5':'934-unified-glass-dock';
   const styles=[...html.matchAll(/sh9-golden-controls-v1\.css\?v=([a-z0-9-]+)/g)].map(x=>x[1]);
   const scripts=[...html.matchAll(/sh9-golden-controls-v1\.js\?v=([a-z0-9-]+)/g)].map(x=>x[1]);
   assert.deepEqual(styles,Array(count).fill(version),file+' CSS version');
@@ -113,8 +113,8 @@ test('HealthHub v919 Golden Controls follow active Egészség subpage Hero',()=>
  assert.match(css,/left:5px!important;bottom:0!important;/);
  assert.match(css,/transform:none!important;/);
  assert.match(legacy,/\.healthSubHero > div/);
- assert.equal((health.match(/sh9-golden-controls-v1\.css\?v=935-selective-dock-lift5/g)||[]).length,2);
- assert.equal((health.match(/sh9-golden-controls-v1\.js\?v=935-selective-dock-lift5/g)||[]).length,2);
+ assert.equal((health.match(/sh9-golden-controls-v1\.css\?v=936-sleep-extra-lift5/g)||[]).length,2);
+ assert.equal((health.match(/sh9-golden-controls-v1\.js\?v=936-sleep-extra-lift5/g)||[]).length,2);
 });
 
 
@@ -149,4 +149,22 @@ test('v935 selective Glass Dock lift is exactly 5px and excluded from unrelated 
  assert.equal(health({id:'heroHome',closest:()=>null}),false,'HealthHub Home stays put');
  assert.equal(health({id:'heroSleep',closest:()=>({id:'hhSleepPage'})}),true,'Sleep');
  assert.equal(health({id:'heroActivity',closest:()=>({id:'hhActivityPage191'})}),true,'Activity');
+});
+
+
+test('v936 Sleep gets +10px total; Activity and other destinations retain v935 +5px',()=>{
+ const css=read('sh9/shared/sh9-golden-controls-v1.css');
+ const js=read('sh9/shared/sh9-golden-controls-v1.js');
+ const hh=read('healthhub/index.html');
+ assert.equal((hh.match(/sh9-golden-controls-v1\.css\?v=936-sleep-extra-lift5/g)||[]).length,2);
+ assert.equal((hh.match(/sh9-golden-controls-v1\.js\?v=936-sleep-extra-lift5/g)||[]).length,2);
+ assert.match(css,/data-sh9-dock-lift10="on"/);
+ assert.match(css,/bottom:11px!important/);
+ assert.match(css,/top:calc\(34px \+ env\(safe-area-inset-top,0px\)\)!important/);
+ assert.match(css,/bottom:6px!important/);
+ assert.match(css,/top:calc\(39px \+ env\(safe-area-inset-top,0px\)\)!important/);
+ assert.match(js,/host\.id==='hhSleepPage'/);
+ assert.match(js,/host\.closest\?\.\('#hhSleepPage\.on'\)/);
+ assert.match(js,/d\.body\.removeAttribute\('data-sh9-dock-lift10'\)/);
+ assert.match(js,/if\(sleepActive\)d\.body\.setAttribute\('data-sh9-dock-lift10','on'\)/);
 });
