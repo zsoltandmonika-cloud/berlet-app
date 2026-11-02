@@ -119,7 +119,9 @@
     existing.remove();
     delete d.body.dataset.sh9GoldenFallback;
    }
-   if(!genuine&&!existing&&!d.querySelector('#sh9GlobalNavV24'))
+   // Never stack a second five-button bar above a module's own nav.
+   // In modules with essential non-Timeline actions, keep those actions intact.
+   if(!genuine&&!existing&&navs.length===0&&!d.querySelector('#sh9GlobalNavV24'))
     fallback();
   }finally{running=false}
  }
