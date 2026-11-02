@@ -1,6 +1,6 @@
 # SH9 / HealthHub · GOLDEN STANDARD · három globális vezérlő
 
-**Állapot:** jóváhagyott UI-szabvány és bevezetési terv; a teljes oldalhálózatra történő migráció **még nem készült el**.
+**Állapot:** v918 globális bevezetés bekötve mind a **22 aktív, felhasználói alkalmazásoldalon és aloldalon** (beleértve a kategóriafa mélyebb BKK/MÁV/Volán/Smart Trip/My Trips ágait és a releváns előnézeteket). **A telefonos vizuális és teljes E2E jóváhagyás még hátravan.**
 **Jóváhagyott alap:** SH9 v916 (2026-11-02). A három vezérlő funkciója: 🇭🇺/🇨🇦 nyelv, Feladatok/Tasks, Zsolt/Mónika profil.
 **Hatókör:** valamennyi **aktívan navigálható** SH9/HealthHub és családi modul; régi verziószámú archív HTML-ek, tesztelő/preview oldalak csak indokolt esetben, külön jóváhagyással.
 
@@ -43,3 +43,13 @@ Minden hullám akkor elfogadható, ha mindhárom gomb ugyanúgy néz ki Zsoltná
 **Nem tartozik bele az első körbe:** backend migráció, új AI funkció, új adatbázis, teljes termék-fordítás vagy a történeti archív oldalak tömeges átírása.
 
 **Végcél:** ugyanaz a három vezérlő, ugyanaz a kód, ugyanaz a viselkedés és azonos vizuális minőség az összes aktív SH9 / HealthHub oldalon.
+
+## v918 · kiterjesztés az egész kategóriafára (2026-11-02)
+
+- **Egyetlen közös CSS és JavaScript:** `sh9/shared/sh9-golden-controls-v1.css`, `sh9/shared/sh9-golden-controls-v1.js`.
+- **22 felhasználói HTML belépési oldalba bekötve**, nemcsak a kategóriák rootjába. Minden kategóriaág és minden azon belüli dinamikus nézet ugyanabban a HTML-dokumentumban használja a közös vezérlőket.
+- **Profiladapterek:** Family Tasks jogosultságkapuja, Family Guard, Nutrition, BKK (két UI-változat), MÁV, Volán, Smart Trip AI, My Trips, Digital Health, HealthHub kanonikus profilkapcsoló. A meglévő profilkezelők maradnak az illetékesek.
+- **A régi Task szkript betöltése kivezetve** a felsorolt lapokon, a HealthHub `document.open()` klasszikus tartalék felületén is.
+- **Legacy gomb:** csak az új közös vezérlés és az illetékes profilhandler megléte esetén rejtjük a régi vizuális vezérlőt; Family Tasks Quick Add saját gombja a feladatlapon működőképes marad.
+- **Kivételek:** a `healthhub/guardian/family-guard-v*.html` verziómentések, a `sh9/releases/` történeti mentései, `healthhub/force-v*.html`, az OAuth-visszahívó, valamint a dokumentációs Architecture Grand Design. Nem kategóriafabeli, aktív felhasználói modulok.
+- **Regressziós ellenőrzés:** `healthhub/tests/sh9-golden-controls-global-v918.test.cjs`. A kód- és hivatkozásellenőrzés nem helyettesíti a két Samsung Galaxy S24 Ultra készüléken történő valódi vizuális/szerepkör teszteket.
