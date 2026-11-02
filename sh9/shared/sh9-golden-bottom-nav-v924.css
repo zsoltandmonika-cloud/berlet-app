@@ -1,0 +1,87 @@
+/* SH9 v924 · one global GOLDEN STANDARD for the TWO approved bottom icons.
+   Zsolt blue / Mónika pink; no Home white disc, no Ask background/outline/
+   decorative shadow; Ask label follows icon. Other nav actions untouched. */
+:root{--sh9-global-bottom-accent:#79bfff}
+:root[data-sh9-golden-profile="m"]{--sh9-global-bottom-accent:#f9a6d3}
+nav[data-sh9-golden-bottom-nav="on"] > [data-sh9-bottom-role="home"],
+nav[data-sh9-golden-bottom-nav="on"] > [data-sh9-bottom-role="ask"],
+nav[data-sh9-golden-bottom-nav="on"] > [data-sh9-bottom-role="home"].active,
+nav[data-sh9-golden-bottom-nav="on"] > [data-sh9-bottom-role="ask"].active{
+ box-sizing:border-box!important;
+ background:transparent!important;
+ background-image:none!important;
+ border:0!important;
+ border-radius:0!important;
+ box-shadow:none!important;
+ filter:none!important;
+ text-decoration:none!important;
+}
+nav[data-sh9-golden-bottom-nav="on"] > [data-sh9-bottom-role="home"]::before,
+nav[data-sh9-golden-bottom-nav="on"] > [data-sh9-bottom-role="home"]::after,
+nav[data-sh9-golden-bottom-nav="on"] > [data-sh9-bottom-role="ask"]::before,
+nav[data-sh9-golden-bottom-nav="on"] > [data-sh9-bottom-role="ask"]::after{
+ content:none!important;display:none!important;
+}
+nav[data-sh9-golden-bottom-nav="on"] > [data-sh9-bottom-role="home"] svg,
+nav[data-sh9-golden-bottom-nav="on"] > [data-sh9-bottom-role="ask"] svg,
+nav[data-sh9-golden-bottom-nav="on"] > [data-sh9-bottom-role="home"].active svg,
+nav[data-sh9-golden-bottom-nav="on"] > [data-sh9-bottom-role="ask"].active svg{
+ display:block!important;
+ color:var(--sh9-global-bottom-accent)!important;
+ stroke:currentColor!important;
+ fill:none!important;
+ stroke-width:1.85!important;
+ width:28px!important;height:28px!important;
+ min-width:28px!important;max-width:28px!important;
+ min-height:28px!important;max-height:28px!important;
+ border:0!important;border-radius:0!important;
+ background:transparent!important;
+ background-image:none!important;
+ box-shadow:none!important;
+ filter:none!important;
+ padding:0!important;margin:0 auto!important;
+ box-sizing:border-box!important;
+}
+nav[data-sh9-golden-bottom-nav="on"] > [data-sh9-bottom-role="ask"] :is(span,small){
+ color:var(--sh9-global-bottom-accent)!important;
+ font-weight:800!important;
+}
+nav[data-sh9-golden-bottom-nav="on"] > [data-sh9-bottom-role="home"] :is(span,small),
+nav[data-sh9-golden-bottom-nav="on"] > [data-sh9-bottom-role="ask"] :is(span,small){
+ text-shadow:none!important;
+}
+nav[data-sh9-golden-bottom-nav="on"] > :is([data-sh9-bottom-role="home"],[data-sh9-bottom-role="ask"]):focus-visible{
+ outline:2px solid var(--sh9-global-bottom-accent)!important;
+ outline-offset:2px!important;
+}
+/* Pages with no native global taskbar receive one safe, 5-action dock.
+   Do not replace Nutrition's diary-specific dock or recipe wizard footers. */
+nav.sh9-golden-fallback-v924{
+ box-sizing:border-box!important;position:fixed!important;
+ bottom:0!important;left:50%!important;right:auto!important;
+ transform:translateX(-50%)!important;
+ z-index:90!important;width:min(100%,420px)!important;
+ display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;
+ gap:1px!important;margin:0!important;
+ min-height:70px!important;
+ padding:5px 4px calc(6px + env(safe-area-inset-bottom,0px))!important;
+ background:rgba(15,30,54,.97)!important;
+ border:0!important;border-top:1px solid rgba(140,198,243,.25)!important;
+ border-radius:0!important;box-shadow:0 -7px 22px rgba(0,0,0,.25)!important;
+ backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+ font-family:Inter,'Segoe UI',Roboto,sans-serif;
+}
+nav.sh9-golden-fallback-v924 > a{
+ box-sizing:border-box!important;min-width:0!important;
+ padding:4px 0!important;display:flex!important;
+ flex-direction:column!important;justify-content:center!important;
+ align-items:center!important;gap:3px!important;
+ color:#b9d0e8!important;background:transparent!important;
+ text-align:center!important;text-decoration:none!important;
+ border:0!important;box-shadow:none!important;font:500 10px/1.1 Inter,'Segoe UI',system-ui,sans-serif!important;
+}
+nav.sh9-golden-fallback-v924 > a svg{
+ width:22px;height:22px;flex:0 0 auto;stroke:currentColor;fill:none;
+}
+nav.sh9-golden-fallback-v924 > a span{font-size:10px;line-height:1.1;white-space:nowrap}
+body[data-sh9-golden-fallback="on"]{padding-bottom:max(76px,env(safe-area-inset-bottom,0px))}
