@@ -41,9 +41,28 @@ function suggestions(){
  for(const category of categories){const o=d.createElement('option');o.value=category;o.textContent=category;s.add(o)}
  s.value=categories.has(old)?old:'Főételek';
 }
+function showPredictions(){
+ const box=$('hhManualSuggestions1130'),q=lower($('hhManualName1130').value);
+ box.replaceChildren();
+ if(q.length<2){box.hidden=true;return}
+ const offered=new Set();
+ for(const item of known){
+  const name=text(item.name),key=lower(name);
+  if(!key.includes(q)||offered.has(key))continue;
+  offered.add(key);
+  const button=d.createElement('button');button.type='button';button.textContent=name;
+  button.addEventListener('click',()=>{
+   $('hhManualName1130').value=name;box.hidden=true;clearImage();predict();
+  });
+  box.append(button);
+  if(offered.size===5)break;
+ }
+ box.hidden=!box.children.length;
+}
 function predict(){
  const item=known.find(x=>lower(x.name)===lower($('hhManualName1130').value));
  if(!item)return;
+ $('hhManualSuggestions1130').hidden=true;
  const cat=$('hhManualCategory1130');
  if(item.category&&[...cat.options].some(o=>o.value===item.category))cat.value=item.category;
  if(item.source==='catalog'&&item.per100){
@@ -76,6 +95,7 @@ function speechResult(result){
   remaining=text(remaining.replace(part[0],''));
  }
  remaining=remaining.replace(/^(ettem|ittam|megettem|elfogyasztottam|kérek)\s+/i,'');
+ remaining=remaining.replace(/^(reggelire|tízóraira|ebédre|uzsonnára|vacsorára)\s+(ettem|ittam)\s+/i,'$1 ');
  for(const [meal,pattern] of [['Reggeli',/^reggelire\s+/i],['Tízórai',/^tízóraira\s+/i],
   ['Ebéd',/^ebédre\s+/i],['Uzsonna',/^uzsonnára\s+/i],['Vacsora',/^vacsorára\s+/i]]){
   if(pattern.test(remaining)){$('hhManualMeal1130').value=meal;remaining=text(remaining.replace(pattern,''));break}
@@ -163,6 +183,7 @@ async function save(e){
  try{info=amount()}catch(err){return tell(err.message,true)}
  const food=$('hhManualSaveFood1130').checked,favorite=$('hhManualFavorite1130').checked,
   family=$('hhManualFamily1130').checked;
+ if(family&&!food&&!favorite)return tell('Válassz egy ételkategóriát vagy a Kedvenceket a közös mentéshez.',true);
  if((food||favorite)&&info.nutrients.kcal===null)
   return tell('Kategóriába/Kedvencekbe mentéshez kcal-adat kell. Kérj AI-becslést, vagy csak naplózz.',true);
  if(family&&!w.HH_NUTRITION_CLOUD_V626?.connected())
@@ -213,7 +234,7 @@ function init(){
  $('hhManualClose1130').addEventListener('click',()=>$('hhManualDialog1130').close());
  $('hhManualVoice1130').addEventListener('click',voice);
  $('hhManualName1130').addEventListener('change',()=>{clearImage();predict()});
- $('hhManualName1130').addEventListener('input',()=>{matched=null;clearImage()});
+ $('hhManualName1130').addEventListener('input',()=>{matched=null;clearImage();showPredictions()});
  $('hhManualQty1130').addEventListener('change',()=>{if(matched)predict()});
  $('hhManualEstimate1130').addEventListener('click',estimate);
  $('hhManualImage1130').addEventListener('click',image);
