@@ -15,7 +15,7 @@ test('SHO grid is exactly 4×3: Wallet takes former Family updates spot, bottom 
  assert.doesNotMatch(html,/data-module="Családi aktualitások"/);
  assert.doesNotMatch(html,/class="tile wallet"/);
  assert.equal((html.match(/<button class="tile" data-module=/g)||[]).length,12);
- assert.match(html,/sho-wiring-v2\.js\?v=33-weather-and-hero-spacing/);
+ assert.match(html,/sho-wiring-v2\.js\?v=934-global-wallet-dock/);
 });
 
 test('SHO keeps shared taskbar, native OTA and Outlook bindings',()=>{
@@ -98,4 +98,15 @@ test('SHO weather v33 retries failures and never fabricates stale readings',()=>
  assert.match(js,/data\.temp>65/);
  assert.match(js,/v\.temperature_2m===null/);
  assert.match(js,/AbortController/);
+});
+
+
+test('v934 shared Wallet deep link opens the real existing SHO Wallet handler',()=>{
+ const srcJs=src('sh9/sho-preview/sho-wiring-v2.js');
+ const globalJs=src('sh9/shared/sh9-golden-controls-v1.js');
+ assert.match(globalJs,/\/berlet-app\/sh9\/\?sho=wallet/);
+ assert.match(srcJs,/params\.get\('sho'\)==='wallet'/);
+ assert.match(srcJs,/params\.delete\('sho'\)/);
+ assert.match(srcJs,/wallet\(\)/);
+ assert.match(srcJs,/history\.replaceState/);
 });
