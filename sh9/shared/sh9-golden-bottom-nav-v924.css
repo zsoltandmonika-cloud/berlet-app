@@ -102,3 +102,13 @@ body[data-sh9-golden-fallback="on"]{padding-bottom:max(76px,env(safe-area-inset-
 :is(#sh9GlobalNavV24,#nutritionHHNav,#guardianHHNav,#sh9TransitNavV927,nav[data-sh9-golden-bottom-nav="on"])[data-sh9-golden-bottom-nav="on"] > [data-sh9-bottom-role="ask"] :is(span,small){
  color:var(--sh9-global-bottom-accent)!important;
 }
+
+/* Safe spacing for two exceptional full-screen utilities with dedicated
+   bottom actions. Their domain controls remain accessible ABOVE the SH9 dock. */
+body[data-sh9-golden-fallback="on"] .nutriDock{
+ bottom:calc(78px + env(safe-area-inset-bottom,0px))!important;
+ margin-bottom:75px!important;
+}
+body[data-sh9-golden-fallback="on"] .app:has(>nav.bottom-actions){
+ padding-bottom:calc(78px + env(safe-area-inset-bottom,0px))!important;
+}
