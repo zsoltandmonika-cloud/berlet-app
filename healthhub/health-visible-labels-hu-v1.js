@@ -142,6 +142,7 @@ function translateRecordsUi(english){
 const selectors='button b,button span,button small,a b,a span,a small,button,nav button,nav a,.page .screenTitle,.dailyStrip b,.homeModule b,.detailTop b,.detailTitle h1,.dailyHealthStrip b,.homeTile b,.tile b,.screenTitle';
 let busy=false;
 function apply(){
+ if(document.getElementById('hhSleepPage')?.classList.contains('on'))return;
  if(busy)return;
  busy=true;
  try{
@@ -159,7 +160,17 @@ function apply(){
  finally{busy=false}
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',apply,{once:true});else apply();
-new MutationObserver(apply).observe(document.documentElement,{childList:true,subtree:true,characterData:true});
+// A Sleep rebuild can create hundreds of mutations. Coalesce locale updates
+// and never scan the full dashboard for every text-character update.
+let scheduled=false;
+function scheduleApply(){
+ if(scheduled)return;
+ scheduled=true;
+ const run=()=>{scheduled=false;apply()};
+ if(typeof requestAnimationFrame==='function')requestAnimationFrame(run);
+ else setTimeout(run,0);
+}
+new MutationObserver(scheduleApply).observe(document.documentElement,{childList:true,subtree:true});
 window.addEventListener('pageshow',apply);
 window.addEventListener('storage',e=>{if(e.key==='sh9-language-v1')apply()});
 window.addEventListener('sh9-language-change',apply);
