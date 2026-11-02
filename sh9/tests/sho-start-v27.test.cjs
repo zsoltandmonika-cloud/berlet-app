@@ -15,7 +15,7 @@ test('SHO grid is exactly 4×3: Wallet takes former Family updates spot, bottom 
  assert.doesNotMatch(html,/data-module="Családi aktualitások"/);
  assert.doesNotMatch(html,/class="tile wallet"/);
  assert.equal((html.match(/<button class="tile" data-module=/g)||[]).length,12);
- assert.match(html,/sho-wiring-v2\.js\?v=32-sho-unified-dock/);
+ assert.match(html,/sho-wiring-v2\.js\?v=33-weather-and-hero-spacing/);
 });
 
 test('SHO keeps shared taskbar, native OTA and Outlook bindings',()=>{
@@ -75,4 +75,27 @@ test('SHO production unified glass dock preserves four canonical controls and cr
  assert.match(js,/FAMILY_TASKS=SH9\+'family-hub\/'/);
  assert.match(js,/\$\('heroWallet'\)\.onclick=wallet/);
  assert.match(preview,/class="sho-unified-dock"/);
+});
+
+
+test('SHO v33 hero lift and info label spacing do not touch the golden dock',()=>{
+ const html=src('sh9/index.html');
+ assert.match(html,/\.head\{background-position:50% -30px;\}/);
+ assert.match(html,/\.info>button:nth-child\(-n\+2\)>strong\{margin-top:5px;\}/);
+ assert.equal((html.match(/class="sho-dock-cell/g)||[]).length,4);
+ assert.equal((html.match(/class="tile" data-module=/g)||[]).length,12);
+ assert.match(html,/id="sh9OtaIndicatorV1043"/);
+ assert.match(html,/sh9-golden-bottom-nav-v924\.js/);
+});
+
+test('SHO weather v33 retries failures and never fabricates stale readings',()=>{
+ const js=src('sh9/sho-preview/sho-wiring-v2.js');
+ assert.match(js,/weatherAt=0; \/\/ A failed request/);
+ assert.match(js,/WX_OPENMETEO/);
+ assert.match(js,/WX_WTTR/);
+ assert.match(js,/WEATHER_FRESH_MS=60\*60\*1000/);
+ assert.match(js,/queueWeatherRetry\(\)/);
+ assert.match(js,/data\.temp>65/);
+ assert.match(js,/v\.temperature_2m===null/);
+ assert.match(js,/AbortController/);
 });
