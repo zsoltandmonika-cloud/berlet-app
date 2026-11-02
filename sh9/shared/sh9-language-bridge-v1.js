@@ -80,18 +80,42 @@ const lex=[
  ['Lifestyle','Életmód']
 ];
 const toHU=new Map(lex),toEN=new Map(lex.map(([en,hu])=>[hu,en]));
+const attributes=['placeholder','title','aria-label'];
 function lang(){try{return w.SH9_I18N_V1?.getLanguage?.()||(w.localStorage?.getItem('sh9-language-v1')==='en'?'en':'hu')}catch(_){return 'hu'}}
 const originals=new WeakMap();
-function translateText(n,l){
- if(n.parentElement?.closest('script,style,textarea,input,select,option,[contenteditable],code,pre,[data-i18n],[data-sh9-no-translate]'))return;
- const old=originals.get(n)||n.nodeValue;
- const trimmed=old.trim();
- if(!trimmed)return;
- const canonical=toEN.has(trimmed)?toEN.get(trimmed):trimmed;
- if(!toHU.has(canonical))return;
- originals.set(n,canonical);
+function converted(raw,l){
+ const trimmed=String(raw||'').trim();
+ if(!trimmed)return raw;
+ const canonical=toEN.get(trimmed)||trimmed;
+ if(!toHU.has(canonical))return raw;
  const next=l==='en'?canonical:toHU.get(canonical);
- if(n.nodeValue!==next)n.nodeValue=old.replace(trimmed,next);
+ return raw.replace(trimmed,next);
+}
+function translateText(n,l){
+ const parent=n.parentElement;
+ if(parent?.closest('script,style,textarea,input,select,option,[contenteditable],code,pre,[data-i18n],[data-sh9-no-translate]'))return;
+ const previous=originals.get(n);
+ const current=n.nodeValue;
+ // A dynamic application update must supersede the old translation source.
+ const source=previous&&current===previous.lastRendered?previous.source:current;
+ const next=converted(source,l);
+ originals.set(n,{source,lastRendered:next});
+ if(current!==next)n.nodeValue=next;
+}
+function translateAttributes(el,l){
+ if(el.closest('[data-i18n],[data-sh9-no-translate]'))return;
+ for(const attr of attributes){
+  if(!el.hasAttribute(attr))continue;
+  const value=el.getAttribute(attr),name='data-sh9-locale-origin-'+attr;
+  const old=el.getAttribute(name);
+  const src=old!==null&&converted(old,'hu')===value||old!==null&&converted(old,'en')===value?old:value;
+  const next=converted(src,l);
+  // Store provenance only when an explicit dictionary match is present.
+  if(next!==src||toEN.has(src)||toHU.has(src)){
+   el.setAttribute(name,src);
+   if(value!==next)el.setAttribute(attr,next);
+  }
+ }
 }
 let scheduled=false,working=false;
 function apply(){
@@ -101,6 +125,7 @@ function apply(){
  const l=lang(); d.documentElement.lang=l==='en'?'en-CA':'hu-HU';
  const walker=d.createTreeWalker(d.body,NodeFilter.SHOW_TEXT);
  let n;while((n=walker.nextNode()))translateText(n,l);
+ d.body.querySelectorAll('[placeholder],[title],[aria-label]').forEach(el=>translateAttributes(el,l));
  }finally{working=false}
 }
 function schedule(){if(scheduled)return;scheduled=true;Promise.resolve().then(()=>{scheduled=false;apply()})}
