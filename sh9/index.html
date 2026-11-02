@@ -97,11 +97,14 @@ input[type=file]{display:none}
 @media(max-width:365px){.hero-demo #pinLauncher{max-width:88px}.hero-demo #heroWallet{min-width:85px;padding:0 8px}}
 
 
-/* SHO v25 · S24 Ultra portrait refinement; layout only.
-   Keep existing route handlers, Outlook, OTA and unified Golden taskbar. */
-.head{
- background-position:50% 14px;
+/* SHO v26 · compact S24 layout; preserves shared v924 taskbar and live modules.
+   Fixed bottom bar is intentionally ABOVE page content but BELOW modal layers. */
+.shell{
+ height:100dvh;max-height:100dvh;min-height:0;
+ overflow:hidden;
+ padding-bottom:calc(69px + env(safe-area-inset-bottom,0px));
 }
+.head{height:clamp(188px,29dvh,250px);background-position:50% 14px}
 .pills{top:7px;left:7px;gap:5px}
 .pills .pill{height:35px;min-width:82px;padding:0 10px;border-radius:22px;font-size:11px}
 .pills .lang button{font-size:12px;line-height:1.1;padding:5px 4px}
@@ -110,14 +113,41 @@ input[type=file]{display:none}
 .hero-demo #heroWallet,.hero-demo #pinLauncher{
  height:35px;min-width:86px;padding:0 10px;border-radius:22px;font-size:11px;
 }
-.hero > #sh9OtaIndicatorV1043.sh9-ota-indicator-v1043{
- top:2px;right:1px;
+.hero > #sh9OtaIndicatorV1043.sh9-ota-indicator-v1043{top:2px;right:1px}
+.info{
+ flex:0 0 67px;min-height:67px;
+ grid-template-rows:minmax(0,1fr);
 }
-.info{flex-basis:84px;min-height:84px}
-#sh9CalendarValue{font-size:9.8px!important;line-height:1.15!important}
-#sh9CalendarSub{font-size:9px!important;line-height:1.13!important}
+.info>button{padding:5px 6px 4px;gap:2px;min-height:0;overflow:hidden}
+.info b{font-size:8.5px;line-height:1.12}
+.info strong{font-size:10.2px;line-height:1.14}
+.info small{font-size:8.5px;line-height:1.13;-webkit-line-clamp:2}
+#sh9CalendarCell.sh9-calendar-click-target{padding:5px 6px 4px!important;gap:2px!important}
+#sh9CalendarValue{font-size:9.2px!important;line-height:1.12!important}
+#sh9CalendarSub{font-size:8.3px!important;line-height:1.08!important;-webkit-line-clamp:2}
+.module-board{
+ flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain;
+ scrollbar-width:thin;
+}
+.tile{height:clamp(74px,9.4dvh,91px)}
+.tile.wallet{height:56px}
+.shell > nav.nav[data-sh9-golden-bottom-nav="on"]{
+ box-sizing:border-box;position:fixed;left:50%;bottom:0;
+ transform:translateX(-50%);width:min(100%,420px);
+ height:calc(65px + env(safe-area-inset-bottom,0px));
+ min-height:0;max-height:none;
+ margin:0!important;padding:4px 4px calc(5px + env(safe-area-inset-bottom,0px));
+ flex:none;z-index:20;
+}
 @media(max-height:740px){
- .info{flex-basis:80px;min-height:80px}
+ .head{height:190px}
+ .info{flex-basis:63px;min-height:63px}
+ .tile{height:76px}
+ .tile.wallet{height:54px}
+}
+@media(max-height:640px){
+ .head{height:180px}
+ .tile{height:70px}
 }
 
 </style>
