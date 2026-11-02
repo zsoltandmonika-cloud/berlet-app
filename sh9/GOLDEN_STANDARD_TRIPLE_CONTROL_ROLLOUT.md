@@ -1,0 +1,45 @@
+# SH9 / HealthHub · GOLDEN STANDARD · három globális vezérlő
+
+**Állapot:** jóváhagyott UI-szabvány és bevezetési terv; a teljes oldalhálózatra történő migráció **még nem készült el**.
+**Jóváhagyott alap:** SH9 v916 (2026-11-02). A három vezérlő funkciója: 🇭🇺/🇨🇦 nyelv, Feladatok/Tasks, Zsolt/Mónika profil.
+**Hatókör:** valamennyi **aktívan navigálható** SH9/HealthHub és családi modul; régi verziószámú archív HTML-ek, tesztelő/preview oldalak csak indokolt esetben, külön jóváhagyással.
+
+## Nem változtatható vizuális szerződés
+
+- **Közös kinézet:** mindhárom, pontosan azonos, **teljesen átlátszatlan sötétkék** `#0C2446` hátterű és azonos árnyékú, kapszula alakú vezérlő.
+- **Méret:** 90 × 47 CSS px érintési terület, 34 px magas látható kapszula; a vizuális forma, keretvastagság és betűstílus mindháromnál egységes.
+- **Profilfüggő keret mindháromon:** Zsolt `#79BFFF` (kék); Mónika `#F9A6D3` (pink). A **háttér színe profilváltáskor sem módosul**.
+- **Elhelyezés:** nyelv- és Feladatok-kapszula egymás mellett bal felül; profil-kapszula bal alul, függőlegesen a nyelvi kapszulával igazítva. SH9 kezdőlap: a jóváhagyott v916 koordináták; más oldalakon a megfelelő Hero/safe-area referenciapont mellett, gombütközés nélkül.
+- **Feliratok:** a Feladatok/Tasks az aktív nyelvet, a profilgomb a kiválasztott személy nevét mutatja; a zászlók 🇭🇺 és 🇨🇦 maradnak. Hozzáférhető címkék és jól látható fókusz.
+- **Ne jelenjen meg a `GOLDEN STANDARD` felirat a felhasználói felületen.** Ez belső műszaki és dizájnszabvány, nem reklámszlogen.
+
+## Kötelező implementációs architektúra
+
+**Egyszeri megoldás:** egy közös, verziózott komponens (javasolt: `sh9/shared/sh9-golden-controls-v1.js` és `.css`), amit az aktív entry page-ek betöltenek. A shared komponens egyszer hozza létre/veszi át a három vezérlőt, és ugyanazt a stílust, UI-állapotot és eseménykezelést alkalmazza mindenütt. A SH9 főoldal **v916-os megjelenése referencia**, a globális komponens váltja a helyi implementációt, nem duplikálja.
+
+- **Profil:** közös állapot `localStorage['hh-profile']` (`z`/`m`); a globális gomb a **modul meglévő, kanonikus profilváltó handlerére** kapcsolódik (pl. `guardianProfileSwitch`, `fhProfileSwitch`, `profileBtn`, BKK/MÁV/Volán egyedi `profile` kontrollja). Nem elég csak a storage-ot felülírni, mert a moduloknak frissíteniük kell a saját adatokat, nézetet, térképet vagy jogosultságellenőrzést. Az ismételt kattintás és dupla váltás tilos. Események és többfüles storage-változások megfigyelése.
+- **Feladatok:** a jelenlegi `sh9-tasks-golden-v901.js` funkcionális belépési útvonala megmarad (`/berlet-app/sh9/family-hub/`). A meglévő singleton gombot **át kell venni és lecserélni**, nem másodikat mellé létrehozni. Family Tasks Quick Add és egyéb overlay működését megtartani.
+- **Nyelv:** a közös `sh9-language-v1` (`hu`/`en`) preferenciát és a SH9 nyelvi eseményét használja, az alkalmazás saját i18n rendszeréhez csatlakozik. A vezérlők és támogatott oldalak helyi szövegei azonnal frissülnek; a fordítatlan modulokat külön nyelvi auditban fel kell térképezni, nem szabad teljes fordítást színlelni.
+- **Legacy:** meglévő profil- és Task gomb csak akkor rejthető el, ha a shared új vezérlő az adott oldalon már sikeresen felépült **és** a kanonikus profilváltás helyesen működik. Hiba esetén az eredeti vezérlő marad elérhető (fail-safe). Új régi/fényes profilgomb ne villanjon fel betöltéskor.
+- **Védett működés:** HH ONE valós státuszjelzője, az ötös alsó taskbar, OTA, GPS/követés, személyes egészségadatok, BKK/MÁV/Volán útvonaltervezés, Quick Add és bejelentkezés nem sérülhetnek.
+
+## Bevezetési mátrix és sorrend
+
+| Hullám | Aktív felületek | Teendő és ellenőrzés |
+|---|---|---|
+| 0 – Shared komponens | `sh9/index.html` | A v916 referencia kinézetet közös CSS/JS komponensbe szervezni; 3 gomb, 1 profilfrissítés, 1 Tasks link, 1 nyelvi állapot. |
+| 1 – Első pilot | `sh9/smart-travel/index.html`, `sh9/family-hub/index.html` | Jelenlegi Task csere, `fhProfileSwitch` natív vezérlő megtartása, nyelv és Quick Add teszt. |
+| 2 – Közlekedés | `sh9/smart-travel/public-transport/index.html`, `bkk/index.html`, `bkk/grand-concept/index.html`, `mav/index.html`, `volan/index.html`, `smart-trip/index.html`, `sh9/smart-travel/my-trips/index.html` | Külön profilvezérlők adapterei; útvonal, indulási tábla, térkép, foglalások ne romoljanak. |
+| 3 – HealthHub | `healthhub/index.html`, `healthhub/guardian/index.html`, `healthhub/nutrition/index.html`, `healthhub/digital-health/index.html`, `healthhub/usage-control/index.html` | Kanonikus profilváltás, profilhoz kötött mérések/adatok, HH ONE állapot és Guardian követés megőrzése. |
+| 4 – Családi és kiegészítő | `recepttar/index.html`, `recepttar-studio/index.html`, és az összes további **aktív** navigációs oldal | Régi Task/profil gomb cseréje; ugyanazon UI-minta és keresztoldali szinkron. |
+| Külön ellenőrzés | `healthhub/nutrition-preview/`, `healthhub/digital-wellbeing-preview/`, régi `family-guard-v*.html`, `time-machine-v534.html`, diagnosztika/auth callback | Ne masszírozzunk archív snapshotokat automatikusan; preview oldalt akkor migráljuk, ha aktuális éles navigációból elérhető. |
+
+**Figyelem, korábbi szabványütközés:** a `healthhub/docs/GOLDEN-STANDARD-RULE.md` régebbi, 45 × 45 px-es felső jobb profilképet és HH ONE bal felső kapszulát ír elő. Az új, explicit jóváhagyott **háromgombos vezérlő** ezeknél a **profilváltó vizuális kialakítását** felülírja az érintett migrált oldalakon. A HH ONE **valódi állapotjelzőjének szolgáltatását nem törli**; helyét ütközés nélkül kell biztosítani. A régi dizájn-specifikáció többi, releváns biztonsági/viselkedési szabálya érvényben marad.
+
+## Átadási és kiadási kapu
+
+Minden hullám akkor elfogadható, ha mindhárom gomb ugyanúgy néz ki Zsoltnál és Mónikánál (kizárólag a keret színe változik), pontosan egyszer szerepel, a profilváltás minden modult helyesen frissít, a 🇭🇺/🇨🇦 és a Feladatok működik, a korábbi gombok nem látszanak, nincs vezérlő- vagy safe-area átfedés, a navigáció marad, és a két profillal valódi Galaxy S24 Ultra képernyőn is jóváhagyott a látvány. Automatizált DOM/CSS/állapot/regressziós tesztek és szükség esetén visszaállítható kapcsoló kötelező.
+
+**Nem tartozik bele az első körbe:** backend migráció, új AI funkció, új adatbázis, teljes termék-fordítás vagy a történeti archív oldalak tömeges átírása.
+
+**Végcél:** ugyanaz a három vezérlő, ugyanaz a kód, ugyanaz a viselkedés és azonos vizuális minőség az összes aktív SH9 / HealthHub oldalon.
