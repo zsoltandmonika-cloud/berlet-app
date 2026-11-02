@@ -209,6 +209,11 @@ input[type=file]{display:none}
 /* SHO production v32: preserve approved red-white safety shield. */
 .module-board .tile .sho-security-emblem{display:block;font:26px/1 "Segoe UI Emoji","Noto Color Emoji","Apple Color Emoji",sans-serif;filter:none}
 
+
+/* SHO production v33: move artwork up 44px relative to v32; retain dock geometry. */
+.head{background-position:50% -30px;}
+/* Extra visual row below DATE and WEATHER headings; keep the compact info height. */
+.info>button:nth-child(-n+2)>strong{margin-top:5px;}
 </style>
 </head>
 <body>
@@ -330,7 +335,7 @@ input[type=file]{display:none}
 <input type="file" accept="image/*" id="photo">
 <script defer src="../healthhub/chatgpt-project-shortcut-v712.js?v=756-central-open"></script>
 <script defer src="./sh9-i18n-v1.js?v=32-sho-unified-dock"></script>
-<script defer src="./sho-preview/sho-wiring-v2.js?v=32-sho-unified-dock"></script>
+<script defer src="./sho-preview/sho-wiring-v2.js?v=33-weather-and-hero-spacing"></script>
 <script defer src="./shared/sh9-golden-bottom-nav-v924.js?v=924-unified"></script>
 
 <script defer src="./outlook-agenda-model-v1.js?v=8-date-time-first"></script>
