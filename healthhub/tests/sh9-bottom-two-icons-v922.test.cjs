@@ -31,7 +31,7 @@ test('v922 two icons follow profile color using canonical GOLDEN STANDARD profil
 });
 
 test('v923 only Ask Léna caption follows blue/pink icon accent while other labels stay untouched',()=>{
- const marker='/* v923 · Ask Léna label';
+ const marker='/* v923 · Match ONLY the Ask Léna caption';
  const patch=css.slice(css.indexOf(marker));
  assert.ok(patch.length>130);
  assert.match(patch,/\.wrap \.nav button\[data-nav="Ask Léna"\] > span\{/);
