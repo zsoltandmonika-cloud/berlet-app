@@ -653,7 +653,7 @@ function entryPreview(){
  const f=foodBy(currentFood),qty=num($('quantity').value,.01,10000);
  if(!f||qty==null)return;
  const grams=qty*chosenUnit(),result=calc(f.per,grams);
- $('entryPreview').innerHTML='<span class="nutrition-icon">'+safeText(f.icon||'🍽️')+'</span> <strong>'+fmt(result.kcal,0)+' kcal</strong><br>'+fmt(grams,1)+' g (számított adag) · Fehérje '+fmt(result.protein)+' g · Szénhidrát '+fmt(result.carbs)+' g · Zsír '+fmt(result.fat)+' g'+(result.vitc!=null?'<br>🍊 C-vitamin: '+fmt(result.vitc)+' mg':'')+'<br><span class="note">Alapadat: tájékoztató becslés / 100 g. A mértékegység tömege szerkeszthető.</span>';
+ $('entryPreview').innerHTML='<span class="nutrition-icon">'+safeText(f.icon||'🍽️')+'</span> <strong>'+safeText(f.name)+'</strong> · <strong>'+fmt(result.kcal,0)+' kcal</strong><br>'+fmt(grams,1)+' g (számított adag) · Fehérje '+fmt(result.protein)+' g · Szénhidrát '+fmt(result.carbs)+' g · Zsír '+fmt(result.fat)+' g'+(result.vitc!=null?'<br>🍊 C-vitamin: '+fmt(result.vitc)+' mg':'')+'<br><span class="note">Alapadat: tájékoztató becslés / 100 g. A mértékegység tömege szerkeszthető.</span>';
 }
 function openEntry(kind,item=null){
  entryFoodExplicitlyChosen=!!item;
@@ -957,7 +957,10 @@ root.HH_NUTRITION_QUICK_API={
    nutrients:nut,source:nut.kcal==null?'manual-unknown':'estimated',manualEntry:true};
   if($('logDate'))$('logDate').value=rec.date; // v1131: reveal today's entry when the diary was previously on another day.
   update(d=>d.entries.push(rec));
-  return {name,profile:active,id:rec.id,kcal:nut.kcal,date:rec.date};
+  const saved=read(active).entries.find(e=>e.id===rec.id&&!e.deleted);
+  if(!saved||saved.name!==name||saved.foodId!==rec.foodId)
+   throw Error('A naplózott étel neve nem egyezik a megadottal. A mentést ellenőrizni kell.');
+  return {name:saved.name,profile:active,id:saved.id,kcal:nut.kcal,date:saved.date};
  },
  saveManualFood:payload=>{
   if(payload?.expectedProfile!==active)throw Error('Profilváltás történt. A mentés megszakadt.');
