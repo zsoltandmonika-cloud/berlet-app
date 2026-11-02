@@ -8,6 +8,7 @@
  var qs;try{qs=new URLSearchParams(w.location.search)}catch(_){qs=null}
  if(qs&&(qs.get('hhrecords1016')==='0'||qs.get('hhrecords1015')==='0'||qs.get('hhpremium')==='0'))return;
  var original=null,source=null,scheduled=false,observer=null;
+ function en(){try{return w.localStorage.getItem('sh9-language-v1')==='en'}catch(_){return false}}
  function locate(){
   var page=d.getElementById('healthSection');
   var hero=page&&page.querySelector('.healthSubHero');
@@ -36,8 +37,8 @@
     search.dataset.hhOriginalPlaceholder=input.getAttribute('placeholder')||'';
    }
    // The same original input searches either Leletek or Gyógyszerek.
-   input.placeholder=records?'Lelet keresése…':'Gyógyszer keresése…';
-   input.setAttribute('aria-label',records?'Keresés a leletek között':'Keresés a gyógyszerek között');
+   input.placeholder=records?(en()?'Search medical records…':'Lelet keresése…'):(en()?'Search medications…':'Gyógyszer keresése…');
+   input.setAttribute('aria-label',records?(en()?'Search medical records':'Keresés a leletek között'):(en()?'Search medications':'Keresés a gyógyszerek között'));
    // The canonical sort button can be relocated without rebinding its inline
    // click handler; no second 'Sort' button and no duplicated result counter.
    var section=records&&page.querySelector('#healthSubContent .hhDocs1015');
@@ -54,8 +55,8 @@
    }
   }else{
    if(search.dataset.hhRecordsSearchPill==='on'){
-    input.placeholder=search.dataset.hhOriginalPlaceholder||'Keresés a HealthRadarban…';
-    input.setAttribute('aria-label','Keresés a HealthRadarban');
+    input.placeholder=en()?'Search HealthRadar…':(search.dataset.hhOriginalPlaceholder||'Keresés a HealthRadarban…');
+    input.setAttribute('aria-label',en()?'Search HealthRadar':'Keresés a HealthRadarban');
     delete search.dataset.hhRecordsSearchPill;
    }
    if(original&&original.parentNode&&search.parentNode!==original.parentNode){
