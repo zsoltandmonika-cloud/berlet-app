@@ -133,7 +133,7 @@ dialog{width:min(540px,calc(100% - 20px));max-height:min(91%,860px);border:1px s
 <link rel="stylesheet" href="./hh-buddy-floating-v628.css?v=630-2-small-tight"><link rel="stylesheet" href="./hh-nutrition-standard-taskbar-v629.css?v=629-golden-fixed-five">
 <link rel="stylesheet" href="./hh-hydration-rag-v631.css?v=634-compact-gauge">
 <link rel="stylesheet" href="./hh-quick-recipe-wheel-v635.css?v=1121-shared-reorder">
-<link rel="stylesheet" href="./hh-manual-intake-v1130.css?v=1134-diary-list-visible">
+<link rel="stylesheet" href="./hh-manual-intake-v1130.css?v=1135-click-save-feedback">
 <link rel="stylesheet" href="./hh-bevitel-premium-v643.css?v=723-food-meals-top">
 <link rel="stylesheet" href="./hh-food-vision-v750.css?v=752-golden-stepper">
 <link rel="stylesheet" href="./hh-lena-ai-scan-page-v753.css?v=1120-card-image">
@@ -197,7 +197,7 @@ body[data-sh9-golden-three="on"] #nutritionGoldenHeroHost > #sh9LauncherProfileV
  <span class="hh-manual-arrow" aria-hidden="true">›</span>
 </button>
 <dialog id="hhManualDialog1130" aria-label="Kézi ételbevitel">
- <form id="hhManualForm1130">
+ <form id="hhManualForm1130" novalidate>
   <div class="hh-manual-head"><h2>＋ Kézi ételbevitel</h2><button type="button" class="hh-manual-closer" id="hhManualClose1130" aria-label="Bezárás">×</button></div>
   <label>Étel vagy ital neve
    <div class="hh-manual-name"><input id="hhManualName1130" list="hhManualNames1130" maxlength="80" autocomplete="off" placeholder="Pl. Rakott krumpli" required><button type="button" id="hhManualVoice1130" class="hh-manual-voice" aria-label="Magyar hangbevitel">🎤</button></div>
@@ -233,7 +233,8 @@ body[data-sh9-golden-three="on"] #nutritionGoldenHeroHost > #sh9LauncherProfileV
   <small class="hh-manual-caption">Az AI-kép Puter hozzáférést és AI-keretet igényelhet. Saját fotót is választhatsz.</small>
   <img id="hhManualPhoto1130" class="hh-manual-image" alt="Generált ételkártyakép előnézete" hidden>
   
-  <button type="submit" class="hh-manual-primary" id="hhManualSubmit1130">✓ Mentés a Napi naplóba</button>
+  <p id="hhManualActionFeedback1135" class="hh-manual-action-feedback-v1135" role="status" aria-live="assertive" hidden></p>
+  <button type="button" class="hh-manual-primary" id="hhManualSubmit1130">✓ Mentés a Napi naplóba</button>
   <small class="hh-manual-caption">Az AI tájékoztató becslés. Ismeretlen kalória esetén a napló „— kcal” értéket mutat, nem nullát. Minden a kiválasztott profilba kerül.</small>
  </form>
 </dialog>
@@ -266,6 +267,7 @@ body[data-sh9-golden-three="on"] #nutritionGoldenHeroHost > #sh9LauncherProfileV
 <div class="row"><h2>🧠 Léna Nutrition Insights <img class="hh-heading-chip" src="./nutri-chipmunk-3d-v594.webp" alt="" loading="lazy"></h2><div class="controls"><button type="button" class="mini" id="insight7">7 nap</button><button type="button" class="mini" id="insight30">30 nap</button></div></div><section class="glass" style="padding:14px 16px"><div class="status" id="insightPeriod">7 napos naplóelemzés</div><p id="insightText" style="font-size:13px;line-height:1.55;color:#d6e8f7;margin:10px 0">A napló alapján jelennek meg a személyes mintázatok.</p><small class="muted">Csak ténylegesen rögzített napokból számol. A hiányzó nap nem nulla kalóriát jelent, és nem feltételez ok-okozati kapcsolatot.</small></section>
 <div class="row"><h2>📒 Napi napló <small id="hhDiaryEntryCount1134" class="hh-diary-entry-count-v1134">0 bejegyzés</small></h2><div class="controls"><input type="date" id="logDate" aria-label="Napló dátuma" class="mini" style="background:#18314b;color:white;max-width:150px"><button type="button" class="mini" id="newFood">+ Saját étel</button></div></div>
 <div id="hhManualDiaryNotice1131" class="hh-manual-diary-notice" role="status" aria-live="polite" hidden></div>
+<div id="hhManualToast1135" class="hh-manual-toast-v1135" role="status" aria-live="assertive" hidden></div>
 <div class="glass log" id="log"><p class="empty">Még nincs rögzített bevitel.</p></div>
 <details class="glass section" id="bodyDetails"><summary>BODY BALANCE · Napi ritmus <span id="hhRhythmSummary728" class="hhRhythmSummaryInline" aria-label="Mai BS és AJ megfigyelések"><span class="hhRhythmSummaryBadge">BS —</span><span class="hhRhythmSummaryBadge">AJ —</span></span></summary><p>Diszkrét emésztési és kiválasztási napló. Egy érintéses időbélyeggel, részletek opcionálisak. Ezeket a bejegyzéseket nem számoljuk a kalóriaegyenlegbe.</p><div class="details-actions"><button type="button" class="mini" id="urineBtn">Vizelet rögzítése</button><button type="button" class="mini" id="stoolBtn">Széklet rögzítése</button><button type="button" class="mini" id="bodyHistoryBtn">Mai események</button></div><div class="muted" id="bodyLog" style="margin:10px 0"></div></details>
 <details class="glass section"><summary>⚙ Saját beállítások és szinkron</summary><p>A reggeli és délutáni cappuccino pontos receptje profilonként szerkeszthető. Egy kockacukor tömege, a tej típusa, a fahéjas cukor és a babapiskóta is módosítható.</p><div class="details-actions"><button type="button" class="mini" id="editMorning">☕ Reggeli recept</button><button type="button" class="mini" id="editAfternoon">☕ Délutáni recept</button><button type="button" class="mini" id="customUnit">+ Saját mértékegység</button><button type="button" class="mini" id="syncNutritionNow">↻ Dropbox-szinkron</button></div><p id="dataPolicy">A Nutrition napló profilhoz kötötten, a HealthHub meglévő Dropbox Cloud Vault kapcsolatával szinkronizál: /HealthHub/profiles/[profil]-nutrition.json. A böngésző az offline adatokat is megőrzi. Dropbox-kapcsolat nélkül csak helyi mentés történik; a szinkronizálás állapota a főoldalon látható.</p></details>
@@ -397,7 +399,7 @@ window.hhOpenBevitelEditor=function(scope){
 <script defer src="../hh-observation-rag-v728.js?v=728-shared-scale"></script>
 <script defer src="./nutrition-preview-v592.js?v=1134-all-meal-entries-visible"></script>
 <script defer src="./hh-quick-recipe-wheel-v635.js?v=1121-shared-reorder"></script>
-<script defer src="./hh-manual-intake-v1130.js?v=1133-ai-estimate-photo-fallback"></script>
+<script defer src="./hh-manual-intake-v1130.js?v=1135-click-save-diagnostic"></script>
 <script defer src="./hh-bevitel-premium-v643.js?v=1130-personal-food-image"></script>
 <script defer src="./hh-food-vision-v750.js?v=752-golden-review"></script>
 <script defer src="./hh-shared-food-library-v1118.js?v=1133-sdk-singleton"></script>
