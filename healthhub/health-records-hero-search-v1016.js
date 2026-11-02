@@ -84,6 +84,8 @@
   });
   observer.observe(page,{childList:true,subtree:true});
   w.addEventListener('healthhub:profile-changed',schedule);
+  w.addEventListener('sh9:languagechange',schedule);
+  w.addEventListener('storage',function(e){if(e.key==='sh9-language-v1')schedule()});
   w.addEventListener('pageshow',schedule);
  }
  if(d.readyState==='loading')d.addEventListener('DOMContentLoaded',boot,{once:true});
