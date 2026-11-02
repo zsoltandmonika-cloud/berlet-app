@@ -7,12 +7,12 @@ const root=path.join(__dirname,'..');
 const source=fs.readFileSync(path.join(root,'premium-home-compact-v525.js'),'utf8');
 const css=fs.readFileSync(path.join(root,'premium-home-compact-v525.css'),'utf8');
 const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
-assert.ok(html.includes('premium-home-compact-v525.js?v=545-home-dock-inset-down2'),'production compact Home cache bust');
-// v545 · Home ONLY: 2px lower and 2px narrower on EACH side.
-assert.ok(html.includes('premium-home-compact-v525.css?v=545-home-dock-inset-down2'),
+assert.ok(html.includes('premium-home-compact-v525.js?v=546-home-dock-final-1px-trim'),'production compact Home cache bust');
+// v546 · Home ONLY: previous 2px lower maintained, another 1px trimmed on each side.
+assert.ok(html.includes('premium-home-compact-v525.css?v=546-home-dock-final-1px-trim'),
  'approved Home CSS cache is updated');
-assert.match(css,/html\[data-hh-premium-preview="on"\] #home\.on\s+#heroHome\[data-sh9-golden-host="on"\] > #sh9UnifiedGlassDockV34\s*\{\s*left:4px!important;\s*right:4px!important;\s*bottom:-1px!important;\s*top:auto!important;/,
- 'Home dock exact 2px lower and 2px per-side inset');
+assert.match(css,/html\[data-hh-premium-preview="on"\] #home\.on\s+#heroHome\[data-sh9-golden-host="on"\] > #sh9UnifiedGlassDockV34\s*\{\s*left:5px!important;\s*right:5px!important;\s*bottom:-1px!important;\s*top:auto!important;/,
+ 'Home dock exact same bottom and additional 1px side inset');
 assert.match(css,/#home\.on #heroHome\{\s*overflow:visible!important;/,
  'approved Hero allows dock to extend 1px without clipping');
 assert.ok(!css.includes('#healthSection.page.on #sh9UnifiedGlassDockV34'),
@@ -35,7 +35,7 @@ assert.match(html,/hhHomeBoot\+noFlashHead\+'<\/head>'/,'FOUC gate injected in t
 assert.match(source,/dataset\.hhPremiumReady='on'/,'compact controller releases boot gate after mounting');
 assert.match(html,/if\(premiumEntry\)setTimeout\(function\(\)/,'timeout avoids permanently stuck loading screen');
 assert.ok(!html.includes('indexedDB.deleteDatabase'),'data and caches remain untouched');
-assert.ok(source.includes("premium-home-compact-v525.css?v=545-home-dock-inset-down2"),'new CSS query avoids stale cache');
+assert.ok(source.includes("premium-home-compact-v525.css?v=546-home-dock-final-1px-trim"),'new CSS query avoids stale cache');
 assert.match(css,/--hhpg-corner-inset:6px/,'identical top and side gutter from a single CSS variable');
 assert.ok(css.includes('max(0px, 50vw - 210px)'),'HH ONE sticks to the centered HealthHub app on desktops');
 assert.ok(css.includes('left:calc(max(0px, 50vw - 210px) + var(--hhpg-corner-inset) + env(safe-area-inset-left))'),'HH ONE left gutter consistent');
