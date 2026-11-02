@@ -305,4 +305,14 @@ w.addEventListener('pageshow',()=>{
 });
 d.addEventListener('visibilitychange',()=>{if(d.visibilityState==='visible'){refreshDate();void weather()}});
 lang=get(LANG,'hu')==='en'?'en':'hu';paintProfile();paintLang();cachedWeather();void nameday();void weather();
+// Shared four-button dock opens the canonical SHO Wallet view from any module.
+try{
+ const params=new URLSearchParams(w.location.search);
+ if(params.get('sho')==='wallet'&&(/^\/berlet-app\/sh9\/?$/.test(w.location.pathname)||w.location.pathname.endsWith('/sh9/index.html'))){
+  params.delete('sho');
+  const query=params.toString();
+  w.history.replaceState(w.history.state,'',w.location.pathname+(query?'?'+query:'')+w.location.hash);
+  wallet();
+ }
+}catch(_){};
 })(window,document);
