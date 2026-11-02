@@ -536,12 +536,12 @@ function ensurePage(){
  var s=document.createElement('section');s.id='hhSleepPage';s.className='hhSleepPage';document.body.appendChild(s);
 }
 function wireButton(){
- var btn=Array.from(document.querySelectorAll('.homeModule')).find(function(b){var x=b.querySelector('b');return x&&x.textContent.trim()==='Sleep'});
+ var btn=Array.from(document.querySelectorAll('.homeModule')).find(function(b){var x=b.querySelector('b');return x&&/^(Sleep|Alvás)$/.test(x.textContent.trim())});
  if(btn){btn.dataset.hhSleepWired='1';btn.removeAttribute('onclick');btn.style.pointerEvents='auto';btn.style.cursor='pointer'}
 }
 function delegatedSleepClick(e){
  var btn=e.target&&e.target.closest?e.target.closest('.homeModule'):null;if(!btn)return;
- var lab=btn.querySelector('b');if(!lab||lab.textContent.trim()!=='Sleep')return;
+ var lab=btn.querySelector('b');if(!lab||!/^(Sleep|Alvás)$/.test(lab.textContent.trim()))return;
  e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();
  window.hhOpenSleep();
 }
