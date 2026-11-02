@@ -6,10 +6,13 @@ const root=path.resolve(__dirname,'../nutrition');
 const read=f=>fs.readFileSync(path.join(root,f),'utf8');
 const core=read('nutrition-preview-v592.js'),manual=read('hh-manual-intake-v1130.js');
 const page=read('index.html'),library=read('hh-shared-food-library-v1118.js');
+assert.match(core,/section\.open=matching\.length>0/);
+assert.match(core,/hhDiaryEntryCount1134/);
+assert.match(page,/id="hhDiaryEntryCount1134"/);
 for(const [name,source] of [['nutrition',core],['manual',manual],['shared library',library]])
  new vm.Script(source,{filename:name+'.js'});
 assert.ok(page.includes('v=1133-ai-estimate-photo-fallback'));
-assert.ok(page.includes('v=1133-explicit-food-safety'));
+assert.ok(page.includes('v=1134-all-meal-entries-visible'));
 assert.ok(page.includes('v=1133-sdk-singleton'));
 assert.match(core,/entryFoodExplicitlyChosen/);
 assert.match(core,/selected\.value!==currentFood/);
