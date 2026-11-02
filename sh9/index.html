@@ -34,14 +34,24 @@ button{font:inherit;color:inherit;cursor:pointer}button:focus-visible{outline:2p
 .profile{position:absolute;z-index:4;bottom:5px;left:5px;min-width:98px;height:35px;border-radius:25px;background:#0c2446;border:1px solid var(--accent);font-weight:800;font-size:13px}
 .hero-demo{position:absolute;z-index:4;bottom:9px;right:11px;display:flex;gap:6px;align-items:center}.hero-demo button{border:1px solid var(--border);border-radius:9px;padding:7px 8px;font-size:11px;background:#061934cf;font-weight:750}
 .preview-badge{position:absolute;z-index:5;top:52px;left:11px;padding:3px 7px;border-radius:6px;color:#daf3ff;font-size:9px;font-weight:800;letter-spacing:.09em;background:#07162ea8;border:1px solid #85c8f851}
-.info{display:grid;grid-template-columns:1.18fr 1fr 1fr;flex:0 0 66px;overflow:hidden;border-radius:17px;border:1px solid var(--border);background:linear-gradient(135deg,#082a50,#102a50 60%,#322047);box-shadow:inset 0 1px rgba(255,255,255,.1)}
-.info>button{min-width:0;text-align:left;border:0;background:transparent;padding:7px 8px;display:flex;flex-direction:column;justify-content:center;gap:4px}
+.info{display:grid;grid-template-columns:minmax(0,1.08fr) minmax(0,.93fr) minmax(0,1.18fr);grid-template-rows:minmax(0,1fr);flex:0 0 80px;min-height:80px;overflow:hidden;border-radius:17px;border:1px solid var(--border);background:linear-gradient(135deg,#082a50,#102a50 60%,#322047);box-shadow:inset 0 1px rgba(255,255,255,.1)}
+.info>button{min-width:0;min-height:0;height:100%;overflow:hidden;text-align:left;border:0;background:transparent;padding:8px 7px 6px;display:flex;flex-direction:column;justify-content:flex-start;align-items:stretch;gap:3px}
 .info>button+button{border-left:1px solid rgba(173,217,254,.2)}
-.info b{font-size:9px;color:#b2daff;letter-spacing:.03em}.info strong{font-size:12px;line-height:1.1;color:var(--accent)}.info small{font-size:10px;color:#e0ecff}
+.info b{flex:0 0 auto;font-size:9px;line-height:1.25;color:#b2daff;letter-spacing:.03em}
+.info strong{display:block;min-width:0;font-size:11.5px;line-height:1.25;color:var(--accent);overflow-wrap:anywhere}
+.info small{display:block;min-width:0;max-width:100%;font-size:9.5px;line-height:1.2;color:#e0ecff;overflow:hidden;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2}
+.info strong[hidden],.info small[hidden]{display:none!important}
+#sh9CalendarCell.sh9-calendar-click-target{display:flex!important;flex-direction:column!important;align-items:stretch!important;justify-content:flex-start!important;gap:3px!important;min-height:0!important;padding:8px 7px 6px!important}
+#sh9CalendarCell #sh9CalendarSummary{display:flex;flex-direction:column;flex:1 1 auto;min-height:0;overflow:hidden;gap:2px}
+#sh9CalendarValue{font-size:10.5px!important;line-height:1.2!important;color:var(--accent)!important;overflow-wrap:anywhere}
+#sh9CalendarSub{font-size:9.5px!important;line-height:1.15!important;color:#e3c4ed!important;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+
 .module-board{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#507397 transparent;border-radius:18px 18px 0 0;border:1px solid var(--border);background:linear-gradient(150deg,#143159,#111d3f 65%,#261d49);padding:8px}
 .module-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
 .tile{min-width:0;height:clamp(77px,10.4dvh,107px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;border:1px solid rgba(162,212,255,.32);border-radius:17px;background:linear-gradient(148deg,#244d80b5,#162c51dd 55%,#2a2854cc);box-shadow:inset 0 1px rgba(255,255,255,.13),0 3px 8px #0003}
 .tile:active{transform:scale(.985);border-color:var(--accent)}.tile .sym{display:grid;place-items:center;font-size:21px;width:39px;height:39px;border-radius:14px;border:1px solid #84c8fc66;background:linear-gradient(130deg,#416c9b91,#27395c99)}.tile b{font-size:11px;text-align:center;line-height:1.13;padding:0 2px}
+.tile .sym svg{width:23px;height:23px;display:block;stroke:var(--accent);stroke-width:1.85;fill:none;stroke-linejoin:round;stroke-linecap:round}
+.tile:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
 .tile.wallet{grid-column:span 3;height:62px;flex-direction:row;gap:13px;border-color:var(--accent);background:linear-gradient(105deg,rgba(44,121,191,.42),rgba(110,52,115,.4))}.tile.wallet .sym{width:42px;height:42px}.tile.wallet b{font-size:14px}.tile.wallet small{font-size:10px;color:var(--muted);display:block}
 .nav{flex:0 0 auto;min-height:70px;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));padding:5px 2px calc(5px + env(safe-area-inset-bottom,0px));margin:0 -4px;background:#0e1d38;border-top:1px solid #88c5f544;box-shadow:0 -5px 13px #0005}
 .nav button{min-width:0;background:transparent;border:0;padding:2px 0;display:flex;flex-direction:column;gap:3px;justify-content:center;align-items:center;text-align:center;color:#b9d0e8;font-size:10px}.nav button.active{color:var(--accent)}.nav svg{width:24px;height:24px;stroke:currentColor;stroke-width:1.85;fill:none;stroke-linecap:round;stroke-linejoin:round}.nav span{white-space:nowrap;font-size:10px}
@@ -56,13 +66,21 @@ button{font:inherit;color:inherit;cursor:pointer}button:focus-visible{outline:2p
 .viewer[hidden]{display:none}.viewer-top{width:min(100%,420px);display:flex;align-items:center;justify-content:space-between}.viewer-top b{font-size:17px}.ticket-view{width:min(95vw,390px);aspect-ratio:1.45;display:grid;place-items:center;border-radius:21px;border:1px solid #9bd4ff;padding:22px;text-align:center;background:linear-gradient(125deg,#e3f3ff,#fff 45%,#d4eaf6);color:#14304f;box-shadow:0 0 36px #4697d54d;overflow:hidden}.ticket-view b{display:block;font-size:clamp(23px,7vw,34px)}.ticket-view small{display:block;font-weight:750}.ticket-view p{font-size:13px}.ticket-view img{max-width:100%;max-height:100%;object-fit:contain}.demo-mark{font-size:15px;letter-spacing:.16em;color:#a31d39;font-weight:900;border:2px solid #a31d39;padding:6px 10px;transform:rotate(-9deg)}
 .toast{position:fixed;bottom:98px;left:50%;transform:translateX(-50%);z-index:55;background:#19365b;padding:9px 15px;border-radius:12px;border:1px solid var(--border);font-size:12px;box-shadow:0 6px 22px #0009;max-width:90vw;text-align:center}.toast[hidden]{display:none}
 input[type=file]{display:none}
-@media (max-height:740px){.head{height:205px}.tile{height:80px}.info{flex-basis:61px}}
+@media (max-height:740px){.head{height:205px}.tile{height:80px}.info{flex-basis:74px;min-height:74px}}
 @media (max-width:350px){.head{height:203px}.tile b{font-size:10px}.pills{gap:3px}.pill{min-width:76px;padding:0 8px}}
+/* Keep the live OTA status accessible to screen readers without
+   painting the status text across the glass hero on mobile. */
+.visually-hidden{
+ position:absolute!important;width:1px!important;height:1px!important;
+ padding:0!important;margin:-1px!important;overflow:hidden!important;
+ clip:rect(0,0,0,0)!important;white-space:nowrap!important;
+ border:0!important;clip-path:inset(50%)!important;
+}
 /* Live OTA/GPS data is not read here: this lamp is a link, not status proof. */
 .head .led:before{background:#b8cbe0;box-shadow:0 0 8px rgba(184,203,224,.4)}
 /* SHO Preview B · centered artwork, real module links and shared nav */
 .head{
- background:#061329 url('./sho-preview/sho-hero-minimal-b-v1.avif') 50% 48%/cover no-repeat;
+ background:#061329 url('./sho-preview/sho-hero-minimal-b-v1.avif') 50% 0%/cover no-repeat;
 }
 .head::before,.head .orbit,.head .brand{display:none!important}
 .hero-demo{right:6px;bottom:4px;gap:6px}
@@ -110,7 +128,7 @@ input[type=file]{display:none}
   <a id="sh9OtaManualApkV1044" href="#" hidden rel="noopener noreferrer" target="_blank">📥 Hitelesített APK kézi letöltése</a>
   <small>Az APK-t csak a hivatalos, engedélyezett kiadásból ajánljuk fel. A telepítést az Androidon jóvá kell hagyni.</small>
  </section>
-<div class="preview-badge">SHO · KAPCSOLT ELŐNÉZET</div>
+
 <div class="brand"><div class="infinity">∞</div><strong>SHO</strong><small>Smart Hub One</small><em>One Hub · One Family</em></div>
 <button id="profile" class="profile" type="button">Zsolt ⇄</button>
 <div class="hero-demo"><button type="button" id="pinLauncher" class="pill" hidden>📌 Bérlet megnyitása</button><button type="button" id="heroWallet" class="pill">💳 Wallet</button></div>
@@ -122,16 +140,16 @@ input[type=file]{display:none}
 </section>
 <section class="module-board" aria-label="Modulok">
 <div class="module-grid" id="moduleGrid">
-<button class="tile" data-module="Egészség" type="button"><span class="sym">♡</span><b>Egészség</b></button>
-<button class="tile" data-module="Biztonság" type="button"><span class="sym">🛡</span><b>Biztonság</b></button>
-<button class="tile" data-module="Utazás" type="button"><span class="sym">✈</span><b>Utazás</b></button>
-<button class="tile" data-module="Szórakozás" type="button"><span class="sym">▣</span><b>Szórakozás</b></button>
-<button class="tile" data-module="Bevásárlás" type="button"><span class="sym">♙</span><b>Bevásárlás</b></button>
-<button class="tile" data-module="Sport" type="button"><span class="sym">♧</span><b>Sport</b></button>
-<button class="tile" data-module="Családi aktualitások" type="button"><span class="sym">▦</span><b>Családi aktualitások</b></button>
-<button class="tile" data-module="Kapcsolatok" type="button"><span class="sym">♙</span><b>Kapcsolatok</b></button>
-<button class="tile" data-module="Életmód" type="button"><span class="sym">♧</span><b>Életmód</b></button>
-<button class="tile wallet" data-module="Wallet" type="button"><span class="sym">💳</span><span><b>Smart Wallet</b><small>Jegyek · Bérletek · Gyorsindító</small></span></button>
+<button class="tile" data-module="Egészség" type="button"><span class="sym"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M20 7.5a5 5 0 0 0-8 0 5 5 0 0 0-8 0c-3 3 0 7 8 13 8-6 11-10 8-13Z"/><path d="M6 12h4l2-3 2 6 2-3h2"/></svg></span><b>Egészség</b></button>
+<button class="tile" data-module="Biztonság" type="button"><span class="sym"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 22s8-4 8-11V5l-8-3-8 3v6c0 7 8 11 8 11Z"/><path d="M9 11h6m-3-3v6"/></svg></span><b>Biztonság</b></button>
+<button class="tile" data-module="Utazás" type="button"><span class="sym"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m2 12 9 2 4 7 2-1-1-8 6-4a2 2 0 0 0-2-3l-8 6-8-4-2 2 6 5-4 4 2 1 6-4"/></svg></span><b>Utazás</b></button>
+<button class="tile" data-module="Szórakozás" type="button"><span class="sym"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="7" width="18" height="14" rx="2"/><path d="M3 11h18M5 7l3-4h4l-3 4M14 7l3-4h4l-3 4"/><path d="m10 13 5 3-5 3z"/></svg></span><b>Szórakozás</b></button>
+<button class="tile" data-module="Bevásárlás" type="button"><span class="sym"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 10h16l-1.5 10h-13L4 10Z"/><path d="M9 10V7a3 3 0 0 1 6 0v3"/><path d="M8 14h8"/></svg></span><b>Bevásárlás</b></button>
+<button class="tile" data-module="Sport" type="button"><span class="sym"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="16.5" cy="4" r="2"/><path d="m14 9-3 5-5 1m8-6 4 3 3 1m-9 1 3 3-2 5M11 7 6 9l-2 4"/></svg></span><b>Sport</b></button>
+<button class="tile" data-module="Családi aktualitások" type="button"><span class="sym"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 10h18M8 15h3M14 15h2"/></svg></span><b>Családi aktualitások</b></button>
+<button class="tile" data-module="Kapcsolatok" type="button"><span class="sym"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="9" cy="8" r="3"/><path d="M3.5 20v-2.3A4.7 4.7 0 0 1 8.2 13h1.6a4.7 4.7 0 0 1 4.7 4.7V20M16 5.5a3 3 0 0 1 0 6M17 13.5c2.3.4 3.5 2 3.5 4.2V20"/></svg></span><b>Kapcsolatok</b></button>
+<button class="tile" data-module="Életmód" type="button"><span class="sym"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M20 3C12 4 6 7 5 14c-.3 3.4 1.8 5.2 4.8 5.2C17 19.2 20 9 20 3Z"/><path d="M6 20C9 14 13 11 17 8"/></svg></span><b>Életmód</b></button>
+<button class="tile wallet" data-module="Wallet" type="button"><span class="sym"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="2" y="5" width="20" height="15" rx="3"/><path d="M2 10h20M6 16h5"/></svg></span><span><b>Smart Wallet</b><small>Jegyek · Bérletek · Gyorsindító</small></span></button>
 </div>
 </section>
 <nav class="nav" aria-label="SHO Golden Standard navigáció" data-sh9-golden-bottom-nav="on">
