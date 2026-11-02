@@ -49,8 +49,10 @@ const cardIcon=t=>{const m=String(t||'').match(/^\s*(\p{Extended_Pictographic}(?
 function parseOption(o){
  const text=(o.textContent||'').trim(),split=text.indexOf(' · ');
  const raw=split>=0?text.slice(0,split):'Egyéb';
+ const own=(window.HH_NUTRITION_QUICK_API?.getManualSuggestions?.()||[]).find(f=>f.id===o.value);
  return {id:o.value,category:raw.replace(/^[^\p{L}\p{N}]+/u,'').trim()||'Egyéb',
-  name:split>=0?text.slice(split+3).trim():text,icon:cardIcon(text)};
+  name:split>=0?text.slice(split+3).trim():text,icon:cardIcon(text),
+  imageRef:own?.imageRef||null,imageScope:own?.imageRef?'personal':null};
 }
 function sourceItems(kindRequested=kind){
  const ordinary=Array.from(select.options).filter(x=>x.value).map(parseOption);
@@ -101,12 +103,13 @@ function render(){
    photo.src='../../recepttar/assets/lena-kitchen-banner-crisp.png?v=5';
    art.replaceChildren(photo);
   }else if(step==='categories')window.HH_BEVITEL_CATEGORY_V644?.attachPhoto?.(kind,r.category,art);
-  else if(r.sharedId&&r.imageRef){
+  else if(r.imageRef){
    const vault=window.HH_NUTRITION_IMAGE_V641;
-   if(vault?.refValid?.('shared',r.imageRef)){
-    vault.load('shared',r.imageRef).then(url=>{
-     if(!card.isConnected)return;
-     const img=document.createElement('img');img.src=url;img.alt='Közös ételfotó';img.loading='lazy';
+   const scope=r.sharedId?'shared':window.HH_NUTRITION_QUICK_API?.getProfile?.();
+   if(scope&&vault?.refValid?.(scope,r.imageRef)){
+    vault.load(scope,r.imageRef).then(url=>{
+     if(!card.isConnected||(!r.sharedId&&scope!==window.HH_NUTRITION_QUICK_API?.getProfile?.()))return;
+     const img=document.createElement('img');img.src=url;img.alt=r.sharedId?'Közös ételfotó':'Saját ételfotó';img.loading='lazy';
      art.replaceChildren(img);
     }).catch(()=>{});
    }
