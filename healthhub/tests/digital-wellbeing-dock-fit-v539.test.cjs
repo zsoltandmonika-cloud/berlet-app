@@ -33,5 +33,5 @@ test('v540 preserves the page features and other module placements',()=>{
  assert.match(html,/digital-wellbeing-hero-plate-v538\.css/);
  assert.equal((html.match(/<article class="card/g)||[]).length,8);
  assert.match(read('healthhub/guardian/index.html'),/sh9-golden-controls-v1\.js\?v=934-unified-glass-dock/);
- assert.match(read('healthhub/index.html'),/sh9-golden-controls-v1\.js\?v=936-sleep-extra-lift5/);
+ assert.match(read('healthhub/index.html'),/sh9-golden-controls-v1\.js\?v=1043-records-meds-dock-plan-b/);
 });
