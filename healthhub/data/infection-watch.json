@@ -1,10 +1,10 @@
 {
   "schema": "healthhub.infection-watch/1",
-  "edition": "2026-W42-auto",
-  "sourceWeek": "2026. 42. hét",
-  "periodStart": "2026-10-12",
-  "periodEnd": "2026-10-18",
-  "reviewedOn": "2026-10-26",
+  "edition": "2026-W43-auto",
+  "sourceWeek": "2026. 43. hét",
+  "periodStart": "2026-10-19",
+  "periodEnd": "2026-10-25",
+  "reviewedOn": "2026-11-02",
   "geography": "Budapest · országos kitekintés",
   "overall": {
     "level": "watch",
@@ -15,10 +15,10 @@
     {
       "key": "influenza",
       "name": "Influenza A",
-      "level": "low",
-      "label": "Alacsony szennyvízjelzés",
+      "level": "unknown",
+      "label": "Nem besorolható",
       "scope": "Országos megfigyelés · Budapest ahol közölt",
-      "summary": "A vizsgált mintákban nem találtak kimutatási határ feletti influenza A-koncentrációt.",
+      "summary": "Influenza A: nincs automatikusan besorolható hivatalos jelzés.",
       "detail": "A szennyvízjelzés nem fertőzésszám. Városi mintaterületi részletek a hivatkozott NNGYK jelentésben."
     },
     {
@@ -45,7 +45,7 @@
       "level": "unknown",
       "label": "Budapesti bejelentések, trend nélkül",
       "scope": "Budapest",
-      "summary": "Campylobacteriosis: 21; salmonellosis: 12; rotavírus-gastroenteritis: 4 heti jelentés.",
+      "summary": "Campylobacteriosis: 16; salmonellosis: 13; rotavírus-gastroenteritis: 6 heti jelentés.",
       "detail": "A három külön kórkép előzetes bejelentései. Nem adhatók össze egyetlen általános fertőzési indexként."
     },
     {
@@ -54,31 +54,31 @@
       "level": "high",
       "label": "Legalább ötszörös országos heti medián",
       "scope": "Országos összesítés · Budapest külön",
-      "summary": "Országosan 27 heti eset; ötéves heti medián 4. Budapest: 1 bejelentés.",
+      "summary": "Országosan 27 heti eset; ötéves heti medián 5. Budapest: 3 bejelentés.",
       "detail": "Országos heti összehasonlítás az NNGYK jelentésében közölt ötéves mediánnal. Előzetes, részben tisztított adatok."
     }
   ],
   "sources": {
-    "respiratory": "https://nngyk.gov.hu/hu/integralt-felugyeleti-rendszer-eredmenyei/interszezonalis-leguti-figyeloszolgalat-adatai-2026-42-het.html",
+    "respiratory": "https://nngyk.gov.hu/hu/integralt-felugyeleti-rendszer-eredmenyei/integralt-felugyeleti-rendszer-eredmenyei-2026-43-het.html",
     "weekly": "https://jarvpub.nngyk.gov.hu/hu/fertozo-betegsegek-heti-adatai",
-    "weeklyPdf": "https://jarvpub.nngyk.gov.hu/uploads/Heti_tajekoztato_a_hazai_jarvanyugyi_helyzetrol_2026_42_het_04c3c4ca6b.pdf"
+    "weeklyPdf": "https://jarvpub.nngyk.gov.hu/uploads/Heti_tajekoztato_a_hazai_jarvanyugyi_helyzetrol_2026_43_het_945dbaeee3.pdf"
   },
   "methodology": "A HealthHub saját színei NEM NNGYK riasztási fokozatok. Hepatitis A esetek / ötéves heti medián: sárga ≥1,5×, narancs ≥3×, piros ≥5× (utóbbinál legalább 20 eset). A surveillance mutatókat nem adjuk össze. Hiányzó adat nem bizonyít alacsony kockázatot.",
   "raw": {
     "budapest": {
-      "campylobacteriosis": 21,
-      "salmonellosis": 12,
-      "rotavirus": 4,
-      "hepatitisA": 1
+      "campylobacteriosis": 16,
+      "salmonellosis": 13,
+      "rotavirus": 6,
+      "hepatitisA": 3
     },
     "national": {
       "hepatitisA": 27,
-      "hepatitisMedian": 4
+      "hepatitisMedian": 5
     },
     "week": [
       2026,
-      42
+      43
     ]
   },
-  "respiratoryWeek": "2026. 42. hét"
+  "respiratoryWeek": "2026. 43. hét"
 }
