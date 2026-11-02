@@ -85,3 +85,20 @@ nav.sh9-golden-fallback-v924 > a svg{
 }
 nav.sh9-golden-fallback-v924 > a span{font-size:10px;line-height:1.1;white-space:nowrap}
 body[data-sh9-golden-fallback="on"]{padding-bottom:max(76px,env(safe-area-inset-bottom,0px))}
+
+/* v924 · ID-specific legacy nav CSS (HealthHub v24 / Nutrition / Guardian)
+   must NOT reintroduce a white Home disc or neutral Ask text.
+   :is() lifts these two selectors above the native #id !important rules. */
+:is(#sh9GlobalNavV24,#nutritionHHNav,#guardianHHNav,#sh9TransitNavV927,nav[data-sh9-golden-bottom-nav="on"])[data-sh9-golden-bottom-nav="on"] > [data-sh9-bottom-role="home"] svg,
+:is(#sh9GlobalNavV24,#nutritionHHNav,#guardianHHNav,#sh9TransitNavV927,nav[data-sh9-golden-bottom-nav="on"])[data-sh9-golden-bottom-nav="on"] > [data-sh9-bottom-role="ask"] svg{
+ color:var(--sh9-global-bottom-accent)!important;
+ background:transparent!important;background-image:none!important;
+ border:0!important;border-radius:0!important;
+ box-shadow:none!important;filter:none!important;
+ width:28px!important;height:28px!important;
+ padding:0!important;box-sizing:border-box!important;
+}
+:is(#sh9GlobalNavV24,#nutritionHHNav,#guardianHHNav,#sh9TransitNavV927,nav[data-sh9-golden-bottom-nav="on"])[data-sh9-golden-bottom-nav="on"] > [data-sh9-bottom-role="ask"],
+:is(#sh9GlobalNavV24,#nutritionHHNav,#guardianHHNav,#sh9TransitNavV927,nav[data-sh9-golden-bottom-nav="on"])[data-sh9-golden-bottom-nav="on"] > [data-sh9-bottom-role="ask"] :is(span,small){
+ color:var(--sh9-global-bottom-accent)!important;
+}
