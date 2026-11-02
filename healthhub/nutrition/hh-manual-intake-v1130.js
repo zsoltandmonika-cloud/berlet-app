@@ -12,7 +12,7 @@ let session='',busy=false,known=[],matched=null,imageData='',recognition=null,ai
 const text=v=>String(v??'').trim().replace(/\s+/g,' ');
 const lower=v=>text(v).toLocaleLowerCase('hu-HU');
 const field=k=>$('hhManual'+k[0].toUpperCase()+k.slice(1)+'1130');
-const tell=(message,error=false)=>{const e=$('hhManualStatus1130');e.textContent=message;e.dataset.error=String(error)};
+const tell=(message,error=false)=>{const e=$('hhManualStatus1130');if(e){e.textContent=message;e.dataset.error=String(error)}const b=$('hhManualActionFeedback1135');if(b){b.textContent=message;b.dataset.error=String(error);b.hidden=false}};
 const num=(value,max)=>value===''||value===null||value===undefined?null:(Number.isFinite(Number(value))&&Number(value)>=0&&Number(value)<=max?Number(value):NaN);
 function amount(){
  const name=text($('hhManualName1130').value).slice(0,80),quantity=num($('hhManualQty1130').value,3000);
