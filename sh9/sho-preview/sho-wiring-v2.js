@@ -215,13 +215,15 @@ async function weather(force=false){
   let data=null;
   try{
    const response=await requestWeather(WX_OPENMETEO),v=response.current||{};
+   if(v.temperature_2m===null||v.weather_code===null)throw Error('Missing Open-Meteo measurements');
    const temp=Number(v.temperature_2m),code=Number(v.weather_code);
-   if(!Number.isFinite(temp)||!Number.isFinite(code)||!['number','boolean'].includes(typeof v.is_day))throw Error('Invalid Open-Meteo response');
+   if(!Number.isFinite(temp)||!Number.isFinite(code)||![0,1,true,false].includes(v.is_day))throw Error('Invalid Open-Meteo response');
    data={temp,code,day:v.is_day===1||v.is_day===true,source:'Open-Meteo',at:new Date().toISOString()};
   }catch(_){
    try{
     const response=await requestWeather(WX_WTTR),v=response.current_condition?.[0];
-    const temp=Number(v?.temp_C),code=Number(v?.weatherCode);
+    if(v?.temp_C==null||v?.weatherCode==null||v.temp_C===''||v.weatherCode==='')throw Error('Missing wttr.in measurements');
+    const temp=Number(v.temp_C),code=Number(v.weatherCode);
     if(!Number.isFinite(temp)||!Number.isFinite(code))throw Error('Invalid wttr.in response');
     // WWO weatherCode and WMO codes are mapped explicitly in weatherIcon.
     const hr=Number(new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/Budapest',hour:'numeric',hourCycle:'h23'}).format(new Date()));
