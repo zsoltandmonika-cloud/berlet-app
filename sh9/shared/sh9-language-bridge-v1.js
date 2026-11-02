@@ -70,7 +70,7 @@ const lex=[
  ['Family Guard','Biztonság'],
  ['Daily Spark','Asztrológia'],
  ['Daily Headline','Vezércikk'],
- ['Daily Health','Egészségfigyelés'],
+ ['Daily Health','Napi egészség'],
  ['Trip Planner','Útvonaltervezés'],
  ['Health','Egészség'],
  ['Safety','Biztonság'],
