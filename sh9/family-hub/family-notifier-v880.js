@@ -268,13 +268,14 @@ function announce(e){
  pending.push(e);pending.sort((a,b)=>Number(a.id)-Number(b.id));
  drawPending();
 }
-let unreadInFlight=null;
+const unreadInFlight=new Map();
 async function readUnread(){
  if(!api||!user)return;
- // Realtime and visibility events may coincide; one bounded fetch is enough.
- if(unreadInFlight)return unreadInFlight;
- unreadInFlight=(async()=>{
  const p=currentProfile;
+ // Realtime/foreground coalesce for the SAME profile only. Profile switches
+ // must not wait on an old profile's in-flight request.
+ if(unreadInFlight.has(p))return unreadInFlight.get(p);
+ const request=(async()=>{
  const {data,error}=await api.from('hh_family_task_events')
  .select('id,task_id,title_snapshot,event_type,actor_profile,recipient_profile,current_value,created_at')
  .eq('recipient_profile',p).gte('created_at',new Date(Date.now()-30*864e5).toISOString())
@@ -307,7 +308,10 @@ async function readUnread(){
  const n=badge.querySelector('.fh-badge-count');if(n){n.textContent=unread>49?'50+':String(unread);n.hidden=!unread}
  badge.setAttribute('aria-label','Family Tasks · '+unread+' olvasatlan esemény');
  })();
- try{return await unreadInFlight}finally{unreadInFlight=null}
+ unreadInFlight.set(p,request);
+ try{return await request}finally{
+  if(unreadInFlight.get(p)===request)unreadInFlight.delete(p);
+ }
 }
 /* v917: reconnect only on actual auth/profile changes; no browser-event
    object may accidentally act as a truthy force=true flag. */
