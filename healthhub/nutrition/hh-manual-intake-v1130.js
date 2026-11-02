@@ -215,10 +215,10 @@ async function image(){
 const newId=()=> 'quick:manual-'+(w.crypto?.randomUUID?.()||Date.now().toString(36)+Math.random().toString(36).slice(2)).replace(/[^a-z0-9-]/gi,'').slice(0,54);
 /* v1131 · Diary is PRIMARY. A favorite/category/photo failure must never cancel a food log. */
 async function save(e){
- e.preventDefault();
- if(busy)return;
+ e?.preventDefault?.();
+ if(busy){tell('A mentés már folyamatban van.');return}
  let info;
- try{info=amount()}catch(err){return tell(err.message,true)}
+ try{info=amount()}catch(err){return tell('⚠ Nincs mentés: '+String(err.message||err),true)}
  const food=$('hhManualSaveFood1130').checked,favorite=$('hhManualFavorite1130').checked,
   family=$('hhManualFamily1130').checked,photo=imageData;
  const submit=$('hhManualSubmit1130'),launch=$('hhManualLaunch1130'),
@@ -231,7 +231,7 @@ async function save(e){
   result=api().recordManualMeal(info);
   if(!result?.id||result.profile!==info.expectedProfile)throw Error('A napló visszaigazolása hiányzik.');
  }catch(err){
-  tell('⚠ Nem sikerült a Napi napló mentése: '+String(err.message||err).slice(0,175),true);
+  tell('⚠ NEM MENTETTEM: '+String(err?.message||err).slice(0,215),true);
   busy=false;submit.disabled=false;launch.disabled=false;
   return;
  }
