@@ -1,0 +1,88 @@
+/* SH9 / HealthHub GOLDEN STANDARD · shared three-control pilot v917.
+   Approved v916: exact opaque #0c2446, 90×47 touch areas, 34px
+   visible capsules, Zsolt #79bfff / Mónika #f9a6d3 borders.
+   SH9 launcher keeps its approved placement/legacy CSS untouched. */
+body[data-sh9-golden-three="on"] #sh9HeaderControlsV2 #sh9TasksGolden{
+ display:grid!important;place-items:center!important;
+ text-decoration:none!important;cursor:pointer!important;
+ pointer-events:auto!important;white-space:nowrap!important;
+}
+body[data-sh9-golden-pilot="on"] #sh9HeaderControlsV2{
+ box-sizing:border-box;position:absolute;top:2px;left:5px;z-index:18;
+ display:flex;gap:6px;align-items:stretch;
+}
+body[data-sh9-golden-pilot="on"] #sh9HeaderControlsV2 #sh9LanguageSwitchV1,
+body[data-sh9-golden-pilot="on"] #sh9HeaderControlsV2 #sh9TasksGolden,
+body[data-sh9-golden-pilot="on"] #sh9LauncherProfileV1{
+ box-sizing:border-box!important;appearance:none!important;
+ display:flex!important;align-items:center!important;justify-content:center!important;
+ width:90px!important;height:47px!important;min-width:90px!important;max-width:90px!important;
+ min-height:47px!important;max-height:47px!important;flex:0 0 90px!important;
+ margin:0!important;padding:4px 6px!important;gap:3px!important;
+ border:1px solid transparent!important;border-radius:999px!important;
+ background:transparent!important;box-shadow:none!important;
+ backdrop-filter:none!important;-webkit-backdrop-filter:none!important;
+ color:#eff7ff!important;isolation:isolate!important;touch-action:manipulation!important;
+ font:760 11px/1.1 Inter,'Segoe UI',system-ui,sans-serif!important;
+ position:relative!important;z-index:2!important;
+ text-align:center!important;white-space:nowrap!important;
+ text-decoration:none!important;cursor:pointer!important;
+ -webkit-tap-highlight-color:transparent!important;
+}
+body[data-sh9-golden-pilot="on"] #sh9LauncherProfileV1{
+ position:absolute!important;z-index:19!important;
+ left:5px!important;bottom:2px!important;top:auto!important;right:auto!important;
+}
+body[data-sh9-golden-pilot="on"] [data-sh9-golden-profile="z"]{
+ --sh9-three-pill-border:#79bfff;
+}
+body[data-sh9-golden-pilot="on"] [data-sh9-golden-profile="m"]{
+ --sh9-three-pill-border:#f9a6d3;
+}
+body[data-sh9-golden-pilot="on"] #sh9HeaderControlsV2 #sh9LanguageSwitchV1::before,
+body[data-sh9-golden-pilot="on"] #sh9HeaderControlsV2 #sh9TasksGolden::before,
+body[data-sh9-golden-pilot="on"] #sh9LauncherProfileV1::before{
+ box-sizing:border-box;content:"";position:absolute;z-index:-1;
+ left:0;right:0;top:50%;height:34px;transform:translateY(-50%);
+ border:1px solid var(--sh9-three-pill-border,#79bfff);
+ border-radius:999px;background:#0c2446;
+ box-shadow:0 3px 12px rgba(1,8,25,.32),inset 0 1px 0 rgba(255,255,255,.15);
+ backdrop-filter:none;-webkit-backdrop-filter:none;
+ pointer-events:none;
+}
+body[data-sh9-golden-pilot="on"] #sh9HeaderControlsV2 #sh9LanguageSwitchV1{
+ gap:3px!important;padding:4px!important;
+}
+body[data-sh9-golden-pilot="on"] #sh9LanguageSwitchV1 [data-sh9-lang]{
+ box-sizing:border-box;display:flex;align-items:center;justify-content:center;
+ width:34px;min-width:34px;height:30px;min-height:30px;
+ padding:2px 4px;margin:0;appearance:none;
+ border:1px solid transparent;border-radius:999px;
+ background:transparent;color:#f4faff;
+ font:800 17px/1 system-ui,'Segoe UI Emoji',sans-serif;
+ touch-action:manipulation;cursor:pointer;
+}
+body[data-sh9-golden-pilot="on"] #sh9LanguageSwitchV1 [data-sh9-lang][aria-pressed="true"]{
+ border-color:rgba(168,212,253,.48);background:rgba(83,153,219,.17);
+ box-shadow:inset 0 1px rgba(255,255,255,.13);
+}
+body[data-sh9-golden-pilot="on"] #sh9LauncherProfileNameV1{
+ color:#eff7ff!important;white-space:nowrap!important;
+}
+body[data-sh9-golden-pilot="on"] #sh9LauncherProfileArrowV1{font-size:12px;opacity:.85}
+body[data-sh9-golden-pilot="on"] #sh9LauncherProfileMarkV1{display:none!important}
+body[data-sh9-golden-pilot="on"] #sh9HeaderControlsV2 :is(a,button):focus-visible,
+body[data-sh9-golden-pilot="on"] #sh9LauncherProfileV1:focus-visible{
+ outline:3px solid #f3fbff!important;outline-offset:2px!important;
+}
+/* Native Family Tasks permission-aware profile control remains in the
+   Quick Add overlay. Hide it ONLY in the regular hero after takeover. */
+body[data-sh9-golden-family="on"] .fh-hero .fh-head #fhProfileSwitch,
+body[data-sh9-golden-family="on"] .fh-hero .fh-module-badge{
+ display:none!important;visibility:hidden!important;pointer-events:none!important;
+}
+@media(max-width:360px){
+ body[data-sh9-golden-pilot="on"] #sh9HeaderControlsV2{left:2px}
+ body[data-sh9-golden-pilot="on"] #sh9LauncherProfileV1{left:2px!important}
+ body[data-sh9-golden-pilot="on"] #sh9LanguageSwitchV1 [data-sh9-lang]{min-width:33px;width:33px}
+}
