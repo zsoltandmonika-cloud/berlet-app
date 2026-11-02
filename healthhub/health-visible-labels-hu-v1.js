@@ -13,8 +13,8 @@ const pairs=[
  ['Family Guard','Biztonság'],['Digital Health','Digitális Jólét'],
  ['Ask Léna','Kérdezd Lénát']
 ];
-const en=new Map(pairs.slice(0,12));
-const hu=new Map(pairs.slice(12));
+const en=new Map([...pairs.slice(0,12),['Daily Spark','Astrology'],['Daily Headline','Headline News'],['Wellbeing','Digital Health'],['Medical Records','Medical Records']]);
+const hu=new Map([...pairs.slice(12),['Health','Egészség'],['Medical Records','Leletek'],['Sleep','Alvás'],['Activity','Aktivitás'],['Astrology','Asztrológia'],['Headline News','Vezércikk'],['Wellbeing','Digitális Jólét']]);
 const selectors='button b,button span,button small,a b,a span,a small,.dailyStrip b,.homeModule b,.detailTop b,.detailTitle h1,.dailyHealthStrip b,.homeTile b,.tile b,.screenTitle';
 let busy=false;
 function apply(){
