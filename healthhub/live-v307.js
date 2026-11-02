@@ -418,6 +418,17 @@ function ensureLaunch(){
   var desired=localeEnglish?'Symptom<br>Diary':'Tünet-<br>napló';
   if(caption.innerHTML!==desired)caption.innerHTML=desired;
  }
+ // Featured Symptom Diary: force visible styles on the actual icon tile.
+ // Inline styles intentionally override legacy dynamically injected CSS.
+ var iconTile=b.querySelector('.qbox');
+ if(iconTile){
+  iconTile.style.setProperty('border','2px solid #dfa1e7','important');
+  iconTile.style.setProperty('border-radius','14px','important');
+  iconTile.style.setProperty('background','linear-gradient(145deg, rgba(176,105,194,.58), rgba(231,137,190,.37))','important');
+  iconTile.style.setProperty('box-shadow','0 0 0 2px rgba(222,156,234,.20), 0 5px 17px rgba(174,91,185,.32), inset 0 1px rgba(255,238,250,.38)','important');
+  iconTile.style.setProperty('color','#f6d2f7','important');
+ }
+ b.style.setProperty('color','#eeb6ed','important');
  b.type='button';
  b.onclick=function(e){if(e){e.preventDefault();e.stopPropagation()}openJournal()};
 }
