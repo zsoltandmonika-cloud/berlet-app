@@ -8,8 +8,7 @@ function apply(){
  if(busy)return;
  busy=true;
  try{
-  const root=document.querySelector('.homeModules')||document;
-  const nodes=root.querySelectorAll('button b, .dailyStrip b, .homeModule b, .detailTop b, .detailTitle h1, .dailyHealthStrip b');
+  const nodes=document.querySelectorAll('button b, button span, .dailyStrip b, .homeModule b, .detailTop b, .detailTitle h1, .dailyHealthStrip b, .homeTile b, .tile b');
   for(const el of nodes){
    const source=(el.textContent||'').trim();
    if(map.has(source))el.textContent=map.get(source);
