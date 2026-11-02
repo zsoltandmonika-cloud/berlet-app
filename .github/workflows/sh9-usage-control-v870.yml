@@ -1,10 +1,11 @@
-name: SH9 Usage Control Center v870 QA
+name: SH9 Usage Control Center v880 QA
 on:
   pull_request:
     paths:
       - 'healthhub/usage-control/**'
       - 'healthhub/hh-admin-mobile-focus-v748.js'
       - 'healthhub/tests/sh9-usage-control-v870.test.cjs'
+      - 'healthhub/tests/sh9-puter-usage-v880.test.cjs'
       - '.github/workflows/sh9-usage-control-v870.yml'
   push:
     branches: [main]
@@ -12,6 +13,7 @@ on:
       - 'healthhub/usage-control/**'
       - 'healthhub/hh-admin-mobile-focus-v748.js'
       - 'healthhub/tests/sh9-usage-control-v870.test.cjs'
+      - 'healthhub/tests/sh9-puter-usage-v880.test.cjs'
       - '.github/workflows/sh9-usage-control-v870.yml'
 jobs:
   usage-control:
@@ -24,4 +26,4 @@ jobs:
         with:
           node-version: '22'
       - name: Validate no silent usage and responsive mobile layout
-        run: node --test healthhub/tests/sh9-usage-control-v870.test.cjs
+        run: node --test healthhub/tests/sh9-usage-control-v870.test.cjs healthhub/tests/sh9-puter-usage-v880.test.cjs
