@@ -191,6 +191,7 @@ main{
 @media(prefers-reduced-motion:reduce){.heading #profileLabel{transition:none}}
 
 </style><link rel="stylesheet" href="./bkk-grand-v2.css"><link rel="stylesheet" href="/berlet-app/sh9/shared/sh9-golden-controls-v1.css?v=918-global-all">
+<link rel="stylesheet" href="/berlet-app/sh9/shared/sh9-golden-bottom-nav-v924.css?v=924-unified">
 </head><body>
 <main>
 <div class="bkk-first-fold">
@@ -307,4 +308,5 @@ async function findRoutes(){const q=$('routeSearch').value.trim().slice(0,60).to
 $('profileLabel').addEventListener('click',toggleProfile);$('routeSearchBtn').addEventListener('click',findRoutes);$('routeSearch').addEventListener('keydown',e=>{if(e.key==='Enter')findRoutes()});$('catalogMore').addEventListener('click',()=>{shown+=12;renderCatalog()});$('notifications').addEventListener('click',()=>{$('notice').hidden=!$('notice').hidden});window.addEventListener('storage',e=>{if(e.key==='hh-profile'||e.key===STORE)syncProfile()});window.addEventListener('pageshow',syncProfile);document.addEventListener('visibilitychange',()=>{if(!document.hidden)syncProfile()});syncProfile();
 })();
 </script><script src="./bkk-grand-v2.js" defer></script><script defer src="/berlet-app/sh9/shared/sh9-golden-controls-v1.js?v=918-global-all"></script>
+<script defer src="/berlet-app/sh9/shared/sh9-golden-bottom-nav-v924.js?v=924-unified"></script>
 </body></html>
