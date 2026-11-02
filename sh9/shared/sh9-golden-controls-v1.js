@@ -11,7 +11,7 @@
   try{return w.SH9_I18N_V1?.getLanguage?.()==='en'?'en':w.localStorage?.getItem(LANG)==='en'?'en':'hu'}
   catch(_){return 'hu'}
  };
- const nativeIds=['fhProfileSwitch','guardianProfileSwitch','profileBtn','st22Profile','mtProfile','profile','hhProfileStandard652','hhDigitalProfileDock'];
+ const nativeIds=['fhProfileSwitch','guardianProfileSwitch','profileBtn','st22Profile','mtProfile','profile','profileLabel','hhProfileStandard652','hhDigitalProfileDock'];
  function nativeButton(){
   for(const id of nativeIds){
    const element=$(id);
@@ -105,7 +105,7 @@
  function resolveHost(){
   // Recipe Studio can render a hidden modal Hero: prefer its visible header.
   // Nutrition's decorative role=img must not contain interactive controls.
-  if(d.getElementById('nutritionApprovedHero')||d.getElementById('profileBtn'))return d.body;
+  if(d.getElementById('nutritionApprovedHero')||d.getElementById('profileBtn')||d.querySelector('.app-header')||d.querySelector('.topbar'))return d.body;
   for(const selector of heroSelectors){
    const el=d.querySelector(selector);
    if(el&&el!==d.body&&!el.closest?.('[hidden]'))return el;
