@@ -240,7 +240,8 @@ async function save(e){
  const profileName=info.expectedProfile==='monika'?'Mónika':'Zsolt';
  const base='✓ '+info.name+' · '+info.quantity+' '+info.unit+' · '+info.meal+
    ' a Napi naplóba mentve ('+profileName+').';
- notice.hidden=false;notice.dataset.state='saved';notice.textContent=base;
+ notice.hidden=false;notice.dataset.state='saved';notice.textContent='🎉 TADAAA! '+base;
+ const toast=$('hhManualToast1135');if(toast){toast.textContent='🎉 TADAAA! '+info.name+' · '+info.quantity+' '+info.unit+' naplózva';toast.hidden=false;toast.dataset.state='saved';w.setTimeout?.(()=>{toast.hidden=true},5200)}
  const row=d.querySelector('#log .entry[data-entry-id="'+result.id+'"]');
  if(row){
   row.classList.add('hh-manual-saved-row-v1131');
@@ -294,7 +295,7 @@ async function save(e){
   }
  }catch(err){warnings.push(String(err.message||err).slice(0,175))}
  finally{
-  if(completed.length)notice.textContent=base+' + Mentve: '+completed.join(', ')+'.';
+  if(completed.length)notice.textContent='🎉 TADAAA! '+base+' + Mentve: '+completed.join(', ')+'.';
   if(warnings.length){notice.textContent+=' ⚠ '+warnings.join(' ');notice.dataset.state='partial'}
   busy=false;submit.disabled=false;launch.disabled=false;
  }
