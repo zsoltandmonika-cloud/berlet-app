@@ -129,13 +129,28 @@ legend{color:#b4cddd}
  <div class="brand"><span class="logo" aria-hidden="true">H</span><div><h1>HealthHub / SH9 <span style="font-size:.73em;font-weight:600">Usage Control Center</span></h1><div class="subtitle">Minden szolgáltatás · fogyasztás, limitek, trendek</div></div></div>
  <div class="controls"><button class="btn small" id="back">← Admin</button><label class="small" for="month">Hónap</label><input type="month" id="month" aria-label="Hónap kiválasztása"><button class="btn primary" id="export">⬇ Export</button></div>
 </header>
-<div class="notice" id="sourceNote"><strong>Valós adatok, nem demószámok.</strong> A GitHub számlázási, valamint a Dropbox, Google, Outter és AI számlázási adatai addig „Nincs mérés” állapotban maradnak, amíg hiteles mérés vagy kézi elszámolás nem érkezik. A Supabase GPS-referencia API-hívásszám, nem GB.</div>
+<div class="notice" id="sourceNote"><strong>Valós adatok, nem demószámok.</strong> GitHub, Puter és Dropbox adatok csak hiteles, kézzel indított lekérésből vagy dokumentált auditból. Google, Outter és AI számlázás hiteles mérésig „Nincs mérés”. A Puter kreditkeret nem számlázott USD-költség. A Supabase GPS-referencia API-hívásszám, nem GB.</div>
 <section class="card" id="dropboxUsageAuth" aria-label="Dropbox fiók tárhelyadatok">
  <div class="sectionhead"><h2>◆ Dropbox fiók · tárhely / limit</h2><span class="pill" id="dropboxScopeStatus">Kapcsolat ellenőrzésre vár</span></div>
  <div class="small">A külön HealthHub ChatGPT Sync OAuth-fiók teljes tárhelye. Ez nem a havi adatforgalom, és nem az App Folder külön mérete.</div>
  <div class="oauth-row"><div class="oauth-status" role="status" id="dropboxUsageStatus">A fiókhasználat csak gombnyomásra kérdezhető le. Nem indul háttérszinkron.</div>
  <div class="oauth-actions"><button type="button" class="btn primary" id="dropboxUsageRead">◉ Tárhely lekérése</button>
  <button type="button" class="btn" id="dropboxUsageAuthorize">🔐 Dropbox jogosultság megújítása</button></div></div>
+</section>
+<section class="card" id="puterUsageV880" aria-label="Puter havi kreditkeret és fióktárhely">
+ <div class="github-live-header">
+  <div><h2>◈ Puter · AI, havi kreditkeret és tárhely</h2>
+   <p class="small" style="margin:4px 0 0">Hivatalos Puter API · fiókszintű kreditkeret és tárhely. Részletes API-használat csak az aktuális Puter-alkalmazáshoz.</p></div>
+ </div>
+ <div class="oauth-row">
+  <div class="oauth-status" role="status" id="puterUsageStatusV880">Még nincs Puter-mérés. Kizárólag kézi lekérés; automatikus bejelentkezés és háttér-polling nincs.</div>
+  <div class="oauth-actions">
+   <button type="button" class="btn" id="puterConnectV880">🔐 Puter belépés</button>
+   <button type="button" class="btn primary" id="puterUsageReadV880">◉ Puter fogyasztás lekérése</button>
+  </div>
+ </div>
+ <div id="puterUsageSummaryV880" aria-live="polite"></div>
+ <p class="small">A Puter-fiók havi keretfelhasználása <strong>nem számlázott USD-költség</strong>. Az AI-fogyasztás apponként korlátozott: más webalkalmazások (például Recepttár vagy Táplálkozás) API-bontása itt nem látszik automatikusan. Az eredmények csak ezen a böngészőn tárolódnak, kulcs vagy személyes tartalom nélkül.</p>
 </section>
 <section class="kpis" id="kpis" aria-label="Kulcsmutatók"></section>
 <section aria-label="Szolgáltatások">
@@ -201,13 +216,13 @@ legend{color:#b4cddd}
   <div class="notice">A Dropbox tárhelymérés önálló (GB tárhely), nem összeadható havi hálózati forgalommal. A mérések mértékegységenként és elszámolási időszakonként külön kezelendők. A teljes GB-keret és a forgalmi végpontok hívásszáma nem összeadható. A trend nem készít interpolált vagy kitalált értékeket.</div>
   <details style="margin-top:14px"><summary>Források és frissítési szabályok</summary>
    <p class="small">Supabase: 2026. október 25. 22:00 – 26. 22:00 UTC, <a style="color:#8bccff" href="https://github.com/zsoltandmonika-cloud/berlet-app/commit/553cc44f3ea29097dd3440b23f5da5e98d801310" target="_blank" rel="noopener noreferrer">v868 mérési audit</a>. Az 5 GB-os Free uncached egress havi keret ismert, a felhasználás nem.</p>
-   <p class="small">GitHub / Dropbox / Google / Outter / AI: hiteles szolgáltatói usage endpoint vagy számlázási export bekötése külön, szerveroldali hitelesítéssel lehetséges. A böngésző nem fogad titkos API-kulcsot.</p>
-   <p class="small">A kézi számok és a felhasználó által lekért Dropbox tárhelyérték csak ezen a böngészőn jelennek meg. Automatikus felhőszinkron, GPS-adat vagy személyes egészségügyi adat nincs. Nincs háttér-polling.</p>
+   <p class="small">GitHub / Dropbox / Puter: ahol rendelkezésre áll, hitelesített, felhasználó által indított lekérés. Google / Outter / AI számlázás: külön API vagy szolgáltatói export szükséges. A Puter alkalmazásszintű API-bontás nem fiókszintű összesítő. A böngésző nem fogad titkos API-kulcsot.</p>
+   <p class="small">A kézi számok és a felhasználó által lekért Dropbox/Puter fogyasztási adatok csak ezen a böngészőn jelennek meg. Automatikus felhőszinkron, GPS-adat vagy személyes egészségügyi adat nincs. Nincs háttér-polling.</p>
   </details>
   <button class="btn small" id="clear" type="button" style="margin-top:12px">Kézi mérések törlése ezen az eszközön</button>
  </div>
 </section>
-<footer>HH / SH9 Usage Center v876 · Premium Dark Glass · S24 Ultra responsive · Offline-first admin nézet · Dropbox tárhely: felhasználó által indított, hitelesített lekérés. Számlázási / költségadat hiányában nincs becsült érték. A mérési adatok tájékoztató jellegűek, nem helyettesítik a szolgáltatói Usage/Billing oldalakat.</footer>
+<footer>HH / SH9 Usage Center v880 · Premium Dark Glass · S24 Ultra responsive · Offline-first admin nézet · Dropbox tárhely: felhasználó által indított, hitelesített lekérés. Számlázási / költségadat hiányában nincs becsült érték. A mérési adatok tájékoztató jellegűek, nem helyettesítik a szolgáltatói Usage/Billing oldalakat.</footer>
 </main>
 <script src="../hh-chatgpt-target-auth-v739.js?v=739-account-871"></script>
 <script>
@@ -216,6 +231,7 @@ legend{color:#b4cddd}
 const PROVIDERS=[
 {id:'github',name:'GitHub',icon:'◉',description:'Repository · Actions · Packages'},
 {id:'dropbox',name:'Dropbox',icon:'◆',description:'Tárhely · sync · API'},
+{id:'puter',name:'Puter',icon:'◈',description:'AI · havi kreditkeret · fióktárhely'},
 {id:'google',name:'Google',icon:'G',description:'Drive · Maps · Gmail'},
 {id:'outter',name:'Outter',icon:'◌',description:'Szolgáltatói mérések várnak'},
 {id:'supabase',name:'Supabase',icon:'ϟ',description:'Backend · DB · Auth · Realtime'},
@@ -232,7 +248,11 @@ const N=x=>typeof x==='number'&&Number.isFinite(x);
 const fmt=n=>N(n)?new Intl.NumberFormat('hu-HU',{maximumFractionDigits:2}).format(n):'—';
 let manual=[],observed=[],billingRows=[];
 try{const m=JSON.parse(localStorage.getItem(STORE)||'[]');if(Array.isArray(m))manual=m.filter(valid).slice(-300)}catch(e){}
-try{const m=JSON.parse(localStorage.getItem(OBSERVED)||'[]');if(Array.isArray(m))observed=m.filter(r=>valid(r)&&r.source==='Dropbox /users/get_space_usage').slice(-250)}catch(e){}
+try{const m=JSON.parse(localStorage.getItem(OBSERVED)||'[]');if(Array.isArray(m))observed=m.filter(r=>valid(r)&&(
+ r.source==='Dropbox /users/get_space_usage'||
+ (r.provider==='puter'&&r.verified===true&&
+  ['Puter auth.getMonthlyUsage','Puter fs.space'].includes(r.source))
+)).slice(-250)}catch(e){}
 function valid(r){return r&&PROVIDERS.some(p=>p.id===r.provider)&&typeof r.metric==='string'&&r.metric.length<=65&&typeof r.unit==='string'&&r.unit.length<=30&&N(r.used)&&r.used>=0&&(r.limit===null||(N(r.limit)&&r.limit>0))&&Number.isFinite(Date.parse(r.at))}
 const month=$('month');month.value=new Date().toISOString().slice(0,7);
 $('recorded').value=new Date().toISOString().slice(0,10);
@@ -366,6 +386,19 @@ $('export').addEventListener('click',()=>{
  const lines=[columns,...monthRows().map(r=>[PROVIDERS.find(p=>p.id===r.provider)?.name||r.provider,r.metric,r.used,r.limit,r.unit,r.at,r.source,r.verified?'igen':'nem'])].map(a=>a.map(csvCell).join(';'));
  const blob=new Blob(['\ufeff'+lines.join('\r\n')],{type:'text/csv;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='sh9-usage-'+month.value+'.csv';document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
 });
+document.addEventListener('sh9:puter-usage-measured',event=>{
+ const d=event.detail;
+ if(!d||d.schema!=='sh9.puter.usage/1'||!Array.isArray(d.rows))return;
+ const source=['Puter auth.getMonthlyUsage','Puter fs.space'];
+ const rows=d.rows.filter(r=>valid(r)&&r.provider==='puter'&&r.verified===true&&source.includes(r.source)&&
+  (r.metric==='Puter havi kreditkeret felhasználása'||r.metric==='Puter teljes fióktárhely')).slice(0,2);
+ if(!rows.length)return;
+ observed.push(...rows);
+ observed=observed.slice(-250);
+ try{localStorage.setItem(OBSERVED,JSON.stringify(observed))}catch(_){}
+ month.value=rows[0].period||rows[0].at.slice(0,7);
+ render();
+});
 document.addEventListener('sh9:github-billing-measured',event=>{
  const b=event.detail;
  if(!b||b.schema!=='sh9.github.billing/1'||b.currency!=='USD'||b.period!==month.value)return;
@@ -381,6 +414,7 @@ month.addEventListener('change',render);$('driverUnit').addEventListener('change
 <script src="../central-vault/config.js?v=873-billing-publishable"></script>
 <script src="../central-vault/daily-health-sync.js?v=876-billing-inline-vault"></script>
 <script src="./github-live-v872.js?v=872-public-actions"></script>
+<script src="./puter-usage-v880.js?v=880-puter-account-usage"></script>
 <script src="./github-billing-v873.js?v=876-inline-vault"></script>
 <script src="./github-before-after-v878.js?v=878-measured-comparison"></script>
 
