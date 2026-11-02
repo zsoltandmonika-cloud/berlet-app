@@ -11,8 +11,17 @@ ne épüljön új WebView böngésző az SH9 helyére.
 - Kezdőcím: `/berlet-app/sh9/?source=installed`.
 - Scope: `/berlet-app/`, így a HealthHub, Family Guard, Smart Travel modulok
   ugyanabban a tartományban maradnak a támogatott telepítési módokban.
-- A meglévő `assets/sh9-icon.png` továbbra is az eredeti favicon.
-  192×192 és 512×512 PNG telepítőikonok szintén rendelkezésre állnak.
+- **SHO Fancy ikon (2026-11-02):** az eredeti, jóváhagyott
+  `sho-preview/favicon.svg` kék–pink fényíves SHO monogramból készült,
+  ellenőrzött 192×192 és 512×512 PNG telepítési ikon.
+- Az Android külön **512×512 maskable** változatot kap, az iOS
+  **180×180 touch ikont**; a favicon ugyanezt a Fancy SHO dizájnt használja.
+- A korábbi `assets/sh9-icon.png` megmaradt kompatibilitási célra, de
+  a PWA-manifest már nem ezt választja telepítési ikonként.
+- A PWA `id=/berlet-app/sh9/`, `start_url` és `scope` változatlan.
+  Már telepített Android-parancsikonnál az új ikon nem feltétlenül frissül
+  azonnal; az adott SHO parancsikon újbóli felvétele szükséges lehet.
+  **Ne töröld a böngészőadatokat vagy a kapcsolt munkameneteket.**
 - Telepítéskor **ne töröld** az Edge előzményeit/webhelyadatait, ha a
   korábban kapcsolt munkameneteket meg szeretnéd őrizni.
 
