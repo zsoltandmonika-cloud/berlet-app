@@ -1,4 +1,4 @@
-/* Family Guard v862 · Active Transit status (web only).
+/* Family Guard v864 · Active Transit one-button Felszálltam → Leszálltam (web only).
  * Consent driven: explicit boarding or plan selection. No separate GPS watch,
  * no background location, no GPS history. Status is not boarding proof.
  * Shared status goes through authenticated family RLS, never a public endpoint.
@@ -205,12 +205,17 @@
    waiting?'Válassz egy járatot a GPS-találatok közül.':
     'Nincs aktív utazás.';
   if(select)select.hidden=!waiting;
-  if(stopBtn)stopBtn.hidden=!state&&!waiting;
-  if(startBtn)startBtn.textContent=state?.onboard?'🚋 Másik járatra szálltam':
+  // v864: one primary stateful button. Once boarded, it becomes the alight action.
+  // Keep the separate Cancel/End button only while selecting or planning a trip.
+  if(stopBtn)stopBtn.hidden=!!state?.onboard||(!state&&!waiting);
+  if(startBtn)startBtn.textContent=state?.onboard?'🚏 Leszálltam':
    state?.selection==='planned'?'🚋 Felszálltam a '+state.route+'-re':'🚋 Felszálltam';
  }
  function board(){
   const pending=ownState();
+  // The SAME button finishes a self-declared boarding; no second GPS action.
+  // stop() clears the local badge and deletes the authorized shared status.
+  if(pending?.onboard){stop();return;}
   if(pending&&pending.selection==='planned'&&!pending.onboard){
    choose(pending.route,pending.mode,'planned',true);
    return;
@@ -299,5 +304,5 @@
   else init();
  }
  return {normalize,nearestSegmentMeters,candidates,choose,planned,stop,getStatus,
-  ownGpsFix,refresh,init,version:'862'};
+  ownGpsFix,refresh,init,version:'864'};
 });
