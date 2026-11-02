@@ -1,8 +1,8 @@
 {
   "id": "/berlet-app/sh9/",
-  "name": "SH9 · SmartHub Nine",
-  "short_name": "SH9",
-  "description": "A családi SH9 kezdőképernyő: HealthHub, Family Guard, Smart Travel és a kapcsolódó modulok.",
+  "name": "SHO · Smart Hub One",
+  "short_name": "SHO",
+  "description": "SHO · Smart Hub One: HealthHub, Family Guard, Smart Travel és a családi alkalmazások prémium kezdőképernyője.",
   "lang": "hu-HU",
   "start_url": "/berlet-app/sh9/?source=installed",
   "scope": "/berlet-app/",
@@ -12,25 +12,25 @@
   "orientation": "portrait",
   "icons": [
     {
-      "src": "./assets/sh9-install-192.png",
+      "src": "./assets/sho-fancy-install-192-v1.png",
       "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "./assets/sh9-install-512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "./assets/sh9-icon.png",
-      "sizes": "any",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "./pwa-icon.svg",
+      "src": "./assets/sho-fancy-install-512-v1.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./assets/sho-fancy-maskable-512-v1.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "./sho-preview/favicon.svg",
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any"
