@@ -199,7 +199,24 @@ html,body{margin:0;height:100%;background:#0b1425;font-family:system-ui,-apple-s
     .replace('</head>',shortcutHead+'\n'+hhHomeBoot+noFlashHead+dockPrepaint+'</head>')
     .replace(/<body([^>]*)>/i,function(opening){return opening+oneFallback+'<script src="./health-route-tap-v547.js?v=547"><\/script>'});
   // Keep bundled Home untouched: activate only its existing Digital Wellbeing tile.
-  const digitalHealthTileLive=html.replace("onclick=\"toast('Digital Wellbeing modul következik')\"", "onclick=\"location.href='./digital-health/'\"");
+  // Visible HealthHub labels only. Do not rewrite route identifiers or live handlers.
+  const isCanadianEnglish=(()=>{try{return localStorage.getItem('sh9-language-v1')==='en'}catch(_){return false}})();
+  const healthLabels=isCanadianEnglish?[
+    ['Daily Headline','Daily Headline'],['Daily Spark','Daily Spark'],
+    ['Daily Health','Daily Health'],['Family Guard','Family Guard'],
+    ['Nutrition','Nutrition'],['Digital Wellbeing','Digital Wellbeing']
+  ]:[
+    ['Daily Headline','Vezércikk'],['Daily Spark','Asztrológia'],
+    ['Daily Health','Egészségfigyelés'],['Family Guard','Biztonság'],
+    ['Nutrition','Táplálkozás'],['Digital Wellbeing','Digitális Jólét']
+  ];
+  const localizedHealthHtml=healthLabels.reduce((markup,pair)=>{
+    if(pair[0]===pair[1])return markup;
+    // Change only complete text nodes, never JS code, paths or data keys.
+    const escaped=pair[0].replace(/[.*+?^{}()|[\]\\]/g,'\\  const digitalHealthTileLive=html.replace("onclick=\"toast('Digital Wellbeing modul következik')\"", "onclick=\"location.href='./digital-health/'\"");');
+    return markup.replace(new RegExp('>(\\s*)'+escaped+'(\\s*)<','g'),(whole,a,b)=>'>'+a+pair[1]+b+'<');
+  },html);
+  const digitalHealthTileLive=localizedHealthHtml.replace("onclick=\"toast('Digital Wellbeing modul következik')\"", "onclick=\"location.href='./digital-health/'\"");
   if(!html.startsWith('<!doctype html>')){
     document.body.innerHTML='<div class="boot"><div><b>HealthHub</b><small>Betöltési hiba</small></div></div>';
     return;
