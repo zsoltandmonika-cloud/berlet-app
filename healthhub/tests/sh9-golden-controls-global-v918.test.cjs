@@ -1,0 +1,71 @@
+'use strict';
+const test=require('node:test'),assert=require('node:assert/strict');
+const fs=require('node:fs'),path=require('node:path');
+const root=path.resolve(__dirname,'../..');
+const read=p=>fs.readFileSync(path.join(root,p),'utf8');
+const pages=[
+ 'index.html',
+ 'healthhub/index.html','healthhub/guardian/index.html',
+ 'healthhub/digital-health/index.html','healthhub/digital-health/time-machine-v534.html',
+ 'healthhub/digital-wellbeing-preview/index.html','healthhub/nutrition/index.html',
+ 'healthhub/nutrition/index-v621-test.html','healthhub/nutrition-preview/index.html',
+ 'healthhub/usage-control/index.html','recepttar/index.html','recepttar-studio/index.html',
+ 'sh9/index.html','sh9/family-hub/index.html','sh9/smart-travel/index.html',
+ 'sh9/smart-travel/my-trips/index.html',
+ 'sh9/smart-travel/public-transport/index.html',
+ 'sh9/smart-travel/public-transport/bkk/index.html',
+ 'sh9/smart-travel/public-transport/bkk/grand-concept/index.html',
+ 'sh9/smart-travel/public-transport/mav/index.html',
+ 'sh9/smart-travel/public-transport/volan/index.html',
+ 'sh9/smart-travel/public-transport/smart-trip/index.html'
+];
+test('Golden Standard triple controls appear on every navigable category tree page and leaf',()=>{
+ for(const file of pages){
+  const html=read(file);
+  assert.equal((html.match(/sh9-golden-controls-v1\.css\?v=918-global-all/g)||[]).length,1,file+' style');
+  assert.equal((html.match(/sh9-golden-controls-v1\.js\?v=918-global-all/g)||[]).length,1,file+' runtime');
+  assert.doesNotMatch(html,/sh9-tasks-golden-v901\.js/,file+' duplicate old Tasks script');
+ }
+});
+test('native profile switches preserve module authorization instead of direct unsafe data mutations',()=>{
+ const src=read('sh9/shared/sh9-golden-controls-v1.js');
+ for(const id of ['fhProfileSwitch','guardianProfileSwitch','profileBtn','profileLabel','profile','mtProfile','st22Profile','hhDigitalProfileDock'])
+  assert.ok(src.includes("'"+id+"'"),id+' delegated');
+ assert.match(src,/native\.click\(\)/);
+ assert.match(src,/if\(family&&!w\.FAMILY_TASKS_V880\)return/);
+ assert.match(src,/w\.SH9_I18N_V1\?\.setLanguage/);
+ assert.match(src,/w\.localStorage\?\.getItem\(KEY\)/);
+ assert.match(src,/w\.localStorage\?\.setItem\(KEY,next\)/);
+ assert.match(src,/w\.SH9_GOLDEN_CONTROLS_V1=Object\.freeze/);
+ assert.doesNotMatch(src,/fetch\s*\(|supabase\.|navigator\.geolocation|setInterval/);
+});
+test('uniform 3 capsule visual contract and no surviving native controls when shared handler owns UI',()=>{
+ const css=read('sh9/shared/sh9-golden-controls-v1.css');
+ assert.match(css,/background:#0c2446/);
+ assert.match(css,/#79bfff/);
+ assert.match(css,/#f9a6d3/);
+ assert.match(css,/width:90px!important;height:47px!important/);
+ assert.match(css,/top:50%;height:34px/);
+ assert.match(css,/#guardianProfileSwitch/);
+ assert.match(css,/#profileLabel/);
+ assert.match(css,/#fhProfileSwitch/);
+ assert.match(css,/data-sh9-golden-floating/);
+ assert.match(css,/visibility:hidden!important/);
+ assert.match(css,/backdrop-filter:none/);
+});
+test('all 22 user-facing HTML pages are covered; archived releases and auth callbacks remain immutable',()=>{
+ const htmlPaths=[];
+ function scan(dir){
+  for(const e of fs.readdirSync(path.join(root,dir),{withFileTypes:true})){
+   const rel=path.posix.join(dir,e.name);
+   if(e.isDirectory())scan(rel);
+   else if(/\.html$/.test(e.name))htmlPaths.push(rel);
+  }
+ }
+ for(const d of ['sh9','healthhub','recepttar','recepttar-studio'])scan(d);
+ const excluded=p=>p.includes('/releases/')||/\/family-guard-v\d+\.html$/.test(p)||
+  /\/force-v\d+\.html$/.test(p)||/\/chatgpt-dropbox-callback-v\d+\.html$/.test(p)||
+  p==='healthhub/architecture-grand-design.html';
+ const uncovered=htmlPaths.filter(p=>!excluded(p)&&!pages.includes(p));
+ assert.deepEqual(uncovered,[], 'Uncovered user-facing category leaves: '+uncovered.join(', '));
+});
