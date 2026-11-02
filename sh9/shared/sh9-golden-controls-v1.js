@@ -173,14 +173,19 @@
   pendingAnchor=true;
   const applyAnchor=()=>{
    pendingAnchor=false;
-   if($('sh9LauncherProfileV1'))anchorTo(healthHost());
+   // Sleep recreates its hero via innerHTML during loading, rendering and
+   // profile changes. Recreate missing controls rather than moving dead nodes.
+   if(!$('sh9LauncherProfileV1')||!$('sh9HeaderControlsV2'))init();
+   else anchorTo(healthHost());
   };
   if(typeof w.requestAnimationFrame==='function')w.requestAnimationFrame(applyAnchor);
   else if(typeof w.setTimeout==='function')w.setTimeout(applyAnchor,0);
   else applyAnchor();
  }
+ let healthObserverInstalled=false;
  function observeHealthPages(){
-  if(!healthShell()||typeof MutationObserver==='undefined')return;
+  if(healthObserverInstalled||!healthShell()||typeof MutationObserver==='undefined')return;
+  healthObserverInstalled=true;
   const observer=new MutationObserver(changes=>{
    if(changes.some(change=>change.type==='childList'||
       (change.type==='attributes'&&(change.attributeName==='class'||change.attributeName==='hidden'))))
