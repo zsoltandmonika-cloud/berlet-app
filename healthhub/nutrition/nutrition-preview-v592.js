@@ -272,7 +272,9 @@ function render(){
  $('hhWaterPct').textContent=waterPct==null?'—':waterPct+'%';
 
  const log=$('log');
- const openedMeals=new Set(Array.from(log.querySelectorAll('details.hh-meal-diary-group[open]')).map(el=>el.dataset.meal));
+ // v1134: Always show populated meal groups; totals without visible foods are misleading.
+ // Empty meal groups remain collapsed; users may manually collapse until the next redraw.
+ const visibleMealCount=entries.length;
  log.replaceChildren();
  // Diary hydration summary is derived from dated entries, never a second or
  // duplicated stored intake record. Thus edits, deletes, Dropbox merge and
@@ -290,12 +292,13 @@ function render(){
  const mealGrid=document.createElement('div');mealGrid.className='hh-meal-diary-grid';
  mealGrid.setAttribute('aria-label','Étkezésenkénti napi bontás');
  const sortedEntries=[...entries].sort((a,b)=>String(b.time||'').localeCompare(String(a.time||'')));
- const firstFilled=ENTRIES.find(m=>sortedEntries.some(e=>(normalizeMeal(e.meal)||'Egyéb')===m));
+ const countLabel=$('hhDiaryEntryCount1134');
+ if(countLabel)countLabel.textContent=visibleMealCount+' bejegyzés · '+fmt(kcal,0)+' kcal';
  ENTRIES.forEach((meal,index)=>{
   const matching=sortedEntries.filter(e=>(normalizeMeal(e.meal)||'Egyéb')===meal);
   const section=document.createElement('details');
   section.className='hh-meal-diary-group';section.dataset.meal=meal;
-  section.open=openedMeals.has(meal)||(!openedMeals.size&&meal===firstFilled);
+  section.open=matching.length>0; // v1134: show every recorded food immediately, including newly added meals.
   const summary=document.createElement('summary');
   const label=document.createElement('strong');label.textContent=MEAL_ICONS[index]+' '+meal;
   const number=document.createElement('b');
