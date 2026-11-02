@@ -153,7 +153,7 @@ test('SH9 Shopping takes the centre tile; Ask Léna replaces Timeline in the bot
 
 test('SH9 v907 profile pill is same 90x47 Golden Glass size as the HU/CA control',()=>{
  assert.match(page,/id="sh9LauncherProfileV1"/);
- assert.match(page,/sh9-launcher-profile-v1\.js\?v=907-profile-toggle/);
+ assert.match(page,/sh9-golden-controls-v1\.js\?v=918-global-all/);
  assert.ok(page.indexOf('sh9LauncherProfileV1')>page.indexOf('sh9HeaderControlsV2'));
  assert.match(css,/#sh9HeaderControlsV2 #sh9LanguageSwitchV1[\\s\\S]*?width:90px;height:47px/);
  assert.match(css,/\.hero #sh9LauncherProfileV1[\\s\\S]*?width:90px;height:47px/);
