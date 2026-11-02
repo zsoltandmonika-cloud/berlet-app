@@ -383,3 +383,14 @@ body[data-sh9-golden-unified="on"][data-sh9-golden-floating="on"] #sh9UnifiedGla
   font-size:9.7px!important;
  }
 }
+
+/* v935 | Selective 5px visual lift only on the requested routes/screens.
+   Exact same 50px height, 40% transparency, icon sizes, and tap targets.
+   Normal anchored Hero: bottom from 1px to 6px. Floating mode: top 44px to 39px. */
+body[data-sh9-golden-unified="on"][data-sh9-dock-lift5="on"]:not([data-sh9-golden-floating="on"]) #sh9UnifiedGlassDockV34{
+ bottom:6px!important;
+}
+body[data-sh9-golden-unified="on"][data-sh9-dock-lift5="on"][data-sh9-golden-floating="on"] #sh9UnifiedGlassDockV34{
+ top:calc(39px + env(safe-area-inset-top,0px))!important;
+ bottom:auto!important;
+}
