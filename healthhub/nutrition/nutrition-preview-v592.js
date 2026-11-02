@@ -742,6 +742,7 @@ function savePresetEntry(e){
  }catch(e){$('presetError').textContent=e.message;}
 }
 function editEntry(row){
+ if(row.manualEntry){alert('Ez kézzel rögzített étel. A naplózott adatok megőrzése érdekében ezt a bejegyzést törölheted és a Kézi hozzáadás gombbal újra rögzítheted.');return;}
  if(row.aiVision&&window.HH_FOOD_VISION_V750?.open){window.HH_FOOD_VISION_V750.open(row);return;}
  if(row.quickRecipeId){alert('Ez egy mentéskori recept-pillanatkép. A Quick Recipe Studio a jövőbeni bevitelt módosítja; a naplózott példány a napi naplóban megőrzött. Hibás bevitelt törölhetsz, majd újra rögzíthetsz.');return;}
  if(row.components){openPreset(row.foodId.endsWith('afternoon')?'afternoon':'morning',row);return;}
