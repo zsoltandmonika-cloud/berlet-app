@@ -1,4 +1,4 @@
-/* SHO Preview v2 · real navigation shell, safely isolated mock Wallet.
+/* SHO Preview v31 · canonical dock actions, real navigation shell, safely isolated mock Wallet.
  * Uses existing SH9/HealthHub routes, SH9 profile/language preferences and
  * shared Golden bottom nav. No private cloud or credentials in this preview.
  */
@@ -6,7 +6,7 @@
 'use strict';
 const $=id=>d.getElementById(id);
 const ROOT='/berlet-app/',SH9=ROOT+'sh9/',HH=ROOT+'healthhub/';
-const KEY='hh-profile',LANG='sh9-language-v1';
+const KEY='hh-profile',LANG='sh9-language-v1',FAMILY_TASKS=SH9+'family-hub/';
 const REAL_ROUTES=Object.freeze({
  'Egészség':HH,
  'Biztonság':HH+'guardian/',
@@ -105,6 +105,7 @@ function switchProfile(){
  if(!put(KEY,next)){toast('A profil nem menthető a böngészőben');return}
  paintProfile();
  w.dispatchEvent(new CustomEvent('hh-family-profile-changed',{detail:{profile:next==='m'?'monika':'zsolt'}}));
+ w.dispatchEvent(new CustomEvent('sh9:profilechange',{detail:{profile:next}}));
  toast('Aktív profil: '+(next==='z'?'Zsolt 💙':'Mónika 🩷'));
 }
 function paintLang(){
@@ -127,6 +128,13 @@ function paintLang(){
  refreshDate();
 }
 function changeLang(value){
+ // Delegate to the existing SH9 i18n engine, which owns persistence and
+ // notification for all SH9/HealthHub pages. Do not dispatch twice.
+ const i18n=w.SH9_I18N_V1;
+ if(i18n&&typeof i18n.setLanguage==='function'){
+  lang=i18n.setLanguage(value)==='en'?'en':'hu';
+  paintLang();return;
+ }
  if(!put(LANG,value)){toast('A nyelv nem menthető');return}
  lang=value;paintLang();
  w.dispatchEvent(new CustomEvent('sh9:languagechange',{detail:{language:value}}));
@@ -177,8 +185,9 @@ function back(){
 $('profile').onclick=switchProfile;
 $('hu').onclick=()=>changeLang('hu');
 $('en').onclick=()=>changeLang('en');
-$('tasks').onclick=()=>goto(SH9+'family-hub/');
+$('tasks').onclick=()=>goto(FAMILY_TASKS);
 $('status').onclick=()=>goto(SH9); // Original SH9 is the source of truth for native OTA.
+// Hero Wallet and the Smart Wallet tile deliberately share the same existing handler.
 $('heroWallet').onclick=wallet;$('pinLauncher').onclick=()=>view(pins[profile]);
 d.querySelectorAll('[data-module]').forEach(el=>el.onclick=()=>navModule(el.dataset.module));
 d.querySelectorAll('[data-demo]').forEach(el=>el.onclick=()=>{
@@ -206,7 +215,13 @@ w.addEventListener('storage',e=>{
  if(e.key===KEY){paintProfile();}
  if(e.key===LANG){lang=get(LANG,'hu')==='en'?'en':'hu';paintLang();}
 });
-w.addEventListener('pageshow',()=>{paintProfile();refreshDate();});
+w.addEventListener('sh9:languagechange',()=>{
+ lang=w.SH9_I18N_V1?.getLanguage?.()==='en'?'en':get(LANG,'hu')==='en'?'en':'hu';
+ paintLang();
+});
+w.addEventListener('pageshow',()=>{
+ paintProfile();lang=w.SH9_I18N_V1?.getLanguage?.()==='en'?'en':get(LANG,'hu')==='en'?'en':'hu';paintLang();refreshDate();
+});
 d.addEventListener('visibilitychange',()=>{if(d.visibilityState==='visible'){refreshDate();void weather()}});
 lang=get(LANG,'hu')==='en'?'en':'hu';paintProfile();paintLang();void nameday();void weather();
 })(window,document);
