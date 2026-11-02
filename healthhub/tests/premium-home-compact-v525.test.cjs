@@ -7,7 +7,7 @@ const root=path.join(__dirname,'..');
 const source=fs.readFileSync(path.join(root,'premium-home-compact-v525.js'),'utf8');
 const css=fs.readFileSync(path.join(root,'premium-home-compact-v525.css'),'utf8');
 const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
-assert.ok(html.includes('premium-home-compact-v525.js?v=544-glass-stack-below-hero'),'production compact Home cache bust');
+assert.ok(html.includes('premium-home-compact-v525.js?v=545-home-dock-inset-down2'),'production compact Home cache bust');
 assert.ok(html.includes("if(u.searchParams.get('hhpremium')==='0')v='407-digital-wellbeing-family-507'"),'legacy Home remains an explicit URL fallback');
 const current=html.match(/name="healthhub-live-build" content="([^"]+)"/)?.[1];
 assert.ok(current&&html.includes("var v='"+current.slice(1)+"'"),'normal Home shortcut matches the live build');
@@ -25,7 +25,7 @@ assert.match(html,/hhHomeBoot\+noFlashHead\+'<\/head>'/,'FOUC gate injected in t
 assert.match(source,/dataset\.hhPremiumReady='on'/,'compact controller releases boot gate after mounting');
 assert.match(html,/if\(premiumEntry\)setTimeout\(function\(\)/,'timeout avoids permanently stuck loading screen');
 assert.ok(!html.includes('indexedDB.deleteDatabase'),'data and caches remain untouched');
-assert.ok(source.includes("premium-home-compact-v525.css?v=544-glass-stack-below-hero"),'new CSS query avoids stale cache');
+assert.ok(source.includes("premium-home-compact-v525.css?v=545-home-dock-inset-down2"),'new CSS query avoids stale cache');
 assert.match(css,/--hhpg-corner-inset:6px/,'identical top and side gutter from a single CSS variable');
 assert.ok(css.includes('max(0px, 50vw - 210px)'),'HH ONE sticks to the centered HealthHub app on desktops');
 assert.ok(css.includes('left:calc(max(0px, 50vw - 210px) + var(--hhpg-corner-inset) + env(safe-area-inset-left))'),'HH ONE left gutter consistent');
