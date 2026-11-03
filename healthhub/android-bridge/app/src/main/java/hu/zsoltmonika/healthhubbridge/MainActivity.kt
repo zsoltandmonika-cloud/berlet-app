@@ -120,6 +120,14 @@ class MainActivity : ComponentActivity() {
         if (granted) OrchestratorScheduler.runNow(this)
     }
 
+    // WATCH PILOT: independent permission result, never triggers Family Guard uploads.
+    private val watchPilotBluetoothPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        if (granted) showWatchPilotLocal()
+        else status.text = "Watch Pilot: Bluetooth-hozzáférés nélkül a párosítás nem ellenőrizhető."
+    }
+
     // Optional terrain access has its own launcher so refusal cannot disable ordinary sync.
     private val terrainPermissionLauncher = registerForActivityResult(
         PermissionController.createRequestPermissionResultContract()
@@ -449,6 +457,29 @@ class MainActivity : ComponentActivity() {
                     "install" -> installOta()
                     "check" -> checkOta(true)
                 }
+            }
+        }
+    }
+
+    // Local owner-initiated pilot only. No syncing or persistent vitals storage.
+    private fun showWatchPilotLocal() {
+        val pairing = WatchPairedProbeV1.inspect(this)
+        val dialog = AlertDialog.Builder(this)
+            .setTitle("⌚ Watch Pilot · helyi ellenőrzés")
+            .setMessage(pairing.statusText() + "\n\nEgészségadatok helyi olvasása…")
+            .setPositiveButton("Bezárás", null)
+            .create()
+        dialog.show()
+        scope.launch {
+            val detail = try {
+                WatchVitalsProbeV1.inspect(client)
+            } catch (e: kotlinx.coroutines.CancellationException) {
+                throw e
+            } catch (_: Exception) {
+                "A helyi Health Connect-olvasás nem sikerült."
+            }
+            if (!isFinishing && !isDestroyed && dialog.isShowing) {
+                dialog.setMessage(pairing.statusText() + "\n\n" + detail)
             }
         }
     }
@@ -902,6 +933,18 @@ class MainActivity : ComponentActivity() {
                 } else {
                     OrchestratorScheduler.runNow(this@MainActivity)
                     status.text = "Bluetooth-állapot lekérdezése ütemezve; az SH9 a következő hitelesített jelentésből frissül."
+                }
+            }
+        })
+        root.addView(Button(this).apply {
+            text = "⌚ Watch Pilot · óra + 6 vitális adat (csak olvasás)"
+            setOnClickListener {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S &&
+                    ContextCompat.checkSelfPermission(this@MainActivity,
+                        Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+                    watchPilotBluetoothPermissionLauncher.launch(Manifest.permission.BLUETOOTH_CONNECT)
+                } else {
+                    showWatchPilotLocal()
                 }
             }
         })
