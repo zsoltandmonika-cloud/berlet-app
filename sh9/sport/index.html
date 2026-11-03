@@ -7,7 +7,7 @@
 <title>SHO · Sport Central</title>
 <link rel="stylesheet" href="../shared/sh9-golden-bottom-nav-v924.css?v=924-unified">
 <style>
-:root{color-scheme:dark;--ink:#f3f8ff;--border:rgba(163,205,242,.27)}
+:root{color-scheme:dark;--ink:#f3f8ff;--border:rgba(163,205,242,.27);--sport-radar-lime:#baff2f}
 *{box-sizing:border-box}
 html,body{margin:0;min-height:100%;background:#030c1a;color:var(--ink);font:14px/1.4 Inter,system-ui,-apple-system,"Segoe UI",sans-serif}
 a,button{font:inherit}
@@ -21,6 +21,8 @@ a:focus-visible,button:focus-visible{outline:2px solid #8cc4ff;outline-offset:2p
 .sport-menu::-webkit-scrollbar{display:none}
 .sport-menu > :is(button,a){flex:1 0 auto;display:flex;align-items:center;justify-content:center;white-space:nowrap;text-align:center;font-size:10px;line-height:17px;color:#f5faff;font-weight:650;padding:6px 5px;border:0;border-right:1px solid rgba(231,244,255,.23);border-radius:0;background:transparent;text-shadow:0 1px 3px rgba(0,0,0,.85);text-decoration:none;cursor:pointer;appearance:none;-webkit-tap-highlight-color:transparent}
 .sport-menu > :is(button,a):last-child{font-size:15px;padding:6px 7px;border-right:0;flex:0 0 36px}
+.sport-menu > :is(button,a):is(:hover,:focus,:active,:visited){text-decoration:none}
+.sport-menu > .sport-accent,.sport-menu > .sport-accent:is(:link,:visited,:hover,:focus,:active){color:var(--sport-radar-lime);text-decoration:none}
 .sport-frame{display:flex;position:relative;flex:1 1 auto;min-height:0;border:1px solid rgba(154,197,233,.3);border-radius:15px;overflow:hidden;background:#07111f}
 .sport-frame iframe{display:block;flex:1;min-width:0;width:100%;height:100%;border:0;background:#07111f}
 .sport-menu > :is(button,a).is-active{background:rgba(130,192,255,.12)}
@@ -39,9 +41,9 @@ a:focus-visible,button:focus-visible{outline:2px solid #8cc4ff;outline-offset:2p
   <nav class="sport-menu" aria-label="Sport gyorsmenü">
    <button type="button" data-sport-nav="program" class="is-active" aria-pressed="true">Műsor</button>
    <button type="button" data-sport-nav="favorites" aria-pressed="false">Kedvencek</button>
-   <a href="https://mecsradar.pages.dev/" class="sport-full-view" rel="noreferrer external" aria-label="MecsRadar teljes nézet megnyitása">Teljes nézet</a>
+   <button type="button" data-sport-nav="channels" class="sport-accent" aria-pressed="false">Csatornák</button>
    <button type="button" data-sport-nav="cup" aria-pressed="false">Magyar Kupa</button>
-   <button type="button" data-sport-nav="channels" aria-pressed="false">Csatornák</button>
+   <a href="https://mecsradar.pages.dev/" class="sport-full-view sport-accent" rel="noreferrer external" aria-label="MecsRadar teljes nézet megnyitása">Teljes nézet</a>
    <button type="button" data-sport-action="refresh" title="MecsRadar frissítése" aria-label="MecsRadar frissítése">↻</button>
   </nav>
  </header>
