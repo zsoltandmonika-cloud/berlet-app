@@ -465,7 +465,7 @@ class MainActivity : ComponentActivity() {
     private fun showWatchPilotLocal() {
         val pairing = WatchPairedProbeV1.inspect(this)
         val dialog = AlertDialog.Builder(this)
-            .setTitle("⌚ Watch Pilot · helyi ellenőrzés")
+            .setTitle("⌚ Watch9 · helyi adatpilot")
             .setMessage(pairing.statusText() + "\n\nEgészségadatok helyi olvasása…")
             .setPositiveButton("Bezárás", null)
             .create()
@@ -937,7 +937,7 @@ class MainActivity : ComponentActivity() {
             }
         })
         root.addView(Button(this).apply {
-            text = "⌚ Watch Pilot · óra + 6 vitális adat (csak olvasás)"
+            text = "⌚ Watch9 / Watch5 Pro · vitális adatok (read-only)"
             setOnClickListener {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S &&
                     ContextCompat.checkSelfPermission(this@MainActivity,
@@ -946,6 +946,16 @@ class MainActivity : ComponentActivity() {
                 } else {
                     showWatchPilotLocal()
                 }
+            }
+        })
+        root.addView(Button(this).apply {
+            text = "🩷 Watch9 · összes képesség és Watch5 Pro különbségek"
+            setOnClickListener {
+                AlertDialog.Builder(this@MainActivity)
+                    .setTitle("Watch9 · teljes fejlesztési cél")
+                    .setMessage(Watch9CapabilityPlanV1.summary())
+                    .setPositiveButton("Bezárás", null)
+                    .show()
             }
         })
         root.addView(Button(this).apply {
