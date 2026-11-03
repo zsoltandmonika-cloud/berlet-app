@@ -1,0 +1,27 @@
+'use strict';
+/* Sleep v1146 · SHO RAG Buddy visual-only regression guard. */
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const vm=require('node:vm');
+const read=p=>fs.readFileSync(p,'utf8');
+const renderer=read('healthhub/live-v170.js');
+const rag=read('healthhub/sleep-three-views-v428.js');
+const css=read('healthhub/sleep-rag-buddy-v1146.css');
+const index=read('healthhub/index.html');
+new vm.Script(renderer,{filename:'live-v170.js'});
+assert.equal((renderer.match(/id="hhSleepRagBuddyV1146"/g)||[]).length,1);
+assert.match(renderer,/page\.querySelector\('\.hh428Panel\[data-sleep-rag\]'\)/);
+assert.match(renderer,/sleepRagPanel\.getAttribute\('data-hh428-profile'\)===requestedProfile/);
+assert.match(renderer,/sleepBuddy\.dataset\.rag=sleepRag/);
+assert.match(renderer,/if\(\['green','amber','red'\]\.indexOf\(sleepRag\)<0\)sleepRag='unknown'/);
+assert.match(rag,/measured<5\*60\*MINUTE\?'red':measured<7\*60\*MINUTE\?'amber':'green'/);
+const m=css.match(/data:image\/webp;base64,([A-Za-z0-9+/=]+)/);
+assert.ok(m,'Approved transparent sprite missing');
+const data=Buffer.from(m[1],'base64');
+assert.equal(data.toString('ascii',0,4),'RIFF');
+assert.equal(data.toString('ascii',8,12),'WEBP');
+assert.match(css,/background-size:100% 300%/);
+for(const name of ['green','amber','red'])assert.ok(css.includes('[data-rag="'+name+'"]'));
+assert.match(index,/sleep-rag-buddy-v1146\.css\?v=1146-fullbody-night-rag/);
+assert.match(index,/live-v170\.js\?v=1146-fullbody-rag-buddy/);
+console.log('Sleep v1146 Buddy: existing nightly RAG, profile isolation, transparent sprite and entrypoints OK');
