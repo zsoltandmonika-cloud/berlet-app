@@ -25,6 +25,22 @@ test('Sport opens full existing MeccsRadar with actionable hero navigation',()=>
  assert.match(landing,/\.sport-menu\{/);
  assert.match(landing,/src="\.\.\/shared\/sh9-golden-bottom-nav-v924\.js\?v=924-unified"/);
 });
+test('Sport Hero buttons use Radar lime and the requested order without underlines',()=>{
+ const nav=landing.match(/<nav class="sport-menu"[\s\S]*?<\/nav>/)?.[0]||'';
+ const sequence=['Műsor','Kedvencek','Csatornák','Magyar Kupa','Teljes nézet','↻'];
+ let previous=-1;
+ for(const label of sequence){
+  const position=nav.indexOf('>'+label+'<');
+  assert.ok(position>previous,'Menu order wrong: '+label);
+  previous=position;
+ }
+ assert.match(nav,/data-sport-nav="channels" class="sport-accent"/);
+ assert.match(nav,/class="sport-full-view sport-accent"/);
+ assert.match(landing,/--sport-radar-lime:#baff2f/);
+ assert.match(landing,/\.sport-menu > \.sport-accent/);
+ assert.match(landing,/text-decoration:none/);
+ assert.doesNotMatch(nav,/data-sport-nav="marci"/);
+});
 test('SHO 4×3 grid and existing routes unchanged, Sport icon activated',()=>{
  assert.equal((sho.match(/<button class="tile" data-module=/g)||[]).length,12);
  assert.doesNotMatch(sho,/\.tile\[data-module="Sport"\] \.sym svg/);
