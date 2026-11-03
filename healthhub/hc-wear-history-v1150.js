@@ -150,21 +150,6 @@
   }
   return loadLocal(win,p);
  }
- function install(win){
-  var doc=win.document,cache=new Map(),installed=new WeakSet(),pending={activity:null,sleep:null};
-  var seq={activity:0,sleep:0};
-  function owner(){try{return win.localStorage.getItem('hh-profile')==='m'?'monika':'zsolt'}catch(_){return'zsolt'}}
-  function active(kind){return kind==='activity'?doc.getElementById('hhActivityPage'):doc.getElementById('hhSleepPage')}
-  function get(p){
-   var entry=cache.get(p);
-   if(entry&&Date.now()-entry.time<CACHE_MS)return entry.promise;
-   var promise=read(win,p).catch(function(){return null});
-   cache.set(p,{time:Date.now(),promise:promise});return promise;
-  }
-  function ready(kind,page){
-   return kind==='activity'?!!page.querySelector('.hhActTopGrid,.a191Top'):
-     (!!page.querySelector('.hhSleepTop')&&!page.querySelector('.hhSleepLoading'));
-  }
   function budapestDay(value){
    var d=new Date(value),t=d.getTime();
    if(!Number.isFinite(t))return '';
@@ -184,6 +169,38 @@
     '<span class="hhSleepFactorStatus381 '+escaped(tone)+'">'+escaped(status)+'</span>'+
     '<small class="hhSleepFactorDetail381">'+escaped(detail)+'</small></div>';
   }
+  function sleepCards(summary,now,canonicalValue,canonicalInfo){
+   var oxygen=todayReading(summary.readings.oxygen,now);
+   var resting=todayReading(summary.readings.resting,now);
+   var oxygenText=oxygen&&canonicalValue?String(canonicalValue).trim():'';
+   if(oxygenText==='—')oxygenText='';
+   var oxygenDetail=oxygen&&oxygenText?
+    (canonicalInfo&&String(canonicalInfo).trim()||'Mért éjszakai adat')+
+    ' · '+time(oxygen.t):'Nincs mai mérés';
+   return factorTile('🫁','Véroxigén (SpO₂)',oxygenText||'—',
+    oxygenText?'Éjszakai mérés':'Nincs adat',oxygenText?'info':'muted',
+    oxygenDetail,'hhWearHistory1150-sleep')+
+    factorTile('💗','Nyugalmi pulzus',
+    resting?num(resting.value,0)+' /perc':'—',
+    resting?'Naplózott mérés':'Nincs adat',resting?'info':'muted',
+    resting?'Mérve: '+time(resting.t)+' · Health Connect':'Nincs mai mérés',
+    'hhWearHistory1150-sleep-resting');
+  }
+ function install(win){
+  var doc=win.document,cache=new Map(),installed=new WeakSet(),pending={activity:null,sleep:null};
+  var seq={activity:0,sleep:0};
+  function owner(){try{return win.localStorage.getItem('hh-profile')==='m'?'monika':'zsolt'}catch(_){return'zsolt'}}
+  function active(kind){return kind==='activity'?doc.getElementById('hhActivityPage'):doc.getElementById('hhSleepPage')}
+  function get(p){
+   var entry=cache.get(p);
+   if(entry&&Date.now()-entry.time<CACHE_MS)return entry.promise;
+   var promise=read(win,p).catch(function(){return null});
+   cache.set(p,{time:Date.now(),promise:promise});return promise;
+  }
+  function ready(kind,page){
+   return kind==='activity'?!!page.querySelector('.hhActTopGrid,.a191Top'):
+     (!!page.querySelector('.hhSleepTop')&&!page.querySelector('.hhSleepLoading'));
+  }
   function placeSleep(page,summary,now,doc,ownerCode){
    var grid=page.querySelector('.hhSleepFactors381');
    if(!grid)return false;
@@ -191,25 +208,11 @@
    // The preview renderer's supplemental oxygen ribbon is retired after
    // its canonical displayed value is read, to avoid a duplicate.
    var original=page.querySelector('.hhSleepOxygenV432');
-   var oxygen=todayReading(summary.readings.oxygen,now);
-   var resting=todayReading(summary.readings.resting,now);
    var originalValue=original&&original.querySelector('strong');
    var originalMeta=original&&original.querySelector('small');
-   var oxygenText=oxygen&&originalValue?String(originalValue.textContent||'').trim():'';
-   if(oxygenText==='—')oxygenText='';
-   var oxygenDetail=oxygen&&oxygenText?
-    (originalMeta&&String(originalMeta.textContent||'').trim()||'Mért éjszakai adat')+
-    ' · '+time(oxygen.t):'Nincs mai mérés';
-   var oxygenHtml=factorTile('🫁','Véroxigén (SpO₂)',oxygenText||'—',
-    oxygenText?'Éjszakai mérés':'Nincs adat',oxygenText?'info':'muted',
-    oxygenDetail,'hhWearHistory1150-sleep');
-   var restingHtml=factorTile('💗','Nyugalmi pulzus',
-    resting?num(resting.value,0)+' /perc':'—',
-    resting?'Naplózott mérés':'Nincs adat',resting?'info':'muted',
-    resting?'Mérve: '+time(resting.t)+' · Health Connect':'Nincs mai mérés',
-    'hhWearHistory1150-sleep-resting');
+   var html=sleepCards(summary,now,originalValue&&originalValue.textContent,originalMeta&&originalMeta.textContent);
    var holder=doc.createElement('div');
-   holder.innerHTML=oxygenHtml+restingHtml;
+   holder.innerHTML=html;
    var oxygenTile=holder.firstElementChild;
    var restingTile=oxygenTile&&oxygenTile.nextElementSibling;
    if(!oxygenTile||!restingTile)return false;
@@ -303,5 +306,5 @@
   if(doc.readyState==='loading')doc.addEventListener('DOMContentLoaded',setup,{once:true});
   else setup();
  }
- return {profile:profile,summarize:summarize,latestNight:latestNight,pulse:pulse,latest:latest,markup:markup,read:read,install:install};
+ return {profile:profile,summarize:summarize,latestNight:latestNight,pulse:pulse,latest:latest,markup:markup,read:read,budapestDay:budapestDay,todayReading:todayReading,sleepCards:sleepCards,install:install};
 });
