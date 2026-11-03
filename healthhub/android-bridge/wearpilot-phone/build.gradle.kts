@@ -10,8 +10,8 @@ android {
         applicationId = "hu.zsoltmonika.watchpilot"
         minSdk = 28
         targetSdk = 35
-        versionCode = 1
-        versionName = "0.1-pilot"
+        versionCode = 2
+        versionName = "0.2-pilot"
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17

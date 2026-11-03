@@ -2,6 +2,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <uses-feature android:name="android.hardware.type.watch" android:required="true" />
     <uses-permission android:name="android.permission.INTERNET" />
+    <!-- Foreground, user-initiated pulse ONLY. No background body sensor permission. -->
+    <uses-permission android:name="android.permission.BODY_SENSORS" android:maxSdkVersion="35" />
+    <uses-permission android:name="android.permission.health.READ_HEART_RATE" />
     <application
         android:allowBackup="false"
         android:label="SH9 Watch Bridge PILOT"
