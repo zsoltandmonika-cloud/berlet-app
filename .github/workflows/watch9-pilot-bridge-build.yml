@@ -1,0 +1,66 @@
+name: Watch9 Bridge · isolated debug APK build (NO OTA)
+on:
+  push:
+    branches:
+      - pilot/watch9-capability-first-20261103
+    paths:
+      - 'healthhub/android-bridge/wearpilot-phone/**'
+      - 'healthhub/android-bridge/wearpilot-watch/**'
+      - 'healthhub/android-bridge/settings.gradle.kts'
+      - 'healthhub/tests/watch9-wear-bridge-pilot-v1.test.cjs'
+      - '.github/workflows/watch9-pilot-bridge-build.yml'
+permissions:
+  contents: read
+concurrency:
+  group: watch9-isolated-pilot
+  cancel-in-progress: true
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: healthhub/android-bridge
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check pilot isolation and protocol
+        working-directory: .
+        run: node healthhub/tests/watch9-wear-bridge-pilot-v1.test.cjs
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.13'
+      - name: Android SDK 36
+        run: |
+          SDKMANAGER="$(find "$ANDROID_HOME/cmdline-tools" -type f -name sdkmanager | head -1)"
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" "platforms;android-36" "build-tools;35.0.0"
+      - name: Build ONLY independent pilot applications (not HH One)
+        run: gradle :wearpilot-phone:assembleDebug :wearpilot-watch:assembleDebug --stacktrace
+      - name: Verify same debug signing certificate for Data Layer
+        shell: bash
+        run: |
+          set -euo pipefail
+          PHONE="wearpilot-phone/build/outputs/apk/debug/wearpilot-phone-debug.apk"
+          WATCH="wearpilot-watch/build/outputs/apk/debug/wearpilot-watch-debug.apk"
+          test -s "$PHONE"
+          test -s "$WATCH"
+          APK_SIGNER="$ANDROID_HOME/build-tools/35.0.0/apksigner"
+          P=$("$APK_SIGNER" verify --print-certs "$PHONE" | sed -n 's/^Signer #1 certificate SHA-256 digest: //p' | head -1)
+          W=$("$APK_SIGNER" verify --print-certs "$WATCH" | sed -n 's/^Signer #1 certificate SHA-256 digest: //p' | head -1)
+          test -n "$P"
+          test "$P" = "$W"
+          echo "Both pilot APKs use the same signer; production HH One is not built or published."
+      - uses: actions/upload-artifact@v4
+        with:
+          name: watch9-bridge-pilot-pair-debug-no-ota
+          path: |
+            healthhub/android-bridge/wearpilot-phone/build/outputs/apk/debug/wearpilot-phone-debug.apk
+            healthhub/android-bridge/wearpilot-watch/build/outputs/apk/debug/wearpilot-watch-debug.apk
+          if-no-files-found: error
+          retention-days: 7
