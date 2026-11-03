@@ -4,7 +4,7 @@
    Only the visible HH Buddy status portrait is styled; quick-add and calorie rings stay untouched. */
 #balanceCard{overflow:visible!important;}
 #balanceCard #hhBuddyMood.hh-buddy-mood{
-  top:-4px!important;
+  top:-14px!important;
   right:27%!important;
   z-index:3;
   pointer-events:none;
@@ -36,7 +36,7 @@
  #balanceCard #hhBuddyMood.hh-buddy-mood{right:23%!important;}
 }
 @media(max-width:430px){
- #balanceCard #hhBuddyMood.hh-buddy-mood{top:-5px!important;right:21%!important;}
+ #balanceCard #hhBuddyMood.hh-buddy-mood{top:-15px!important;right:21%!important;}
  #balanceCard #hhBuddyMood .hh-buddy-face{width:90px!important;height:104px!important;}
 }
 @media(max-width:350px){
