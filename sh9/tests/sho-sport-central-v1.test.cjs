@@ -34,7 +34,8 @@ test('Sport Hero buttons use Radar lime and the requested order without underlin
   assert.ok(position>previous,'Menu order wrong: '+label);
   previous=position;
  }
- assert.match(nav,/data-sport-nav="channels" class="sport-accent"/);
+ assert.match(nav,/data-sport-nav="channels" aria-pressed="false"/);
+ assert.doesNotMatch(nav,/data-sport-nav="channels" class="sport-accent"/);
  assert.match(nav,/class="sport-full-view sport-accent"/);
  assert.match(landing,/--sport-radar-lime:#baff2f/);
  assert.match(landing,/\.sport-menu > \.sport-accent/);
