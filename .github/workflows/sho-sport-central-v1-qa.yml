@@ -1,0 +1,40 @@
+name: SHO Sport Central V1 · Full MeccsRadar QA
+on:
+  push:
+    branches:
+      - feat/sho-sport-central-v1-full-mecsradar
+    paths:
+      - 'sh9/sport/**'
+      - 'sh9/index.html'
+      - 'sh9/sho-preview/sho-wiring-v2.js'
+      - 'sh9/tests/sho-sport-central-v1.test.cjs'
+      - 'sh9/tests/sho-icons-outline-only-v1161.test.cjs'
+      - '.github/workflows/sho-sport-central-v1-qa.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  sport:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: SHO source syntax
+        run: node --check sh9/sho-preview/sho-wiring-v2.js
+      - name: Sport full-feature parity and Golden icon guards
+        run: node --test sh9/tests/sho-sport-central-v1.test.cjs sh9/tests/sho-icons-outline-only-v1161.test.cjs
+      - name: Verify hero artwork is an actual WebP file
+        run: |
+          test -s sh9/sport/hero.webp
+          file sh9/sport/hero.webp | grep -i WebP
+      - name: Confirm Golden modules, native apps and shared dock untouched
+        run: |
+          git fetch origin main --depth=1
+          MODIFIED=$(git diff --name-only origin/main HEAD)
+          printf '%s\n' "$MODIFIED"
+          if printf '%s\n' "$MODIFIED" | grep -E '(^healthhub/|^sh9/shared/|^sh9/smart-travel/|^sh9/family-hub/)'; then
+            echo 'Protected application unexpectedly touched'
+            exit 1
+          fi
