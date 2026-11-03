@@ -184,7 +184,7 @@
     '<span class="hhSleepFactorStatus381 '+escaped(tone)+'">'+escaped(status)+'</span>'+
     '<small class="hhSleepFactorDetail381">'+escaped(detail)+'</small></div>';
   }
-  function placeSleep(page,summary,now,doc){
+  function placeSleep(page,summary,now,doc,ownerCode){
    var grid=page.querySelector('.hhSleepFactors381');
    if(!grid)return false;
    // Existing six tiles stay in the approved grid. Never add a separate section.
@@ -213,6 +213,8 @@
    var oxygenTile=holder.firstElementChild;
    var restingTile=oxygenTile&&oxygenTile.nextElementSibling;
    if(!oxygenTile||!restingTile)return false;
+   oxygenTile.dataset.owner=ownerCode;
+   restingTile.dataset.owner=ownerCode;
    // If older code has already placed a separate glass section, clear it.
    var legacy=page.querySelector('.hhWH1150Sleep');if(legacy)legacy.remove();
    grid.appendChild(oxygenTile);
@@ -237,7 +239,7 @@
    var old=page.querySelector('#'+id);if(old)old.remove();
    var now=Date.now(),summary=summarize(bundle||{records:{},source:'Nincs szinkronizált adat'},kind,now);
    if(kind==='sleep'){
-    placeSleep(page,summary,now,doc);
+    placeSleep(page,summary,now,doc,p);
     return;
    }
    var html=markup(summary,kind,p,now);
@@ -267,7 +269,10 @@
    cache.clear();
    ['activity','sleep'].forEach(function(k){
     seq[k]++;var p=active(k);
-    if(p){var c=p.querySelector('#hhWearHistory1150-'+k);if(c)c.remove()}
+    if(p){
+     var c=p.querySelector('#hhWearHistory1150-'+k);if(c)c.remove();
+     if(k==='sleep'){var extra=p.querySelector('#hhWearHistory1150-sleep-resting');if(extra)extra.remove()}
+    }
     schedule(k,300);
    });
   }
