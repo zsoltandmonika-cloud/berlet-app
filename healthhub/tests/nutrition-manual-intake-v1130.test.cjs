@@ -20,9 +20,12 @@ assert.match(html,/id="hhQuickDiaryV1137"/);
 assert.match(html,/hh-nutrition-quick-glass-v1137.css\?v=1137-premium-four-tiles/);
 assert.match(html,/hh-nutrition-quick-glass-v1137.js\?v=1137-quick-buttons-tada/);
 assert.match(ui,/hh:nutrition:manual-saved/);
+assert.match(html,/id="hhBalanceQuickAdd1139"[^>]+aria-controls="hhManualDialog1130"/);
+assert.match(ui,/hhBalanceQuickAdd1139'\)\?\.addEventListener\('click'/);
+assert.match(html,/hh-buddy-floating-v628.css\?v=1139-buddy-profile-quick-add/);
 
-assert.ok(html.includes('hh-manual-intake-v1130.css?v=1135-click-save-feedback'));
-assert.ok(html.includes('hh-manual-intake-v1130.js?v=1137-profile-tada-after-save'));
+assert.ok(html.includes('hh-manual-intake-v1130.css?v=1138-clean-dialog'));
+assert.ok(html.includes('hh-manual-intake-v1130.js?v=1139-buddy-quick-add'));
 assert.ok(html.includes('nutrition-preview-v592.js?v=1135-write-display-protection'));
 assert.ok(html.includes('hh-bevitel-premium-v643.js?v=1130-personal-food-image'));
 assert.match(css,/#hhManualLaunch1130/);
