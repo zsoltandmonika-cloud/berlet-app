@@ -1,24 +1,24 @@
 {
   "schema": "healthhub.daily-health-public/1",
-  "date": "2026-11-02",
-  "generatedAt": "2026-11-02T07:19:50+01:00",
+  "date": "2026-11-03",
+  "generatedAt": "2026-11-03T04:32:55+01:00",
   "location": "Budapest",
   "weather": {
     "available": true,
-    "observedAt": "2026-11-02T07:15",
-    "temperature": 8.3,
-    "apparentTemperature": 5.3,
-    "daytimeMaxFeelsLike": 7.0,
-    "uvMax": 0.4,
-    "pressureHpa": 1024.5,
+    "observedAt": "2026-11-03T04:30",
+    "temperature": 6.9,
+    "apparentTemperature": 3.9,
+    "daytimeMaxFeelsLike": 6.7,
+    "uvMax": 0.3,
+    "pressureHpa": 1023.1,
     "pressureChange6h": -0.7,
     "windGust": 23.8
   },
   "air": {
     "available": true,
-    "observedAt": "2026-11-02T07:00",
-    "aqi": 27.0,
-    "pm25": 8.4,
+    "observedAt": "2026-11-03T04:00",
+    "aqi": 29.0,
+    "pm25": 9.5,
     "pollen": {
       "available": true,
       "name": "Éger",
@@ -29,8 +29,8 @@
   "infection": {
     "available": true,
     "stale": false,
-    "sourceWeek": "2026. 42. hét",
-    "periodEnd": "2026-10-18",
+    "sourceWeek": "2026. 43. hét",
+    "periodEnd": "2026-10-25",
     "signals": [
       {
         "name": "COVID-19 / SARS-CoV-2",
