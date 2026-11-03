@@ -237,5 +237,5 @@
   if(doc.readyState==='loading')doc.addEventListener('DOMContentLoaded',setup,{once:true});
   else setup();
  }
- return {profile:profile,summarize:summarize,latestNight:latestNight,pulse:pulse,latest:latest,markup:markup,install:install};
+ return {profile:profile,summarize:summarize,latestNight:latestNight,pulse:pulse,latest:latest,markup:markup,read:read,install:install};
 });
