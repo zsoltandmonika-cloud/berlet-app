@@ -33,7 +33,7 @@ test('SHO 4×3 grid and existing routes unchanged, Sport icon activated',()=>{
 test('SHO Sport is a non-profile-specific read-only integration of existing MeccsRadar',()=>{
  assert.doesNotMatch(landing,/supabase|\.from\(|\.insert\(|\.update\(|localStorage|hh-profile/i);
  assert.doesNotMatch(landing,/fake|mock|demo.*match|Math\.random/);
- assert.match(landing,/src="\.\/hero\.webp\?v=3"/);
+ assert.match(landing,/src="\.\/SHO_Sport_hero_1672x941\.webp\?v=4"/);
  assert.doesNotMatch(landing,/Vissza a SHO kezdőlapra|Sport, egy helyen|Mérkőzések · Eredmények|MecsRadar · Teljes alkalmazás|Változatlan funkciók/);
  assert.match(landing,/\.sport-hero-art\{[^}]*aspect-ratio:1672 \/ 941;object-fit:contain/);
  assert.match(landing,/\.sport-menu\{[^}]*left:0;right:0;bottom:0;[^}]*border-radius:0;background:rgba\(7,25,52,\.21\)/);
@@ -45,4 +45,18 @@ test('SHO Sport is a non-profile-specific read-only integration of existing Mecc
  assert.doesNotMatch(landing,/\.sport-menu\{[^}]*border-radius:1[0-9]px/);
  assert.match(landing,/\.sport-open-full\{[^}]*top:18px;right:73px/);
  assert.match(landing,/src="\.\.\/shared\/sh9-golden-bottom-nav-v924\.js\?v=924-unified"/);
+});
+
+test('Production Hero references the uploaded original 1672×941 WebP rather than the 3.8 KB thumbnail',()=>{
+ const p=path.join(root,'sh9/sport/SHO_Sport_hero_1672x941.webp');
+ const image=fs.readFileSync(p);
+ assert.ok(image.length>200000 && image.length<5000000,'Full-quality image must be present');
+ assert.equal(image.toString('ascii',0,4),'RIFF');
+ assert.equal(image.toString('ascii',8,12),'WEBP');
+ assert.equal(image.toString('ascii',12,16),'VP8 ');
+ const width=image.readUInt16LE(26)&0x3fff;
+ const height=image.readUInt16LE(28)&0x3fff;
+ assert.deepEqual({width,height},{width:1672,height:941});
+ assert.match(landing,/object-fit:contain/,'No visual crop is allowed');
+ assert.doesNotMatch(landing,/src="\.\/hero\.webp\?/,'Do not regress to the low-resolution thumbnail');
 });
