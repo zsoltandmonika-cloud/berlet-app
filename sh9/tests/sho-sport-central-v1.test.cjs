@@ -13,8 +13,9 @@ test('Sport opens full existing MeccsRadar, not a partial imitation',()=>{
  assert.match(landing,/src="https:\/\/mecsradar\.pages\.dev\/" loading="eager"/);
  assert.match(landing,/class="sport-open-full" href="https:\/\/mecsradar\.pages\.dev\/" rel="noreferrer external"/);
  assert.match(landing,/id="mecsradarFull"/);
+ // Scores and calendar remain inside the full unmodified remote application, not duplicated in the thin hero strip.
  assert.doesNotMatch(landing,/<iframe[^>]*\bsandbox\b/);
- for(const originalView of ['Műsor','Kedvencek','Marci','Magyar Kupa','Csatornák','Élő eredmények','Naptár'])
+ for(const originalView of ['Műsor','Kedvencek','Marci','Magyar Kupa','Csatornák'])
   assert.ok(landing.includes(originalView),originalView+' missing');
  assert.match(landing,/\.sport-menu\{/);
  assert.match(landing,/\.sport-open-full\{/);
