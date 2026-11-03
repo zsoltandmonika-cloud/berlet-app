@@ -47,8 +47,7 @@ test('Sleep and Activity bridge opens only canonical HealthHub modules, on expli
  assert.match(js,/root\.hhOpenActivity/);
  assert.match(js,/root\.hh225OpenSleep\|\|root\.hhOpenSleep/);
  assert.match(js,/if\(target!=='activity'&&target!=='sleep'\)return/);
- // Comments can mention forbidden APIs while the bridge itself remains read-only.
- assert.doesNotMatch(js.replace(/\/\*[\s\S]*?\*\//g,''),/fetch\(|supabase|\.from\(/i);
+ assert.doesNotMatch(js,/fetch\(|supabase|\.from\(/i);
 });
 
 test('SHO production unified glass dock preserves four canonical controls and critical integrations',()=>{
