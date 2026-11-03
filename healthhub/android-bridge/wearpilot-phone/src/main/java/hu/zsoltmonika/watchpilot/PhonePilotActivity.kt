@@ -37,7 +37,7 @@ class PhonePilotActivity : Activity() {
         column.addView(caption("⌚ SH9 · WATCH9 BRIDGE PILOT", 23f))
         column.addView(caption(
             "Külön tesztalkalmazás · HH One és Family Guard érintetlen. " +
-            "Csak az óra kézi gombnyomása küld állapotot. Nincs egészségadat, GPS vagy felhőfeltöltés.",
+            "Kézi vagy külön engedélyezett időszakos akkumulátoradatot fogad. Nincs pulzusfeltöltés, GPS vagy felhőfeltöltés.",
             14f
         ))
         display = caption("", 16f)
@@ -68,7 +68,7 @@ class PhonePilotActivity : Activity() {
         AlertDialog.Builder(this)
             .setTitle("Csak helyi Watch Pilot · " + owner)
             .setMessage("Engedélyezed, hogy ez a külön tesztapp a hozzád párosított óra " +
-                "kézzel elküldött akkumulátoradatait és a modell nevét helyben tárolja? " +
+                "kézzel vagy opcionális időzítéssel elküldött akkumulátoradatait és a modell nevét helyben tárolja? " +
                 "Csak az első üzenetet küldő, megfelelően aláírt óra csatlakozhat. " +
                 "Nem jut adat Dropboxba, Supabase-be vagy SH9-be.")
             .setPositiveButton("Engedélyezem") { _, _ ->
@@ -105,7 +105,13 @@ class PhonePilotActivity : Activity() {
             return
         }
         val age = System.currentTimeMillis() - received
-        val fresh = age in 0..(15 * 60 * 1000L)
+        val mode = prefs.getString(WatchPilotReceiver.KEY_MODE, "manual") ?: "manual"
+        val interval = prefs.getInt(WatchPilotReceiver.KEY_INTERVAL, 0)
+        val validInterval = interval in listOf(30, 60, 120)
+        val freshnessMinutes = if (mode == "auto" && validInterval) interval * 2 + 15 else 15
+        val fresh = if (mode == "auto" && validInterval) {
+            age in 0..(freshnessMinutes * 60 * 1000L)
+        } else age in 0..(15 * 60 * 1000L)
         val date = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.MEDIUM)
         val percent = prefs.getInt(WatchPilotReceiver.KEY_BATTERY, -1)
         display.text = prefix +
@@ -114,7 +120,9 @@ class PhonePilotActivity : Activity() {
             "⚡ Töltés: " + (if (prefs.getBoolean(WatchPilotReceiver.KEY_CHARGING, false)) "igen" else "nem") + "\n" +
             "📨 Telefonon fogadva: " + date.format(Date(received)) + "\n" +
             "Óra időbélyege: " + date.format(Date(prefs.getLong(WatchPilotReceiver.KEY_SENT_AT, received))) + "\n" +
-            "Adatfrissesség: " + (if (fresh) "15 percen belül" else "ELAVULT") + "\n\n" +
+            "Jelentés: " + (if (mode == "auto" && validInterval) "Automatikus · $interval perc" else "Kézi") + "\n" +
+            "Adatfrissesség: " + (if (fresh) "megfelelő" else "ELAVULT") +
+            " · határ: $freshnessMinutes perc\n\n" +
             "Ez az utolsó hitelesített órajelentés, nem bizonyít folyamatos Bluetooth/LTE-kapcsolatot."
     }
 }
