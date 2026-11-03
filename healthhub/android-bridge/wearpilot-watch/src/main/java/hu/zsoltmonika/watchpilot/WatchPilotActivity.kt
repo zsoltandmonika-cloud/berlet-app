@@ -95,7 +95,7 @@ class WatchPilotActivity : Activity() {
             return
         }
         val percent = (level * 100.0 / scale).roundToInt().coerceIn(0, 100)
-        val code = battery.getIntExtra(BatteryManager.EXTRA_STATUS, -1)
+        val code = battery?.getIntExtra(BatteryManager.EXTRA_STATUS, -1) ?: -1
         val charging = code == BatteryManager.BATTERY_STATUS_CHARGING ||
             code == BatteryManager.BATTERY_STATUS_FULL
 
