@@ -55,7 +55,7 @@ assert.match(api.markup(act,'activity','monika',t),/data-owner="monika"/);
 assert.match(api.markup(act,'activity','monika',t),/Mérve:/);
 assert.match(api.markup(act,'activity','monika',t),/Utolsó adatcsomag:/);
 assert.match(api.markup(act,'activity','monika',t),/nem bizonyítja/);
-assert.doesNotMatch(api.markup(act,'activity','monika',t),/élő órás/);
+assert.match(api.markup(act,'activity','monika',t),/nem élő órás adatok/);
 const xss={records:{heartRate:[{sourcePackage:'<img src=x onerror=1>',samples:[{time:stamp(t-300000),bpm:71}]}]}};
 assert.match(api.markup(api.summarize(xss,'activity',t),'activity','zsolt',t),/&lt;img/);
 assert.doesNotMatch(api.markup(api.summarize(xss,'activity',t),'activity','zsolt',t),/<img src=x/);
