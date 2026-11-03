@@ -11,7 +11,7 @@ const wiring=read('sh9/sho-preview/sho-wiring-v2.js');
 test('Sport opens full existing MeccsRadar with actionable hero navigation',()=>{
  assert.match(wiring,/'Sport':SH9\+'sport\/'/);
  assert.match(landing,/src="https:\/\/mecsradar\.pages\.dev\/" loading="eager"/);
- assert.match(landing,/<a href="https:\/\/mecsradar\.pages\.dev\/" class="sport-full-view"/);
+ assert.match(landing,/<a href="https:\/\/mecsradar\.pages\.dev\/" class="sport-full-view sport-accent"/);
  assert.match(landing,/id="mecsradarFull"/);
  assert.doesNotMatch(landing,/<iframe[^>]*\bsandbox\b/);
  for(const name of ['Műsor','Kedvencek','Teljes nézet','Magyar Kupa','Csatornák'])
@@ -57,8 +57,8 @@ test('SHO Sport preserves the V4 Hero and the original read-only MeccsRadar embe
  assert.doesNotMatch(landing,/Vissza a SHO kezdőlapra|Sport, egy helyen|Mérkőzések · Eredmények|MecsRadar · Teljes alkalmazás|Változatlan funkciók/);
  assert.match(landing,/\.sport-hero-art\{[^}]*aspect-ratio:1672 \/ 941;object-fit:contain/);
  assert.match(landing,/\.sport-menu\{[^}]*left:0;right:0;bottom:0;[^}]*border-radius:0;background:rgba\(7,25,52,\.21\)/);
- assert.equal((landing.match(/class="sport-full-view"/g)||[]).length,1,'One full-view link in the hero');
- assert.ok(landing.indexOf('class="sport-full-view"')<landing.indexOf('<iframe'),'Full view must be in hero menu');
+ assert.equal((landing.match(/class="sport-full-view sport-accent"/g)||[]).length,1,'One full-view link in the hero');
+ assert.ok(landing.indexOf('class="sport-full-view sport-accent"')<landing.indexOf('<iframe'),'Full view must be in hero menu');
  assert.doesNotMatch(landing,/sport-open-full|<span>Marci<\/span>/);
  assert.doesNotMatch(landing,/class="sport-content-head"|class="sport-top"|class="sport-copy"|id="sportRefresh"/);
  assert.match(landing,/\.sport-menu > :is\(button,a\)\{[^}]*border-radius:0;background:transparent/);
