@@ -51,12 +51,23 @@ assert.equal(api.profile('unknown'),null);
 const empty=api.summarize({records:{},exportedAt:null},'sleep',t);
 assert.equal(empty.readings.nightHeart,null);
 // No new Sleep measurement means no redundant card, including empty placeholders.
-assert.equal(api.markup(empty,'sleep','monika',t),'');
+// Empty data is guarded by the renderer; only source-dependent oxygen is mounted.
 const sleepHtml=api.markup(night,'sleep','monika',t);
 assert.match(sleepHtml,/Nyugalmi pulzus/);
 assert.doesNotMatch(sleepHtml,/Éjszakai pulzus|Utolsó SpO₂|SpO₂ az utolsó/);
 assert.match(sleepHtml,/data-owner="monika"/);
 assert.match(sleepHtml,/nem feltétlenül alvás közben/);
+assert.match(sleepHtml,/hhWH1152Pair/);
+assert.match(sleepHtml,/hhWH1152OxygenSlot/);
+assert.match(sleepHtml,/Véroxigén és nyugalmi pulzus/);
+assert.doesNotMatch(sleepHtml,/hhSleepOxygenV432/); // original oxygen node must be moved, not recreated
+const sleepOxygenOnly=api.markup(empty,'sleep','monika',t);
+assert.match(sleepOxygenOnly,/hhWH1152OxygenSlot/);
+assert.doesNotMatch(sleepOxygenOnly,/hhWH1150Card/); // no resting value => no invented pulse tile
+assert.match(core,/slot.appendChild\(oxygen\)/);
+assert.match(core,/hhSleepFactorsV432 \.hhSleepOxygenV432/);
+assert.match(core,/hhWH1152Single/);
+assert.doesNotMatch(core,/oxygen\.cloneNode\(/);
 assert.match(core,/\.hh431Lena,\.hhSleepLena364/);
 assert.match(core,/lena\.insertAdjacentElement\('beforebegin',node\)/);
 assert.match(core,/kind==='sleep'&&!summary\.readings\.resting/);
