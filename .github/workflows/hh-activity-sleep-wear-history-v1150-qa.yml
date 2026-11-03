@@ -10,6 +10,7 @@ on:
       - 'healthhub/hc-wear-history-v1150.js'
       - 'healthhub/index.html'
       - 'healthhub/tests/hc-wear-history-v1150.test.cjs'
+      - 'healthhub/tests/sleep-v432-factors.test.js'
       - '.github/workflows/hh-activity-sleep-wear-history-v1150-qa.yml'
   workflow_dispatch:
 permissions:
