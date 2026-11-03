@@ -81,14 +81,23 @@
    '<span class="hhWH1150When">'+escaped(info)+'</span>'+origin+'</div>';
  }
  function markup(summary,kind,owner,now){
-  var header=kind==='sleep'?'🌙 Naplózott éjszakai mérések':'⌚ Naplózott egészségadatok';
-  var note=kind==='sleep'?
-   'A legutóbbi rögzített alvásszakasz időablakába eső mérések. A teljes éjszaka átlagai a meglévő alváskártyákon maradnak.':
-   'Legutóbbi érvényes Health Connect-mérések, nem élő órás adatok.';
+  // The original Sleep factors already show night pulse and SpO2. Only the
+  // resting heart rate is new there; do not add a placeholder/duplicate card.
+  if(kind==='sleep'){
+   var resting=summary.readings.resting;
+   if(!resting)return '';
+   var sync=summary.exportedAt!==null?'Adatcsomag: '+time(summary.exportedAt):'Szinkronidő: nem igazolt';
+   return '<section class="hhWH1150 hhWH1150Sleep" id="hhWearHistory1150-sleep" data-owner="'+owner+'" aria-label="Kiegészítő nyugalmi pulzusmérés">'+
+    '<div class="hhWH1150Head"><b>💗 Nyugalmi pulzus · naplózott adat</b><small>HEALTH CONNECT</small></div>'+
+    '<div class="hhWH1150Grid">'+card('resting',resting,now)+'</div>'+
+    '<div class="hhWH1150Meta">📥 '+escaped(sync)+' · '+escaped(summary.source)+
+    '<br>A mérés nem feltétlenül alvás közben készült; nem élő óraadat vagy orvosi monitor.</div></section>';
+  }
+  var header='⌚ Naplózott egészségadatok';
+  var note='Legutóbbi érvényes Health Connect-mérések, nem élő órás adatok.';
   var meta=summary.exportedAt!==null?'Utolsó adatcsomag: '+time(summary.exportedAt):'Szinkronidő: nem igazolt';
-  var body=selections[kind].map(function(key){return card(key,summary.readings[key],now)}).join('');
-  if(kind==='sleep'&&!summary.night)note='Nincs érvényes rögzített alvásszakasz az adatcsomagban.';
-  return '<section class="hhWH1150" id="hhWearHistory1150-'+kind+'" data-owner="'+owner+'" aria-label="'+escaped(header)+'">'+
+  var body=selections.activity.map(function(key){return card(key,summary.readings[key],now)}).join('');
+  return '<section class="hhWH1150" id="hhWearHistory1150-activity" data-owner="'+owner+'" aria-label="'+escaped(header)+'">'+
    '<div class="hhWH1150Head"><b>'+header+'</b><small>HEALTH CONNECT · NAPLÓ</small></div>'+
    '<div class="hhWH1150Grid">'+body+'</div>'+
    '<p class="hhWH1150Foot">'+escaped(note)+'</p>'+
@@ -104,6 +113,7 @@
    '.hhWH1150Head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;flex-wrap:wrap}'+
    '.hhWH1150Head b{font-size:14px;font-weight:850}.hhWH1150Head small{font-size:9px;color:var(--wh);letter-spacing:.055em;font-weight:800}'+
    '.hhWH1150Grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}'+
+   '.hhWH1150Sleep{margin:12px 0 10px}.hhWH1150Sleep .hhWH1150Grid{grid-template-columns:1fr}.hhWH1150Sleep .hhWH1150Card{padding:9px 11px}.hhWH1150Sleep .hhWH1150Name{min-height:0}'+
    '.hhWH1150Card{box-sizing:border-box;min-width:0;border-radius:13px;padding:10px;border:1px solid rgba(203,222,244,.18);background:rgba(255,255,255,.075)}'+
    '.hhWH1150Name{font-size:10.5px;display:block;line-height:1.3;color:#dce9f8;font-weight:700;min-height:28px}'+
    '.hhWH1150Number{font-size:22px;font-weight:900;color:var(--wh);margin:4px 0 3px;line-height:1.12}'+
@@ -169,8 +179,15 @@
      (!!page.querySelector('.hhSleepTop')&&!page.querySelector('.hhSleepLoading'));
   }
   function place(kind,page,node){
-   var anchor=kind==='activity'?page.querySelector('.hhActSmallGrid,.a191Top,.hhActTopGrid'):
-    page.querySelector('.hhSleepTop');
+   if(kind==='sleep'){
+    // The approved Sleep v428 uses hh431Lena, the legacy mode uses hhSleepLena364.
+    // Never prepend to the Sleep title or disrupt its existing night factor cards.
+    var lena=page.querySelector('.hh431Lena,.hhSleepLena364');
+    if(!lena)return false;
+    lena.insertAdjacentElement('beforebegin',node);
+    return true;
+   }
+   var anchor=page.querySelector('.hhActSmallGrid,.a191Top,.hhActTopGrid');
    if(!anchor)return false;
    anchor.insertAdjacentElement('afterend',node);return true;
   }
@@ -185,8 +202,12 @@
    if(token!==seq[kind]||owner()!==p||!page||!page.classList.contains('on')||!ready(kind,page))return;
    var old=page.querySelector('#'+id);if(old)old.remove();
    var now=Date.now(),summary=summarize(bundle||{records:{},source:'Nincs szinkronizált adat'},kind,now);
+   // No genuinely new Sleep measurement => no extra section.
+   if(kind==='sleep'&&!summary.readings.resting)return;
+   var html=markup(summary,kind,p,now);
+   if(!html)return;
    var shell=doc.createElement('div');
-   shell.innerHTML=markup(summary,kind,p,now);
+   shell.innerHTML=html;
    var node=shell.firstElementChild;
    if(!node)return;
    place(kind,page,node);

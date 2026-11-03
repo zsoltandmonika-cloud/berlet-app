@@ -50,7 +50,16 @@ assert.equal(api.profile('zsolt'),'zsolt');
 assert.equal(api.profile('unknown'),null);
 const empty=api.summarize({records:{},exportedAt:null},'sleep',t);
 assert.equal(empty.readings.nightHeart,null);
-assert.match(api.markup(empty,'sleep','monika',t),/Nincs mért adat/);
+// No new Sleep measurement means no redundant card, including empty placeholders.
+assert.equal(api.markup(empty,'sleep','monika',t),'');
+const sleepHtml=api.markup(night,'sleep','monika',t);
+assert.match(sleepHtml,/Nyugalmi pulzus/);
+assert.doesNotMatch(sleepHtml,/Éjszakai pulzus|Utolsó SpO₂|SpO₂ az utolsó/);
+assert.match(sleepHtml,/data-owner="monika"/);
+assert.match(sleepHtml,/nem feltétlenül alvás közben/);
+assert.match(core,/\.hh431Lena,\.hhSleepLena364/);
+assert.match(core,/lena\.insertAdjacentElement\('beforebegin',node\)/);
+assert.match(core,/kind==='sleep'&&!summary\.readings\.resting/);
 assert.match(api.markup(act,'activity','monika',t),/data-owner="monika"/);
 assert.match(api.markup(act,'activity','monika',t),/Mérve:/);
 assert.match(api.markup(act,'activity','monika',t),/Utolsó adatcsomag:/);
