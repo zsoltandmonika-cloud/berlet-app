@@ -5,10 +5,12 @@ on:
       - feature/hc-wear-history-activity-sleep-20261103
       - fix/sleep-extra-above-lena-v1151-20261103
       - fix/paired-sleep-v1152
+      - fix/sleep-eight-cards-v1153
     paths:
       - 'healthhub/hc-wear-history-v1150.js'
       - 'healthhub/index.html'
       - 'healthhub/tests/hc-wear-history-v1150.test.cjs'
+      - 'healthhub/tests/sleep-v432-factors.test.js'
       - '.github/workflows/hh-activity-sleep-wear-history-v1150-qa.yml'
   workflow_dispatch:
 permissions:
@@ -26,6 +28,8 @@ jobs:
           node-version: '22'
       - name: Validate JS syntax (no native/watch APK)
         run: node --check healthhub/hc-wear-history-v1150.js
+      - name: Existing six-card Sleep renderer regression
+        run: node healthhub/tests/sleep-v432-factors.test.js
       - name: Test timestamp, data provenance, profile isolation and Activity/Sleep wiring
         run: node healthhub/tests/hc-wear-history-v1150.test.cjs
       - name: Confirm no watch files or Android native changes in feature diff

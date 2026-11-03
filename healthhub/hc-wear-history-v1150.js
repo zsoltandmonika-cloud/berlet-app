@@ -81,22 +81,6 @@
    '<span class="hhWH1150When">'+escaped(info)+'</span>'+origin+'</div>';
  }
  function markup(summary,kind,owner,now){
-  // The original Sleep factors already show night pulse and SpO2. Only the
-  // resting heart rate is new there; do not add a placeholder/duplicate card.
-  if(kind==='sleep'){
-   var resting=summary.readings.resting;
-   var sync=summary.exportedAt!==null?'Adatcsomag: '+time(summary.exportedAt):'Szinkronidő: nem igazolt';
-   // The original SpO2 element is MOVED into this slot, never copied or recalculated.
-   // The second tile contains the only genuinely additional Sleep metric.
-   return '<section class="hhWH1150 hhWH1150Sleep" id="hhWearHistory1150-sleep" data-owner="'+owner+'" aria-label="Naplózott SpO₂ és nyugalmi pulzus">'+
-    '<div class="hhWH1150Head"><b>⌚ Kiegészítő mérések</b><small>HEALTH CONNECT · NAPLÓ</small></div>'+
-    '<div class="hhWH1152Pair" role="group" aria-label="Véroxigén és nyugalmi pulzus">'+
-     '<div class="hhWH1152OxygenSlot" data-oxygen-source="existing"></div>'+
-     (resting?card('resting',resting,now):'')+
-    '</div>'+
-    '<div class="hhWH1150Meta">📥 '+escaped(sync)+' · '+escaped(summary.source)+
-    '<br>A véroxigén az eredeti éjszakai mérés. A nyugalmi pulzus nem feltétlenül alvás közben készült. Nem élő óraadat, nem orvosi monitor.</div></section>';
-  }
   var header='⌚ Naplózott egészségadatok';
   var note='Legutóbbi érvényes Health Connect-mérések, nem élő órás adatok.';
   var meta=summary.exportedAt!==null?'Utolsó adatcsomag: '+time(summary.exportedAt):'Szinkronidő: nem igazolt';
@@ -117,15 +101,6 @@
    '.hhWH1150Head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;flex-wrap:wrap}'+
    '.hhWH1150Head b{font-size:14px;font-weight:850}.hhWH1150Head small{font-size:9px;color:var(--wh);letter-spacing:.055em;font-weight:800}'+
    '.hhWH1150Grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}'+
-   '.hhWH1150Sleep{margin:12px 0 10px;padding:11px}.hhWH1150Sleep .hhWH1150Head{margin-bottom:9px}'+
-   '.hhWH1152Pair{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;align-items:stretch}'+
-   '.hhWH1152Pair.hhWH1152Single{grid-template-columns:1fr}'+
-   '.hhWH1152OxygenSlot{display:flex;min-width:0}'+
-   '.hhWH1150Sleep .hhWH1150Card{padding:10px;min-height:110px}.hhWH1150Sleep .hhWH1150Name{min-height:28px}'+
-   '#hhSleepPage .hhWH1150Sleep .hhSleepOxygenV432{box-sizing:border-box;display:flex;flex:1;flex-direction:column;align-items:flex-start;justify-content:flex-start;gap:5px;width:100%;min-width:0;margin:0;padding:10px;border-radius:13px;border:1px solid rgba(203,222,244,.18);background:rgba(255,255,255,.075);color:#dce9f8}'+
-   '#hhSleepPage .hhWH1150Sleep .hhSleepOxygenV432>span{display:block;font-size:10.5px;font-weight:700;color:#dce9f8;line-height:1.3;min-width:0}'+
-   '#hhSleepPage .hhWH1150Sleep .hhSleepOxygenV432>strong{display:block;color:var(--wh);font-size:22px;font-weight:900;line-height:1.12;margin:4px 0 3px;font-variant-numeric:tabular-nums}'+
-   '#hhSleepPage .hhWH1150Sleep .hhSleepOxygenV432>small{display:block;width:auto;font-size:9px;color:#d4e4f5;line-height:1.4}'+
    '.hhWH1150Card{box-sizing:border-box;min-width:0;border-radius:13px;padding:10px;border:1px solid rgba(203,222,244,.18);background:rgba(255,255,255,.075)}'+
    '.hhWH1150Name{font-size:10.5px;display:block;line-height:1.3;color:#dce9f8;font-weight:700;min-height:28px}'+
    '.hhWH1150Number{font-size:22px;font-weight:900;color:var(--wh);margin:4px 0 3px;line-height:1.12}'+
@@ -175,6 +150,42 @@
   }
   return loadLocal(win,p);
  }
+  function budapestDay(value){
+   var d=new Date(value),t=d.getTime();
+   if(!Number.isFinite(t))return '';
+   return new Intl.DateTimeFormat('en-CA',{
+    timeZone:'Europe/Budapest',year:'numeric',month:'2-digit',day:'2-digit'
+   }).format(d);
+  }
+  function todayReading(row,now){
+   return row&&budapestDay(row.t)===budapestDay(now)?row:null;
+  }
+  function factorTile(icon,name,value,status,tone,detail,id){
+   return '<div class="hhSleepFactor381 hhSleepRag382 '+escaped(tone)+'"'+
+    (id?' id="'+escaped(id)+'"':'')+'>'+
+    '<div class="hhSleepFactorLabel381"><span class="hhSleepFactorIcon381" aria-hidden="true">'+icon+
+    '</span><span>'+escaped(name)+'</span></div>'+
+    '<strong class="hhSleepFactorValue381">'+escaped(value)+'</strong>'+
+    '<span class="hhSleepFactorStatus381 '+escaped(tone)+'">'+escaped(status)+'</span>'+
+    '<small class="hhSleepFactorDetail381">'+escaped(detail)+'</small></div>';
+  }
+  function sleepCards(summary,now,canonicalValue,canonicalInfo){
+   var oxygen=todayReading(summary.readings.oxygen,now);
+   var resting=todayReading(summary.readings.resting,now);
+   var oxygenText=oxygen&&canonicalValue?String(canonicalValue).trim():'';
+   if(oxygenText==='—')oxygenText='';
+   var oxygenDetail=oxygen&&oxygenText?
+    (canonicalInfo&&String(canonicalInfo).trim()||'Mért éjszakai adat')+
+    ' · '+time(oxygen.t):'Nincs mai mérés';
+   return factorTile('🫁','Véroxigén (SpO₂)',oxygenText||'—',
+    oxygenText?'Éjszakai mérés':'Nincs adat',oxygenText?'info':'muted',
+    oxygenDetail,'hhWearHistory1150-sleep')+
+    factorTile('💗','Nyugalmi pulzus',
+    resting?num(resting.value,0)+' /perc':'—',
+    resting?'Naplózott mérés':'Nincs adat',resting?'info':'muted',
+    resting?'Mérve: '+time(resting.t)+' · Health Connect':'Nincs mai mérés',
+    'hhWearHistory1150-sleep-resting');
+  }
  function install(win){
   var doc=win.document,cache=new Map(),installed=new WeakSet(),pending={activity:null,sleep:null};
   var seq={activity:0,sleep:0};
@@ -190,24 +201,31 @@
    return kind==='activity'?!!page.querySelector('.hhActTopGrid,.a191Top'):
      (!!page.querySelector('.hhSleepTop')&&!page.querySelector('.hhSleepLoading'));
   }
+  function placeSleep(page,summary,now,doc,ownerCode){
+   var grid=page.querySelector('.hhSleepFactors381');
+   if(!grid)return false;
+   // Existing six tiles stay in the approved grid. Never add a separate section.
+   // The preview renderer's supplemental oxygen ribbon is retired after
+   // its canonical displayed value is read, to avoid a duplicate.
+   var original=page.querySelector('.hhSleepOxygenV432');
+   var originalValue=original&&original.querySelector('strong');
+   var originalMeta=original&&original.querySelector('small');
+   var html=sleepCards(summary,now,originalValue&&originalValue.textContent,originalMeta&&originalMeta.textContent);
+   var holder=doc.createElement('div');
+   holder.innerHTML=html;
+   var oxygenTile=holder.firstElementChild;
+   var restingTile=oxygenTile&&oxygenTile.nextElementSibling;
+   if(!oxygenTile||!restingTile)return false;
+   oxygenTile.dataset.owner=ownerCode;
+   restingTile.dataset.owner=ownerCode;
+   // If older code has already placed a separate glass section, clear it.
+   var legacy=page.querySelector('.hhWH1150Sleep');if(legacy)legacy.remove();
+   grid.appendChild(oxygenTile);
+   grid.appendChild(restingTile);
+   if(original)original.remove();
+   return true;
+  }
   function place(kind,page,node){
-   if(kind==='sleep'){
-    // The original Sleep oxygen node is RELOCATED, not duplicated. Its displayed
-    // measured values and timestamps remain owned by the canonical Sleep module.
-    var lena=page.querySelector('.hh431Lena,.hhSleepLena364');
-    if(!lena)return false;
-    var slot=node.querySelector('.hhWH1152OxygenSlot');
-    var oxygen=page.querySelector('.hhSleepFactorsV432 .hhSleepOxygenV432');
-    var pair=node.querySelector('.hhWH1152Pair');
-    if(slot){
-     if(oxygen)slot.appendChild(oxygen);
-     else slot.remove();
-    }
-    if(!pair||!pair.children.length)return false;
-    if(pair.children.length===1)pair.classList.add('hhWH1152Single');
-    lena.insertAdjacentElement('beforebegin',node);
-    return true;
-   }
    var anchor=page.querySelector('.hhActSmallGrid,.a191Top,.hhActTopGrid');
    if(!anchor)return false;
    anchor.insertAdjacentElement('afterend',node);return true;
@@ -223,9 +241,10 @@
    if(token!==seq[kind]||owner()!==p||!page||!page.classList.contains('on')||!ready(kind,page))return;
    var old=page.querySelector('#'+id);if(old)old.remove();
    var now=Date.now(),summary=summarize(bundle||{records:{},source:'Nincs szinkronizált adat'},kind,now);
-   // Oxygen comes from the already-rendered Sleep factors (not a second read).
-   // A missing resting pulse never creates a misleading placeholder.
-   if(kind==='sleep'&&!summary.readings.resting&&!page.querySelector('.hhSleepFactorsV432 .hhSleepOxygenV432'))return;
+   if(kind==='sleep'){
+    placeSleep(page,summary,now,doc,p);
+    return;
+   }
    var html=markup(summary,kind,p,now);
    if(!html)return;
    var shell=doc.createElement('div');
@@ -253,7 +272,10 @@
    cache.clear();
    ['activity','sleep'].forEach(function(k){
     seq[k]++;var p=active(k);
-    if(p){var c=p.querySelector('#hhWearHistory1150-'+k);if(c)c.remove()}
+    if(p){
+     var c=p.querySelector('#hhWearHistory1150-'+k);if(c)c.remove();
+     if(k==='sleep'){var extra=p.querySelector('#hhWearHistory1150-sleep-resting');if(extra)extra.remove()}
+    }
     schedule(k,300);
    });
   }
@@ -284,5 +306,5 @@
   if(doc.readyState==='loading')doc.addEventListener('DOMContentLoaded',setup,{once:true});
   else setup();
  }
- return {profile:profile,summarize:summarize,latestNight:latestNight,pulse:pulse,latest:latest,markup:markup,read:read,install:install};
+ return {profile:profile,summarize:summarize,latestNight:latestNight,pulse:pulse,latest:latest,markup:markup,read:read,budapestDay:budapestDay,todayReading:todayReading,sleepCards:sleepCards,install:install};
 });
