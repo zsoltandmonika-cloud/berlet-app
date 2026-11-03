@@ -1,192 +1,226 @@
 {
   "schemaVersion": 1,
-  "date": "2026-11-02",
-  "generatedAt": "2026-11-02T13:32:25+01:00",
-  "headline": "A reggel fő témái: Iran killed her teenage daughter - now she is facing up to the regime; Supermarket freezers in Belgium, Sweden and Luxembourg hit by suspected cyber-attack",
+  "date": "2026-11-03",
+  "generatedAt": "2026-11-03T12:59:31+01:00",
+  "headline": "A reggel fő témái: US strikes Iranian island ahead of midterm elections; Supreme Court rejects Trump's request to stop California counting disputed votes",
   "sections": [
     {
       "id": "executive",
       "title": "Vezetői összefoglaló",
       "items": [
-        "BBC World: Iran killed her teenage daughter - now she is facing up to the regime",
-        "BBC World: Supermarket freezers in Belgium, Sweden and Luxembourg hit by suspected cyber-attack",
-        "BBC World: Nine killed as small jet crashes on Florida street",
-        "BBC World: Five arrested after South African farmer shot and tortured"
+        "BBC World: US strikes Iranian island ahead of midterm elections",
+        "BBC World: Supreme Court rejects Trump's request to stop California counting disputed votes",
+        "BBC World: Russian bombing kills 29 people at Ukraine aid centre, Kyiv says",
+        "BBC World: Tenerife striker De Miguel dies after on-field collision"
       ]
     },
     {
       "id": "overnight",
       "title": "Éjszakai fejlemények",
       "items": [
-        "BBC World: Iran killed her teenage daughter - now she is facing up to the regime",
-        "BBC World: Supermarket freezers in Belgium, Sweden and Luxembourg hit by suspected cyber-attack",
-        "BBC World: Nine killed as small jet crashes on Florida street"
+        "BBC World: US strikes Iranian island ahead of midterm elections",
+        "BBC World: Supreme Court rejects Trump's request to stop California counting disputed votes",
+        "BBC World: Russian bombing kills 29 people at Ukraine aid centre, Kyiv says"
       ]
     },
     {
       "id": "geopolitics",
       "title": "Külpolitika / Geopolitika",
       "items": [
-        "BBC World: Iran killed her teenage daughter - now she is facing up to the regime",
-        "BBC World: Supermarket freezers in Belgium, Sweden and Luxembourg hit by suspected cyber-attack",
-        "BBC World: Nine killed as small jet crashes on Florida street"
+        "BBC World: US strikes Iranian island ahead of midterm elections",
+        "BBC World: Supreme Court rejects Trump's request to stop California counting disputed votes",
+        "BBC World: Russian bombing kills 29 people at Ukraine aid centre, Kyiv says"
       ]
     },
     {
       "id": "hungary",
       "title": "Magyarország",
       "items": [
-        "Portfolio.hu: „A víz lehetne Magyarország ideológiákon átívelő nemzeti ügye” − Középpontban az aszályhelyzet az év agrárcsúcsán - Portfolio.hu",
-        "Agroinform: Élelmiszerár-sokk fenyegeti a világot, de Magyarország kivétel lehet - Agroinform",
-        "Piac&Profit: A Velencei-tó vízállása megmutatja, mekkora bajban van Magyarország - Piac&Profit"
+        "24.hu: Létrehozza a Működő és Emberséges Magyarország Intézetet a kormány - 24.hu",
+        "Euronews.com: Megválasztotta az Országgyűlés Fejes Pétert Magyarország legfőbb ügyészének - Euronews.com",
+        "| hvg.hu: The Guardian: Az ügynöklisták közzétételével Magyarország szembenéz a múlttal - | hvg.hu"
       ]
     },
     {
       "id": "economy",
       "title": "Gazdaság / Piacok",
       "items": [
-        "BBC Business: Ryanair says it may freeze workers' pay and raise airfares",
-        "BBC Business: Binance users withdraw $3.6bn after largest-ever crypto hack",
-        "BBC Business: Don't get caught out by new Buy Now Pay Later rules"
+        "BBC Business: Drivers may get compensation offers before car finance saga ends",
+        "BBC Business: UK and EU agree draft deal to scrap Brexit red tape over food exports",
+        "BBC Business: 'Quiet quitting' could be hitting the economy - here's why"
       ]
     },
     {
       "id": "technology",
       "title": "Technológia / AI",
       "items": [
-        "BBC Technology: Binance users withdraw $3.6bn after largest-ever crypto hack"
+        "BBC Technology: UK food supply chain affected by European freezer hacks, cyber chief says",
+        "BBC Technology: Apple unsure when it will get more foldable iPhones ahead of Christmas",
+        "BBC Technology: North Korea denies being behind record $6.3bn Binance hack"
       ]
     },
     {
       "id": "risks",
       "title": "Mai kockázatok",
       "items": [
-        "Figyelmi pont: Supermarket freezers in Belgium, Sweden and Luxembourg hit by suspected cyber-attack (BBC World)."
+        "Figyelmi pont: US strikes Iranian island ahead of midterm elections (BBC World).",
+        "Figyelmi pont: Tenerife striker De Miguel dies after on-field collision (BBC World).",
+        "Figyelmi pont: Asian Cup postponed in wake of attacks on Saudi Arabia (BBC World)."
       ]
     },
     {
       "id": "watch",
       "title": "Mi számít igazán / Figyelmi szint",
       "items": [
-        "BBC World: Iran killed her teenage daughter - now she is facing up to the regime",
-        "BBC World: Supermarket freezers in Belgium, Sweden and Luxembourg hit by suspected cyber-attack"
+        "BBC World: US strikes Iranian island ahead of midterm elections",
+        "BBC World: Supreme Court rejects Trump's request to stop California counting disputed votes"
       ]
     }
   ],
   "sources": [
     {
-      "title": "Iran killed her teenage daughter - now she is facing up to the regime",
+      "title": "US strikes Iranian island ahead of midterm elections",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/c3qjn8117kwjo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-02"
+      "url": "https://www.bbc.co.uk/news/articles/cx240mrm3g8vo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-03"
     },
     {
-      "title": "Supermarket freezers in Belgium, Sweden and Luxembourg hit by suspected cyber-attack",
+      "title": "Supreme Court rejects Trump's request to stop California counting disputed votes",
+      "publisher": "BBC World",
+      "url": "https://www.bbc.co.uk/news/articles/cm5ynekkn5qko?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-03"
+    },
+    {
+      "title": "Russian bombing kills 29 people at Ukraine aid centre, Kyiv says",
+      "publisher": "BBC World",
+      "url": "https://www.bbc.co.uk/news/articles/cjy56dndlyz0o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-03"
+    },
+    {
+      "title": "Tenerife striker De Miguel dies after on-field collision",
+      "publisher": "BBC World",
+      "url": "https://www.bbc.co.uk/sport/football/articles/ck62yvz046pjo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-03"
+    },
+    {
+      "title": "Jet may have broken apart before Florida crash, officials say, as family named among victims",
+      "publisher": "BBC World",
+      "url": "https://www.bbc.co.uk/news/articles/cm9wz01dx8xro?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-03"
+    },
+    {
+      "title": "Asian Cup postponed in wake of attacks on Saudi Arabia",
+      "publisher": "BBC World",
+      "url": "https://www.bbc.co.uk/sport/football/articles/c6y0e79yjg44o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-03"
+    },
+    {
+      "title": "Thousands of European troops to rehearse Ukraine deployment in event of peace",
+      "publisher": "BBC World",
+      "url": "https://www.bbc.co.uk/news/articles/cm3wv085ne6po?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-03"
+    },
+    {
+      "title": "Shop freezers in seven European countries hit by cyber-attack",
       "publisher": "BBC World",
       "url": "https://www.bbc.co.uk/news/articles/cq1kd1nee80eo?at_medium=RSS&at_campaign=rss",
       "publishedAt": "2026-11-02"
     },
     {
-      "title": "Nine killed as small jet crashes on Florida street",
-      "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cm369yy7lw73o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-02"
+      "title": "Létrehozza a Működő és Emberséges Magyarország Intézetet a kormány - 24.hu",
+      "publisher": "24.hu",
+      "url": "https://news.google.com/rss/articles/CBMingFBVV95cUxNSV9RQWoxLVlhSllkVURFMy1SRjV6ZWFVRUxENmtHMUc2XzJ6S01rNGVuS09UcDNIb2hwMzRjQ3hTQkNUOW5jSWhVZGdGcFQwWnM3aDJndU1GREFrUkplTFlQekQ5OERaSDd3S0NzVXVmdVdFTVF5VHg2RkJXcHZpNXd3YWRWMUhyZXlFc3o3cllVaFJMS04yUFk2NFRUZw?oc=5",
+      "publishedAt": "2026-11-03"
     },
     {
-      "title": "Five arrested after South African farmer shot and tortured",
-      "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cv4g13z0px8yo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-02"
+      "title": "Megválasztotta az Országgyűlés Fejes Pétert Magyarország legfőbb ügyészének - Euronews.com",
+      "publisher": "Euronews.com",
+      "url": "https://news.google.com/rss/articles/CBMirwFBVV95cUxNanRJM2loZFAwQ2dxNHdxYmJQa0ZqNGFBYjE2VFRFM01yb0FnSjhqdmp4dG9mdW1kMUF2YlVKSlN0bWY0ZnFnQWstWGcza1B3Z0h0MXFqZ2FGTGhFR0JBbHg0ZV9CdEF6cXYwRHlzbTZZc2hHclJkZzZ1V3BWY1dVcmtLdkF6RmpGOHgzOFV4NloycGdoQlFfOW9jVW53dnRjZG1wSXNmQi1zeFgtcWpB?oc=5",
+      "publishedAt": "2026-11-03"
     },
     {
-      "title": "Ryanair says it may freeze workers' pay and raise airfares",
-      "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cr0qkve1x224o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-02"
+      "title": "The Guardian: Az ügynöklisták közzétételével Magyarország szembenéz a múlttal - | hvg.hu",
+      "publisher": "| hvg.hu",
+      "url": "https://news.google.com/rss/articles/CBMijAFBVV95cUxPZ3VkV3dSS2FtWWExdWl5djZPcmIwYzZ3aTRnTWtrMV9Ea1pzWEpfSld0Y0hUX19wSVE0Znk3TFFBMWVLWGI3X0JXek53eDVhOFhPU0Y1X1pZanFmdGZ4SU9fcERLVkpvMkIyUjZLOGNwOUdLRE5hTGdFUWNlTTloRVVoOUd4U3B2Znk2Yw?oc=5",
+      "publishedAt": "2026-11-03"
     },
     {
-      "title": "Binance users withdraw $3.6bn after largest-ever crypto hack",
-      "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cwj34gdmnly4o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-02"
-    },
-    {
-      "title": "Uganda begins withdrawing troops from Somalia after 20 years",
-      "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/c8zxlqxwed4do?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-02"
-    },
-    {
-      "title": "China state broadcaster pulls La Liga matches following Mbappé joke",
-      "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cq78pypg0800o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-02"
-    },
-    {
-      "title": "„A víz lehetne Magyarország ideológiákon átívelő nemzeti ügye” − Középpontban az aszályhelyzet az év agrárcsúcsán - Portfolio.hu",
-      "publisher": "Portfolio.hu",
-      "url": "https://news.google.com/rss/articles/CBMi8AFBVV95cUxPQnJfLTJWeE03SnItSGpOUjBYLUdCWWhHcm00S1pDbGlJMmJxeGl2d1VrUTFmQ3JLMmZxWVFBS3NFLWxTc0pZaUtDb3BwSkF6SlVpVXRZVnlaRWZiLThWVlQ3ZjN3SjFJTy1pWktEcEdyeTFYZFB4VnYxUVBIbV9nUXl0bE5yVGF6QVQ0VzMyM253cmY4SkdKX2kwV0dzRmtTaFlrWEIyb0lKSVBzX0Y2c0tQR3hMY0N4Z3JFUWhQUjBSZ2paZWw1QXNUeFYxbm1JSEs0aDNKN0tybWt3Snl0QjNySnBLaWc4Tk5zWi1XUDfSAfYBQVVfeXFMTjhZVlZWZ045bFR1MzVtMjh1QUg5Z3pQSnFrdjRJd0VpX05DNzVQVmNONi1sTURlNzE4Tmh0ZVFrcFZaQ0hwZTRfVVFkZnRzMEdUQkNWQlAwUkZERjM4U2N6TXFfYlhMR1pqQVNGRVlOX0xGa0RLTDJqVjV6eUdSRE5YS1V2dnJqRWVyUGM0WjQ1SENjd1pDWnBWRV9iNFBGWkdOVUZKYzRWd0g1UEtrbmFUdG5GcEFnV0ZNeWtLdEdEaW5VVFlGMGpaaHk2OTc1alhPT09xWk5vQUp6T0ZrLVpHb2ZNUmV0alRDN0NkSHZYajY3Z2NR?oc=5",
-      "publishedAt": "2026-11-02"
-    },
-    {
-      "title": "Élelmiszerár-sokk fenyegeti a világot, de Magyarország kivétel lehet - Agroinform",
-      "publisher": "Agroinform",
-      "url": "https://news.google.com/rss/articles/CBMiswFBVV95cUxOWV9hYWYxMEdPNVJkN0dSY0E3T2wzVV95UHhoNVV2Nmx1NmlrRjdiM05NWHRrTGpGUEdqTVRNUHZZVE9UN2ZNQkVMbU1rd3RUd3J6WEdpVk5UWEk0TVozaTNvQWFNUjMwVkh3ZGRkcEFTRnZ1UTRuV3psZ21xX1JvN2xXcWhXQUV1TlpOTEhiR2RNNHpFRlQxbWVPeHgxVkF0Z2hFX2RnTllEQmxTdHJIWmxtWdIBuAFBVV95cUxNbGYySXVRbjEzRlM3YzFWSEplU1AwWXRZWXZ1Rmg2bV9ZOUhxNDFsTHJ4b253YWllS2pTWm40S0ljRG5IWm1iX3M2ZDBlNWhLem1PQ3RUZGw0MWZvS1VCbjVRSjZYcC1hZjdlVVZLbEJ4TDZlOE16enZpTkJreEg2Z2NPZW51X1ctcnVJNVZ2ODN4RlgzRGFNNThzV0RzcU8yVWJiUWgxOEY4VFVONFY0eHJtNVBEaGhz?oc=5",
-      "publishedAt": "2026-11-02"
-    },
-    {
-      "title": "A Velencei-tó vízállása megmutatja, mekkora bajban van Magyarország - Piac&Profit",
-      "publisher": "Piac&Profit",
-      "url": "https://news.google.com/rss/articles/CBMisgFBVV95cUxOb2xSUFRWSVYwNWM0M3JheVprdVBnS0Z2SHN2R05BMmNTNnR3WFpRM0dYM1hZLTJRWXFQNDVIVVMzVHgta1lvZU54alh1cUtSVTJyOXpjdlRZSnA5Y1oxVzQxTEkxbC1KcWc2UTJqYk5UVkFZZHAyX2pXUEYyT1pwQ3NwU0QwLUN3T2o3cElMSmpTR2hCdElUWUo4cXpHSnotV21wUWQxNHhhNWpjWWtPelJ3?oc=5",
-      "publishedAt": "2026-11-02"
-    },
-    {
-      "title": "Bezárhat Magyarország egyik legszebb kastélya, az edelényi kastélysziget: dolgozók sora kerülhet utcára - Pénzcentrum",
-      "publisher": "Pénzcentrum",
-      "url": "https://news.google.com/rss/articles/CBMi7AFBVV95cUxQa0JrTkx5NFhkNDFwc2ZZQlFWVWEwMjMtQjRGeVVBUDVvUnZjeEVCN1J5M3RoYjF0b3dFQ2VCZVdYSmJ6anhUYlowRk1ycTBuS1l0c0d2dC1ud1RPcjE5RWNfUkRzYjZ1UmVsTjJhWHRfcFFGMUF6dTJQTjNNTkdXYjhuWnc1LWdIZTZlODJKQjEtaHVUb09SUjJIdGFOUGFXLTFabWJyZ25wQkwxeUpOOWlzWVRhUmNNVWRadkFUWml0MTRaWlJUMERQVXdtRmFUZkNPT20wam9PSzRzeGdrZzE4N1BPdk05SmJsU9IB8gFBVV95cUxPczhqV3NIYmRZZXdDYmpvOVJZSU9tUXh1ZXVibnNNcGRzT0tST0toOWRtcnhyNlc5MjFqQmRtR3RpcGVMb1RWV0E1U0lqU0tpRW90TnNIX0dKT3haZVNCeXM3NnBNVHNXWXZoaldkX2FaeXV0X3YxRFc5dHlLQ25aOGtfc25TdXBLUTJDREFVWlZPOGJGZk9PZmVNUXppVWpoWU5Lc1ZFcnpQRDI3M0dNZEF4MmJPdW1rWmNuWWtKcFhGa0h4Q3Q4NDc5SWRYT0FtQmxjUXhfTTV2Yk92M2dqTzNKX0R3bDdmdUxfaGlJUEE0UQ?oc=5",
-      "publishedAt": "2026-11-02"
-    },
-    {
-      "title": "Újabb sokk Európában: Brüsszel már másodszor közöl rossz hírt, még a korábbi előrejelzés is túl optimista volt – Magyarország különösen érintett - Világgazdaság",
+      "title": "Megvan a döntés: ő Magyarország új legfőbb ügyésze - Világgazdaság",
       "publisher": "Világgazdaság",
-      "url": "https://news.google.com/rss/articles/CBMikAFBVV95cUxQTVB6b3JzRHEwcEs4VWNNbkFKNm16SWpIMXdVSUFDRjlsRk1BZy1xSlJjUXdTYldRUHpfcHNiUVJjWUNSMkZGNU14QWZZVFhhWGV6M1NVbTZJQUZJUENKaTQ3RlZXSDBCc3BNYmVMOGpKRDE4ZU1hMTRxX0dFYXZEZUpFV2FZNTg2MkNDSmw0aTc?oc=5",
-      "publishedAt": "2026-11-02"
+      "url": "https://news.google.com/rss/articles/CBMikgFBVV95cUxNTF9HV05xWnhBV3FDRmtrVUFtR3pkSW5hcFpMNnBmUXNRSXdNb2lpWklFalVEWDNWMXlDRG5jYjdqR2E2R3llSVR5WGNyLUxpNFJRbWotSFYwUHRHdnRHeVRHRGlsQnd3ZkttY2tuX05DUmpOMWE4VzNXZmZ5SmZHNGhVMk1tTDBva2R4NVdrRGZ3UQ?oc=5",
+      "publishedAt": "2026-11-03"
     },
     {
-      "title": "Szakmai egyeztetések kezdődtek az Igazságügyi Minisztériumban az igazságügyi szakértők bevonásával - Magyarország Kormánya",
+      "title": "Magyarország az őrület multiverzumában - Telex",
+      "publisher": "Telex",
+      "url": "https://news.google.com/rss/articles/CBMiY0FVX3lxTE5vRWh5SUx2eVlWM1RfaVo4V2hlOUxvUUo2Qkp1SDRMVkQ4bHJqc2hqYUhnNE1fdHQxQS1NVDVjci1rU0ZQeUJZR3dUMWlpLXNxOVRlOU1USUd4dkpmWEZfc2l3dw?oc=5",
+      "publishedAt": "2026-11-03"
+    },
+    {
+      "title": "Társadalmi egyeztetés indult a Működő és Emberséges Magyarország Intézet felállításáról - Magyar Hang",
+      "publisher": "Magyar Hang",
+      "url": "https://news.google.com/rss/articles/CBMimAFBVV95cUxPMUFpTzZyT1ZjMFl5V0RlRUE4QVBvQTQxZEhUZ0szenhVc3BBeUJsRjBfaGY5cDVrSEthc1EyMEJJQmoxSjNVQm5SU2RzT1AyLVFQZVpVWmJ3SGN6SjR0dW9va2Q2cWQzZW1aNnN4UlVKcUpaVDQ5bjhzMFA3VS1wdU00LVlFQlJBbzM1WGRVbGxLSDZoYnF3NQ?oc=5",
+      "publishedAt": "2026-11-03"
+    },
+    {
+      "title": "Eger nagyságú várost veszítünk el gyógyítható betegségekben: miért tart itt Magyarország? - Portfolio.hu",
+      "publisher": "Portfolio.hu",
+      "url": "https://news.google.com/rss/articles/CBMi0gFBVV95cUxPN005THhLeF8zOWNpcUl0OWJESzd1TVJQdEU0Z0hjVXZsTW9fWWhSRnN5TUlCRFZHaHViSVY2dkNvV2NjbWgyNU9jOHVLYmlvd1lMTVR1VTV4Xy1sdjZzSE81THhGMFV0MTBrU3NNUkFfTm9lbWFrVXcxMGdCYXRMN3dkdlRkeHA2TklZcm5rVVh5amZFWGkzc192RlNMcUVfd2FpNTdXZER3dWJLQ0hYWXdfZXppaS0zLUtMaHdDdDQ5Vlh2NlZKb0R4NHlXSjd6UkHSAdcBQVVfeXFMTkxTQk1yR1FzVTU0aUxJOWV1YTBEcXBNelBwZUZoZzRiaEIyMi1GZFBYaGFXV3pKTWFxTENTWUUxV1U3dTdHQ2tMVnVodWpVNFhMREJMVk9Hc3ZxNVozTjZwN25iRUFMSDRZUU1uMTNEMW91N2t4SjYwVDlGeGJScUFlR3I2b0ozOU8yZjF1YjVNS2tKMEdodFFXYzJlOUg3QUtZUkU2T1BEUFVEQXduQ0F3dTBIaVFPc3BmMk9lTDdmN1d4OVZvc21ycXhsbjlWeHVBc0pjZEE?oc=5",
+      "publishedAt": "2026-11-03"
+    },
+    {
+      "title": "Magyar Péter: A magyar embereknek joguk van megismerni a saját történetüket - Magyarország Kormánya",
       "publisher": "Magyarország Kormánya",
-      "url": "https://news.google.com/rss/articles/CBMi0AFBVV95cUxQSVJrLThBUDZ6a1pXWXFJMEtwM183bEx2ME1HaVczakR0dFNnZ2hsbGVNQ085TFRCMFk1N3hJMGlleHAzZnhJWTFNRnV0NkFYa3dzNF9uX2FCcFYwN29DUUZzWUk1RmgzU0JINzY1dEF2bFFRZ1ozcjE3Wk1kT2ZMbDlIMzVDWHBHRmtERlRyckgzLXc0djlacjBpRC02elBKWUhhdkZMbkRMSTNSYXo2MjlHWkdETWFRbzRFY1JiVlhtcGEwSVU0eWxXX3FDSElP?oc=5",
+      "url": "https://news.google.com/rss/articles/CBMioAFBVV95cUxORmtMclZOTlk4VWlkTzJCR29UR2FaMktLQ3BOY1lMbHJSc0FfT044cm9HYjMyS2dEMV9qQW5FQWtRZjloX1ZkVldOQXJ0VzdtQlpTYVNLYmFwZGRsUzAwMU93NUhFNGNWR3RRNGFBdEFNRmhnckdQQ3pndjFrX3NJNGN4YVRtUHhYdG5PdUM5eldYcjRFUVNXVGh1TUU0b2dY?oc=5",
       "publishedAt": "2026-11-02"
     },
     {
-      "title": "U15: Bárány Noel öt gólt lőtt a válogatottban - DVTK",
-      "publisher": "DVTK",
-      "url": "https://news.google.com/rss/articles/CBMiiAFBVV95cUxOanJNUmFTb3FTOUZmUDk1X2ZRZllEZTNKNS1lZEdnYkM4dXMxcUl3YzRWVUNfa2ZHSFZCQkRLVk1BQUpJVDFNOTJTa0NJeFJGMVRNeWwtc0dZTmxCaDdSQXBDWkJvRFltX29DWFpyR3c3STQ2ZzdzZnZPUFE5Q2E4UWtSSFhkcERR?oc=5",
-      "publishedAt": "2026-11-02"
-    },
-    {
-      "title": "Van egy erdő, ahol a fák őrzik az emberek emlékét : ilyen Magyarország egyetlen emlékerdeje - hajdupress.hu",
-      "publisher": "hajdupress.hu",
-      "url": "https://news.google.com/rss/articles/CBMitgFBVV95cUxNVFF6YWt0RHJBd3lVbDRsTEtTNHNNeXZNLThEc3VVdnZDMzF5X3pYSFY1d3Y4QmQ5VFhJcFQ5Qnp1dGlpRUI1TXZtWndNMVAxUi1sNXFQLW5ieERzOUZDNlNudDI1OHlhci02aXRPRmVCcXd4RG9ISnpFSGZDc1k1X3NDNHpremlZNHZjUVo2SWZaYi1EV01DQXNvRlB2bmN1UUhzOVR1bUloZFE2bGNURkxyOTVXQQ?oc=5",
-      "publishedAt": "2026-11-02"
-    },
-    {
-      "title": "Don't get caught out by new Buy Now Pay Later rules",
+      "title": "Drivers may get compensation offers before car finance saga ends",
       "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/crpdgp4y017go?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-02"
+      "url": "https://www.bbc.co.uk/news/articles/cqrky5nxxn4po?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-03"
     },
     {
-      "title": "Virgin Media O2 set to cut thousands of jobs to reduce costs",
+      "title": "UK and EU agree draft deal to scrap Brexit red tape over food exports",
       "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/c6rry8x9d9qko?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-01"
+      "url": "https://www.bbc.co.uk/news/articles/cmp3grwre9xdo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-03"
     },
     {
-      "title": "Crypto firm Binance covers 90% of losses after $6.3bn hack",
+      "title": "'Quiet quitting' could be hitting the economy - here's why",
       "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/ckpdg3ql4169o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-01"
+      "url": "https://www.bbc.co.uk/news/articles/cw23d5z87drpo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-03"
+    },
+    {
+      "title": "North Korea denies being behind record $6.3bn Binance hack",
+      "publisher": "BBC Business",
+      "url": "https://www.bbc.co.uk/news/articles/c6rey4v53exgo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-03"
+    },
+    {
+      "title": "From scooters to shampoo - the people saving hundreds from dumpster diving",
+      "publisher": "BBC Business",
+      "url": "https://www.bbc.co.uk/news/articles/cm86zdp2ygqno?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-03"
+    },
+    {
+      "title": "Apple unsure when it will get more foldable iPhones ahead of Christmas",
+      "publisher": "BBC Business",
+      "url": "https://www.bbc.co.uk/news/articles/c6n8dn457ypko?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-03"
+    },
+    {
+      "title": "Christmas 2026 stamps unveiled by Royal Mail",
+      "publisher": "BBC Business",
+      "url": "https://www.bbc.co.uk/news/articles/cw62yeq7958ro?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-03"
+    },
+    {
+      "title": "UK food supply chain affected by European freezer hacks, cyber chief says",
+      "publisher": "BBC Technology",
+      "url": "https://www.bbc.co.uk/news/articles/ckq6ndq8l6v0o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-03"
     }
   ]
 }
