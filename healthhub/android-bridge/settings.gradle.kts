@@ -14,3 +14,5 @@ dependencyResolutionManagement {
 }
 rootProject.name = "HealthHubBridge"
 include(":app")
+// Standalone, manually installed paired test apps. NEVER included in HH One OTA.
+include(":wearpilot-phone", ":wearpilot-watch")
