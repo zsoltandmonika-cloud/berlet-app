@@ -33,13 +33,16 @@ test('SHO 4×3 grid and existing routes unchanged, Sport icon activated',()=>{
 test('SHO Sport is a non-profile-specific read-only integration of existing MeccsRadar',()=>{
  assert.doesNotMatch(landing,/supabase|\.from\(|\.insert\(|\.update\(|localStorage|hh-profile/i);
  assert.doesNotMatch(landing,/fake|mock|demo.*match|Math\.random/);
- assert.match(landing,/src="\.\/hero\.webp\?v=2"/);
+ assert.match(landing,/src="\.\/hero\.webp\?v=3"/);
  assert.doesNotMatch(landing,/Vissza a SHO kezdőlapra|Sport, egy helyen|Mérkőzések · Eredmények|MecsRadar · Teljes alkalmazás|Változatlan funkciók/);
  assert.match(landing,/\.sport-hero-art\{[^}]*aspect-ratio:1672 \/ 941;object-fit:contain/);
- assert.match(landing,/\.sport-menu\{[^}]*bottom:7px;[^}]*background:rgba\(7,25,52,\.46\)/);
+ assert.match(landing,/\.sport-menu\{[^}]*left:0;right:0;bottom:0;[^}]*border-radius:0;background:rgba\(7,25,52,\.21\)/);
  assert.equal((landing.match(/class="sport-open-full"/g)||[]).length,1,'Exactly one full-view link next to embedded logo');
  assert.ok(landing.indexOf('class="sport-open-full"')>landing.indexOf('<iframe'),'full view should be next to embedded MecsRadar, not over hero');
  assert.doesNotMatch(landing,/class="sport-content-head"|class="sport-top"|class="sport-copy"|id="sportRefresh"/);
+ assert.match(landing,/\.sport-menu span\{[^}]*border-radius:0;background:transparent/);
+ assert.match(landing,/\.sport-hero::after\{content:none\}/);
+ assert.doesNotMatch(landing,/\.sport-menu\{[^}]*border-radius:1[0-9]px/);
  assert.match(landing,/\.sport-open-full\{[^}]*top:18px;right:73px/);
  assert.match(landing,/src="\.\.\/shared\/sh9-golden-bottom-nav-v924\.js\?v=924-unified"/);
 });
