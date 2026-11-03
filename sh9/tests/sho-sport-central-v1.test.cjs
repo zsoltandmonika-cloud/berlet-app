@@ -8,17 +8,21 @@ const read=(file)=>fs.readFileSync(path.join(root,file),'utf8');
 const landing=read('sh9/sport/index.html');
 const sho=read('sh9/index.html');
 const wiring=read('sh9/sho-preview/sho-wiring-v2.js');
-test('Sport opens full existing MeccsRadar, not a partial imitation',()=>{
+test('Sport opens full existing MeccsRadar with actionable hero navigation',()=>{
  assert.match(wiring,/'Sport':SH9\+'sport\/'/);
  assert.match(landing,/src="https:\/\/mecsradar\.pages\.dev\/" loading="eager"/);
- assert.match(landing,/class="sport-open-full" href="https:\/\/mecsradar\.pages\.dev\/" rel="noreferrer external"/);
+ assert.match(landing,/<a href="https:\/\/mecsradar\.pages\.dev\/" class="sport-full-view"/);
  assert.match(landing,/id="mecsradarFull"/);
- // Scores and calendar remain inside the full unmodified remote application, not duplicated in the thin hero strip.
  assert.doesNotMatch(landing,/<iframe[^>]*\bsandbox\b/);
- for(const originalView of ['Műsor','Kedvencek','Marci','Magyar Kupa','Csatornák'])
-  assert.ok(landing.includes(originalView),originalView+' missing');
+ for(const name of ['Műsor','Kedvencek','Teljes nézet','Magyar Kupa','Csatornák'])
+  assert.ok(landing.includes(name),name+' missing');
+ for(const view of ['program','favorites','cup','channels'])
+  assert.match(landing,new RegExp('data-sport-nav="'+view+'"'));
+ assert.equal((landing.match(/data-sport-nav=/g)||[]).length,4);
+ assert.match(landing,/data-sport-action="refresh"/);
+ assert.match(landing,/frame\.contentWindow\.postMessage/);
+ assert.match(landing,/origin='https:\/\/mecsradar\.pages\.dev'/);
  assert.match(landing,/\.sport-menu\{/);
- assert.match(landing,/\.sport-open-full\{/);
  assert.match(landing,/src="\.\.\/shared\/sh9-golden-bottom-nav-v924\.js\?v=924-unified"/);
 });
 test('SHO 4×3 grid and existing routes unchanged, Sport icon activated',()=>{
@@ -30,20 +34,20 @@ test('SHO 4×3 grid and existing routes unchanged, Sport icon activated',()=>{
   assert.ok(wiring.includes(dest),'Existing route changed: '+dest);
  assert.match(wiring,/\$\('heroWallet'\)\.onclick=wallet/);
 });
-test('SHO Sport is a non-profile-specific read-only integration of existing MeccsRadar',()=>{
+test('SHO Sport preserves the V4 Hero and the original read-only MeccsRadar embed',()=>{
  assert.doesNotMatch(landing,/supabase|\.from\(|\.insert\(|\.update\(|localStorage|hh-profile/i);
  assert.doesNotMatch(landing,/fake|mock|demo.*match|Math\.random/);
  assert.match(landing,/src="\.\/SHO_Sport_hero_1672x941\.webp\?v=4"/);
  assert.doesNotMatch(landing,/Vissza a SHO kezdőlapra|Sport, egy helyen|Mérkőzések · Eredmények|MecsRadar · Teljes alkalmazás|Változatlan funkciók/);
  assert.match(landing,/\.sport-hero-art\{[^}]*aspect-ratio:1672 \/ 941;object-fit:contain/);
  assert.match(landing,/\.sport-menu\{[^}]*left:0;right:0;bottom:0;[^}]*border-radius:0;background:rgba\(7,25,52,\.21\)/);
- assert.equal((landing.match(/class="sport-open-full"/g)||[]).length,1,'Exactly one full-view link next to embedded logo');
- assert.ok(landing.indexOf('class="sport-open-full"')>landing.indexOf('<iframe'),'full view should be next to embedded MecsRadar, not over hero');
+ assert.equal((landing.match(/class="sport-full-view"/g)||[]).length,1,'One full-view link in the hero');
+ assert.ok(landing.indexOf('class="sport-full-view"')<landing.indexOf('<iframe'),'Full view must be in hero menu');
+ assert.doesNotMatch(landing,/sport-open-full|<span>Marci<\/span>/);
  assert.doesNotMatch(landing,/class="sport-content-head"|class="sport-top"|class="sport-copy"|id="sportRefresh"/);
- assert.match(landing,/\.sport-menu span\{[^}]*border-radius:0;background:transparent/);
+ assert.match(landing,/\.sport-menu > :is\(button,a\)\{[^}]*border-radius:0;background:transparent/);
  assert.match(landing,/\.sport-hero::after\{content:none\}/);
  assert.doesNotMatch(landing,/\.sport-menu\{[^}]*border-radius:1[0-9]px/);
- assert.match(landing,/\.sport-open-full\{[^}]*top:18px;right:73px/);
  assert.match(landing,/src="\.\.\/shared\/sh9-golden-bottom-nav-v924\.js\?v=924-unified"/);
 });
 
