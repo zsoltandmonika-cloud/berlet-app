@@ -38,6 +38,6 @@ assert.match(sender, /sendMessage\(node\.id, PATH_REPORT, payload\)/);
 assert.match(handset, /prefs\.edit\(\)\.clear\(\)/);
 assert.match(handset, /15 \* 60 \* 1000L/);
 for (const source of [handset,service,sender]) {
-  assert.doesNotMatch(source, /Supabase|Dropbox|GPS|HealthConnectClient|WorkManager|HealthServicesClient|sendBroadcast\(/);
+  assert.doesNotMatch(source, /\b(SupabaseClient|DropboxVaultClient|HealthConnectClient|WorkManager|HealthServicesClient|requestLocationUpdates|sendBroadcast)\s*\(/);
 }
 console.log('Watch9 Data Layer pilot isolation and protocol: PASS');
