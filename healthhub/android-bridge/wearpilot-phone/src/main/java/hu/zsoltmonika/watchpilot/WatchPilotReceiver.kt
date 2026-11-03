@@ -19,6 +19,8 @@ class WatchPilotReceiver : WearableListenerService() {
         const val KEY_NODE = "paired_node"
         const val KEY_MODEL = "reported_watch_model"
         const val KEY_BATTERY = "battery"
+        const val KEY_MODE = "delivery_mode"
+        const val KEY_INTERVAL = "auto_minutes"
         const val KEY_CHARGING = "charging"
         const val KEY_SENT_AT = "watch_sent_at"
         const val KEY_RECEIVED_AT = "phone_received_at"
@@ -49,6 +51,12 @@ class WatchPilotReceiver : WearableListenerService() {
         val sentAt = payload.optLong("sentAtMillis", 0L)
         val now = System.currentTimeMillis()
         if (sentAt <= 0L || abs(now - sentAt) > 10 * 60 * 1000L) return
+        // A delayed/replayed packet must never overwrite a newer measurement.
+        if (!existingNode.isNullOrBlank() && sentAt <= prefs.getLong(KEY_SENT_AT, 0L)) return
+        val mode = payload.optString("mode", "manual")
+        if (mode != "manual" && mode != "auto") return
+        val interval = if (mode == "auto") payload.optInt("intervalMinutes", -1) else 0
+        if (mode == "auto" && interval !in listOf(30, 60, 120)) return
         val nonce = payload.optString("nonce", "")
         if (!Regex("[0-9a-fA-F-]{36}").matches(nonce)) return
         val rawModel = payload.optString("model", "")
@@ -60,6 +68,8 @@ class WatchPilotReceiver : WearableListenerService() {
             .putString(KEY_NODE, node)
             .putString(KEY_MODEL, model)
             .putInt(KEY_BATTERY, percent)
+            .putString(KEY_MODE, mode)
+            .putInt(KEY_INTERVAL, interval)
             .putBoolean(KEY_CHARGING, charging)
             .putLong(KEY_SENT_AT, sentAt)
             .putLong(KEY_RECEIVED_AT, now)
