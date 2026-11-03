@@ -330,7 +330,7 @@ function render(){
   left.append(name,smaller);
   const c=document.createElement('b');c.textContent=e.nutrients?.kcal==null?'— kcal':fmt(e.nutrients.kcal,0)+' kcal';
   const edit=document.createElement('button');edit.type='button';edit.className='mini';edit.textContent='Szerk.';edit.addEventListener('click',()=>editEntry(e));
-  const del=document.createElement('button');del.type='button';del.className='mini';del.textContent='×';del.title='Bevitel törlése';del.addEventListener('click',()=>{if(confirm('Törlöd a bejegyzést?'))update(d=>{const row=d.entries.find(x=>x.id===e.id);if(row){row.deleted=true;row.updatedAt=stamp();}})});
+  const del=document.createElement('button');del.type='button';del.className='mini';del.textContent='×';del.title='Bevitel törlése';del.addEventListener('click',()=>{update(d=>{const row=d.entries.find(x=>x.id===e.id);if(row){row.deleted=true;row.updatedAt=stamp();}})});
   const actions=document.createElement('div');actions.className='controls';actions.style.justifyContent='flex-end';actions.append(edit,del);right.append(c,actions);line.append(left,right);body.append(line);
   });
   section.append(body);mealGrid.append(section);
