@@ -40,4 +40,35 @@ assert.match(handset, /15 \* 60 \* 1000L/);
 for (const source of [handset,service,sender]) {
   assert.doesNotMatch(source, /\b(SupabaseClient|DropboxVaultClient|HealthConnectClient|WorkManager|HealthServicesClient|requestLocationUpdates|sendBroadcast)\s*\(/);
 }
+const automatic = fs.readFileSync(r+'wearpilot-watch/src/main/java/hu/zsoltmonika/watchpilot/WatchAutoReport.kt','utf8');
+const heart = fs.readFileSync(r+'wearpilot-watch/src/main/java/hu/zsoltmonika/watchpilot/WatchHeartProbe.kt','utf8');
+assert.match(watch, /androidx.work:work-runtime:2.11.2/);
+assert.match(watchM, /android.permission.BODY_SENSORS/);
+assert.match(watchM, /android.permission.health.READ_HEART_RATE/);
+assert.doesNotMatch(watchM, /BODY_SENSORS_BACKGROUND|READ_HEALTH_DATA_IN_BACKGROUND/);
+assert.match(sender, /WatchAutoSchedule.enable/);
+assert.match(sender, /WatchAutoSchedule.disable/);
+assert.match(sender, /heartProbe.start\(\)/);
+assert.match(sender, /for \(minutes in listOf\(30, 60, 120\)\)/);
+assert.match(automatic, /KEY_ENABLED, false/);
+assert.match(automatic, /KEY_REMOTE, false/);
+assert.match(automatic, /setRequiresBatteryNotLow\(true\)/);
+assert.match(automatic, /percent < 20 && !charging/);
+assert.match(automatic, /nodes.filter \{ it.isNearby \}/);
+assert.match(automatic, /targets.size != 1/);
+assert.match(automatic, /ExistingPeriodicWorkPolicy.UPDATE/);
+assert.match(automatic, /cancelUniqueWork/);
+assert.match(automatic, /"mode", "auto"/);
+assert.match(heart, /Sensor.TYPE_HEART_RATE/);
+assert.match(heart, /TIMEOUT_MS = 25_000L/);
+assert.match(heart, /SENSOR_STATUS_UNRELIABLE/);
+assert.match(heart, /sensorManager.unregisterListener/);
+assert.match(heart, /activity.requestPermissions/);
+assert.doesNotMatch(heart, /DataLayer|sendMessage|Supabase|Dropbox|WorkManager|Network|Location|openFileOutput/);
+assert.match(service, /sentAt <= prefs.getLong\(KEY_SENT_AT, 0L\)/);
+assert.match(service, /mode == "auto"/);
+assert.match(service, /interval !in listOf\(30, 60, 120\)/);
+assert.match(handset, /freshnessMinutes/);
+console.log('Watch9 v0.2 opt-in automatic battery / on-demand pulse safeguards: PASS');
+
 console.log('Watch9 Data Layer pilot isolation and protocol: PASS');
