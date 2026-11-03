@@ -1,6 +1,8 @@
 package hu.zsoltmonika.watchpilot
 
 import android.app.Activity
+import android.app.AlertDialog
+import android.content.pm.PackageManager
 import android.content.Intent
 import android.content.IntentFilter
 import android.graphics.Color
@@ -27,6 +29,8 @@ class WatchPilotActivity : Activity() {
         private const val PATH_ACK = "/sh9/watch/pilot/ack/v1"
     }
     private lateinit var status: TextView
+    private lateinit var autoStatus: TextView
+    private lateinit var heartProbe: WatchHeartProbe
     private var pendingNonce: String? = null
     private val listener = MessageClient.OnMessageReceivedListener { event ->
         if (event.path != PATH_ACK || pendingNonce == null) return@OnMessageReceivedListener
@@ -57,7 +61,7 @@ class WatchPilotActivity : Activity() {
         content.addView(title)
         val info = TextView(this).apply {
             text = "Watch9 elsődleges · Watch5 Pro kompatibilis.\n" +
-                "Csak kézi akkumulátor-küldés. Nincs GPS vagy egészségmérés."
+                "Opt-in akkustátusz 30/60/120 percenként; külön kézi pulzusmérés. Nincs GPS, nincs felhő."
             textSize = 12f
             setTextColor(Color.LTGRAY)
         }
@@ -73,7 +77,74 @@ class WatchPilotActivity : Activity() {
             text = "🔋 ÁLLAPOT KÜLDÉSE"
             setOnClickListener { sendSnapshot() }
         })
+
+        autoStatus = TextView(this).apply {
+            textSize = 12f
+            setTextColor(Color.LTGRAY)
+            setPadding(0, 12, 0, 12)
+        }
+        content.addView(autoStatus)
+        heartProbe = WatchHeartProbe(this) { result -> status.text = result }
+
+        for (minutes in listOf(30, 60, 120)) {
+            content.addView(Button(this).apply {
+                text = "⏱ Automatikus akku: $minutes perc"
+                setOnClickListener {
+                    AlertDialog.Builder(this@WatchPilotActivity)
+                        .setTitle("Óraakku megosztása · $minutes perc")
+                        .setMessage("Csak a külön telefonos tesztapp kap akkumulátoradatot. " +
+                            "A kézi jóváhagyásig nincs háttérküldés. " +
+                            "Alapból kizárólag közeli telefonra, LTE nélkül; " +
+                            "20% alatti töltöttségnél kihagyjuk a jelentést.")
+                        .setPositiveButton("Bekapcsolom") { _, _ ->
+                            // Changing cadence explicitly resets remote permission.
+                            WatchAutoSchedule.enable(this@WatchPilotActivity, minutes, false)
+                            refreshAuto()
+                        }
+                        .setNegativeButton("Mégsem", null)
+                        .show()
+                }
+            })
+        }
+
+        content.addView(Button(this).apply {
+            text = "📡 LTE-tartalék külön engedélyezése"
+            setOnClickListener {
+                val prefs = getSharedPreferences(WatchAutoSchedule.PREFS, MODE_PRIVATE)
+                if (!prefs.getBoolean(WatchAutoSchedule.KEY_ENABLED, false)) {
+                    status.text = "Előbb válassz 30/60/120 perces automatikus jelentést."
+                } else {
+                    AlertDialog.Builder(this@WatchPilotActivity)
+                        .setTitle("Hálózati / LTE adatút")
+                        .setMessage("A Data Layer hálózaton is továbbíthat adatot, ha az óra " +
+                            "nincs a telefon közelében. Ez többlet akkufogyasztást és " +
+                            "mobiladat-használatot okozhat. Ez még csak pilot.")
+                        .setPositiveButton("Engedélyezem") { _, _ ->
+                            WatchAutoSchedule.enable(
+                                this@WatchPilotActivity,
+                                prefs.getInt(WatchAutoSchedule.KEY_INTERVAL, 60),
+                                true
+                            )
+                            refreshAuto()
+                        }
+                        .setNegativeButton("Mégsem", null)
+                        .show()
+                }
+            }
+        })
+        content.addView(Button(this).apply {
+            text = "⛔ Automatikus küldés KIKAPCSOLÁSA"
+            setOnClickListener {
+                WatchAutoSchedule.disable(this@WatchPilotActivity)
+                refreshAuto()
+            }
+        })
+        content.addView(Button(this).apply {
+            text = "❤️ Kézi pulzusmérés (csak az órán)"
+            setOnClickListener { heartProbe.start() }
+        })
         setContentView(scroll)
+        refreshAuto()
     }
 
     override fun onStart() {
@@ -82,8 +153,35 @@ class WatchPilotActivity : Activity() {
     }
 
     override fun onStop() {
+        heartProbe.cancel()
         Wearable.getMessageClient(this).removeListener(listener)
         super.onStop()
+    }
+
+    private fun refreshAuto() {
+        val p = getSharedPreferences(WatchAutoSchedule.PREFS, MODE_PRIVATE)
+        val enabled = p.getBoolean(WatchAutoSchedule.KEY_ENABLED, false)
+        val mode = if (p.getBoolean(WatchAutoSchedule.KEY_REMOTE, false)) "LTE is engedélyezett" else "csak közeli"
+        autoStatus.text = if (enabled) {
+            "Automatikus akku: BE · " + p.getInt(WatchAutoSchedule.KEY_INTERVAL, 60) +
+                " perc · " + mode + "\nWorkManager nem pontos időzítő."
+        } else {
+            "Automatikus akku: KIKAPCSOLVA (alapállapot)."
+        }
+    }
+
+    @Deprecated("Android permissions callback")
+    override fun onRequestPermissionsResult(
+        requestCode: Int, permissions: Array<out String>, grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == WatchHeartProbe.REQUEST_CODE) {
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                heartProbe.start()
+            } else {
+                status.text = "Pulzusengedély nem érkezett meg; nem indul mérés."
+            }
+        }
     }
 
     private fun sendSnapshot() {
