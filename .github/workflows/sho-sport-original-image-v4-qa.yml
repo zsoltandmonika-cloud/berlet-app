@@ -1,0 +1,32 @@
+name: SHO Sport V4 · Full-resolution Hero QA
+on:
+  push:
+    branches:
+      - fix/sho-sport-hero-fullres-v4-20261103
+    paths:
+      - 'sh9/sport/index.html'
+      - 'sh9/sport/SHO_Sport_hero_1672x941.webp'
+      - 'sh9/tests/sho-sport-central-v1.test.cjs'
+      - '.github/workflows/sho-sport-original-image-v4-qa.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Sport full-resolution hero, layout and existing MecsRadar regression
+        run: node --test sh9/tests/sho-sport-central-v1.test.cjs sh9/tests/sho-icons-outline-only-v1161.test.cjs
+      - name: Verify only Sport page and tests changed
+        run: |
+          git fetch origin main --depth=1
+          MODIFIED=$(git diff --name-only origin/main HEAD)
+          printf '%s\n' "$MODIFIED"
+          if printf '%s\n' "$MODIFIED" | grep -E '(^healthhub/|^sh9/shared/|^sh9/smart-travel/|^sh9/family-hub/|^sh9/index.html)'; then
+            echo 'Golden modules modified unexpectedly'
+            exit 1
+          fi
