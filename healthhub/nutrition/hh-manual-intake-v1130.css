@@ -33,6 +33,7 @@
 #hhManualDialog1130 .hh-manual-primary{width:100%;min-height:50px;border:0;border-radius:14px;background:var(--accent);
  color:#07172b;font-weight:900;font-size:15px}
 #hhManualDialog1130 .hh-manual-status{min-height:18px;margin:0;font-size:12px;line-height:1.45;color:#bfdaf7}
+#hhManualDialog1130 .hh-manual-status:empty{display:none}
 #hhManualDialog1130 .hh-manual-status[data-error=true]{color:#ffb5c1}
 #hhManualDialog1130 .hh-manual-image{display:block;width:120px;height:120px;object-fit:cover;border-radius:16px;border:1px solid var(--accent)}
 #hhManualDialog1130 .hh-manual-image[hidden],#hhManualDialog1130 [hidden]{display:none!important}
