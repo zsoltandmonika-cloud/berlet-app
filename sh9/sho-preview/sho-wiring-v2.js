@@ -15,9 +15,6 @@ const REAL_ROUTES=Object.freeze({
  'Aktivitás':HH+'?sho=activity',
  'Alvás':HH+'?sho=sleep'
 });
-// These five SHO tiles currently have no implemented production destination.
-// Never disable a REAL_ROUTES module or the usable Wallet preview.
-const PLANNED_MODULES=Object.freeze(['Szórakozás','Bevásárlás','Sport','Kapcsolatok','Életmód']);
 const LABELS={
  hu:Object.freeze({Wallet:'Smart Wallet',Táplálkozás:'Táplálkozás',Aktivitás:'Aktivitás',Alvás:'Alvás'}),
  en:Object.freeze({Egészség:'Health',Biztonság:'Safety',Utazás:'Travel',Szórakozás:'Entertainment',Bevásárlás:'Shopping',Sport:'Sport',Wallet:'Smart Wallet',Kapcsolatok:'People',Életmód:'Lifestyle',Táplálkozás:'Nutrition',Aktivitás:'Activity',Alvás:'Sleep'})
@@ -47,12 +44,7 @@ function unavailable(title){
   '<button class="action primary" id="gotit" type="button">Rendben</button></div>');
  $('goSh9').onclick=()=>goto(SH9);$('gotit').onclick=close;
 }
-function navModule(label){
- if(PLANNED_MODULES.includes(label))return; // No fake navigation.
- if(REAL_ROUTES[label])goto(REAL_ROUTES[label]);
- else if(label==='Wallet')wallet();
- else unavailable(label);
-}
+function navModule(label){if(REAL_ROUTES[label])goto(REAL_ROUTES[label]);else if(label==='Wallet')wallet();else unavailable(label)}
 function setPin(id){
  pins[profile]=pins[profile]===id?'':id;
  updatePinned();
@@ -121,17 +113,7 @@ function paintLang(){
  $('hu').classList.toggle('chosen',!english);$('en').classList.toggle('chosen',english);
  $('hu').setAttribute('aria-pressed',String(!english));$('en').setAttribute('aria-pressed',String(english));
  d.documentElement.lang=english?'en-CA':'hu';
- d.querySelectorAll('.module-grid [data-module]').forEach(el=>{
-  const n=el.querySelector('b'),key=el.dataset.module,label=LABELS[lang][key]||key;
-  if(n)n.textContent=label;
-  if(PLANNED_MODULES.includes(key)){
-   el.disabled=true;
-   el.dataset.shoStatus='planned';
-   el.setAttribute('aria-disabled','true');
-   el.title=english?'Under development':'Fejlesztés alatt';
-   el.setAttribute('aria-label',label+(english?' (coming soon)':' (fejlesztés alatt)'));
-  }
- });
+ d.querySelectorAll('.module-grid [data-module]').forEach(el=>{const n=el.querySelector('b'),key=el.dataset.module;if(n)n.textContent=LABELS[lang][key]||key;});
  const tasksLabel=$('shoDockTasksLabel');
  if(tasksLabel)tasksLabel.textContent=english?'Tasks':'Feladatok';
  else $('tasks').textContent=english?'Tasks':'Feladatok';
