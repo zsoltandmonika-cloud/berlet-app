@@ -11,7 +11,7 @@ const wiring=read('sh9/sho-preview/sho-wiring-v2.js');
 test('Sport opens full existing MeccsRadar, not a partial imitation',()=>{
  assert.match(wiring,/'Sport':SH9\+'sport\/'/);
  assert.match(landing,/src="https:\/\/mecsradar\.pages\.dev\/" loading="eager"/);
- assert.match(landing,/href="https:\/\/mecsradar\.pages\.dev\/" target="_blank"/);
+ assert.match(landing,/href="https:\/\/mecsradar\.pages\.dev\/" rel="noreferrer external"/);
  assert.match(landing,/id="mecsradarFull"/);
  assert.doesNotMatch(landing,/<iframe[^>]*\bsandbox\b/);
  for(const originalView of ['Műsor','Kedvencek','Marci','Magyar Kupa','Csatornák','Élő eredmények','Naptár'])
