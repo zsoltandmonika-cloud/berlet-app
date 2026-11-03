@@ -86,7 +86,7 @@ function open(){
  const hour=new Date().getHours();
  $('hhManualMeal1130').value=hour<10?'Reggeli':hour<12?'Tízórai':hour<15?'Ebéd':hour<18?'Uzsonna':hour<21?'Vacsora':'Egyéb';
  $('hhManualFamilyWrap1130').hidden=!w.HH_NUTRITION_CLOUD_V626?.connected();
- suggestions();tell('Írj vagy diktálj egy ételt. A kalória és a gyűjteménybe mentés opcionális.');
+ suggestions();$('hhManualStatus1130').textContent='';const feedback=$('hhManualActionFeedback1135');feedback.textContent='';feedback.hidden=true;
  $('hhManualDialog1130').showModal();$('hhManualName1130').focus();
  w.HH_SHARED_FOOD_LIBRARY_V1118?.load?.().then(()=>{if($('hhManualDialog1130').open) suggestions()}).catch(()=>{});
 }
