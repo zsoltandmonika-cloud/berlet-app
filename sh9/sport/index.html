@@ -2,79 +2,55 @@
 <html lang="hu">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#07152a">
 <title>SHO · Sport Central</title>
 <link rel="stylesheet" href="../shared/sh9-golden-bottom-nav-v924.css?v=924-unified">
 <style>
-:root{color-scheme:dark;--ink:#f3f8ff;--muted:#acc4dd;--border:rgba(163,205,242,.27)}
+:root{color-scheme:dark;--ink:#f3f8ff;--border:rgba(163,205,242,.27)}
 *{box-sizing:border-box}
 html,body{margin:0;min-height:100%;background:#030c1a;color:var(--ink);font:14px/1.4 Inter,system-ui,-apple-system,"Segoe UI",sans-serif}
 a,button{font:inherit}
-button{cursor:pointer}
-button:focus-visible,a:focus-visible{outline:2px solid #8cc4ff;outline-offset:2px}
+a:focus-visible,button:focus-visible{outline:2px solid #8cc4ff;outline-offset:2px}
 .sport-shell{height:calc(100dvh - 77px);width:min(100%,420px);margin:auto;padding:5px 6px 0;display:flex;flex-direction:column;gap:7px;overflow:hidden;background:#07162a}
-.sport-hero{position:relative;isolation:isolate;flex:0 0 clamp(137px,21dvh,178px);overflow:hidden;border-radius:18px;border:1px solid rgba(163,205,242,.35);background:#0b2850 url("./hero.webp?v=1") center 40%/cover no-repeat;box-shadow:0 7px 22px rgba(0,0,0,.32)}
-.sport-hero::before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(4,13,31,.86) 0%,rgba(5,17,39,.44) 46%,rgba(5,12,27,.08) 82%),linear-gradient(0deg,rgba(3,12,28,.62),transparent 65%);pointer-events:none}
-.sport-top,.sport-copy{position:relative;z-index:1}
-.sport-top{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:9px}
-.glass-link{display:inline-flex;align-items:center;justify-content:center;gap:5px;min-height:30px;padding:5px 10px;border-radius:20px;border:1px solid rgba(201,228,255,.4);background:rgba(7,26,54,.69);color:#e8f4ff;font-size:10px;font-weight:750;text-decoration:none;backdrop-filter:blur(8px)}
-.sport-copy{position:absolute;bottom:12px;left:13px;right:12px;max-width:305px}
-.sport-copy small{font-size:9px;letter-spacing:.13em;color:#c4e1ff;font-weight:850}
-.sport-copy h1{font-size:23px;letter-spacing:-.03em;line-height:1.04;margin:5px 0 3px;text-shadow:0 2px 7px #000a}
-.sport-copy p{margin:0;color:#d9e7f5;font-size:10.5px}
-.sport-content-head{flex:0 0 auto;border:1px solid var(--border);border-radius:13px;background:linear-gradient(130deg,rgba(22,52,90,.85),rgba(28,40,72,.86));padding:8px 10px;box-shadow:inset 0 1px rgba(255,255,255,.06)}
-.sport-label{display:flex;align-items:center;gap:7px;justify-content:space-between}
-.sport-label b{font-size:12px}
-.sport-label small{font-size:9px;color:#b7d1e9}
-.sport-tools{margin-top:7px;display:flex;align-items:center;gap:6px;justify-content:space-between}
-.sport-features{display:flex;gap:6px;white-space:nowrap;overflow-x:auto;scrollbar-width:none;min-width:0}
-.sport-features::-webkit-scrollbar{display:none}
-.sport-features span{padding:4px 7px;border:1px solid rgba(175,208,235,.2);border-radius:20px;color:#d1e3f5;font-size:9px;background:rgba(255,255,255,.03)}
-.sport-refresh{border-radius:12px;border:1px solid rgba(167,211,245,.34);background:rgba(104,161,216,.12);color:#dceeff;font-size:12px;font-weight:800;min-width:36px;height:29px;flex:0 0 36px}
+.sport-hero{position:relative;isolation:isolate;flex:0 0 auto;width:100%;overflow:hidden;border-radius:18px;border:1px solid rgba(163,205,242,.38);background:#0b2850;box-shadow:0 7px 22px rgba(0,0,0,.32)}
+/* Use the artwork's intrinsic ratio: no cover crop, no opaque headline shading. */
+.sport-hero-art{display:block;width:100%;height:auto;aspect-ratio:1672 / 941;object-fit:contain}
+.sport-hero::after{content:"";position:absolute;inset:62% 0 0;background:linear-gradient(to bottom,transparent,rgba(4,16,37,.28));pointer-events:none}
+.sport-menu{position:absolute;z-index:1;left:7px;right:7px;bottom:7px;display:flex;align-items:center;gap:3px;min-height:40px;padding:4px 5px;border:1px solid rgba(211,233,253,.35);border-radius:16px;background:rgba(7,25,52,.46);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);overflow-x:auto;scrollbar-width:none}
+.sport-menu::-webkit-scrollbar{display:none}
+.sport-menu span{flex:1 0 auto;white-space:nowrap;text-align:center;font-size:10px;line-height:18px;color:#f5faff;font-weight:600;padding:4px 6px;border-radius:12px;border:1px solid rgba(221,239,255,.23);background:rgba(7,21,45,.21)}
+.sport-menu span:last-child{font-size:13px;padding:4px 7px}
 .sport-frame{display:flex;position:relative;flex:1 1 auto;min-height:0;border:1px solid rgba(154,197,233,.3);border-radius:15px;overflow:hidden;background:#07111f}
 .sport-frame iframe{display:block;flex:1;min-width:0;width:100%;height:100%;border:0;background:#07111f}
+.sport-open-full{position:absolute;z-index:3;top:18px;right:73px;display:inline-flex;align-items:center;justify-content:center;white-space:nowrap;min-height:29px;padding:5px 9px;border-radius:20px;border:1px solid rgba(205,231,255,.43);background:rgba(9,29,58,.68);color:#eff7ff;text-decoration:none;font-size:10px;line-height:1;font-weight:750;box-shadow:0 3px 8px rgba(0,0,0,.23);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+.sport-open-full:active{background:rgba(24,62,107,.85)}
 .sport-error{position:absolute;left:0;right:0;bottom:0;margin:0;padding:5px 9px;color:#b6c9dd;text-align:center;font-size:9px;background:rgba(7,22,42,.88);pointer-events:none}
 .sport-error[data-ready="yes"]{display:none}
-@media(max-height:680px){.sport-hero{flex-basis:115px}.sport-copy h1{font-size:20px}.sport-content-head{padding:6px 8px}.sport-features span{padding:3px 6px}}
-@media(min-width:700px){.sport-shell{width:min(100%,1020px)}.sport-hero{flex-basis:200px;background-position:50% 43%}.sport-copy h1{font-size:30px}.sport-content-head{padding:10px 14px}}
+@media(max-width:360px){.sport-menu{gap:2px;padding:3px}.sport-menu span{font-size:9px;padding:3px 5px}.sport-open-full{right:66px;padding:5px 6px;font-size:9px}}
+@media(min-width:700px){.sport-shell{width:min(100%,1020px)}.sport-menu{left:12px;right:12px}.sport-menu span{font-size:12px}.sport-open-full{left:270px;right:auto}}
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
 </style>
 </head>
 <body>
 <main class="sport-shell" aria-label="SHO Sport Central">
- <header class="sport-hero">
-  <div class="sport-top">
-   <a class="glass-link" href="../" aria-label="Vissza a SHO kezdőlapra">← SHO</a>
-   <a class="glass-link" href="https://mecsradar.pages.dev/" rel="noreferrer external" aria-label="MecsRadar teljes oldal megnyitása">↗ Teljes nézet</a>
-  </div>
-  <div class="sport-copy">
-   <small>SHO · SPORT CENTRAL</small>
-   <h1>Sport, egy helyen.</h1>
-   <p>Mérkőzések · Eredmények · Kedvencek · Közvetítések</p>
+ <header class="sport-hero" aria-label="Sport Hero teljes kép">
+  <img class="sport-hero-art" src="./hero.webp?v=2" width="1672" height="941" alt="Sportmontázs: röplabda, kézilabda, labdarúgás, úszás, futás és küzdősport">
+  <div class="sport-menu" aria-label="MecsRadar funkciók; a működő menü közvetlenül a kép alatt található">
+   <span>Műsor</span><span>Kedvencek</span><span>Marci</span><span>Magyar Kupa</span><span>Csatornák</span><span aria-hidden="true">↻</span>
   </div>
  </header>
- <section class="sport-content-head" aria-label="MecsRadar teljes funkciók">
-  <div class="sport-label"><b>🏆 MecsRadar · Teljes alkalmazás</b><small>Változatlan funkciók</small></div>
-  <div class="sport-tools">
-   <div class="sport-features" aria-label="A MecsRadar saját nézetei">
-    <span>Műsor</span><span>Kedvencek</span><span>Marci</span><span>Magyar Kupa</span><span>Csatornák</span><span>Élő eredmények</span><span>Naptár</span>
-   </div>
-   <button class="sport-refresh" id="sportRefresh" type="button" title="MecsRadar újratöltése" aria-label="MecsRadar újratöltése">↻</button>
-  </div>
- </section>
- <section class="sport-frame" aria-label="MecsRadar beágyazott teljes alkalmazás">
+ <section class="sport-frame" aria-label="MecsRadar teljes alkalmazás minden eredeti funkcióval">
   <iframe id="mecsradarFull" title="MecsRadar · teljes eredeti alkalmazás" src="https://mecsradar.pages.dev/" loading="eager" referrerpolicy="strict-origin-when-cross-origin" allow="fullscreen; clipboard-write"></iframe>
-  <p class="sport-error" id="sportLoadHint">Ha nem jelenik meg, válaszd fent a „Teljes nézet” lehetőséget.</p>
+  <a class="sport-open-full" href="https://mecsradar.pages.dev/" rel="noreferrer external" aria-label="MecsRadar teljes nézet megnyitása">↗ Teljes nézet</a>
+  <p class="sport-error" id="sportLoadHint">Ha a MecsRadar nem jelenik meg, érintsd meg a „Teljes nézet” gombot.</p>
  </section>
 </main>
 <script>
 (function(){
  'use strict';
- var frame=document.getElementById('mecsradarFull'),hint=document.getElementById('sportLoadHint'),reload=document.getElementById('sportRefresh');
- var source='https://mecsradar.pages.dev/';
+ var frame=document.getElementById('mecsradarFull'),hint=document.getElementById('sportLoadHint');
  frame.addEventListener('load',function(){hint.dataset.ready='yes'});
- reload.addEventListener('click',function(){hint.dataset.ready='no';frame.src=source+'?from=sho-sport&reload='+Date.now()});
 })();
 </script>
 <script defer src="../../healthhub/chatgpt-project-shortcut-v712.js?v=756-central-open"></script>
