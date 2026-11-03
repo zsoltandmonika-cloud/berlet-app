@@ -10,7 +10,7 @@ const sho=read('sh9/index.html');
 const wiring=read('sh9/sho-preview/sho-wiring-v2.js');
 test('Sport opens full existing MeccsRadar with actionable hero navigation',()=>{
  assert.match(wiring,/'Sport':SH9\+'sport\/'/);
- assert.match(landing,/src="https:\/\/mecsradar\.pages\.dev\/" loading="eager"/);
+ assert.match(landing,/src="https:\/\/mecsradar\.pages\.dev\/\?sh9Compact=6" loading="eager"/);
  assert.match(landing,/<a href="https:\/\/mecsradar\.pages\.dev\/" class="sport-full-view sport-accent"/);
  assert.match(landing,/id="mecsradarFull"/);
  assert.doesNotMatch(landing,/<iframe[^>]*\bsandbox\b/);
