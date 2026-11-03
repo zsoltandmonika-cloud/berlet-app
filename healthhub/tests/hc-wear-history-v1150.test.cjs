@@ -64,6 +64,8 @@ assert(index.indexOf('live-v170.js') < index.indexOf('hc-wear-history-v1150.js')
 assert(index.indexOf('live-v184.js') < index.indexOf('hc-wear-history-v1150.js'));
 assert.match(core,/hhActivityPage/);
 assert.match(core,/hhSleepPage/);
+assert.match(core,/hhwearhistory/);
+assert.match(core,/HH_WEAR_HISTORY_ENABLED/);
 assert.match(core,/healthhub:health-cloud-synced/);
 assert.match(core,/HH_DROPBOX_VAULT/);
 assert.match(core,/healthhub-connect-v1/);
