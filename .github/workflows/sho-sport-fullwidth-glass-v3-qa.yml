@@ -1,0 +1,31 @@
+name: SHO Sport V3 · full width glass ribbon QA
+on:
+  push:
+    branches:
+      - fix/sho-sport-fullwidth-glass-hero-v3
+    paths:
+      - 'sh9/sport/**'
+      - 'sh9/tests/sho-sport-central-v1.test.cjs'
+      - '.github/workflows/sho-sport-fullwidth-glass-v3-qa.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate Sport glass ribbon, original features and Golden SHO
+        run: node --test sh9/tests/sho-sport-central-v1.test.cjs sh9/tests/sho-icons-outline-only-v1161.test.cjs
+      - name: Preserve original MecsRadar and protected modules
+        run: |
+          git fetch origin main --depth=1
+          MODIFIED=$(git diff --name-only origin/main HEAD)
+          printf '%s\n' "$MODIFIED"
+          if printf '%s\n' "$MODIFIED" | grep -E '(^healthhub/|^sh9/shared/|^sh9/smart-travel/|^sh9/family-hub/)'; then
+            echo 'Protected application changed'
+            exit 1
+          fi
