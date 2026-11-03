@@ -13,29 +13,29 @@ html,body{margin:0;min-height:100%;background:#030c1a;color:var(--ink);font:14px
 a,button{font:inherit}
 a:focus-visible,button:focus-visible{outline:2px solid #8cc4ff;outline-offset:2px}
 .sport-shell{height:calc(100dvh - 77px);width:min(100%,420px);margin:auto;padding:5px 6px 0;display:flex;flex-direction:column;gap:7px;overflow:hidden;background:#07162a}
-.sport-hero{position:relative;isolation:isolate;flex:0 0 auto;width:100%;overflow:hidden;border-radius:18px;border:1px solid rgba(163,205,242,.38);background:#0b2850;box-shadow:0 7px 22px rgba(0,0,0,.32)}
+.sport-hero{position:relative;isolation:isolate;flex:0 0 auto;width:100%;overflow:hidden;border-radius:18px 18px 0 0;border:1px solid rgba(163,205,242,.38);background:#0b2850;box-shadow:0 7px 22px rgba(0,0,0,.32)}
 /* Use the artwork's intrinsic ratio: no cover crop, no opaque headline shading. */
 .sport-hero-art{display:block;width:100%;height:auto;aspect-ratio:1672 / 941;object-fit:contain}
-.sport-hero::after{content:"";position:absolute;inset:62% 0 0;background:linear-gradient(to bottom,transparent,rgba(4,16,37,.28));pointer-events:none}
-.sport-menu{position:absolute;z-index:1;left:7px;right:7px;bottom:7px;display:flex;align-items:center;gap:3px;min-height:40px;padding:4px 5px;border:1px solid rgba(211,233,253,.35);border-radius:16px;background:rgba(7,25,52,.46);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);overflow-x:auto;scrollbar-width:none}
+.sport-hero::after{content:none}
+.sport-menu{position:absolute;z-index:1;left:0;right:0;bottom:0;display:flex;align-items:stretch;gap:0;min-height:36px;padding:0;border:0;border-top:1px solid rgba(218,235,255,.18);border-radius:0;background:rgba(7,25,52,.21);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);overflow-x:auto;scrollbar-width:none}
 .sport-menu::-webkit-scrollbar{display:none}
-.sport-menu span{flex:1 0 auto;white-space:nowrap;text-align:center;font-size:10px;line-height:18px;color:#f5faff;font-weight:600;padding:4px 6px;border-radius:12px;border:1px solid rgba(221,239,255,.23);background:rgba(7,21,45,.21)}
-.sport-menu span:last-child{font-size:13px;padding:4px 7px}
+.sport-menu span{flex:1 0 auto;display:flex;align-items:center;justify-content:center;white-space:nowrap;text-align:center;font-size:10px;line-height:17px;color:#f5faff;font-weight:650;padding:6px 5px;border:0;border-right:1px solid rgba(231,244,255,.23);border-radius:0;background:transparent;text-shadow:0 1px 3px rgba(0,0,0,.85)}
+.sport-menu span:last-child{font-size:13px;padding:6px 7px;border-right:0}
 .sport-frame{display:flex;position:relative;flex:1 1 auto;min-height:0;border:1px solid rgba(154,197,233,.3);border-radius:15px;overflow:hidden;background:#07111f}
 .sport-frame iframe{display:block;flex:1;min-width:0;width:100%;height:100%;border:0;background:#07111f}
 .sport-open-full{position:absolute;z-index:3;top:18px;right:73px;display:inline-flex;align-items:center;justify-content:center;white-space:nowrap;min-height:29px;padding:5px 9px;border-radius:20px;border:1px solid rgba(205,231,255,.43);background:rgba(9,29,58,.68);color:#eff7ff;text-decoration:none;font-size:10px;line-height:1;font-weight:750;box-shadow:0 3px 8px rgba(0,0,0,.23);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
 .sport-open-full:active{background:rgba(24,62,107,.85)}
 .sport-error{position:absolute;left:0;right:0;bottom:0;margin:0;padding:5px 9px;color:#b6c9dd;text-align:center;font-size:9px;background:rgba(7,22,42,.88);pointer-events:none}
 .sport-error[data-ready="yes"]{display:none}
-@media(max-width:360px){.sport-menu{gap:2px;padding:3px}.sport-menu span{font-size:9px;padding:3px 5px}.sport-open-full{right:66px;padding:5px 6px;font-size:9px}}
-@media(min-width:700px){.sport-shell{width:min(100%,1020px)}.sport-menu{left:12px;right:12px}.sport-menu span{font-size:12px}.sport-open-full{left:270px;right:auto}}
+@media(max-width:360px){.sport-menu span{font-size:9px;padding:5px 3px}.sport-open-full{right:66px;padding:5px 6px;font-size:9px}}
+@media(min-width:700px){.sport-shell{width:min(100%,1020px)}.sport-menu span{font-size:12px}.sport-open-full{left:270px;right:auto}}
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
 </style>
 </head>
 <body>
 <main class="sport-shell" aria-label="SHO Sport Central">
  <header class="sport-hero" aria-label="Sport Hero teljes kép">
-  <img class="sport-hero-art" src="./hero.webp?v=2" width="1672" height="941" alt="Sportmontázs: röplabda, kézilabda, labdarúgás, úszás, futás és küzdősport">
+  <img class="sport-hero-art" src="./hero.webp?v=3" width="1672" height="941" alt="Sportmontázs: röplabda, kézilabda, labdarúgás, úszás, futás és küzdősport">
   <div class="sport-menu" aria-label="MecsRadar funkciók; a működő menü közvetlenül a kép alatt található">
    <span>Műsor</span><span>Kedvencek</span><span>Marci</span><span>Magyar Kupa</span><span>Csatornák</span><span aria-hidden="true">↻</span>
   </div>
