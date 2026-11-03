@@ -307,6 +307,9 @@ async function save(e){
 function init(){
  if(!$('hhManualLaunch1130')||!api()?.recordManualMeal)return;
  $('hhManualLaunch1130').addEventListener('click',open);
+ $('hhBalanceQuickAdd1139')?.addEventListener('click',()=>{
+  if(!busy&&!$('hhManualDialog1130').open)open();
+ });
  $('hhManualClose1130').addEventListener('click',()=>$('hhManualDialog1130').close());
  $('hhManualVoice1130').addEventListener('click',voice);
  $('hhManualName1130').addEventListener('change',()=>{clearImage();predict()});
