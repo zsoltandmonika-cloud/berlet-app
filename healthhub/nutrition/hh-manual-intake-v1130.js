@@ -308,7 +308,9 @@ function init(){
  if(!$('hhManualLaunch1130')||!api()?.recordManualMeal)return;
  $('hhManualLaunch1130').addEventListener('click',open);
  $('hhBalanceQuickAdd1139')?.addEventListener('click',()=>{
-  if(!busy&&!$('hhManualDialog1130').open)open();
+  const heading=$('hhNutritionQuickHeadingV1144');
+  if(!heading)return;
+  heading.scrollIntoView({behavior:w.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches?'auto':'smooth',block:'start'});
  });
  $('hhManualClose1130').addEventListener('click',()=>$('hhManualDialog1130').close());
  $('hhManualVoice1130').addEventListener('click',voice);
