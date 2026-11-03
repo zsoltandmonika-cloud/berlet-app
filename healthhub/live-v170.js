@@ -517,7 +517,7 @@ async function render(profileOverride){
    (window.HH_SLEEP_VISUAL_V427&&window.HH_SLEEP_VISUAL_V427_ENABLED===true?window.HH_SLEEP_VISUAL_V427.render(rows,requestedProfile):'')
   ):'<div class="hhSleepEmpty big">Még nincs Health Connect alvásadat ennél a profilnál.</div>';
  page.innerHTML=heroHtml()+'<div class="surface hhSleepSurface">'+
- '<div class="hhSleepTop"><div><small>HEALTH CONNECT · '+esc(requestedProfile==='monika'?'MÓNIKA':'ZSOLT')+'</small><h2>Alvás és regeneráció</h2></div><button class="hhSleepProfile" onclick="hhSleepToggleProfile(event)" aria-label="Váltás '+esc(otherName())+' profiljára">'+esc(pname())+'</button></div>'+
+ '<div class="hhSleepTop"><div><small>HEALTH CONNECT · '+esc(requestedProfile==='monika'?'MÓNIKA':'ZSOLT')+'</small><h2>Alvás és regeneráció</h2></div><button class="hhSleepProfile" onclick="hhSleepToggleProfile(event)" aria-label="Váltás '+esc(otherName())+' profiljára">'+esc(pname())+'</button><span id="hhSleepRagBuddyV1146" class="hhSleepRagBuddyV1146" data-rag="unknown" role="img" aria-label="Buddy: az éjszakai alvásidő nem ismert"><span class="hhSleepRagBuddyFaceV1146" aria-hidden="true"></span></span></div>'+
  sleepContent+
  '<div class="hhSleepCard"><div class="hhSleepCardHead"><div><small>TREND</small><h3>Alvásidő</h3></div><div class="hhSleepPeriods"><button class="'+(sleepState.period==='7d'?'on':'')+'" onclick="hhSleepPeriod(\'7d\')">Heti</button><button class="'+(sleepState.period==='30d'?'on':'')+'" onclick="hhSleepPeriod(\'30d\')">Havi</button><button class="'+(sleepState.period==='90d'?'on':'')+'" onclick="hhSleepPeriod(\'90d\')">3 hónap</button></div></div>'+chart(period)+trendSummary(period)+'</div>'+
  (v428Enabled&&latest?window.HH_SLEEP_V428.calendar(rows,requestedProfile):'')+
@@ -530,6 +530,24 @@ async function render(profileOverride){
   (v428Enabled?'Korábbi Sleep nézet megnyitása':'Vissza a Golden Standard Sleep oldalra')+'</a>'+
   '<p>Csak a képernyő megjelenését váltja. Nem indít adatfeltöltést, és nem módosítja a szinkronizált méréseket.</p></details>'+
  '<p class="privacyNote">Az alvási adatok tájékoztató jellegűek. A HealthHub nem értékeli diagnosztikusan az alvást.</p></div>'+bottomNav();
+ // Use the canonical measured NIGHTLY sleep RAG from the three-view panel.
+ // No alternative thresholds, nap aggregation, or cross-profile fallback.
+ var sleepBuddy=page.querySelector('#hhSleepRagBuddyV1146');
+ var sleepRagPanel=page.querySelector('.hh428Panel[data-sleep-rag]');
+ if(sleepBuddy){
+  var sleepRag=(sleepRagPanel&&sleepRagPanel.getAttribute('data-hh428-profile')===requestedProfile)?
+   sleepRagPanel.getAttribute('data-sleep-rag'):'unknown';
+  if(['green','amber','red'].indexOf(sleepRag)<0)sleepRag='unknown';
+  sleepBuddy.dataset.rag=sleepRag;
+  var sleepRagDesc={
+   green:'legalább 7 óra mért éjszakai alvás',
+   amber:'5 és 7 óra közötti mért éjszakai alvás',
+   red:'5 óránál kevesebb mért éjszakai alvás',
+   unknown:'nincs értékelhető éjszakai alvásadat'
+  };
+  sleepBuddy.setAttribute('aria-label','Buddy, tájékoztató alvásidő-jelzés: '+sleepRagDesc[sleepRag]);
+  sleepBuddy.title='Az éjjeli alvásidő RAG-jelzését követi, nem orvosi minősítés.';
+ }
 }
 function ensurePage(){
  if(document.getElementById('hhSleepPage'))return;
