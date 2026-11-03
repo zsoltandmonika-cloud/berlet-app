@@ -4,6 +4,7 @@ on:
     branches:
       - feature/hc-wear-history-activity-sleep-20261103
       - fix/sleep-extra-above-lena-v1151-20261103
+      - fix/paired-sleep-v1152
     paths:
       - 'healthhub/hc-wear-history-v1150.js'
       - 'healthhub/index.html'
