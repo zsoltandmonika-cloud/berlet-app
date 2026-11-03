@@ -84,3 +84,60 @@
 @media(prefers-reduced-motion:reduce){
  #balanceCard #hhBuddyMood .hh-buddy-face{transition:none!important}
 }
+
+/* v1139 · One-tap manual food entry, anchored left of the Buddy status portrait.
+   Existing profile accent is the sole color source: Zsolt blue / Mónika pink. */
+#balanceCard #hhBalanceQuickAdd1139{
+ position:absolute;
+ top:15px;
+ right:calc(18px + clamp(56px,16vw,66px));
+ z-index:5;
+ display:grid;
+ place-items:center;
+ width:50px;
+ height:50px;
+ min-width:50px;
+ min-height:50px;
+ padding:0;
+ border-radius:15px;
+ border:1px solid color-mix(in srgb,var(--accent) 78%,#ffffff 12%);
+ background:linear-gradient(145deg,
+  color-mix(in srgb,var(--accent) 25%,#193452),
+  color-mix(in srgb,var(--accent) 11%,#0c1d36));
+ color:var(--accent);
+ font:500 35px/1 system-ui,sans-serif;
+ text-shadow:0 1px 9px color-mix(in srgb,var(--accent) 60%,transparent);
+ box-shadow:inset 0 1px 0 #ffffff3b,0 3px 12px #0005,
+  0 0 17px color-mix(in srgb,var(--accent) 24%,transparent);
+ backdrop-filter:blur(12px);
+ -webkit-backdrop-filter:blur(12px);
+ cursor:pointer;
+ touch-action:manipulation;
+ -webkit-tap-highlight-color:transparent;
+ transition:background .16s,box-shadow .16s,transform .16s;
+}
+#balanceCard #hhBalanceQuickAdd1139:active{
+ transform:scale(.95);
+ background:color-mix(in srgb,var(--accent) 29%,#142845);
+}
+#balanceCard #hhBalanceQuickAdd1139:focus-visible{
+ outline:2px solid var(--accent);
+ outline-offset:3px;
+}
+@media(max-width:430px){
+ #balanceCard #hhBalanceQuickAdd1139{
+  top:11px;
+  right:calc(16px + clamp(52px,15vw,60px));
+  width:48px;
+  height:48px;
+  min-width:48px;
+  min-height:48px;
+  border-radius:14px;
+ }
+}
+@media(max-width:350px){
+ #balanceCard #hhBalanceQuickAdd1139{right:64px;top:9px;width:44px;height:44px;min-width:44px;min-height:44px;}
+}
+@media(prefers-reduced-motion:reduce){
+ #balanceCard #hhBalanceQuickAdd1139{transition:none}
+}
