@@ -19,16 +19,16 @@ a:focus-visible,button:focus-visible{outline:2px solid #8cc4ff;outline-offset:2p
 .sport-hero::after{content:none}
 .sport-menu{position:absolute;z-index:1;left:0;right:0;bottom:0;display:flex;align-items:stretch;gap:0;min-height:36px;padding:0;border:0;border-top:1px solid rgba(218,235,255,.18);border-radius:0;background:rgba(7,25,52,.21);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);overflow-x:auto;scrollbar-width:none}
 .sport-menu::-webkit-scrollbar{display:none}
-.sport-menu span{flex:1 0 auto;display:flex;align-items:center;justify-content:center;white-space:nowrap;text-align:center;font-size:10px;line-height:17px;color:#f5faff;font-weight:650;padding:6px 5px;border:0;border-right:1px solid rgba(231,244,255,.23);border-radius:0;background:transparent;text-shadow:0 1px 3px rgba(0,0,0,.85)}
-.sport-menu span:last-child{font-size:13px;padding:6px 7px;border-right:0}
+.sport-menu > :is(button,a){flex:1 0 auto;display:flex;align-items:center;justify-content:center;white-space:nowrap;text-align:center;font-size:10px;line-height:17px;color:#f5faff;font-weight:650;padding:6px 5px;border:0;border-right:1px solid rgba(231,244,255,.23);border-radius:0;background:transparent;text-shadow:0 1px 3px rgba(0,0,0,.85)text-decoration:none;cursor:pointer;appearance:none;-webkit-tap-highlight-color:transparent}
+.sport-menu > :is(button,a):last-child{font-size:15px;padding:6px 7px;border-right:0;flex:0 0 36px}
 .sport-frame{display:flex;position:relative;flex:1 1 auto;min-height:0;border:1px solid rgba(154,197,233,.3);border-radius:15px;overflow:hidden;background:#07111f}
 .sport-frame iframe{display:block;flex:1;min-width:0;width:100%;height:100%;border:0;background:#07111f}
-.sport-open-full{position:absolute;z-index:3;top:18px;right:73px;display:inline-flex;align-items:center;justify-content:center;white-space:nowrap;min-height:29px;padding:5px 9px;border-radius:20px;border:1px solid rgba(205,231,255,.43);background:rgba(9,29,58,.68);color:#eff7ff;text-decoration:none;font-size:10px;line-height:1;font-weight:750;box-shadow:0 3px 8px rgba(0,0,0,.23);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
-.sport-open-full:active{background:rgba(24,62,107,.85)}
+.sport-menu > :is(button,a).is-active{background:rgba(130,192,255,.12)}
+.sport-menu > :is(button,a):active{background:rgba(130,192,255,.22)}
 .sport-error{position:absolute;left:0;right:0;bottom:0;margin:0;padding:5px 9px;color:#b6c9dd;text-align:center;font-size:9px;background:rgba(7,22,42,.88);pointer-events:none}
 .sport-error[data-ready="yes"]{display:none}
-@media(max-width:360px){.sport-menu span{font-size:9px;padding:5px 3px}.sport-open-full{right:66px;padding:5px 6px;font-size:9px}}
-@media(min-width:700px){.sport-shell{width:min(100%,1020px)}.sport-menu span{font-size:12px}.sport-open-full{left:270px;right:auto}}
+@media(max-width:360px){.sport-menu > :is(button,a){font-size:9px;padding:5px 3px}}
+@media(min-width:700px){.sport-shell{width:min(100%,1020px)}.sport-menu > :is(button,a){font-size:12px}}
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
 </style>
 </head>
@@ -36,21 +36,58 @@ a:focus-visible,button:focus-visible{outline:2px solid #8cc4ff;outline-offset:2p
 <main class="sport-shell" aria-label="SHO Sport Central">
  <header class="sport-hero" aria-label="Sport Hero teljes kép">
   <img class="sport-hero-art" src="./SHO_Sport_hero_1672x941.webp?v=4" width="1672" height="941" alt="Sportmontázs: röplabda, kézilabda, labdarúgás, úszás, futás és küzdősport">
-  <div class="sport-menu" aria-label="MecsRadar funkciók; a működő menü közvetlenül a kép alatt található">
-   <span>Műsor</span><span>Kedvencek</span><span>Marci</span><span>Magyar Kupa</span><span>Csatornák</span><span aria-hidden="true">↻</span>
-  </div>
+  <nav class="sport-menu" aria-label="Sport gyorsmenü">
+   <button type="button" data-sport-nav="program" class="is-active" aria-pressed="true">Műsor</button>
+   <button type="button" data-sport-nav="favorites" aria-pressed="false">Kedvencek</button>
+   <a href="https://mecsradar.pages.dev/" class="sport-full-view" rel="noreferrer external" aria-label="MecsRadar teljes nézet megnyitása">Teljes nézet</a>
+   <button type="button" data-sport-nav="cup" aria-pressed="false">Magyar Kupa</button>
+   <button type="button" data-sport-nav="channels" aria-pressed="false">Csatornák</button>
+   <button type="button" data-sport-action="refresh" title="MecsRadar frissítése" aria-label="MecsRadar frissítése">↻</button>
+  </nav>
  </header>
  <section class="sport-frame" aria-label="MecsRadar teljes alkalmazás minden eredeti funkcióval">
   <iframe id="mecsradarFull" title="MecsRadar · teljes eredeti alkalmazás" src="https://mecsradar.pages.dev/" loading="eager" referrerpolicy="strict-origin-when-cross-origin" allow="fullscreen; clipboard-write"></iframe>
-  <a class="sport-open-full" href="https://mecsradar.pages.dev/" rel="noreferrer external" aria-label="MecsRadar teljes nézet megnyitása">↗ Teljes nézet</a>
   <p class="sport-error" id="sportLoadHint">Ha a MecsRadar nem jelenik meg, érintsd meg a „Teljes nézet” gombot.</p>
  </section>
 </main>
 <script>
 (function(){
  'use strict';
+ var origin='https://mecsradar.pages.dev';
+ var type='sh9:sport';
  var frame=document.getElementById('mecsradarFull'),hint=document.getElementById('sportLoadHint');
+ var ready=false,pending=null;
+ function send(command){
+   if(!ready){pending=command;return;}
+   frame.contentWindow.postMessage(Object.assign({type:type},command),origin);
+ }
+ function active(view){
+   document.querySelectorAll('[data-sport-nav]').forEach(function(button){
+     var selected=button.dataset.sportNav===view;
+     button.classList.toggle('is-active',selected);
+     button.setAttribute('aria-pressed',String(selected));
+   });
+ }
+ window.addEventListener('message',function(event){
+   if(event.origin!==origin||event.source!==frame.contentWindow)return;
+   var data=event.data;
+   if(!data||data.type!==type)return;
+   if(data.action==='ready'){
+     ready=true;
+     if(pending){var command=pending;pending=null;send(command);}
+   }
+   if(data.action==='navigated')active(data.view);
+ });
  frame.addEventListener('load',function(){hint.dataset.ready='yes'});
+ document.querySelectorAll('[data-sport-nav]').forEach(function(button){
+   button.addEventListener('click',function(){
+     active(button.dataset.sportNav);
+     send({action:'navigate',view:button.dataset.sportNav});
+   });
+ });
+ document.querySelector('[data-sport-action="refresh"]').addEventListener('click',function(){
+   send({action:'refresh'});
+ });
 })();
 </script>
 <script defer src="../../healthhub/chatgpt-project-shortcut-v712.js?v=756-central-open"></script>
