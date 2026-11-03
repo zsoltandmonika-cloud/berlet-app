@@ -28,7 +28,9 @@ assert.match(html,/hh-buddy-floating-v628.css\?v=1140-swapped-buddy-quick-add/);
 
 assert.ok(html.includes('hh-manual-intake-v1130.css?v=1138-clean-dialog'));
 assert.ok(html.includes('hh-manual-intake-v1130.js?v=1144-scroll-to-four-quick-tiles'));
-assert.ok(html.includes('nutrition-preview-v592.js?v=1135-write-display-protection'));
+assert.ok(html.includes('nutrition-preview-v592.js?v=1145-one-tap-food-delete'));
+assert.doesNotMatch(core,/confirm\('Törlöd a bejegyzést\?'\)/);
+assert.match(core,/del\.addEventListener\('click',\(\)=>\{update\(d=>\{/);
 assert.ok(html.includes('hh-bevitel-premium-v643.js?v=1130-personal-food-image'));
 assert.match(css,/#hhManualLaunch1130/);
 assert.match(css,/var\(--accent\)/);
