@@ -7,7 +7,11 @@
  'use strict';
  var api=factory();
  if(typeof module==='object'&&module.exports)module.exports=api;
- if(root&&root.document)api.install(root);
+ if(root&&root.document){
+  var disabled=root.HH_WEAR_HISTORY_ENABLED===false;
+  try{disabled=disabled||new URLSearchParams(root.location.search).get('hhwearhistory')==='0'}catch(_){}
+  if(!disabled)api.install(root);
+ }
 })(typeof window==='object'?window:null,function(){
  'use strict';
  var CACHE_MS=45000,IDB='healthhub-connect-v1';
