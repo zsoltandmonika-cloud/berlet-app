@@ -92,7 +92,7 @@
   nav.setAttribute('aria-label','SH9 Golden Standard navigáció');
   const actions=[
    ['Kezdőlap','home',HOME],[askLabel(),'ask',ASK_FALLBACK],
-   ['Vissza','back','#'],['Értesítések','notifications',NOTIFICATIONS],
+   ['Vissza','back','#'],['Értesítések','notifications',notificationPilotRoute()?NOTIFICATIONS:HH+'?sh9nav=notifications'],
    ['Admin','admin',HH+'?sh9nav=admin']
   ];
   for(const [label,icon,url] of actions){
