@@ -53,8 +53,8 @@
   if(!fix||fix.ts>now+5000)return false;
   if(now-fix.ts>(fix.source==='HH One Native GPS'?FRESH_NATIVE_MS:FRESH_BROWSER_MS))return false;
   if(!Number.isFinite(browserFixAt)||browserFixAt<=0||now-browserFixAt>FRESH_BROWSER_MS)return true;
-  // A newer native fix can take precedence over a stale foreground browser camera.
-  return fix.ts>=browserFixAt;
+  // A recent local GPS reading takes priority over another data feed.
+  return false;
  }
  function init(){
   const d=w?.document;if(!d)return;
