@@ -258,3 +258,26 @@ body[data-sh9-golden-unified="on"] .sv-hero #sh9UnifiedGlassDockV34{
  }
  .sv-feature-card:has(.sv-feature-bkk) .sv-feature-copy{max-width:calc(63% - 6px)}
 }
+
+/* v4: the user's chosen original cinematic art IS the Hero.
+ * Never overlay a second phone, SHO logo or title over the image.
+ * Keep all Golden Dock elements and the content cards below untouched. */
+.sv-hero{
+ height:auto!important;
+ min-height:0!important;
+ aspect-ratio:16 / 9;
+}
+.sv-hero-picture{
+ position:absolute;inset:0;
+ display:block;width:100%;height:100%;z-index:0;
+ pointer-events:none;
+}
+.sv-hero-picture .sv-hero-art{
+ position:static;display:block;
+ width:100%;height:100%;object-fit:cover;object-position:center;
+ filter:none;
+}
+.sv-hero::after{display:none!important;content:none}
+.sv-hero-copy,.sv-hero-glow,.sv-hero-illustration,.sv-orbit{display:none!important}
+@media(min-width:520px){.sv-hero{height:auto!important}}
+@media(max-width:390px){.sv-hero{height:auto!important}}
