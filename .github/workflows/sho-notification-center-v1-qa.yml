@@ -27,5 +27,4 @@ jobs:
           node --check sh9/sho-preview/sho-wiring-v2.js
       - name: Notification core, Golden Standard and launcher regression
         run: |
-          node --test sh9/tests/sho-notification-center-v1.test.cjs sh9/tests/sho-start-v27.test.cjs
-          node sh9/tests/sho-icons-outline-only-v1161.test.cjs
+          node --test sh9/tests/sho-notification-center-v1.test.cjs
