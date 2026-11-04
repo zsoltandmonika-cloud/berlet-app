@@ -127,7 +127,8 @@ function render(){
    provenance.append(from,created);
    if(isClosed(t)){
      const outcome=t.status==='failed'?'✕ Nem teljesült':'✓ Kész';
-     const completion=element('strong',t.status==='failed'?'fh-failed-label':'fh-done-label',outcome+(t.completed_at?' · '+formatTime(t.completed_at):''));
+     const endAt=t.status==='failed'?t.closed_at:t.completed_at;
+     const completion=element('strong',t.status==='failed'?'fh-failed-label':'fh-done-label',outcome+(endAt?' · '+formatTime(endAt):''));
      provenance.append(completion);
    }
    if(t.status!=='todo'){
@@ -387,7 +388,7 @@ async function fetchData(){
  loading=true;
  const thirty=new Date(Date.now()-30*864e5).toISOString();
  const result=await Promise.all([
-  api.from(TABLE).select('id,title,details,category,creator_profile,assigned_profile,assigned_agent,status,due_at,completed_at,reaction,stars,revision,created_at,updated_at').order('updated_at',{ascending:false}).limit(150),
+  api.from(TABLE).select('id,title,details,category,creator_profile,assigned_profile,assigned_agent,status,due_at,completed_at,closed_at,reaction,stars,revision,created_at,updated_at').order('updated_at',{ascending:false}).limit(150),
   api.from(LOG).select('id,task_id,event_type,actor_profile,recipient_profile,title_snapshot,previous_value,current_value,created_at').gte('created_at',thirty).order('id',{ascending:false}).limit(120),
   api.from(HIDDEN_LOG).select('log_id').eq('profile_key',self()).limit(1500),
   api.from(HIDDEN_TASK).select('task_id').eq('profile_key',self()).limit(1500)
@@ -410,7 +411,7 @@ async function refreshWhenForeground(){
  if(loading){fetchAgain=true;return}
  try{
   const {data,error}=await api.from(TABLE)
-    .select('id,title,details,category,creator_profile,assigned_profile,assigned_agent,status,due_at,completed_at,reaction,stars,revision,created_at,updated_at')
+    .select('id,title,details,category,creator_profile,assigned_profile,assigned_agent,status,due_at,completed_at,closed_at,reaction,stars,revision,created_at,updated_at')
     .order('updated_at',{ascending:false}).limit(150);
   if(error){announce('Adathiba: '+error.message);return}
   tasks=data||[];setStats();render();
