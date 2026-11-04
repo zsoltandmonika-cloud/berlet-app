@@ -150,14 +150,22 @@
    }
   }
  }
+ function ensureNotificationSound(){
+  if(!notificationPilotRoute()||w.SHO_NOTIFICATION_SOUND_V2||d.querySelector('script[data-sho-notification-sound="2"]'))return;
+  const script=d.createElement('script');
+  script.dataset.shoNotificationSound='2';
+  script.src=NOTIFICATIONS+'notification-sound-v2.js?v=2';
+  script.onerror=()=>{}; // Sound is optional; bell navigation still works.
+  d.head?.appendChild(script);
+ }
  function ensureNotificationCore(){
   if(!notificationPilotRoute())return;
-  if(w.SHO_NOTIFICATION_CORE_V1){paintNotifications();return}
+  if(w.SHO_NOTIFICATION_CORE_V1){paintNotifications();ensureNotificationSound();return}
   if(d.querySelector('script[data-sho-notification-core="1"]'))return;
   const script=d.createElement('script');
   script.dataset.shoNotificationCore='1';
-  script.src=NOTIFICATIONS+'notification-core-v1.js?v=1';
-  script.onload=paintNotifications;
+  script.src=NOTIFICATIONS+'notification-core-v1.js?v=2';
+  script.onload=()=>{paintNotifications();ensureNotificationSound()};
   script.onerror=()=>{}; // Existing navigation stays functional if offline.
   d.head?.appendChild(script);
  }

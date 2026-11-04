@@ -94,3 +94,27 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,s
 @media(min-width:600px){.nc-shell{width:440px}.nc-hero{min-height:355px}.nc-hero-copy{margin-top:130px}}
 @media(max-width:360px){.nc-hero{min-height:320px}.nc-hero-visual{width:175px;right:-24px;top:55px}.nc-hero-copy{margin-top:110px}.nc-hero h1{font-size:30px}.nc-content{padding-inline:9px}.nc-tabs button{font-size:10px}}
 @media(prefers-reduced-motion:reduce){.nc-module-chevron,.nc-switch span,.nc-switch span::before{transition:none!important}}
+
+/* v2 · premium notification maintenance actions */
+.nc-inbox-tools{display:flex;justify-content:flex-end;gap:7px;flex-wrap:wrap;margin:-4px 2px 12px}
+.nc-tool{font-size:10px;font-weight:750;border-radius:999px;padding:7px 10px;color:var(--nc-accent);background:var(--nc-soft);border:1px solid var(--nc-edge)}
+.nc-tool-danger{color:#ffc0cb;border-color:rgba(238,100,119,.38);background:rgba(215,65,95,.11)}
+.nc-tool:disabled{opacity:.4;cursor:default}
+.nc-confirm{margin:0 2px 13px;border:1px solid rgba(239,107,132,.5);border-radius:13px;background:rgba(127,36,66,.25);padding:11px;display:grid;gap:10px}
+.nc-confirm span{font-size:11px;color:#ffcfdb}
+.nc-confirm>div{display:flex;justify-content:flex-end;gap:8px}
+.nc-confirm button{border-radius:9px;padding:7px 14px;border:1px solid var(--nc-edge);background:rgba(20,45,72,.8);color:#fff;font-weight:750;font-size:11px}
+.nc-confirm #ncConfirmProceed{border-color:#ffacbd;background:#ab3755}
+.nc-item{align-items:stretch}
+.nc-item-open{display:flex;align-items:flex-start;flex:1;gap:11px;min-width:0;text-align:left;color:inherit;border:0;background:none;padding:0;cursor:pointer}
+.nc-item-open:focus-visible,.nc-delete-item:focus-visible{outline:2px solid var(--nc-accent);outline-offset:2px}
+.nc-delete-item{display:grid;place-items:center;align-self:center;flex:0 0 31px;width:31px;height:34px;padding:0;border:1px solid rgba(239,111,135,.24);border-radius:9px;background:rgba(239,111,135,.06);color:#f5a3b4}
+.nc-delete-item:hover{border-color:rgba(239,111,135,.66);background:rgba(239,111,135,.18)}
+.nc-delete-item svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.nc-sound-panel{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;background:linear-gradient(120deg,var(--nc-soft),rgba(8,26,48,.78));border-radius:14px;border:1px solid var(--nc-edge);padding:13px;margin:0 0 14px}
+.nc-sound-heading{display:flex;align-items:center;gap:10px;flex:1 1 100%;min-width:0}
+.nc-sound-icon{display:grid;place-items:center;font-size:22px;background:rgba(255,255,255,.05);width:39px;height:39px;border-radius:12px}
+.nc-sound-heading strong{font-size:12px}.nc-sound-heading p{font-size:10px;color:var(--nc-muted);margin:3px 0 0}
+.nc-sound-actions{display:flex;gap:11px;align-items:center;justify-content:flex-end;flex:1 1 100%}
+.nc-sound-actions .nc-button{padding:8px 12px}
+.nc-sound-actions .nc-button:disabled{opacity:.45;cursor:default}

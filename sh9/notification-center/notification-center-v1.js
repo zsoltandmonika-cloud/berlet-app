@@ -16,6 +16,8 @@ const I={
   empty:'A bekötött modulok üzenetei itt jelennek majd meg. A Beállítások fülön a próbaértesítést is tesztelheted.',
   unreadEmpty:'Új, olvasatlan értesítés nem található.',demo:'PRÓBA',local:'Helyi beállítás',sensitive:'Biztonságos adatkapcsolat szükséges',
   saved:'Beállítás mentve',markSaved:'Olvasottnak jelölve',testSent:'Próbaértesítés létrehozva',
+  soundTitle:'Értesítési harangszó',soundDescription:'Halk ding új értesítésnél a megnyitott SHO-ban.',soundPreview:'Hang tesztelése',soundAria:'Értesítési hang engedélyezése',soundUnavailable:'A böngésző nem engedélyezte a hangot.',
+  clearRead:'Olvasottak törlése',clearAll:'Összes törlése',confirmDelete:'Biztosan törlöd a profil összes értesítését?',confirmCancel:'Mégse',confirmProceed:'Törlés',deleted:'Értesítés törölve',readDeleted:'Olvasott értesítések törölve',allDeleted:'Az összes értesítés törölve',deleteOne:'Értesítés törlése',
   threshold:'Határérték',leadMinutes:'Figyelmeztetés',unitMinutes:'perc',off:'Kikapcsolva',
   testTitle:'SportCentral · próbaértesítés',testMessage:'Ez egy próbaüzenet. A harang pirosan pulzál a megnyitásáig.',
   profileZ:'Zsolt',profileM:'Mónika',unreadSuffix:'olvasatlan',home:'Kezdőlap',ask:'Kérdezd Lénát',back:'Vissza',admin:'Admin',bell:'Értesítések',allRead:'Nincs új jelzés'},
@@ -27,13 +29,15 @@ const I={
   empty:'Notifications from connected modules will appear here. Use the test action in Settings to try the flow.',
   unreadEmpty:'There are no unread notifications.',demo:'TEST',local:'Local preference',sensitive:'Secure data source required',
   saved:'Preference saved',markSaved:'Marked as read',testSent:'Test notification created',
+  soundTitle:'Notification chime',soundDescription:'A quiet bell for new notifications while SHO is open.',soundPreview:'Preview sound',soundAria:'Enable notification sound',soundUnavailable:'The browser has not allowed audio.',
+  clearRead:'Delete read',clearAll:'Delete all',confirmDelete:'Delete all notifications for this profile?',confirmCancel:'Cancel',confirmProceed:'Delete',deleted:'Notification deleted',readDeleted:'Read notifications deleted',allDeleted:'All notifications deleted',deleteOne:'Delete notification',
   threshold:'Threshold',leadMinutes:'Remind before',unitMinutes:'min',off:'Off',
   testTitle:'SportCentral · test notification',testMessage:'This is a test. The bell gently pulses red until opened.',
   profileZ:'Zsolt',profileM:'Mónika',unreadSuffix:'unread',home:'Home',ask:'Ask Léna',back:'Back',admin:'Admin',bell:'Notifications',allRead:'Nothing unread'}
 };
 const words=()=>I[language()];
 const EMOJI={healthhub:'💗',sleep:'🌙',sportcentral:'🏆',smarttrip:'🚆',tasks:'✅',wallet:'🎟️',familyguard:'🛡️'};
-let activeTab='inbox',toastTimer=null;
+let activeTab='inbox',toastTimer=null,pendingDeleteProfile=null;
 const activeOpen=new Set(['healthhub','sportcentral']);
 function chosenProfile(){return api.profile()}
 function notice(message){
@@ -63,6 +67,21 @@ function updateHeader(){
  $('ncTestDescription').textContent=t.testSub;
  $('ncTestButton').textContent=t.testButton;
  $('ncStorageNote').textContent=t.storage;
+ $('ncSoundTitle').textContent=t.soundTitle;
+ $('ncSoundDescription').textContent=t.soundDescription;
+ $('ncSoundPreview').textContent=t.soundPreview;
+ $('ncSoundEnabled').checked=api.soundEnabled(p);
+ $('ncSoundEnabled').setAttribute('aria-label',t.soundAria);
+ $('ncSoundPreview').disabled=!api.soundEnabled(p);
+ $('ncClearRead').textContent=t.clearRead;
+ $('ncClearAll').textContent=t.clearAll;
+ $('ncConfirmText').textContent=t.confirmDelete;
+ $('ncConfirmCancel').textContent=t.confirmCancel;
+ $('ncConfirmProceed').textContent=t.confirmProceed;
+ const items=api.list(p);
+ $('ncClearRead').disabled=!items.some(item=>!!item.readAt);
+ $('ncClearAll').disabled=!items.length;
+ $('ncInboxTools').hidden=activeTab==='unread';
  const hero=$('.nc-hero')||d.querySelector('.nc-hero');
  const subtitle=hero?.querySelector('p');if(subtitle)subtitle.textContent=t.subtitle;
  for(const [id,label] of [['ncHome',t.home],['ncAsk',t.ask],['ncBack',t.back],['alerts',t.bell],['ncAdmin',t.admin]]){
@@ -83,13 +102,16 @@ function renderInbox(){
  const names=Object.fromEntries(api.modules().map(m=>[m.id,tr(m.name)]));
  $('ncInboxList').innerHTML=items.map(item=>{
   const mod=String(item.type||'').split('.')[0],name=names[mod]||mod;
-  return '<button type="button" class="nc-item" data-notification-id="'+esc(item.id)+'" data-unread="'+String(!item.readAt)+'">'+
+  return '<div class="nc-item" data-unread="'+String(!item.readAt)+'">'+
+   '<button type="button" class="nc-item-open" data-notification-id="'+esc(item.id)+'">'+
    '<span class="nc-item-icon" aria-hidden="true">'+(EMOJI[mod]||'🔔')+'</span>'+
    '<span class="nc-item-copy"><span class="nc-item-head">'+esc(name)+(item.demo?' · '+esc(t.demo):'')+'</span>'+
    '<span class="nc-item-title">'+esc(item.title)+'</span>'+
    '<span class="nc-item-message">'+esc(item.message)+'</span>'+
    '<span class="nc-item-time">'+esc(timestamp(item.createdAt))+'</span></span>'+
-   (!item.readAt?'<span class="nc-item-dot" aria-hidden="true"></span>':'')+'</button>';
+   (!item.readAt?'<span class="nc-item-dot" aria-hidden="true"></span>':'')+'</button>'+
+   '<button type="button" class="nc-delete-item" data-delete-notification-id="'+esc(item.id)+'" aria-label="'+esc(t.deleteOne)+' · '+esc(item.title)+'" title="'+esc(t.deleteOne)+'">'+
+   '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3M7 7l1 13h8l1-13M10 11v6m4-6v6"/></svg></button></div>';
  }).join('');
 }
 function renderSettings(){
@@ -124,12 +146,14 @@ function renderSettings(){
 }
 function render(){
  updateHeader();
+ if(pendingDeleteProfile&&pendingDeleteProfile!==chosenProfile())closeDeleteConfirmation();
  $('ncInboxPanel').hidden=activeTab==='settings';
  $('ncSettingsPanel').hidden=activeTab!=='settings';
  if(activeTab==='settings')renderSettings();else renderInbox();
 }
 function changeTab(tab){
  if(!['inbox','unread','settings'].includes(tab))return;
+ closeDeleteConfirmation();
  activeTab=tab;render();
 }
 function onSettingsChange(event){
@@ -143,6 +167,13 @@ function onSettingsChange(event){
  notice(words().saved);
 }
 function onNotificationClick(event){
+ const remove=event.target.closest('[data-delete-notification-id]');
+ if(remove){
+  if(api.removeNotification(chosenProfile(),remove.dataset.deleteNotificationId)){
+   render();notice(words().deleted);
+  }
+  return;
+ }
  const btn=event.target.closest('[data-notification-id]');
  if(!btn)return;
  const p=chosenProfile(),entry=api.list(p).find(x=>x.id===btn.dataset.notificationId);
@@ -151,6 +182,30 @@ function onNotificationClick(event){
  if(entry.targetUrl){const destination=api.safeHref(entry.targetUrl);if(destination)w.location.assign(destination)}
  else notice(words().markSaved);
  render();
+}
+function closeDeleteConfirmation(){
+ pendingDeleteProfile=null;
+ $('ncConfirmDelete').hidden=true;
+}
+function showDeleteConfirmation(){
+ if(!api.list(chosenProfile()).length)return;
+ pendingDeleteProfile=chosenProfile();
+ $('ncConfirmDelete').hidden=false;
+}
+function deleteAllConfirmed(){
+ const p=pendingDeleteProfile;
+ closeDeleteConfirmation();
+ if(!p||p!==chosenProfile())return; // Never cross profile on a late click.
+ if(api.clearAll(p)){render();notice(words().allDeleted)}
+}
+function updateChimePreference(event){
+ api.setSoundEnabled(chosenProfile(),!!event.target.checked);
+ $('ncSoundPreview').disabled=!event.target.checked;
+}
+async function previewChime(){
+ if(!api.soundEnabled(chosenProfile()))return;
+ const played=await w.SHO_NOTIFICATION_SOUND_V2?.preview?.();
+ if(!played)notice(words().soundUnavailable);
 }
 function createTest(){
  const t=words(),p=chosenProfile();
@@ -164,6 +219,12 @@ function init(){
  d.querySelectorAll('[data-nc-tab]').forEach(btn=>btn.addEventListener('click',()=>changeTab(btn.dataset.ncTab)));
  $('ncCount').addEventListener('click',()=>changeTab('unread'));
  $('ncMarkAllRead').addEventListener('click',()=>{api.markAllRead(chosenProfile());render()});
+ $('ncClearRead').addEventListener('click',()=>{closeDeleteConfirmation();if(api.clearRead(chosenProfile())){render();notice(words().readDeleted)}});
+ $('ncClearAll').addEventListener('click',showDeleteConfirmation);
+ $('ncConfirmCancel').addEventListener('click',closeDeleteConfirmation);
+ $('ncConfirmProceed').addEventListener('click',deleteAllConfirmed);
+ $('ncSoundEnabled').addEventListener('change',updateChimePreference);
+ $('ncSoundPreview').addEventListener('click',()=>{void previewChime()});
  $('ncTestButton').addEventListener('click',createTest);
  $('ncCategories').addEventListener('change',onSettingsChange);
  $('ncCategories').addEventListener('toggle',e=>{const details=e.target;if(!details.matches?.('[data-module-id]'))return;
@@ -176,10 +237,10 @@ function init(){
  });
  $('alerts').addEventListener('click',()=>{api.acknowledge(chosenProfile());render()});
  w.addEventListener('sho:notifications-changed',()=>{updateHeader();if(activeTab!=='settings')renderInbox()});
- w.addEventListener('hh-family-profile-changed',render);
- w.addEventListener('sh9:profilechange',render);
+ w.addEventListener('hh-family-profile-changed',()=>{closeDeleteConfirmation();render()});
+ w.addEventListener('sh9:profilechange',()=>{closeDeleteConfirmation();render()});
  w.addEventListener('sh9:languagechange',render);
- w.addEventListener('storage',e=>{if(e.key==='hh-profile'||e.key==='sh9-language-v1')render()});
+ w.addEventListener('storage',e=>{if(e.key==='hh-profile'){closeDeleteConfirmation();render()}else if(e.key==='sh9-language-v1')render()});
  w.addEventListener('pageshow',render);
  render();
 }

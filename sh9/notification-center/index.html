@@ -9,7 +9,7 @@
 <link rel="icon" type="image/svg+xml" href="../sho-preview/favicon.svg">
 <link rel="stylesheet" href="../shared/sh9-golden-controls-v1.css?v=934-unified-glass-dock">
 <link rel="stylesheet" href="../shared/sh9-golden-bottom-nav-v924.css?v=925-notification-center">
-<link rel="stylesheet" href="./notification-center-v1.css?v=1">
+<link rel="stylesheet" href="./notification-center-v1.css?v=2">
 </head>
 <body>
 <main class="nc-shell">
@@ -59,10 +59,22 @@
   </div>
   <section class="nc-panel" id="ncInboxPanel" role="tabpanel" aria-labelledby="ncTabInbox">
    <div class="nc-panel-head"><h3 id="ncInboxTitle">Legutóbbi értesítések</h3><button type="button" id="ncMarkAllRead" class="nc-text-btn">Összes olvasottnak</button></div>
+   <div class="nc-inbox-tools" id="ncInboxTools">
+    <button type="button" class="nc-tool" id="ncClearRead">Olvasottak törlése</button>
+    <button type="button" class="nc-tool nc-tool-danger" id="ncClearAll">Összes törlése</button>
+   </div>
+   <div class="nc-confirm" id="ncConfirmDelete" hidden role="group" aria-label="Összes értesítés törlésének megerősítése">
+    <span id="ncConfirmText">Biztosan törlöd az összes értesítést?</span>
+    <div><button type="button" id="ncConfirmCancel">Mégse</button><button type="button" id="ncConfirmProceed">Törlés</button></div>
+   </div>
    <div id="ncInboxList" class="nc-inbox-list" aria-live="polite"></div>
   </section>
   <section class="nc-panel" id="ncSettingsPanel" role="tabpanel" aria-labelledby="ncTabSettings" hidden>
    <div class="nc-panel-head"><div><h3 id="ncSettingsTitle">Kategóriák és szabályok</h3><p id="ncSettingsSub">Nyisd le a modult, majd állítsd be az értesítéseket.</p></div></div>
+   <div class="nc-sound-panel">
+    <div class="nc-sound-heading"><span class="nc-sound-icon" aria-hidden="true">🔔</span><div><strong id="ncSoundTitle">Értesítési harangszó</strong><p id="ncSoundDescription">Halk jelzés új értesítésnél, amikor a SHO meg van nyitva.</p></div></div>
+    <div class="nc-sound-actions"><label class="nc-switch"><input type="checkbox" id="ncSoundEnabled" aria-label="Értesítési hang bekapcsolása" checked><span aria-hidden="true"></span></label><button type="button" class="nc-button" id="ncSoundPreview">Hang tesztelése</button></div>
+   </div>
    <div class="nc-categories" id="ncCategories"></div>
    <div class="nc-test-panel">
     <div><strong id="ncTestTitle">Értesítések tesztelése</strong><p id="ncTestDescription">Hozz létre egy jelölt próbaértesítést a saját profilodhoz.</p></div>
@@ -80,9 +92,10 @@
  </nav>
 </main>
 <div id="ncToast" class="nc-toast" role="status" aria-live="polite" hidden></div>
-<script defer src="./notification-core-v1.js?v=1"></script>
-<script defer src="./notification-center-v1.js?v=1"></script>
+<script defer src="./notification-core-v1.js?v=2"></script>
+<script defer src="./notification-sound-v2.js?v=2"></script>
+<script defer src="./notification-center-v1.js?v=2"></script>
 <script defer src="../shared/sh9-golden-controls-v1.js?v=934-unified-glass-dock"></script>
-<script defer src="../shared/sh9-golden-bottom-nav-v924.js?v=925-notification-center"></script>
+<script defer src="../shared/sh9-golden-bottom-nav-v924.js?v=926-notification-chime"></script>
 </body>
 </html>

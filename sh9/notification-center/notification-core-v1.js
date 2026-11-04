@@ -92,6 +92,9 @@ function registerModule(manifest){
  rawSet(MANIFESTS,JSON.stringify(Array.from(registry.values()).filter(x=>!builtin.some(b=>b.id===x.id))));
  signal();return true;
 }
+function soundKey(p){return PREFIX+'chime-enabled:'+profile(p)}
+function soundEnabled(p){return rawGet(soundKey(p))!=='false'}
+function setSoundEnabled(p,on){if(typeof on!=='boolean')return false;rawSet(soundKey(p),String(on));signal();return true}
 function prefKey(p){return PREFIX+'preferences:'+profile(p)}
 function inboxKey(p){return PREFIX+'inbox:'+profile(p)}
 function ackKey(p){return PREFIX+'last-open:'+profile(p)}
@@ -137,7 +140,10 @@ function publish(payload){
  const item={id:'sho-'+now+'-'+Math.random().toString(36).slice(2,9),profile:p,type:payload.type,
   title:cleanLabel(payload.title||def.name.hu),message:cleanLabel(payload.message,320),
   createdAt:now,readAt:0,targetUrl:safeHref(payload.targetUrl),dedupeKey:dedupe,demo:payload.demo===true};
- set(inboxKey(p),[item,...items].slice(0,80));return item;
+ set(inboxKey(p),[item,...items].slice(0,80));
+ // Only a NEW successfully accepted event can trigger a sound. No replay on load.
+ try{w.dispatchEvent(new CustomEvent('sho:notification-received',{detail:{profile:p,id:item.id,type:item.type}}))}catch(_){}
+ return item;
 }
 function markRead(p,id){
  const items=inbox(p);const item=items.find(x=>x.id===id);
@@ -149,8 +155,24 @@ function markAllRead(p){
  for(const item of items)if(!item.readAt)item.readAt=now;
  set(inboxKey(p),items);return true;
 }
+function removeNotification(p,id){
+ if(typeof id!=='string'||!id)return false;
+ const before=inbox(p),after=before.filter(item=>item.id!==id);
+ if(after.length===before.length)return false;
+ set(inboxKey(p),after);return true;
+}
+function clearRead(p){
+ const before=inbox(p),after=before.filter(item=>!item.readAt);
+ if(after.length===before.length)return 0;
+ set(inboxKey(p),after);return before.length-after.length;
+}
+function clearAll(p){
+ const before=inbox(p),count=before.length;
+ if(count)set(inboxKey(p),[]);
+ return count;
+}
 function acknowledge(p){rawSet(ackKey(p),String(Date.now()));signal()}
 w.SHO_NOTIFICATION_CORE_V1=Object.freeze({version:1,profile,definitions:defs,modules:moduleList,registerModule,preference,updatePreference,
- list:all,state,publish,markRead,markAllRead,acknowledge,safeHref});
+ list:all,state,publish,markRead,markAllRead,removeNotification,clearRead,clearAll,acknowledge,safeHref,soundEnabled,setSoundEnabled});
 w.addEventListener?.('storage',e=>{if(e.key?.startsWith(PREFIX)||e.key===PROFILE_KEY)signal()});
 })(window);
