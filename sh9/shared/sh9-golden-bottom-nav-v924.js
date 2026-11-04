@@ -106,13 +106,21 @@
   d.body.dataset.sh9GoldenFallback='on';
   normalize(nav);
  }
- /* The same bell opens the dedicated SHO center on every Golden Standard page. */
+ /* Stage 1: keep existing HealthHub/Guardian alerts in place until integrated. */
+ function notificationPilotRoute(){
+  const path=w.location?.pathname||'';
+  return ['/berlet-app/sh9/','/berlet-app/sh9/index.html',
+   '/berlet-app/sh9/sho-preview/','/berlet-app/sh9/sho-preview/index.html',
+   '/berlet-app/sh9/notification-center/','/berlet-app/sh9/notification-center/index.html'].includes(path);
+ }
+ /* The same bell opens the new center on SHO pilot pages only. */
  function isNotificationEntry(node){
   if(!node||!node.matches?.('a,button'))return false;
   return node.id==='alerts'||node.dataset.sh9BottomRole==='notifications'||
    hasText(node,'értesítések')||hasText(node,'notifications');
  }
  function paintNotifications(){
+  if(!notificationPilotRoute())return;
   const api=w.SHO_NOTIFICATION_CORE_V1;
   const state=api?.state?.(readProfile())||{unread:0,attention:0};
   for(const nav of Array.from(d.querySelectorAll(NAVS))){
@@ -127,6 +135,7 @@
   }
  }
  function bindNotifications(){
+  if(!notificationPilotRoute())return;
   for(const nav of Array.from(d.querySelectorAll(NAVS))){
    for(const node of children(nav).filter(isNotificationEntry)){
     if(node.tagName==='A')node.setAttribute('href',NOTIFICATIONS);
@@ -142,6 +151,7 @@
   }
  }
  function ensureNotificationCore(){
+  if(!notificationPilotRoute())return;
   if(w.SHO_NOTIFICATION_CORE_V1){paintNotifications();return}
   if(d.querySelector('script[data-sho-notification-core="1"]'))return;
   const script=d.createElement('script');
