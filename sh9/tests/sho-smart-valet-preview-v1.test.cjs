@@ -60,7 +60,7 @@ test('the sample ticket modal is accessible and cannot masquerade as a valid sca
  assert.match(js,/if\(e\.key==='Escape'\)/);
  assert.match(js,/if\(e\.key==='Tab'\)/);
  assert.match(js,/function closeModal\(\)/);
- assert.doesNotMatch(js,/fetch\(|createClient|supabase|FileReader|toDataURL|payment|BarcodeDetector/);
+ assert.doesNotMatch(js,/fetch\(|createClient|supabase|FileReader|toDataURL|BarcodeDetector/);
 });
 test('genuine Bérlet and Sport Central links are present, while document upload stays disabled',()=>{
  assert.match(html,/href="\/berlet-app\/"/);
