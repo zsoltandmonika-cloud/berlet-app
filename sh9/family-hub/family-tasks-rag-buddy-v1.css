@@ -37,3 +37,8 @@
 @media(prefers-reduced-motion:reduce){
  .fh-task-buddy,.fh-note-buddy-rag{animation:none;transition:none}
 }
+
+/* Todo is neutral. Red RAG is reserved for the actual failed terminal outcome. */
+.fh-rag button[data-status="todo"].active{
+ border-color:#9bb3cc;background:rgba(145,171,197,.14);color:#e0eaf5;
+}
