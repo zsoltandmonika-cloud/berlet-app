@@ -165,6 +165,10 @@ function openTask(taskId){
 function style(){
  if(d.getElementById('fhNotifierCssV880'))return;
  const s=d.createElement('link');s.id='fhNotifierCssV880';s.rel='stylesheet';s.href='/berlet-app/sh9/family-hub/family-notifier-v880.css?v=908-cloud-notes';d.head.append(s);
+ if(!d.getElementById('fhBuddyRagCssV1')){
+  const rag=d.createElement('link');rag.id='fhBuddyRagCssV1';rag.rel='stylesheet';
+  rag.href='/berlet-app/sh9/family-hub/family-tasks-rag-buddy-v1.css?v=1-approved-rag';d.head.append(rag);
+ }
 }
 function makeUi(){
  if(!d.body)return;
