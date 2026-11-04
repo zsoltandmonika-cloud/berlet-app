@@ -169,6 +169,31 @@
   const authorized=()=>canRead(live(),selected());
   const followOn=()=>guardian()?.getLocationSettings?.().follow_map===true;
   const localFixAt=()=>guardian()?.lastGpsFixAt||0;
+  // Display the age of an authenticated old reading; never re-center the
+  // camera, show a stale portrait or describe it as a live position.
+  function unavailableLabel(profile,db,native){
+   const person=profile==='monika'?'Mónika':'Zsolt',now=Date.now();
+   const candidates=[db,native].filter(row=>{
+    if(!row||row.profile_key!==profile)return false;
+    const ts=Date.parse(row.updated_at);
+    return Number.isFinite(ts)&&ts<=now+5000&&
+     typeof row.latitude==='number'&&Number.isFinite(row.latitude)&&Math.abs(row.latitude)<=90&&
+     typeof row.longitude==='number'&&Number.isFinite(row.longitude)&&Math.abs(row.longitude)<=180&&
+     typeof row.accuracy_m==='number'&&Number.isFinite(row.accuracy_m)&&row.accuracy_m>=0&&row.accuracy_m<=100;
+   }).sort((a,b)=>Date.parse(b.updated_at)-Date.parse(a.updated_at));
+   if(!candidates.length)return '🟠 '+person+' · nincs friss hitelesített GPS-jel';
+   const time=new Date(candidates[0].updated_at).toLocaleTimeString('hu-HU',{hour:'2-digit',minute:'2-digit'});
+   return '🕘 '+person+' · utolsó ismert GPS: '+time+' · NEM ÉLŐ';
+  }
+  function showUnavailable(profile,db,native){
+   // Do not overwrite the owner's genuinely active foreground GPS diagnostics.
+   if(guardian()?.active)return;
+   const label=unavailableLabel(profile,db,native);
+   const own=d.getElementById('guardianMeState');
+   if(own)own.textContent=label;
+   const mapLabel=d.getElementById('guardianMapLabel');
+   if(mapLabel)mapLabel.textContent=label;
+  }
   function clearMarker(){
    moveToken++;
    if(moveFrame!==null&&w.cancelAnimationFrame)w.cancelAnimationFrame(moveFrame);
@@ -340,16 +365,14 @@
      showFix(next);followRequest=false;
     }else{
      clearMarker();
-     if(followRequest){
-      const s=d.getElementById('guardianMeState');
-      if(s)s.textContent='🟠 '+(k==='monika'?'Mónika':'Zsolt')+
-       ' · nincs friss megosztott GPS-jel';
-     }
+     showUnavailable(k,db,native);
     }
    }catch(_){
     if(ticket===run){
-     if(!latest||!preferRemote(latest,localFixAt()))clearMarker();
-     else paintSpeed(latest); // age-out the speed even across network outages
+     if(!latest||!preferRemote(latest,localFixAt())){
+      clearMarker();
+      showUnavailable(k,db,native);
+     }else paintSpeed(latest); // age-out the speed even across network outages
     }
    }finally{
     loading=false;
