@@ -4,6 +4,7 @@ on:
     paths:
       - 'sh9/family-hub/**'
       - 'healthhub/tests/family-tasks-v881.test.cjs'
+      - 'healthhub/tests/family-tasks-failed-rag-buddy-v1.test.cjs'
       - '.github/workflows/family-tasks-v881.yml'
   push:
     branches: [main]
@@ -20,4 +21,4 @@ jobs:
           node --check sh9/family-hub/family-tasks-v880.js
           node --check sh9/family-hub/family-notifier-v880.js
       - name: Regression · Family Tasks v880 + Visual v881
-        run: node --test healthhub/tests/family-tasks-v880.test.cjs healthhub/tests/family-tasks-v881.test.cjs
+        run: node --test healthhub/tests/family-tasks-v880.test.cjs healthhub/tests/family-tasks-v881.test.cjs healthhub/tests/family-tasks-failed-rag-buddy-v1.test.cjs
