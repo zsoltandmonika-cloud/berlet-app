@@ -130,6 +130,50 @@ function safeHref(target){
   return url.origin===w.location.origin&&url.pathname.startsWith('/berlet-app/')?url.pathname+url.search+url.hash:'';
  }catch(_){return ''}
 }
+
+/* Golden Standard routes: matching module and trusted same-origin target only. */
+const MODULE_TARGETS=Object.freeze({
+ healthhub:'/berlet-app/healthhub/',
+ sleep:'/berlet-app/healthhub/?sho=sleep',
+ sportcentral:'/berlet-app/sh9/sport/',
+ smarttrip:'/berlet-app/sh9/smart-travel/',
+ tasks:'/berlet-app/sh9/family-hub/',
+ wallet:'/berlet-app/sh9/?sho=wallet',
+ familyguard:'/berlet-app/healthhub/guardian/'
+});
+function moduleTarget(type){
+ const def=getDefinition(type);
+ return def?MODULE_TARGETS[def.moduleId]||'':'';
+}
+function ownedTarget(moduleId,url){
+ const path=url.pathname;
+ switch(moduleId){
+  case 'healthhub':return path.startsWith('/berlet-app/healthhub/')&&!path.startsWith('/berlet-app/healthhub/guardian/');
+  case 'sleep':return (path==='/berlet-app/healthhub/'||path==='/berlet-app/healthhub/index.html')&&url.searchParams.get('sho')==='sleep';
+  case 'sportcentral':return path.startsWith('/berlet-app/sh9/sport/');
+  case 'smarttrip':return path.startsWith('/berlet-app/sh9/smart-travel/');
+  case 'tasks':return path.startsWith('/berlet-app/sh9/family-hub/');
+  case 'familyguard':return path.startsWith('/berlet-app/healthhub/guardian/');
+  case 'wallet':return (path==='/berlet-app/sh9/'||path==='/berlet-app/sh9/index.html')&&url.searchParams.get('sho')==='wallet';
+  default:return false;
+ }
+}
+function resolveTarget(entry){
+ const def=getDefinition(entry?.type);
+ if(!def)return '';
+ const fallback=MODULE_TARGETS[def.moduleId]||'';
+ const href=safeHref(entry.targetUrl);
+ if(!href)return fallback;
+ try{return ownedTarget(def.moduleId,new URL(href,w.location.origin))?href:fallback}
+ catch(_){return fallback}
+}
+function taskTarget(payload,def){
+ if(def.moduleId!=='tasks'||typeof payload.taskId!=='string')return '';
+ const id=payload.taskId;
+ return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)?
+  MODULE_TARGETS.tasks+'?task='+encodeURIComponent(id):'';
+}
+
 function publish(payload){
  if(!payload||!getDefinition(payload.type))return null;
  const def=getDefinition(payload.type),p=profile(payload.profile);
@@ -139,7 +183,7 @@ function publish(payload){
  if(dedupe&&items.some(x=>x.dedupeKey===dedupe&&now-x.createdAt<12*60*60*1000))return null;
  const item={id:'sho-'+now+'-'+Math.random().toString(36).slice(2,9),profile:p,type:payload.type,
   title:cleanLabel(payload.title||def.name.hu),message:cleanLabel(payload.message,320),
-  createdAt:now,readAt:0,targetUrl:safeHref(payload.targetUrl),dedupeKey:dedupe,demo:payload.demo===true};
+  createdAt:now,readAt:0,targetUrl:safeHref(payload.targetUrl||taskTarget(payload,def)),dedupeKey:dedupe,demo:payload.demo===true};
  set(inboxKey(p),[item,...items].slice(0,80));
  // Only a NEW successfully accepted event can trigger a sound. No replay on load.
  try{w.dispatchEvent(new CustomEvent('sho:notification-received',{detail:{profile:p,id:item.id,type:item.type}}))}catch(_){}
@@ -173,6 +217,6 @@ function clearAll(p){
 }
 function acknowledge(p){rawSet(ackKey(p),String(Date.now()));signal()}
 w.SHO_NOTIFICATION_CORE_V1=Object.freeze({version:1,profile,definitions:defs,modules:moduleList,registerModule,preference,updatePreference,
- list:all,state,publish,markRead,markAllRead,removeNotification,clearRead,clearAll,acknowledge,safeHref,soundEnabled,setSoundEnabled});
+ list:all,state,publish,markRead,markAllRead,removeNotification,clearRead,clearAll,acknowledge,safeHref,moduleTarget,resolveTarget,soundEnabled,setSoundEnabled});
 w.addEventListener?.('storage',e=>{if(e.key?.startsWith(PREFIX)||e.key===PROFILE_KEY)signal()});
 })(window);
