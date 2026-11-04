@@ -179,6 +179,7 @@ function makeUi(){
 function messageFor(e){
  const action={created:'Új saját teendőd érkezett!',assigned:'Feladatot kaptál!',status:'Feladat állapota változott',deadline:'Határidő módosult',edited:'Módosult a feladat',reaction:'Reakció érkezett'};
  if(e.event_type==='status'&&e.current_value?.status==='done')return '✅ A feladatot befejezték!';
+ if(e.event_type==='status'&&e.current_value?.status==='failed')return '😔 A feladat lezárva: Nem teljesült.';
  return action[e.event_type]||'Családi feladatfrissítés';
 }
 function drawPending(){
@@ -202,10 +203,18 @@ function drawPending(){
   activeEventId=0;holder.replaceChildren();drawPending();
  });
  top.append(heading,editor,x);
- const buddy=d.createElement('img');buddy.className='fh-note-buddy';
- buddy.src='/berlet-app/sh9/family-hub/assets/family-success-buddy-v881.webp';
- buddy.alt='Buddy mókus';buddy.loading='eager';buddy.decoding='async';
- buddy.addEventListener('error',()=>{buddy.hidden=true},{once:true});
+ const mood=e.event_type==='status'?
+   ({done:'happy',progress:'regular',failed:'sad',todo:'regular'})[e.current_value?.status]:null;
+ const buddy=d.createElement(mood?'span':'img');buddy.className='fh-note-buddy'+(mood?' fh-note-buddy-rag':'');
+ if(mood){
+   buddy.dataset.face=mood;
+   buddy.setAttribute('role','img');
+   buddy.setAttribute('aria-label','Buddy mókus: '+(mood==='happy'?'örül':mood==='sad'?'szomorú':'semleges'));
+ }else{
+   buddy.src='/berlet-app/sh9/family-hub/assets/family-success-buddy-v881.webp';
+   buddy.alt='Buddy mókus';buddy.loading='eager';buddy.decoding='async';
+   buddy.addEventListener('error',()=>{buddy.hidden=true},{once:true});
+ }
  const h=d.createElement('h3');h.textContent=e.title_snapshot||'Családi teendő';
  const info=d.createElement('p');info.className='fh-notice-action';info.textContent=messageFor(e);
  const meta=d.createElement('div');meta.className='fh-notice-meta';
@@ -215,7 +224,7 @@ function drawPending(){
  meta.append(actor,at);
  const detail=d.createElement('p');detail.className='fh-notice-details';
  if(e.current_value?.due)detail.textContent='Határidő: '+new Date(e.current_value.due).toLocaleDateString('hu-HU');
- if(e.current_value?.status)detail.textContent+=(detail.textContent?' · ':'')+'Állapot: '+(e.current_value.status==='done'?'Kész':e.current_value.status==='progress'?'Folyamatban':'Teendő');
+ if(e.current_value?.status)detail.textContent+=(detail.textContent?' · ':'')+'Állapot: '+(e.current_value.status==='done'?'Kész':e.current_value.status==='failed'?'Nem teljesült':e.current_value.status==='progress'?'Folyamatban':'Teendő');
  const custom=d.createElement('div');custom.className='fh-notice-custom';
  const existing=stickyText(pkey,e.task_id);
  custom.textContent=existing?'✎ '+existing:'';
@@ -256,7 +265,7 @@ function drawPending(){
    if(data.category)parts.push(data.category);
    if(data.details)parts.push(data.details);
    if(data.due_at)parts.push('Határidő: '+new Date(data.due_at).toLocaleDateString('hu-HU'));
-   parts.push('Állapot: '+(data.status==='done'?'Kész':data.status==='progress'?'Folyamatban':'Teendő'));
+   parts.push('Állapot: '+(data.status==='done'?'Kész':data.status==='failed'?'Nem teljesült':data.status==='progress'?'Folyamatban':'Teendő'));
    detail.textContent=parts.join(' · ');
   }).catch(()=>{});
  }
