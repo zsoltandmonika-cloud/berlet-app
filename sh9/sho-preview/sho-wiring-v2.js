@@ -56,6 +56,13 @@ function updatePinned(){
  if(id){const t=demo[profile].find(a=>a.id===id);node.textContent='📌 '+(t?.name||'Jegy')}
 }
 function wallet(){
+ // Canonical SHO Smart Valet is now a full-screen, honest visual preview.
+ // Keep the historical inline mock implementation below as a fallback for
+ // old offline SH9 snapshots, but send live launcher / preview entries to it.
+ if(/^\/berlet-app\/sh9\/(?:index\.html)?$/.test(w.location.pathname)||
+    /^\/berlet-app\/sh9\/sho-preview\/(?:index\.html)?$/.test(w.location.pathname)){
+  goto(SH9+'wallet/');return;
+ }
  let html='<p class="banner">Jegyek demónézetben. Valódi igazolványt vagy bankkártyát ide ne fotózz!</p><div class="tickets">';
  for(const t of demo[profile]){
   html+='<div class="ticket-row"><button class="ticket-row" type="button" data-open="'+t.id+
