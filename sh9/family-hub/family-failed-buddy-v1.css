@@ -9,6 +9,7 @@
 .fh-task-rag-buddy{width:45px;height:52px;margin:0 0 0 4px}
 .fh-task-outcome-buddy{width:103px;height:116px;margin:0 auto 10px}
 .fh-task-outcome-buddy[hidden]{display:none!important}
+.fh-notice-rag-buddy{width:86px;height:98px;margin:1px auto 6px}
 .fh-task-rag-buddy[data-rag="green"],.fh-task-outcome-buddy[data-rag="green"]{
  background-position:center 0%;filter:drop-shadow(0 0 7px rgba(98,226,151,.35));
 }
