@@ -1,0 +1,22 @@
+name: SHO Smart Valet v2 · Golden Travel Theme QA
+on:
+  pull_request:
+    paths:
+      - 'sh9/wallet/**'
+      - 'sh9/tests/sho-smart-valet-travel-theme-v2.test.cjs'
+      - 'sh9/tests/sho-smart-valet-preview-v1.test.cjs'
+      - '.github/workflows/sho-smart-valet-travel-theme-v2.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'sh9/wallet/**'
+      - 'sh9/tests/sho-smart-valet-travel-theme-v2.test.cjs'
+jobs:
+  theme-regressions:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check Wallet JavaScript syntax
+        run: node --check sh9/wallet/smart-valet-v1.js
+      - name: Verify SHO Golden Travel visuals, premium SVGs, safety and old Wallet behavior
+        run: node --test sh9/tests/sho-smart-valet-travel-theme-v2.test.cjs sh9/tests/sho-smart-valet-preview-v1.test.cjs
