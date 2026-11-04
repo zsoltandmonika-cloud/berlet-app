@@ -2,7 +2,7 @@
 
 ## Elérhetőség
 - Élesítés után: `/berlet-app/sh9/notification-center/`.
-- A meglévő értesítési harang / alsó értesítési gomb nyitja meg.
+- Első ütemben a SHO főoldalának harangja nyitja meg. Más modulok jelenlegi értesítési felületei megmaradnak.
 - Nincs külön új launcher-csempe, a SHO 4×3 rács változatlan.
 - Zsolt `hh-profile=z`, Mónika `hh-profile=m` (helyi profilválasztás).
 
@@ -14,7 +14,7 @@
 - A harang pirosan, 1,5 másodperces **lassú pulzussal** jelez az új, nem megnyitott értesítésre; az értesítési oldal megnyitása csak az animációt állítja meg. Az olvasatlanságot külön jelölés kezeli.
 
 ## Új modul integrációs szerződés
-A `/berlet-app/sh9/notification-center/notification-core-v1.js` fájlt a Golden Standard alsó nav minden oldalra egyszer betölti. Az új modul **manifestjét regisztrálni kell**; az új elem ezután az oldalon automatikusan megjelenik és eszközönként megmarad. A modulnak az események tényleges előállítását és a jogosultságokat külön kell megvalósítania.
+A `/berlet-app/sh9/notification-center/notification-core-v1.js` fájlt a SHO főoldal, a SHO előnézet és a Notification Center használja. Más modulok csatlakoztatása későbbi fejlesztési ütem. Az új modul **manifestjét regisztrálni kell**; az új elem ezután az oldalon automatikusan megjelenik és eszközönként megmarad. A modulnak az események tényleges előállítását és a jogosultságokat külön kell megvalósítania.
 
 ```js
 const hub = window.SHO_NOTIFICATION_CORE_V1;
