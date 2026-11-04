@@ -49,3 +49,11 @@ const event = hub.publish({
 
 ## Következő fázis éles adatokhoz
 Hitelesített Supabase-adatmodell, profiljogosultságok / RLS, szabálymotor, idempotens események és kézbesítési napló, ütemezés, Web Push opt-in, Android- és óraoldali kézbesítés. Az egészségügyi értesítésekhez biztonságos, megfelelő frissességű és engedélyezett mérési forrás szükséges.
+
+## v2: halk értesítési hang + értesítések törlése
+- `Beállítások → Értesítési harangszó`: ON/OFF profilfüggően, helyben mentve; külön `Hang tesztelése` gomb.
+- A halk, két tónusú harangszó kizárólag frissen fogadott, nem érzékeny és az aktív profilhoz tartozó értesítésnél szólhat, ha a SHO nyitva van, a böngésző már kapott felhasználói érintést, és a hang nincs kikapcsolva.
+- Oldalbetöltés, olvasás, beállításváltoztatás, korábbi elemek visszatöltése, másik profil értesítése vagy gyors duplikált eseménysorozat nem indít új hangot. Mobil böngészők audio-szabályai a lejátszást korlátozhatják.
+- A vizuális piros harang és a számláló hang nélkül is működik.
+- `Legutóbbi értesítések`: kártyánkénti kuka, `Olvasottak törlése`, `Összes törlése` megerősítéssel. Minden művelet csak az aktív profil böngészőhelyi értesítéseire vonatkozik.
+- Ez **nem** Android/Web Push háttérértesítés: ahhoz még hitelesített háttérküldés, Service Worker és értesítési engedély szükséges.
