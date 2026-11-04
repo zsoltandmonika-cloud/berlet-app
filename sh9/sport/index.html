@@ -53,6 +53,8 @@ a:focus-visible,button:focus-visible{outline:2px solid #8cc4ff;outline-offset:2p
   <p class="sport-error" id="sportLoadHint">Ha a MecsRadar nem jelenik meg, érintsd meg a „Teljes nézet” gombot.</p>
  </section>
 </main>
+<script src="../notification-center/notification-core-v1.js?v=5-sport-schedule"></script>
+<script src="../notification-center/sport-radar-bridge-v1.js?v=1"></script>
 <script>
 (function(){
  'use strict';
@@ -60,6 +62,11 @@ a:focus-visible,button:focus-visible{outline:2px solid #8cc4ff;outline-offset:2p
  var type='sh9:sport';
  var frame=document.getElementById('mecsradarFull'),hint=document.getElementById('sportLoadHint');
  var ready=false,pending=null;
+ var params=new URLSearchParams(window.location.search);
+ var deepView=params.get('sportView');
+ var deepMatch=params.get('matchId');
+ var wanted=(deepView==='cup'||deepView==='program')?deepView:null;
+ if(!/^[A-Za-z0-9][A-Za-z0-9_-]{0,159}$/.test(deepMatch||''))deepMatch='';
  function send(command){
    if(!ready){pending=command;return;}
    frame.contentWindow.postMessage(Object.assign({type:type},command),origin);
@@ -78,6 +85,12 @@ a:focus-visible,button:focus-visible{outline:2px solid #8cc4ff;outline-offset:2p
    if(data.action==='ready'){
      ready=true;
      if(pending){var command=pending;pending=null;send(command);}
+     else if(wanted){send({action:'navigate',view:wanted,matchId:deepMatch||''});active(wanted);}
+     send({action:'request-notifications'});
+   }
+   if(data.action==='notifications'){
+     window.SHO_RADAR_NOTIFICATION_BRIDGE_V1?.accept(data.messages);
+     return;
    }
    if(data.action==='navigated')active(data.view);
  });
