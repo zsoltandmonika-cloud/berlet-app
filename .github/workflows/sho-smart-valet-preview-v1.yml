@@ -1,0 +1,31 @@
+name: SHO Smart Valet v1 · Fullscreen Preview QA
+on:
+  pull_request:
+    paths:
+      - 'sh9/wallet/**'
+      - 'sh9/sho-preview/sho-wiring-v2.js'
+      - 'sh9/sho-preview/index.html'
+      - 'sh9/index.html'
+      - 'sh9/docs/SHO_SMART_TICKET_FLOW_EPIC_V1.md'
+      - 'sh9/tests/sho-start-v27.test.cjs'
+      - 'sh9/tests/sho-smart-valet-preview-v1.test.cjs'
+      - '.github/workflows/sho-smart-valet-preview-v1.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'sh9/wallet/**'
+      - 'sh9/sho-preview/sho-wiring-v2.js'
+      - 'sh9/sho-preview/index.html'
+      - 'sh9/tests/sho-smart-valet-preview-v1.test.cjs'
+jobs:
+  golden-preview:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Syntax checks
+        run: |
+          node --check sh9/wallet/smart-valet-v1.js
+          node --check sh9/sho-preview/sho-wiring-v2.js
+      - name: Smart Valet + legacy SHO launcher regressions
+        run: |
+          node --test sh9/tests/sho-smart-valet-preview-v1.test.cjs sh9/tests/sho-start-v27.test.cjs
