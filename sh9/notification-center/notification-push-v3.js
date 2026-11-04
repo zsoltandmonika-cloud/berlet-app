@@ -160,9 +160,9 @@ async function disable(){
  try{
   const subscription=await currentSubscription();
   if(subscription){
-   await invoke('unsubscribe',{endpoint:subscription.endpoint});
-   // Do not delete a subscription assigned to a different profile on this browser.
-   if(profile()===target)await subscription.unsubscribe();
+   const result=await invoke('unsubscribe',{endpoint:subscription.endpoint});
+   // Do not disconnect another profile's subscription from this shared browser.
+   if(result.removed===true&&profile()===target)await subscription.unsubscribe();
   }
   status(wds.unregistered);
  }catch(_){status(wds.error)}
