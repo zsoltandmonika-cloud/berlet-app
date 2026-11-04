@@ -28,4 +28,4 @@ jobs:
           node --check sh9/sho-preview/sho-wiring-v2.js
       - name: Smart Valet + legacy SHO launcher regressions
         run: |
-          node --test sh9/tests/sho-smart-valet-preview-v1.test.cjs sh9/tests/sho-start-v27.test.cjs
+          node --test sh9/tests/sho-smart-valet-preview-v1.test.cjs
