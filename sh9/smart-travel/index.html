@@ -137,13 +137,13 @@ switch(b.dataset.nav){
 case 'Kezdőlap':go('../');break;
 case 'Idővonal':go('../../healthhub/index.html?sh9nav=timeline');break;
 case 'Vissza':if(w.history.length>1)w.history.back();else go('../');break;
-case 'Értesítések':toast(w.SH9_I18N_V1?.t('travel.notifications')||'Az SH9 értesítési központja még fejlesztés alatt áll.');break;
+case 'Értesítések':go('../notification-center/');break;
 case 'Admin':go('../../healthhub/index.html?sh9nav=admin');break;
 }}));
 })(window,document);</script>
 
 <script defer src="../family-hub/family-notifier-v880.js?v=918-profile-safe-usage-guard"></script>
 <script defer src="/berlet-app/sh9/shared/sh9-golden-controls-v1.js?v=934-unified-glass-dock"></script>
-<script defer src="/berlet-app/sh9/shared/sh9-golden-bottom-nav-v924.js?v=924-unified"></script>
+<script defer src="/berlet-app/sh9/shared/sh9-golden-bottom-nav-v924.js?v=928-global-notifications"></script>
 <script defer src="/berlet-app/sh9/shared/sh9-language-bridge-v1.js?v=3-health-en-audit"></script>
 </body></html>
