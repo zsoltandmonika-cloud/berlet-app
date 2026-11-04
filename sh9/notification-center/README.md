@@ -57,3 +57,22 @@ Hitelesített Supabase-adatmodell, profiljogosultságok / RLS, szabálymotor, id
 - A vizuális piros harang és a számláló hang nélkül is működik.
 - `Legutóbbi értesítések`: kártyánkénti kuka, `Olvasottak törlése`, `Összes törlése` megerősítéssel. Minden művelet csak az aktív profil böngészőhelyi értesítéseire vonatkozik.
 - Ez **nem** Android/Web Push háttérértesítés: ahhoz még hitelesített háttérküldés, Service Worker és értesítési engedély szükséges.
+
+## Golden Standard v4 · értesítés → modul → konkrét esemény
+- A Notification Centerben **minden ismert modulhoz tartozó értesítési kártyára** kattintva a megfelelő SHO-modul nyílik meg. Az olvasottá jelölés továbbra is megtörténik. A kuka ikon külön kattintható és **nem navigál**.
+- Ha az esemény adatküldője megadja a pontos, biztonságos `targetUrl` címet, az kap elsőbbséget. Csak **azonos webhelyen belüli, az értesítés típusához tartozó modulútvonalak** elfogadhatók. Ismeretlen, külső vagy más modulra mutató link helyett a saját modul főoldala nyílik.
+- `tasks.new`, `tasks.due`, `tasks.completed` esetén az opcionális, érvényes UUID `taskId` automatikusan a már támogatott `/berlet-app/sh9/family-hub/?task=<uuid>` címre mutat, a megfelelő feladatot emelve ki.
+- Modul fallbackek: HealthHub → `/healthhub/`; Sleep → `/healthhub/?sho=sleep`; SportCentral → `/sh9/sport/`; Smart Trip → `/sh9/smart-travel/`; Feladatok → `/sh9/family-hub/`; Smart Valet → `/sh9/?sho=wallet`; Family Guard → `/healthhub/guardian/` (mindegyik a `/berlet-app` prefixszel).
+- A SportCentral a MecsRadar alkalmazást jelenleg iframe-ben használja. A konkrét mérkőzés megnyitásához **külön, a MecsRadarban ténylegesen támogatott deep link szükséges**; ezt a kód nem találja ki. Célhivatkozás nélkül a SportCentral modul nyílik meg.
+- Az Android Push v3 általános tesztüzenete továbbra is a Notification Centerbe vezet. Az önálló modulok által ténylegesen létrehozott értesítéseket még külön csatlakoztatni kell; a v4 kizárólag a kattintási navigációt egységesíti.
+- Régi, `targetUrl` nélküli értesítések is megnyithatók, nincsen adatmigráció, nincs módosítás a Supabase táblákon vagy a már működő Android Push szerveren.
+
+Példa a meglévő publikációs API használatára (a `taskId` az adatforrásból származó valós UUID):
+```js
+window.SHO_NOTIFICATION_CORE_V1.publish({
+  profile: 'z', type: 'tasks.new',
+  title: 'Új családi feladat',
+  taskId: task.id,
+  dedupeKey: 'task-'+task.id
+});
+```

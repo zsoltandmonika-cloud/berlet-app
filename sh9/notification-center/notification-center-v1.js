@@ -17,7 +17,7 @@ const I={
   unreadEmpty:'Új, olvasatlan értesítés nem található.',demo:'PRÓBA',local:'Helyi beállítás',sensitive:'Biztonságos adatkapcsolat szükséges',
   saved:'Beállítás mentve',markSaved:'Olvasottnak jelölve',testSent:'Próbaértesítés létrehozva',
   soundTitle:'Értesítési harangszó',soundDescription:'Halk ding új értesítésnél a megnyitott SHO-ban.',soundPreview:'Hang tesztelése',soundAria:'Értesítési hang engedélyezése',soundUnavailable:'A böngésző nem engedélyezte a hangot.',
-  clearRead:'Olvasottak törlése',clearAll:'Összes törlése',confirmDelete:'Biztosan törlöd a profil összes értesítését?',confirmCancel:'Mégse',confirmProceed:'Törlés',deleted:'Értesítés törölve',readDeleted:'Olvasott értesítések törölve',allDeleted:'Az összes értesítés törölve',deleteOne:'Értesítés törlése',
+  clearRead:'Olvasottak törlése',clearAll:'Összes törlése',confirmDelete:'Biztosan törlöd a profil összes értesítését?',confirmCancel:'Mégse',confirmProceed:'Törlés',deleted:'Értesítés törölve',readDeleted:'Olvasott értesítések törölve',allDeleted:'Az összes értesítés törölve',deleteOne:'Értesítés törlése',openModule:'Modul megnyitása',openSpecific:'Esemény megnyitása',
   threshold:'Határérték',leadMinutes:'Figyelmeztetés',unitMinutes:'perc',off:'Kikapcsolva',
   testTitle:'SportCentral · próbaértesítés',testMessage:'Ez egy próbaüzenet. A harang pirosan pulzál a megnyitásáig.',
   profileZ:'Zsolt',profileM:'Mónika',unreadSuffix:'olvasatlan',home:'Kezdőlap',ask:'Kérdezd Lénát',back:'Vissza',admin:'Admin',bell:'Értesítések',allRead:'Nincs új jelzés'},
@@ -30,7 +30,7 @@ const I={
   unreadEmpty:'There are no unread notifications.',demo:'TEST',local:'Local preference',sensitive:'Secure data source required',
   saved:'Preference saved',markSaved:'Marked as read',testSent:'Test notification created',
   soundTitle:'Notification chime',soundDescription:'A quiet bell for new notifications while SHO is open.',soundPreview:'Preview sound',soundAria:'Enable notification sound',soundUnavailable:'The browser has not allowed audio.',
-  clearRead:'Delete read',clearAll:'Delete all',confirmDelete:'Delete all notifications for this profile?',confirmCancel:'Cancel',confirmProceed:'Delete',deleted:'Notification deleted',readDeleted:'Read notifications deleted',allDeleted:'All notifications deleted',deleteOne:'Delete notification',
+  clearRead:'Delete read',clearAll:'Delete all',confirmDelete:'Delete all notifications for this profile?',confirmCancel:'Cancel',confirmProceed:'Delete',deleted:'Notification deleted',readDeleted:'Read notifications deleted',allDeleted:'All notifications deleted',deleteOne:'Delete notification',openModule:'Open module',openSpecific:'Open event',
   threshold:'Threshold',leadMinutes:'Remind before',unitMinutes:'min',off:'Off',
   testTitle:'SportCentral · test notification',testMessage:'This is a test. The bell gently pulses red until opened.',
   profileZ:'Zsolt',profileM:'Mónika',unreadSuffix:'unread',home:'Home',ask:'Ask Léna',back:'Back',admin:'Admin',bell:'Notifications',allRead:'Nothing unread'}
@@ -102,13 +102,17 @@ function renderInbox(){
  const names=Object.fromEntries(api.modules().map(m=>[m.id,tr(m.name)]));
  $('ncInboxList').innerHTML=items.map(item=>{
   const mod=String(item.type||'').split('.')[0],name=names[mod]||mod;
+  const destination=api.resolveTarget(item),isSpecific=!!item.targetUrl&&destination===api.safeHref(item.targetUrl);
+  const openLabel=isSpecific?t.openSpecific:t.openModule;
   return '<div class="nc-item" data-unread="'+String(!item.readAt)+'">'+
-   '<button type="button" class="nc-item-open" data-notification-id="'+esc(item.id)+'">'+
+   '<button type="button" class="nc-item-open" data-notification-id="'+esc(item.id)+'"'+
+   (destination?' aria-label="'+esc(openLabel+' · '+name+' · '+item.title)+'"':'')+'>'+
    '<span class="nc-item-icon" aria-hidden="true">'+(EMOJI[mod]||'🔔')+'</span>'+
    '<span class="nc-item-copy"><span class="nc-item-head">'+esc(name)+(item.demo?' · '+esc(t.demo):'')+'</span>'+
    '<span class="nc-item-title">'+esc(item.title)+'</span>'+
    '<span class="nc-item-message">'+esc(item.message)+'</span>'+
-   '<span class="nc-item-time">'+esc(timestamp(item.createdAt))+'</span></span>'+
+   '<span class="nc-item-time">'+esc(timestamp(item.createdAt))+'</span>'+
+   (destination?'<span class="nc-item-route">'+esc(openLabel)+' ↗</span>':'')+'</span>'+
    (!item.readAt?'<span class="nc-item-dot" aria-hidden="true"></span>':'')+'</button>'+
    '<button type="button" class="nc-delete-item" data-delete-notification-id="'+esc(item.id)+'" aria-label="'+esc(t.deleteOne)+' · '+esc(item.title)+'" title="'+esc(t.deleteOne)+'">'+
    '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3M7 7l1 13h8l1-13M10 11v6m4-6v6"/></svg></button></div>';
@@ -178,9 +182,10 @@ function onNotificationClick(event){
  if(!btn)return;
  const p=chosenProfile(),entry=api.list(p).find(x=>x.id===btn.dataset.notificationId);
  if(!entry)return;
+ const destination=api.resolveTarget(entry);
  api.markRead(p,entry.id);
- if(entry.targetUrl){const destination=api.safeHref(entry.targetUrl);if(destination)w.location.assign(destination)}
- else notice(words().markSaved);
+ if(destination){w.location.assign(destination);return}
+ notice(words().markSaved);
  render();
 }
 function closeDeleteConfirmation(){

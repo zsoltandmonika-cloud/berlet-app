@@ -164,7 +164,7 @@
   if(d.querySelector('script[data-sho-notification-core="1"]'))return;
   const script=d.createElement('script');
   script.dataset.shoNotificationCore='1';
-  script.src=NOTIFICATIONS+'notification-core-v1.js?v=2';
+  script.src=NOTIFICATIONS+'notification-core-v1.js?v=4-golden-links';
   script.onload=()=>{paintNotifications();ensureNotificationSound()};
   script.onerror=()=>{}; // Existing navigation stays functional if offline.
   d.head?.appendChild(script);

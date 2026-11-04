@@ -132,3 +132,8 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,s
 .nc-push-actions .nc-push-disable{background:rgba(177,51,85,.16);border-color:rgba(253,150,173,.37)}
 .nc-push-actions .nc-button:disabled{opacity:.45;cursor:default}
 .nc-push-note{color:var(--nc-muted);font-size:9px;line-height:1.5;margin:11px 1px 0}
+
+/* Golden Standard: clear destination hint, no nested navigation or extra dock buttons. */
+.nc-item-route{display:inline-flex;align-items:center;gap:4px;max-width:100%;width:max-content;margin-top:4px;padding:4px 8px;border:1px solid var(--nc-edge);border-radius:999px;background:var(--nc-soft);color:var(--nc-accent);font-size:9px;font-weight:800;line-height:1.25;letter-spacing:.01em}
+.nc-item-open:hover .nc-item-route,.nc-item-open:focus-visible .nc-item-route{border-color:var(--nc-accent);background:rgba(113,183,240,.16)}
+@media(prefers-reduced-motion:reduce){.nc-item-route{transition:none!important}}
