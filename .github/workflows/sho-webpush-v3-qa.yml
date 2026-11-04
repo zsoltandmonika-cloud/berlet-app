@@ -1,0 +1,35 @@
+name: SHO Web Push v3 pilot QA
+on:
+  pull_request:
+    paths:
+      - 'sh9/sw.js'
+      - 'sh9/notification-center/**'
+      - 'sh9/tests/sho-webpush-v3.test.cjs'
+      - 'supabase/functions/sho-webpush-v3/**'
+      - 'supabase/migrations/*sho_web_push_v3*'
+      - '.github/workflows/sho-webpush-v3-qa.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  webpush-pilot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 9
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: JS syntax
+        run: |
+          node --check sh9/sw.js
+          node --check sh9/notification-center/notification-push-v3.js
+          node --check sh9/notification-center/notification-core-v1.js
+      - name: Regression tests
+        run: |
+          node --test sh9/tests/sho-webpush-v3.test.cjs sh9/tests/sho-notification-center-v1.test.cjs sh9/tests/sho-notification-chime-v2.test.cjs
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - name: Edge gateway TypeScript typecheck
+        run: deno check supabase/functions/sho-webpush-v3/index.ts

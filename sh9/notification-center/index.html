@@ -9,7 +9,7 @@
 <link rel="icon" type="image/svg+xml" href="../sho-preview/favicon.svg">
 <link rel="stylesheet" href="../shared/sh9-golden-controls-v1.css?v=934-unified-glass-dock">
 <link rel="stylesheet" href="../shared/sh9-golden-bottom-nav-v924.css?v=925-notification-center">
-<link rel="stylesheet" href="./notification-center-v1.css?v=2">
+<link rel="stylesheet" href="./notification-center-v1.css?v=3">
 </head>
 <body>
 <main class="nc-shell">
@@ -75,6 +75,17 @@
     <div class="nc-sound-heading"><span class="nc-sound-icon" aria-hidden="true">🔔</span><div><strong id="ncSoundTitle">Értesítési harangszó</strong><p id="ncSoundDescription">Halk jelzés új értesítésnél, amikor a SHO meg van nyitva.</p></div></div>
     <div class="nc-sound-actions"><label class="nc-switch"><input type="checkbox" id="ncSoundEnabled" aria-label="Értesítési hang bekapcsolása" checked><span aria-hidden="true"></span></label><button type="button" class="nc-button" id="ncSoundPreview">Hang tesztelése</button></div>
    </div>
+   <section class="nc-push-panel" aria-label="SHO Android háttérértesítések">
+    <div class="nc-push-heading"><span aria-hidden="true">📲</span><div><strong id="ncPushTitle">Android háttérértesítések</strong><p id="ncPushDescription">Külön engedéllyel akkor is jelezhet, amikor a SHO zárva van.</p></div></div>
+    <p class="nc-push-status" id="ncPushStatus" role="status" aria-live="polite">A háttérértesítések ellenőrzése a Beállítások fülön indítható.</p>
+    <div class="nc-push-actions">
+     <button type="button" class="nc-button nc-push-check" id="ncPushCheck">Támogatás ellenőrzése</button>
+     <button type="button" class="nc-button nc-push-enable" id="ncPushEnable" disabled>Bekapcsolás</button>
+     <button type="button" class="nc-button nc-push-disable" id="ncPushDisable" hidden>Kikapcsolás</button>
+     <button type="button" class="nc-button nc-push-test" id="ncPushTest" disabled>Próba küldése</button>
+    </div>
+    <p class="nc-push-note">A háttérben az Android rendszerhangja használható. A személyes egészségügyi értesítések nincsenek bekötve.</p>
+   </section>
    <div class="nc-categories" id="ncCategories"></div>
    <div class="nc-test-panel">
     <div><strong id="ncTestTitle">Értesítések tesztelése</strong><p id="ncTestDescription">Hozz létre egy jelölt próbaértesítést a saját profilodhoz.</p></div>
@@ -95,6 +106,7 @@
 <script defer src="./notification-core-v1.js?v=2"></script>
 <script defer src="./notification-sound-v2.js?v=2"></script>
 <script defer src="./notification-center-v1.js?v=2"></script>
+<script defer src="./notification-push-v3.js?v=3"></script>
 <script defer src="../shared/sh9-golden-controls-v1.js?v=934-unified-glass-dock"></script>
 <script defer src="../shared/sh9-golden-bottom-nav-v924.js?v=926-notification-chime"></script>
 </body>
