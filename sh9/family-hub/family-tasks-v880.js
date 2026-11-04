@@ -14,7 +14,7 @@ const CAT_TABLE='hh_family_task_categories';
 const catDefault=['🏠 Otthon','🛒 Bevásárlás','🍕 Étel / ital rendelés','📦 Webshopping','🚚 Csomagátvétel','🐶 Corky','📅 Ügyintézés','✈️ Utazás','🩺 Egészség','💡 Egyéb'];
 let categoryRows=[],presetRows=[],cat=catDefault.slice();
 const names={monika:'Mónika',zsolt:'Zsolt',lena:'Léna'};
-const statuses={todo:'🔴 Még nem kezdte',progress:'🟠 Folyamatban',done:'🟢 Kész',failed:'🔻 Nem teljesült'};
+const statuses={todo:'⚪ Még nem kezdte',progress:'🟠 Folyamatban',done:'🟢 Kész',failed:'🔻 Nem teljesült'};
 const isClosed=t=>t.status==='done'||t.status==='failed';
 const buddyFace={progress:'regular',done:'happy',failed:'sad'};
 let user=null,authorized=[],tasks=[],logs=[],hiddenLogs=new Set(),hiddenTasks=new Set(),showHidden=false,tab='mine',selected='zsolt',category='🏠 Otthon',due='none',loading=false,refreshId=null,liveChannel=null;
@@ -141,7 +141,7 @@ function render(){
    }
    card.append(provenance);
    const rag=element('div','fh-rag');
-   [['todo','🔴 Teendő'],['progress','🟠 Folyamatban'],['done','🟢 Kész'],['failed','🔻 Nem teljesült']].forEach(([k,name])=>{
+   [['todo','⚪ Teendő'],['progress','🟠 Folyamatban'],['done','🟢 Kész'],['failed','🔻 Nem teljesült']].forEach(([k,name])=>{
      const b=button(name,t.status===k?'active':'',()=>changeTask(t,{status:k}));
      b.dataset.status=k;b.setAttribute('aria-pressed',String(t.status===k));rag.append(b);
    });
