@@ -44,13 +44,13 @@ function parseAdmin(){
  if(!base||!secret)throw new Error('Server keys are unavailable');
  return createClient(base,secret,{auth:{persistSession:false,autoRefreshToken:false}});
 }
-async function getKeys(admin:ReturnType<typeof createClient>):Promise<KeyPair>{
+async function getKeys(admin:ReturnType<typeof parseAdmin>):Promise<KeyPair>{
  const {data:existing,error:lookupError}=await admin.from('sho_push_vapid_v3')
    .select('public_key,private_key').eq('singleton',1).maybeSingle();
  if(lookupError)throw new Error('Push key store unavailable');
  if(existing)return existing as KeyPair;
  const created=webpush.generateVAPIDKeys();
- const {error:insertError}=await admin.from('sho_push_vapid_v3').insert({
+ const {error:insertError}=await (admin.from('sho_push_vapid_v3') as unknown as {insert:(value:Record<string,unknown>)=>Promise<{error:{code:string}|null}>}).insert({
   singleton:1,public_key:created.publicKey,private_key:created.privateKey
  });
  if(insertError&&insertError.code!=='23505')throw new Error('Could not initialize push identity');
@@ -59,13 +59,13 @@ async function getKeys(admin:ReturnType<typeof createClient>):Promise<KeyPair>{
  if(error||!data)throw new Error('Push identity lookup failed');
  return data as KeyPair;
 }
-async function checkProfile(admin:ReturnType<typeof createClient>,userId:string,profile:string){
+async function checkProfile(admin:ReturnType<typeof parseAdmin>,userId:string,profile:string){
  const {data,error}=await admin.from('hh_profile_access').select('profile_key')
   .eq('user_id',userId).eq('profile_key',profile).limit(1).maybeSingle();
  if(error)throw new Error('Access verification unavailable');
  return !!data;
 }
-async function authenticated(admin:ReturnType<typeof createClient>,request:Request){
+async function authenticated(admin:ReturnType<typeof parseAdmin>,request:Request){
  const token=(request.headers.get('authorization')||'').match(/^Bearer\s+(.+)$/i)?.[1];
  if(!token||token.length<40)return null;
  const {data,error}=await admin.auth.getUser(token);
