@@ -1,4 +1,4 @@
-// SHO Web Push v3 isolated test gateway. JWT + family access required on EVERY operation.
+// SHO Web Push v3 isolated test gateway. verify_jwt=true; family access required on EVERY operation.
 // Never accepts notification text, private medical data or off-domain delivery URLs from browsers.
 import { createClient } from 'npm:@supabase/supabase-js@2.57.2';
 import webpush from 'npm:web-push@3.6.7';
@@ -100,11 +100,13 @@ async function main(req:Request){
  if(owned&&owned.user_id!==user.id)return json({error:'subscription_owned_by_other_user'},409);
  if(action==='status')return json({ok:true,subscribed:!!owned?.enabled&&owned.profile_key===profile});
  if(action==='unsubscribe'){
+  let removed=false;
   if(owned&&owned.profile_key===profile){
    const {error}=await admin.from('sho_push_devices_v3').delete().eq('id',owned.id).eq('user_id',user.id);
    if(error)throw new Error('Unsubscribe failed');
+   removed=true;
   }
-  return json({ok:true,subscribed:false});
+  return json({ok:true,subscribed:false,removed});
  }
  if(action==='subscribe'){
   const keys=input.keys as Record<string,unknown>|undefined;
