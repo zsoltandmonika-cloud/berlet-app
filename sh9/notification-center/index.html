@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="hu">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#071526">
+<meta name="description" content="SHO Notification Center · profilfüggő, moduláris értesítések és beállítások">
+<title>SHO · Notification Center</title>
+<link rel="icon" type="image/svg+xml" href="../sho-preview/favicon.svg">
+<link rel="stylesheet" href="../shared/sh9-golden-controls-v1.css?v=934-unified-glass-dock">
+<link rel="stylesheet" href="../shared/sh9-golden-bottom-nav-v924.css?v=925-notification-center">
+<link rel="stylesheet" href="./notification-center-v1.css?v=1">
+</head>
+<body>
+<main class="nc-shell">
+ <section class="nc-hero hero" aria-label="SHO Notification Center Hero">
+  <div class="nc-stars" aria-hidden="true"></div>
+  <div class="nc-hero-visual" aria-hidden="true">
+   <svg viewBox="0 0 260 240" role="img" focusable="false">
+    <defs>
+     <radialGradient id="nc-aura"><stop offset="0" stop-color="#79cfff" stop-opacity=".48"/><stop offset="1" stop-color="#3876ec" stop-opacity="0"/></radialGradient>
+     <linearGradient id="nc-bell" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#f2fbff"/><stop offset=".43" stop-color="#83c8ed"/><stop offset="1" stop-color="#345c91"/>
+     </linearGradient>
+     <filter id="nc-glow"><feGaussianBlur stdDeviation="8"/></filter>
+    </defs>
+    <circle cx="133" cy="112" r="112" fill="url(#nc-aura)"/>
+    <circle cx="131" cy="112" r="77" fill="none" stroke="#93dfff" stroke-opacity=".24" stroke-width="1"/>
+    <circle cx="131" cy="112" r="99" fill="none" stroke="#9accff" stroke-opacity=".18" stroke-width="1" stroke-dasharray="5 9"/>
+    <path d="M77 56c-25 19-43 54-41 77M187 55c26 19 42 52 42 77" fill="none" stroke="#9ccfff" stroke-width="3" stroke-linecap="round" opacity=".35"/>
+    <ellipse cx="131" cy="161" rx="54" ry="21" fill="#47b0e8" opacity=".24" filter="url(#nc-glow)"/>
+    <path d="M82 145c14-17 18-26 18-49 0-23 12-41 31-41s31 18 31 41c0 23 4 32 18 49 6 7 2 14-8 14H90c-10 0-14-7-8-14Z" fill="url(#nc-bell)" stroke="#edfaff" stroke-width="2.3" stroke-opacity=".87"/>
+    <path d="M118 54a13 13 0 0 1 26 0" stroke="#dcf6ff" stroke-width="5" fill="none" stroke-linecap="round"/>
+    <path d="M118 169a14 14 0 0 0 26 0" stroke="#c1edff" stroke-width="6" stroke-linecap="round" fill="none"/>
+    <path d="M100 145h62" stroke="#204f83" stroke-width="1.2" opacity=".45"/>
+    <path d="M109 75c-8 11-9 27-9 40" stroke="#fff" opacity=".67" stroke-width="5" stroke-linecap="round" fill="none"/>
+    <circle cx="188" cy="62" r="19" fill="#ed435e" stroke="#ff9cad" stroke-width="2"/>
+    <path d="M188 52v11m0 8v1" stroke="white" stroke-width="3" stroke-linecap="round"/>
+    <circle cx="207" cy="153" r="4" fill="#a3edfa"/>
+    <circle cx="57" cy="94" r="3" fill="#a3edfa"/>
+   </svg>
+  </div>
+  <div class="nc-hero-copy">
+   <div class="nc-hero-eyebrow">SMART HUB ONE <span>·</span> CENTRAL INTELLIGENCE</div>
+   <h1>Notification <span>Center</span></h1>
+   <p>Minden fontos jelzés. Egyetlen intelligens központban.</p>
+   <div class="nc-hero-status"><span class="nc-status-dot"></span><span id="ncProfileName">Zsolt</span><span class="nc-hero-sep">·</span><span id="ncHeroUnread">0 olvasatlan</span></div>
+  </div>
+ </section>
+ <div class="nc-content">
+  <div class="nc-lead">
+   <div><div class="nc-eyebrow">SHO GOLDEN STANDARD</div><h2 id="ncWelcome">Értesítéseid</h2></div>
+   <button type="button" class="nc-count" id="ncCount" aria-label="Olvasatlan értesítések száma">0</button>
+  </div>
+  <div class="nc-tabs" role="tablist" aria-label="Értesítési nézetek">
+   <button type="button" class="active" id="ncTabInbox" data-nc-tab="inbox" role="tab" aria-selected="true">Beérkezett</button>
+   <button type="button" id="ncTabUnread" data-nc-tab="unread" role="tab" aria-selected="false">Olvasatlan</button>
+   <button type="button" id="ncTabSettings" data-nc-tab="settings" role="tab" aria-selected="false">Beállítások</button>
+  </div>
+  <section class="nc-panel" id="ncInboxPanel" role="tabpanel" aria-labelledby="ncTabInbox">
+   <div class="nc-panel-head"><h3 id="ncInboxTitle">Legutóbbi értesítések</h3><button type="button" id="ncMarkAllRead" class="nc-text-btn">Összes olvasottnak</button></div>
+   <div id="ncInboxList" class="nc-inbox-list" aria-live="polite"></div>
+  </section>
+  <section class="nc-panel" id="ncSettingsPanel" role="tabpanel" aria-labelledby="ncTabSettings" hidden>
+   <div class="nc-panel-head"><div><h3 id="ncSettingsTitle">Kategóriák és szabályok</h3><p id="ncSettingsSub">Nyisd le a modult, majd állítsd be az értesítéseket.</p></div></div>
+   <div class="nc-categories" id="ncCategories"></div>
+   <div class="nc-test-panel">
+    <div><strong id="ncTestTitle">Értesítések tesztelése</strong><p id="ncTestDescription">Hozz létre egy jelölt próbaértesítést a saját profilodhoz.</p></div>
+    <button type="button" class="nc-button" id="ncTestButton">Próbaértesítés</button>
+   </div>
+  </section>
+  <p class="nc-storage-note" id="ncStorageNote">v1 előnézet: a beállítások és a próbaértesítések jelenleg ezen a böngészőn tárolódnak. Élő moduladatok, orvosi riasztások és telefonos push későbbi integrációval érkeznek.</p>
+ </div>
+ <nav class="nav" aria-label="SH9 Golden Standard navigáció" data-sh9-golden-bottom-nav="on">
+  <a href="../" id="ncHome" data-sh9-bottom-role="home"><svg viewBox="0 0 24 24"><path d="m3 11 9-8 9 8v10h-7v-7h-4v7H3z"/></svg><span>Kezdőlap</span></a>
+  <a href="../../healthhub/index.html?sh9nav=admin&sh9cfg=asklena" id="ncAsk" data-sh9-bottom-role="ask"><svg viewBox="0 0 24 24"><path d="M20.5 11.3c0 4.5-3.7 8.2-8.2 8.2-1.5 0-3-.4-4.2-1.1L3 20l1.5-4.6A8.25 8.25 0 1 1 20.5 11.3Z"/><path d="M9 11h6"/></svg><span>Kérdezd Lénát</span></a>
+  <button type="button" id="ncBack"><svg viewBox="0 0 24 24"><path d="M19 12H5m7-7-7 7 7 7"/></svg><span>Vissza</span></button>
+  <button type="button" id="alerts" aria-current="page"><svg viewBox="0 0 24 24"><path d="M6 17h12l-2-3V9a4 4 0 0 0-8 0v5zM10 20a2 2 0 0 0 4 0"/></svg><span>Értesítések</span></button>
+  <a href="../../healthhub/index.html?sh9nav=admin" id="ncAdmin"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="m9 2 1 3h4l1-3 3 2-1 3-3-2-2-3h-3l-2 3-3-2 1-3-3-2V9l3-2-1-3z"/></svg><span>Admin</span></a>
+ </nav>
+</main>
+<div id="ncToast" class="nc-toast" role="status" aria-live="polite" hidden></div>
+<script defer src="./notification-core-v1.js?v=1"></script>
+<script defer src="./notification-center-v1.js?v=1"></script>
+<script defer src="../shared/sh9-golden-controls-v1.js?v=934-unified-glass-dock"></script>
+<script defer src="../shared/sh9-golden-bottom-nav-v924.js?v=925-notification-center"></script>
+</body>
+</html>

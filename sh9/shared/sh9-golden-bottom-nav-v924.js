@@ -6,7 +6,7 @@
 (function(w,d){
  'use strict';
  if(w.SH9_GOLDEN_BOTTOM_NAV_V924)return;
- const ROOT='/berlet-app/',HH=ROOT+'healthhub/index.html',HOME=ROOT+'sh9/';
+ const ROOT='/berlet-app/',HH=ROOT+'healthhub/index.html',HOME=ROOT+'sh9/',NOTIFICATIONS=HOME+'notification-center/';
  const ASK_FALLBACK=HH+'?sh9nav=admin&sh9cfg=asklena';
  const NAVS='nav#sh9GlobalNavV24,nav.nav,nav.bottom,nav[aria-label="SH9 Golden Standard navigáció"],nav.hhBottomNav,nav.fh-standard-nav,nav.st-nav,nav.mt-nav,nav.st22-nav,nav.bottom-nav,nav.sh9-golden-fallback-v924';
  const paths={
@@ -92,7 +92,7 @@
   nav.setAttribute('aria-label','SH9 Golden Standard navigáció');
   const actions=[
    ['Kezdőlap','home',HOME],[askLabel(),'ask',ASK_FALLBACK],
-   ['Vissza','back','#'],['Értesítések','notifications',HH+'?sh9nav=notifications'],
+   ['Vissza','back','#'],['Értesítések','notifications',notificationPilotRoute()?NOTIFICATIONS:HH+'?sh9nav=notifications'],
    ['Admin','admin',HH+'?sh9nav=admin']
   ];
   for(const [label,icon,url] of actions){
@@ -105,6 +105,61 @@
   d.body.appendChild(nav);
   d.body.dataset.sh9GoldenFallback='on';
   normalize(nav);
+ }
+ /* Stage 1: keep existing HealthHub/Guardian alerts in place until integrated. */
+ function notificationPilotRoute(){
+  const path=w.location?.pathname||'';
+  return ['/berlet-app/sh9/','/berlet-app/sh9/index.html',
+   '/berlet-app/sh9/sho-preview/','/berlet-app/sh9/sho-preview/index.html',
+   '/berlet-app/sh9/notification-center/','/berlet-app/sh9/notification-center/index.html'].includes(path);
+ }
+ /* The same bell opens the new center on SHO pilot pages only. */
+ function isNotificationEntry(node){
+  if(!node||!node.matches?.('a,button'))return false;
+  return node.id==='alerts'||node.dataset.sh9BottomRole==='notifications'||
+   hasText(node,'értesítések')||hasText(node,'notifications');
+ }
+ function paintNotifications(){
+  if(!notificationPilotRoute())return;
+  const api=w.SHO_NOTIFICATION_CORE_V1;
+  const state=api?.state?.(readProfile())||{unread:0,attention:0};
+  for(const nav of Array.from(d.querySelectorAll(NAVS))){
+   for(const node of children(nav).filter(isNotificationEntry)){
+    const n=Number(state.unread)||0,a=Number(state.attention)||0;
+    node.dataset.shoNotifyUnread=String(n);
+    node.dataset.shoNotifyCount=n>99?'99+':n?String(n):'';
+    if(a>0)node.dataset.shoNotifyAttention='on';
+    else delete node.dataset.shoNotifyAttention;
+    node.setAttribute('aria-label',n>0?('Értesítések · '+n+' olvasatlan'):'Értesítések');
+   }
+  }
+ }
+ function bindNotifications(){
+  if(!notificationPilotRoute())return;
+  for(const nav of Array.from(d.querySelectorAll(NAVS))){
+   for(const node of children(nav).filter(isNotificationEntry)){
+    if(node.tagName==='A')node.setAttribute('href',NOTIFICATIONS);
+    if(node.dataset.shoNotificationsBound==='1')continue;
+    node.dataset.shoNotificationsBound='1';
+    node.addEventListener('click',e=>{
+     e.preventDefault();e.stopImmediatePropagation();e.stopPropagation();
+     // Stop attention animation when opened, but keep unread items unread.
+     w.SHO_NOTIFICATION_CORE_V1?.acknowledge(readProfile());
+     w.location.assign(NOTIFICATIONS);
+    },true);
+   }
+  }
+ }
+ function ensureNotificationCore(){
+  if(!notificationPilotRoute())return;
+  if(w.SHO_NOTIFICATION_CORE_V1){paintNotifications();return}
+  if(d.querySelector('script[data-sho-notification-core="1"]'))return;
+  const script=d.createElement('script');
+  script.dataset.shoNotificationCore='1';
+  script.src=NOTIFICATIONS+'notification-core-v1.js?v=1';
+  script.onload=paintNotifications;
+  script.onerror=()=>{}; // Existing navigation stays functional if offline.
+  d.head?.appendChild(script);
  }
  let running=false;
  function apply(){
@@ -120,6 +175,7 @@
     existing.remove();
     delete d.body.dataset.sh9GoldenFallback;
    }
+   bindNotifications();paintNotifications();ensureNotificationCore();
    // Never stack a second five-button bar above a module's own nav.
    // In modules with essential non-Timeline actions, keep those actions intact.
    if(!genuine&&!existing&&navs.length===0&&!d.querySelector('#sh9GlobalNavV24'))
@@ -136,10 +192,12 @@
    });
    mo.observe(d.body,{subtree:true,childList:true});
   }
-  w.addEventListener?.('hh-family-profile-changed',paint);
-  w.addEventListener?.('healthhub:profile-changed',paint);
-  w.addEventListener?.('storage',e=>{if(e.key==='hh-profile')paint()});
-  w.addEventListener?.('pageshow',apply);
+  w.addEventListener?.('sho:notifications-changed',paintNotifications);
+  w.addEventListener?.('hh-family-profile-changed',()=>{paint();paintNotifications()});
+  w.addEventListener?.('sh9:profilechange',paintNotifications);
+  w.addEventListener?.('healthhub:profile-changed',()=>{paint();paintNotifications()});
+  w.addEventListener?.('storage',e=>{if(e.key==='hh-profile'){paint();paintNotifications()}else if(e.key?.startsWith('sho-notification-v1:'))paintNotifications()});
+  w.addEventListener?.('pageshow',()=>{apply();paintNotifications()});
   w.addEventListener?.('sh9-language-change',apply);
   w.addEventListener?.('storage',e=>{if(e.key==='sh9-language-v1')apply()});
   w.addEventListener?.('focus',apply);

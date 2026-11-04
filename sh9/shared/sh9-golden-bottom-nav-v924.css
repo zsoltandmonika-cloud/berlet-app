@@ -115,3 +115,35 @@ body[data-sh9-golden-fallback="on"] .nutriDock{
 body[data-sh9-golden-fallback="on"] .app:has(>nav.bottom-actions){
  padding-bottom:calc(78px + env(safe-area-inset-bottom,0px))!important;
 }
+
+/* SHO Notification Hub v1: one shared, low-frequency bell signal.
+   Tap acknowledgement stops animation; unread badge remains until read. */
+nav[data-sh9-golden-bottom-nav="on"] > [data-sho-notify-unread],
+nav.sh9-golden-fallback-v924 > [data-sho-notify-unread]{
+ position:relative!important;
+}
+nav[data-sh9-golden-bottom-nav="on"] > [data-sho-notify-attention="on"] svg,
+nav.sh9-golden-fallback-v924 > [data-sho-notify-attention="on"] svg{
+ color:#ff4e68!important;
+ stroke:#ff4e68!important;
+ animation:shoBellAttentionPulse 1.5s ease-in-out infinite!important;
+}
+nav[data-sh9-golden-bottom-nav="on"] > [data-sho-notify-unread]:not([data-sho-notify-unread="0"])::after,
+nav.sh9-golden-fallback-v924 > [data-sho-notify-unread]:not([data-sho-notify-unread="0"])::after{
+ content:attr(data-sho-notify-count);
+ position:absolute;top:-3px;right:calc(50% - 22px);z-index:3;
+ display:grid;place-items:center;min-width:15px;height:15px;padding:0 3px;
+ border-radius:999px;background:#ed435e;color:#fff;border:1px solid #ffb2c0;
+ box-shadow:0 0 7px rgba(237,67,94,.55);font:800 9px/1 system-ui,sans-serif;
+ pointer-events:none;
+}
+@keyframes shoBellAttentionPulse{
+ 0%,100%{opacity:1;filter:drop-shadow(0 0 2px rgba(255,72,101,.32));transform:scale(1)}
+ 50%{opacity:.6;filter:drop-shadow(0 0 10px rgba(255,72,101,.9));transform:scale(1.08)}
+}
+@media(prefers-reduced-motion:reduce){
+ nav[data-sh9-golden-bottom-nav="on"] > [data-sho-notify-attention="on"] svg,
+ nav.sh9-golden-fallback-v924 > [data-sho-notify-attention="on"] svg{
+  animation:none!important;filter:none!important;opacity:1!important;transform:none!important;
+ }
+}
