@@ -86,6 +86,7 @@ a:focus-visible,button:focus-visible{outline:2px solid #8cc4ff;outline-offset:2p
      ready=true;
      if(pending){var command=pending;pending=null;send(command);}
      else if(wanted){send({action:'navigate',view:wanted,matchId:deepMatch||''});active(wanted);}
+     send({action:'request-notifications'});
    }
    if(data.action==='notifications'){
      window.SHO_RADAR_NOTIFICATION_BRIDGE_V1?.accept(data.messages);
