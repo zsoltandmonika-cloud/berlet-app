@@ -79,7 +79,7 @@
   let latest=null,marker=null,markerNode=null,speedBadge=null,speedValue=null,
    routeBadge=null,routeDetails=null,speedVisible=false,
    run=0,loading=false,rerun=false,lastCenteredAt=0,lastCenteredProfile=null;
-  let followRequest=false,lastAdaptivePoll=0;
+  let followRequest=false,lastAdaptivePoll=0,nativeAnchor=null;
   let markerCoord=null,moveToken=0,moveFrame=null,lastPaintTs=0,lastReceiveAt=0;
   let lastMotionDuration=820;
   // Camera and portrait move toward the newest REAL position, never beyond it.
@@ -261,7 +261,8 @@
     (next.visible?' · '+next.rounded+' km/h':''));
   }
   function invalidate(){
-   run++;latest=null;followRequest=false;lastCenteredAt=0;lastCenteredProfile=null;clearMarker();
+   run++;latest=null;nativeAnchor=null;followRequest=false;lastCenteredAt=0;lastCenteredProfile=null;clearMarker();
+   showConflict(null);
   }
   function current(){
    return authorized()&&!d.hidden&&!!latest&&latest.profile===selected()&&
@@ -374,7 +375,10 @@
     if(ticket!==run||d.hidden||k!==selected()||!authorized())return;
     // A native explicit revocation supersedes older cached server fixes.
     if(Number.isFinite(revokeAt)&&(!db||Date.parse(db.updated_at)<=revokeAt))db=null;
-    const next=newest(db,native,k);
+    const choice=resolveSources(db,native,k,nativeAnchor);
+    nativeAnchor=choice.anchor;
+    showConflict(choice.conflict?{profile:k,distance:choice.distance}:null);
+    const next=choice.fix;
     latest=next;
     if(next&&preferRemote(next,localFixAt())){
      showFix(next);followRequest=false;
