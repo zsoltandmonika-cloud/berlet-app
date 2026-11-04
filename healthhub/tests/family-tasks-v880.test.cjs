@@ -9,9 +9,9 @@ const html=read('sh9/family-hub/index.html');
 const app=read('sh9/family-hub/family-tasks-v880.js');
 const notice=read('sh9/family-hub/family-notifier-v880.js');
 const schema=read('supabase/migrations/20261027112000_sh9_family_tasks_v880.sql');
-test('approved nine SH9 module tiles stay nine',()=>{
+test('approved 12 SHO launcher tiles remain unchanged by Family Tasks work',()=>{
  const launch=read('sh9/index.html');
- assert.equal((launch.match(/class="tile"/g)||[]).length,9);
+ assert.equal((launch.match(/class="tile"/g)||[]).length,12);
  assert.match(launch,/family-notifier-v880/);
 });
 test('Quick Add renders input, existing avatars, 3-state RAG and two profiles',()=>{
