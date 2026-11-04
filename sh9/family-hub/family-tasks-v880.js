@@ -535,7 +535,7 @@ function startDictation(){
 function wireStandardNav(){
  const back=$('fhNavBack'),note=$('fhNavNotifications');
  back?.addEventListener('click',()=>{if(!$('fhSuccess').hidden){hideSuccess();return}if(!$('fhSheet').hidden){hideSheet();return}if(w.history.length>1)w.history.back();else w.location.assign('../')});
- note?.addEventListener('click',()=>announce('Az SH9 értesítési központja még fejlesztés alatt áll.'));
+ note?.addEventListener('click',()=>w.location.assign('/berlet-app/sh9/notification-center/'));
 }
 function wire(){
  wireStandardNav();
