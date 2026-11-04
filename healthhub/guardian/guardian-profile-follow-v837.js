@@ -38,6 +38,21 @@
   if(!b)return a;
   return b.ts>=a.ts?b:a;
  }
+ // Independently verified sources can disagree by kilometres. A newer
+ // timestamp alone must not pull the map away from the registered phone.
+ function gpsDistance(a,b){
+  const lat=(a.lat+b.lat)*Math.PI/360;
+  return Math.hypot((a.lng-b.lng)*111195*Math.cos(lat),(a.lat-b.lat)*111195);
+ }
+ function resolveSources(browser,native,profile,priorNative=null,now=Date.now()){
+  const a=snapshot(browser,profile,now),b=snapshot(native,profile,now);
+  const threshold=(x,y)=>Math.max(500,6*(x.accuracy+y.accuracy));
+  if(a&&b&&gpsDistance(a,b)>threshold(a,b))
+   return {fix:b,conflict:true,anchor:b,distance:gpsDistance(a,b)};
+  if(a&&!b&&priorNative?.profile===profile&&gpsDistance(a,priorNative)>threshold(a,priorNative))
+   return {fix:null,conflict:true,anchor:priorNative,distance:gpsDistance(a,priorNative)};
+  return {fix:newest(browser,native,profile,now),conflict:false,anchor:b||null,distance:0};
+ }
  // 5 km/h opens; <4 closes; the band between retains its previous state.
  // Never retain a badge for a missing, stale or malformed reading.
  function speedState(previousVisible,value){
