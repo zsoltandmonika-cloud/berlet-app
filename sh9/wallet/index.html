@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="hu">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#07172e">
+<meta name="description" content="SHO Smart Valet · prémium digitális jegy- és dokumentumtárca vizuális előnézet">
+<title>SHO · Smart Valet</title>
+<link rel="icon" type="image/svg+xml" href="../sho-preview/favicon.svg">
+<link rel="stylesheet" href="../shared/sh9-golden-controls-v1.css?v=934-unified-glass-dock">
+<link rel="stylesheet" href="../shared/sh9-golden-bottom-nav-v924.css?v=925-notification-center">
+<link rel="stylesheet" href="./smart-valet-v1.css?v=1-premium-glass">
+</head>
+<body>
+<main class="sv-shell" id="svApp">
+ <header class="sv-hero hero" aria-label="SHO Smart Valet">
+  <div class="sv-hero-glow" aria-hidden="true"></div>
+  <div class="sv-orbit sv-orbit-one" aria-hidden="true"></div>
+  <div class="sv-orbit sv-orbit-two" aria-hidden="true"></div>
+  <div class="sv-hero-illustration" aria-hidden="true">
+   <svg viewBox="0 0 264 230" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+     <linearGradient id="svGlass" x1="38" y1="19" x2="223" y2="189" gradientUnits="userSpaceOnUse"><stop stop-color="#8bcaff" stop-opacity=".75"/><stop offset=".42" stop-color="#376ba3" stop-opacity=".66"/><stop offset="1" stop-color="#252c65" stop-opacity=".90"/></linearGradient>
+     <linearGradient id="svEdge" x1="24" y1="43" x2="242" y2="181"><stop stop-color="#ecf8ff"/><stop offset=".44" stop-color="#84c2ef"/><stop offset="1" stop-color="#e4a4e5"/></linearGradient>
+     <radialGradient id="svHalo"><stop stop-color="#77d4ff" stop-opacity=".46"/><stop offset="1" stop-color="#8bcfff" stop-opacity="0"/></radialGradient>
+    </defs>
+    <circle cx="137" cy="105" r="102" fill="url(#svHalo)"/>
+    <g transform="rotate(-12 130 110)">
+     <rect x="39" y="31" width="166" height="119" rx="18" fill="#38528b" fill-opacity=".52" stroke="#a7ceff" stroke-opacity=".56"/>
+     <rect x="53" y="49" width="163" height="120" rx="18" fill="#0d3459" fill-opacity=".89" stroke="#c3dafa" stroke-opacity=".62"/>
+    </g>
+    <g transform="rotate(8 135 125)">
+     <rect x="49" y="56" width="170" height="120" rx="20" fill="url(#svGlass)" stroke="url(#svEdge)" stroke-width="2"/>
+     <rect x="61" y="68" width="146" height="96" rx="13" stroke="#dbf5ff" stroke-opacity=".25"/>
+     <path d="M50 103H218" stroke="#d4f4ff" stroke-opacity=".6" stroke-width="1.5"/>
+     <rect x="145" y="119" width="59" height="29" rx="10" fill="#0a254a" fill-opacity=".7" stroke="#d7eaff" stroke-opacity=".64"/>
+     <circle cx="175" cy="134" r="6" fill="#e2efff"/>
+     <path d="M73 85H127M73 137H123M73 148H106" stroke="#f7ffff" stroke-opacity=".59" stroke-width="5" stroke-linecap="round"/>
+    </g>
+    <circle cx="225" cy="47" r="4" fill="#e6c3fc"/>
+    <circle cx="31" cy="177" r="3" fill="#87f0ff"/>
+    <path d="m225 181 4-4 4 4-4 4-4-4ZM30 55l3-3 3 3-3 3-3-3Z" stroke="#cce8ff" stroke-width="1.2"/>
+   </svg>
+  </div>
+  <div class="sv-hero-copy">
+   <span class="sv-eyebrow">SMART HUB ONE <span aria-hidden="true">/</span> PRIVATE VALET</span>
+   <h1>Smart <span>Valet</span></h1>
+   <p data-i18n="heroSub">Minden fontos jegy és dokumentum. Egyetlen elegáns helyen.</p>
+   <span class="sv-hero-profile"><span class="sv-dot" aria-hidden="true"></span><span id="svProfileName">Zsolt</span><span aria-hidden="true">·</span><span data-i18n="previewState">Vizuális előnézet</span></span>
+  </div>
+ </header>
+
+ <div class="sv-body">
+  <div class="sv-demo-notice" role="note">
+   <span class="sv-demo-pill" data-i18n="demoTag">DEMO / TERVEZET</span>
+   <p data-i18n="demoNotice">Még nincs privát dokumentumfeltöltés. Az itt látható jegyek minták, nem érvényesek.</p>
+  </div>
+
+  <section class="sv-section sv-feature" aria-labelledby="svFeatureTitle">
+   <div class="sv-section-top">
+    <div><span class="sv-kicker" data-i18n="quickKicker">SMART ACCESS</span><h2 id="svFeatureTitle" data-i18n="quickTitle">Gyorselérés</h2></div>
+    <span class="sv-soft-label" data-i18n="sampleBadge">MINTA</span>
+   </div>
+   <div id="svFeatured" class="sv-feature-card" aria-live="polite"></div>
+  </section>
+
+  <section class="sv-section" aria-labelledby="svLibraryTitle">
+   <div class="sv-section-top">
+    <div><span class="sv-kicker" data-i18n="libraryKicker">A TE TÁRCÁD</span><h2 id="svLibraryTitle" data-i18n="libraryTitle">Jegyek és bérletek</h2></div>
+    <span class="sv-total" id="svCount" aria-live="polite">0</span>
+   </div>
+
+   <div class="sv-categories" role="group" aria-label="Tárcakategóriák">
+    <button type="button" class="sv-category active" data-kind="all" aria-pressed="true"><span class="sv-cat-glyph">◈</span><span data-i18n="all">Összes</span></button>
+    <button type="button" class="sv-category" data-kind="ticket" aria-pressed="false"><span class="sv-cat-glyph">🎟</span><span data-i18n="ticket">Jegyek</span></button>
+    <button type="button" class="sv-category" data-kind="pass" aria-pressed="false"><span class="sv-cat-glyph">▤</span><span data-i18n="pass">Bérletek</span></button>
+    <button type="button" class="sv-category" data-kind="document" aria-pressed="false"><span class="sv-cat-glyph">▧</span><span data-i18n="document">Iratok</span></button>
+    <button type="button" class="sv-category" data-kind="card" aria-pressed="false"><span class="sv-cat-glyph">▣</span><span data-i18n="card">Kártyák</span></button>
+   </div>
+   <label class="sv-search">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.4"/><path d="m15.4 15.4 5.1 5.1"/></svg>
+    <span class="sr-only" data-i18n="searchLabel">Keresés a mintajegyekben</span>
+    <input id="svSearch" type="search" autocomplete="off" maxlength="70" placeholder="Keresés a tárcában…" aria-label="Keresés a tárcában">
+   </label>
+   <div id="svCards" class="sv-list" aria-live="polite"></div>
+  </section>
+
+  <section class="sv-add-panel" aria-labelledby="svAddTitle">
+   <div class="sv-add-icon" aria-hidden="true">＋</div>
+   <div class="sv-add-copy"><h2 id="svAddTitle" data-i18n="newItem">Új jegy vagy dokumentum</h2><p data-i18n="newItemInfo">Biztonságos privát feltöltés a következő fejlesztési fázisban.</p></div>
+   <button type="button" id="svAdd" disabled aria-describedby="svAddTitle" data-i18n="soon">Hamarosan</button>
+  </section>
+
+  <div class="sv-links">
+   <a class="sv-link" href="/berlet-app/" rel="noopener"><span>▣</span><span data-i18n="realPass">Meglévő Bérlet app megnyitása</span><span aria-hidden="true">↗</span></a>
+   <a class="sv-link" href="../sport/"><span>⚽</span><span data-i18n="sportLink">Sport Central · jegyek keresése</span><span aria-hidden="true">↗</span></a>
+  </div>
+
+  <div class="sv-vault-note"><span aria-hidden="true">♢</span><span data-i18n="vaultNote">A Secure Vault csak hitelesítés és privát tárolás bevezetése után fogad valódi okmányokat. Fizetési kártyaadatot ne tölts fel.</span></div>
+ </div>
+
+ <nav class="sv-bottom nav" aria-label="SH9 Golden Standard navigáció" data-sh9-golden-bottom-nav="on">
+  <a href="../" data-sh9-bottom-role="home"><svg viewBox="0 0 24 24"><path d="m3 11 9-8 9 8v10h-7v-7h-4v7H3z"/></svg><span>Kezdőlap</span></a>
+  <a href="../../healthhub/index.html?sh9nav=admin&amp;sh9cfg=asklena" data-sh9-bottom-role="ask"><svg viewBox="0 0 24 24"><path d="M20.5 11.3c0 4.5-3.7 8.2-8.2 8.2-1.5 0-3-.4-4.2-1.1L3 20l1.5-4.6A8.25 8.25 0 1 1 20.5 11.3Z"/><path d="M9 11h6"/></svg><span>Kérdezd Lénát</span></a>
+  <button type="button" id="svBack"><svg viewBox="0 0 24 24"><path d="M19 12H5m7-7-7 7 7 7"/></svg><span>Vissza</span></button>
+  <a href="../notification-center/" id="alerts" data-sh9-bottom-role="notifications"><svg viewBox="0 0 24 24"><path d="M6 17h12l-2-3V9a4 4 0 0 0-8 0v5zM10 20a2 2 0 0 0 4 0"/></svg><span>Értesítések</span></a>
+  <a href="../../healthhub/index.html?sh9nav=admin"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="m9 2 1 3h4l1-3 3 2v4l-3 1 1 3-3-2-2-3h-3l-2 3-3-2 1-3-3-2V9l3-2-1-3z"/></svg><span>Admin</span></a>
+ </nav>
+</main>
+
+<div id="svDialog" class="sv-modal" hidden>
+ <div class="sv-modal-backdrop" data-dismiss="1"></div>
+ <section class="sv-modal-content" role="dialog" aria-modal="true" aria-labelledby="svDialogTitle">
+  <button type="button" class="sv-modal-close" id="svClose" aria-label="Bezárás">×</button>
+  <div class="sv-modal-mark" data-i18n="demoTag">DEMO / TERVEZET</div>
+  <div class="sv-preview-stamp" aria-hidden="true">SHO · SAMPLE</div>
+  <div class="sv-ticket-symbol" id="svDialogIcon" aria-hidden="true">🎟</div>
+  <h2 id="svDialogTitle"></h2>
+  <p id="svDialogMeta"></p>
+  <div class="sv-not-code"><span aria-hidden="true">▥</span><strong data-i18n="notCode">Nem érvényes belépőkód</strong><small data-i18n="noQR">A valódi, eredeti QR / vonalkódot a későbbi biztonságos tároló jeleníti meg.</small></div>
+  <div class="sv-modal-actions"><button type="button" id="svDialogPin"></button><button type="button" id="svDialogDone" data-i18n="close">Bezárás</button></div>
+ </section>
+</div>
+
+<div id="svToast" class="sv-toast" role="status" aria-live="polite" hidden></div>
+<script defer src="./smart-valet-v1.js?v=1-fullscreen"></script>
+<script defer src="../../healthhub/chatgpt-project-shortcut-v712.js?v=756-central-open"></script>
+<script defer src="../shared/sh9-golden-controls-v1.js?v=934-unified-glass-dock"></script>
+<script defer src="../shared/sh9-golden-bottom-nav-v924.js?v=929-sport-schedule"></script>
+</body>
+</html>
