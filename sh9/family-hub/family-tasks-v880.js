@@ -14,7 +14,7 @@ const CAT_TABLE='hh_family_task_categories';
 const catDefault=['🏠 Otthon','🛒 Bevásárlás','🍕 Étel / ital rendelés','📦 Webshopping','🚚 Csomagátvétel','🐶 Corky','📅 Ügyintézés','✈️ Utazás','🩺 Egészség','💡 Egyéb'];
 let categoryRows=[],presetRows=[],cat=catDefault.slice();
 const names={monika:'Mónika',zsolt:'Zsolt',lena:'Léna'};
-const statuses={todo:'🔴 Még nem kezdte',progress:'🟠 Folyamatban',done:'🟢 Kész'};
+const statuses={todo:'🔴 Még nem kezdte',progress:'🟠 Folyamatban',done:'🟢 Kész',failed:'⚫ Nem teljesült'};
 let user=null,authorized=[],tasks=[],logs=[],hiddenLogs=new Set(),hiddenTasks=new Set(),showHidden=false,tab='mine',selected='zsolt',category='🏠 Otthon',due='none',loading=false,refreshId=null,liveChannel=null;
 function self(){try{return w.localStorage.getItem('hh-profile')==='m'?'monika':'zsolt'}catch(_){return 'zsolt'}}
 function imgFor(p){
@@ -41,10 +41,11 @@ function profileUi(){
 }
 function formatDate(s){if(!s)return 'Nincs határidő';return new Date(s).toLocaleDateString('hu-HU',{month:'short',day:'numeric',year:'numeric'})}
 function formatTime(s){return new Date(s).toLocaleString('hu-HU',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'})}
-function isOverdue(t){return t.due_at&&t.status!=='done'&&Date.parse(t.due_at)<Date.now()}
+function isClosed(t){return t.status==='done'||t.status==='failed'}
+function isOverdue(t){return t.due_at&&!isClosed(t)&&Date.parse(t.due_at)<Date.now()}
 function setStats(){
  const mine=tasks.filter(t=>t.assigned_profile===self()&&!t.assigned_agent&&!hiddenTasks.has(String(t.id)));
- for(const [id,key] of [['fhTodoCount','todo'],['fhProgressCount','progress'],['fhDoneCount','done']]){
+ for(const [id,key] of [['fhTodoCount','todo'],['fhProgressCount','progress'],['fhDoneCount','done'],['fhFailedCount','failed']]){
   $(id).textContent=mine.filter(t=>t.status===key).length;
  }
 }
@@ -93,13 +94,13 @@ function render(){
    &&(t.title+' '+t.category+' '+label(t.assigned_profile)).toLocaleLowerCase('hu-HU').includes(needle));
  if(!records.length){$('fhList').append(element('p','fh-empty','Itt még nincs teendő. A ＋ Új feladat gombbal kezdheted.'));return}
  records.forEach(t=>{
-   const card=element('article','fh-card glass'+(t.status==='done'?' is-done':''));card.id='task-'+t.id;card.dataset.id=t.id;
+   const card=element('article','fh-card glass'+(t.status==='done'?' is-done':t.status==='failed'?' is-failed':''));card.id='task-'+t.id;card.dataset.id=t.id;
    if(showHidden){
      const restore=button('↩','fh-task-dismiss',()=>restoreCompletedTask(t));
      restore.title='Feladat visszaállítása';restore.setAttribute('aria-label','Feladat visszaállítása: '+t.title);card.append(restore);
-   }else if(t.status==='done'){
+   }else if(isClosed(t)){
      const dismiss=button('×','fh-task-dismiss',()=>hideCompletedTask(t));
-     dismiss.title='Kész feladat elrejtése';dismiss.setAttribute('aria-label','Kész feladat elrejtése: '+t.title);card.append(dismiss);
+     dismiss.title='Lezárt feladat elrejtése';dismiss.setAttribute('aria-label','Lezárt feladat elrejtése: '+t.title);card.append(dismiss);
    }
    const head=element('div','fh-cardtop');
    const categoryButton=button(t.category,'fh-category',()=>{
@@ -124,13 +125,22 @@ function render(){
    const from=element('span',null,'Feladó: '+label(t.creator_profile));
    const created=element('time',null,formatTime(t.created_at));created.dateTime=t.created_at;
    provenance.append(from,created);
-   if(t.status==='done'){
-     const completion=element('strong','fh-done-label','✓ Kész'+(t.completed_at?' · '+formatTime(t.completed_at):''));
+   if(isClosed(t)){
+     const outcome=t.status==='failed'?'✕ Nem teljesült':'✓ Kész';
+     const endAt=t.status==='failed'?t.closed_at:t.completed_at;
+     const completion=element('strong',t.status==='failed'?'fh-failed-label':'fh-done-label',outcome+(endAt?' · '+formatTime(endAt):''));
      provenance.append(completion);
+   }
+   if(t.status!=='todo'){
+     const pose=element('span','fh-task-rag-buddy');
+     pose.dataset.rag=t.status==='done'?'green':t.status==='progress'?'amber':'red';
+     pose.setAttribute('role','img');
+     pose.setAttribute('aria-label',t.status==='done'?'Vidám zöld RAG Buddy':t.status==='progress'?'Figyelő sárga RAG Buddy':'Szomorú piros RAG Buddy');
+     head.append(pose);
    }
    card.append(provenance);
    const rag=element('div','fh-rag');
-   [['todo','🔴 Teendő'],['progress','🟠 Folyamatban'],['done','🟢 Kész']].forEach(([k,name])=>{
+   [['todo','🔴 Teendő'],['progress','🟠 Folyamatban'],['done','🟢 Kész'],['failed','⚫ Nem teljesült']].forEach(([k,name])=>{
      const b=button(name,t.status===k?'active':'',()=>changeTask(t,{status:k}));
      b.dataset.status=k;b.setAttribute('aria-pressed',String(t.status===k));rag.append(b);
    });
@@ -163,11 +173,11 @@ function render(){
 }
 
 async function hideCompletedTask(task){
- if(!api||!user||!authorized.includes(self())||task.status!=='done')return;
+ if(!api||!user||!authorized.includes(self())||!isClosed(task))return;
  const {error}=await api.from(HIDDEN_TASK).insert({profile_key:self(),task_id:task.id,hidden_by:user.id});
  if(error){announce('Nem sikerült elrejteni a kész feladatot: '+error.message);return}
  hiddenTasks.add(String(task.id));render();setStats();
- announce('✓ Kész feladat elrejtve. A feladat és a naplója megmaradt.');
+ announce('✓ Lezárt feladat elrejtve. A feladat és a naplója megmaradt.');
 }
 async function restoreCompletedTask(task){
  if(!api||!user||!authorized.includes(self()))return;
@@ -378,7 +388,7 @@ async function fetchData(){
  loading=true;
  const thirty=new Date(Date.now()-30*864e5).toISOString();
  const result=await Promise.all([
-  api.from(TABLE).select('id,title,details,category,creator_profile,assigned_profile,assigned_agent,status,due_at,completed_at,reaction,stars,revision,created_at,updated_at').order('updated_at',{ascending:false}).limit(150),
+  api.from(TABLE).select('id,title,details,category,creator_profile,assigned_profile,assigned_agent,status,due_at,completed_at,closed_at,reaction,stars,revision,created_at,updated_at').order('updated_at',{ascending:false}).limit(150),
   api.from(LOG).select('id,task_id,event_type,actor_profile,recipient_profile,title_snapshot,previous_value,current_value,created_at').gte('created_at',thirty).order('id',{ascending:false}).limit(120),
   api.from(HIDDEN_LOG).select('log_id').eq('profile_key',self()).limit(1500),
   api.from(HIDDEN_TASK).select('task_id').eq('profile_key',self()).limit(1500)
@@ -401,7 +411,7 @@ async function refreshWhenForeground(){
  if(loading){fetchAgain=true;return}
  try{
   const {data,error}=await api.from(TABLE)
-    .select('id,title,details,category,creator_profile,assigned_profile,assigned_agent,status,due_at,completed_at,reaction,stars,revision,created_at,updated_at')
+    .select('id,title,details,category,creator_profile,assigned_profile,assigned_agent,status,due_at,completed_at,closed_at,reaction,stars,revision,created_at,updated_at')
     .order('updated_at',{ascending:false}).limit(150);
   if(error){announce('Adathiba: '+error.message);return}
   tasks=data||[];setStats();render();
@@ -418,7 +428,10 @@ async function changeTask(task,patch){
     .eq('id',task.id).eq('revision',task.revision).select('id').maybeSingle();
   if(error)throw error;
   if(!data){announce('Közben változott a feladat. Frissítettem, próbáld újra.');}
-  else announce('✓ Mentve · Buddy értesíti az érintetteket.');
+  else {
+    announce('✓ Mentve · Buddy értesíti az érintetteket.');
+    if(patch.status&&patch.status!==task.status&&['progress','done','failed'].includes(patch.status))showTaskOutcome(patch.status,task.title);
+   }
   await fetchData();
  }catch(e){announce('Nem sikerült menteni: '+e.message)}
 }
@@ -490,8 +503,26 @@ function subscribe(){
   .subscribe();
  subscribedFor=user.id;
 }
+function showTaskOutcome(result,title){
+ const overlay=$('fhSuccess');if(!overlay)return;
+ overlay.dataset.result=result;
+ const heading={progress:'Folyamatban',done:'TADAAA! 🎉',failed:'Nem teljesült'};
+ const message={progress:'A feladat folyamatban van: ',done:'A feladat teljesült: ',failed:'A feladat lezárva, nem teljesült: '};
+ $('fhSuccessTitle').textContent=heading[result]||'Állapot frissítve';
+ $('fhSuccessText').textContent=(message[result]||'Állapot módosítva: ')+title;
+ $('fhSuccessBuddy').hidden=true;
+ const buddy=$('fhOutcomeBuddy');
+ buddy.hidden=false;buddy.dataset.rag=result==='done'?'green':result==='progress'?'amber':'red';
+ buddy.setAttribute('aria-label',result==='done'?'Vidám zöld RAG Buddy':result==='progress'?'Figyelő sárga RAG Buddy':'Szomorú piros RAG Buddy');
+ overlay.hidden=false;
+ if(result==='done')playTada();
+}
 function showSuccess(message){
  const overlay=$('fhSuccess');if(!overlay)return;
+ overlay.dataset.result='created';
+ $('fhSuccessTitle').textContent='TADAAA! 🎉';
+ $('fhSuccessBuddy').hidden=false;
+ $('fhOutcomeBuddy').hidden=true;
  $('fhSuccessText').textContent=message;
  overlay.hidden=false;
  playTada();
