@@ -137,10 +137,10 @@ A sportfigyelés külön szerkeszthető rendszer: **sportág → versenytípus �
 ## 5. Technikai javaslat
 
 - **MecsRadar**: `ticketing: { verifiedUrl, provider, verifiedAt }` opcionális, forrásellenőrzött mező; a kártyán csak akkor aktív CTA.
-- **SHO**: `/sh9/wallet/?eventId=<opaque-id>` típusú deep-link útvonalat az éles Wallet route létrehozása után kell bekötni. Ez jelenleg **nem egy létező, működő útvonal**.
+- **SHO**: a `/berlet-app/sh9/wallet/` teljes képernyős **vizuális Smart Valet előnézet** már létezik. A későbbi `?eventId=<opaque-id>` eseményátadás **még nincs bekötve**, és a route most nem importál valódi jegyet.
 - **Smart Valet**: privát Supabase Storage + jogosultságkezeléssel védett jegymetaadat-tábla (jegyazonosító, tulajdonos, eventId, storage path, fájltípus, dátum, archiváltság).
 - **Tárhely:** soha ne GitHub Pages, Cloudflare Pages public mappa vagy nyilvános URL.
-- **Preview:** a jelenlegi SHO Wallet demó csak mintakártyákat mutat; nem szabad valós jegyimportként kommunikálni.
+- **Preview:** az új teljes képernyős Smart Valet vizuális koncepció kizárólag mintajegyeket mutat, működő kereséssel, kategóriaszűrővel, profilfüggő kitűzéssel és nagyítással. Az eredeti Bérlet app külön gombbal elérhető. Ezt nem szabad valós jegyimportként, működő Secure Vaultként vagy érvényes QR-kódként kommunikálni.
 - **Kockázat:** a jegytárolás nem bizonyítja a jegy érvényességét; dinamikus jegyekhez a hivatalos szolgáltatói app is kellhet.
 
 ## 6. Megvalósítási sorrend (javasolt)
@@ -153,3 +153,12 @@ A sportfigyelés külön szerkeszthető rendszer: **sportág → versenytípus �
 **MVP Definition of Done:** Samsung S24 Ultra mobilon egy érvényes, személyes jegy a MecsRadarból indított folyamatban manuálisan feltölthető, újranyitás után megjeleníthető, jogosulatlan felhasználó nem fér hozzá, és a bejáratnál az eredeti jegy nagyítható. A régi SHO/MecsRadar funkciók nem romlanak.
 
 **Jelenlegi valós állapot (2026-11-03):** Epic-specifikáció. Nincs kész, éles Smart Valet jegyimport; nem állítjuk, hogy a jegyvásárlás vagy automatikus QR-felismerés működik.
+
+
+## 7. Vizuális Smart Valet előnézet (2026-11-04)
+
+- **Új, önálló fullscreen route:** `/berlet-app/sh9/wallet/`. A SHO StartPage és a régi SHO Preview Wallet gombja ide navigál, míg a négygombos közös Glass Dock meglévő `?sho=wallet` útvonala kompatibilitási hídként megmarad.
+- **Vizuális Golden Standard:** original SHO dark premium glass, két profilszín (Zsolt #79bfff, Mónika #f9a6d3), közös négyzónás felső dock, ötgombos alsó navigáció, nagy Wallet Hero, kiemelt mintakártya, 5 kategória, kereső, később elérhető feltöltés, Bérlet app/Sport Central navigáció.
+- **Működő demóinterakciók:** mintakártyák keresése/szűrése, helyi profilfüggő kitűzés, mintajegy részletnézete, HU/EN lokalizáció. Csak az egyetlen kitűzött **mintaazonosító** marad a böngészőben.
+- **Felhasználóvédelem:** a mintajegyek nem érvényesek, nincs valódi QR, nincs aktív PDF-, okmány- vagy bankkártyafeltöltés, nincsenek titkos adatok az alkalmazás statikus csomagjában, és nincs háttérfelhő-írás.
+- **Fázis 2:** privát Supabase Storage, szigorú RLS, eredeti fájl megőrzés, megbízható mobil megnyitás. A Sport Central eventId-integráció csak azután jöhet.
