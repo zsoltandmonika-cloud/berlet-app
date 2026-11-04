@@ -166,8 +166,8 @@
    const image=elt('img','sv-feature-bkk-image');
    image.src='./bkk-featured-v1.webp';
    image.alt='';
-   image.width=272;
-   image.height=184;
+   image.width=207;
+   image.height=140;
    image.decoding='async';
    image.addEventListener('error',()=>art.replaceChildren(symbol(iconType(target))),{once:true});
    art.append(image);
