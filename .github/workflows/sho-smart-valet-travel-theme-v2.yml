@@ -5,6 +5,7 @@ on:
       - 'sh9/wallet/**'
       - 'sh9/tests/sho-smart-valet-travel-theme-v2.test.cjs'
       - 'sh9/tests/sho-smart-valet-bkk-featured-v3.test.cjs'
+      - 'sh9/tests/sho-smart-valet-approved-hero-v4.test.cjs'
       - 'sh9/tests/sho-smart-valet-preview-v1.test.cjs'
       - '.github/workflows/sho-smart-valet-travel-theme-v2.yml'
   push:
@@ -20,4 +21,4 @@ jobs:
       - name: Check Wallet JavaScript syntax
         run: node --check sh9/wallet/smart-valet-v1.js
       - name: Verify SHO Golden Travel visuals, premium SVGs, safety and old Wallet behavior
-        run: node --test sh9/tests/sho-smart-valet-bkk-featured-v3.test.cjs sh9/tests/sho-smart-valet-travel-theme-v2.test.cjs sh9/tests/sho-smart-valet-preview-v1.test.cjs
+        run: node --test sh9/tests/sho-smart-valet-approved-hero-v4.test.cjs sh9/tests/sho-smart-valet-bkk-featured-v3.test.cjs sh9/tests/sho-smart-valet-travel-theme-v2.test.cjs sh9/tests/sho-smart-valet-preview-v1.test.cjs
