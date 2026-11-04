@@ -228,3 +228,33 @@ body[data-sh9-golden-unified="on"] .sv-hero #sh9UnifiedGlassDockV34{
  .sv-category .sv-cat-icon{width:25px;height:25px}
  .sv-feature-card{padding:12px}
 }
+
+/* v3 · User-approved transparent HD BKK image replaces only the featured
+ * Budapest-bérlet illustration. No touch to ticket content or navigation. */
+.sv-feature-art.sv-feature-bkk{
+ flex:0 0 clamp(106px,34%,170px);
+ width:clamp(106px,34%,170px);
+ min-width:0;height:155px;aspect-ratio:auto;
+ align-self:center;
+ transform:none;overflow:visible;
+ background:none;border:0;border-radius:0;
+ box-shadow:none;
+ filter:drop-shadow(0 7px 13px rgba(4,4,25,.44));
+}
+.sv-feature-art.sv-feature-bkk::after{display:none;content:none}
+.sv-feature-bkk-image{
+ display:block;width:100%;height:100%;
+ object-fit:contain;object-position:center;
+ background:none;filter:drop-shadow(0 0 8px rgba(221,119,255,.16));
+}
+.sv-feature-card:has(.sv-feature-bkk) .sv-feature-copy{
+ max-width:calc(66% - 8px);
+ min-width:0;
+}
+@media(max-width:390px){
+ .sv-feature-art.sv-feature-bkk{
+  flex-basis:clamp(105px,37%,134px);width:clamp(105px,37%,134px);
+  height:134px;
+ }
+ .sv-feature-card:has(.sv-feature-bkk) .sv-feature-copy{max-width:calc(63% - 6px)}
+}
