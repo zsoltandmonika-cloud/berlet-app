@@ -20,6 +20,7 @@ const builtin=[
  ]},
  {id:'sportcentral',name:{hu:'SportCentral',en:'SportCentral'},icon:'trophy',events:[
   {key:'match_start',group:{hu:'Mérkőzések',en:'Matches'},name:{hu:'Kedvenc csapat mérkőzése',en:'Favorite team match'},settings:[{key:'leadMinutes',kind:'select',options:[5,15,30,60],default:15,unit:'perc'}]},
+  {key:'schedule_change',group:{hu:'Időpontváltozások',en:'Schedule changes'},name:{hu:'Mérkőzés időpontja megváltozott',en:'Match schedule changed'}},
   {key:'broadcast',group:{hu:'Közvetítések',en:'Broadcasts'},name:{hu:'TV-közvetítés kezdete',en:'Broadcast starting'},settings:[{key:'leadMinutes',kind:'select',options:[5,15,30],default:15,unit:'perc'}]},
   {key:'result',group:{hu:'Mérkőzések',en:'Matches'},name:{hu:'Végeredmény',en:'Final result'}},
   {key:'tickets',group:{hu:'Jegyek',en:'Tickets'},name:{hu:'Jegyek elérhetők',en:'Tickets available'}}
