@@ -8,6 +8,7 @@ on:
       - 'sh9/tests/sho-notification-center-v1.test.cjs'
       - 'sh9/tests/sho-notification-chime-v2.test.cjs'
       - 'sh9/tests/sho-notification-golden-routing-v4.test.cjs'
+      - 'sh9/tests/sho-global-notification-bell-v5.test.cjs'
       - '.github/workflows/sho-notification-center-v1-qa.yml'
   workflow_dispatch:
 permissions:
@@ -30,4 +31,4 @@ jobs:
           node --check sh9/sho-preview/sho-wiring-v2.js
       - name: Notification core, Golden Standard and launcher regression
         run: |
-          node --test sh9/tests/sho-notification-center-v1.test.cjs sh9/tests/sho-notification-chime-v2.test.cjs sh9/tests/sho-notification-golden-routing-v4.test.cjs
+          node --test sh9/tests/sho-notification-center-v1.test.cjs sh9/tests/sho-notification-chime-v2.test.cjs sh9/tests/sho-notification-golden-routing-v4.test.cjs sh9/tests/sho-global-notification-bell-v5.test.cjs

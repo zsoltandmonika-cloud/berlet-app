@@ -106,14 +106,13 @@
   d.body.dataset.sh9GoldenFallback='on';
   normalize(nav);
  }
- /* Stage 1: keep existing HealthHub/Guardian alerts in place until integrated. */
+ /* Use the central Notification Center on all SHO module pages. Keep the
+    existing HealthHub/Guardian notifications untouched until separately integrated. */
  function notificationPilotRoute(){
   const path=w.location?.pathname||'';
-  return ['/berlet-app/sh9/','/berlet-app/sh9/index.html',
-   '/berlet-app/sh9/sho-preview/','/berlet-app/sh9/sho-preview/index.html',
-   '/berlet-app/sh9/notification-center/','/berlet-app/sh9/notification-center/index.html'].includes(path);
+  return path==='/berlet-app/sh9'||path.startsWith('/berlet-app/sh9/');
  }
- /* The same bell opens the new center on SHO pilot pages only. */
+ /* Capture the shared bell on every SHO module, not just the launcher. */
  function isNotificationEntry(node){
   if(!node||!node.matches?.('a,button'))return false;
   return node.id==='alerts'||node.dataset.sh9BottomRole==='notifications'||
