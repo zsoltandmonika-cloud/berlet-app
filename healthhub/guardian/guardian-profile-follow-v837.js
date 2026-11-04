@@ -38,6 +38,21 @@
   if(!b)return a;
   return b.ts>=a.ts?b:a;
  }
+ // Independently verified sources can disagree by kilometres. A newer
+ // timestamp alone must not pull the map away from the registered phone.
+ function gpsDistance(a,b){
+  const lat=(a.lat+b.lat)*Math.PI/360;
+  return Math.hypot((a.lng-b.lng)*111195*Math.cos(lat),(a.lat-b.lat)*111195);
+ }
+ function resolveSources(browser,native,profile,priorNative=null,now=Date.now()){
+  const a=snapshot(browser,profile,now),b=snapshot(native,profile,now);
+  const threshold=(x,y)=>Math.max(500,6*(x.accuracy+y.accuracy));
+  if(a&&b&&gpsDistance(a,b)>threshold(a,b))
+   return {fix:b,conflict:true,anchor:b,distance:gpsDistance(a,b)};
+  if(a&&!b&&priorNative?.profile===profile&&gpsDistance(a,priorNative)>threshold(a,priorNative))
+   return {fix:null,conflict:true,anchor:priorNative,distance:gpsDistance(a,priorNative)};
+  return {fix:newest(browser,native,profile,now),conflict:false,anchor:b||null,distance:0};
+ }
  // 5 km/h opens; <4 closes; the band between retains its previous state.
  // Never retain a badge for a missing, stale or malformed reading.
  function speedState(previousVisible,value){
@@ -53,8 +68,8 @@
   if(!fix||fix.ts>now+5000)return false;
   if(now-fix.ts>(fix.source==='HH One Native GPS'?FRESH_NATIVE_MS:FRESH_BROWSER_MS))return false;
   if(!Number.isFinite(browserFixAt)||browserFixAt<=0||now-browserFixAt>FRESH_BROWSER_MS)return true;
-  // A newer native fix can take precedence over a stale foreground browser camera.
-  return fix.ts>=browserFixAt;
+  // A recent local GPS reading takes priority over another data feed.
+  return false;
  }
  function init(){
   const d=w?.document;if(!d)return;
@@ -64,7 +79,7 @@
   let latest=null,marker=null,markerNode=null,speedBadge=null,speedValue=null,
    routeBadge=null,routeDetails=null,speedVisible=false,
    run=0,loading=false,rerun=false,lastCenteredAt=0,lastCenteredProfile=null;
-  let followRequest=false,lastAdaptivePoll=0;
+  let followRequest=false,lastAdaptivePoll=0,nativeAnchor=null;
   let markerCoord=null,moveToken=0,moveFrame=null,lastPaintTs=0,lastReceiveAt=0;
   let lastMotionDuration=820;
   // Camera and portrait move toward the newest REAL position, never beyond it.
@@ -194,6 +209,16 @@
    const mapLabel=d.getElementById('guardianMapLabel');
    if(mapLabel)mapLabel.textContent=label;
   }
+  function showConflict(state){
+   const el=d.getElementById('guardianGpsSourceConflictV1072');
+   if(!el)return;
+   el.hidden=!state;
+   if(!state){el.textContent='';return}
+   const person=state.profile==='monika'?'Mónika':'Zsolt';
+   const km=(state.distance/1000).toFixed(1).replace('.',',');
+   el.textContent='⚠ '+person+': a GPS-források kb. '+km+' km-re térnek el. '+
+    'Az eltérő böngészős pozícióra nem ugrunk át; ellenőrizni kell az eszközhozzárendelést.';
+  }
   function clearMarker(){
    moveToken++;
    if(moveFrame!==null&&w.cancelAnimationFrame)w.cancelAnimationFrame(moveFrame);
@@ -246,7 +271,8 @@
     (next.visible?' · '+next.rounded+' km/h':''));
   }
   function invalidate(){
-   run++;latest=null;followRequest=false;lastCenteredAt=0;lastCenteredProfile=null;clearMarker();
+   run++;latest=null;nativeAnchor=null;followRequest=false;lastCenteredAt=0;lastCenteredProfile=null;clearMarker();
+   showConflict(null);
   }
   function current(){
    return authorized()&&!d.hidden&&!!latest&&latest.profile===selected()&&
@@ -359,7 +385,10 @@
     if(ticket!==run||d.hidden||k!==selected()||!authorized())return;
     // A native explicit revocation supersedes older cached server fixes.
     if(Number.isFinite(revokeAt)&&(!db||Date.parse(db.updated_at)<=revokeAt))db=null;
-    const next=newest(db,native,k);
+    const choice=resolveSources(db,native,k,nativeAnchor);
+    nativeAnchor=choice.anchor;
+    showConflict(choice.conflict?{profile:k,distance:choice.distance}:null);
+    const next=choice.fix;
     latest=next;
     if(next&&preferRemote(next,localFixAt())){
      showFix(next);followRequest=false;
@@ -452,7 +481,7 @@
   if(w.document.readyState==='loading')w.document.addEventListener('DOMContentLoaded',start);
   else start();
  }
- return {snapshot,newest,selectedProfile,speedState,canRead,preferRemote,start,
+ return {snapshot,newest,resolveSources,selectedProfile,speedState,canRead,preferRemote,start,
   requestFollow(){return controller?.requestFollow()||false},
   focusLatest(force){return controller?.focusLatest(force)||false},
   preventWrongDeviceGps(){return controller?.preventWrongDeviceGps()||false},

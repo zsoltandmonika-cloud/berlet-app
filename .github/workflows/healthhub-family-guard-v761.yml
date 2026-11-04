@@ -91,6 +91,8 @@ jobs:
         run: |
           node --check healthhub/tests/guardian-stale-owner-gps-v1071.test.cjs
           node --test healthhub/tests/guardian-stale-owner-gps-v1071.test.cjs
+          node --check healthhub/tests/guardian-gps-source-flap-v1072.test.cjs
+          node --test healthhub/tests/guardian-gps-source-flap-v1072.test.cjs
       - name: Run Guardian and Timeline migration checks
         run: node --test healthhub/tests/guardian-v761.test.cjs healthhub/tests/guardian-family-last-known-v807.test.cjs healthhub/tests/guardian-bkk-watchlist-v814.test.cjs healthhub/tests/guardian-bkk-live-watchlist-v816.test.cjs healthhub/tests/guardian-buddy-stop-alert-v815.test.cjs healthhub/tests/guardian-buddy-stop-v815.test.cjs healthhub/tests/smart-hub-catalog-v801.test.cjs healthhub/tests/smart-hub-destination-v802.test.cjs healthhub/tests/smart-hub-native-v803.test.cjs healthhub/tests/smart-hub-router-v804.test.cjs healthhub/tests/smart-hub-go-v805.test.cjs healthhub/tests/smart-hub-v806.test.cjs healthhub/tests/guardian-map-search-v819.test.cjs healthhub/tests/guardian-origin-search-v836.test.cjs healthhub/tests/guardian-profile-follow-v837.test.cjs healthhub/tests/guardian-profile-battery-v841.test.cjs healthhub/tests/guardian-live-trio-v845.test.cjs healthhub/tests/guardian-profile-theme-final-lock-v868.test.cjs
       - uses: actions/setup-python@v5
