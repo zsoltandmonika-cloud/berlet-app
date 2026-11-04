@@ -9,6 +9,9 @@ on:
       - 'sh9/tests/sho-notification-chime-v2.test.cjs'
       - 'sh9/tests/sho-notification-golden-routing-v4.test.cjs'
       - 'sh9/tests/sho-global-notification-bell-v5.test.cjs'
+      - 'sh9/tests/sho-sport-radar-notification-bridge-v1.test.cjs'
+      - 'sh9/tests/sho-sport-radar-feed-v1.test.cjs'
+      - 'sh9/sport/index.html'
       - '.github/workflows/sho-notification-center-v1-qa.yml'
   workflow_dispatch:
 permissions:
@@ -27,8 +30,10 @@ jobs:
           node --check sh9/notification-center/notification-core-v1.js
           node --check sh9/notification-center/notification-center-v1.js
           node --check sh9/notification-center/notification-sound-v2.js
+          node --check sh9/notification-center/sport-radar-bridge-v1.js
+          node --check sh9/notification-center/sport-radar-feed-v1.js
           node --check sh9/shared/sh9-golden-bottom-nav-v924.js
           node --check sh9/sho-preview/sho-wiring-v2.js
       - name: Notification core, Golden Standard and launcher regression
         run: |
-          node --test sh9/tests/sho-notification-center-v1.test.cjs sh9/tests/sho-notification-chime-v2.test.cjs sh9/tests/sho-notification-golden-routing-v4.test.cjs sh9/tests/sho-global-notification-bell-v5.test.cjs
+          node --test sh9/tests/sho-notification-center-v1.test.cjs sh9/tests/sho-notification-chime-v2.test.cjs sh9/tests/sho-notification-golden-routing-v4.test.cjs sh9/tests/sho-global-notification-bell-v5.test.cjs sh9/tests/sho-sport-radar-notification-bridge-v1.test.cjs sh9/tests/sho-sport-radar-feed-v1.test.cjs
