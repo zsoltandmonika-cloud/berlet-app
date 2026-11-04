@@ -26,7 +26,7 @@
    demoNotice:'Még nincs privát dokumentumfeltöltés. Az itt látható jegyek minták, nem érvényesek.',
    quickKicker:'SMART ACCESS',quickTitle:'Gyorselérés',sampleBadge:'MINTA',
    libraryKicker:'A TE TÁRCÁD',libraryTitle:'Jegyek és bérletek',
-   all:'Összes',ticket:'Jegyek',pass:'Bérletek',document:'Iratok',card:'Kártyák',
+   all:'Összes',identity:'Azonosítók',license:'Jogosítvány',health:'Egészség',card:'Bankkártyák',ticket:'Jegyek',pass:'Bérletek',document:'Dokumentumok',
    searchLabel:'Keresés a mintajegyekben',searchPlaceholder:'Keresés a tárcában…',
    newItem:'Új jegy vagy dokumentum',newItemInfo:'Biztonságos privát feltöltés a következő fejlesztési fázisban.',
    soon:'Hamarosan',realPass:'Meglévő Bérlet app megnyitása',sportLink:'Sport Central · jegyek keresése',
@@ -47,7 +47,7 @@
    demoNotice:'Private uploads are not enabled. All cards shown here are samples, not valid tickets.',
    quickKicker:'SMART ACCESS',quickTitle:'Quick access',sampleBadge:'SAMPLE',
    libraryKicker:'YOUR VALET',libraryTitle:'Tickets and passes',
-   all:'All',ticket:'Tickets',pass:'Passes',document:'Documents',card:'Cards',
+   all:'All',identity:'Identity',license:'Driver licence',health:'Health',card:'Bank cards',ticket:'Tickets',pass:'Passes',document:'Documents',
    searchLabel:'Search sample tickets',searchPlaceholder:'Search your wallet…',
    newItem:'Add a ticket or document',newItemInfo:'Secure private uploads will be introduced in the next development phase.',
    soon:'Coming soon',realPass:'Open existing Bérlet app',sportLink:'Sport Central · find tickets',
@@ -70,6 +70,20 @@
  const list=()=>items[profile()];
  const label=item=>item[lang()==='en'?'en':'hu'];
  const desc=item=>item[lang()==='en'?'descEn':'descHu'];
+ // All visuals are crisp HD vectors, reusing one compact SVG icon pack.
+ const iconType=item=>item.provider==='BKK'?'bus':item.provider==='MÁV'?'train':
+   item.provider==='Volán'?'bus':'sport';
+ function symbol(name){
+  const namespace='http://www.w3.org/2000/svg';
+  const svg=d.createElementNS(namespace,'svg');
+  svg.setAttribute('viewBox','0 0 32 32');
+  svg.setAttribute('aria-hidden','true');
+  svg.setAttribute('focusable','false');
+  const use=d.createElementNS(namespace,'use');
+  use.setAttribute('href','./smart-valet-icons-v2.svg#'+name);
+  svg.appendChild(use);
+  return svg;
+ }
  const pinKey=()=>'sho-smart-valet-demo-pin-v1:'+profile();
  function pinId(){
   try{
@@ -109,7 +123,7 @@
   const item=sample(id);if(!item)return;
   selected=id;lastFocus=d.activeElement;
   $('svDialogTitle').textContent=label(item);
-  $('svDialogIcon').textContent=item.icon;
+  $('svDialogIcon').replaceChildren(symbol(iconType(item)));
   $('svDialogMeta').textContent=item.provider+' · '+desc(item)+' · '+t('sample');
   $('svDialogPin').textContent=pinned(id)?'★ '+t('unpin'):'☆ '+t('pin');
   $('svDialog').hidden=false;
@@ -146,7 +160,7 @@
     'sv-btn',()=>setPin(target.id))
   );
   copy.append(actions);
-  const art=elt('div','sv-feature-art',target.icon);art.setAttribute('aria-hidden','true');
+  const art=elt('div','sv-feature-art');art.append(symbol(iconType(target)));art.setAttribute('aria-hidden','true');
   host.append(copy,art);
  }
  function renderCards(){
@@ -171,7 +185,7 @@
   for(const item of filtered){
    const node=elt('article','sv-item');
    const opener=btn('','sv-item-main',()=>modal(item.id),t('open')+': '+label(item));
-   const icon=elt('span','sv-item-glyph',item.icon);icon.setAttribute('aria-hidden','true');
+   const icon=elt('span','sv-item-glyph');icon.append(symbol(iconType(item)));icon.setAttribute('aria-hidden','true');
    const info=elt('span','sv-item-info');
    info.append(elt('span','sv-type',t(item.kind==='pass'?'categoryPass':'categoryTicket')),
      elt('strong','',label(item)),elt('small','',item.provider+' · '+t('sample')));
