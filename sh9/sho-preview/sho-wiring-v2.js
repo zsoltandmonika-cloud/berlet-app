@@ -279,7 +279,7 @@ d.querySelectorAll('[data-demo]').forEach(el=>el.onclick=()=>{
  if(kind==='weather')w.open('https://www.meteoblue.com/en/weather/week/budapest_hungary_3054643','_blank','noopener,noreferrer');
 });
 $('home').onclick=top;$('ask').onclick=openAsk;$('back').onclick=back;
-$('alerts').onclick=()=>goto(HH+'index.html?sh9nav=notifications');
+$('alerts').onclick=()=>goto(SH9+'notification-center/');
 $('admin').onclick=()=>goto(HH+'index.html?sh9nav=admin');
 $('close').onclick=close;$('overlay').onclick=e=>{if(e.target===$('overlay'))close()};
 $('viewClose').onclick=()=>$('viewer').hidden=true;
