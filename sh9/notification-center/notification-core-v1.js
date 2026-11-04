@@ -45,7 +45,7 @@ const builtin=[
 ];
 const memory={}; // Only fallback for blocked localStorage; no secret keys.
 function rawGet(k){try{return w.localStorage?.getItem(k)||null}catch(_){return memory[k]||null}}
-function rawSet(k,value){try{w.localStorage?.setItem(k,value);return true}catch(_){memory[k]=value;return false}}
+function rawSet(k,value){try{if(w.localStorage){w.localStorage.setItem(k,value);return true}}catch(_){}memory[k]=value;return false}
 function read(k,fallback){try{const v=JSON.parse(rawGet(k));return v===null?fallback:v}catch(_){return fallback}}
 function set(k,value){rawSet(k,JSON.stringify(value));signal()}
 function profile(value){return value==='m'||value==='monika'?'m':value==='z'||value==='zsolt'?'z':rawGet(PROFILE_KEY)==='m'?'m':'z'}
