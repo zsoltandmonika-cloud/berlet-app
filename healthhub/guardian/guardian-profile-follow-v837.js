@@ -209,6 +209,16 @@
    const mapLabel=d.getElementById('guardianMapLabel');
    if(mapLabel)mapLabel.textContent=label;
   }
+  function showConflict(state){
+   const el=d.getElementById('guardianGpsSourceConflictV1072');
+   if(!el)return;
+   el.hidden=!state;
+   if(!state){el.textContent='';return}
+   const person=state.profile==='monika'?'Mónika':'Zsolt';
+   const km=(state.distance/1000).toFixed(1).replace('.',',');
+   el.textContent='⚠ '+person+': a GPS-források kb. '+km+' km-re térnek el. '+
+    'Az eltérő böngészős pozícióra nem ugrunk át; ellenőrizni kell az eszközhozzárendelést.';
+  }
   function clearMarker(){
    moveToken++;
    if(moveFrame!==null&&w.cancelAnimationFrame)w.cancelAnimationFrame(moveFrame);
@@ -471,7 +481,7 @@
   if(w.document.readyState==='loading')w.document.addEventListener('DOMContentLoaded',start);
   else start();
  }
- return {snapshot,newest,selectedProfile,speedState,canRead,preferRemote,start,
+ return {snapshot,newest,resolveSources,selectedProfile,speedState,canRead,preferRemote,start,
   requestFollow(){return controller?.requestFollow()||false},
   focusLatest(force){return controller?.focusLatest(force)||false},
   preventWrongDeviceGps(){return controller?.preventWrongDeviceGps()||false},
