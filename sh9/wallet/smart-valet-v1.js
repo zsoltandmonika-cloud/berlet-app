@@ -160,7 +160,19 @@
     'sv-btn',()=>setPin(target.id))
   );
   copy.append(actions);
-  const art=elt('div','sv-feature-art');art.append(symbol(iconType(target)));art.setAttribute('aria-hidden','true');
+  const isBudapestPass=target.provider==='BKK'&&target.kind==='pass';
+  const art=elt('div','sv-feature-art'+(isBudapestPass?' sv-feature-bkk':''));
+  if(isBudapestPass){
+   const image=elt('img','sv-feature-bkk-image');
+   image.src='./bkk-featured-v1.webp';
+   image.alt='';
+   image.width=207;
+   image.height=140;
+   image.decoding='async';
+   image.addEventListener('error',()=>art.replaceChildren(symbol(iconType(target))),{once:true});
+   art.append(image);
+  }else art.append(symbol(iconType(target)));
+  art.setAttribute('aria-hidden','true');
   host.append(copy,art);
  }
  function renderCards(){
