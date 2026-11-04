@@ -65,8 +65,8 @@ test('legacy placeholders removed and scripts use updated cache versions',()=>{
  assert.match(tasks,/fhNavNotifications/);
  assert.match(tasks,/location\.assign\('\/berlet-app\/sh9\/notification-center\/'\)/);
  assert.doesNotMatch(tasks,/Az SH9 értesítési központja még fejlesztés alatt áll/);
- assert.match(taskPage,/sh9-golden-bottom-nav-v924\.js\?v=928-global-notifications/);
+ assert.match(taskPage,/sh9-golden-bottom-nav-v924\.js\?v=929-sport-schedule/);
  assert.match(taskPage,/family-tasks-v880\.js\?v=1063-notifications-live/);
  for(const p of ['sh9/index.html','sh9/sho-preview/index.html','sh9/sport/index.html','sh9/notification-center/index.html'])
-  assert.match(read(p),/sh9-golden-bottom-nav-v924\.js\?v=928-global-notifications/,p);
+  assert.match(read(p),/sh9-golden-bottom-nav-v924\.js\?v=929-sport-schedule/,p);
 });
