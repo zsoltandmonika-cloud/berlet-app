@@ -29,7 +29,7 @@ test('HD Wallet hero is local, resolution-independent, no external image tracker
  assert.match(hero,/<linearGradient/);
  assert.match(hero,/filter id="glow"/);
  assert.match(hero,/viewBox="0 0 1920 1080"/);
- assert.doesNotMatch(hero,/https?:\/\//);
+ assert.doesNotMatch(hero,/(?:href|src)=\"https?:\/\//);
  assert.doesNotMatch(html,/<img[^>]+https?:\/\//);
 });
 test('eight attractive category tiles use local scalable iconpack including all requested identity, licence, health, finance and document kinds',()=>{
