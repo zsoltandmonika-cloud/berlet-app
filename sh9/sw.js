@@ -39,3 +39,36 @@ self.addEventListener('fetch',event=>{
     return response;
   }).catch(()=>caches.match(req).then(hit=>hit||caches.match(ROOT.href))));
 });
+
+/* SHO v3 opt-in Web Push pilot. Does not change the existing offline shell cache.
+   Browsers wake this worker for a push after the page closes. Only generic payloads. */
+self.addEventListener('push',event=>{
+ event.waitUntil((async()=>{
+  let data=null;
+  try{data=event.data?.json()}catch(_){return}
+  if(data?.kind!=='sho-test-v3')return;
+  const notificationUrl=new URL('notification-center/',ROOT).href;
+  await self.registration.showNotification('SHO · Smart Hub One',{
+   body:'Próbaértesítés: a SHO háttérben működő push csatornája.',
+   icon:new URL('assets/sho-fancy-install-192-v1.png',ROOT).href,
+   badge:new URL('assets/sho-fancy-install-192-v1.png',ROOT).href,
+   tag:'sho-webpush-v3',
+   renotify:false,
+   requireInteraction:false,
+   data:{url:notificationUrl,kind:'sho-test-v3'}
+  });
+ })());
+});
+self.addEventListener('notificationclick',event=>{
+ if(event.notification?.data?.kind!=='sho-test-v3')return;
+ event.notification.close();
+ event.waitUntil((async()=>{
+  const safeTarget=new URL('notification-center/',ROOT).href;
+  const openClients=await self.clients.matchAll({type:'window',includeUncontrolled:true});
+  const open=openClients.find(client=>{
+   try{return new URL(client.url).origin===self.location.origin&&new URL(client.url).pathname.startsWith('/berlet-app/sh9/')}catch(_){return false}
+  });
+  if(open){await open.focus();if(typeof open.navigate==='function')await open.navigate(safeTarget)}
+  else await self.clients.openWindow(safeTarget);
+ })());
+});
