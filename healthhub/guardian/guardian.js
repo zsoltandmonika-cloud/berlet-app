@@ -146,6 +146,9 @@ function paintOwnTransit(pos){
 }
 function onPosition(pos){
  if(!active)return;
+ // Recheck if auth/device ownership finished loading after watchPosition started.
+ const blocked=ownGpsBlockReason();
+ if(blocked){stop();report(blocked);return}
  const ts=Number(pos&&pos.timestamp),now=Date.now();
  // Ignore cached/out-of-order data beyond Family Live's 20s freshness limit.
  // A stale callback may never be described as this owner's LIVE position.
@@ -262,8 +265,21 @@ function startWatch(){
   {enableHighAccuracy:true,maximumAge:10000,timeout:20000}
  );
 }
+// Never turn the viewer's phone/computer GPS into another household member's
+// marker. The selected profile is a VIEW choice, not device ownership.
+function ownGpsBlockReason(){
+ const live=w.HH_GUARDIAN_LIVE_V785;
+ const owner=live?.boundProfile,selected=name()==='Mónika'?'monika':'zsolt';
+ if(owner&&owner!==selected)
+  return 'Ez az eszköz a '+(owner==='monika'?'Mónika':'Zsolt')+' profilhoz tartozik. A '+name()+' profilban csak a hitelesített, megosztott GPS követhető.';
+ if(live?.authenticated&&!owner)
+  return 'Nincs saját telefon hozzárendelve. Másik családtag követéséhez a hitelesített Family Live helyadatot használjuk.';
+ return null;
+}
 function start(){
  if(active)return;
+ const blocked=ownGpsBlockReason();
+ if(blocked){gpsDiagnostic('owner-mismatch');report(blocked);return}
  if(!w.isSecureContext||!w.navigator.geolocation){gpsDiagnostic('unsupported');report('Ehhez HTTPS és GPS-hozzáférés szükséges.');return}
  gpsDiagnostic('starting');
  w.HH_GUARDIAN_LIVE_V785?.onGpsSignal?.('starting');
