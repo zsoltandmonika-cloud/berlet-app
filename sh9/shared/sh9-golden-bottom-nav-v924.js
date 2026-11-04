@@ -157,14 +157,37 @@
   script.onerror=()=>{}; // Sound is optional; bell navigation still works.
   d.head?.appendChild(script);
  }
+ function ensureSportScheduleFeed(){
+  if(!notificationPilotRoute()||!w.SHO_NOTIFICATION_CORE_V1)return;
+  function loadFeed(){
+   if(w.SHO_RADAR_NOTIFICATION_FEED_V1){
+    w.SHO_RADAR_NOTIFICATION_FEED_V1.start();return;
+   }
+   if(d.querySelector('script[data-sho-sport-feed="1"]'))return;
+   const script=d.createElement('script');
+   script.dataset.shoSportFeed='1';
+   script.src=NOTIFICATIONS+'sport-radar-feed-v1.js?v=1';
+   script.onload=()=>w.SHO_RADAR_NOTIFICATION_FEED_V1?.start();
+   script.onerror=()=>{};
+   d.head?.appendChild(script);
+  }
+  if(w.SHO_RADAR_NOTIFICATION_BRIDGE_V1){loadFeed();return}
+  if(d.querySelector('script[data-sho-sport-bridge="1"]'))return;
+  const script=d.createElement('script');
+  script.dataset.shoSportBridge='1';
+  script.src=NOTIFICATIONS+'sport-radar-bridge-v1.js?v=1';
+  script.onload=loadFeed;
+  script.onerror=()=>{};
+  d.head?.appendChild(script);
+ }
  function ensureNotificationCore(){
   if(!notificationPilotRoute())return;
-  if(w.SHO_NOTIFICATION_CORE_V1){paintNotifications();ensureNotificationSound();return}
+  if(w.SHO_NOTIFICATION_CORE_V1){paintNotifications();ensureNotificationSound();ensureSportScheduleFeed();return}
   if(d.querySelector('script[data-sho-notification-core="1"]'))return;
   const script=d.createElement('script');
   script.dataset.shoNotificationCore='1';
   script.src=NOTIFICATIONS+'notification-core-v1.js?v=4-golden-links';
-  script.onload=()=>{paintNotifications();ensureNotificationSound()};
+  script.onload=()=>{paintNotifications();ensureNotificationSound();ensureSportScheduleFeed()};
   script.onerror=()=>{}; // Existing navigation stays functional if offline.
   d.head?.appendChild(script);
  }
