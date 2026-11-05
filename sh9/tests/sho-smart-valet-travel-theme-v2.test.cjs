@@ -51,7 +51,8 @@ test('eight attractive category tiles use local scalable iconpack including all 
 test('no changed checkout, bank card upload, unsafe QR reproduction or session data leaks',()=>{
  assert.match(html,/id="svAdd" disabled/);
  assert.match(html,/Nem érvényes belépőkód/);
- assert.match(html,/nem érvényesek/);
+ assert.doesNotMatch(html,/class="sv-demo-notice"/);
+ assert.match(html,/class="sv-modal-mark" data-i18n="demoTag"/);
  assert.doesNotMatch(html,/<input[^>]*type="file"/i);
  assert.doesNotMatch(app,/fetch\(|supabase|createClient|FileReader|BarcodeDetector/);
  assert.match(app,/sho-smart-valet-demo-pin-v1:/);
