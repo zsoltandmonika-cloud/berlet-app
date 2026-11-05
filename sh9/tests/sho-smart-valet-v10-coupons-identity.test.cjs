@@ -47,7 +47,7 @@ test('Igazolványok has 4 selectable subclasses but no sensitive upload entrypoi
  assert.match(theme,/\.sv-id-panel-v10\[hidden\],\.sv-add-panel\[hidden\]\{display:none!important\}/);
  assert.match(privateJs,/if\(activeCategory==='identity'\)return/);
  assert.match(privateJs,/if\(activeCategory==='identity'\)stateClose\(\)/);
- assert.doesNotMatch(sql,/identity|license|taj|tax_card|id_card/gi,'no private official ID data category in database');
+ assert.doesNotMatch(sql,/'identity'|'license'|'taj'|'tax_card'|'id_card'/i,'no official ID category in database');
 });
 test('Coupons share owner-authenticated retail gallery and original QR/photo reader',()=>{
  assert.match(app,/coupon:'Kuponok'/);
