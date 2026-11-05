@@ -42,7 +42,7 @@ test('Private loyalty records have scrollable authentic thumbnails, safe categor
  assert.match(privateJs,/client\.storage\.from\(BUCKET\)\.download\(item\.storage_path\)/);
  assert.match(privateJs,/pkey\(\)!==profile/);
  assert.match(privateJs,/URL\.revokeObjectURL/);
- assert.match(privateJs,/reader\.open\(data,item\.file_name,\{mime:item\.mime_type\}\)/);
+ assert.match(privateJs,/reader\.open\(data,item\.file_name,\{mime:item\.mime_type,pin\}\)/);
  assert.match(privateCss,/\.sv-loyalty-scroller-v9\{[^}]*overflow-y:auto/);
  assert.match(privateCss,/\.sv-loyalty-card-v9/);
  assert.match(privateJs,/auth\.getUser\(\)/);
