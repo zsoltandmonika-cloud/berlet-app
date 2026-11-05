@@ -90,6 +90,11 @@
  }
  const pinKey=()=>'sho-smart-valet-demo-pin-v1:'+profile();
  function pinId(){
+  const quick=w.SHO_VALET_SMART_ACCESS_V13;
+  if(quick){
+   const pinned=quick.current();
+   return pinned?.source==='demo'&&list().some(x=>x.id===pinned.id)?pinned.id:'';
+  }
   try{
    const id=w.localStorage.getItem(pinKey())||'';
    return list().some(x=>x.id===id)?id:'';
@@ -98,6 +103,13 @@
  function pinned(id){return !!id&&pinId()===id}
  function setPin(id){
   if(!list().some(x=>x.id===id))return;
+  const quick=w.SHO_VALET_SMART_ACCESS_V13;
+  if(quick){
+   const wasPinned=quick.isPinned('demo',id);
+   if(!quick.toggle({source:'demo',id}))return;
+   toast(t(wasPinned?'pinGone':'pinSet'));
+   return;
+  }
   const value=pinned(id)?'':id;
   try{
    if(value)w.localStorage.setItem(pinKey(),value);
@@ -151,6 +163,8 @@
   $('svSearch').setAttribute('aria-label',t('searchLabel'));
  }
  function renderFeatured(){
+  const quick=w.SHO_VALET_SMART_ACCESS_V13;
+  if(quick?.renderFeatured?.())return;
   const host=$('svFeatured');host.replaceChildren();
   const target=list().find(x=>x.id===pinId())||list()[0];
   if(!target){host.append(elt('p','',t('noData')));return}
