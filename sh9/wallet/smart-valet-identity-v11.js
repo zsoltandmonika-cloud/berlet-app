@@ -425,10 +425,20 @@ function showPreview(tileType,photoBlob){
 async function unlock(){
  if(!item||busy)return;
  const password=$('svIdUnlockPassV11').value;
- if(password.length<12){status(human(Error('SHORT_PASS')),true);return}
+ const mode=protectionMode(item),id=item.id,type=kind,p=storedProfile;
+ if(mode==='password'&&password.length<8){status(human(Error('SHORT_PASS')),true);return}
  busy=true;$('svIdUnlockButtonV11').disabled=true;
  try{
-  const c=await authorized(storedProfile),key=await derive(password,salt(item.kdf_salt));
+  const c=await authorized(p);
+  let key;
+  if(mode==='device'){
+   const auth=await c.auth.getUser();
+   if(auth.error||!auth.data.user)throw Error('NO_LOGIN');
+   key=await deviceKey('get',auth.data.user.id,id);
+   if(!key||key.extractable||key.algorithm?.name!=='AES-GCM')throw Error('NO_DEVICE_KEY');
+  }else{
+   key=await derive(password,salt(item.kdf_salt));
+  }
   const one=await c.storage.from(BUCKET).download(item.front_storage_path);
   if(one.error||!one.data)throw Error('BAD_PASS');
   const front=await decrypt(one.data,key,item,'front');
@@ -438,7 +448,8 @@ async function unlock(){
    if(two.error||!two.data)throw Error('BAD_PASS');
    back=await decrypt(two.data,key,item,'back');
   }
-  if(profile()!==storedProfile)throw Error('NO_ACCESS');
+  if(profile()!==p||kind!==type||item?.id!==id||!$('svIdDialogV11').open)
+   throw Error('NO_ACCESS');
   decrypted.front=url(front);
   if(back)decrypted.back=url(back);
   activeKey=key;
@@ -447,7 +458,8 @@ async function unlock(){
   $('svIdUnlockPassV11').value='';
   $('svIdUnlockV11').hidden=true;$('svIdViewV11').hidden=false;
   $('svIdAddBackV11').hidden=!!item.back_saved_at;
-  flipTo('front');zoomBy(0);showPreview(kind,decrypted.front);
+  flipTo('front');zoomBy(0);
+  if(mode==='device')showPreview(type,front);
   status(text('Érintsd meg a kártyát: előlap ↔ hátlap.','Tap the card: front ↔ back.'));
  }catch(e){status(human(e),true)}
  finally{busy=false;$('svIdUnlockButtonV11').disabled=false}
@@ -492,8 +504,12 @@ async function removeCard(){
   if(paths.length){
    const r=await c.storage.from(BUCKET).remove(paths);if(r.error)throw r.error;
   }
+  const auth=await c.auth.getUser();
+  if(auth.error||!auth.data.user)throw Error('NO_LOGIN');
   const r=await c.from(TABLE).delete().eq('id',item.id).eq('profile_key',storedProfile);
   if(r.error)throw r.error;
+  if(protectionMode(item)==='device')
+   try{await deviceKey('delete',auth.data.user.id,item.id)}catch(_){}
   close();await refresh();
  }catch(e){status(human(e),true)}finally{busy=false}
 }
@@ -503,8 +519,8 @@ function init(){
  function pilotNotice(){
   const node=$('svIdNoticeV10');
   if(node)node.textContent=text(
-   '🔐 V11 védett próbaüzem: előlap/hátlap titkosított feltöltése, legalább 12 karakteres jelszóval.',
-   '🔐 Protected v11 pilot: encrypted front/back upload with a 12-character passphrase.');
+   '🔐 Igazolványok: opcionális jelszó (min. 8 karakter). Jelszóval rejtett, nélküle látható előlap.',
+   '🔐 ID Cards: optional password (min. 8 characters). Protected cards hide their front thumbnail.');
  }
  w.addEventListener('sho-valet-filter-change',pilotNotice);
  if(!w.crypto?.subtle){
@@ -529,6 +545,8 @@ function init(){
  for(const id of ['svIdCropX','svIdCropY','svIdCropZoom'])$(id).addEventListener('input',cropStyle);
  $('svIdCropAcceptV11').addEventListener('click',()=>void acceptCrop());
  $('svIdCropCancelV11').addEventListener('click',cancelCrop);
+ $('svIdPasswordEnabledV12').addEventListener('change',updatePasswordSwitch);
+ updatePasswordSwitch();
  $('svIdSaveV11').addEventListener('click',()=>void save());
  $('svIdUnlockButtonV11').addEventListener('click',()=>void unlock());
  $('svIdFlipV11').addEventListener('click',()=>flipTo(viewSide==='front'?'back':'front'));
@@ -542,12 +560,15 @@ function init(){
   $('svIdBackExtraInputV11').value='';$('svIdBackExtraInputV11').click();
  });
  $('svIdDeleteV11').addEventListener('click',()=>void removeCard());
- w.addEventListener('hh-family-profile-changed',()=>{close();void refresh()});
- w.addEventListener('storage',e=>{if(e.key==='hh-profile'){close();void refresh()}});
- w.addEventListener('pagehide',close);
- d.addEventListener('visibilitychange',()=>{if(d.hidden&&!$('svIdViewV11').hidden)close()});
+ w.addEventListener('hh-family-profile-changed',()=>{close();clearTilePreviews();void refresh()});
+ w.addEventListener('storage',e=>{if(e.key==='hh-profile'){close();clearTilePreviews();void refresh()}});
+ w.addEventListener('pagehide',()=>{close();clearTilePreviews()});
+ d.addEventListener('visibilitychange',()=>{
+  if(d.hidden){close();clearTilePreviews()}
+  else void refresh();
+ });
  pilotNotice();void refresh();
 }
 if(d.readyState==='loading')d.addEventListener('DOMContentLoaded',init,{once:true});else init();
-w.SHO_VALET_ID_V11=Object.freeze({version:11,cardAspect:RATIO,encrypted:true});
+w.SHO_VALET_ID_V11=Object.freeze({version:12,cardAspect:RATIO,encrypted:true,passwordOptional:true});
 })(window,document);
