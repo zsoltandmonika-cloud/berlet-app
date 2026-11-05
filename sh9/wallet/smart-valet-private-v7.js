@@ -7,7 +7,7 @@
 'use strict';
 const CFG=w.HH_CENTRAL_VAULT, BUCKET='hh-smart-valet-private', TABLE='hh_valet_items';
 const MAX_BYTES=15000000, ALLOWED=Object.freeze({
- pdf:'application/pdf',jpg:'image/jpeg',png:'image/png',webp:'image/webp'
+ pdf:'application/pdf',jpg:'image/jpeg',jpeg:'image/jpeg',png:'image/png',webp:'image/webp'
 });
 const $=id=>d.getElementById(id), pkey=()=>w.localStorage.getItem('hh-profile')==='m'?'monika':'zsolt';
 let client=null,current=null,currentUrl='',busy=false,rows=[],requested=0;
