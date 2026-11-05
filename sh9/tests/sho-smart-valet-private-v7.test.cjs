@@ -75,7 +75,7 @@ test('Golden Standard display and approved BKK image unchanged; only companion u
  assert.match(html,/smart-valet-v1\.js\?v=5-approved-bkk-card/);
  assert.match(html,/smart-valet-bkk-approved-v5\.js\?v=5-approved-budapest-pass/);
  assert.match(html,/data-sh9-golden-bottom-nav="on"/);
- assert.match(html,/smart-valet-private-v7\.js\?v=8-private-ecosystem/);
+ assert.match(html,/smart-valet-private-v7\.js\?v=9-loyalty-private/);
  assert.match(html,/sho-private-document-reader-v1\.js\?v=1-shared-reader/);
  assert.match(html,/smart-valet-private-v7\.css\?v=8-ecosystem-document-reader/);
  assert.match(html,/central-vault\/config\.js\?v=8-wallet-prod/);
