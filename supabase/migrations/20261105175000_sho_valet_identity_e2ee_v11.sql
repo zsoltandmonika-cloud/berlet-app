@@ -3,7 +3,7 @@
 -- Existing ticket / coupon / loyalty buckets and tables remain untouched.
 create table if not exists public.hh_valet_identity_cards_v11 (
  id uuid primary key default gen_random_uuid(),
- created_by uuid not null default (select auth.uid()),
+ created_by uuid not null default auth.uid(),
  profile_key text not null check (profile_key in ('zsolt','monika')),
  doc_type text not null check (doc_type in ('license','personal','taj','tax')),
  kdf_salt text not null check (kdf_salt ~ '^[A-Za-z0-9+/]{22}==$'),
