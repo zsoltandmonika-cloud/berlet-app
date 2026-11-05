@@ -8,8 +8,9 @@ const code=read('sh9/wallet/smart-valet-private-v7.js');
 const html=read('sh9/wallet/index.html');
 const css=read('sh9/wallet/smart-valet-private-v7.css');
 const sql=read('supabase/migrations/20261105125000_sho_smart_valet_private_v7.sql');
+const hardening=read('supabase/migrations/20261105142500_sho_smart_valet_table_privilege_hardening_v7.sql');
 function runner(){
- const w={crypto:webcrypto,localStorage:{getItem(k){return k==='hh-profile'?'m':'hu'}},addEventListener(){}};
+ const w={crypto:webcrypto,location:{search:'?valetPilot=v7'},localStorage:{getItem(k){return k==='hh-profile'?'m':'hu'}},addEventListener(){}};
  const d={readyState:'loading',addEventListener(){}};
  vm.runInNewContext(code,{window:w,document:d,Uint8Array,Array,Map,Date,URL,Blob,console,
   Number,String,Object,Promise},{filename:'smart-valet-private-v7.js'});
@@ -19,6 +20,13 @@ function file(name,type,bytes){
  const b=new Blob([Buffer.from(bytes)],{type});
  return{name,type,size:b.size,slice:(a,z)=>b.slice(a,z),arrayBuffer:()=>b.arrayBuffer()};
 }
+test('legacy wallet stays a demo unless the private pilot was explicitly selected',()=>{
+ const w={location:{search:''},localStorage:{getItem(){return 'z'}}};
+ const d={readyState:'loading',addEventListener(){}};
+ vm.runInNewContext(code,{window:w,document:d,URLSearchParams});
+ assert.equal(w.SH9_VALET_PRIVATE_V7,undefined);
+ assert.match(code,/get\('valetPilot'\)!=='v7'/);
+});
 test('strict PDF/JPEG/PNG/WebP signatures and 15 MB cap, reject spoofing and empty files',async()=>{
  const api=runner();
  assert.equal((await api.validate(file('boarding.pdf','application/pdf',Buffer.from('%PDF-1.7\nsample original ticket')))).ext,'pdf');
@@ -57,6 +65,8 @@ test('RLS metadata and Storage require actual owner AND profile access, never gl
  assert.match(sql,/public,false|false,15000000/);
  assert.match(sql,/bucket_id='hh-smart-valet-private'/);
  assert.match(sql,/grant update\(uploaded_at\) on public\.hh_valet_items to authenticated/);
+ assert.match(hardening,/revoke all on table public\.hh_valet_items from public, anon, authenticated/);
+ assert.match(hardening,/grant update\(uploaded_at\) on table public\.hh_valet_items to authenticated/);
  assert.doesNotMatch(sql,/to anon|for all to authenticated|using \(true\)|with check \(true\)|public=true/i);
 });
 test('Golden Standard display and approved BKK image unchanged; only companion upload JS added',()=>{
