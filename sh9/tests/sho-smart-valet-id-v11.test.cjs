@@ -18,8 +18,8 @@ test('v10 Golden and public ticket/club/coupon features remain intact; v11 is se
  assert.match(page,/smart-valet-bkk-approved-v5\.js/);
  assert.match(page,/sho-private-document-reader-v1\.js/);
  assert.match(page,/smart-valet-private-v7\.js/);
- assert.match(page,/smart-valet-identity-v11\.css\?v=11-encrypted-card-fit/);
- assert.match(page,/smart-valet-identity-v11\.js\?v=11-pilot-notice/);
+ assert.match(page,/smart-valet-identity-v11\.css\?v=12-password-switch/);
+ assert.match(page,/smart-valet-identity-v11\.js\?v=12-optional-password/);
 });
 test('two-sided card capture has the same 1.586:1 frame ratio as saved preview and viewer',()=>{
  assert.match(page,/id="svIdFrontPreviewV11"/);
@@ -50,7 +50,7 @@ test('tap to flip has 3D transform, front/back buttons, independent zoom and red
  assert.match(page,/id="svIdZoomFitV11"/);
  assert.match(app,/flipTo\(viewSide==='front'\?'back':'front'\)/);
  assert.match(app,/if\(which==='back'&&!decrypted\.back\)/);
- assert.match(app,/showPreview\(kind,decrypted\.front\)/);
+ assert.match(app,/if\(mode==='device'\)showPreview\(type,front\)/);
  assert.match(style,/backface-visibility:hidden/);
  assert.match(style,/transform:rotateY\(180deg\)/);
  assert.match(style,/prefers-reduced-motion:reduce/);
@@ -64,7 +64,7 @@ test('identity photos are encrypted in-browser with nonexportable AES-GCM key, r
  assert.match(app,/const aad=.*additionalData|additionalData:aad\(rec,which\)/);
  assert.match(app,/new Blob\(\[iv,new Uint8Array\(ciphertext\)\]/);
  assert.match(app,/contentType:'application\/octet-stream',upsert:false/);
- assert.match(app,/if\(password\.length<12\)/);
+ assert.match(app,/if\(password\.length<8\)/);
  assert.match(page,/id="svIdPassConfirmV11"/);
  assert.match(app,/password!==\$\('svIdPassConfirmV11'\)\.value/);
  assert.match(app,/activeKey=null/);
@@ -119,7 +119,7 @@ test('identity actions do not expose public URLs and refuse mismatched user/prof
  assert.match(app,/\.eq\('user_id',user\.id\)\.eq\('profile_key',p\)\.maybeSingle\(\)/);
  assert.match(app,/profile\(\)!==p/);
  assert.match(app,/w\.addEventListener\('hh-family-profile-changed'/);
- assert.match(app,/w\.addEventListener\('pagehide',close\)/);
+ assert.match(app,/w\.addEventListener\('pagehide',\(\)=>\{close\(\);clearTilePreviews\(\)\}\)/);
  assert.match(app,/d\.addEventListener\('visibilitychange'/);
  assert.match(app,/\['image\/jpeg','image\/png','image\/webp'\]\.includes\(file\.type\)/);
  assert.doesNotMatch(app,/fetch\(['"]https?:\/\/|XMLHttpRequest|upload\(.*rawFile|FileReader|ImageCapture\.takePhoto/i);
