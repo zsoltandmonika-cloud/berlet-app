@@ -69,7 +69,7 @@ async function fileInfo(file){
  const ascii=Array.from(head).map(x=>String.fromCharCode(x)).join('');
  const valid=e==='pdf'?ascii.startsWith('%PDF-'):
   e==='png'?head.length>=8&&head.slice(0,8).join(',')==='137,80,78,71,13,10,26,10':
-  e==='jpg'?head.length>=3&&head[0]===255&&head[1]===216&&head[2]===255:
+  (e==='jpg'||e==='jpeg')?head.length>=3&&head[0]===255&&head[1]===216&&head[2]===255:
   e==='webp'?ascii.slice(0,4)==='RIFF'&&ascii.slice(8,12)==='WEBP':false;
  if(!valid)throw Error('BAD_FILE');
  const digest=await w.crypto.subtle.digest('SHA-256',await file.arrayBuffer());
