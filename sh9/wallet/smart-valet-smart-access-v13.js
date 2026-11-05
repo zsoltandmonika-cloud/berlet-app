@@ -182,7 +182,12 @@ function renderFeatured(){
         'ID card · '+(entry.protection_mode==='password'?'Password protected':'Private'))
      :t('Saját privát kártyád','Your private card'));
    ui.open.disabled=false;
-   if((pin.source==='identity'||pin.source==='extra')&&entry.protection_mode==='password'){
+   if(pin.source==='extra'&&entry.protection_mode==='password'){
+    ui.art.replaceChildren(node('span','sv-quick-icon-v13','🔒'));
+    ui.art.classList.add('sv-quick-locked-v13');
+    return; // bank cards have masked metadata; health images stay password-protected
+   }
+   if(pin.source==='identity'&&entry.protection_mode==='password'){
     ui.art.replaceChildren(node('span','sv-quick-icon-v13','🔒'));
     ui.art.classList.add('sv-quick-locked-v13');
     return; // no photo, image URL, cached preview or query for protected IDs
