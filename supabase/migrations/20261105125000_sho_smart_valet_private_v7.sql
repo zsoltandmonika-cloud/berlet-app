@@ -18,7 +18,7 @@ create table if not exists public.hh_valet_items (
  created_at timestamptz not null default now(),
  constraint hh_valet_type_consistent check (
   (file_ext='pdf' and mime_type='application/pdf') or
-  (file_ext='jpg' and mime_type='image/jpeg') or
+  (file_ext in ('jpg','jpeg') and mime_type='image/jpeg') or
   (file_ext='png' and mime_type='image/png') or
   (file_ext='webp' and mime_type='image/webp')
  ),
