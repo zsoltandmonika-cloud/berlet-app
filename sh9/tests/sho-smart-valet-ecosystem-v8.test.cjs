@@ -108,7 +108,7 @@ test('Valet production UI opens Add from whole tile, keeps Golden dock and image
  assert.match(wallet,/smart-valet-private-v7\.js\?v=9-loyalty-private/);
  assert.match(wallet,/smart-valet-bkk-approved-v5\.js/);
  assert.match(wallet,/data-sh9-golden-bottom-nav="on"/);
- assert.match(walletJs,/panel\.addEventListener\('click',event=>/);
+ assert.match(walletJs,/addTile\.addEventListener\('click',event=>/);
  assert.match(walletJs,/openSheet\(\)/);
  assert.match(walletJs,/source_module==='my_trips'/);
  assert.match(walletJs,/valetTrip=/);
