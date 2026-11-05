@@ -45,3 +45,9 @@
 .sv-extra-view-actions-v15 span{font-size:.8rem;color:#e0e1ff}
 .sv-extra-delete-v15{background:rgba(128,41,70,.4)!important;border-color:rgba(243,122,148,.49)!important}
 @media(max-width:440px){.sv-extra-modal-v15{padding:13px}.sv-extra-photo-grid-v15{grid-template-columns:1fr}.sv-extra-pin-v15{max-width:104px;padding:6px}.sv-extra-item-v15{gap:4px}.sv-extra-icon-v15{min-width:42px}}
+
+/* Full-fidelity masked bank card in the compact Smart Access showcase. */
+#svFeatured.sv-feature-quick-v13 .sv-extra-bank-art-v15{width:100%;height:100%;min-height:0;padding:8px;border-radius:10px;box-shadow:none;transform:none}
+#svFeatured.sv-feature-quick-v13 .sv-extra-bank-logo-v15{font-size:clamp(8px,1.8vw,11px)}
+#svFeatured.sv-feature-quick-v13 .sv-extra-bank-number-v15{font-size:clamp(7px,1.6vw,10px);letter-spacing:0}
+#svFeatured.sv-feature-quick-v13 .sv-extra-bank-owner-v15{font-size:clamp(7px,1.5vw,10px);line-height:1.1}
