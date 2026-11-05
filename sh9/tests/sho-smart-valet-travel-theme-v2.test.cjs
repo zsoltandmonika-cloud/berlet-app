@@ -62,10 +62,10 @@ test('no changed checkout, bank card upload, unsafe QR reproduction or session d
 });
 test('profile colour and language still follow SHO settings and remain localized',()=>{
  assert.match(theme,/:root\[data-sh9-golden-profile="m"\]/);
- assert.match(app,/identity:'Azonosítók'/);
+ assert.match(app,/identity:'Igazolványok'/);
  assert.match(app,/license:'Jogosítvány'/);
  assert.match(app,/card:'Bankkártyák'/);
- assert.match(app,/identity:'Identity'/);
+ assert.match(app,/identity:'ID Cards'/);
  assert.match(app,/license:'Driver licence'/);
  assert.match(app,/w\.addEventListener\('sh9:languagechange'/);
  assert.match(app,/w\.addEventListener\('hh-family-profile-changed'/);
