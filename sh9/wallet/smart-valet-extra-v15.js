@@ -14,6 +14,44 @@ const decode=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
 const encode=a=>{let s='';for(let i=0;i<a.length;i+=8192)s+=String.fromCharCode(...a.slice(i,i+8192));return btoa(s)};
 let client,category='',rows=[],busy=false,active=null,profileAtOpen='',serial=0;
 let files={front:null,back:null},viewURLs=[],previewURLs={front:'',back:''},flip='front',zoom=1;
+/* Device-bound, non-extractable AES key. Mirrors the ID wallet's optional password mode. */
+const EXTRA_KEY_DB='sho-valet-extra-device-v16',EXTRA_KEY_STORE='keys';
+function extraDB(){
+ return new Promise((resolve,reject)=>{
+  if(!w.indexedDB)return reject(Error('NO_INDEXED_DB'));
+  const r=w.indexedDB.open(EXTRA_KEY_DB,1);
+  r.onupgradeneeded=()=>{if(!r.result.objectStoreNames.contains(EXTRA_KEY_STORE))
+   r.result.createObjectStore(EXTRA_KEY_STORE)};
+  r.onsuccess=()=>resolve(r.result);
+  r.onerror=r.onblocked=()=>reject(Error('NO_INDEXED_DB'));
+ });
+}
+async function deviceKey(action,owner,id,value){
+ const db=await extraDB();
+ try{
+  return await new Promise((resolve,reject)=>{
+   const transaction=db.transaction(EXTRA_KEY_STORE,action==='get'?'readonly':'readwrite');
+   const store=transaction.objectStore(EXTRA_KEY_STORE);
+   const key=owner+'|'+id;
+   const request=action==='put'?store.put(value,key):action==='delete'?store.delete(key):store.get(key);
+   let outcome;
+   request.onsuccess=()=>{outcome=request.result};
+   request.onerror=()=>reject(Error('NO_INDEXED_DB'));
+   transaction.onerror=transaction.onabort=()=>reject(Error('NO_INDEXED_DB'));
+   transaction.oncomplete=()=>resolve(outcome);
+  });
+ }finally{db.close()}
+}
+async function newDeviceKey(){
+ return w.crypto.subtle.generateKey({name:'AES-GCM',length:256},false,['encrypt','decrypt']);
+}
+function modeOf(rec){return rec?.protection_mode==='device'?'device':'password'}
+function updateProtection(){
+ const enabled=$('svExtraPasswordEnabledV16').checked;
+ $('svExtraPasswordFieldsV16').hidden=!enabled;
+ $('svExtraDeviceHintV16').hidden=enabled;
+ if(!enabled){$('svExtraPassV15').value='';$('svExtraPassConfirmV15').value=''}
+}
 function release(){
  viewURLs.forEach(u=>URL.revokeObjectURL(u));viewURLs=[];
  for(const side of ['front','back']){
@@ -45,6 +83,8 @@ function human(e){
  case 'NO_LOGIN':return t('Jelentkezz be a Family Guardba.','Sign in to Family Guard.');
  case 'NO_ACCESS':return t('Nincs hozzáférés ehhez a profilhoz.','No access to this profile.');
  case 'BAD_PASS':return t('Hibás jelszó vagy sérült titkosított kép.','Wrong password or damaged encrypted image.');
+ case 'NO_DEVICE_KEY':return t('A helyi kulcs nincs meg ezen az eszközön. A kép nem állítható vissza.','Local key is missing. Image cannot be recovered.');
+ case 'NO_INDEXED_DB':return t('Ehhez az eszközhöz nem használható jelszó nélküli mentés.','Device-bound storage unavailable.');
  case 'NOT_READY':return t('A biztonságos tároló nem érhető el.','Secure vault is not available.');
  default:return t('Nem sikerült a művelet. A korábban mentett kártyák változatlanok.','Operation failed. Existing cards were not modified.');
  }
@@ -113,6 +153,7 @@ function openAdd(){
  if(!['health','card'].includes(category)||busy)return;
  close();active=null;profileAtOpen=profile();
  renderFormType();$('svExtraEditV15').hidden=false;
+ $('svExtraPasswordEnabledV16').checked=true;updateProtection();
  for(const which of ['Front','Back']){
   $('svExtra'+which+'NameV15').textContent=t('＋ Hozzáadás','＋ Add');
   $('svExtra'+which+'PreviewV16').removeAttribute('src');
@@ -376,6 +417,8 @@ function init(){
  $('svExtraCloseV15').addEventListener('click',close);
  dialog.addEventListener('cancel',e=>{e.preventDefault();close()});
  $('svExtraFormV15').addEventListener('submit',e=>void save(e));
+ $('svExtraPasswordEnabledV16').addEventListener('change',updateProtection);
+ updateProtection();
  for(const side of ['Front','Back']){
   $('svExtraAdd'+side+'V15').addEventListener('click',()=>void captureSide(side.toLowerCase(),'file'));
   $('svExtraCapture'+side+'V15').addEventListener('click',()=>void captureSide(side.toLowerCase(),'camera'));
