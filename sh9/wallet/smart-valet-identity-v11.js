@@ -15,7 +15,7 @@ const make=(tag,cls,value)=>{const x=d.createElement(tag);if(cls)x.className=cls
 let client,records=new Map(),kind='',item=null,storedProfile='',side='front',viewSide='front',zoom=1;
 let draft={front:null,back:null},previews={front:'',back:''},decrypted={front:'',back:''},activeKey=null;
 let pendingSource=null,pendingSide='',pendingURL='',media=null,inCamera=false,busy=false,request=0;
-const allURLs=new Set();
+const allURLs=new Set(),tileURLs=new Map();
 function url(blob){const x=URL.createObjectURL(blob);allURLs.add(x);return x}
 function revoke(x){if(!x)return;try{URL.revokeObjectURL(x)}catch(_){}allURLs.delete(x)}
 function clearURLs(){for(const x of allURLs)revoke(x);pendingURL='';previews={front:'',back:''};decrypted={front:'',back:''}}
@@ -25,7 +25,9 @@ function human(e){
  case 'NO_LOGIN':return text('Jelentkezz be a Family Guardba.','Sign in to Family Guard.');
  case 'NO_ACCESS':return text('Ehhez a profilhoz nincs hozzáférés.','Profile access denied.');
  case 'BAD_PASS':return text('Rossz jelszó, vagy a titkosított kép sérült.','Wrong passphrase or encrypted photo is damaged.');
- case 'SHORT_PASS':return text('Minimum 12 karakteres titkosítási jelszó szükséges.','Use an encryption passphrase of 12 or more characters.');
+ case 'SHORT_PASS':return text('Minimum 8 karakteres jelszó szükséges.','Use a passphrase of at least 8 characters.');
+ case 'NO_DEVICE_KEY':return text('A helyi titkosítási kulcs nincs meg ezen az eszközön. A kép nem állítható vissza.','Device encryption key is missing. The photo cannot be recovered.');
+ case 'NO_INDEXED_DB':return text('A készülék nem támogatja a jelszó nélküli biztonságos mentést. Kapcsold be a jelszót.','Device storage is unavailable. Enable password protection.');
  case 'EXISTS':return text('Ehhez a típushoz már van elmentett igazolvány.','An ID of this type is already saved.');
  default:return text('A művelet nem sikerült. A korábban mentett képek nem változtak.','Operation failed. Previously saved photos were not changed.');
  }
@@ -47,7 +49,7 @@ async function authorized(p){
 const b64=arr=>btoa(Array.from(arr,x=>String.fromCharCode(x)).join(''));
 const salt=txt=>Uint8Array.from(atob(txt),x=>x.charCodeAt(0));
 async function derive(password,s){
- if(!password||password.length<12)throw Error('SHORT_PASS');
+ if(!password||password.length<8)throw Error('SHORT_PASS');
  const key=await w.crypto.subtle.importKey('raw',new TextEncoder().encode(password),'PBKDF2',false,['deriveKey']);
  return w.crypto.subtle.deriveKey({name:'PBKDF2',salt:s,iterations:ITERATIONS,hash:'SHA-256'},
   key,{name:'AES-GCM',length:256},false,['encrypt','decrypt']);
@@ -66,6 +68,63 @@ async function decrypt(cipher,key,rec,which){
    name:'AES-GCM',iv:bytes.slice(0,12),additionalData:aad(rec,which),tagLength:128},key,bytes.slice(12));
   return new Blob([plain],{type:'image/jpeg'});
  }catch(_){throw Error('BAD_PASS')}
+}
+
+/* An unextractable AES CryptoKey may be stored by structured clone in IndexedDB
+ * without exposing raw key bytes to JavaScript. This mode is DEVICE-BOUND:
+ * losing site storage, moving browser or changing phone loses access permanently.
+ * Every operation still requires authenticated owner/profile access. */
+const KEY_DB='sho-valet-private-identity-device-v12',KEY_STORE='keys';
+function keyID(userID,id){return userID+'|'+id}
+function openKeyDB(){
+ return new Promise((resolve,reject)=>{
+  if(!w.indexedDB)return reject(Error('NO_INDEXED_DB'));
+  const req=w.indexedDB.open(KEY_DB,1);
+  req.onupgradeneeded=()=>{if(!req.result.objectStoreNames.contains(KEY_STORE))
+   req.result.createObjectStore(KEY_STORE)};
+  req.onsuccess=()=>resolve(req.result);
+  req.onerror=()=>reject(Error('NO_INDEXED_DB'));
+  req.onblocked=()=>reject(Error('NO_INDEXED_DB'));
+ });
+}
+async function deviceKey(action,owner,recordID,value){
+ const db=await openKeyDB();
+ try{
+  return await new Promise((resolve,reject)=>{
+   const mode=action==='get'?'readonly':'readwrite';
+   const tr=db.transaction(KEY_STORE,mode),store=tr.objectStore(KEY_STORE);
+   const id=keyID(owner,recordID);
+   const req=action==='put'?store.put(value,id):
+    action==='delete'?store.delete(id):store.get(id);
+   let result;
+   req.onsuccess=()=>{result=req.result};
+   req.onerror=()=>reject(Error('NO_INDEXED_DB'));
+   tr.oncomplete=()=>resolve(result);
+   tr.onerror=()=>reject(Error('NO_INDEXED_DB'));
+   tr.onabort=()=>reject(Error('NO_INDEXED_DB'));
+  });
+ }finally{db.close()}
+}
+async function deviceAESKey(){
+ return w.crypto.subtle.generateKey({name:'AES-GCM',length:256},false,['encrypt','decrypt']);
+}
+function protectionMode(rec){return rec?.protection_mode==='device'?'device':'password'}
+function removeTilePreview(type){
+ const old=tileURLs.get(type);
+ if(old)revoke(old);
+ tileURLs.delete(type);
+ const tile=d.querySelector('.sv-id-type-v10[data-id-type="'+type+'"]');
+ tile?.querySelector('.sv-id-photo-v11')?.remove();tile?.classList.remove('has-photo');
+}
+function clearTilePreviews(){for(const type of TYPES)removeTilePreview(type)}
+function updatePasswordSwitch(){
+ const checked=$('svIdPasswordEnabledV12').checked;
+ $('svIdPasswordFieldsV12').hidden=!checked;
+ $('svIdDeviceHintV12').hidden=checked;
+ if(!checked){
+  $('svIdPassV11').value='';
+  $('svIdPassConfirmV11').value='';
+ }
 }
 function stopCamera(){
  inCamera=false;
