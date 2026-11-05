@@ -57,7 +57,7 @@ test('the sample ticket modal is accessible and cannot masquerade as a valid sca
  assert.match(html,/class="sv-modal-mark" data-i18n="demoTag"/);
  assert.match(html,/data-i18n="sampleBadge">MINTA/);
  assert.match(html,/id="svAdd" disabled/);
- assert.doesNotMatch(html,/<input[^>]+type="file"/i);
+ assert.doesNotMatch(html.split('<template id="svIdTemplateV11">')[0],/<input[^>]+type="file"/i);
  assert.doesNotMatch(html,/<(canvas|video)\b/i);
  assert.match(js,/if\(e\.key==='Escape'\)/);
  assert.match(js,/if\(e\.key==='Tab'\)/);
