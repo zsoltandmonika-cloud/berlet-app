@@ -98,6 +98,7 @@ function stateClose(){
  current=null;
  $('svVaultPickedV7').textContent='';
  $('svVaultFormV7')?.reset();
+ if(activeCategory==='loyalty'&&$('svVaultPrivateV7'))$('svVaultPrivateV7').hidden=true;
 }
 function showPreview(file){
  if(currentUrl)URL.revokeObjectURL(currentUrl);
@@ -122,6 +123,7 @@ async function chosen(file){
 function openSheet(category){
  const form=$('svVaultFormV7');
  form.hidden=false;
+ if($('svVaultPrivateV7'))$('svVaultPrivateV7').hidden=false;
  if(category==='loyalty'||activeCategory==='loyalty')$('svVaultCategoryV7').value='loyalty';
  $('svVaultTitleV7').focus();
  form.scrollIntoView({block:'center',behavior:'smooth'});
@@ -186,7 +188,7 @@ async function renderLoyalty(profile,client,call){
  more.textContent=t('loyaltyMore');
 }
 function setCategory(kind){
- activeCategory=kind;
+ activeCategory=['all','loyalty','identity','license','health','card','ticket','pass','document'].includes(kind)?kind:'all';
  loyaltyLimit=12;
  // This legacy demo display remains separate from real private documents.
  // Its filter state drives the secured original file list too.
@@ -203,6 +205,8 @@ async function refresh(){
   if(error)throw error;
   if(call!==requested||profile!==pkey())return;
   rows=data||[];
+  const section=$('svVaultPrivateV7');
+  if(section)section.hidden=activeCategory==='loyalty'&&$('svVaultFormV7').hidden;
   const visible=activeCategory==='all'?rows:rows.filter(item=>item.category===activeCategory);
   if(activeCategory==='loyalty'){
    list.hidden=true;
@@ -216,6 +220,16 @@ async function refresh(){
  }catch(e){
   if(call!==requested)return;
   rows=[];
+  discardLoyaltyImages();
+  const feed=$('svLoyaltyScrollerV9'),panel=$('svLoyaltyPanelV9');
+  if(feed)feed.replaceChildren();
+  if(panel&&activeCategory==='loyalty'){
+   panel.hidden=false;
+   if(feed)feed.append(make('p','sv-vault-empty-v7',
+    e.message==='LOGIN_REQUIRED'?t('login'):e.message==='ACCESS_DENIED'?t('authFail'):t('error')));
+   $('svLoyaltyCountV9').textContent='0';
+   $('svCount').textContent='0';
+  }
   message(e.message==='LOGIN_REQUIRED'?t('login'):e.message==='ACCESS_DENIED'?t('authFail'):t('error'),true);
   if(e.message==='LOGIN_REQUIRED')list.append(make('a','sv-vault-login-v7',t('openLogin')));
   const link=list.querySelector('a');if(link)link.href='../../healthhub/guardian/';
