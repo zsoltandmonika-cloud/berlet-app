@@ -189,7 +189,18 @@ async function refresh(){
   records=new Map((result.data||[]).filter(x=>TYPES.includes(x.doc_type)).map(x=>[x.doc_type,x]));
   updateTiles();
   await loadTilePreviews(p,id,c);
+  w.dispatchEvent(new CustomEvent('sho-valet-identity-ready',{detail:{profile:p}}));
  }catch(_){if(id!==request)return;records=new Map();updateTiles()}
+}
+function refreshPinButton(){
+ const btn=$('svIdPinV13');if(!btn)return;
+ btn.hidden=!item;
+ if(!item)return;
+ const api=w.SHO_VALET_SMART_ACCESS_V13;
+ const pinned=api?.isPinned('identity',kind);
+ btn.textContent=(pinned?'★ ':'☆ ')+text(
+  pinned?'Kitűzés megszüntetése':'Kitűzés',
+  pinned?'Remove pin':'Pin');
 }
 function open(type){
  if(!TYPES.includes(type)||busy)return;
@@ -216,6 +227,7 @@ function open(type){
  }
  status('');
  renderDraft();
+ refreshPinButton();
  $('svIdDialogV11').showModal();
  if(item&&protectionMode(item)==='device')void unlock();
 }
@@ -372,6 +384,7 @@ async function save(){
   const savedAt=new Date().toISOString();
   item={...rec,front_saved_at:savedAt,back_saved_at:back?savedAt:null};
   records.set(type,item);activeKey=key;
+  refreshPinButton();
   decrypted.front=url(draft.front);
   if(draft.back)decrypted.back=url(draft.back);
   $('svIdImageFrontV11').src=decrypted.front;
@@ -495,6 +508,44 @@ async function saveBack(){
   status(human(e),true);
  }finally{busy=false}
 }
+async function resolvePinnedRow(type,p){
+ if(!TYPES.includes(type)||p!==profile())throw Error('NO_ACCESS');
+ const c=await authorized(p);
+ const {data,error}=await c.from(TABLE).select(
+  'id,profile_key,doc_type,kdf_salt,protection_mode,front_storage_path,back_storage_path,front_saved_at,back_saved_at')
+  .eq('profile_key',p).eq('doc_type',type).maybeSingle();
+ if(error)throw error;
+ if(p!==profile())throw Error('NO_ACCESS');
+ return data||null;
+}
+async function resolvePinned(type,p){
+ const rec=await resolvePinnedRow(type,p);
+ return rec?{id:rec.id,doc_type:type,protection_mode:protectionMode(rec),
+  title:label(type),subtitle:protectionMode(rec)==='password'
+   ?text('🔒 Jelszóval védett igazolvány','🔒 Password-protected identity card')
+   :text('🔓 Saját igazolvány · helyi kulcs','🔓 ID · device-encrypted')}:null;
+}
+async function previewPinned(type,p){
+ const rec=await resolvePinnedRow(type,p);
+ // Protected ID pictures are never decoded for Smart Access, even when unlocked.
+ if(!rec||protectionMode(rec)!=='device'||!rec.front_saved_at)return null;
+ const c=await authorized(p);
+ const auth=await c.auth.getUser();
+ if(auth.error||!auth.data.user)throw Error('NO_LOGIN');
+ const key=await deviceKey('get',auth.data.user.id,rec.id);
+ if(!key||key.extractable||key.algorithm?.name!=='AES-GCM')return null;
+ const result=await c.storage.from(BUCKET).download(rec.front_storage_path);
+ if(result.error||!result.data)throw result.error||Error('NO_ACCESS');
+ const photo=await decrypt(result.data,key,rec,'front');
+ if(p!==profile())throw Error('NO_ACCESS');
+ return photo;
+}
+async function openPinned(type,p){
+ const rec=await resolvePinnedRow(type,p);
+ if(!rec)throw Error('NO_ACCESS');
+ records.set(type,rec);updateTiles();
+ open(type);
+}
 async function removeCard(){
  // Removing ciphertext needs account authorization, not the lost decryption key.
  if(!item||busy)return;
@@ -532,6 +583,12 @@ function init(){
  for(const button of parent.querySelectorAll('[data-id-type]'))
   button.addEventListener('click',()=>open(button.dataset.idType));
  $('svIdCloseV11').addEventListener('click',close);
+ $('svIdPinV13').addEventListener('click',()=>{
+  if(!item)return;
+  w.SHO_VALET_SMART_ACCESS_V13?.toggle({source:'identity',id:kind});
+  refreshPinButton();
+ });
+ w.addEventListener('sho-valet-pin-changed',refreshPinButton);
  dialog.addEventListener('cancel',e=>{e.preventDefault();close()});
  for(const b of dialog.querySelectorAll('[data-side][data-mode]'))
   b.addEventListener('click',()=>choose(b.dataset.side,b.dataset.mode));
@@ -572,5 +629,6 @@ function init(){
  pilotNotice();void refresh();
 }
 if(d.readyState==='loading')d.addEventListener('DOMContentLoaded',init,{once:true});else init();
-w.SHO_VALET_ID_V11=Object.freeze({version:12,cardAspect:RATIO,encrypted:true,passwordOptional:true});
+w.SHO_VALET_IDENTITY_V13=Object.freeze({resolvePinned,previewPinned,openPinned});
+w.SHO_VALET_ID_V11=Object.freeze({version:13,cardAspect:RATIO,encrypted:true,passwordOptional:true});
 })(window,document);
