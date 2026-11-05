@@ -12,7 +12,7 @@
 <link rel="stylesheet" href="./smart-valet-v1.css?v=1-premium-glass">
 <link rel="stylesheet" href="./smart-valet-sho-theme-v2.css?v=10-coupon-id-layout">
 <link rel="stylesheet" href="./smart-valet-private-v7.css?v=10-retail-coupons">
-<link rel="stylesheet" href="./smart-valet-identity-v11.css?v=11-encrypted-card-fit">
+<link rel="stylesheet" href="./smart-valet-identity-v11.css?v=12-password-switch">
 <link rel="stylesheet" href="../shared/sho-private-document-reader-v1.css?v=1-sho-internal-reader">
 </head>
 <body>
@@ -160,7 +160,7 @@
  <button type="button" id="svIdCloseV11" aria-label="Bezárás">×</button></header>
 <p id="svIdStatusV11" class="sv-id-status-v11" role="status" aria-live="polite"></p>
 <section id="svIdDraftV11">
- <p class="sv-id-hint-v11">🔒 Előlap és hátlap külön, a készüléken titkosítva. A jelszót nem tároljuk. Elvesztése esetén a fotók nem állíthatók vissza.</p>
+ <p class="sv-id-hint-v11">🔒 Mindkét oldal titkosítva kerül a privát tárolóba. A jelszavas védelem külön beállítható.</p>
  <div class="sv-id-two-sides-v11">
   <div class="sv-id-draft-side-v11"><strong>ELŐLAP · FRONT</strong>
    <div class="sv-id-card-frame-v11"><img id="svIdFrontPreviewV11" alt="Előlap előnézete" hidden><span id="svIdFrontEmptyV11">📷</span></div>
@@ -171,13 +171,19 @@
    <div><button type="button" data-side="back" data-mode="camera">📷 Fotó</button><button type="button" data-side="back" data-mode="file">Fájl</button></div>
   </div>
  </div>
- <label class="sv-id-pass-label-v11">Titkosítási jelszó (min. 12 karakter)<input type="password" id="svIdPassV11" minlength="12" autocomplete="new-password"></label>
- <label class="sv-id-pass-label-v11">Jelszó megerősítése<input type="password" id="svIdPassConfirmV11" minlength="12" autocomplete="new-password"></label>
+ <label class="sv-id-protection-switch-v12"><input type="checkbox" id="svIdPasswordEnabledV12" checked>
+  <span><strong>🔐 Jelszavas védelem</strong><small>Bekapcsolva az előlap előnézete rejtve marad.</small></span>
+ </label>
+ <div id="svIdPasswordFieldsV12">
+  <label class="sv-id-pass-label-v11">Titkosítási jelszó (min. 8 karakter)<input type="password" id="svIdPassV11" minlength="8" autocomplete="new-password"></label>
+  <label class="sv-id-pass-label-v11">Jelszó megerősítése<input type="password" id="svIdPassConfirmV11" minlength="8" autocomplete="new-password"></label>
+ </div>
+ <p id="svIdDeviceHintV12" class="sv-id-device-hint-v12" hidden>🔓 Jelszó nélkül az előlap megjelenik a csempén. A titkosított képek kulcsa csak ebben a böngészőben marad meg. Böngészőadatok törlése vagy telefoncsere esetén a kártya nem állítható vissza.</p>
  <button type="button" id="svIdSaveV11" class="sv-id-primary-v11" disabled>🔒 Igazolvány mentése</button>
 </section>
 <section id="svIdUnlockV11" hidden>
- <p class="sv-id-hint-v11">A képek csak a helyes titkosítási jelszóval nyithatók meg.</p>
- <label class="sv-id-pass-label-v11">Igazolvány jelszava<input type="password" id="svIdUnlockPassV11" autocomplete="off"></label>
+ <p class="sv-id-hint-v11" id="svIdUnlockHintV12">Jelszavas védelem: add meg a feloldó jelszót.</p>
+ <label class="sv-id-pass-label-v11" id="svIdUnlockPasswordLabelV12">Igazolvány jelszava<input type="password" id="svIdUnlockPassV11" autocomplete="off"></label>
  <button type="button" id="svIdUnlockButtonV11" class="sv-id-primary-v11">🔓 Megnyitás</button>
 </section>
 <section id="svIdViewV11" hidden>
@@ -240,10 +246,9 @@
     load('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.2/dist/umd/supabase.min.js',function(){
       load('../shared/sho-private-document-reader-v1.js?v=2-loyalty-image-zoom',function(){
         load('./smart-valet-private-v7.js?v=10-coupon-gallery',function(){
-          // Sensitive identity originals: separate opt-in v11 pilot only.
-          // The normal Wallet remains unchanged until on-device acceptance.
-          if(new URLSearchParams(location.search).get('idPilot')==='v11')
-            load('./smart-valet-identity-v11.js?v=11-pilot-notice',function(){});
+          // v12: protected ID vault enabled in the standard Wallet.
+          // Never bypasses authenticated owner/profile policies.
+          load('./smart-valet-identity-v11.js?v=12-optional-password',function(){});
         });
       });
     });
