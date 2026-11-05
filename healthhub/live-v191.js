@@ -146,7 +146,6 @@ function attachCloud(local,cloud,profile){
   });
  }
  out.latestCloud=cloud||null;
- out.latestCloud=cloud||null;
  return out;
 }
 function collect(raw,profile){
@@ -268,7 +267,10 @@ async function render(profileOverride){
  var finalPainted=false;
  Promise.all([localPromise,heightPromise]).then(function(early){
   if(renderId!==activityRenderSeq||finalPainted)return;
-  if(!early[0].imports.length&&!early[0].activity.length)return;
+  var hasMeasuredActivity=early[0].activity.length>0||early[0].imports.some(function(row){
+   return !!(row.bundle&&row.bundle.records&&Array.isArray(row.bundle.records.dailyActivity)&&row.bundle.records.dailyActivity.length);
+  });
+  if(!hasMeasuredActivity)return;
   paintActivity(requestedProfile,attachCloud(early[0],null,requestedProfile),early[1],
    {status:'pending',data:null,profile:requestedProfile},renderId,true);
  }).catch(function(){});
