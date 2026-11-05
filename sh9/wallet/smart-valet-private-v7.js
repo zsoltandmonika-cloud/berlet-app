@@ -140,6 +140,25 @@ function openSheet(category){
  $('svVaultTitleV7').focus();
  form.scrollIntoView({block:'center',behavior:'smooth'});
 }
+function pinLabel(id){
+ const api=w.SHO_VALET_SMART_ACCESS_V13;
+ return (api?.isPinned('private',id)?'★ '+t('unpin'):'☆ '+t('pin'));
+}
+function pinButton(item){
+ const button=make('button','sv-quick-pin-v13',pinLabel(item.id));
+ button.type='button';button.dataset.pinSource='private';button.dataset.pinId=item.id;
+ button.addEventListener('click',event=>{
+  event.preventDefault();event.stopPropagation();
+  w.SHO_VALET_SMART_ACCESS_V13?.toggle({source:'private',id:item.id});
+  button.textContent=pinLabel(item.id);
+ });
+ return button;
+}
+function refreshPinLabels(){
+ for(const btn of d.querySelectorAll('[data-pin-source="private"][data-pin-id]')){
+  btn.textContent=pinLabel(btn.dataset.pinId);
+ }
+}
 function makeCard(item){
  const el=make('article','sv-vault-item-v7');
  const details=make('div','sv-vault-item-copy-v7');
@@ -154,7 +173,7 @@ function makeCard(item){
  open.addEventListener('click',()=>openItem(item));
  const del=make('button','sv-vault-danger-v7',t('remove'));del.type='button';
  del.addEventListener('click',()=>deleteItem(item));
- actions.append(open,del);el.append(details,actions);return el;
+ actions.append(open,pinButton(item),del);el.append(details,actions);return el;
 }
 
 function discardLoyaltyImages(){
@@ -189,7 +208,9 @@ async function renderLoyalty(profile,client,call){
   const copy=make('span','sv-loyalty-copy-v9');
   copy.append(make('strong',null,item.title),make('small',null,item.file_name));
   const action=make('span','sv-loyalty-action-v9','▣');
-  button.append(art,copy,action);feed.append(button);
+  button.append(art,copy,action);
+  const wrap=make('div','sv-loyalty-pin-wrap-v13');
+  wrap.append(button,pinButton(item));feed.append(wrap);
   button.addEventListener('click',()=>openItem(item));
   if(image){
    // Never expose public image URLs. Previews are downloaded via authenticated RLS Storage.
@@ -244,6 +265,7 @@ async function refresh(){
   }
   await renderLoyalty(profile,c,call);
   message('');
+  w.dispatchEvent(new CustomEvent('sho-valet-private-ready',{detail:{profile}}));
  }catch(e){
   if(call!==requested)return;
   rows=[];
@@ -308,7 +330,12 @@ async function openItem(item){
   const reader=w.SHO_PRIVATE_DOCUMENT_READER_V1;
   if(!reader?.open)throw Error('READER_NOT_READY');
   // Preserve the exact private Blob bytes; PDF.js renders it in memory.
-  await reader.open(data,item.file_name,{mime:item.mime_type});
+  const quick=w.SHO_VALET_SMART_ACCESS_V13;
+  const pin=quick?{
+   label:()=>pinLabel(item.id),
+   toggle:()=>quick.toggle({source:'private',id:item.id})
+  }:null;
+  await reader.open(data,item.file_name,{mime:item.mime_type,pin});
   message('');
  }catch(e){
   if(e?.message==='ACCESS_DENIED')message(t('authFail'),true);
@@ -325,6 +352,33 @@ async function deleteItem(item){
   if(error)throw error;
   await refresh();
  }catch(_){message(t('error'),true)}
+}
+async function resolvePinned(id,profile){
+ if(profile!==pkey()||!/^[0-9a-f]{8}-[0-9a-f-]{27}$/i.test(id))throw Error('ACCESS_DENIED');
+ const c=await authorized(profile);
+ const {data,error}=await c.from(TABLE)
+  .select('id,title,category,file_name,mime_type,storage_path,created_at,source_module,source_context_id')
+  .eq('id',id).eq('profile_key',profile).not('uploaded_at','is',null).maybeSingle();
+ if(error)throw error;
+ if(!data)return null;
+ if(profile!==pkey())throw Error('ACCESS_DENIED');
+ return{...data,subtitle:t(data.category==='loyalty'?'loyalty':
+  data.category==='coupon'?'coupon':data.category==='ticket'?'ticket':
+  data.category==='pass'?'pass':'document')+' · '+data.file_name};
+}
+async function previewPinned(id,profile){
+ const entry=await resolvePinned(id,profile);
+ if(!entry||!entry.mime_type?.startsWith('image/'))return null;
+ const c=await authorized(profile);
+ const {data,error}=await c.storage.from(BUCKET).download(entry.storage_path);
+ if(error)throw error;
+ if(pkey()!==profile)throw Error('ACCESS_DENIED');
+ return data;
+}
+async function openPinned(id,profile){
+ const entry=await resolvePinned(id,profile);
+ if(!entry)throw Error('ACCESS_DENIED');
+ return openItem(entry);
 }
 function init(){
  const add=$('svAdd');if(!add)return;
@@ -396,6 +450,7 @@ function init(){
  }
  retranslate();refresh();
  w.addEventListener('sho-valet-filter-change',e=>setCategory(e.detail?.kind||'all'));
+ w.addEventListener('sho-valet-pin-changed',refreshPinLabels);
  w.addEventListener('sh9:languagechange',()=>{retranslate();refresh()});
  w.addEventListener('hh-family-profile-changed',()=>{stateClose();discardLoyaltyImages();refresh()});
  w.addEventListener('storage',e=>{if(e.key==='hh-profile'||e.key==='sh9-language-v1'){
@@ -405,5 +460,6 @@ function init(){
 }
 if(d.readyState==='loading')d.addEventListener('DOMContentLoaded',init,{once:true});
 else init();
-w.SH9_VALET_PRIVATE_V7={refresh,validate:fileInfo,allowedTypes:Object.values(ALLOWED)};
+w.SH9_VALET_PRIVATE_V7={refresh,validate:fileInfo,allowedTypes:Object.values(ALLOWED),
+ resolvePinned,previewPinned,openPinned};
 })(window,document);
