@@ -1,226 +1,225 @@
 {
   "schemaVersion": 1,
-  "date": "2026-11-04",
-  "generatedAt": "2026-11-04T13:13:57+01:00",
-  "headline": "A reggel fő témái: South Carolina elects Democratic senator for first time in almost three decades; James Talarico becomes first Democrat to win Texas Senate seat since 1988",
+  "date": "2026-11-05",
+  "generatedAt": "2026-11-05T13:27:16+01:00",
+  "headline": "A reggel fő témái: Vance walks Trump tightrope with scathing election critique blaming Iran war; What Democrats can and can't do with their new power after taking Congress",
   "sections": [
     {
       "id": "executive",
       "title": "Vezetői összefoglaló",
       "items": [
-        "BBC World: South Carolina elects Democratic senator for first time in almost three decades",
-        "BBC World: James Talarico becomes first Democrat to win Texas Senate seat since 1988",
-        "BBC World: Florida Republicans fend off Democrats as state elects first black governor",
-        "BBC World: Iran's chief negotiator says Americans voted 'no to war'"
+        "BBC World: Vance walks Trump tightrope with scathing election critique blaming Iran war",
+        "BBC World: What Democrats can and can't do with their new power after taking Congress",
+        "BBC World: France gears up for strikes and protests as unions promise national mobilisation",
+        "BBC World: Ronaldo retires from Portugal duty"
       ]
     },
     {
       "id": "overnight",
       "title": "Éjszakai fejlemények",
       "items": [
-        "BBC World: South Carolina elects Democratic senator for first time in almost three decades",
-        "BBC World: James Talarico becomes first Democrat to win Texas Senate seat since 1988",
-        "BBC World: Florida Republicans fend off Democrats as state elects first black governor"
+        "BBC World: Vance walks Trump tightrope with scathing election critique blaming Iran war",
+        "BBC World: France gears up for strikes and protests as unions promise national mobilisation",
+        "BBC World: Ronaldo retires from Portugal duty"
       ]
     },
     {
       "id": "geopolitics",
       "title": "Külpolitika / Geopolitika",
       "items": [
-        "BBC World: South Carolina elects Democratic senator for first time in almost three decades",
-        "BBC World: James Talarico becomes first Democrat to win Texas Senate seat since 1988",
-        "BBC World: Florida Republicans fend off Democrats as state elects first black governor"
+        "BBC World: Vance walks Trump tightrope with scathing election critique blaming Iran war",
+        "BBC World: What Democrats can and can't do with their new power after taking Congress",
+        "BBC World: France gears up for strikes and protests as unions promise national mobilisation"
       ]
     },
     {
       "id": "hungary",
       "title": "Magyarország",
       "items": [
-        "Magyarország Kormánya: Elkezdődött az ügynökakták közzététele - Magyarország Kormánya",
-        "BBC: Ügynökakták: Magyarország megnyitja a kommunista állambiztonsági archívumot - BBC",
-        "| hvg.hu: Magyarország szembenéz a múltjával, megnyíltak az ügynökakták – ez volt a kormány sajtótájékoztatója - | hvg.hu"
+        "Magyarország Kormánya: Társadalmi egyeztetés indul a rendészeti törvények módosításáról - Magyarország Kormánya",
+        "Telex: Magyarország egyik első női felsővezetője: Sokkal nehezebb jó férjet találni, mint jó munkahelyet - Telex",
+        "Magyar Kurír: Franco Coppola Magyarország új apostoli nunciusa - Magyar Kurír"
       ]
     },
     {
       "id": "economy",
       "title": "Gazdaság / Piacok",
       "items": [
-        "BBC Business: Poundland supplier 'will lose millions' if retailer collapses",
-        "BBC Business: UK and EU agree draft deal to scrap Brexit red tape over food exports",
-        "BBC Business: Uproar over missing 'pop' as Rice Krispies changes its recipe"
+        "BBC Business: Three ways the interest rate rise could affect you",
+        "BBC Business: Drunk and dangerous e-bike riders face on-the-spot fines under crackdown",
+        "BBC Business: Second buyer makes rescue bid for Poundland as retailer faces collapse"
       ]
     },
     {
       "id": "technology",
       "title": "Technológia / AI",
       "items": [
-        "BBC Technology: Graduates are managing AI - but are they learning much else?",
-        "BBC Technology: Binance says fake job interviews used as part of $6.3bn crypto hack",
-        "BBC Technology: UK meat industry hit by cyber-attack which targeted European supermarket freezers"
+        "BBC Technology: Elon Musk's millions failed to deliver Republican wins in fierce midterms",
+        "BBC Technology: French blood storage impacted by freezer hacks as theories swirl about culprits"
       ]
     },
     {
       "id": "risks",
       "title": "Mai kockázatok",
       "items": [
-        "Figyelmi pont: Iran's chief negotiator says Americans voted 'no to war' (BBC World).",
-        "Figyelmi pont: Rwanda's army team removed from Africa league after US sanctions, NBA says (BBC World).",
-        "Figyelmi pont: UK meat industry hit by cyber-attack which targeted European supermarket freezers (BBC Technology)."
+        "Figyelmi pont: Vance walks Trump tightrope with scathing election critique blaming Iran war (BBC World).",
+        "Figyelmi pont: France gears up for strikes and protests as unions promise national mobilisation (BBC World).",
+        "Figyelmi pont: Three ways the interest rate rise could affect you (BBC Business)."
       ]
     },
     {
       "id": "watch",
       "title": "Mi számít igazán / Figyelmi szint",
       "items": [
-        "BBC World: South Carolina elects Democratic senator for first time in almost three decades",
-        "BBC World: James Talarico becomes first Democrat to win Texas Senate seat since 1988"
+        "BBC World: Vance walks Trump tightrope with scathing election critique blaming Iran war",
+        "BBC World: What Democrats can and can't do with their new power after taking Congress"
       ]
     }
   ],
   "sources": [
     {
-      "title": "South Carolina elects Democratic senator for first time in almost three decades",
+      "title": "Vance walks Trump tightrope with scathing election critique blaming Iran war",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cjy56z440nl9o?at_medium=RSS&at_campaign=rss",
+      "url": "https://www.bbc.co.uk/news/articles/crz98zqkz7z0o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-05"
+    },
+    {
+      "title": "What Democrats can and can't do with their new power after taking Congress",
+      "publisher": "BBC World",
+      "url": "https://www.bbc.co.uk/news/articles/cq1kdgnn2xdeo?at_medium=RSS&at_campaign=rss",
       "publishedAt": "2026-11-04"
     },
     {
-      "title": "James Talarico becomes first Democrat to win Texas Senate seat since 1988",
+      "title": "France gears up for strikes and protests as unions promise national mobilisation",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/c6n8dnn09jg7o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-04"
+      "url": "https://www.bbc.co.uk/news/articles/ckx2qzv835pgo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-05"
     },
     {
-      "title": "Florida Republicans fend off Democrats as state elects first black governor",
+      "title": "Ronaldo retires from Portugal duty",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/c9146d88pl32o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-04"
+      "url": "https://www.bbc.co.uk/sport/football/articles/cme8rxx2e1w9o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-05"
     },
     {
-      "title": "Iran's chief negotiator says Americans voted 'no to war'",
+      "title": "Joshua Wong, face of Hong Kong's pro-democracy protests, jailed for 10 years",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/c6d934npl9y8o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-04"
+      "url": "https://www.bbc.co.uk/news/articles/cwp9g3rlp8jlo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-05"
     },
     {
-      "title": "Delhi air quality worsens ahead of Diwali as firework restrictions enter force",
+      "title": "Typhoons batter East Asia as El Niño makes Pacific 'burn with fever'",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/c699z8792n7ro?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-04"
+      "url": "https://www.bbc.co.uk/news/articles/cw33kgj7nkemo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-05"
     },
     {
-      "title": "ANC under pressure to reverse South Africa decline",
+      "title": "Pope Leo hosts Bob Dylan at official residence in Rome",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cr4g1x6l77xyo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-04"
+      "url": "https://www.bbc.co.uk/news/articles/cm0e035n13ylo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-05"
     },
     {
-      "title": "Rwanda's army team removed from Africa league after US sanctions, NBA says",
+      "title": "India's costliest film retells a beloved Hindu epic - but divides critics",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/c699zdx9knmpo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-04"
+      "url": "https://www.bbc.co.uk/news/articles/cm93zv62v1n7o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-05"
     },
     {
-      "title": "Killer who escaped Tennessee prison captured after week-long manhunt",
-      "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cmq8nj23v8qqo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-04"
-    },
-    {
-      "title": "Elkezdődött az ügynökakták közzététele - Magyarország Kormánya",
+      "title": "Társadalmi egyeztetés indul a rendészeti törvények módosításáról - Magyarország Kormánya",
       "publisher": "Magyarország Kormánya",
-      "url": "https://news.google.com/rss/articles/CBMicEFVX3lxTE1MUzFGVXlhcWFHamdpblNHa1dWQ0gtWnkzUk9YQUdhakpKRmFoSDJQS1VYMldldW0zSkRvODIwcTVYcE12QXpkalN2RlJFc2NLcWlCdjBVRG9mZ0M1TUNTdVFJNldRUW9JbWQwaGFVTUI?oc=5",
-      "publishedAt": "2026-11-04"
+      "url": "https://news.google.com/rss/articles/CBMikwFBVV95cUxNa0xmNmdyLXNVX0xva0ZDUjF0QWVSWlFlaVVWZWk2TTE1QXNVTUh3YTRReEpaZ1BvU3ROQy1yNWRWSk5mdDdqUTJPWUtZM3gtM0NIYURiUmYyQno1NlZSanB4WjZDQXJCV2l4eHVWN3VDTTJrVUFrYklLNzZHQzR6bzBZM0c4cnNCQjVDNzVXQ0tSc2c?oc=5",
+      "publishedAt": "2026-11-05"
     },
     {
-      "title": "Ügynökakták: Magyarország megnyitja a kommunista állambiztonsági archívumot - BBC",
-      "publisher": "BBC",
-      "url": "https://news.google.com/rss/articles/CBMiYEFVX3lxTE13dk1VWm40RDV6bXM5eGxnMXh2OTRyVi1uUVhXSXdvNmpRUHdnbFJsdFo5WXNFbElOMU9zdGxaMHFJMURzckNTNWFZWGpXUk94bTFNdjVSYWFhb1lSRUd3WdIBZkFVX3lxTE1hTUxEZUQ3Uk16cHpqdWkwOW1kQ0VFU2NqNjh5a21lcmp6SmdVVFpYcDRUTk5WVk5HZFkxYTNtVHpNTE1pU0xpbkpfWll0SzlBbnBQdFBYR3hTZVpoMzU3Q2NzSDM5QQ?oc=5",
-      "publishedAt": "2026-11-04"
+      "title": "Magyarország egyik első női felsővezetője: Sokkal nehezebb jó férjet találni, mint jó munkahelyet - Telex",
+      "publisher": "Telex",
+      "url": "https://news.google.com/rss/articles/CBMickFVX3lxTE93WWcxN2VNSkNGT1huU200U0ktY2N3OGhwNEtKcWtfWDBfeFhaR3hnTVludjB4cDlsUkV3NU8tMzQ0Q3N2YWFwRzNFcDFIZzdjeHRld085dWhjRFpFOEZKUmRhU09OZGJyMU95UU1LX1FrQQ?oc=5",
+      "publishedAt": "2026-11-05"
     },
     {
-      "title": "Magyarország szembenéz a múltjával, megnyíltak az ügynökakták – ez volt a kormány sajtótájékoztatója - | hvg.hu",
-      "publisher": "| hvg.hu",
-      "url": "https://news.google.com/rss/articles/CBMimwFBVV95cUxNMldRaUhlVEdDRWZQa0lEWC0zT0EtdXRYLVd2V0Z0aGkyaWt5OXhNTWhqNzFvWmRmVFAyRnFnR0p5RkVfbW9wVVE4eF8ydnlzWUJ3MnBuZUdXX2lOQTdJbHFvUDVwYTA3WTh3Tlp4ZkxSaVdUR08xNFZsVGkwUEJvVDVjR1ExTnV5SFBJaklvajhoNEhBbl9xdGpQYw?oc=5",
-      "publishedAt": "2026-11-04"
+      "title": "Franco Coppola Magyarország új apostoli nunciusa - Magyar Kurír",
+      "publisher": "Magyar Kurír",
+      "url": "https://news.google.com/rss/articles/CBMiiAFBVV95cUxPYVhZZExTaGhEU0pzeXpRRkpoOEs2RFpEQll2anNNanN4b004N2V2bHZKamo4VlN3ZGtTVHBVOU9hcWpWNkNDTm1tdm5ldUpSaEdmMnE0RmFhY1NwZXNzYndBVzBnMVNZR2UxUWdkSjU1ZkhTbTVkbXZob19hdnNCMzhjbm5raUc0?oc=5",
+      "publishedAt": "2026-11-05"
     },
     {
-      "title": "Kiderült, mire készül Magyarország és Ausztria: Orbán Anita államtitkára megkezdte az előkészítést – összeülnek a kormányok, erről fognak tárgyalni - Világgazdaság",
-      "publisher": "Világgazdaság",
-      "url": "https://news.google.com/rss/articles/CBMikgFBVV95cUxOaGQxSDJuTzVHNzdxQnRxWjJLNE90ZGFKb0FySWs0M3lSVjhzd1I4UmZvZWx5RkktNTVkSFYtWlJfdEhmWUxQc2NRQWdjbW50aHgyNnJFUWF1U1EyTTFjVktXM1k1NWF4YTFwY2tPT013bHBiTHktMDA3MVF4VkZSTFRvazh4cWZqa0ZreGpNYWVzQQ?oc=5",
-      "publishedAt": "2026-11-04"
+      "title": "Gazdaság - Így beszélnek Magyarországról Londonban: a legbiztonságosabb kikötő - Index.hu",
+      "publisher": "Index.hu",
+      "url": "https://news.google.com/rss/articles/CBMijgFBVV95cUxPTmk5Rm5kdlhkbUZ0ZDRrWTN3WnVDTk8tY0VDWmdBMGo3VjhoOVRNMlI2UVpRbmVkeUJ3NzFCbUZBc3FMMXJqMlpNX1FsbWpvZEp6OWVLZXlfX01VeFh6SVkwYVpaT2tRZGN0V0hrM25OMWRrU2dzZmlpbTgxaEJCSW9MWlJsX19SV05pMDhn?oc=5",
+      "publishedAt": "2026-11-05"
     },
     {
-      "title": "Bemutatjuk Magyarország legújabb gyorsforgalmi szakaszát - fotógaléria és videó - Magyar Építők",
-      "publisher": "Magyar Építők",
-      "url": "https://news.google.com/rss/articles/CBMirgFBVV95cUxQZU1zTVhjc0JkRkJlVE55SW9RcTBreGxjR19qSzZKOEtzQXNaLUYwUDM2andGX05CeUMzZUdhOWJ1MThqcHB0cmV1b09lR1pCMlQ2TWdzeWoyeV9pZzBkNUpKTjhhNlhPRVlOSnZrX3hmUU5xNFl6cEcwRTZPdEJvQnV4UG1YZjBrQ0g5dm83THA1Z21kV3BDX3lxelhKSHNnZnhETTdqQ1kxZ1FzRGc?oc=5",
-      "publishedAt": "2026-11-04"
+      "title": "Mi voltunk a régió királyai élelmiszerben, a lengyelek azóta ebben is megelőztek minket - HOLD Alapkezelő",
+      "publisher": "HOLD Alapkezelő",
+      "url": "https://news.google.com/rss/articles/CBMiZEFVX3lxTFBlQldGZWhNT2kzNjJpWkhYTHNVYWlLS2lmdTV2MTBKX2dTUFRBaDBPOXY3bHBwbWVHTVBmNjdFS2l2Q1hOakNkMUdQQmFBNnNwMnd6TTg4UTR1Yms0NnRLSmM5d0w?oc=5",
+      "publishedAt": "2026-11-05"
     },
     {
-      "title": "Magyarország madarai: a daru - Egy.hu",
-      "publisher": "Egy.hu",
-      "url": "https://news.google.com/rss/articles/CBMiekFVX3lxTFBNNWMxa3FHbTM0Tm4zNmtocDl3dEJVWEZSOG9YSEFKZnVQenZ3ZEQxeVBCUFJreG9YbEhRSnJsblg1UTJWaVhrTFJLZ0dpNkpZTmgyQ0dUWFdxSEVYMkxHRGNraVc2OEJjajN6aG9fNkZ0dmhXaG9HV0pR?oc=5",
-      "publishedAt": "2026-11-04"
+      "title": "Ázsia vezető utazási szakkiállításán erősítette hazánk MICE-piaci jelenlétét a Visit Hungary - Turizmus.com",
+      "publisher": "Turizmus.com",
+      "url": "https://news.google.com/rss/articles/CBMiuwFBVV95cUxQQldpamFZVXN5S2hjOGZxckV5R3Qya1p1SWdoYlV2b0V4d2ZBeWlJUlVtRTNPVGlJNTFUNHpIVlUxd2JfcElVbzFrMktmYVAzUk40cjI1VUxlZU5LZk5EbkUxT2Fja3h4LXEwLUt4TGJNelF0dWF2a3dtd2tLWmkySktQSmtucGRTX3pXalRyVmhSZjh4Yi1kYzd2LU9iMDh3UklfLVR0d2pGSkUxMjlMWExqS2VUM0hESEZN?oc=5",
+      "publishedAt": "2026-11-05"
     },
     {
-      "title": "Működő és Emberséges Magyarország: új intézetet hoz létre a Tisza - Kontroll",
-      "publisher": "Kontroll",
-      "url": "https://news.google.com/rss/articles/CBMirgFBVV95cUxOcDFXalVuSGJjak4zSFNIaXVaRHh2Q1BmUlhVZ1phSTBlSHN5WUxFdVlaQm5EaGRlZ05XMjdadDhlVEhVbHpSQW5lSFh6S3RxVjRsSHNIMDdWRWF3OVQ0WkNWMkJ2ek1kYjNyckNqZ3V6WUpHVnJMOVpmT2tITE1oMGJXV29lOHdfTWFIMmVLSmJCZS1qcWh5Q3VmV2hieUFGXzVvLUpGR1hjNExlNXc?oc=5",
-      "publishedAt": "2026-11-04"
+      "title": "Jön a Skoda nagy dobása: megújul Magyarország egyik kedvenc autója, elárulta a márkaigazgató, mi vár rá - Pénzcentrum",
+      "publisher": "Pénzcentrum",
+      "url": "https://news.google.com/rss/articles/CBMi4wFBVV95cUxOT1hGNm02U2N1SWdwT2R0bkYyZDFmbTJpU0VXVFhPRmNXZGFaMy1GYUd2SldRTTNlRFQxNVNDZ1c2RWpNdlpudTNtWXNkSEV1ZmZqTGhOWUFQMGd3eVRWeWhPN1k5S280MVNLbDRiQjZCTVVhUXkxb0hPQkZrMWlGTHc1UXFxZWVpYkZZUnVzVmFTRTI5SzhwVXpUbk4zRm9HcVNZLVJUZDRSQ2R6djc5WDFaSkphbU82LUs3bHV0OGJNcDhEMUJBYk1ZelMwVk1kNzVtTFFNRDRGOWFhZ090OTA3aw?oc=5",
+      "publishedAt": "2026-11-05"
     },
     {
-      "title": "Magyarország nemzeti gyásznapja: 70 éve verték le az 1956-os forradalmat - Felvidék.ma",
-      "publisher": "Felvidék.ma",
-      "url": "https://news.google.com/rss/articles/CBMipgFBVV95cUxQTnBZSjFhZG15TFAzSV9QMXRuMWVmSDNwZzFHaGJmQUx4YTJocDdKZ0Q3NUtHdWhTNnNISlh2Z0lNNkRyMFZZU0NSOUtQWUV4TWFjdkZjTjk0Q1AwYkp2d3NJVFFyd0lvcXpDMzJabjVvZVR6bVhaMV9BOUYwdG5fbTdwY0YwQmE4V1FOV09FbEM4RktidUgtaGZIQXV5WTJCUGwtM0hB?oc=5",
-      "publishedAt": "2026-11-04"
+      "title": "KVÍZ: Magyarország 8 világörökségi helyszíne – felismered őket? - etcetera.hu",
+      "publisher": "etcetera.hu",
+      "url": "https://news.google.com/rss/articles/CBMihwFBVV95cUxORGJVWTkxOHptZWN1VU5qNVdSVmFMMWVRZXZXWmJiMk9zU3FvZmFrbDVWTC11TmdzYUhiTG84YWdBWi1CU3Y0WmNDMGtwZEEwRk1mcVZNUFpoZjg3Nzkyd3BNYjA4bEZnYlYyTVU0MG5RR1ZyWE1nWmxQaUl1NDVxVWxPOXFjZEk?oc=5",
+      "publishedAt": "2026-11-05"
     },
     {
-      "title": "Poundland supplier 'will lose millions' if retailer collapses",
+      "title": "Three ways the interest rate rise could affect you",
       "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/ck240mm3e42do?at_medium=RSS&at_campaign=rss",
+      "url": "https://www.bbc.co.uk/news/articles/cx4g1q3vlp62o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-05"
+    },
+    {
+      "title": "Drunk and dangerous e-bike riders face on-the-spot fines under crackdown",
+      "publisher": "BBC Business",
+      "url": "https://www.bbc.co.uk/news/articles/cmze4zk4d789o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-05"
+    },
+    {
+      "title": "Second buyer makes rescue bid for Poundland as retailer faces collapse",
+      "publisher": "BBC Business",
+      "url": "https://www.bbc.co.uk/news/articles/c6lykq0kqwn7o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-05"
+    },
+    {
+      "title": "Pound rises to its highest level since the Brexit referendum",
+      "publisher": "BBC Business",
+      "url": "https://www.bbc.co.uk/news/articles/c6lykq2qjn2vo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-05"
+    },
+    {
+      "title": "Interest rates hiked to 4% in first increase in over three years",
+      "publisher": "BBC Business",
+      "url": "https://www.bbc.co.uk/news/articles/ck5ynw45jrgqo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-05"
+    },
+    {
+      "title": "Welsh aviation firm AerFin bought in £475m deal",
+      "publisher": "BBC Business",
+      "url": "https://www.bbc.co.uk/news/articles/cq203vjxnln7o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-05"
+    },
+    {
+      "title": "Food, fuel and taxes – can the Democrats do anything to ease cost of living pressures?",
+      "publisher": "BBC Business",
+      "url": "https://www.bbc.co.uk/news/articles/ck1ex50x5q46o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-05"
+    },
+    {
+      "title": "Elon Musk's millions failed to deliver Republican wins in fierce midterms",
+      "publisher": "BBC Business",
+      "url": "https://www.bbc.co.uk/news/articles/cv8ez3p3ge5ko?at_medium=RSS&at_campaign=rss",
       "publishedAt": "2026-11-04"
-    },
-    {
-      "title": "UK and EU agree draft deal to scrap Brexit red tape over food exports",
-      "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/cmp3grwre9xdo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-03"
-    },
-    {
-      "title": "Uproar over missing 'pop' as Rice Krispies changes its recipe",
-      "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/cqvg0y44ym7vo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-04"
-    },
-    {
-      "title": "Binance says fake job interviews used as part of $6.3bn crypto hack",
-      "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/ck5ynwz9gy67o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-03"
-    },
-    {
-      "title": "Canva announces major job cuts after 'our hardest year yet'",
-      "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/cw77pg7neydmo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-04"
-    },
-    {
-      "title": "Graduates are managing AI - but are they learning much else?",
-      "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/c820vz6wyp65o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-04"
-    },
-    {
-      "title": "Drivers may get compensation offers before car finance saga ends",
-      "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/cqrky5nxxn4po?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-03"
-    },
-    {
-      "title": "Asda hires ex-Morrisons boss in bid to grow firm",
-      "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/c6vg0xzd0ln4o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-03"
     }
   ]
 }
