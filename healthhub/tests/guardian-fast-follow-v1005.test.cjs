@@ -64,34 +64,41 @@ test('v1005 walking speed preserves original gentle interpolation and marker anc
 });
 test('v1005 starts permitted Supabase and native reads concurrently, never extra polls',async()=>{
  let releaseDb,releaseNative,db=0,native=0;
- const event={},started=[];
+ const event={},started=[],markerPositions=[],cameraMoves=[];
  const mk=()=>({className:'',textContent:'',setAttribute(){},removeAttribute(){},
   append(){},appendChild(){},addEventListener(){}});
  const d={readyState:'complete',hidden:false,getElementById:mk,createElement:mk,
   addEventListener(){}};
  const w={document:d,localStorage:{getItem(){return 'm'}},
   HH_GOLDEN_AVATARS_V529:{m:'m.jpg'},
-  HH_GUARDIAN_V761:{map:{getZoom(){return 15},easeTo(){}},lastGpsFixAt:0,
+  HH_GUARDIAN_V761:{map:{getZoom(){return 15},easeTo(x){cameraMoves.push(x)}},lastGpsFixAt:0,
    getLocationSettings(){return {follow_map:true}},setRemoteMarkerPreferred(){}},
   HH_GUARDIAN_LIVE_V785:{authenticated:true,familyAuthorized:true,boundProfile:'monika',
    getClient(){return {}},readSharedLocation(){db++;started.push('db');
     return new Promise(r=>{releaseDb=r})}},
   HH_GUARDIAN_NATIVE_V156:{connected(){return true},read(){native++;started.push('native');
     return new Promise(r=>{releaseNative=r})}},
-  maplibregl:{Marker:class{setLngLat(){return this}addTo(){return this}remove(){}}},
+  maplibregl:{Marker:class{setLngLat(pos){markerPositions.push(pos);return this}addTo(){return this}remove(){}}},
   addEventListener(k,cb){event[k]=cb},setTimeout(cb){cb()},setInterval(){return 1}};
  vm.runInNewContext(source,{window:w,Date,Number,Math,Promise,Object});
  await Promise.resolve();await Promise.resolve();await Promise.resolve();
  assert.equal(db,1);assert.equal(native,1,'native request starts without waiting for Supabase');
  assert.deepEqual(started,['db','native']);
  releaseNative({status:'ok',data:fix(47.55,Date.now()-300,20)});
+ for(let i=0;i<5;i++)await new Promise(setImmediate);
+ assert.equal(markerPositions.length,1,'native phone fix is visible before delayed Supabase returns');
+ assert.equal(cameraMoves.length,1,'camera centers on verified native phone without delay');
  releaseDb({data:null,error:null});
  for(let i=0;i<5;i++)await new Promise(setImmediate);
+ assert.equal(markerPositions.length,1,'no duplicated marker after Supabase responds');
+ assert.equal(cameraMoves.length,1,'no duplicate camera animation');
  assert.equal(db,1);assert.equal(native,1);
 });
 test('v1005 keeps same data permissions, no new sensors, and busts old app cache',()=>{
  assert.match(source,/function fastTransitMotion/);
  assert.match(source,/Promise\.allSettled/);
  assert.match(html,/speed=851&smoothing=1004-bus-latency-1005/);
+ assert.match(html,/nativeFirst=1073-viewer-sync/);
+ assert.match(source,/showFix\(first\)/);
  assert.doesNotMatch(source,/navigator\.geolocation|watchPosition|getCurrentPosition|\.upsert\(|\.upload\(|\.delete\(/);
 });
