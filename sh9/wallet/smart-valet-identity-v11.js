@@ -257,9 +257,24 @@ async function save(){
     .eq('id',rec.id).eq('profile_key',p).select('id').single();
    if(marked.error)throw marked.error;
   }
-  // Photos and passphrase are discarded after saving; opening requires the passphrase.
-  close();await refresh();open(type);
-  status(text('TADAAA! 🔐 Titkosított mentés elkészült.','Saved encrypted. Unlock your photos to view.'));
+  // Show the actual front photo immediately after saving, only for this already
+  // unlocked in-memory session. Reopening later requires the passphrase again.
+  const savedAt=new Date().toISOString();
+  item={...rec,front_saved_at:savedAt,back_saved_at:back?savedAt:null};
+  records.set(type,item);activeKey=key;
+  decrypted.front=url(draft.front);
+  if(draft.back)decrypted.back=url(draft.back);
+  $('svIdImageFrontV11').src=decrypted.front;
+  if(decrypted.back)$('svIdImageBackV11').src=decrypted.back;
+  $('svIdPassV11').value='';
+  $('svIdDraftV11').hidden=true;
+  $('svIdUnlockV11').hidden=true;
+  $('svIdViewV11').hidden=false;
+  $('svIdAddBackV11').hidden=!!back;
+  flipTo('front');zoomBy(0);showPreview(type,decrypted.front);
+  await refresh();
+  status(text('TADAAA! 🔐 Mentve. Koppints a kártyára a hátlapért.',
+    'Saved encrypted. Tap the card for its back side.'));
  }catch(e){
   if(c&&created&&rec){
    if(uploaded.length)try{await c.storage.from(BUCKET).remove(uploaded)}catch(_){}
