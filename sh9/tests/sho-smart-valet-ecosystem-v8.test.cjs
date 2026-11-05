@@ -118,6 +118,7 @@ test('My Trips exposes a safe explicit source copy and exact route return link',
  assert.match(trips,/copyToValet\(file,share,dialog\)/);
  assert.match(trips,/SHO_TICKET_TRANSFER_V1/);
  assert.match(tripsHtml,/sho-ticket-transfer-v1\.js\?v=1-my-trips-valet-copy/);
+ assert.match(tripsHtml,/class="mt-valet-hub-link" href="\.\.\/\.\.\/wallet\/"/);
  assert.match(trips,/status\('✅ Jegy a Smart Valetben!/);
  assert.match(trips,/valetTrip/);
  assert.match(trips,/validId\(deepTrip\)/);
