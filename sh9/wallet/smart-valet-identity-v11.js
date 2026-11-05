@@ -327,23 +327,33 @@ function cancelCrop(){
 async function save(){
  if(busy||!draft.front)return;
  const p=storedProfile,type=kind,password=$('svIdPassV11').value;
- if(password.length<12){status(human(Error('SHORT_PASS')),true);return}
- if(password!==$('svIdPassConfirmV11').value){
-  status(text('A két titkosítási jelszó nem egyezik.','Encryption passphrases do not match.'),true);
-  return;
+ const mode=$('svIdPasswordEnabledV12').checked?'password':'device';
+ if(mode==='password'){
+  if(password.length<8){status(human(Error('SHORT_PASS')),true);return}
+  if(password!==$('svIdPassConfirmV11').value){
+   status(text('A két titkosítási jelszó nem egyezik.','Encryption passphrases do not match.'),true);
+   return;
+  }
  }
  busy=true;$('svIdSaveV11').disabled=true;status(text('Titkosítás és privát feltöltés…','Encrypting and uploading…'));
- let c,rec,created=false,uploaded=[];
+ let c,rec,created=false,uploaded=[],deviceOwner='',deviceKeySaved=false;
  try{
   c=await authorized(p);if(item||records.has(type))throw Error('EXISTS');
   const uuid=w.crypto.randomUUID(),s=w.crypto.getRandomValues(new Uint8Array(16));
   const root=p+'/'+type+'/'+uuid+'/';
-  rec={id:uuid,profile_key:p,doc_type:type,kdf_salt:b64(s),
+  rec={id:uuid,profile_key:p,doc_type:type,kdf_salt:b64(s),protection_mode:mode,
    front_storage_path:root+'front.enc',back_storage_path:root+'back.enc'};
-  const key=await derive(password,s);
+  const key=mode==='password'?await derive(password,s):await deviceAESKey();
   const front=await encrypt(draft.front,key,rec,'front');
   const back=draft.back?await encrypt(draft.back,key,rec,'back'):null;
   if(p!==profile())throw Error('NO_ACCESS');
+  if(mode==='device'){
+   const auth=await c.auth.getUser();
+   if(auth.error||!auth.data.user)throw Error('NO_LOGIN');
+   deviceOwner=auth.data.user.id;
+   await deviceKey('put',deviceOwner,uuid,key);
+   deviceKeySaved=true;
+  }
   const inserted=await c.from(TABLE).insert(rec).select('id').single();
   if(inserted.error)throw inserted.error;
   created=true;
@@ -371,7 +381,9 @@ async function save(){
   $('svIdUnlockV11').hidden=true;
   $('svIdViewV11').hidden=false;
   $('svIdAddBackV11').hidden=!!back;
-  flipTo('front');zoomBy(0);showPreview(type,decrypted.front);
+  flipTo('front');zoomBy(0);
+  // Password-protected IDs must NEVER expose front thumbnails, even when unlocked.
+  if(mode==='device')showPreview(type,draft.front);
   await refresh();
   status(text('TADAAA! 🔐 Mentve. Koppints a kártyára a hátlapért.',
     'Saved encrypted. Tap the card for its back side.'));
@@ -380,6 +392,8 @@ async function save(){
    if(uploaded.length)try{await c.storage.from(BUCKET).remove(uploaded)}catch(_){}
    try{await c.from(TABLE).delete().eq('id',rec.id).eq('profile_key',p)}catch(_){}
   }
+  if(deviceKeySaved&&deviceOwner&&rec)
+   try{await deviceKey('delete',deviceOwner,rec.id)}catch(_){}
   status(e?.code==='23505'?human(Error('EXISTS')):human(e),true);
  }finally{busy=false;$('svIdSaveV11').disabled=!draft.front}
 }
@@ -393,11 +407,18 @@ function flipTo(which){
   b.classList.toggle('active',on);b.setAttribute('aria-pressed',String(on));
  }
 }
-function showPreview(tileType,photo){
+function showPreview(tileType,photoBlob){
+ const rec=records.get(tileType);
+ // Defence in depth: a protected card cannot display a thumbnail.
+ if(!rec||protectionMode(rec)!=='device'||!photoBlob||profile()!==rec.profile_key)return;
  const tile=d.querySelector('.sv-id-type-v10[data-id-type="'+tileType+'"]');
  if(!tile)return;
- tile.querySelector('.sv-id-photo-v11')?.remove();
- const img=make('img','sv-id-photo-v11');img.alt=text('Előlap előnézet','Front preview');img.src=photo;
+ removeTilePreview(tileType);
+ const thumbnailURL=URL.createObjectURL(photoBlob);
+ tileURLs.set(tileType,thumbnailURL);
+ const img=make('img','sv-id-photo-v11');
+ img.alt=text('Előlap előnézet','Front preview');
+ img.src=thumbnailURL;
  tile.querySelector('svg')?.insertAdjacentElement('afterend',img);
  tile.classList.add('has-photo');
 }
