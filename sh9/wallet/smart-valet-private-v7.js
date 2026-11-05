@@ -185,9 +185,25 @@ async function openItem(item){
   if(error||!data)throw error||Error('FILE_UNAVAILABLE');
   const blob=new Blob([data],{type:item.mime_type});
   const url=URL.createObjectURL(blob);
-  const a=make('a');a.href=url;a.download=clean(item.file_name,180);
-  d.body.append(a);a.click();a.remove();
-  w.setTimeout(()=>URL.revokeObjectURL(url),60000);
+  const viewer=$('svVaultViewerV7');viewer.replaceChildren();
+  const bar=make('div','sv-vault-viewer-actions-v7');
+  const name=make('strong',null,clean(item.title,160));
+  const download=make('a','sv-vault-download-v7','⬇ '+(lang()==='hu'?'Letöltés':'Download'));
+  download.href=url;download.download=clean(item.file_name,180);
+  const close=make('button',null,'×');close.type='button';
+  function end(){viewer.hidden=true;viewer.replaceChildren();URL.revokeObjectURL(url)}
+  close.setAttribute('aria-label',t('cancel'));close.addEventListener('click',end);
+  bar.append(name,download,close);viewer.append(bar);
+  if(item.mime_type==='application/pdf'){
+   const frame=make('iframe','sv-vault-pdf-v7');
+   frame.src=url;frame.title=t('preview');
+   // Browser PDF viewer is optional; the original download link always remains.
+   viewer.append(frame);
+  }else{
+   const image=make('img','sv-vault-photo-v7');
+   image.src=url;image.alt=t('preview');viewer.append(image);
+  }
+  viewer.hidden=false;viewer.scrollIntoView({behavior:'smooth',block:'center'});
  }catch(e){message(e.message==='ACCESS_DENIED'?t('authFail'):t('unknown'),true)}
 }
 async function deleteItem(item){
@@ -222,6 +238,8 @@ function init(){
  '<div class="sv-vault-buttons-v7"><button type="submit" id="svVaultSubmitV7"></button>'+
  '<button type="button" id="svVaultCancelV7"></button></div>';
  section.append(form);
+ const viewer=make('section','sv-vault-viewer-v7');viewer.id='svVaultViewerV7';viewer.hidden=true;
+ section.append(viewer);
  const addPanel=add.closest('.sv-add-panel');addPanel.insertAdjacentElement('afterend',section);
  $('svVaultPickV7').addEventListener('click',()=>$('svVaultFileV7').click());
  $('svVaultCameraV7').addEventListener('click',()=>$('svVaultCameraInputV7').click());
