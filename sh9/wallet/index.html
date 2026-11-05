@@ -11,6 +11,7 @@
 <link rel="stylesheet" href="../shared/sh9-golden-bottom-nav-v924.css?v=925-notification-center">
 <link rel="stylesheet" href="./smart-valet-v1.css?v=1-premium-glass">
 <link rel="stylesheet" href="./smart-valet-sho-theme-v2.css?v=5-bkk-nav-golden">
+<link rel="stylesheet" href="./smart-valet-private-v7.css?v=7-private-documents">
 </head>
 <body>
 <main class="sv-shell" id="svApp">
@@ -128,6 +129,25 @@
 <div id="svToast" class="sv-toast" role="status" aria-live="polite" hidden></div>
 <script defer src="./smart-valet-bkk-approved-v5.js?v=5-approved-budapest-pass"></script>
 <script defer src="./smart-valet-v1.js?v=5-approved-bkk-card"></script>
+<script>
+(function(){
+  // v7: no additional network/DB work on the existing v6 Wallet route.
+  if(new URLSearchParams(location.search).get('valetPilot')!=='v7')return;
+  function load(src,then){
+    const s=document.createElement('script');s.src=src;s.async=false;
+    s.onload=then;s.onerror=function(){
+      const add=document.getElementById('svAdd');
+      if(add){add.disabled=true;add.textContent='🔒 Privát tároló nem elérhető';}
+    };
+    document.body.appendChild(s);
+  }
+  load('../../healthhub/central-vault/config.js?v=7-wallet-publishable',function(){
+    load('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.2/dist/umd/supabase.min.js',function(){
+      load('./smart-valet-private-v7.js?v=7-secure-originals',function(){});
+    });
+  });
+})();
+</script>
 <script defer src="../../healthhub/chatgpt-project-shortcut-v712.js?v=756-central-open"></script>
 <script defer src="../shared/sh9-golden-controls-v1.js?v=934-unified-glass-dock"></script>
 <script defer src="../shared/sh9-golden-bottom-nav-v924.js?v=929-sport-schedule"></script>

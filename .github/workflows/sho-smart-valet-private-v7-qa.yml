@@ -1,0 +1,28 @@
+name: SHO Smart Valet v7 · secure originals QA
+on:
+  pull_request:
+    paths:
+      - 'sh9/wallet/**'
+      - 'sh9/tests/sho-smart-valet-private-v7.test.cjs'
+      - 'supabase/migrations/20261105125000_sho_smart_valet_private_v7.sql'
+      - '.github/workflows/sho-smart-valet-private-v7-qa.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'sh9/wallet/**'
+      - 'sh9/tests/sho-smart-valet-private-v7.test.cjs'
+      - 'supabase/migrations/20261105125000_sho_smart_valet_private_v7.sql'
+permissions:
+  contents: read
+jobs:
+  private-originals:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Safety and syntax regressions
+        run: |
+          node --check sh9/wallet/smart-valet-private-v7.js
+          node --test sh9/tests/sho-smart-valet-private-v7.test.cjs
+          node --test sh9/tests/sho-smart-valet-preview-v1.test.cjs
+          node --test sh9/tests/sho-smart-valet-bkk-nav-v5.test.cjs
