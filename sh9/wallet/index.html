@@ -14,6 +14,7 @@
 <link rel="stylesheet" href="./smart-valet-private-v7.css?v=10-retail-coupons">
 <link rel="stylesheet" href="./smart-valet-identity-v11.css?v=12-password-switch">
 <link rel="stylesheet" href="./smart-valet-smart-access-v13.css?v=13-universal-pin-v14-visible">
+<link rel="stylesheet" href="./smart-valet-extra-v15.css?v=15-health-bank-glass">
 <link rel="stylesheet" href="../shared/sho-private-document-reader-v1.css?v=1-sho-internal-reader">
 </head>
 <body>
@@ -264,7 +265,9 @@
         // Smart Access loads independently via defer above, not from this
         // external CDN chain. Authenticated originals still require Supabase.
         load('./smart-valet-private-v7.js?v=10-coupon-gallery-v13-visibility',function(){
-          load('./smart-valet-identity-v11.js?v=12-optional-password-lakcim-v14-visible',function(){});
+          load('./smart-valet-identity-v11.js?v=12-optional-password-lakcim-v14-visible',function(){
+            load('./smart-valet-extra-v15.js?v=15-health-bank-secure',function(){});
+          });
         });
       });
     });

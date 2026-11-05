@@ -225,7 +225,7 @@
    $('svIdNoticeV10').textContent=kind==='identity'&&key?t(key)+' · '+t('idNoUpload'):t('idNoUpload');
   }
   const addPanel=d.querySelector('.sv-add-panel');
-  if(addPanel)addPanel.hidden=kind==='identity';
+  if(addPanel)addPanel.hidden=['identity','health','card'].includes(kind);
   if(kind==='identity')return;
   if(kind==='loyalty'||kind==='coupon'){
    // Real retail cards and coupons are handled by the authenticated private gallery.

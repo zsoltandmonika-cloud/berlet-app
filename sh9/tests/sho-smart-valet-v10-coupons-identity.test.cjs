@@ -35,7 +35,7 @@ test('Igazolványok has 4 selectable subclasses but no sensitive upload entrypoi
   assert.ok(idPanel[0].includes(name),name);
  assert.match(idPanel[0],/szándé|biztonságos tárolása még nem aktív/);
  assert.doesNotMatch(idPanel[0],/type="file"|type="submit"|<form|onclick=/);
- assert.match(app,/if\(addPanel\)addPanel\.hidden=kind==='identity'/);
+ assert.match(app,/if\(addPanel\)addPanel\.hidden=\['identity','health','card'\]\.includes\(kind\)/);
  assert.match(app,/if\(kind==='identity'\)return/);
  assert.match(app,/idButton\.addEventListener\('click'/);
  assert.match(app,/selectedIdType=idButton\.dataset\.idType/);
