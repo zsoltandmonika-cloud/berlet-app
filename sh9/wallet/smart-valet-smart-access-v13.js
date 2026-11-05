@@ -4,7 +4,7 @@
  */
 (function(w,d){
 'use strict';
-const SOURCES=['demo','private','identity'],ID_TYPES=['license','personal','taj','tax'];
+const SOURCES=['demo','private','identity','extra'],ID_TYPES=['license','personal','taj','tax'];
 const $=id=>d.getElementById(id);
 const profile=()=>w.localStorage.getItem('hh-profile')==='m'?'monika':'zsolt';
 const lang=()=>w.localStorage.getItem('sh9-language-v1')==='en'?'en':'hu';
@@ -12,7 +12,7 @@ const t=(hu,en)=>lang()==='hu'?hu:en;
 const storeKey=p=>'sho-smart-valet-quick-access-v13:'+p;
 const valid=entry=>!!entry&&SOURCES.includes(entry.source)&&typeof entry.id==='string'&&
   (entry.source==='identity'?ID_TYPES.includes(entry.id):
-   entry.source==='private'?/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(entry.id):
+   (entry.source==='private'||entry.source==='extra')?/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(entry.id):
    /^[\w-]{1,80}$/.test(entry.id));
 let renderSerial=0,imageURL='',lastProfile='',ready=false;
 function read(){
@@ -114,6 +114,11 @@ async function resolve(pin,p){
   if(!src?.resolvePinned)throw Error('NOT_READY');
   return src.resolvePinned(pin.id,p);
  }
+ if(pin.source==='extra'){
+  const src=w.SHO_VALET_EXTRA_V15;
+  if(!src?.resolvePinned)throw Error('NOT_READY');
+  return src.resolvePinned(pin.id,p);
+ }
  return null;
 }
 async function image(pin,p,record){
@@ -139,6 +144,10 @@ async function openPinned(pin){
   if(pin.source==='identity'){
    if(!w.SHO_VALET_IDENTITY_V13?.openPinned)throw Error('NOT_READY');
    return await w.SHO_VALET_IDENTITY_V13.openPinned(pin.id,p);
+  }
+  if(pin.source==='extra'){
+   if(!w.SHO_VALET_EXTRA_V15?.openPinned)throw Error('NOT_READY');
+   return await w.SHO_VALET_EXTRA_V15.openPinned(pin.id,p);
   }
  }catch(_){
   // Auth failure is not a reason to lose a saved pin.
@@ -173,7 +182,7 @@ function renderFeatured(){
         'ID card · '+(entry.protection_mode==='password'?'Password protected':'Private'))
      :t('Saját privát kártyád','Your private card'));
    ui.open.disabled=false;
-   if(pin.source==='identity'&&entry.protection_mode==='password'){
+   if((pin.source==='identity'||pin.source==='extra')&&entry.protection_mode==='password'){
     ui.art.replaceChildren(node('span','sv-quick-icon-v13','🔒'));
     ui.art.classList.add('sv-quick-locked-v13');
     return; // no photo, image URL, cached preview or query for protected IDs
@@ -209,6 +218,7 @@ function init(){
  if(ready)return;ready=true;
  w.addEventListener('sho-valet-private-ready',refresh);
  w.addEventListener('sho-valet-identity-ready',refresh);
+ w.addEventListener('sho-valet-extra-ready',refresh);
  w.addEventListener('hh-family-profile-changed',refresh);
  w.addEventListener('sh9:profilechange',refresh);
  w.addEventListener('storage',e=>{
