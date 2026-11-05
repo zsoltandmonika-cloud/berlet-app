@@ -36,7 +36,7 @@ test('eight attractive category tiles use local scalable iconpack including all 
  const categories=[...html.matchAll(/data-kind="([a-z]+)"/g)].map(a=>a[1]);
  assert.deepEqual(categories,['loyalty','identity','license','health','card','ticket','pass','document']);
  const symbolIds=[...icons.matchAll(/<symbol id="([^"]+)"/g)].map(m=>m[1]);
- for(const name of ['all','identity','license','health','payment','ticket','pass','document','bus','train','sport']){
+ for(const name of ['all','loyalty','identity','license','health','payment','ticket','pass','document','bus','train','sport']){
   assert.ok(symbolIds.includes(name),name);
  }
  assert.equal((html.match(/class="sv-cat-icon"/g)||[]).length,8);
