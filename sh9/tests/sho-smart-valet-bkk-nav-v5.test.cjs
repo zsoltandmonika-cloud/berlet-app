@@ -18,7 +18,7 @@ test('user-approved transparent Budapest pass is a real local AVIF and never a f
  assert.match(js,/image\.src=w\.SHO_VALET_BKK_APPROVED_V5/);
  assert.match(js,/image\.src='\.\/bkk-featured-v1\.webp'/);
  assert.match(js,/const isBudapestPass=target\.provider==='BKK'&&target\.kind==='pass'/);
- assert.match(html,/DEMÓ \/ TERVEZET/);
+ assert.match(html,/DEMO \/ TERVEZET/);
  assert.match(html,/minták, nem érvényesek/);
  assert.doesNotMatch(asset,/fetch\(|localStorage|XMLHttpRequest|supabase/i);
 });
