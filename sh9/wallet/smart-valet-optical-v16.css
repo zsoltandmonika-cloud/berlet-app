@@ -10,3 +10,8 @@
 #svOptMaskCountV16{display:block;margin:8px 0;font-size:12px;color:#ffd6f5}
 :root[data-sh9-golden-profile="z"] #svOptSnapV16{background:linear-gradient(115deg,#358bd1,#657cb8)}
 :root[data-sh9-golden-profile="m"] #svOptSnapV16{background:linear-gradient(115deg,#d475ad,#9468bb)}
+
+.sv-opt-confirm-v16{display:flex;align-items:center;gap:12px;margin:14px 0;padding:12px;
+ border-radius:12px;border:1px solid rgba(234,202,251,.6);background:rgba(53,51,112,.58);
+ color:#fff;font-size:12px;line-height:1.5}
+.sv-opt-confirm-v16 input{flex:none;width:24px;height:24px;accent-color:#c080e3}
