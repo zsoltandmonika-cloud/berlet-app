@@ -323,7 +323,13 @@ async function save(e){
 async function openItem(item){
  try{
   const c=await authorized(pkey());
-  if(!rows.some(r=>r.id===item.id))throw Error('ACCESS_DENIED');
+  if(!rows.some(r=>r.id===item.id)){
+   // A Smart Access shortcut can open a stored card even if another category is
+   // selected, but only after a fresh authenticated owner/profile RLS read.
+   const verified=await resolvePinned(item.id,pkey());
+   if(!verified)throw Error('ACCESS_DENIED');
+   item=verified;
+  }
   message('🔐 '+(lang()==='hu'?'Eredeti dokumentum megnyitása…':'Opening original document…'));
   const {data,error}=await c.storage.from(BUCKET).download(item.storage_path);
   if(error||!data)throw error||Error('FILE_UNAVAILABLE');
