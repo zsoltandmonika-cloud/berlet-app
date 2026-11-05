@@ -73,12 +73,28 @@ test('local profile activity paints before deferred Dropbox and Samsung, then ge
  assert.equal(h.w.hhActivity191Cache.daily.find(x=>x.date===h.today).steps,9012);
  assert.equal(h.stats().cloudReads,1);
 });
+test('slow optional Samsung export cannot delay verified Health Connect result',async()=>{
+ const h=make();h.w.hhOpenActivity();
+ for(let i=0;i<12;i++)await flush();
+ assert.match(h.nodes.hhActivityPage191.innerHTML,/Helyi gyorsnézet/);
+ h.releaseCloud(7100);
+ await new Promise(resolve=>setTimeout(resolve,2650));
+ for(let i=0;i<8;i++)await flush();
+ assert.doesNotMatch(h.nodes.hhActivityPage191.innerHTML,/Helyi gyorsnézet/);
+ assert.equal(h.w.hhActivity191Cache.daily.find(x=>x.date===h.today).steps,7100);
+ assert.equal(h.w.hhActivity191Source.samsung.status,'pending');
+ h.releaseSamsung();
+ for(let i=0;i<8;i++)await flush();
+ assert.equal(h.w.hhActivity191Source.samsung.status,'not_connected');
+ assert.equal(h.stats().cloudReads,1);
+});
 test('Activity source code is read-only, profile scoped, and HTML busts stale JS',()=>{
  assert.match(script,/async function readLocal\(profile\)/);
  assert.match(script,/out\.imports=out\.imports\.filter\(function\(x\)\{return x\.profile===profile/);
  assert.match(script,/out\.activity=out\.activity\.filter\(function\(x\)\{return x\.profile===profile/);
  assert.match(script,/var cloudPromise=cloudBundle\(requestedProfile\)/);
  assert.match(script,/finalPainted/);
+ assert.match(script,/var samsungQuick=timelyOptional\(samsungPromise\)/);
  assert.match(script,/Helyi gyorsnézet/);
  assert.doesNotMatch(script,/window\.hhHealthCloudSync\(false\)/);
  assert.match(html,/live-v191\.js\?v=1014-local-first-cloud-refresh/);
