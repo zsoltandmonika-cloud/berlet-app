@@ -13,6 +13,7 @@
 <link rel="stylesheet" href="./smart-valet-sho-theme-v2.css?v=10-coupon-id-layout">
 <link rel="stylesheet" href="./smart-valet-private-v7.css?v=10-retail-coupons">
 <link rel="stylesheet" href="./smart-valet-identity-v11.css?v=12-password-switch">
+<link rel="stylesheet" href="./smart-valet-smart-access-v13.css?v=13-universal-pin">
 <link rel="stylesheet" href="../shared/sho-private-document-reader-v1.css?v=1-sho-internal-reader">
 </head>
 <body>
@@ -157,6 +158,7 @@
 <script defer src="./smart-valet-bkk-approved-v5.js?v=5-approved-budapest-pass"></script>
 <template id="svIdTemplateV11">
 <header class="sv-id-head-v11"><div><small>SHO · ENCRYPTED ID VAULT</small><h2 id="svIdTitleV11"></h2></div>
+ <button type="button" id="svIdPinV13" class="sv-id-pin-v13" hidden>☆ Kitűzés</button>
  <button type="button" id="svIdCloseV11" aria-label="Bezárás">×</button></header>
 <p id="svIdStatusV11" class="sv-id-status-v11" role="status" aria-live="polite"></p>
 <section id="svIdDraftV11">
@@ -230,7 +232,7 @@
 <input type="file" id="svIdCameraFallbackV11" capture="environment" accept="image/*" hidden>
 <input type="file" id="svIdBackExtraInputV11" capture="environment" accept="image/*" hidden>
 </template>
-<script defer src="./smart-valet-v1.js?v=10-coupons-id-subgroups-lakcim"></script>
+<script defer src="./smart-valet-v1.js?v=13-universal-pin"></script>
 <script>
 (function(){
   // v8: private originals are generally available after authenticated setup.
@@ -245,11 +247,12 @@
   }
   load('../../healthhub/central-vault/config.js?v=8-wallet-prod',function(){
     load('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.2/dist/umd/supabase.min.js',function(){
-      load('../shared/sho-private-document-reader-v1.js?v=2-loyalty-image-zoom',function(){
-        load('./smart-valet-private-v7.js?v=10-coupon-gallery',function(){
-          // v12: protected ID vault enabled in the standard Wallet.
-          // Never bypasses authenticated owner/profile policies.
-          load('./smart-valet-identity-v11.js?v=12-optional-password-lakcim',function(){});
+      load('../shared/sho-private-document-reader-v1.js?v=13-reader-pin',function(){
+        load('./smart-valet-smart-access-v13.js?v=13-universal-pin',function(){
+          load('./smart-valet-private-v7.js?v=13-universal-pin',function(){
+            // Both private gallery and encrypted IDs use the same per-profile pin.
+            load('./smart-valet-identity-v11.js?v=13-universal-pin',function(){});
+          });
         });
       });
     });
