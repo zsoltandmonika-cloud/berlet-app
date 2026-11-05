@@ -232,7 +232,7 @@
 <input type="file" id="svIdCameraFallbackV11" capture="environment" accept="image/*" hidden>
 <input type="file" id="svIdBackExtraInputV11" capture="environment" accept="image/*" hidden>
 </template>
-<script defer src="./smart-valet-v1.js?v=13-universal-pin"></script>
+<script defer src="./smart-valet-v1.js?v=10-coupons-id-subgroups-v13-pin"></script>
 <script>
 (function(){
   // v8: private originals are generally available after authenticated setup.
@@ -251,7 +251,7 @@
         load('./smart-valet-smart-access-v13.js?v=13-universal-pin',function(){
           load('./smart-valet-private-v7.js?v=13-universal-pin',function(){
             // Both private gallery and encrypted IDs use the same per-profile pin.
-            load('./smart-valet-identity-v11.js?v=13-universal-pin',function(){});
+            load('./smart-valet-identity-v11.js?v=12-optional-password-v13-pin',function(){});
           });
         });
       });
