@@ -32,7 +32,7 @@ const i18n={
  saveBusy:'Biztonságos feltöltés folyamatban…',saved:'TADAAA! 🎉 Az eredeti fájl privát tárolóban elmentve.',
  loaded:'Privát jegyek és dokumentumok',empty:'Ehhez a profilhoz még nincs elmentett fájl.',
  authFail:'Ehhez a profilhoz nincs hozzáférés.',error:'Nem sikerült a művelet. Az eredeti fájl változatlan.',
- open:'Megnyitás',remove:'Törlés',delSure:'Véglegesen törlöd ezt a fájlt?',sensitive:'Bankkártyát, személyi igazolványt, útlevelet, jogosítványt vagy orvosi leletet most ne tölts fel.',
+ open:'Megnyitás',pin:'Kitűzés',unpin:'Kitűzés megszüntetése',remove:'Törlés',delSure:'Véglegesen törlöd ezt a fájlt?',sensitive:'Bankkártyát, személyi igazolványt, útlevelet, jogosítványt vagy orvosi leletet most ne tölts fel.',
  note:'Csak a saját feltöltött eredeti fájlok jelennek meg. A dinamikus belépőkódhoz az eredeti szolgáltató alkalmazása szükséges.',
  unknown:'A fájl nem nyitható meg.',preview:'Előnézet · eredeti fájl'
  },
@@ -52,7 +52,7 @@ const i18n={
  saveBusy:'Uploading securely…',saved:'TADAAA! 🎉 Original file saved privately.',
  loaded:'Private tickets and documents',empty:'No files saved for this profile yet.',
  authFail:'This profile is not authorized.',error:'The operation failed. Original file unchanged.',
- open:'Open',remove:'Delete',delSure:'Permanently delete this file?',
+ open:'Open',pin:'Pin',unpin:'Remove pin',remove:'Delete',delSure:'Permanently delete this file?',
  sensitive:'Do not upload credit cards, IDs, passports, driving licences or medical records yet.',
  note:'Only your own original files are shown. Dynamic entry codes require the provider app.',
  unknown:'Cannot open file.',preview:'Preview · original file'
