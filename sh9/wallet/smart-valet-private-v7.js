@@ -298,6 +298,9 @@ async function deleteItem(item){
 }
 function init(){
  const add=$('svAdd');if(!add)return;
+ // Category selection may happen before auth/CDN dependencies load.
+ activeCategory=['all','loyalty','identity','license','health','card','ticket','pass','document']
+  .includes(w.SHO_VALET_ACTIVE_CATEGORY_V9)?w.SHO_VALET_ACTIVE_CATEGORY_V9:'all';
  const host=$('svCards');
  const panel=make('section','sv-loyalty-panel-v9');panel.id='svLoyaltyPanelV9';panel.hidden=true;
  panel.innerHTML='<div class="sv-loyalty-head-v9"><div><span class="sv-loyalty-kicker-v9">SHO · SMART LOYALTY</span><h3 id="svLoyaltyTitleV9"></h3></div><span class="sv-loyalty-count-v9" id="svLoyaltyCountV9">0</span></div>'+
