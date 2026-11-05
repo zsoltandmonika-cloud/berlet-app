@@ -167,15 +167,22 @@ function shot(){
  const which=side;
  canvas.toBlob(blob=>{stopCamera();if(blob)edit(blob,which)},'image/jpeg',.92);
 }
-function edit(file,which){
- if(!file||!file.type.startsWith('image/')||file.size>12000000||!file.size){
-  status(text('Maximum 12 MB-os képet válassz.','Choose an image up to 12 MB.'),true);return;
+async function edit(file,which){
+ if(!file||!['image/jpeg','image/png','image/webp'].includes(file.type)||file.size>12000000||!file.size){
+  status(text('JPG, PNG vagy WebP, legfeljebb 12 MB.','JPG, PNG or WebP, up to 12 MB.'),true);return;
  }
+ const bytes=new Uint8Array(await file.slice(0,16).arrayBuffer());
+ const word=Array.from(bytes,x=>String.fromCharCode(x)).join('');
+ const valid=file.type==='image/jpeg'?(bytes[0]===255&&bytes[1]===216&&bytes[2]===255):
+  file.type==='image/png'?(bytes.slice(0,8).join(',')==='137,80,78,71,13,10,26,10'):
+  (word.slice(0,4)==='RIFF'&&word.slice(8,12)==='WEBP');
+ if(!valid){status(text('A kiválasztott kép formátuma nem megfelelő.','Invalid image signature.'),true);return}
  revoke(pendingURL);pendingURL=url(file);pendingSource=file;pendingSide=which;
  const im=$('svIdCropImageV11');im.src=pendingURL;
  for(const id of ['svIdCropX','svIdCropY'])$(id).value='50';
  $('svIdCropZoom').value='1';
  $('svIdCropV11').hidden=false;cropStyle();
+ $('svIdCropV11').scrollIntoView({behavior:'smooth',block:'start'});
 }
 function cropStyle(){
  const im=$('svIdCropImageV11');
