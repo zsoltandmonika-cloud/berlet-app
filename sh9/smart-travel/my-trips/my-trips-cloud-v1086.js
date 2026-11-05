@@ -475,6 +475,20 @@
  w.addEventListener('pageshow',()=>{if(w.navigator?.onLine)void cloudSync(profile())});
  w.addEventListener('online',()=>void cloudSync(profile()));
  w.addEventListener('beforeunload',()=>{for(const u of blobUrls)try{w.URL.revokeObjectURL(u)}catch(_){}});
+ // Smart Valet -> My Trips back-link opens the original itinerary and
+ // its existing ticket attachments after local or cloud data is ready.
+ const deepTrip=new URLSearchParams(w.location.search).get('valetTrip');
+ let didOpenDeepTrip=false;
+ function tryOpenDeepTrip(){
+  if(didOpenDeepTrip||!validId(deepTrip))return;
+  const p=profile(),trip=pack.read(w.localStorage,p).find(t=>t.id===deepTrip);
+  if(!trip)return;
+  didOpenDeepTrip=true;openPanel(p,trip);
+ }
+ if(validId(deepTrip)){
+  tryOpenDeepTrip();
+  w.addEventListener('sh9-my-trips-cloud-synced',tryOpenDeepTrip);
+ }
  // Only on initial page entry, explicit reload, reconnect or profile change, not GPS polling.
  if(w.navigator?.onLine)void cloudSync(profile());
 })(window,document);
