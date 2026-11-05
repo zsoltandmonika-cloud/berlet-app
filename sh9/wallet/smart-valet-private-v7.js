@@ -5,9 +5,8 @@
  */
 (function(w,d){
 'use strict';
-// Phase 2 limited pilot. Standard /wallet/ and every existing v6 control stay unchanged.
-// This flag enables the UI only; authorization remains mandatory on EVERY operation.
-if(new URLSearchParams(w.location.search).get('valetPilot')!=='v7')return;
+// v8 general availability: each original operation still requires Supabase
+// authenticated user + profile ACL + private storage RLS.
 const CFG=w.HH_CENTRAL_VAULT, BUCKET='hh-smart-valet-private', TABLE='hh_valet_items';
 const MAX_BYTES=15000000, ALLOWED=Object.freeze({
  pdf:'application/pdf',jpg:'image/jpeg',jpeg:'image/jpeg',png:'image/png',webp:'image/webp'
