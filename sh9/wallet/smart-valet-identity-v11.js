@@ -496,7 +496,8 @@ async function saveBack(){
  }finally{busy=false}
 }
 async function removeCard(){
- if(!item||!activeKey||busy)return;
+ // Removing ciphertext needs account authorization, not the lost decryption key.
+ if(!item||busy)return;
  if(!w.confirm(text('Végleg törlöd az igazolvány mindkét oldalát?','Permanently delete both ID sides?')))return;
  busy=true;try{
   const c=await authorized(storedProfile);
@@ -560,6 +561,7 @@ function init(){
   $('svIdBackExtraInputV11').value='';$('svIdBackExtraInputV11').click();
  });
  $('svIdDeleteV11').addEventListener('click',()=>void removeCard());
+ $('svIdDeleteLockedV12').addEventListener('click',()=>void removeCard());
  w.addEventListener('hh-family-profile-changed',()=>{close();clearTilePreviews();void refresh()});
  w.addEventListener('storage',e=>{if(e.key==='hh-profile'){close();clearTilePreviews();void refresh()}});
  w.addEventListener('pagehide',()=>{close();clearTilePreviews()});
