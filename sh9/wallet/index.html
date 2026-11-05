@@ -243,7 +243,7 @@
           // Sensitive identity originals: separate opt-in v11 pilot only.
           // The normal Wallet remains unchanged until on-device acceptance.
           if(new URLSearchParams(location.search).get('idPilot')==='v11')
-            load('./smart-valet-identity-v11.js?v=11-secure-id-flip',function(){});
+            load('./smart-valet-identity-v11.js?v=11-pilot-notice',function(){});
         });
       });
     });
