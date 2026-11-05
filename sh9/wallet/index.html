@@ -11,7 +11,8 @@
 <link rel="stylesheet" href="../shared/sh9-golden-bottom-nav-v924.css?v=925-notification-center">
 <link rel="stylesheet" href="./smart-valet-v1.css?v=1-premium-glass">
 <link rel="stylesheet" href="./smart-valet-sho-theme-v2.css?v=5-bkk-nav-golden">
-<link rel="stylesheet" href="./smart-valet-private-v7.css?v=7-private-documents">
+<link rel="stylesheet" href="./smart-valet-private-v7.css?v=8-ecosystem-document-reader">
+<link rel="stylesheet" href="../shared/sho-private-document-reader-v1.css?v=1-sho-internal-reader">
 </head>
 <body>
 <main class="sv-shell" id="svApp">
@@ -92,7 +93,7 @@
   <section class="sv-add-panel" aria-labelledby="svAddTitle">
    <div class="sv-add-icon" aria-hidden="true">＋</div>
    <div class="sv-add-copy"><h2 id="svAddTitle" data-i18n="newItem">Új jegy vagy dokumentum</h2><p data-i18n="newItemInfo">Biztonságos privát feltöltés a következő fejlesztési fázisban.</p></div>
-   <button type="button" id="svAdd" disabled aria-describedby="svAddTitle" data-i18n="soon">Hamarosan</button>
+   <button type="button" id="svAdd" disabled aria-describedby="svAddTitle">🔐 Kapcsolódás…</button>
   </section>
 
   <div class="sv-links">
@@ -131,8 +132,8 @@
 <script defer src="./smart-valet-v1.js?v=5-approved-bkk-card"></script>
 <script>
 (function(){
-  // v7: no additional network/DB work on the existing v6 Wallet route.
-  if(new URLSearchParams(location.search).get('valetPilot')!=='v7')return;
+  // v8: private originals are generally available after authenticated setup.
+  // No public URLs, and no read/write before Supabase user/profile checks.
   function load(src,then){
     const s=document.createElement('script');s.src=src;s.async=false;
     s.onload=then;s.onerror=function(){
@@ -141,9 +142,11 @@
     };
     document.body.appendChild(s);
   }
-  load('../../healthhub/central-vault/config.js?v=7-wallet-publishable',function(){
+  load('../../healthhub/central-vault/config.js?v=8-wallet-prod',function(){
     load('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.2/dist/umd/supabase.min.js',function(){
-      load('./smart-valet-private-v7.js?v=7-secure-originals',function(){});
+      load('../shared/sho-private-document-reader-v1.js?v=1-shared-reader',function(){
+        load('./smart-valet-private-v7.js?v=8-private-ecosystem',function(){});
+      });
     });
   });
 })();
