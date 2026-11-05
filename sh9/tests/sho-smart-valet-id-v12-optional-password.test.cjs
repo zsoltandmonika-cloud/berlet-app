@@ -141,3 +141,21 @@ test('no cloud key storage, no public pictures, and device key loss is explicitl
 test('JS parses for production',()=>{
  assert.doesNotThrow(()=>new vm.Script(code));
 });
+
+
+test('Corrected Lakcímkártya / Address card label preserves saved encrypted tax-type originals',()=>{
+ const demo=read('sh9/wallet/smart-valet-v1.js');
+ const legacy=read('supabase/migrations/20261105175000_sho_valet_identity_e2ee_v11.sql');
+ assert.match(page,/data-id-type="tax"[\s\S]*?data-i18n="taxId">Lakcímkártya/);
+ assert.match(demo,/taxId:'Lakcímkártya'/);
+ assert.match(demo,/taxId:'Address card'/);
+ assert.match(code,/tax:\['Lakcímkártya','Address card'\]/);
+ assert.match(code,/TYPES=\['license','personal','taj','tax'\]/);
+ assert.match(code,/rec\.doc_type/);
+ assert.match(code,/function protectionMode\(rec\)/);
+ assert.match(legacy,/doc_type in \('license','personal','taj','tax'\)/);
+ assert.doesNotMatch(page,/data-i18n="taxId">Adókártya/);
+ assert.doesNotMatch(demo,/taxId:'Adókártya'|taxId:'Tax card'/);
+ assert.match(page,/smart-valet-v1\.js\?v=10-coupons-id-subgroups-lakcim/);
+ assert.match(page,/smart-valet-identity-v11\.js\?v=12-optional-password-lakcim/);
+});
