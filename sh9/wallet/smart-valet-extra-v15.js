@@ -161,7 +161,7 @@ async function refresh(){
  status(t('Kártyák betöltése…','Loading cards…'));
  try{
   const c=await authorized(p);
-  const {data,error}=await c.from(TABLE).select('id,profile_key,category,title,issuer,last_four,front_cipher,back_cipher,kdf_salt,created_at')
+  const {data,error}=await c.from(TABLE).select('id,profile_key,category,title,issuer,last_four,created_at')
    .eq('profile_key',p).eq('category',cat==='card'?'bank':'health').order('created_at',{ascending:false}).limit(100);
   if(error)throw error;
   if(id!==serial||cat!==category||p!==profile())return;
