@@ -59,7 +59,7 @@ test('Coupons share owner-authenticated retail gallery and original QR/photo rea
  assert.match(privateJs,/value="coupon" id="svVaultCouponV10"/);
  assert.match(privateJs,/const cards=rows\.filter\(x=>x\.category===category\)/);
  assert.match(privateJs,/client\.storage\.from\(BUCKET\)\.download\(item\.storage_path\)/);
- assert.match(privateJs,/await reader\.open\(data,item\.file_name,\{mime:item\.mime_type\}\)/);
+ assert.match(privateJs,/await reader\.open\(data,item\.file_name,\{mime:item\.mime_type,pin\}\)/);
  assert.match(privateJs,/\.from\('hh_profile_access'\)\.select\('profile_key'\)/);
  assert.match(privateJs,/await c\.auth\.getUser\(\)/);
  assert.match(privateJs,/if\(!\['ticket','pass','document','loyalty','coupon'\]\.includes\(category\)\)/);
