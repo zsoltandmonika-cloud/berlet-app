@@ -26,7 +26,7 @@
    demoNotice:'Még nincs privát dokumentumfeltöltés. Az itt látható jegyek minták, nem érvényesek.',
    quickKicker:'SMART ACCESS',quickTitle:'Gyorselérés',sampleBadge:'MINTA',
    libraryKicker:'A TE TÁRCÁD',libraryTitle:'Jegyek és bérletek',
-   all:'Összes',identity:'Azonosítók',license:'Jogosítvány',health:'Egészség',card:'Bankkártyák',ticket:'Jegyek',pass:'Bérletek',document:'Dokumentumok',
+   all:'Összes',loyalty:'Klubkártyák',identity:'Azonosítók',license:'Jogosítvány',health:'Egészség',card:'Bankkártyák',ticket:'Jegyek',pass:'Bérletek',document:'Dokumentumok',
    searchLabel:'Keresés a mintajegyekben',searchPlaceholder:'Keresés a tárcában…',
    newItem:'Új jegy vagy dokumentum',newItemInfo:'Biztonságos privát feltöltés a következő fejlesztési fázisban.',
    soon:'Hamarosan',realPass:'Meglévő Bérlet app megnyitása',sportLink:'Sport Central · jegyek keresése',
@@ -47,7 +47,7 @@
    demoNotice:'Private uploads are not enabled. All cards shown here are samples, not valid tickets.',
    quickKicker:'SMART ACCESS',quickTitle:'Quick access',sampleBadge:'SAMPLE',
    libraryKicker:'YOUR VALET',libraryTitle:'Tickets and passes',
-   all:'All',identity:'Identity',license:'Driver licence',health:'Health',card:'Bank cards',ticket:'Tickets',pass:'Passes',document:'Documents',
+   all:'All',loyalty:'Club cards',identity:'Identity',license:'Driver licence',health:'Health',card:'Bank cards',ticket:'Tickets',pass:'Passes',document:'Documents',
    searchLabel:'Search sample tickets',searchPlaceholder:'Search your wallet…',
    newItem:'Add a ticket or document',newItemInfo:'Secure private uploads will be introduced in the next development phase.',
    soon:'Coming soon',realPass:'Open existing Bérlet app',sportLink:'Sport Central · find tickets',
@@ -193,6 +193,12 @@
    b.setAttribute('aria-pressed',String(current));
   }
   const host=$('svCards');host.replaceChildren();
+  if(kind==='loyalty'){
+   // The secure loyalty scroller is owned by the authenticated private module.
+   // Never substitute DEMO tickets for real user club cards.
+   w.dispatchEvent(new CustomEvent('sho-valet-loyalty-view',{detail:{kind}}));
+   return;
+  }
   if(!filtered.length){
    const box=elt('div','sv-empty');
    box.append(elt('div','sv-empty-icon','◇'),
@@ -222,7 +228,10 @@
   if(selected&&sample(selected))$('svDialogPin').textContent=(pinned(selected)?'★ ':'☆ ')+t(pinned(selected)?'unpin':'pin');
  }
  for(const button of d.querySelectorAll('[data-kind]'))
-  button.addEventListener('click',()=>{kind=button.dataset.kind;renderCards()});
+  button.addEventListener('click',()=>{
+   kind=button.dataset.kind;renderCards();
+   w.dispatchEvent(new CustomEvent('sho-valet-filter-change',{detail:{kind}}));
+  });
  $('svSearch').addEventListener('input',renderCards);
  $('svDialogPin').addEventListener('click',()=>{if(selected)setPin(selected)});
  $('svDialogDone').addEventListener('click',closeModal);
@@ -243,7 +252,10 @@
   if(w.history.length>1)w.history.back();
   else w.location.assign('/berlet-app/sh9/');
  });
- function externalUpdate(){closeModal();render()}
+ function externalUpdate(){
+  closeModal();render();
+  w.dispatchEvent(new CustomEvent('sho-valet-filter-change',{detail:{kind}}));
+ }
  w.addEventListener('storage',e=>{
   if(e.key==='hh-profile'||e.key==='sh9-language-v1'||e.key===pinKey())externalUpdate();
  });
