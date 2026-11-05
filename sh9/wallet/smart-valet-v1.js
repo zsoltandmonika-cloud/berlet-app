@@ -164,12 +164,19 @@
   const art=elt('div','sv-feature-art'+(isBudapestPass?' sv-feature-bkk':''));
   if(isBudapestPass){
    const image=elt('img','sv-feature-bkk-image');
-   image.src='./bkk-featured-v1.webp';
+   // v5: exact user-approved Budapest-bérlet card, not the former bus montage.
+   // Keep the art decorative: the ticket itself is still clearly labeled DEMO.
+   image.src=w.SHO_VALET_BKK_APPROVED_V5||'./bkk-featured-v1.webp';
    image.alt='';
-   image.width=207;
-   image.height=140;
+   image.width=420;
+   image.height=280;
    image.decoding='async';
-   image.addEventListener('error',()=>art.replaceChildren(symbol(iconType(target))),{once:true});
+   image.addEventListener('error',()=>{
+    if(image.dataset.fallback!=='1'){
+     image.dataset.fallback='1';
+     image.src='./bkk-featured-v1.webp'; // browser without AVIF support
+    }else art.replaceChildren(symbol(iconType(target)));
+   });
    art.append(image);
   }else art.append(symbol(iconType(target)));
   art.setAttribute('aria-hidden','true');
