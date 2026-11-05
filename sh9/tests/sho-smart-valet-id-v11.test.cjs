@@ -19,7 +19,7 @@ test('v10 Golden and public ticket/club/coupon features remain intact; v11 is se
  assert.match(page,/sho-private-document-reader-v1\.js/);
  assert.match(page,/smart-valet-private-v7\.js/);
  assert.match(page,/smart-valet-identity-v11\.css\?v=11-encrypted-card-fit/);
- assert.match(page,/smart-valet-identity-v11\.js\?v=11-secure-id-flip/);
+ assert.match(page,/smart-valet-identity-v11\.js\?v=11-pilot-notice/);
 });
 test('two-sided card capture has the same 1.586:1 frame ratio as saved preview and viewer',()=>{
  assert.match(page,/id="svIdFrontPreviewV11"/);
