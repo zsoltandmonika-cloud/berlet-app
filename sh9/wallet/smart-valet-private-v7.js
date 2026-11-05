@@ -5,9 +5,8 @@
  */
 (function(w,d){
 'use strict';
-// Phase 2 limited pilot. Standard /wallet/ and every existing v6 control stay unchanged.
-// This flag enables the UI only; authorization remains mandatory on EVERY operation.
-if(new URLSearchParams(w.location.search).get('valetPilot')!=='v7')return;
+// v8 general availability: each original operation still requires Supabase
+// authenticated user + profile ACL + private storage RLS.
 const CFG=w.HH_CENTRAL_VAULT, BUCKET='hh-smart-valet-private', TABLE='hh_valet_items';
 const MAX_BYTES=15000000, ALLOWED=Object.freeze({
  pdf:'application/pdf',jpg:'image/jpeg',jpeg:'image/jpeg',png:'image/png',webp:'image/webp'
@@ -118,6 +117,11 @@ function makeCard(item){
  const el=make('article','sv-vault-item-v7');
  const details=make('div','sv-vault-item-copy-v7');
  details.append(make('strong',null,item.title),make('small',null,item.category+' · '+item.file_name));
+ if(item.source_module==='my_trips'&&/^tp-[A-Za-z0-9-]{1,67}$/.test(item.source_context_id||'')){
+  const origin=make('a','sv-vault-origin-v8','↗ '+(lang()==='hu'?'Utazásaim · eredeti útvonal':'My Trips · original trip'));
+  origin.href='../smart-travel/my-trips/?valetTrip='+encodeURIComponent(item.source_context_id);
+  details.append(origin);
+ }
  const actions=make('div','sv-vault-item-actions-v7');
  const open=make('button',null,t('open'));open.type='button';
  open.addEventListener('click',()=>openItem(item));
@@ -131,7 +135,7 @@ async function refresh(){
  list.replaceChildren();message('');
  try{
   const c=await authorized(profile);
-  const {data,error}=await c.from(TABLE).select('id,title,category,file_name,mime_type,storage_path,created_at')
+  const {data,error}=await c.from(TABLE).select('id,title,category,file_name,mime_type,storage_path,created_at,source_module,source_context_id')
    .eq('profile_key',profile).not('uploaded_at','is',null).order('created_at',{ascending:false}).limit(100);
   if(error)throw error;
   if(call!==requested||profile!==pkey())return;
@@ -184,30 +188,19 @@ async function openItem(item){
  try{
   const c=await authorized(pkey());
   if(!rows.some(r=>r.id===item.id))throw Error('ACCESS_DENIED');
+  message('🔐 '+(lang()==='hu'?'Eredeti dokumentum megnyitása…':'Opening original document…'));
   const {data,error}=await c.storage.from(BUCKET).download(item.storage_path);
   if(error||!data)throw error||Error('FILE_UNAVAILABLE');
-  const blob=new Blob([data],{type:item.mime_type});
-  const url=URL.createObjectURL(blob);
-  const viewer=$('svVaultViewerV7');viewer.replaceChildren();
-  const bar=make('div','sv-vault-viewer-actions-v7');
-  const name=make('strong',null,clean(item.title,160));
-  const download=make('a','sv-vault-download-v7','⬇ '+(lang()==='hu'?'Letöltés':'Download'));
-  download.href=url;download.download=clean(item.file_name,180);
-  const close=make('button',null,'×');close.type='button';
-  function end(){viewer.hidden=true;viewer.replaceChildren();URL.revokeObjectURL(url)}
-  close.setAttribute('aria-label',t('cancel'));close.addEventListener('click',end);
-  bar.append(name,download,close);viewer.append(bar);
-  if(item.mime_type==='application/pdf'){
-   const frame=make('iframe','sv-vault-pdf-v7');
-   frame.src=url;frame.title=t('preview');
-   // Browser PDF viewer is optional; the original download link always remains.
-   viewer.append(frame);
-  }else{
-   const image=make('img','sv-vault-photo-v7');
-   image.src=url;image.alt=t('preview');viewer.append(image);
-  }
-  viewer.hidden=false;viewer.scrollIntoView({behavior:'smooth',block:'center'});
- }catch(e){message(e.message==='ACCESS_DENIED'?t('authFail'):t('unknown'),true)}
+  const reader=w.SHO_PRIVATE_DOCUMENT_READER_V1;
+  if(!reader?.open)throw Error('READER_NOT_READY');
+  // Preserve the exact private Blob bytes; PDF.js renders it in memory.
+  await reader.open(data,item.file_name,{mime:item.mime_type});
+  message('');
+ }catch(e){
+  if(e?.message==='ACCESS_DENIED')message(t('authFail'),true);
+  else if(e?.message==='READER_NOT_READY')message('⚠️ Belső PDF-olvasó nem töltődött be. Frissítsd az oldalt.',true);
+  else message('⚠️ '+t('unknown')+(e?.status?' · '+e.status:''),true);
+ }
 }
 async function deleteItem(item){
  if(!w.confirm(t('delSure')))return;
@@ -227,6 +220,15 @@ function init(){
   '<div id="svVaultPrivateListV7"></div>';
  add.disabled=false;add.removeAttribute('aria-describedby');add.textContent=t('add');
  add.addEventListener('click',openSheet);
+ const panel=add.closest('.sv-add-panel');
+ if(panel){
+  panel.classList.add('sv-add-panel-live-v8');
+  panel.addEventListener('click',event=>{
+   // The actual Hozzáadás button already has its own handler.
+   if(event.target.closest('button,a,input,select'))return;
+   openSheet();
+  });
+ }
  const form=make('form','sv-vault-form-v7');form.id='svVaultFormV7';form.hidden=true;
  form.innerHTML='<h2 id="svVaultFormTitleV7"></h2><p id="svVaultCautionV7"></p>'+
  '<label><span id="svVaultNameLabelV7"></span><input id="svVaultTitleV7" required maxlength="160" autocomplete="off"></label>'+
@@ -241,8 +243,6 @@ function init(){
  '<div class="sv-vault-buttons-v7"><button type="submit" id="svVaultSubmitV7"></button>'+
  '<button type="button" id="svVaultCancelV7"></button></div>';
  section.append(form);
- const viewer=make('section','sv-vault-viewer-v7');viewer.id='svVaultViewerV7';viewer.hidden=true;
- section.append(viewer);
  const addPanel=add.closest('.sv-add-panel');addPanel.insertAdjacentElement('afterend',section);
  $('svVaultPickV7').addEventListener('click',()=>$('svVaultFileV7').click());
  $('svVaultCameraV7').addEventListener('click',()=>$('svVaultCameraInputV7').click());
@@ -257,6 +257,10 @@ function init(){
    svVaultCameraV7:'camera',svVaultSubmitV7:'save',svVaultCancelV7:'cancel'};
   for(const [id,k] of Object.entries(vals))$(id).textContent=t(k);
   add.textContent=t('add');
+  const description=d.querySelector('.sv-add-copy p');
+  if(description)description.textContent=lang()==='hu'?
+   'Jegy, bérlet vagy PDF feltöltése, illetve fényképezése. Privát tárolás.':
+   'Upload or photograph a ticket, pass or PDF. Private storage.';
  }
  retranslate();refresh();
  w.addEventListener('sh9:languagechange',()=>{retranslate();refresh()});

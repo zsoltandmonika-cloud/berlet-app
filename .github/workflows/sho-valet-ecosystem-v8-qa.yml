@@ -1,0 +1,40 @@
+name: SHO Valet v8 · private ecosystem and PDF reader QA
+on:
+  pull_request:
+    paths:
+      - 'sh9/wallet/**'
+      - 'sh9/shared/sho-private-document-reader-v1.*'
+      - 'sh9/shared/sho-ticket-transfer-v1.js'
+      - 'sh9/smart-travel/my-trips/**'
+      - 'sh9/tests/sho-smart-valet-ecosystem-v8.test.cjs'
+      - 'sh9/tests/sho-smart-valet-private-v7.test.cjs'
+      - 'supabase/migrations/20261105145000_sho_valet_ecosystem_provenance_v8.sql'
+      - '.github/workflows/sho-valet-ecosystem-v8-qa.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'sh9/wallet/**'
+      - 'sh9/shared/sho-private-document-reader-v1.*'
+      - 'sh9/shared/sho-ticket-transfer-v1.js'
+      - 'sh9/smart-travel/my-trips/**'
+      - 'sh9/tests/sho-smart-valet-ecosystem-v8.test.cjs'
+      - 'sh9/tests/sho-smart-valet-private-v7.test.cjs'
+      - 'supabase/migrations/20261105145000_sho_valet_ecosystem_provenance_v8.sql'
+permissions:
+  contents: read
+jobs:
+  private-ecosystem:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - name: JavaScript syntax and actual transfer/PDF reader regressions
+        run: |
+          node --check sh9/wallet/smart-valet-private-v7.js
+          node --check sh9/shared/sho-private-document-reader-v1.js
+          node --check sh9/shared/sho-ticket-transfer-v1.js
+          node --check sh9/smart-travel/my-trips/my-trips-cloud-v1086.js
+          node --test sh9/tests/sho-smart-valet-private-v7.test.cjs
+          node --test sh9/tests/sho-smart-valet-ecosystem-v8.test.cjs
+          node --test sh9/tests/sho-smart-valet-preview-v1.test.cjs
+          node --test sh9/tests/sho-smart-valet-bkk-nav-v5.test.cjs

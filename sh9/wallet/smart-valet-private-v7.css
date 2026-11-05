@@ -61,3 +61,12 @@
 }
 .sv-vault-photo-v7{width:100%;height:auto;max-height:72vh;object-fit:contain;background:#0b1425;border-radius:10px}
 .sv-vault-pdf-v7{width:100%;height:min(70vh,630px);border:0;background:#fff;border-radius:10px}
+
+/* SHO v8 · interactive Add tile and original-source provenance. */
+.sv-add-panel-live-v8{cursor:pointer}
+.sv-add-panel-live-v8 .sv-add-icon{cursor:pointer}
+.sv-add-panel-live-v8:hover{border-color:rgba(var(--accent-rgb),.63)}
+.sv-add-panel-live-v8:focus-within{box-shadow:0 0 0 2px rgba(var(--accent-rgb),.24)}
+.sv-vault-origin-v8{font-size:11px;color:#b7e4ff;text-decoration:underline;
+ text-decoration-color:rgba(183,228,255,.45);text-underline-offset:3px}
+.sv-vault-origin-v8:focus-visible{outline:2px solid #ade1ff;outline-offset:2px}

@@ -463,3 +463,22 @@ a:focus-visible,button:focus-visible{outline:3px solid var(--mt-accent);outline-
 
 /* v1100: a saved rating is visible as a compact My Trips badge */
 .mt-trip-info .mt-rating-summary{border-color:rgba(225,180,94,.58);color:#ffe4a5;background:rgba(111,76,39,.38);font-weight:850}
+
+/* SHO v8 · source-preserving transfer into the central Smart Valet. */
+.mt-file-row{flex-wrap:wrap}
+.mt-file-row .mt-file-valet{
+ color:#fff;flex:none;min-height:38px;
+ background:linear-gradient(112deg,rgba(36,104,152,.96),rgba(131,72,167,.96));
+ border:1px solid rgba(201,177,246,.8);
+}
+.mt-file-row .mt-file-valet:disabled{opacity:.55}
+@media(max-width:410px){
+ .mt-file-row .mt-file-info{flex-basis:100%}
+ .mt-file-row .mt-file-valet{margin-left:auto}
+}
+
+.mt-valet-hub-link{display:block;margin:9px 0 12px;padding:10px 13px;text-align:center;
+ border:1px solid rgba(184,173,244,.66);border-radius:11px;
+ background:linear-gradient(105deg,rgba(43,115,174,.44),rgba(142,81,165,.42));
+ color:#f3e7ff;font-size:12px;font-weight:800;text-decoration:none}
+.mt-valet-hub-link:focus-visible{outline:3px solid #a7dcff;outline-offset:2px}

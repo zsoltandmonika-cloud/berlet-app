@@ -1,0 +1,42 @@
+/* SHO shared internal document reader: My Trips, Smart Valet, future Sport / Events. */
+.sho-private-reader-v1{
+ position:fixed;inset:0;box-sizing:border-box;margin:0;padding:0;
+ width:100vw;height:100dvh;min-height:100dvh;max-width:none;max-height:none;
+ border:0;border-radius:0;overflow:hidden;display:none;flex-direction:column;
+ background:#101b32;color:#f9f5ff;color-scheme:dark;z-index:90010;
+}
+.sho-private-reader-v1[open]{display:flex}
+.sho-private-reader-v1::backdrop{background:rgba(3,6,20,.9)}
+.sho-pr-head{min-height:66px;flex:none;display:flex;align-items:center;justify-content:space-between;
+ padding:10px 13px;gap:11px;background:linear-gradient(110deg,#2b548a,#674087);
+ border-bottom:1px solid rgba(236,208,255,.3)}
+.sho-pr-brand{min-width:0;display:flex;flex-direction:column;gap:5px}
+.sho-pr-brand small{color:#c9e4ff;font-size:9px;font-weight:800;letter-spacing:.06em}
+.sho-pr-brand strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px}
+#shoPrCloseV1{width:44px;height:44px;flex:none;border-radius:12px;border:1px solid #c7a1eb;
+ color:white;background:#3c477a;font-size:25px}
+.sho-pr-controls{min-height:51px;display:flex;align-items:center;justify-content:center;
+ flex:none;gap:5px;padding:7px;background:linear-gradient(130deg,#2c436a,#564077);
+ border-bottom:1px solid rgba(234,208,253,.3)}
+.sho-pr-controls button{min-width:34px;height:38px;border-radius:9px;border:1px solid #9275ae;
+ background:#293b68;color:white;font-size:18px;font-weight:900;padding:0 8px}
+.sho-pr-controls button:disabled{opacity:.35}
+.sho-pr-controls span{min-width:40px;text-align:center;font-size:11px;color:#c4e0ff;font-weight:800}
+#shoPrFitV1{font-size:11px}
+.sho-pr-scroll{flex:1;min-height:0;min-width:0;overflow:auto;overscroll-behavior:contain;
+ -webkit-overflow-scrolling:touch;text-align:center;background:#17243d}
+.sho-pr-canvas{display:block;margin:11px auto;background:white;
+ box-shadow:0 5px 26px rgba(0,0,0,.42)}
+.sho-pr-image{display:block;max-width:100%;max-height:100%;object-fit:contain;margin:10px auto}
+.sho-pr-footer{min-height:59px;flex:none;display:flex;align-items:center;gap:10px;
+ justify-content:space-between;padding:9px 12px calc(9px + env(safe-area-inset-bottom,0px));
+ background:linear-gradient(125deg,#355685,#55376e);border-top:1px solid #a27dbb}
+.sho-pr-footer p{margin:0;flex:1;min-width:0;font-size:11px;color:#ebdef7;line-height:1.35}
+#shoPrDownloadV1{min-height:43px;flex:none;border-radius:10px;padding:9px 14px;
+ color:white;background:linear-gradient(110deg,#317fbe,#9658c7);
+ border:1px solid #c7abeb;font-weight:800;font-size:11px}
+.sho-private-reader-v1 button:focus-visible{outline:3px solid #b0e4ff;outline-offset:2px}
+:root[data-sh9-golden-profile="m"] .sho-pr-head{background:linear-gradient(115deg,#934883,#684087)}
+@media(max-width:355px){.sho-pr-controls{gap:2px;padding:5px 3px}
+ .sho-pr-controls button{min-width:29px;padding:0 5px}
+ .sho-pr-controls span{min-width:37px;font-size:10px}}
