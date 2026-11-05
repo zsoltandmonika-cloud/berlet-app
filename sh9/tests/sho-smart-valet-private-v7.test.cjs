@@ -68,7 +68,7 @@ test('Golden Standard display and approved BKK image unchanged; only companion u
  assert.match(html,/central-vault\/config\.js\?v=7-wallet-publishable/);
  assert.match(html,/\@supabase\/supabase-js\@2\.57\.2/);
  assert.match(css,/\.sv-vault-form-v7\[hidden\]/);
- assert.match(code,/id='svVaultCameraInputV7' accept='image\/\*' capture='environment'/);
+ assert.match(code,/id="svVaultCameraInputV7" accept="image\/\*" capture="environment"/);
  assert.match(code,/Bankkártyát, személyi igazolványt, útlevelet/);
  assert.match(html,/Nem érvényes belépőkód/,'demo samples remain clearly invalid');
 });
