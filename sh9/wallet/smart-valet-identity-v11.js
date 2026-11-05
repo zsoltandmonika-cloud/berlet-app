@@ -148,6 +148,25 @@ function lock(){
 function close(){
  $('svIdDialogV11')?.close();lock();kind='';item=null;
 }
+function updateTilePinButtons(){
+ const quick=w.SHO_VALET_SMART_ACCESS_V13;
+ for(const type of TYPES){
+  const button=d.querySelector('.sv-id-tile-pin-v14[data-pin-for="'+type+'"]');
+  if(!button)continue;
+  // Visible on every tile; enabled only for saved IDs loaded through RLS.
+  const saved=!!records.get(type)?.front_saved_at;
+  const selected=!!quick?.isPinned('identity',type);
+  button.disabled=!saved||!quick;
+  button.textContent=(selected?'★ ':'☆ ')+text(
+   selected?'Kitűzés megszüntetése':'Kitűzés',
+   selected?'Remove pin':'Pin');
+  button.setAttribute('aria-pressed',String(selected));
+  button.setAttribute('aria-label',label(type)+' · '+button.textContent);
+  button.title=!saved
+   ?text('Előbb töltsd fel az igazolványt.','Save this ID first.')
+   :button.textContent;
+ }
+}
 function updateTiles(){
  for(const type of TYPES){
   const tile=d.querySelector('.sv-id-type-v10[data-id-type="'+type+'"]');if(!tile)continue;
@@ -158,6 +177,7 @@ function updateTiles(){
     ?(protectionMode(rec)==='password'?'🔒 ':'')+sides+'/2 '+text('oldal','sides')
     :text('＋ Hozzáadás','＋ Add')));
  }
+ updateTilePinButtons();
 }
 
 async function loadTilePreviews(p,id,c){
@@ -179,6 +199,8 @@ async function loadTilePreviews(p,id,c){
 async function refresh(){
  const id=++request,p=profile();
  clearTilePreviews();
+ // Never retain previous-profile permissions while authorization refreshes.
+ records=new Map();updateTiles();
  try{
   const c=await authorized(p);
   const result=await c.from(TABLE).select(
@@ -582,13 +604,25 @@ function init(){
  dialog.append(tpl.content.cloneNode(true));d.body.append(dialog);
  for(const button of parent.querySelectorAll('[data-id-type]'))
   button.addEventListener('click',()=>open(button.dataset.idType));
+ for(const button of parent.querySelectorAll('.sv-id-tile-pin-v14[data-pin-for]')){
+  button.addEventListener('click',event=>{
+   event.stopPropagation();
+   const type=button.dataset.pinFor;
+   if(button.disabled||!records.get(type)?.front_saved_at)return;
+   w.SHO_VALET_SMART_ACCESS_V13?.toggle({source:'identity',id:type});
+   updateTilePinButtons();
+  });
+ }
  $('svIdCloseV11').addEventListener('click',close);
  $('svIdPinV13').addEventListener('click',()=>{
   if(!item)return;
   w.SHO_VALET_SMART_ACCESS_V13?.toggle({source:'identity',id:kind});
   refreshPinButton();
  });
- w.addEventListener('sho-valet-pin-changed',refreshPinButton);
+ w.addEventListener('sho-valet-pin-changed',()=>{
+  refreshPinButton();
+  updateTilePinButtons();
+ });
  dialog.addEventListener('cancel',e=>{e.preventDefault();close()});
  for(const b of dialog.querySelectorAll('[data-side][data-mode]'))
   b.addEventListener('click',()=>choose(b.dataset.side,b.dataset.mode));
