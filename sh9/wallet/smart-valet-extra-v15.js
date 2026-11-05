@@ -1,7 +1,6 @@
-/* SHO Smart Valet v15 · profile-scoped health cards and masked bank cards.
- * Health photos encrypted in browser with per-card AES-GCM/PBKDF2 passphrase.
- * Bank records NEVER store PAN, CVV, PIN, expiry, magnetic data, or bank photos.
- * The database holds encrypted health photographs and RLS-protected metadata.
+/* SHO Smart Valet v16 · the same optical workflow as the Identity submodule.
+ * Health photos and deliberately redacted bank photos encrypted before upload.
+ * Unredacted bank photos, PAN, CVV, PIN and expiry are never persisted.
  */
 (function(w,d){
 'use strict';
@@ -14,8 +13,14 @@ const validId=id=>/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}
 const decode=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
 const encode=a=>{let s='';for(let i=0;i<a.length;i+=8192)s+=String.fromCharCode(...a.slice(i,i+8192));return btoa(s)};
 let client,category='',rows=[],busy=false,active=null,profileAtOpen='',serial=0;
-let files={front:null,back:null},viewURLs=[],flip='front',zoom=1;
-function release(){viewURLs.forEach(u=>URL.revokeObjectURL(u));viewURLs=[]}
+let files={front:null,back:null},viewURLs=[],previewURLs={front:'',back:''},flip='front',zoom=1;
+function release(){
+ viewURLs.forEach(u=>URL.revokeObjectURL(u));viewURLs=[];
+ for(const side of ['front','back']){
+  if(previewURLs[side])URL.revokeObjectURL(previewURLs[side]);
+  previewURLs[side]='';
+ }
+}
 function status(message,bad){
  const el=$('svExtraStatusV15');if(el){el.textContent=message||'';el.dataset.error=bad?'1':'0'}
 }
@@ -87,6 +92,7 @@ function close(){
  release();files={front:null,back:null};active=null;profileAtOpen='';flip='front';
  $('svExtraFormV15').reset();$('svExtraPasswordOpenV15').value='';
  $('svExtraImageV15').removeAttribute('src');
+ $('svExtraBackImageV16').removeAttribute('src');
  $('svExtraImageV15').hidden=true;
  $('svExtraLockedV15').hidden=true;
  $('svExtraViewerV15').hidden=true;
@@ -94,21 +100,25 @@ function close(){
 }
 function renderFormType(){
  const health=category==='health';
- $('svExtraHealthFieldsV15').hidden=!health;
+ $('svExtraHealthFieldsV15').hidden=false; // the SAME two-sided scanner for both groups
  $('svExtraBankFieldsV15').hidden=health;
  $('svExtraDraftTitleV15').textContent=health?t('Új egészségkártya','New health card'):t('Új bankkártya','New bank card');
  $('svExtraSafetyV15').textContent=health?
-  t('🔐 A fotók csak a jelszavaddal feloldható, titkosított formában mentődnek. A jelszó elvesztése esetén nem állíthatók vissza.',
-   '🔐 Photos are stored encrypted and only your password can unlock them. Lost passwords cannot be recovered.'):
-  t('💳 Biztonságos kártyaazonosító: csak a bank neve, egy becenév és legfeljebb az utolsó 4 számjegy. Nem fizetésre szolgál.',
-   '💳 Identification only: issuer, nickname, and optional last four digits. Not a payment method.');
+  t('🔐 Mindkét oldal ugyanazzal az optikai kerettel készül. A mentett képek jelszóval titkosítottak.',
+   '🔐 Both sides use the same optical frame. Photos are encrypted using your password.'):
+  t('💳 A bankkártya fotózása opcionális. Mielőtt mentenénk, a számot, lejáratot és CVV-t kézzel ki kell takarni. Az eredeti fotó nem kerül tárolásra.',
+   '💳 Bank photos are optional. Mask card number, expiry and CVV before saving. The original is never uploaded.');
 }
 function openAdd(){
  if(!['health','card'].includes(category)||busy)return;
  close();active=null;profileAtOpen=profile();
  renderFormType();$('svExtraEditV15').hidden=false;
- $('svExtraAddFrontV15').textContent=t('📁 Előlap · fájl','📁 Front · file');
- $('svExtraAddBackV15').textContent=t('📁 Hátlap · fájl','📁 Back · file');
+ for(const which of ['Front','Back']){
+  $('svExtra'+which+'NameV15').textContent=t('＋ Hozzáadás','＋ Add');
+  $('svExtra'+which+'PreviewV16').removeAttribute('src');
+  $('svExtra'+which+'PreviewV16').hidden=true;
+  $('svExtra'+which+'EmptyV16').hidden=false;
+ }
  modalStatus('');
  $('svExtraDialogV15').showModal();
 }
@@ -120,7 +130,7 @@ function renderGallery(){
  }
  for(const rec of rows){
   const wrap=dom('article','sv-extra-item-v15');
-  const opener=dom('button','sv-extra-card-v15');
+  const opener=dom('button','sv-extra-card-v15 sv-id-type-v10');
   opener.type='button';opener.setAttribute('aria-label',t('Kártya megnyitása: ','Open card: ')+rec.title);
   const symbol=dom('span','sv-extra-icon-v15',rec.category==='health'?'🩺':'💳');
   const info=dom('span','sv-extra-info-v15');
@@ -129,7 +139,7 @@ function renderGallery(){
    t('🔐 Titkosított előlap / hátlap','🔐 Encrypted front / back')));
   opener.append(symbol,info);
   opener.addEventListener('click',()=>void openSaved(rec.id));
-  const pin=dom('button','sv-extra-pin-v15');
+  const pin=dom('button','sv-extra-pin-v15 sv-id-tile-pin-v14');
   pin.type='button';
   const quick=w.SHO_VALET_SMART_ACCESS_V13;
   const pinned=!!quick?.isPinned('extra',rec.id);
@@ -208,28 +218,37 @@ async function openSaved(id){
   $('svExtraBankArtV15').hidden=!bank;
   $('svExtraHealthViewerV15').hidden=bank;
   if(bank)bankArt(rec);
-  else{
+  if(rec.front_cipher){
+   $('svExtraBankArtV15').hidden=true;
+   $('svExtraHealthViewerV15').hidden=false;
    $('svExtraLockedV15').hidden=false;$('svExtraImageV15').hidden=true;
    $('svExtraUnlockV15').textContent=t('🔓 Kártya megnyitása','🔓 Unlock card');
+  }else{
+   $('svExtraBankArtV15').hidden=false;
+   $('svExtraHealthViewerV15').hidden=true;
   }
   togglePinButton(rec);
   $('svExtraDialogV15').showModal();
  }catch(e){status(human(e),true)}
 }
 function renderPhoto(){
- if(!active||active.category!=='health')return;
+ if(!active?.front_cipher)return;
  if(flip==='back'&&!viewURLs[1])flip='front';
- const im=$('svExtraImageV15');
- im.src=flip==='back'?viewURLs[1]:viewURLs[0];
- im.hidden=false;$('svExtraLockedV15').hidden=true;
- im.style.transform='scale('+zoom+')';
- $('svExtraFlipV15').hidden=!viewURLs[1];
- $('svExtraFlipV15').textContent=flip==='front'?t('↻ Hátlap','↻ Back'):t('↻ Előlap','↻ Front');
+ const front=$('svExtraImageV15'),back=$('svExtraBackImageV16');
+ front.src=viewURLs[0];front.hidden=false;
+ if(viewURLs[1])back.src=viewURLs[1];else back.removeAttribute('src');
+ $('svExtraLockedV15').hidden=true;
+ $('svExtraFlipV15').classList.toggle('is-back',flip==='back');
+ $('svExtraZoomFrameV16').style.transform='scale('+zoom+')';
+ for(const b of d.querySelectorAll('#svExtraSideSwitchV16 [data-side]')){
+  const on=b.dataset.side===flip;b.classList.toggle('active',on);b.setAttribute('aria-pressed',String(on));
+  b.disabled=b.dataset.side==='back'&&!viewURLs[1];
+ }
  $('svExtraZoomLabelV15').textContent=Math.round(zoom*100)+'%';
 }
 async function unlock(){
  const rec=active,p=profileAtOpen,pass=$('svExtraPasswordOpenV15').value;
- if(!rec||rec.category!=='health'||busy)return;
+ if(!rec||!rec.front_cipher||busy)return;
  if(pass.length<8){modalStatus(t('Legalább 8 karakteres jelszót adj meg.','Enter a password of at least 8 characters.'),true);return}
  busy=true;$('svExtraUnlockV15').disabled=true;
  try{
@@ -259,8 +278,10 @@ async function save(e){
    const last=$('svExtraLast4V15').value.trim();
    if(last&&!/^[0-9]{4}$/.test(last))throw Error('LAST4');
    rec.last_four=last||null;
-  }else{
-   if(!files.front)throw Error('NO_FRONT');
+  }
+  if(files.back&&!files.front)throw Error('NO_FRONT');
+  if(cat==='health'&&!files.front)throw Error('NO_FRONT');
+  if(files.front){
    const pass=$('svExtraPassV15').value;
    if(pass.length<8||pass!==$('svExtraPassConfirmV15').value)throw Error('PASS');
    const salt=w.crypto.getRandomValues(new Uint8Array(16)),key=await keyFor(pass,salt);
@@ -278,7 +299,7 @@ async function save(e){
   close();await refresh();
   status(t('TADAAA! 🎉 Kártya biztonságosan mentve.','TADAAA! 🎉 Card saved securely.'));
  }catch(err){
-  modalStatus(err?.message==='NO_FRONT'?t('Válassz előlapfotót.','Choose a front photo.'):
+  modalStatus(err?.message==='NO_FRONT'?t('Válassz előlapfotót a közös optikai kerettel.','Choose a front photo with the shared optical scanner.'):
    err?.message==='PASS'?t('Legalább 8 karakteres, egyező jelszavak szükségesek.','Passwords must match and contain at least 8 characters.'):
    err?.message==='LAST4'?t('Az utolsó négy számjegy pontosan 4 számjegy legyen.','Last four must be exactly four digits.'):
    err?.message==='INVALID_IMAGE'?t('JPG, PNG vagy WebP kép szükséges, legfeljebb 12 MB.','Use a JPG, PNG or WebP image under 12 MB.'):
