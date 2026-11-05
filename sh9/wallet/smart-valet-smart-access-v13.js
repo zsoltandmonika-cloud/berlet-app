@@ -182,6 +182,14 @@ function renderFeatured(){
         'ID card · '+(entry.protection_mode==='password'?'Password protected':'Private'))
      :t('Saját privát kártyád','Your private card'));
    ui.open.disabled=false;
+   if(pin.source==='extra'&&entry.category==='bank'){
+    const bank=node('div','sv-extra-bank-art-v15');
+    bank.append(node('span','sv-extra-bank-logo-v15','✦ '+String(entry.issuer||t('Bankkártya','Bank card'))),
+     node('span','sv-extra-bank-number-v15','•••• •••• •••• '+(entry.last_four||'••••')),
+     node('span','sv-extra-bank-owner-v15',String(entry.title||'')));
+    ui.art.replaceChildren(bank);ui.art.classList.add('sv-quick-image-v13');
+    return; // mask stays visible, no bank card image or payment data involved
+   }
    if(pin.source==='extra'&&entry.protection_mode==='password'){
     ui.art.replaceChildren(node('span','sv-quick-icon-v13','🔒'));
     ui.art.classList.add('sv-quick-locked-v13');
