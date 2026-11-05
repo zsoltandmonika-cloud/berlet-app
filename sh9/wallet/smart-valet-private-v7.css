@@ -49,3 +49,15 @@
  .sv-vault-item-v7{flex-wrap:wrap}
  .sv-vault-item-actions-v7{width:100%;justify-content:flex-end}
 }
+
+.sv-vault-viewer-v7[hidden]{display:none!important}
+.sv-vault-viewer-v7{display:grid;gap:10px;border-top:1px solid rgba(234,179,247,.35);padding-top:12px}
+.sv-vault-viewer-actions-v7{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.sv-vault-viewer-actions-v7 strong{flex:1;min-width:90px;overflow-wrap:anywhere;font-size:12px}
+.sv-vault-viewer-actions-v7 a,.sv-vault-viewer-actions-v7 button{
+ display:inline-block;min-height:36px;border-radius:10px;padding:7px 11px;
+ border:1px solid rgba(228,188,250,.65);background:#283c76;color:#fff;
+ text-decoration:none;font-size:12px;font-weight:600
+}
+.sv-vault-photo-v7{width:100%;height:auto;max-height:72vh;object-fit:contain;background:#0b1425;border-radius:10px}
+.sv-vault-pdf-v7{width:100%;height:min(70vh,630px);border:0;background:#fff;border-radius:10px}
