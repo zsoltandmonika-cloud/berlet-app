@@ -9,7 +9,7 @@ create table if not exists public.hh_valet_items (
  category text not null check (category in ('ticket','pass','document')),
  title text not null check (char_length(title) between 1 and 160),
  file_name text not null check (char_length(file_name) between 1 and 180),
- file_ext text not null check (file_ext in ('pdf','jpg','png','webp')),
+ file_ext text not null check (file_ext in ('pdf','jpg','jpeg','png','webp')),
  mime_type text not null,
  byte_size integer not null check (byte_size between 1 and 15000000),
  sha256 text not null check (sha256 ~ '^[0-9a-f]{64}$'),
