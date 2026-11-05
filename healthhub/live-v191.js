@@ -94,10 +94,15 @@ async function cloudBundle(profile){
   var v=window.HH_DROPBOX_VAULT,p=profile||pkey();
   if(!v||!v.connected||!v.connected()||typeof v.downloadJson!=='function')return null;
   var raw=null,path='/HealthHub/profiles/'+p+'-health-connect.json';
-  try{raw=await v.downloadJson(path)}catch(e){
-   if(e&&e.status!==409)throw e;
-   path='/incoming-'+p+'.json';
-   raw=await v.downloadJson(path);
+  var source=window.HH_HEALTH_CONNECT_SOURCE_V1015;
+  if(source&&typeof source.read==='function'){
+   var received=await source.read(p,false);raw=received.raw;path=received.path;
+  }else{
+   try{raw=await v.downloadJson(path)}catch(e){
+    if(e&&e.status!==409)throw e;
+    path='/incoming-'+p+'.json';
+    raw=await v.downloadJson(path);
+   }
   }
   if(!raw||String(raw.profile||'').toLowerCase()!==p)return null;
   localStorage.setItem('hh-activity-cloud-last-'+p,new Date().toISOString());
@@ -248,7 +253,11 @@ async function render(profileOverride){
  var page=document.getElementById('hhActivityPage191');if(!page)return;
  var renderId=++activityRenderSeq,requestedProfile=profileOverride||pkey();
   syncProfileTheme(requestedProfile);
- page.innerHTML=hero(requestedProfile)+'<div class="a191Body"><div class="a191ProfileDiag '+(requestedProfile==='monika'?'monika':'zsolt')+'">HEALTH CONNECT · '+(requestedProfile==='monika'?'MÓNIKA':'ZSOLT')+'</div><div class="a191Load" role="status" aria-live="polite">Aktivitás adatok betöltése, egy pillanat...</div></div>'+nav();
+ // Never replace a usable same-profile dashboard with a loading screen
+ // merely because a background import finished or the tab gained focus.
+ var hasVisibleData=window.hhActivity191CurrentProfile===requestedProfile&&
+   !!page.querySelector('.a191Top');
+ if(!hasVisibleData)page.innerHTML=hero(requestedProfile)+'<div class="a191Body"><div class="a191ProfileDiag '+(requestedProfile==='monika'?'monika':'zsolt')+'">HEALTH CONNECT · '+(requestedProfile==='monika'?'MÓNIKA':'ZSOLT')+'</div><div class="a191Load" role="status" aria-live="polite">Aktivitás adatok betöltése · Dropbox ellenőrzése…</div></div>'+nav();
  // v1013: independent source reads run concurrently rather than
  // serializing the Health Connect Dropbox, height and Samsung Dropbox waits.
  // Preserve all profile/freshness checks and Samsung's original merge.
@@ -477,7 +486,9 @@ window.hhOpenActivity=function(){
 }
 window.hhRenderActivity191=render;
 var activityRefreshTimer=0;
-function refreshIfOpen(){
+function refreshIfOpen(event){
+ var changed=event&&event.detail&&event.detail.profile;
+ if(changed&&changed!==pkey())return;
  var p=document.getElementById('hhActivityPage191');
  if(!p||!p.classList.contains('on'))return;
  // Imported + cloud-synced are commonly dispatched together. Debounce them
@@ -489,8 +500,10 @@ function refreshIfOpen(){
   if(page&&page.classList.contains('on'))render();
  },220);
 }
+// The canonical cloud importer emits healthconnect-imported BEFORE
+// health-cloud-synced. Only the former refreshes Activity: the second
+// event previously aborted the first render and repeated Dropbox reads.
 window.addEventListener('healthhub:healthconnect-imported',refreshIfOpen);
-window.addEventListener('healthhub:health-cloud-synced',refreshIfOpen);
 window.hhCloseActivity=function(){var p=document.getElementById('hhActivityPage191');if(p)p.classList.remove('on');window.hh191CloseModal()}
 function wire(){var btn=Array.from(document.querySelectorAll('.homeModule')).find(function(x){var b=x.querySelector('b');return b&&b.textContent.trim()==='Activity'});if(btn){btn.removeAttribute('onclick');btn.onclick=function(e){e.preventDefault();window.hhOpenActivity()};btn.style.cursor='pointer'}}
 

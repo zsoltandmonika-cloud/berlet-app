@@ -97,5 +97,5 @@ test('Activity source code is read-only, profile scoped, and HTML busts stale JS
  assert.match(script,/var samsungQuick=timelyOptional\(samsungPromise\)/);
  assert.match(script,/Helyi gyorsnézet/);
  assert.doesNotMatch(script,/window\.hhHealthCloudSync\(false\)/);
- assert.match(html,/live-v191\.js\?v=1014-local-first-cloud-refresh/);
+ assert.match(html,/live-v191\.js\?v=1015-stable-activity-refresh/);
 });

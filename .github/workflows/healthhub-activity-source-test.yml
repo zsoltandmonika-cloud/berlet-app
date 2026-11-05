@@ -7,6 +7,9 @@ on:
       - "healthhub/live-v191.js"
       - "healthhub/tests/activity-samsung-freshness.test.cjs"
       - "healthhub/tests/activity-local-first-v1014.test.cjs"
+      - "healthhub/tests/activity-sync-storm-v1015.test.cjs"
+      - "healthhub/live-v165.js"
+      - "healthhub/live-v260.js"
       - ".github/workflows/healthhub-activity-source-test.yml"
   push:
     branches: [main]
@@ -15,6 +18,9 @@ on:
       - "healthhub/live-v191.js"
       - "healthhub/tests/activity-samsung-freshness.test.cjs"
       - "healthhub/tests/activity-local-first-v1014.test.cjs"
+      - "healthhub/tests/activity-sync-storm-v1015.test.cjs"
+      - "healthhub/live-v165.js"
+      - "healthhub/live-v260.js"
       - ".github/workflows/healthhub-activity-source-test.yml"
   workflow_dispatch:
 
@@ -33,3 +39,6 @@ jobs:
           node --check healthhub/live-v191.js
           node healthhub/tests/activity-samsung-freshness.test.cjs
           node --test healthhub/tests/activity-local-first-v1014.test.cjs
+          node --check healthhub/live-v165.js
+          node --check healthhub/live-v260.js
+          node --test healthhub/tests/activity-sync-storm-v1015.test.cjs
