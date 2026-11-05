@@ -476,3 +476,9 @@ a:focus-visible,button:focus-visible{outline:3px solid var(--mt-accent);outline-
  .mt-file-row .mt-file-info{flex-basis:100%}
  .mt-file-row .mt-file-valet{margin-left:auto}
 }
+
+.mt-valet-hub-link{display:block;margin:9px 0 12px;padding:10px 13px;text-align:center;
+ border:1px solid rgba(184,173,244,.66);border-radius:11px;
+ background:linear-gradient(105deg,rgba(43,115,174,.44),rgba(142,81,165,.42));
+ color:#f3e7ff;font-size:12px;font-weight:800;text-decoration:none}
+.mt-valet-hub-link:focus-visible{outline:3px solid #a7dcff;outline-offset:2px}
