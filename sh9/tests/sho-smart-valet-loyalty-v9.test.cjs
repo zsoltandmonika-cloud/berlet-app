@@ -13,7 +13,7 @@ test('exact 4×2 premium icon grid, first Club Cards instead of All; All remains
  const grid=html.match(/<div class="sv-categories"[^>]*>([\s\S]*?)<\/div>/);
  assert.ok(grid);
  const kinds=[...grid[1].matchAll(/data-kind="([^"]+)"/g)].map(x=>x[1]);
- assert.deepEqual(kinds,['loyalty','identity','license','health','card','ticket','pass','document']);
+ assert.deepEqual(kinds,['loyalty','identity','coupon','health','card','ticket','pass','document']);
  assert.equal(kinds.length,8);
  assert.match(html,/class="sv-all-chip active" data-kind="all" aria-pressed="true"/);
  assert.match(html,/id="svCount"/);
@@ -34,9 +34,9 @@ test('HU/EN Club Cards filter preserves existing ticket types and sample disclai
 test('Private loyalty records have scrollable authentic thumbnails, safe category upload and pagination',()=>{
  assert.match(privateJs,/svLoyaltyScrollerV9/);
  assert.match(privateJs,/svLoyaltyAddV9/);
- assert.match(privateJs,/openSheet\('loyalty'\)/);
+ assert.match(privateJs,/openSheet\(activeCategory\)/);
  assert.match(privateJs,/value="loyalty" id="svVaultLoyaltyV9"/);
- assert.match(privateJs,/rows\.filter\(x=>x\.category==='loyalty'\)/);
+ assert.match(privateJs,/rows\.filter\(x=>x\.category===category\)/);
  assert.match(privateJs,/cards\.slice\(0,loyaltyLimit\)/);
  assert.match(privateJs,/loyaltyLimit\+=12/);
  assert.match(privateJs,/client\.storage\.from\(BUCKET\)\.download\(item\.storage_path\)/);
