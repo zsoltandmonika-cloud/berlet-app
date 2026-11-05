@@ -141,9 +141,9 @@ function lock(){
  $('svIdDraftV11').hidden=true;$('svIdUnlockV11').hidden=true;
  const img=$('svIdImageFrontV11');if(img)img.removeAttribute('src');
  const back=$('svIdImageBackV11');if(back)back.removeAttribute('src');
- const tile=d.querySelector('.sv-id-type-v10[data-id-type="'+kind+'"]');
- tile?.querySelector('.sv-id-photo-v11')?.remove();
- tile?.classList.remove('has-photo');
+ // Password-protected IDs never have an exposed tile preview. Device-key
+ // thumbnails belong to the authenticated gallery, not to this dialog session.
+ if(item&&protectionMode(item)==='password')removeTilePreview(kind);
 }
 function close(){
  $('svIdDialogV11')?.close();lock();kind='';item=null;
@@ -154,21 +154,42 @@ function updateTiles(){
   tile.querySelector('.sv-id-state-v11')?.remove();
   const rec=records.get(type);
   const sides=rec?(rec.front_saved_at?1:0)+(rec.back_saved_at?1:0):0;
-  tile.append(make('small','sv-id-state-v11',rec?sides+'/2 '+text('oldal','sides'):text('＋ Hozzáadás','＋ Add')));
+  tile.append(make('small','sv-id-state-v11',rec
+    ?(protectionMode(rec)==='password'?'🔒 ':'')+sides+'/2 '+text('oldal','sides')
+    :text('＋ Hozzáadás','＋ Add')));
+ }
+}
+
+async function loadTilePreviews(p,id,c){
+ for(const rec of records.values()){
+  if(protectionMode(rec)!=='device'||!rec.front_saved_at)continue;
+  try{
+   const {data:{user}={},error:authError}=await c.auth.getUser();
+   if(authError||!user)continue;
+   const key=await deviceKey('get',user.id,rec.id);
+   if(!key||key.extractable||key.algorithm?.name!=='AES-GCM')continue;
+   const result=await c.storage.from(BUCKET).download(rec.front_storage_path);
+   if(result.error||!result.data)continue;
+   const blob=await decrypt(result.data,key,rec,'front');
+   if(request!==id||profile()!==p||records.get(rec.doc_type)?.id!==rec.id)return;
+   showPreview(rec.doc_type,blob);
+  }catch(_){/* Never leak encrypted/card data on a failed device-key lookup. */}
  }
 }
 async function refresh(){
  const id=++request,p=profile();
+ clearTilePreviews();
  try{
   const c=await authorized(p);
   const result=await c.from(TABLE).select(
-   'id,profile_key,doc_type,kdf_salt,front_storage_path,back_storage_path,front_saved_at,back_saved_at')
+   'id,profile_key,doc_type,kdf_salt,protection_mode,front_storage_path,back_storage_path,front_saved_at,back_saved_at')
    .eq('profile_key',p).limit(12);
   if(result.error)throw result.error;
   if(id!==request||p!==profile())return;
   records=new Map((result.data||[]).filter(x=>TYPES.includes(x.doc_type)).map(x=>[x.doc_type,x]));
- }catch(_){if(id!==request)return;records=new Map()}
- updateTiles();
+  updateTiles();
+  await loadTilePreviews(p,id,c);
+ }catch(_){if(id!==request)return;records=new Map();updateTiles()}
 }
 function open(type){
  if(!TYPES.includes(type)||busy)return;
@@ -179,9 +200,24 @@ function open(type){
  $('svIdDraftV11').hidden=!!item;
  $('svIdUnlockV11').hidden=!item;
  $('svIdViewV11').hidden=true;$('svIdCropV11').hidden=true;
+ $('svIdPasswordEnabledV12').checked=true;
+ updatePasswordSwitch();
+ if(item){
+  const device=protectionMode(item)==='device';
+  $('svIdUnlockPasswordLabelV12').hidden=device;
+  $('svIdUnlockHintV12').textContent=device
+   ?text('🔓 A kártya helyi titkosítási kulccsal nyílik meg ezen az eszközön.',
+      '🔓 This card unlocks with the local device key.')
+   :text('🔐 Jelszavas kártya: az előlap a csempén rejtve marad.',
+      '🔐 Password-protected card: front thumbnail stays hidden.');
+  $('svIdUnlockButtonV11').textContent=device
+    ?text('🔓 Megnyitás ezen az eszközön','🔓 Open on this device')
+    :text('🔓 Jelszavas feloldás','🔓 Unlock with password');
+ }
  status('');
  renderDraft();
  $('svIdDialogV11').showModal();
+ if(item&&protectionMode(item)==='device')void unlock();
 }
 function renderDraft(){
  for(const x of ['front','back']){
