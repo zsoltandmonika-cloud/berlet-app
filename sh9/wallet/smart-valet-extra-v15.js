@@ -272,7 +272,8 @@ async function save(e){
     rec.back_cipher=await encrypt(back,key,rec,'back');
    }
   }
-  if(p!==profile()||(category==='card'?'bank':'health')!==cat)throw Error('NO_ACCESS');
+  if(p!==profile()||profileAtOpen!==p||!$('svExtraDialogV15').open||
+   (category==='card'?'bank':'health')!==cat)throw Error('NO_ACCESS');
   const {error}=await c.from(TABLE).insert(rec);if(error)throw error;
   close();await refresh();
   status(t('TADAAA! 🎉 Kártya biztonságosan mentve.','TADAAA! 🎉 Card saved securely.'));
