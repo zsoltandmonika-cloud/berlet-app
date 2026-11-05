@@ -25,6 +25,7 @@ function read(){
   if(old&&valid({source:'demo',id:old})){
    const pin={source:'demo',id:old};
    w.localStorage.setItem(storeKey(p),JSON.stringify(pin));
+   w.localStorage.removeItem('sho-smart-valet-demo-pin-v1:'+(p==='monika'?'m':'z'));
    return pin;
   }
  }catch(_){}
@@ -44,11 +45,17 @@ function toggle(entry){
  try{
   if(next)w.localStorage.setItem(storeKey(p),JSON.stringify(next));
   else w.localStorage.removeItem(storeKey(p));
+  // Old sample pins must never reappear after a real pin is removed.
+  w.localStorage.removeItem('sho-smart-valet-demo-pin-v1:'+(p==='monika'?'m':'z'));
  }catch(_){return false}
  emit();return true;
 }
 function clear(){
- try{w.localStorage.removeItem(storeKey(profile()))}catch(_){return false}
+ try{
+  const p=profile();
+  w.localStorage.removeItem(storeKey(p));
+  w.localStorage.removeItem('sho-smart-valet-demo-pin-v1:'+(p==='monika'?'m':'z'));
+ }catch(_){return false}
  emit();return true;
 }
 const node=(tag,cls,txt)=>{
@@ -86,6 +93,13 @@ function shell(pin){
  actions.append(open,remove);
  copy.append(kicker,title,meta,actions);
  const art=placeholder(pin.source==='identity'?'lock':'card');
+ art.setAttribute('role','button');art.tabIndex=0;
+ art.setAttribute('aria-label',t('Kitűzött kártya megnyitása','Open pinned card'));
+ const activate=()=>{if(!open.disabled)void openPinned(pin)};
+ art.addEventListener('click',activate);
+ art.addEventListener('keydown',event=>{
+  if(event.key==='Enter'||event.key===' '){event.preventDefault();activate()}
+ });
  host.append(copy,art);
  return{host,title,meta,art,open};
 }
