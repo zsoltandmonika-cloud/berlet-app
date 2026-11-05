@@ -104,11 +104,11 @@ test('Smart Valet uses a real internal PDF canvas, not an iframe/webview browser
  assert.match(walletJs,/await reader\.open\(data,item\.file_name,\{mime:item\.mime_type\}\)/);
 });
 test('Valet production UI opens Add from whole tile, keeps Golden dock and images',()=>{
- assert.match(wallet,/sho-private-document-reader-v1\.js\?v=1-shared-reader/);
- assert.match(wallet,/smart-valet-private-v7\.js\?v=8-private-ecosystem/);
+ assert.match(wallet,/sho-private-document-reader-v1\.js\?v=2-loyalty-image-zoom/);
+ assert.match(wallet,/smart-valet-private-v7\.js\?v=9-loyalty-private/);
  assert.match(wallet,/smart-valet-bkk-approved-v5\.js/);
  assert.match(wallet,/data-sh9-golden-bottom-nav="on"/);
- assert.match(walletJs,/panel\.addEventListener\('click',event=>/);
+ assert.match(walletJs,/addTile\.addEventListener\('click',event=>/);
  assert.match(walletJs,/openSheet\(\)/);
  assert.match(walletJs,/source_module==='my_trips'/);
  assert.match(walletJs,/valetTrip=/);

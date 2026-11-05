@@ -351,3 +351,15 @@ nav.sv-bottom[data-sh9-golden-bottom-nav="on"]>
  top:1px;
  right:calc(50% - 22px);
 }
+
+/* v9 · All stays a compact, complete-wallet filter above the 4 × 2 category grid. */
+.sv-library-controls{display:flex;align-items:center;justify-content:flex-end;gap:9px}
+.sv-all-chip{min-height:35px;padding:6px 11px;border-radius:12px;border:1px solid rgba(208,169,252,.5);
+ background:linear-gradient(115deg,rgba(48,57,103,.92),rgba(51,44,93,.93));
+ color:#f2e4ff;font-size:11px;font-weight:800}
+.sv-all-chip.active{background:linear-gradient(120deg,rgba(185,87,176,.55),rgba(112,78,189,.6));
+ border-color:rgba(245,190,248,.86);color:white}
+:root[data-sh9-golden-profile="z"] .sv-all-chip.active{
+ background:linear-gradient(120deg,rgba(67,122,196,.68),rgba(99,84,178,.6))}
+.sv-category[data-kind="loyalty"]{--sv-icon-color:#f3dd9e}
+.sv-category[data-kind="loyalty"] .sv-cat-icon{filter:drop-shadow(0 0 6px rgba(245,213,132,.34))}

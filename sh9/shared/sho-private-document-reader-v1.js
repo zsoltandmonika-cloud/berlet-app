@@ -7,7 +7,7 @@
  'use strict';
  const PDFJS='https://cdn.jsdelivr.net/npm/pdfjs-dist@6.4.299/build/';
  let libPromise=null,dialog=null,canvas=null,scroller=null,statusNode=null;
- let pdf=null,loader=null,renderTask=null,activeBlob=null,activeURL=null;
+ let pdf=null,loader=null,renderTask=null,activeBlob=null,activeURL=null,currentImage=null;
  let page=1,zoom=1,serial=0,painting=false,title='',kind='application/pdf';
  const $=id=>d.getElementById(id);
  const node=(tag,klass,txt)=>{const e=d.createElement(tag);if(klass)e.className=klass;
@@ -31,10 +31,10 @@
   const prev=btn('shoPrPrevV1','‹',()=>void paint(page-1,true));
   const count=node('span');count.id='shoPrPagesV1';
   const next=btn('shoPrNextV1','›',()=>void paint(page+1,true));
-  const minus=btn('shoPrMinusV1','−',()=>{zoom=Math.max(.7,zoom-.2);void paint(page,false)});
+  const minus=btn('shoPrMinusV1','−',()=>changeZoom(-.2));
   const percent=node('span');percent.id='shoPrZoomV1';
-  const plus=btn('shoPrPlusV1','+',()=>{zoom=Math.min(2.4,zoom+.2);void paint(page,false)});
-  const fit=btn('shoPrFitV1',label('Igazítás','Fit'),()=>{zoom=1;void paint(page,false)});
+  const plus=btn('shoPrPlusV1','+',()=>changeZoom(.2));
+  const fit=btn('shoPrFitV1',label('Igazítás','Fit'),()=>changeZoom(0));
   controls.append(prev,count,next,minus,percent,plus,fit);
   scroller=node('div','sho-pr-scroll');scroller.id='shoPrScrollV1';
   canvas=node('canvas','sho-pr-canvas');canvas.id='shoPrCanvasV1';
@@ -50,15 +50,28 @@
   w.addEventListener('storage',e=>{if(e.key==='hh-profile')void close()});
   w.addEventListener('beforeunload',()=>{if(activeURL)w.URL.revokeObjectURL(activeURL)});
  }
+ function applyImageZoom(){
+  if(!currentImage)return;
+  // Scale the original image pixels without rendering a fake barcode.
+  // Large codes can be panned inside the reader without any re-encoding.
+  currentImage.style.width=Math.max(200,Math.floor((scroller.clientWidth-24)*zoom))+'px';
+  currentImage.style.maxWidth='none';
+  currentImage.style.maxHeight='none';
+ }
+ function changeZoom(delta){
+  zoom=delta===0?1:Math.min(3,Math.max(.7,zoom+delta));
+  if(currentImage){applyImageZoom();buttons();return}
+  if(pdf)void paint(page,false);
+ }
  function buttons(){
-  const enabled=!!pdf&&!painting;
+  const enabled=!!pdf&&!painting,hasImage=!!currentImage;
   $('shoPrPrevV1').disabled=!enabled||page<=1;
   $('shoPrNextV1').disabled=!enabled||page>=pdf.numPages;
-  $('shoPrMinusV1').disabled=!enabled||zoom<=.71;
-  $('shoPrPlusV1').disabled=!enabled||zoom>=2.39;
-  $('shoPrFitV1').disabled=!enabled;
-  $('shoPrPagesV1').textContent=pdf?page+' / '+pdf.numPages:'…';
-  $('shoPrZoomV1').textContent=pdf?Math.round(zoom*100)+'%':'';
+  $('shoPrMinusV1').disabled=!(enabled||hasImage)||zoom<=.71;
+  $('shoPrPlusV1').disabled=!(enabled||hasImage)||zoom>=(hasImage?2.99:2.39);
+  $('shoPrFitV1').disabled=!(enabled||hasImage);
+  $('shoPrPagesV1').textContent=pdf?page+' / '+pdf.numPages:hasImage?'1 / 1':'…';
+  $('shoPrZoomV1').textContent=(pdf||hasImage)?Math.round(zoom*100)+'%':'';
   $('shoPrDownloadV1').disabled=!activeBlob;
  }
  function engine(){
@@ -71,7 +84,7 @@
  async function discard(){
   if(renderTask){try{renderTask.cancel();await renderTask.promise}catch(_){}renderTask=null}
   if(loader){try{await loader.destroy()}catch(_){}loader=null}
-  pdf=null;
+  pdf=null;currentImage=null;
   if(activeURL){w.URL.revokeObjectURL(activeURL);activeURL=null}
   activeBlob=null;canvas.width=0;canvas.height=0;
   page=1;zoom=1;painting=false;
@@ -122,9 +135,10 @@
    activeURL=w.URL.createObjectURL(file);
    const img=node('img','sho-pr-image');
    img.src=activeURL;img.alt=title;
+   currentImage=img;
    scroller.replaceChildren(img);
-   $('shoPrPagesV1').textContent='1 / 1';
-   setStatus(title);return;
+   applyImageZoom();buttons();
+   setStatus(title+' · '+label('eredeti kártya és kód','original card and code'));return;
   }
   if(kind!=='application/pdf'){setStatus(label('Nem támogatott fájltípus','Unsupported file type'));return}
   try{
