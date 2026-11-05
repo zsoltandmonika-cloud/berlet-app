@@ -166,6 +166,12 @@
     node('small','',fmt(file.bytes),desc);
     const open=node('button','mt-file-open','Megnyitás',card);
     open.type='button';open.addEventListener('click',()=>void openFile(file));
+    const transfer=w.SHO_TICKET_TRANSFER_V1;
+    if(transfer?.copyMyTrips&&['application/pdf','image/jpeg','image/png','image/webp'].includes(file.file_type)){
+     const share=node('button','mt-file-valet','🎟 Valetbe másolás',card);
+     share.type='button';
+     share.addEventListener('click',()=>void copyToValet(file,share,dialog));
+    }
     const remove=node('button','mt-file-remove','Törlés',card);
     remove.type='button';remove.addEventListener('click',()=>void removeFile(file));
    }
@@ -254,6 +260,20 @@
    }
    status('✓ Jegy megnyitva · '+file.file_name);
   }catch(e){if(tab)tab.close();status('⚠️ '+(e.message||'Nem sikerült megnyitni'))}
+ }
+ async function copyToValet(file,button,view){
+  if(!view||view!==dialog||busy||view.p!==profile())return;
+  const bridge=w.SHO_TICKET_TRANSFER_V1;
+  if(!bridge?.copyMyTrips){status('⚠️ A Smart Valet átadás nem érhető el.');return}
+  button.disabled=true;status('🎟 Jegy biztonságos másolása a Smart Valetbe…');
+  try{
+   const c=await authorized();
+   await bridge.copyMyTrips({client:c,profile:cloudProfile(view.p),
+    tripId:view.trip.id,attachmentId:file.id});
+   if(view===dialog&&view.p===profile())status('✅ Jegy a Smart Valetben! Az eredeti az Utazásaimban is megmaradt.');
+  }catch(e){
+   if(view===dialog)status('⚠️ '+(e?.message||'A jegy másolása nem sikerült.'));
+  }finally{button.disabled=false}
  }
  async function removeFile(file){
   if(busy||!w.confirm('Végleg törlöd mindkét telefonról?\n'+file.file_name))return;
