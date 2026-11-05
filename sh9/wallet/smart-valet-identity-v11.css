@@ -118,3 +118,21 @@
 .sv-id-type-v10.has-photo .sv-id-photo-v11{max-width:none;width:100%;
  aspect-ratio:1.586/1;object-fit:cover;object-position:center center;
  border-radius:9px;image-orientation:from-image}
+
+/* v12 · optional 8-character password policy, privacy-aligned thumbnail switch. */
+.sv-id-protection-switch-v12{display:flex;align-items:center;gap:13px;
+ margin:14px 0 10px;padding:12px;border:1px solid rgba(212,178,249,.72);
+ border-radius:13px;background:linear-gradient(120deg,rgba(58,75,124,.84),rgba(97,62,126,.84));
+ cursor:pointer;color:#fff;min-height:58px}
+.sv-id-protection-switch-v12 input{appearance:auto;accent-color:#c69aed;
+ width:22px;height:22px;flex:none}
+.sv-id-protection-switch-v12 span{display:flex;flex-direction:column;gap:4px;min-width:0}
+.sv-id-protection-switch-v12 strong{font-size:13px}
+.sv-id-protection-switch-v12 small{font-size:11px;line-height:1.35;color:#e5d2f1}
+.sv-id-device-hint-v12{font-size:11px;line-height:1.55;padding:11px 12px;
+ border:1px solid rgba(246,207,150,.64);border-radius:12px;
+ background:rgba(107,75,46,.3);color:#ffe9c3;margin:8px 0 12px}
+#svIdPasswordFieldsV12[hidden],#svIdDeviceHintV12[hidden],
+#svIdUnlockPasswordLabelV12[hidden]{display:none!important}
+:root[data-sh9-golden-profile="z"] .sv-id-protection-switch-v12{
+ background:linear-gradient(120deg,rgba(47,82,139,.85),rgba(71,66,128,.88))}
