@@ -41,6 +41,24 @@ test('Normal non-SHO route does not initialize Activity',()=>{
  assert.equal(v.calls.length,0);
  assert.equal(v.timers.length,0);
 });
+test('Priority bridge is actually injected after executable Activity tag in SHO routes',()=>{
+ const begin=html.indexOf('  const shoTarget=new URLSearchParams(location.search)');
+ const end=html.indexOf('  const liveWithWellbeingClick=liveWithShoPriority.replace(',begin);
+ assert.ok(begin>0&&end>begin,'isolated snippet is present in inline bootstrap');
+ const source=html.slice(begin,end);
+ const activity='<script src="./live-v191.js?v=1015-stable-activity-refresh"></script>';
+ function evaluate(search){
+  const context={location:{search},URLSearchParams,live:'before '+activity+' after'};
+  vm.runInNewContext(source+';globalThis.result=liveWithShoPriority;',context);
+  return context.result;
+ }
+ const prioritized=evaluate('?sho=activity');
+ const launcher='<script src="./sho-entry-v1.js?v=1016-priority-boot"></script>';
+ assert.ok(prioritized.includes(activity+launcher),'launcher directly follows Activity API');
+ assert.equal(prioritized.split(launcher).length,2,'launcher inserted once');
+ assert.ok(evaluate('?sho=sleep').includes(activity+launcher),'Sleep remains supported');
+ assert.equal(evaluate('?sho=unknown'),'before '+activity+' after','regular page untouched');
+});
 test('HealthHub injects SHO bridge after Activity module API instead of after document.close',()=>{
  assert.match(html,/const shoBridgeScript=\(shoTarget==='activity'\|\|shoTarget==='sleep'\)/);
  assert.match(html,/const liveWithShoPriority=shoBridgeScript/);
