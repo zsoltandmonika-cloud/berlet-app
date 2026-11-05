@@ -1,0 +1,75 @@
+/* SHO Smart Valet v13 · true pin/unpin while preserving the BKK Golden Showcase. */
+#svFeatured.sv-feature-quick-v13{
+ position:relative;overflow:hidden;display:flex;align-items:center;
+ justify-content:space-between;gap:12px;
+ min-height:162px;
+}
+#svFeatured.sv-feature-quick-v13 .sv-quick-copy-v13{
+ flex:1;min-width:0;max-width:calc(100% - 110px);justify-content:center;
+}
+#svFeatured.sv-feature-quick-v13 .sv-quick-copy-v13 h3{
+ font-size:clamp(16px,4.5vw,23px);line-height:1.12;overflow-wrap:anywhere;
+}
+#svFeatured.sv-feature-quick-v13 .sv-quick-copy-v13 .sv-feature-meta{
+ overflow-wrap:anywhere;color:#f1dafa;min-height:23px
+}
+#svFeatured.sv-feature-quick-v13 .sv-feature-actions{display:flex;flex-wrap:wrap;gap:7px}
+#svFeatured.sv-feature-quick-v13 .sv-feature-actions .sv-btn{
+ max-width:100%;font-size:10px;min-height:36px;white-space:normal;
+}
+#svFeatured.sv-feature-quick-v13 .sv-feature-actions .sv-btn:disabled{opacity:.55}
+#svFeatured.sv-feature-quick-v13 .sv-quick-icon-v13{
+ display:grid;place-items:center;font-size:48px;width:100%;height:100%;
+ color:#e9d5ff;text-shadow:0 2px 9px #140728
+}
+#svFeatured.sv-feature-quick-v13 .sv-feature-art.sv-feature-quick-art-v13{
+ width:clamp(83px,25vw,140px);min-width:83px;min-height:93px;
+ height:auto;aspect-ratio:1.586/1;transform:rotate(4deg);
+ border-radius:11px;overflow:hidden;display:grid;place-items:center;
+}
+#svFeatured.sv-feature-quick-v13 .sv-feature-art.sv-quick-locked-v13{
+ border-color:rgba(248,196,237,.70);background:linear-gradient(135deg,#393c70,#5c335d)
+}
+#svFeatured.sv-feature-quick-v13 .sv-feature-art.sv-quick-image-v13:after{
+ content:none
+}
+#svFeatured.sv-feature-quick-v13 .sv-quick-photo-v13{
+ display:block;width:100%;height:100%;aspect-ratio:1.586/1;
+ object-fit:contain;image-orientation:from-image;border-radius:10px;
+}
+.sv-quick-pin-v13,
+.sv-id-pin-v13,#shoPrPinV13{
+ appearance:none;cursor:pointer;
+ border:1px solid rgba(222,179,252,.78);
+ border-radius:10px;min-height:36px;
+ padding:7px 11px;color:#fff;font-weight:750;font-size:11px;
+ background:linear-gradient(110deg,rgba(66,90,159,.94),rgba(132,76,164,.94));
+}
+.sv-quick-pin-v13:focus-visible,
+.sv-id-pin-v13:focus-visible,#shoPrPinV13:focus-visible{
+ outline:3px solid #bfe7ff;outline-offset:2px
+}
+.sv-vault-item-actions-v7 .sv-quick-pin-v13{flex:1;min-width:80px}
+.sv-loyalty-pin-wrap-v13{
+ display:flex;flex-direction:column;align-items:stretch;gap:4px;
+ border-radius:13px
+}
+.sv-loyalty-pin-wrap-v13 .sv-loyalty-card-v9{flex:1}
+.sv-loyalty-pin-wrap-v13 .sv-quick-pin-v13{
+ align-self:flex-end;min-height:34px;
+ margin:0 2px 3px;
+}
+.sv-id-head-v11 .sv-id-pin-v13{
+ min-height:42px;font-size:11px;padding:7px 9px;
+ flex:none;margin-left:auto;max-width:150px
+}
+.sv-id-pin-v13[hidden],#shoPrPinV13[hidden]{display:none!important}
+.sho-pr-footer #shoPrPinV13{flex:none;min-width:95px;min-height:39px}
+@media(max-width:390px){
+ #svFeatured.sv-feature-quick-v13{gap:7px;padding:10px}
+ #svFeatured.sv-feature-quick-v13 .sv-quick-copy-v13{max-width:calc(100% - 90px)}
+ #svFeatured.sv-feature-quick-v13 .sv-feature-art.sv-feature-quick-art-v13{
+  width:84px;min-width:84px;min-height:65px;
+ }
+ .sv-id-head-v11 .sv-id-pin-v13{padding:7px 5px;font-size:10px}
+}
