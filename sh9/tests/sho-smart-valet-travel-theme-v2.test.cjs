@@ -16,7 +16,7 @@ test('approved navy/purple SHO Travel theme overrides, preserves original Golden
  assert.match(theme,/--sv-plate:linear-gradient/);
  assert.match(theme,/#9b81df/);
  assert.match(theme,/@media\(max-width:390px\)/);
- assert.match(html,/smart-valet-sho-theme-v2\.css\?v=4-approved-hero/);
+ assert.match(html,/smart-valet-sho-theme-v2\.css\?v=5-bkk-nav-golden/);
  assert.match(html,/sh9-golden-controls-v1\.js/);
  assert.match(html,/sh9-golden-bottom-nav-v924\.js/);
  assert.match(html,/data-sh9-golden-bottom-nav="on"/);
