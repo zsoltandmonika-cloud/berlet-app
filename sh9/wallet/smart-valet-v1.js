@@ -183,6 +183,7 @@
   host.append(copy,art);
  }
  function renderCards(){
+  w.SHO_VALET_ACTIVE_CATEGORY_V9=kind;
   const search=$('svSearch').value.toLocaleLowerCase(lang()).trim();
   const filtered=list().filter(item=>(kind==='all'||item.kind===kind)&&
    (!search||(label(item)+' '+desc(item)+' '+item.provider).toLocaleLowerCase(lang()).includes(search)));
