@@ -47,6 +47,8 @@ test('all extra categories reuse the full-screen ID style and 3D flip',()=>{
 test('bank card original image must be locally redacted before encryption and upload',()=>{
  assert.match(optical,/if\(purpose==='bank'\)/);
  assert.match(optical,/if\(!imageBlob\|\|!rects\.length\)/);
+ assert.match(optical,/svOptConfirmV16/);
+ assert.match(optical,/\.checked/);
  assert.match(optical,/fillStyle='#080b1d'/);
  assert.match(optical,/for\(const r of rects\)ctx\.fillRect/);
  assert.match(optical,/end\(safe\)/);
