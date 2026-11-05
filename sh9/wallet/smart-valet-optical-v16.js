@@ -98,7 +98,7 @@ async function cropped(){
    imageBlob=blob;
    if(purpose==='bank'){
     $('svOptCropV16').hidden=true;$('svOptMaskV16').hidden=false;
-    rects=[];revoke(renderURL);renderURL=objectURL(blob);
+    rects=[];$('svOptConfirmV16').checked=false;revoke(renderURL);renderURL=objectURL(blob);
     const im=$('svOptMaskImageV16');im.src=renderURL;
     const cn=$('svOptMaskCanvasV16');cn.width=c.width;cn.height=c.height;
     paintMask();notice('Takard ki a kártyaszámot, lejáratot, CVV-t és minden érzékeny adatot!',
@@ -143,6 +143,10 @@ async function acceptMasked(){
   notice('Legalább egy kitakart terület szükséges. Ellenőrizd az összes érzékeny adatot!',
    'At least one redaction required. Check every sensitive field!',true);return;
  }
+ if(!$('svOptConfirmV16').checked){
+  notice('Erősítsd meg, hogy minden érzékeny adat ki van takarva!',
+   'Confirm that every sensitive field has been masked!',true);return;
+ }
  if(working)return;working=true;
  try{
   const src=await imageOf(imageBlob);
@@ -173,7 +177,7 @@ function init(){
  '<section id="svOptMaskV16" class="sv-id-crop-v11" hidden><h3>🔒 Adatok kitakarása · Secure redaction</h3>'+
  '<p>A fotó csak helyben látható. Húzz sötét kitakaró téglalapokat minden kártyaszámra, lejáratra és CVV-re. Az eredeti fotó sosem kerül tárolásra.</p>'+
  '<div class="sv-id-crop-frame-v11 sv-opt-mask-frame-v16"><img id="svOptMaskImageV16" alt="Kitakarásra váró kép"><canvas id="svOptMaskCanvasV16" aria-label="Rajzolj kitakaró területeket" role="img"></canvas></div>'+
- '<span id="svOptMaskCountV16"></span><div><button type="button" id="svOptUndoV16">↶ Visszavonás</button><button type="button" id="svOptSaveMaskV16" class="sv-id-primary-v11">🔒 Kitakart kép elfogadása</button></div></section>'+
+ '<span id="svOptMaskCountV16"></span><label class="sv-opt-confirm-v16"><input type="checkbox" id="svOptConfirmV16"> Minden kártyaszámot, lejáratot, CVV-t és egyéb érzékeny adatot kitakartam.</label><div><button type="button" id="svOptUndoV16">↶ Visszavonás</button><button type="button" id="svOptSaveMaskV16" class="sv-id-primary-v11">🔒 Kitakart kép elfogadása</button></div></section>'+
  '<div class="sv-id-camera-overlay-v11" id="svOptCameraV16" hidden>'+
  '<video id="svOptVideoV16" autoplay muted playsinline></video><div id="svOptGuideV16" class="sv-id-camera-guide-v11"><span id="svOptGuideTextV16"></span></div>'+
  '<div class="sv-id-camera-actions-v11"><button type="button" id="svOptCancelCameraV16">Mégse</button><button type="button" id="svOptSnapV16">◉ Fotó</button></div></div>'+
@@ -197,6 +201,9 @@ function init(){
  mask.addEventListener('pointerup',maskUp);
  mask.addEventListener('pointercancel',()=>{pointer=null;paintMask()});
  w.addEventListener('pagehide',()=>{if(running)end(null)});
+ w.addEventListener('hh-family-profile-changed',()=>{if(running)end(null)});
+ w.addEventListener('sh9:profilechange',()=>{if(running)end(null)});
+ w.addEventListener('storage',e=>{if(e.key==='hh-profile'&&running)end(null)});
  d.addEventListener('visibilitychange',()=>{if(d.hidden&&running)end(null)});
 }
 async function capture(options={}){
