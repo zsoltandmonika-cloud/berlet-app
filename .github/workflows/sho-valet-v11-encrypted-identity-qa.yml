@@ -1,0 +1,30 @@
+name: SHO Smart Valet v11 · Encrypted ID and 3D Flip QA
+on:
+  pull_request:
+    paths:
+      - 'sh9/wallet/**'
+      - 'sh9/tests/sho-smart-valet-id-v11.test.cjs'
+      - 'supabase/migrations/20261105175000_sho_valet_identity_e2ee_v11.sql'
+      - '.github/workflows/sho-valet-v11-encrypted-identity-qa.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'sh9/wallet/**'
+      - 'sh9/tests/sho-smart-valet-id-v11.test.cjs'
+      - 'supabase/migrations/20261105175000_sho_valet_identity_e2ee_v11.sql'
+permissions:
+  contents: read
+jobs:
+  identity-vault:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - name: Identity photo security and layout checks
+        run: |
+          node --check sh9/wallet/smart-valet-identity-v11.js
+          node --test sh9/tests/sho-smart-valet-id-v11.test.cjs
+          node --test sh9/tests/sho-smart-valet-v10-coupons-identity.test.cjs
+          node --test sh9/tests/sho-smart-valet-private-v7.test.cjs
+          node --test sh9/tests/sho-smart-valet-loyalty-v9.test.cjs
+          node --test sh9/tests/sho-smart-valet-bkk-nav-v5.test.cjs
