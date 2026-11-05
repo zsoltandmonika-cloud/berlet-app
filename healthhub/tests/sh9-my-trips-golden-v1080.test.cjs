@@ -110,7 +110,7 @@ test('v1083 BKK-style Trip Plan Flow keeps existing dark SH9 theme and real segm
 
 test('v1084 palette remains and v1085 adopts canonical Golden hero with original Smart Travel artwork',()=>{
  assert.match(page,/SH9_Smart_Travel_Hero_1402x1122\.png/);
- assert.match(page,/my-trips-v1080\.css\?v=1096-two-field-follow/);
+ assert.match(page,/my-trips-v1080\.css\?v=8-valet-transfer-layout/);
  assert.match(page,/my-trips-v1080\.js\?v=1100-trip-rating/);
  assert.match(pageCss,/aspect-ratio:1402 \/ 1122/);
  assert.match(pageCss,/filter:brightness\(1\.13\) saturate\(1\.08\)/);
