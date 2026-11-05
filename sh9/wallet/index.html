@@ -10,8 +10,8 @@
 <link rel="stylesheet" href="../shared/sh9-golden-controls-v1.css?v=934-unified-glass-dock">
 <link rel="stylesheet" href="../shared/sh9-golden-bottom-nav-v924.css?v=925-notification-center">
 <link rel="stylesheet" href="./smart-valet-v1.css?v=1-premium-glass">
-<link rel="stylesheet" href="./smart-valet-sho-theme-v2.css?v=5-bkk-nav-golden">
-<link rel="stylesheet" href="./smart-valet-private-v7.css?v=8-ecosystem-document-reader">
+<link rel="stylesheet" href="./smart-valet-sho-theme-v2.css?v=9-loyalty-club-tile">
+<link rel="stylesheet" href="./smart-valet-private-v7.css?v=9-loyalty-list">
 <link rel="stylesheet" href="../shared/sho-private-document-reader-v1.css?v=1-sho-internal-reader">
 </head>
 <body>
@@ -69,11 +69,11 @@
   <section class="sv-section" aria-labelledby="svLibraryTitle">
    <div class="sv-section-top">
     <div><span class="sv-kicker" data-i18n="libraryKicker">A TE TÁRCÁD</span><h2 id="svLibraryTitle" data-i18n="libraryTitle">Jegyek és bérletek</h2></div>
-    <span class="sv-total" id="svCount" aria-live="polite">0</span>
+    <div class="sv-library-controls"><button type="button" class="sv-all-chip active" data-kind="all" aria-pressed="true" data-i18n="all">Összes</button><span class="sv-total" id="svCount" aria-live="polite">0</span></div>
    </div>
 
    <div class="sv-categories" role="group" aria-label="Tárcakategóriák">
-    <button type="button" class="sv-category active" data-kind="all" aria-pressed="true"><svg class="sv-cat-icon" viewBox="0 0 32 32" aria-hidden="true"><use href="./smart-valet-icons-v2.svg#all"/></svg><span data-i18n="all">Összes</span></button>
+    <button type="button" class="sv-category" data-kind="loyalty" aria-pressed="false"><svg class="sv-cat-icon" viewBox="0 0 32 32" aria-hidden="true"><use href="./smart-valet-icons-v2.svg#loyalty"/></svg><span data-i18n="loyalty">Klubkártyák</span></button>
     <button type="button" class="sv-category" data-kind="identity" aria-pressed="false"><svg class="sv-cat-icon" viewBox="0 0 32 32" aria-hidden="true"><use href="./smart-valet-icons-v2.svg#identity"/></svg><span data-i18n="identity">Azonosítók</span></button>
     <button type="button" class="sv-category" data-kind="license" aria-pressed="false"><svg class="sv-cat-icon" viewBox="0 0 32 32" aria-hidden="true"><use href="./smart-valet-icons-v2.svg#license"/></svg><span data-i18n="license">Jogosítvány</span></button>
     <button type="button" class="sv-category" data-kind="health" aria-pressed="false"><svg class="sv-cat-icon" viewBox="0 0 32 32" aria-hidden="true"><use href="./smart-valet-icons-v2.svg#health"/></svg><span data-i18n="health">Egészség</span></button>
@@ -129,7 +129,7 @@
 
 <div id="svToast" class="sv-toast" role="status" aria-live="polite" hidden></div>
 <script defer src="./smart-valet-bkk-approved-v5.js?v=5-approved-budapest-pass"></script>
-<script defer src="./smart-valet-v1.js?v=5-approved-bkk-card"></script>
+<script defer src="./smart-valet-v1.js?v=9-loyalty-club-filters"></script>
 <script>
 (function(){
   // v8: private originals are generally available after authenticated setup.
@@ -145,7 +145,7 @@
   load('../../healthhub/central-vault/config.js?v=8-wallet-prod',function(){
     load('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.2/dist/umd/supabase.min.js',function(){
       load('../shared/sho-private-document-reader-v1.js?v=1-shared-reader',function(){
-        load('./smart-valet-private-v7.js?v=8-private-ecosystem',function(){});
+        load('./smart-valet-private-v7.js?v=9-loyalty-private',function(){});
       });
     });
   });
