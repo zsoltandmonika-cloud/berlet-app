@@ -59,7 +59,7 @@ test('Golden original sample fallback, while secure pin provider loads before th
  assert.ok(page.indexOf('smart-valet-smart-access-v13.js?v=13-universal-pin')<
   page.indexOf('smart-valet-private-v7.js?v=13-universal-pin'));
  assert.ok(page.indexOf('smart-valet-private-v7.js?v=13-universal-pin')<
-  page.indexOf('smart-valet-identity-v11.js?v=13-universal-pin'));
+  page.indexOf('smart-valet-identity-v11.js?v=12-optional-password-v13-pin'));
  assert.match(demo,/quick\?\.renderFeatured\?\.\(\)/);
  assert.match(demo,/list\(\)\.find\(x=>x\.id===pinId\(\)\)\|\|list\(\)\[0\]/);
  assert.match(demo,/SHO_VALET_BKK_APPROVED_V5/);
