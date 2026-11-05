@@ -113,3 +113,8 @@
 @media(prefers-reduced-motion:reduce){
  .sv-id-flipper-v11,#svIdZoomFrameV11{transition:none!important}
 }
+
+.sv-id-type-v10.has-photo svg{display:none}
+.sv-id-type-v10.has-photo .sv-id-photo-v11{max-width:none;width:100%;
+ aspect-ratio:1.586/1;object-fit:cover;object-position:center center;
+ border-radius:9px;image-orientation:from-image}
