@@ -13,9 +13,15 @@ const MAX_BYTES=15000000, ALLOWED=Object.freeze({
 });
 const $=id=>d.getElementById(id), pkey=()=>w.localStorage.getItem('hh-profile')==='m'?'monika':'zsolt';
 let client=null,current=null,currentUrl='',busy=false,rows=[],requested=0;
+let activeCategory='all',loyaltyLimit=12,loyaltySerial=0;
+const loyaltyURLs=new Set();
 const i18n={
  hu:{add:'＋ Hozzáadás',choose:'Jegy, bérlet vagy dokumentum hozzáadása',
  title:'Megnevezés',type:'Kategória',ticket:'Jegy',pass:'Bérlet',document:'Egyéb dokumentum',
+ loyalty:'Klubkártya',loyaltyTitle:'Klubkártyáid',loyaltyAdd:'＋ Klubkártya hozzáadása',
+ loyaltyEmpty:'Még nincs klubkártyád. Add hozzá az elsőt fényképről vagy képfájlból.',
+ loyaltyScan:'A kártya eredeti QR- vagy vonalkódját teljes képernyőn, nagyítva mutatjuk.',
+ loyaltyOpen:'Kártya és kód megnyitása',loyaltyMore:'További kártyák',
  pick:'📁 Fájl kiválasztása',camera:'📷 Kamera / beolvasás',save:'🔒 Biztonságos mentés',cancel:'Mégse',
  login:'A privát tárcához jelentkezz be a Family Guardban.',openLogin:'🔐 Family Guard bejelentkezés',
  invalid:'PDF, JPG, PNG vagy WebP fájl szükséges, legfeljebb 15 MB.',missing:'Válassz egy fájlt és adj meg egy nevet.',
@@ -27,7 +33,11 @@ const i18n={
  unknown:'A fájl nem nyitható meg.',preview:'Előnézet · eredeti fájl'
  },
  en:{add:'＋ Add',choose:'Add ticket, pass or document',title:'Name',type:'Category',
- ticket:'Ticket',pass:'Pass',document:'Other document',pick:'📁 Choose file',
+ ticket:'Ticket',pass:'Pass',document:'Other document',
+ loyalty:'Club card',loyaltyTitle:'Your club cards',loyaltyAdd:'＋ Add club card',
+ loyaltyEmpty:'No club cards yet. Add one using a photo or image file.',
+ loyaltyScan:'We show the original QR/barcode image full-screen, with zoom.',
+ loyaltyOpen:'Open card and code',loyaltyMore:'More cards',pick:'📁 Choose file',
  camera:'📷 Camera / scan',save:'🔒 Save privately',cancel:'Cancel',
  login:'Sign in to Family Guard to access your private wallet.',openLogin:'🔐 Family Guard sign-in',
  invalid:'PDF, JPG, PNG or WebP required, up to 15 MB.',missing:'Choose a file and enter a name.',
@@ -109,9 +119,12 @@ async function chosen(file){
   message('');
  }catch(_){current=null;message(t('invalid'),true)}
 }
-function openSheet(){
- $('svVaultFormV7').hidden=false;
+function openSheet(category){
+ const form=$('svVaultFormV7');
+ form.hidden=false;
+ if(category==='loyalty'||activeCategory==='loyalty')$('svVaultCategoryV7').value='loyalty';
  $('svVaultTitleV7').focus();
+ form.scrollIntoView({block:'center',behavior:'smooth'});
 }
 function makeCard(item){
  const el=make('article','sv-vault-item-v7');
@@ -129,6 +142,56 @@ function makeCard(item){
  del.addEventListener('click',()=>deleteItem(item));
  actions.append(open,del);el.append(details,actions);return el;
 }
+
+function discardLoyaltyImages(){
+ ++loyaltySerial;
+ for(const url of loyaltyURLs)try{URL.revokeObjectURL(url)}catch(_){}
+ loyaltyURLs.clear();
+}
+async function renderLoyalty(profile,client,call){
+ const panel=$('svLoyaltyPanelV9'),feed=$('svLoyaltyScrollerV9');
+ if(!panel||!feed)return;
+ discardLoyaltyImages();
+ panel.hidden=activeCategory!=='loyalty';
+ if(panel.hidden)return;
+ const serial=loyaltySerial;
+ feed.replaceChildren();
+ const cards=rows.filter(x=>x.category==='loyalty');
+ $('svLoyaltyCountV9').textContent=String(cards.length);
+ $('svCount').textContent=String(cards.length);
+ if(!cards.length){feed.append(make('p','sv-vault-empty-v7',t('loyaltyEmpty')));return}
+ for(const item of cards.slice(0,loyaltyLimit)){
+  const button=make('button','sv-loyalty-card-v9');
+  button.type='button';button.setAttribute('aria-label',t('loyaltyOpen')+': '+item.title);
+  const art=make('div','sv-loyalty-art-v9');
+  const image=item.mime_type.startsWith('image/')?make('img'):null;
+  if(image){image.alt='';image.loading='lazy';art.append(image)}
+  else art.append(make('span','sv-loyalty-pdf-v9','📄 PDF'));
+  const copy=make('span','sv-loyalty-copy-v9');
+  copy.append(make('strong',null,item.title),make('small',null,item.file_name));
+  const action=make('span','sv-loyalty-action-v9','▣');
+  button.append(art,copy,action);feed.append(button);
+  button.addEventListener('click',()=>openItem(item));
+  if(image){
+   // Never expose public image URLs. Previews are downloaded via authenticated RLS Storage.
+   client.storage.from(BUCKET).download(item.storage_path).then(({data,error})=>{
+    if(error||!data||serial!==loyaltySerial||call!==requested||
+       activeCategory!=='loyalty'||pkey()!==profile||!button.isConnected)return;
+    const url=URL.createObjectURL(data);loyaltyURLs.add(url);image.src=url;
+   }).catch(()=>{});
+  }
+ }
+ const more=$('svLoyaltyMoreV9');
+ more.hidden=cards.length<=loyaltyLimit;
+ more.textContent=t('loyaltyMore');
+}
+function setCategory(kind){
+ activeCategory=kind;
+ loyaltyLimit=12;
+ // This legacy demo display remains separate from real private documents.
+ // Its filter state drives the secured original file list too.
+ refresh();
+}
 async function refresh(){
  const call=++requested,profile=pkey(),list=$('svVaultPrivateListV7');
  if(!list)return;
@@ -140,8 +203,15 @@ async function refresh(){
   if(error)throw error;
   if(call!==requested||profile!==pkey())return;
   rows=data||[];
-  if(!rows.length)list.append(make('p','sv-vault-empty-v7',t('empty')));
-  else rows.forEach(item=>list.append(makeCard(item)));
+  const visible=activeCategory==='all'?rows:rows.filter(item=>item.category===activeCategory);
+  if(activeCategory==='loyalty'){
+   list.hidden=true;
+  }else{
+   list.hidden=false;
+   if(!visible.length)list.append(make('p','sv-vault-empty-v7',t('empty')));
+   else visible.forEach(item=>list.append(makeCard(item)));
+  }
+  await renderLoyalty(profile,c,call);
   message('');
  }catch(e){
   if(call!==requested)return;
@@ -214,6 +284,16 @@ async function deleteItem(item){
 }
 function init(){
  const add=$('svAdd');if(!add)return;
+ const host=$('svCards');
+ const panel=make('section','sv-loyalty-panel-v9');panel.id='svLoyaltyPanelV9';panel.hidden=true;
+ panel.innerHTML='<div class="sv-loyalty-head-v9"><div><span class="sv-loyalty-kicker-v9">SHO · SMART LOYALTY</span><h3 id="svLoyaltyTitleV9"></h3></div><span class="sv-loyalty-count-v9" id="svLoyaltyCountV9">0</span></div>'+
+ '<p id="svLoyaltyTipV9" class="sv-loyalty-tip-v9"></p>'+
+ '<button type="button" class="sv-loyalty-add-v9" id="svLoyaltyAddV9"></button>'+
+ '<div id="svLoyaltyScrollerV9" class="sv-loyalty-scroller-v9" aria-live="polite"></div>'+
+ '<button type="button" class="sv-loyalty-more-v9" id="svLoyaltyMoreV9" hidden></button>';
+ host.insertAdjacentElement('afterend',panel);
+ $('svLoyaltyAddV9').addEventListener('click',()=>openSheet('loyalty'));
+ $('svLoyaltyMoreV9').addEventListener('click',()=>{loyaltyLimit+=12;refresh()});
  const section=make('section','sv-vault-private-v7');section.id='svVaultPrivateV7';
  section.innerHTML='<div class="sv-vault-head-v7"><h2 id="svVaultHeaderV7"></h2><span>🔒 PRIVATE VAULT</span></div>'+
   '<p id="svVaultStatusV7" role="status" aria-live="polite"></p>'+
@@ -234,7 +314,8 @@ function init(){
  '<label><span id="svVaultNameLabelV7"></span><input id="svVaultTitleV7" required maxlength="160" autocomplete="off"></label>'+
  '<label><span id="svVaultTypeLabelV7"></span><select id="svVaultCategoryV7">'+
  '<option value="ticket" id="svVaultTicketV7"></option><option value="pass" id="svVaultPassV7"></option>'+
- '<option value="document" id="svVaultDocumentV7"></option></select></label>'+
+ '<option value="document" id="svVaultDocumentV7"></option>'+
+ '<option value="loyalty" id="svVaultLoyaltyV9"></option></select></label>'+
  '<div class="sv-vault-buttons-v7"><button type="button" id="svVaultPickV7"></button>'+
  '<button type="button" id="svVaultCameraV7"></button></div>'+
  '<input type="file" id="svVaultFileV7" accept=".pdf,.jpg,.jpeg,.png,.webp,application/pdf,image/jpeg,image/png,image/webp" hidden>'+
@@ -253,7 +334,9 @@ function init(){
  function retranslate(){
   const vals={svVaultHeaderV7:'loaded',svVaultFormTitleV7:'choose',svVaultCautionV7:'sensitive',
    svVaultNameLabelV7:'title',svVaultTypeLabelV7:'type',svVaultTicketV7:'ticket',
-   svVaultPassV7:'pass',svVaultDocumentV7:'document',svVaultPickV7:'pick',
+   svVaultPassV7:'pass',svVaultDocumentV7:'document',svVaultLoyaltyV9:'loyalty',
+   svLoyaltyTitleV9:'loyaltyTitle',svLoyaltyTipV9:'loyaltyScan',
+   svLoyaltyAddV9:'loyaltyAdd',svVaultPickV7:'pick',
    svVaultCameraV7:'camera',svVaultSubmitV7:'save',svVaultCancelV7:'cancel'};
   for(const [id,k] of Object.entries(vals))$(id).textContent=t(k);
   add.textContent=t('add');
@@ -263,10 +346,13 @@ function init(){
    'Upload or photograph a ticket, pass or PDF. Private storage.';
  }
  retranslate();refresh();
+ w.addEventListener('sho-valet-filter-change',e=>setCategory(e.detail?.kind||'all'));
  w.addEventListener('sh9:languagechange',()=>{retranslate();refresh()});
- w.addEventListener('hh-family-profile-changed',()=>{stateClose();refresh()});
- w.addEventListener('storage',e=>{if(e.key==='hh-profile'||e.key==='sh9-language-v1'){stateClose();retranslate();refresh()}});
+ w.addEventListener('hh-family-profile-changed',()=>{stateClose();discardLoyaltyImages();refresh()});
+ w.addEventListener('storage',e=>{if(e.key==='hh-profile'||e.key==='sh9-language-v1'){
+  stateClose();discardLoyaltyImages();retranslate();refresh()}});
  w.addEventListener('pageshow',()=>refresh());
+ w.addEventListener('pagehide',discardLoyaltyImages);
 }
 if(d.readyState==='loading')d.addEventListener('DOMContentLoaded',init,{once:true});
 else init();
