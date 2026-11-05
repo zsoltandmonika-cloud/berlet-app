@@ -16,12 +16,12 @@ test('Health and bank categories load genuine secure-card controller, not generi
  assert.match(controller,/sho-valet-filter-change/);
  assert.match(controller,/category==='health'\|\|category==='card'/);
  assert.match(controller,/id="svExtraAddV15"/);
- assert.match(controller,/id="svExtraFrontV15"/);
- assert.match(controller,/id="svExtraBackV15"/);
- assert.match(controller,/id="svExtraLast4V15"/);
+ assert.match(page,/id="svExtraFrontV15"/);
+ assert.match(page,/id="svExtraBackV15"/);
+ assert.match(page,/id="svExtraLast4V15"/);
  assert.match(css,/sv-extra-bank-art-v15/);
 });
-test('Sensitive health photos are encrypted before any storage, bank only stores last4',()=>{
+test('Health photos and privacy-masked bank scans encrypt before storage; no PAN/CVV fields',()=>{
  assert.match(controller,/crypto\.subtle\.deriveKey/);
  assert.match(controller,/name:'PBKDF2'/);
  assert.match(controller,/name:'AES-GCM'/);
