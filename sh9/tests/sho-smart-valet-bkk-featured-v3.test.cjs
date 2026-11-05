@@ -41,7 +41,7 @@ test('BKK montage keeps responsive frame, no colored square, and all card contro
  assert.match(js,/const target=list\(\)\.find\(x=>x\.id===pinId\(\)\)\|\|list\(\)\[0\]/);
 });
 test('cache-bust prevents old Edge script and css hiding the new featured image',()=>{
- assert.match(html,/smart-valet-v1\.js\?v=9-loyalty-club-filters/);
+ assert.match(html,/smart-valet-v1\.js\?v=9-igazolvanyok-label/);
  assert.match(html,/smart-valet-sho-theme-v2\.css\?v=9-loyalty-club-tile/);
  assert.match(html,/sh9-golden-controls-v1\.js/);
  assert.match(html,/sh9-golden-bottom-nav-v924\.js/);
