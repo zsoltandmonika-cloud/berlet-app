@@ -13,7 +13,7 @@ function runner(){
  const w={crypto:webcrypto,location:{search:'?valetPilot=v7'},localStorage:{getItem(k){return k==='hh-profile'?'m':'hu'}},addEventListener(){}};
  const d={readyState:'loading',addEventListener(){}};
  vm.runInNewContext(code,{window:w,document:d,Uint8Array,Array,Map,Date,URL,Blob,console,
-  Number,String,Object,Promise},{filename:'smart-valet-private-v7.js'});
+  Number,String,Object,Promise,URLSearchParams},{filename:'smart-valet-private-v7.js'});
  return w.SH9_VALET_PRIVATE_V7;
 }
 function file(name,type,bytes){
