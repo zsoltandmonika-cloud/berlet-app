@@ -26,7 +26,7 @@ test('user-approved transparent Budapest pass is a real local AVIF and never a f
 });
 test('the approved image loads BEFORE the render code and is isolated to the featured pass',()=>{
  const art=html.indexOf('smart-valet-bkk-approved-v5.js?v=5-approved-budapest-pass');
- const app=html.indexOf('smart-valet-v1.js?v=9-loyalty-club-filters');
+ const app=html.indexOf('smart-valet-v1.js?v=9-igazolvanyok-label');
  assert.ok(art>0&&app>art);
  assert.match(js,/if\(isBudapestPass\)/);
  assert.match(js,/else art\.append\(symbol\(iconType\(target\)\)\)/);
