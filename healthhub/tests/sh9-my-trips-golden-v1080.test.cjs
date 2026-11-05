@@ -103,7 +103,7 @@ test('v1083 BKK-style Trip Plan Flow keeps existing dark SH9 theme and real segm
  assert.match(css,/\.st22-tp-walk\{--st22-mode:#dfa4d4\}/);
  assert.match(css,/#st22TripPackDialog \.st22-tp-flow-v1083 \.st22-tp-ride-stop/);
  assert.match(smart,/v=1098-travel-day-follow/);
- assert.match(smart,/smart-trip-pack-v1078\.js\?v=1100-trip-rating/);
+ assert.match(smart,/smart-trip-pack-v1078\.js\?v=1115-clipboard-import/);
  assert.doesNotMatch(pack,/innerHTML\s*=|insertAdjacentHTML|eval\(/);
  assert.doesNotMatch(pack,/navigator\.geolocation|setInterval\(/);
 });
@@ -357,7 +357,7 @@ test('v1098 saved trip starts auto-follow only on Budapest travel day',()=>{
  assert.match(pack,/w\.location\.replace\(exact\)/);
  assert.match(pack,/w\.location\.replace\(result\.url\)/);
  assert.match(page,/my-trips-tracking-v1097\.js\?v=1098-travel-day-follow/);
- assert.match(smart,/smart-trip-pack-v1078\.js\?v=1100-trip-rating/);
+ assert.match(smart,/smart-trip-pack-v1078\.js\?v=1115-clipboard-import/);
  assert.ok(smart.indexOf('my-trips-tracking-v1097.js')<smart.indexOf('smart-trip-pack-v1078.js'));
 });
 
@@ -380,7 +380,7 @@ test('v1100 1-5 stars at the end of full Trip Flow and persistent private archiv
  assert.ok(pack.indexOf('st22-tp-rating-title')>pack.indexOf("if(j.sources.length)"));
  assert.ok(pack.indexOf('st22-tp-rating-title')<pack.indexOf('st22-tp-viewer-footer'));
  assert.match(pageJs,/mt-rating-summary/);
- assert.match(page,/my-trips-cloud-v1086\.js\?v=1100-trip-rating/);
+ assert.match(page,/my-trips-cloud-v1086\.js\?v=8-valet-ecosystem/);
  assert.match(smart,/my-trips-rating-v1100\.js\?v=1100-trip-rating/);
  assert.match(cloudSrc,/cloudRating!==localRating/);
  assert.match(cloudSrc,/ratedAt:oldRatedAt/);
