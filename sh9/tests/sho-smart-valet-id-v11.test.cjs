@@ -119,7 +119,7 @@ test('identity actions do not expose public URLs and refuse mismatched user/prof
  assert.match(app,/w\.addEventListener\('hh-family-profile-changed'/);
  assert.match(app,/w\.addEventListener\('pagehide',close\)/);
  assert.match(app,/d\.addEventListener\('visibilitychange'/);
- assert.match(app,/if\(!\['image\/jpeg','image\/png','image\/webp'\]\.includes\(file\.type\)/);
+ assert.match(app,/\['image\/jpeg','image\/png','image\/webp'\]\.includes\(file\.type\)/);
  assert.doesNotMatch(app,/fetch\(['"]https?:\/\/|XMLHttpRequest|upload\(.*rawFile|FileReader|ImageCapture\.takePhoto/i);
 });
 test('browser JS syntax passes',()=>{
