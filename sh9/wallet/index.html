@@ -10,8 +10,8 @@
 <link rel="stylesheet" href="../shared/sh9-golden-controls-v1.css?v=934-unified-glass-dock">
 <link rel="stylesheet" href="../shared/sh9-golden-bottom-nav-v924.css?v=925-notification-center">
 <link rel="stylesheet" href="./smart-valet-v1.css?v=1-premium-glass">
-<link rel="stylesheet" href="./smart-valet-sho-theme-v2.css?v=9-loyalty-club-tile">
-<link rel="stylesheet" href="./smart-valet-private-v7.css?v=9-loyalty-list">
+<link rel="stylesheet" href="./smart-valet-sho-theme-v2.css?v=10-coupon-id-layout">
+<link rel="stylesheet" href="./smart-valet-private-v7.css?v=10-retail-coupons">
 <link rel="stylesheet" href="../shared/sho-private-document-reader-v1.css?v=1-sho-internal-reader">
 </head>
 <body>
@@ -75,7 +75,7 @@
    <div class="sv-categories" role="group" aria-label="Tárcakategóriák">
     <button type="button" class="sv-category" data-kind="loyalty" aria-pressed="false"><svg class="sv-cat-icon" viewBox="0 0 32 32" aria-hidden="true"><use href="./smart-valet-icons-v2.svg#loyalty"/></svg><span data-i18n="loyalty">Klubkártyák</span></button>
     <button type="button" class="sv-category" data-kind="identity" aria-pressed="false"><svg class="sv-cat-icon" viewBox="0 0 32 32" aria-hidden="true"><use href="./smart-valet-icons-v2.svg#identity"/></svg><span data-i18n="identity">Igazolványok</span></button>
-    <button type="button" class="sv-category" data-kind="license" aria-pressed="false"><svg class="sv-cat-icon" viewBox="0 0 32 32" aria-hidden="true"><use href="./smart-valet-icons-v2.svg#license"/></svg><span data-i18n="license">Jogosítvány</span></button>
+    <button type="button" class="sv-category" data-kind="coupon" aria-pressed="false"><svg class="sv-cat-icon" viewBox="0 0 32 32" aria-hidden="true"><use href="./smart-valet-icons-v2.svg#coupon"/></svg><span data-i18n="coupon">Kuponok</span></button>
     <button type="button" class="sv-category" data-kind="health" aria-pressed="false"><svg class="sv-cat-icon" viewBox="0 0 32 32" aria-hidden="true"><use href="./smart-valet-icons-v2.svg#health"/></svg><span data-i18n="health">Egészség</span></button>
     <button type="button" class="sv-category" data-kind="card" aria-pressed="false"><svg class="sv-cat-icon" viewBox="0 0 32 32" aria-hidden="true"><use href="./smart-valet-icons-v2.svg#payment"/></svg><span data-i18n="card">Bankkártyák</span></button>
     <button type="button" class="sv-category" data-kind="ticket" aria-pressed="false"><svg class="sv-cat-icon" viewBox="0 0 32 32" aria-hidden="true"><use href="./smart-valet-icons-v2.svg#ticket"/></svg><span data-i18n="ticket">Jegyek</span></button>
@@ -88,6 +88,31 @@
     <input id="svSearch" type="search" autocomplete="off" maxlength="70" placeholder="Keresés a tárcában…" aria-label="Keresés a tárcában">
    </label>
    <div id="svCards" class="sv-list" aria-live="polite"></div>
+   <section id="svIdentityPanelV10" class="sv-id-panel-v10" aria-labelledby="svIdentityTitleV10" hidden>
+    <div class="sv-id-panel-head-v10">
+     <div><span class="sv-id-kicker-v10">SHO · SECURE ID</span><h3 id="svIdentityTitleV10" data-i18n="idGroup">Igazolványok</h3></div>
+     <span class="sv-id-lock-v10" aria-hidden="true">🔒</span>
+    </div>
+    <div class="sv-id-grid-v10" role="group" aria-label="Igazolványtípusok">
+     <button type="button" class="sv-id-type-v10" data-id-type="license" aria-pressed="false">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><use href="./smart-valet-icons-v2.svg#license"/></svg>
+      <span data-i18n="license">Jogosítvány</span>
+     </button>
+     <button type="button" class="sv-id-type-v10" data-id-type="personal" aria-pressed="false">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><use href="./smart-valet-icons-v2.svg#identity"/></svg>
+      <span data-i18n="personalId">Személyi igazolvány</span>
+     </button>
+     <button type="button" class="sv-id-type-v10" data-id-type="taj" aria-pressed="false">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><use href="./smart-valet-icons-v2.svg#health"/></svg>
+      <span data-i18n="tajId">TAJ-kártya</span>
+     </button>
+     <button type="button" class="sv-id-type-v10" data-id-type="tax" aria-pressed="false">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><use href="./smart-valet-icons-v2.svg#document"/></svg>
+      <span data-i18n="taxId">Adókártya</span>
+     </button>
+    </div>
+    <p id="svIdNoticeV10" class="sv-id-notice-v10" role="status" aria-live="polite" data-i18n="idNoUpload">Az igazolványok biztonságos tárolása még nem aktív. Ebbe a csoportba egyelőre nem tölthető fel okmány.</p>
+   </section>
   </section>
 
   <section class="sv-add-panel" aria-labelledby="svAddTitle">
@@ -129,7 +154,7 @@
 
 <div id="svToast" class="sv-toast" role="status" aria-live="polite" hidden></div>
 <script defer src="./smart-valet-bkk-approved-v5.js?v=5-approved-budapest-pass"></script>
-<script defer src="./smart-valet-v1.js?v=9-igazolvanyok-label"></script>
+<script defer src="./smart-valet-v1.js?v=10-coupons-id-subgroups"></script>
 <script>
 (function(){
   // v8: private originals are generally available after authenticated setup.
@@ -145,7 +170,7 @@
   load('../../healthhub/central-vault/config.js?v=8-wallet-prod',function(){
     load('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.2/dist/umd/supabase.min.js',function(){
       load('../shared/sho-private-document-reader-v1.js?v=2-loyalty-image-zoom',function(){
-        load('./smart-valet-private-v7.js?v=9-loyalty-private',function(){});
+        load('./smart-valet-private-v7.js?v=10-coupon-gallery',function(){});
       });
     });
   });

@@ -34,8 +34,8 @@ test('the existing Golden top dock, bottom nav and BKK quick-access montage rema
  assert.match(html,/sh9-golden-controls-v1\.js/);
  assert.match(html,/sh9-golden-bottom-nav-v924\.js/);
  assert.match(html,/data-sh9-golden-bottom-nav="on"/);
- assert.match(html,/smart-valet-sho-theme-v2\.css\?v=9-loyalty-club-tile/);
- assert.match(html,/smart-valet-v1\.js\?v=9-igazolvanyok-label/);
+ assert.match(html,/smart-valet-sho-theme-v2\.css\?v=10-coupon-id-layout/);
+ assert.match(html,/smart-valet-v1\.js\?v=10-coupons-id-subgroups/);
  assert.match(css,/\.sv-feature-art\.sv-feature-bkk/);
  assert.match(html,/id="svFeatured"/);
  assert.match(html,/id="svCards"/);
