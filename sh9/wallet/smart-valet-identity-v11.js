@@ -76,8 +76,8 @@ function stopCamera(){
 function lock(){
  stopCamera();clearURLs();
  draft={front:null,back:null};activeKey=null;pendingSource=null;pendingSide='';
- const pass=$('svIdPassV11'),unlock=$('svIdUnlockPassV11');
- if(pass)pass.value='';if(unlock)unlock.value='';
+ const pass=$('svIdPassV11'),confirmation=$('svIdPassConfirmV11'),unlock=$('svIdUnlockPassV11');
+ if(pass)pass.value='';if(confirmation)confirmation.value='';if(unlock)unlock.value='';
  $('svIdCropV11').hidden=true;$('svIdViewV11').hidden=true;
  $('svIdDraftV11').hidden=true;$('svIdUnlockV11').hidden=true;
  const img=$('svIdImageFrontV11');if(img)img.removeAttribute('src');
@@ -232,6 +232,10 @@ async function save(){
  if(busy||!draft.front)return;
  const p=storedProfile,type=kind,password=$('svIdPassV11').value;
  if(password.length<12){status(human(Error('SHORT_PASS')),true);return}
+ if(password!==$('svIdPassConfirmV11').value){
+  status(text('A két titkosítási jelszó nem egyezik.','Encryption passphrases do not match.'),true);
+  return;
+ }
  busy=true;$('svIdSaveV11').disabled=true;status(text('Titkosítás és privát feltöltés…','Encrypting and uploading…'));
  let c,rec,created=false,uploaded=[];
  try{
@@ -266,7 +270,7 @@ async function save(){
   if(draft.back)decrypted.back=url(draft.back);
   $('svIdImageFrontV11').src=decrypted.front;
   if(decrypted.back)$('svIdImageBackV11').src=decrypted.back;
-  $('svIdPassV11').value='';
+  $('svIdPassV11').value='';$('svIdPassConfirmV11').value='';
   $('svIdDraftV11').hidden=true;
   $('svIdUnlockV11').hidden=true;
   $('svIdViewV11').hidden=false;
