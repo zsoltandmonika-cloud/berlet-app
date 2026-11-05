@@ -281,3 +281,73 @@ body[data-sh9-golden-unified="on"] .sv-hero #sh9UnifiedGlassDockV34{
 .sv-hero-copy,.sv-hero-glow,.sv-hero-illustration,.sv-orbit{display:none!important}
 @media(min-width:520px){.sv-hero{height:auto!important}}
 @media(max-width:390px){.sv-hero{height:auto!important}}
+
+
+/* v5 · Wallet-only GOLDEN bottom navigation alignment.
+   The legacy .sv-bottom used a floating, rounded, overflow-clipped card:
+   this produced an offset dock and truncated notification bubble.
+   Match the fixed full-bleed SHO/Notification Center nav without touching
+   shared controls, buttons, actions or any other module. */
+nav.sv-bottom[data-sh9-golden-bottom-nav="on"]{
+ box-sizing:border-box;
+ position:fixed;
+ z-index:100;
+ bottom:0;
+ left:50%;
+ right:auto;
+ transform:translateX(-50%);
+ width:min(100%,510px);
+ max-width:510px;
+ height:calc(70px + env(safe-area-inset-bottom,0px));
+ min-height:70px;
+ margin:0;
+ padding:5px 4px calc(5px + env(safe-area-inset-bottom,0px));
+ display:grid;
+ grid-template-columns:repeat(5,minmax(0,1fr));
+ align-items:stretch;
+ gap:0;
+ overflow:visible;
+ border:0;
+ border-top:1px solid rgba(140,198,243,.27);
+ border-radius:0;
+ background:rgba(15,30,54,.97);
+ box-shadow:0 -7px 22px rgba(0,0,0,.25);
+ backdrop-filter:blur(14px);
+ -webkit-backdrop-filter:blur(14px);
+}
+nav.sv-bottom[data-sh9-golden-bottom-nav="on"]>a,
+nav.sv-bottom[data-sh9-golden-bottom-nav="on"]>button{
+ box-sizing:border-box;
+ position:relative;
+ min-height:0;
+ height:100%;
+ padding:3px 1px;
+ gap:3px;
+ overflow:visible;
+ font-size:10px;
+ font-weight:600;
+ line-height:1.1;
+ color:#b9d0e8;
+ text-decoration:none;
+}
+nav.sv-bottom[data-sh9-golden-bottom-nav="on"]>a svg,
+nav.sv-bottom[data-sh9-golden-bottom-nav="on"]>button svg{
+ width:22px;
+ height:22px;
+ stroke:currentColor;
+ stroke-width:1.85;
+ flex:0 0 auto;
+}
+nav.sv-bottom[data-sh9-golden-bottom-nav="on"]>a span,
+nav.sv-bottom[data-sh9-golden-bottom-nav="on"]>button span{
+ white-space:nowrap;
+ font-size:10px;
+ line-height:1.1;
+}
+/* Keep the badge INSIDE the taskbar's top edge and above its button.
+   Count and pulse are still owned by the existing shared v924 notifier. */
+nav.sv-bottom[data-sh9-golden-bottom-nav="on"]>
+[data-sho-notify-unread]:not([data-sho-notify-unread="0"])::after{
+ top:1px;
+ right:calc(50% - 22px);
+}
