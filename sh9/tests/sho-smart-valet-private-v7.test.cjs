@@ -20,12 +20,14 @@ function file(name,type,bytes){
  const b=new Blob([Buffer.from(bytes)],{type});
  return{name,type,size:b.size,slice:(a,z)=>b.slice(a,z),arrayBuffer:()=>b.arrayBuffer()};
 }
-test('legacy wallet stays a demo unless the private pilot was explicitly selected',()=>{
- const w={location:{search:''},localStorage:{getItem(){return 'z'}}};
+test('private upload API is available without pilot flag, but authenticates every operation',()=>{
+ const w={crypto:webcrypto,location:{search:''},localStorage:{getItem(){return 'z'}},addEventListener(){}};
  const d={readyState:'loading',addEventListener(){}};
- vm.runInNewContext(code,{window:w,document:d,URLSearchParams});
- assert.equal(w.SH9_VALET_PRIVATE_V7,undefined);
- assert.match(code,/get\('valetPilot'\)!=='v7'/);
+ vm.runInNewContext(code,{window:w,document:d,URLSearchParams,Uint8Array,Array,Map,Date,URL,Blob,console,
+  Number,String,Object,Promise});
+ assert.ok(w.SH9_VALET_PRIVATE_V7);
+ assert.doesNotMatch(code,/get\('valetPilot'\)!=='v7'/);
+ assert.match(code,/await c\.auth\.getUser\(\)/);
 });
 test('strict PDF/JPEG/PNG/WebP signatures and 15 MB cap, reject spoofing and empty files',async()=>{
  const api=runner();
@@ -73,9 +75,10 @@ test('Golden Standard display and approved BKK image unchanged; only companion u
  assert.match(html,/smart-valet-v1\.js\?v=5-approved-bkk-card/);
  assert.match(html,/smart-valet-bkk-approved-v5\.js\?v=5-approved-budapest-pass/);
  assert.match(html,/data-sh9-golden-bottom-nav="on"/);
- assert.match(html,/smart-valet-private-v7\.js\?v=7-secure-originals/);
- assert.match(html,/smart-valet-private-v7\.css\?v=7-private-documents/);
- assert.match(html,/central-vault\/config\.js\?v=7-wallet-publishable/);
+ assert.match(html,/smart-valet-private-v7\.js\?v=8-private-ecosystem/);
+ assert.match(html,/sho-private-document-reader-v1\.js\?v=1-shared-reader/);
+ assert.match(html,/smart-valet-private-v7\.css\?v=8-ecosystem-document-reader/);
+ assert.match(html,/central-vault\/config\.js\?v=8-wallet-prod/);
  assert.match(html,/\@supabase\/supabase-js\@2\.57\.2/);
  assert.match(css,/\.sv-vault-form-v7\[hidden\]/);
  assert.match(code,/id="svVaultCameraInputV7" accept="image\/\*" capture="environment"/);
