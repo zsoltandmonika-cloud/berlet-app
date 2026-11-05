@@ -1,0 +1,47 @@
+/* SHO Smart Valet v15 - Golden premium glass cards, profile-aware accents. */
+.sv-extra-panel-v15{margin:18px 0 12px;padding:18px;border:1px solid rgba(168,196,255,.32);border-radius:22px;background:linear-gradient(145deg,rgba(52,57,116,.83),rgba(20,27,56,.93));box-shadow:0 15px 38px rgba(4,7,22,.25);color:#f7f5ff}
+.sv-extra-panel-v15[hidden],.sv-extra-dialog-v15[hidden],.sv-extra-dialog-v15 [hidden]{display:none!important}
+.sv-extra-top-v15{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.sv-extra-top-v15 h3{margin:4px 0;font-size:1.27rem;font-weight:760;color:#f6f5ff}
+.sv-extra-top-v15 small,.sv-extra-modal-head-v15 small{color:#c7d7ff;letter-spacing:.16em;font-size:.64rem;font-weight:800}
+#svExtraHintV15{color:#d7daf8;margin:4px 0 15px;line-height:1.48;font-size:.87rem}
+.sv-extra-primary-v15{display:block;width:100%;min-height:48px;padding:11px 17px;border:1px solid rgba(191,217,255,.66);border-radius:16px;background:linear-gradient(130deg,rgba(109,166,242,.8),rgba(135,98,200,.83));color:#fff;box-shadow:0 10px 24px rgba(20,22,57,.31);font-weight:800;cursor:pointer;font-size:.94rem}
+:root[data-sh9-golden-profile="m"] .sv-extra-primary-v15,:root[data-sh9-golden-profile="monika"] .sv-extra-primary-v15{background:linear-gradient(135deg,rgba(234,136,198,.86),rgba(153,101,193,.87))}
+.sv-extra-primary-v15:disabled{opacity:.55;cursor:wait}
+#svExtraStatusV15,#svExtraDialogStatusV15{min-height:1em;color:#cfe6fc;font-size:.83rem}
+#svExtraStatusV15[data-error="1"],#svExtraDialogStatusV15[data-error="1"]{color:#ffbfca}
+.sv-extra-list-v15{display:grid;gap:12px}
+.sv-extra-item-v15{display:flex;gap:9px;align-items:stretch;padding:7px;border:1px solid rgba(173,204,249,.31);border-radius:18px;background:linear-gradient(125deg,rgba(50,66,123,.53),rgba(45,29,81,.46));min-width:0}
+.sv-extra-card-v15{flex:1;min-width:0;display:flex;gap:12px;align-items:center;text-align:left;padding:10px 6px;border:0;background:transparent;color:#fff;cursor:pointer}
+.sv-extra-icon-v15{display:flex;align-items:center;justify-content:center;min-width:54px;height:44px;font-size:1.5rem;border:1px solid rgba(211,217,255,.4);border-radius:12px;background:rgba(45,60,106,.66)}
+.sv-extra-info-v15{display:grid;gap:5px;min-width:0}
+.sv-extra-info-v15 strong{font-size:.94rem;overflow-wrap:anywhere}
+.sv-extra-info-v15 small{color:#d8ddff;font-size:.76rem;overflow-wrap:anywhere}
+.sv-extra-pin-v15{max-width:128px;padding:8px 11px;border:1px solid rgba(178,199,254,.34);border-radius:12px;background:rgba(77,65,126,.56);color:#f9e2ff;font-size:.78rem;cursor:pointer}
+.sv-extra-pin-v15:disabled{opacity:.55}
+.sv-extra-empty-v15{padding:15px;text-align:center;color:#d8def8}
+.sv-extra-dialog-v15{position:fixed;inset:0;max-height:95dvh;max-width:min(540px,calc(100vw - 24px));width:100%;padding:0;border:1px solid rgba(194,207,255,.48);border-radius:25px;background:#151c35;color:#fff;box-shadow:0 20px 95px rgba(0,0,0,.69);overflow-y:auto}
+.sv-extra-dialog-v15::backdrop{background:rgba(3,5,18,.81);backdrop-filter:blur(9px)}
+.sv-extra-modal-v15{padding:20px;background:radial-gradient(circle at 90% 0%,rgba(97,81,176,.32),transparent 45%),linear-gradient(150deg,#222947,#121d36)}
+.sv-extra-modal-head-v15{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.sv-extra-modal-head-v15 h2{margin:6px 0 10px;font-size:1.3rem;color:#fff}
+#svExtraCloseV15{width:42px;height:42px;border-radius:12px;border:1px solid rgba(230,233,255,.35);background:rgba(80,86,142,.39);color:#fff;font-size:1.7rem;cursor:pointer}
+.sv-extra-modal-v15 label{display:grid;gap:7px;margin:12px 0;color:#f8f4ff;font-size:.85rem;font-weight:650}
+.sv-extra-modal-v15 input:not([type=file]){width:100%;min-height:45px;padding:11px 12px;border-radius:11px;border:1px solid rgba(176,197,246,.55);background:rgba(8,14,39,.77);color:#fff;font-size:1rem}
+.sv-extra-modal-v15 input:focus-visible,.sv-extra-modal-v15 button:focus-visible{outline:2px solid #b4d9ff;outline-offset:2px}
+.sv-extra-photo-grid-v15{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.sv-extra-photo-grid-v15 label{min-width:0;padding:9px;border:1px solid rgba(194,213,255,.27);border-radius:16px;background:rgba(51,64,108,.33)}
+.sv-extra-photo-grid-v15 button,.sv-extra-view-actions-v15 button{display:block;border:1px solid rgba(180,211,254,.49);border-radius:11px;padding:10px;background:rgba(85,91,166,.33);color:#fff;cursor:pointer;min-height:42px}
+.sv-extra-photo-grid-v15 small{overflow-wrap:anywhere;font-weight:400;color:#cbd8fb}
+.sv-extra-safety-v15{margin:12px 0;color:#d4dcff;font-size:.83rem;line-height:1.48}
+.sv-extra-bank-art-v15{width:100%;aspect-ratio:1.586;border-radius:20px;padding:23px;display:flex;flex-direction:column;justify-content:space-between;overflow:hidden;background:linear-gradient(129deg,#4b78b9 0%,#382957 45%,#a05d9e 100%);border:1px solid rgba(225,240,255,.6);box-shadow:inset 0 0 35px rgba(255,255,255,.13),0 16px 32px rgba(0,0,0,.3);letter-spacing:.02em}
+.sv-extra-bank-logo-v15{font-size:1.25rem;font-weight:760}
+.sv-extra-bank-number-v15{font-size:clamp(1rem,4vw,1.35rem);font-weight:750;letter-spacing:.11em}
+.sv-extra-bank-owner-v15{font-size:.95rem;font-weight:700;overflow-wrap:anywhere}
+#svExtraLockedV15{display:grid;gap:11px;text-align:center;margin:20px 0}
+.sv-extra-photo-view-v15{width:100%;aspect-ratio:1.586;max-height:70vh;display:flex;align-items:center;justify-content:center;overflow:auto;border:1px solid rgba(203,225,255,.35);border-radius:18px;background:rgba(4,9,26,.73)}
+.sv-extra-photo-view-v15 img{display:block;max-width:100%;max-height:100%;object-fit:contain;transform-origin:center;transition:transform .16s}
+.sv-extra-view-actions-v15{display:flex;align-items:center;flex-wrap:wrap;justify-content:center;gap:9px;margin-top:13px}
+.sv-extra-view-actions-v15 span{font-size:.8rem;color:#e0e1ff}
+.sv-extra-delete-v15{background:rgba(128,41,70,.4)!important;border-color:rgba(243,122,148,.49)!important}
+@media(max-width:440px){.sv-extra-modal-v15{padding:13px}.sv-extra-photo-grid-v15{grid-template-columns:1fr}.sv-extra-pin-v15{max-width:104px;padding:6px}.sv-extra-item-v15{gap:4px}.sv-extra-icon-v15{min-width:42px}}
