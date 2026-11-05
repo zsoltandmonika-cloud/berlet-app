@@ -16,7 +16,7 @@ test('approved navy/purple SHO Travel theme overrides, preserves original Golden
  assert.match(theme,/--sv-plate:linear-gradient/);
  assert.match(theme,/#9b81df/);
  assert.match(theme,/@media\(max-width:390px\)/);
- assert.match(html,/smart-valet-sho-theme-v2\.css\?v=9-loyalty-club-tile/);
+ assert.match(html,/smart-valet-sho-theme-v2\.css\?v=10-coupon-id-layout/);
  assert.match(html,/sh9-golden-controls-v1\.js/);
  assert.match(html,/sh9-golden-bottom-nav-v924\.js/);
  assert.match(html,/data-sh9-golden-bottom-nav="on"/);
@@ -35,9 +35,9 @@ test('HD Wallet hero is local, resolution-independent, no external image tracker
 test('eight attractive category tiles use local scalable iconpack including all requested identity, licence, health, finance and document kinds',()=>{
  const grid=html.match(/<div class="sv-categories"[^>]*>([\s\S]*?)<\/div>/)?.[1]||'';
  const categories=[...grid.matchAll(/data-kind="([a-z]+)"/g)].map(a=>a[1]);
- assert.deepEqual(categories,['loyalty','identity','license','health','card','ticket','pass','document']);
+ assert.deepEqual(categories,['loyalty','identity','coupon','health','card','ticket','pass','document']);
  const symbolIds=[...icons.matchAll(/<symbol id="([^"]+)"/g)].map(m=>m[1]);
- for(const name of ['all','loyalty','identity','license','health','payment','ticket','pass','document','bus','train','sport']){
+ for(const name of ['all','loyalty','identity','license','coupon','health','payment','ticket','pass','document','bus','train','sport']){
   assert.ok(symbolIds.includes(name),name);
  }
  assert.equal((html.match(/class="sv-cat-icon"/g)||[]).length,8);
@@ -66,7 +66,7 @@ test('profile colour and language still follow SHO settings and remain localized
  assert.match(app,/license:'Jogosítvány'/);
  assert.match(app,/card:'Bankkártyák'/);
  assert.match(app,/identity:'ID Cards'/);
- assert.match(app,/license:'Driver licence'/);
+ assert.match(app,/license:'Driving licence'/);
  assert.match(app,/w\.addEventListener\('sh9:languagechange'/);
  assert.match(app,/w\.addEventListener\('hh-family-profile-changed'/);
 });
