@@ -1,0 +1,29 @@
+name: SHO Activity v1016 · priority launch regression
+on:
+  pull_request:
+    paths:
+      - 'healthhub/index.html'
+      - 'healthhub/sho-entry-v1.js'
+      - 'healthhub/tests/sho-priority-entry-v1016.test.cjs'
+      - 'sh9/tests/sho-start-v27.test.cjs'
+      - '.github/workflows/sho-activity-priority-v1016-qa.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'healthhub/index.html'
+      - 'healthhub/sho-entry-v1.js'
+      - 'healthhub/tests/sho-priority-entry-v1016.test.cjs'
+      - 'sh9/tests/sho-start-v27.test.cjs'
+      - '.github/workflows/sho-activity-priority-v1016-qa.yml'
+permissions:
+  contents: read
+jobs:
+  activity-entry:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+      - name: Ensure SHO opens before window load and preserves standard routes
+        run: |
+          node --check healthhub/sho-entry-v1.js
+          node --test healthhub/tests/sho-priority-entry-v1016.test.cjs

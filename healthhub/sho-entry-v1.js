@@ -28,6 +28,8 @@
    root.console?.warn?.('SHO requested module unavailable; HealthHub Home remains active');
   }
  }
- if(doc.readyState==='complete')root.setTimeout(launch,150);
- else root.addEventListener('load',launch,{once:true});
+ // v1016: The launcher is injected just after live-v191.js.
+ // Do not gate Activity on window.load, which waits for unrelated images.
+ // Keep bounded retries if a platform-specific wrapper is still initializing.
+ launch();
 })(window,document);
