@@ -53,7 +53,9 @@ test('the sample ticket modal is accessible and cannot masquerade as a valid sca
  assert.match(html,/id="svDialogTitle"/);
  assert.match(html,/id="svDialogPin"/);
  assert.match(html,/Nem érvényes belépőkód/);
- assert.match(html,/nem érvényesek/);
+ assert.doesNotMatch(html,/class="sv-demo-notice"/);
+ assert.match(html,/class="sv-modal-mark" data-i18n="demoTag"/);
+ assert.match(html,/data-i18n="sampleBadge">MINTA/);
  assert.match(html,/id="svAdd" disabled/);
  assert.doesNotMatch(html,/<input[^>]+type="file"/i);
  assert.doesNotMatch(html,/<(canvas|video)\b/i);
