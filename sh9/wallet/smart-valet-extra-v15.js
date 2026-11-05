@@ -258,7 +258,7 @@ function togglePinButton(rec){
 }
 async function loadRecord(id){
  const p=profile(),c=await authorized(p);
- const {data,error}=await c.from(TABLE).select('id,profile_key,category,title,issuer,last_four,front_cipher,back_cipher,kdf_salt')
+ const {data,error}=await c.from(TABLE).select('id,profile_key,category,title,issuer,last_four,front_cipher,back_cipher,kdf_salt,protection_mode')
   .eq('id',id).eq('profile_key',p).maybeSingle();
  if(error)throw error;
  if(p!==profile())throw Error('NO_ACCESS');
@@ -295,6 +295,7 @@ async function openSaved(id){
   }
   togglePinButton(rec);
   $('svExtraDialogV15').showModal();
+  if(rec.front_cipher&&modeOf(rec)==='device')void unlock();
  }catch(e){status(human(e),true)}
 }
 function renderPhoto(){
@@ -315,11 +316,20 @@ function renderPhoto(){
 async function unlock(){
  const rec=active,p=profileAtOpen,pass=$('svExtraPasswordOpenV15').value;
  if(!rec||!rec.front_cipher||busy)return;
- if(pass.length<8){modalStatus(t('Legalább 8 karakteres jelszót adj meg.','Enter a password of at least 8 characters.'),true);return}
+ const mode=modeOf(rec);
+ if(mode==='password'&&pass.length<8){
+  modalStatus(t('Legalább 8 karakteres jelszót adj meg.','Enter a password of at least 8 characters.'),true);return
+ }
  busy=true;$('svExtraUnlockV15').disabled=true;
  try{
-  await authorized(p);
-  const key=await keyFor(pass,decode(rec.kdf_salt));
+  const c=await authorized(p);
+  let key;
+  if(mode==='device'){
+   const auth=await c.auth.getUser();
+   if(auth.error||!auth.data?.user?.id)throw Error('NO_LOGIN');
+   key=await deviceKey('get',auth.data.user.id,rec.id);
+   if(!key||key.extractable||key.algorithm?.name!=='AES-GCM')throw Error('NO_DEVICE_KEY');
+  }else key=await keyFor(pass,decode(rec.kdf_salt));
   const first=await decrypt(rec.front_cipher,key,rec,'front');
   const second=rec.back_cipher?await decrypt(rec.back_cipher,key,rec,'back'):null;
   if(profile()!==p||active?.id!==rec.id||!$('svExtraDialogV15').open)throw Error('NO_ACCESS');
@@ -393,6 +403,11 @@ async function remove(){
   const c=await authorized(p);
   const {error}=await c.from(TABLE).delete().eq('id',id).eq('profile_key',p);
   if(error)throw error;
+  if(modeOf(active)==='device'){
+   const auth=await c.auth.getUser();
+   if(!auth.error&&auth.data?.user?.id)
+    try{await deviceKey('delete',auth.data.user.id,id)}catch(_){}
+  }
   if(w.SHO_VALET_SMART_ACCESS_V13?.isPinned('extra',id))
    w.SHO_VALET_SMART_ACCESS_V13.clear();
   close();await refresh();
@@ -402,11 +417,11 @@ async function remove(){
 async function resolvePinned(id,p){
  if(!validId(id)||p!==profile())throw Error('NO_ACCESS');
  const c=await authorized(p);
- const {data,error}=await c.from(TABLE).select('id,profile_key,category,title,issuer,last_four')
+ const {data,error}=await c.from(TABLE).select('id,profile_key,category,title,issuer,last_four,protection_mode,front_cipher')
   .eq('id',id).eq('profile_key',p).maybeSingle();
  if(error)throw error;
  if(p!==profile())throw Error('NO_ACCESS');
- return data?{...data,protection_mode:data.category==='health'?'password':'masked',
+ return data?{...data,protection_mode:data.front_cipher?modeOf(data):'masked',
   subtitle:data.category==='health'?t('🔒 Titkosított egészségkártya','🔒 Encrypted health card'):
    t('💳 '+(data.issuer||'')+(data.last_four?' · •••• '+data.last_four:''),'💳 '+(data.issuer||'')+(data.last_four?' · •••• '+data.last_four:''))}:null;
 }
