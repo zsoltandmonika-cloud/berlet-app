@@ -65,6 +65,8 @@ test('identity photos are encrypted in-browser with nonexportable AES-GCM key, r
  assert.match(app,/new Blob\(\[iv,new Uint8Array\(ciphertext\)\]/);
  assert.match(app,/contentType:'application\/octet-stream',upsert:false/);
  assert.match(app,/if\(password\.length<12\)/);
+ assert.match(page,/id="svIdPassConfirmV11"/);
+ assert.match(app,/password!==\$\('svIdPassConfirmV11'\)\.value/);
  assert.match(app,/activeKey=null/);
  assert.doesNotMatch(app,/localStorage\.setItem|sessionStorage\.setItem|getPublicUrl|createSignedUrl|service_role|toDataURL|FaceDetector|BarcodeDetector|Tesseract/i);
  const inject=app.replace(/\}\)\(window,document\);\s*$/,
