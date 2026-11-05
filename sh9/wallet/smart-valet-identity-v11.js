@@ -384,6 +384,13 @@ async function removeCard(){
 function init(){
  const parent=$('svIdentityPanelV10'),tpl=$('svIdTemplateV11');
  if(!parent||!tpl)return;
+ function pilotNotice(){
+  const node=$('svIdNoticeV10');
+  if(node)node.textContent=text(
+   '🔐 V11 védett próbaüzem: előlap/hátlap titkosított feltöltése, legalább 12 karakteres jelszóval.',
+   '🔐 Protected v11 pilot: encrypted front/back upload with a 12-character passphrase.');
+ }
+ w.addEventListener('sho-valet-filter-change',pilotNotice);
  if(!w.crypto?.subtle){
   $('svIdNoticeV10').textContent=text('Biztonságos titkosítás ezen az eszközön nem elérhető.','Secure encryption is unavailable on this device.');return;
  }
@@ -423,7 +430,7 @@ function init(){
  w.addEventListener('storage',e=>{if(e.key==='hh-profile'){close();void refresh()}});
  w.addEventListener('pagehide',close);
  d.addEventListener('visibilitychange',()=>{if(d.hidden&&!$('svIdViewV11').hidden)close()});
- void refresh();
+ pilotNotice();void refresh();
 }
 if(d.readyState==='loading')d.addEventListener('DOMContentLoaded',init,{once:true});else init();
 w.SHO_VALET_ID_V11=Object.freeze({version:11,cardAspect:RATIO,encrypted:true});
