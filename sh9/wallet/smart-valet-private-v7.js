@@ -314,10 +314,10 @@ function init(){
   '<div id="svVaultPrivateListV7"></div>';
  add.disabled=false;add.removeAttribute('aria-describedby');add.textContent=t('add');
  add.addEventListener('click',openSheet);
- const panel=add.closest('.sv-add-panel');
- if(panel){
-  panel.classList.add('sv-add-panel-live-v8');
-  panel.addEventListener('click',event=>{
+ const addTile=add.closest('.sv-add-panel');
+ if(addTile){
+  addTile.classList.add('sv-add-panel-live-v8');
+  addTile.addEventListener('click',event=>{
    // The actual Hozzáadás button already has its own handler.
    if(event.target.closest('button,a,input,select'))return;
    openSheet();
