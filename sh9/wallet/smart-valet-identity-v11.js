@@ -62,7 +62,7 @@ async function encrypt(blob,key,rec,which){
  return new Blob([iv,new Uint8Array(ciphertext)],{type:'application/octet-stream'});
 }
 async function decrypt(cipher,key,rec,which){
- const bytes=new Uint8Array(await cipher.arrayBuffer());if(bytes.length<33)throw Error('BAD_PASS');
+ const bytes=new Uint8Array(await cipher.arrayBuffer());if(bytes.length<29)throw Error('BAD_PASS');
  try{
   const plain=await w.crypto.subtle.decrypt({
    name:'AES-GCM',iv:bytes.slice(0,12),additionalData:aad(rec,which),tagLength:128},key,bytes.slice(12));
