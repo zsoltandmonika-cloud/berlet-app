@@ -107,8 +107,8 @@ function openAdd(){
  if(!['health','card'].includes(category)||busy)return;
  close();active=null;profileAtOpen=profile();
  renderFormType();$('svExtraEditV15').hidden=false;
- $('svExtraAddFrontV15').textContent=t('📷 Előlap · fotó / fájl','📷 Front · camera / file');
- $('svExtraAddBackV15').textContent=t('📷 Hátlap · fotó / fájl','📷 Back · camera / file');
+ $('svExtraAddFrontV15').textContent=t('📁 Előlap · fájl','📁 Front · file');
+ $('svExtraAddBackV15').textContent=t('📁 Hátlap · fájl','📁 Back · file');
  modalStatus('');
  $('svExtraDialogV15').showModal();
 }
@@ -325,8 +325,8 @@ function init(){
  dialog.innerHTML='<div class="sv-extra-modal-v15"><div class="sv-extra-modal-head-v15"><div><small>SHO · SMART VALET</small><h2 id="svExtraDraftTitleV15"></h2></div><button type="button" id="svExtraCloseV15" aria-label="Bezárás">×</button></div>'+
  '<p id="svExtraDialogStatusV15" role="status" aria-live="polite"></p>'+
  '<form id="svExtraFormV15"><section id="svExtraEditV15"><label>Kártya neve / Card name<input id="svExtraTitleInputV15" maxlength="120" required autocomplete="off" placeholder="Pl. Egészségpénztár / OTP bank"></label>'+
- '<div id="svExtraHealthFieldsV15"><div class="sv-extra-photo-grid-v15"><label>ELŐLAP · FRONT<input type="file" id="svExtraFrontV15" accept="image/jpeg,image/png,image/webp" hidden><button type="button" id="svExtraAddFrontV15"></button><small id="svExtraFrontNameV15"></small></label>'+
- '<label>HÁTLAP · BACK<input type="file" id="svExtraBackV15" accept="image/jpeg,image/png,image/webp" hidden><button type="button" id="svExtraAddBackV15"></button><small id="svExtraBackNameV15"></small></label></div>'+
+ '<div id="svExtraHealthFieldsV15"><div class="sv-extra-photo-grid-v15"><label>ELŐLAP · FRONT<input type="file" id="svExtraFrontV15" accept="image/jpeg,image/png,image/webp" hidden><input type="file" id="svExtraFrontCameraV15" accept="image/jpeg,image/png,image/webp" capture="environment" hidden><button type="button" id="svExtraAddFrontV15"></button><button type="button" id="svExtraCaptureFrontV15">📷 Fotó</button><small id="svExtraFrontNameV15"></small></label>'+
+ '<label>HÁTLAP · BACK<input type="file" id="svExtraBackV15" accept="image/jpeg,image/png,image/webp" hidden><input type="file" id="svExtraBackCameraV15" accept="image/jpeg,image/png,image/webp" capture="environment" hidden><button type="button" id="svExtraAddBackV15"></button><button type="button" id="svExtraCaptureBackV15">📷 Fotó</button><small id="svExtraBackNameV15"></small></label></div>'+
  '<label>🔐 Titkosítási jelszó (min. 8 karakter)<input id="svExtraPassV15" type="password" minlength="8" autocomplete="new-password"></label>'+
  '<label>Jelszó megerősítése<input id="svExtraPassConfirmV15" type="password" minlength="8" autocomplete="new-password"></label></div>'+
  '<div id="svExtraBankFieldsV15"><label>Bank / Kártyakibocsátó<input id="svExtraIssuerV15" maxlength="100" autocomplete="off" placeholder="Pl. OTP, Erste"></label>'+
@@ -344,9 +344,10 @@ function init(){
  dialog.addEventListener('cancel',e=>{e.preventDefault();close()});
  $('svExtraFormV15').addEventListener('submit',e=>void save(e));
  for(const side of ['Front','Back']){
-  const id='svExtra'+side+'V15',button=$('svExtraAdd'+side+'V15');
-  button.addEventListener('click',()=>$(id).click());
-  $(id).addEventListener('change',e=>{
+  const id='svExtra'+side+'V15',cameraId='svExtra'+side+'CameraV15';
+  $('svExtraAdd'+side+'V15').addEventListener('click',()=>$(id).click());
+  $('svExtraCapture'+side+'V15').addEventListener('click',()=>$(cameraId).click());
+  for(const input of [id,cameraId])$(input).addEventListener('change',e=>{
    const f=e.target.files?.[0]||null;e.target.value='';
    const which=side.toLowerCase();files[which]=f;
    $('svExtra'+side+'NameV15').textContent=f?f.name:t('Nincs kiválasztva','Not selected');
@@ -379,6 +380,7 @@ function init(){
  w.addEventListener('storage',e=>{if(e.key==='hh-profile'||e.key==='sh9-language-v1'){profileChange();renderCategory()}});
  w.addEventListener('sh9:languagechange',()=>{renderCategory();renderGallery()});
  w.addEventListener('pagehide',()=>{++serial;close()});
+ d.addEventListener('visibilitychange',()=>{if(d.hidden){++serial;close()}});
  renderCategory();
 }
 if(d.readyState==='loading')d.addEventListener('DOMContentLoaded',init,{once:true});else init();
