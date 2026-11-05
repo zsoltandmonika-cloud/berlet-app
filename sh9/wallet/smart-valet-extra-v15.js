@@ -122,6 +122,30 @@ function openAdd(){
  modalStatus('');
  $('svExtraDialogV15').showModal();
 }
+async function captureSide(which,mode){
+ if(busy||active||!['front','back'].includes(which))return;
+ const p=profileAtOpen,cat=category;
+ const api=w.SHO_VALET_OPTICAL_V16;
+ if(!api?.capture){
+  modalStatus(t('A közös optikai keret nem töltődött be. Frissítsd az oldalt.',
+   'Shared optical scanner unavailable. Reload the page.'),true);return;
+ }
+ const photo=await api.capture({
+  title:cat==='health'?t('Egészségkártya','Health card'):t('Bankkártya','Bank card'),
+  side:which,mode,bankRedact:cat==='card'
+ });
+ if(!photo||p!==profile()||p!==profileAtOpen||cat!==category||!$('svExtraDialogV15').open||active)return;
+ const cap=which==='front'?'Front':'Back';
+ if(previewURLs[which])URL.revokeObjectURL(previewURLs[which]);
+ previewURLs[which]=URL.createObjectURL(photo);
+ files[which]=photo;
+ $('svExtra'+cap+'PreviewV16').src=previewURLs[which];
+ $('svExtra'+cap+'PreviewV16').hidden=false;
+ $('svExtra'+cap+'EmptyV16').hidden=true;
+ $('svExtra'+cap+'NameV15').textContent=t('✓ Optikai keret OK','✓ Optical fit OK');
+ modalStatus(t('Kép elfogadva. Folytathatod a másik oldallal.',
+  'Photo accepted. Continue with the other side.'));
+}
 function renderGallery(){
  const host=$('svExtraCardsV15');host.replaceChildren();
  if(!rows.length){
@@ -219,6 +243,7 @@ async function openSaved(id){
   $('svExtraHealthViewerV15').hidden=bank;
   if(bank)bankArt(rec);
   if(rec.front_cipher){
+   $('svExtraPhotoViewV16').hidden=true;
    $('svExtraBankArtV15').hidden=true;
    $('svExtraHealthViewerV15').hidden=false;
    $('svExtraLockedV15').hidden=false;$('svExtraImageV15').hidden=true;
@@ -260,6 +285,7 @@ async function unlock(){
   release();viewURLs.push(URL.createObjectURL(first));
   if(second)viewURLs.push(URL.createObjectURL(second));
   $('svExtraPasswordOpenV15').value='';flip='front';zoom=1;
+  $('svExtraPhotoViewV16').hidden=false;
   renderPhoto();modalStatus(t('Kártya feloldva. A hátlaphoz használd a fordítást.','Card unlocked. Flip to see its back.'));
  }catch(e){modalStatus(human(e),true)}
  finally{busy=false;$('svExtraUnlockV15').disabled=false}
@@ -343,38 +369,19 @@ function init(){
  '<p id="svExtraHintV15"></p><button type="button" id="svExtraAddV15" class="sv-extra-primary-v15"></button>'+
  '<p id="svExtraStatusV15" role="status" aria-live="polite"></p><div id="svExtraCardsV15" class="sv-extra-list-v15"></div>';
  $('svIdentityPanelV10').insertAdjacentElement('afterend',panel);
- const dialog=dom('dialog','sv-extra-dialog-v15');dialog.id='svExtraDialogV15';
- dialog.innerHTML='<div class="sv-extra-modal-v15"><div class="sv-extra-modal-head-v15"><div><small>SHO · SMART VALET</small><h2 id="svExtraDraftTitleV15"></h2></div><button type="button" id="svExtraCloseV15" aria-label="Bezárás">×</button></div>'+
- '<p id="svExtraDialogStatusV15" role="status" aria-live="polite"></p>'+
- '<form id="svExtraFormV15"><section id="svExtraEditV15"><label>Kártya neve / Card name<input id="svExtraTitleInputV15" maxlength="120" required autocomplete="off" placeholder="Pl. Egészségpénztár / OTP bank"></label>'+
- '<div id="svExtraHealthFieldsV15"><div class="sv-extra-photo-grid-v15"><label>ELŐLAP · FRONT<input type="file" id="svExtraFrontV15" accept="image/jpeg,image/png,image/webp" hidden><input type="file" id="svExtraFrontCameraV15" accept="image/jpeg,image/png,image/webp" capture="environment" hidden><button type="button" id="svExtraAddFrontV15"></button><button type="button" id="svExtraCaptureFrontV15">📷 Fotó</button><small id="svExtraFrontNameV15"></small></label>'+
- '<label>HÁTLAP · BACK<input type="file" id="svExtraBackV15" accept="image/jpeg,image/png,image/webp" hidden><input type="file" id="svExtraBackCameraV15" accept="image/jpeg,image/png,image/webp" capture="environment" hidden><button type="button" id="svExtraAddBackV15"></button><button type="button" id="svExtraCaptureBackV15">📷 Fotó</button><small id="svExtraBackNameV15"></small></label></div>'+
- '<label>🔐 Titkosítási jelszó (min. 8 karakter)<input id="svExtraPassV15" type="password" minlength="8" autocomplete="new-password"></label>'+
- '<label>Jelszó megerősítése<input id="svExtraPassConfirmV15" type="password" minlength="8" autocomplete="new-password"></label></div>'+
- '<div id="svExtraBankFieldsV15"><label>Bank / Kártyakibocsátó<input id="svExtraIssuerV15" maxlength="100" autocomplete="off" placeholder="Pl. OTP, Erste"></label>'+
- '<label>Utolsó 4 számjegy (opcionális)<input id="svExtraLast4V15" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" autocomplete="off" placeholder="1234"></label></div>'+
- '<p id="svExtraSafetyV15" class="sv-extra-safety-v15"></p>'+
- '<button type="submit" id="svExtraSaveV15" class="sv-extra-primary-v15">🔒 Mentés</button></section></form>'+
- '<section id="svExtraViewerV15" hidden><div id="svExtraBankArtV15" class="sv-extra-bank-art-v15" hidden></div>'+
- '<div id="svExtraHealthViewerV15"><div id="svExtraLockedV15"><p>🔐 Jelszavas egészségkártya / Encrypted health card</p><input type="password" id="svExtraPasswordOpenV15" autocomplete="off" placeholder="Feloldó jelszó / Password"><button type="button" id="svExtraUnlockV15" class="sv-extra-primary-v15"></button></div>'+
- '<div class="sv-extra-photo-view-v15"><img id="svExtraImageV15" alt="Titkosított kártyafotó" hidden></div>'+
- '<div class="sv-extra-view-actions-v15"><button type="button" id="svExtraFlipV15" hidden>↻ Hátlap</button><button type="button" id="svExtraZoomOutV15">−</button><span id="svExtraZoomLabelV15">100%</span><button type="button" id="svExtraZoomInV15">+</button></div></div>'+
- '<div class="sv-extra-view-actions-v15"><button type="button" id="svExtraPinDialogV15">☆ Kitűzés</button><button type="button" id="svExtraDeleteV15" class="sv-extra-delete-v15">🗑 Törlés</button></div></section></div>';
+ const dialog=dom('dialog','sv-id-dialog-v11 sv-extra-dialog-v15');dialog.id='svExtraDialogV15';
+ dialog.append(d.getElementById('svExtraUnifiedTemplateV16').content.cloneNode(true));
  d.body.append(dialog);
  $('svExtraAddV15').addEventListener('click',openAdd);
  $('svExtraCloseV15').addEventListener('click',close);
  dialog.addEventListener('cancel',e=>{e.preventDefault();close()});
  $('svExtraFormV15').addEventListener('submit',e=>void save(e));
  for(const side of ['Front','Back']){
-  const id='svExtra'+side+'V15',cameraId='svExtra'+side+'CameraV15';
-  $('svExtraAdd'+side+'V15').addEventListener('click',()=>$(id).click());
-  $('svExtraCapture'+side+'V15').addEventListener('click',()=>$(cameraId).click());
-  for(const input of [id,cameraId])$(input).addEventListener('change',e=>{
-   const f=e.target.files?.[0]||null;e.target.value='';
-   const which=side.toLowerCase();files[which]=f;
-   $('svExtra'+side+'NameV15').textContent=f?f.name:t('Nincs kiválasztva','Not selected');
-  });
+  $('svExtraAdd'+side+'V15').addEventListener('click',()=>void captureSide(side.toLowerCase(),'file'));
+  $('svExtraCapture'+side+'V15').addEventListener('click',()=>void captureSide(side.toLowerCase(),'camera'));
  }
+ for(const button of dialog.querySelectorAll('#svExtraSideSwitchV16 [data-side]'))
+  button.addEventListener('click',()=>{flip=button.dataset.side;zoom=1;renderPhoto()});
  $('svExtraUnlockV15').addEventListener('click',()=>void unlock());
  $('svExtraFlipV15').addEventListener('click',()=>{flip=flip==='front'?'back':'front';zoom=1;renderPhoto()});
  $('svExtraZoomOutV15').addEventListener('click',()=>{zoom=Math.max(1,zoom-.2);renderPhoto()});
