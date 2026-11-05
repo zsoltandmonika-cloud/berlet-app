@@ -260,6 +260,16 @@ async function render(profileOverride){
   Promise.resolve().then(function(){return samsungApi.load(requestedProfile,window.HH_DROPBOX_VAULT)})
    .catch(function(){return {status:'unavailable',data:null,profile:requestedProfile}}):
   Promise.resolve({status:'not_configured',data:null,profile:requestedProfile});
+ // The Samsung SDK export is optional. Its missing/slow Dropbox file must
+ // not hold the authoritative Health Connect dashboard hostage indefinitely.
+ function timelyOptional(promise){
+  return new Promise(function(resolve){
+   var timer=setTimeout(function(){resolve({status:'pending',data:null,profile:requestedProfile})},2500);
+   Promise.resolve(promise).then(function(value){clearTimeout(timer);resolve(value)},
+    function(){clearTimeout(timer);resolve({status:'unavailable',data:null,profile:requestedProfile})});
+  });
+ }
+ var samsungQuick=timelyOptional(samsungPromise);
  // v1014: begin all current reads together but render verified local data
  // without waiting for potentially slow, optional cloud sources.
  var localPromise=readLocal(requestedProfile);
@@ -274,11 +284,19 @@ async function render(profileOverride){
   paintActivity(requestedProfile,attachCloud(early[0],null,requestedProfile),early[1],
    {status:'pending',data:null,profile:requestedProfile},renderId,true);
  }).catch(function(){});
- var sources=await Promise.all([localPromise,cloudPromise,heightPromise,samsungPromise]);
+ var sources=await Promise.all([localPromise,cloudPromise,heightPromise,samsungQuick]);
  if(renderId!==activityRenderSeq)return;
  finalPainted=true;
- paintActivity(requestedProfile,attachCloud(sources[0],sources[1],requestedProfile),
-  sources[2],sources[3],renderId,false);
+ var finalRaw=attachCloud(sources[0],sources[1],requestedProfile);
+ paintActivity(requestedProfile,finalRaw,sources[2],sources[3],renderId,false);
+ if(sources[3].status==='pending')samsungPromise.then(function(result){
+  if(renderId!==activityRenderSeq)return;
+  if(result&&result.status==='ready'){
+   paintActivity(requestedProfile,finalRaw,sources[2],result,renderId,false);
+  }else if(window.hhActivity191Source&&window.hhActivity191Source.profile===requestedProfile){
+   window.hhActivity191Source.samsung=result;
+  }
+ }).catch(function(){});
 }
 function paintActivity(requestedProfile,raw,profileHeight,samsungState,renderId,preview){
  if(renderId!==activityRenderSeq)return;
@@ -367,7 +385,7 @@ window.hh191SourceDetails=function(){
  var direct=Array.isArray(bundle.records&&bundle.records.dailyActivity)?bundle.records.dailyActivity.find(function(x){return x.date===today}):null;
  var displayed=(src.rows||[]).find(function(x){return x.date===today});
  var samsung=src.samsung||{},sd=samsung.data&&samsung.data.days&&samsung.data.days.get(today);
- var directStatus=samsung.status==='ready'?
+ var directStatus=samsung.status==='pending'?'⏳ Samsung-export ellenőrzése folyamatban':samsung.status==='ready'?
    (samsung.data&&samsung.data.staleToday?'⚠️ Samsung SDK-export mai napi adatai elavultak, ezért nem használjuk őket':'✅ Samsung Data SDK export betöltve'):
    samsung.status==='not_connected'?'Még nincs Samsung SDK exportfájl':
    samsung.status==='invalid'?'⚠️ Érvénytelen Samsung SDK export':
