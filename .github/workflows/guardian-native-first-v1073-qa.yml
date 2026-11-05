@@ -1,0 +1,30 @@
+name: Family Guard Native First v1073 QA
+on:
+  pull_request:
+    paths:
+      - "healthhub/guardian/guardian-profile-follow-v837.js"
+      - "healthhub/guardian/index.html"
+      - "healthhub/tests/guardian-fast-follow-v1005.test.cjs"
+      - ".github/workflows/guardian-native-first-v1073-qa.yml"
+  push:
+    paths:
+      - "healthhub/guardian/guardian-profile-follow-v837.js"
+      - "healthhub/guardian/index.html"
+      - "healthhub/tests/guardian-fast-follow-v1005.test.cjs"
+      - ".github/workflows/guardian-native-first-v1073-qa.yml"
+jobs:
+  native-first:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Verify JavaScript syntax
+        run: node --check healthhub/guardian/guardian-profile-follow-v837.js
+      - name: Fast follow and fresh-source regression
+        run: |
+          node --test healthhub/tests/guardian-fast-follow-v1005.test.cjs
+          node --test healthhub/tests/guardian-gps-source-flap-v1072.test.cjs
+          node --test healthhub/tests/guardian-stale-owner-gps-v1071.test.cjs

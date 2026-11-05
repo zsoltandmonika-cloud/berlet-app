@@ -374,6 +374,17 @@
       .eq('profile_key',k).maybeSingle());
     const nativeRead=Promise.resolve().then(()=>relay?.connected?.()
      ?relay.read(k):null);
+    // v1073: Display a verified newer native phone fix without waiting for a
+    // slower Supabase response. Retain the full two-source conflict resolution
+    // once both reads complete; never add another GPS or network request.
+    Promise.resolve(nativeRead).then(out=>{
+     if(ticket!==run||d.hidden||k!==selected()||!authorized()||out?.status!=='ok')return;
+     const first=snapshot(out.data,k);
+     if(!first||!preferRemote(first,localFixAt())||
+        (latest?.profile===k&&latest.ts>=first.ts))return;
+     nativeAnchor=first;latest=first;
+     showFix(first);
+    }).catch(()=>{});
     const [dbOutcome,nativeOutcome]=await Promise.allSettled([dbRead,nativeRead]);
     if(dbOutcome.status==='fulfilled'&&!dbOutcome.value?.error&&dbOutcome.value?.data)
      db=dbOutcome.value.data;
