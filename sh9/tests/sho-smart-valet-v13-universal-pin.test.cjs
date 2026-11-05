@@ -54,12 +54,12 @@ function harness(){
 const settle=()=>new Promise(resolve=>setImmediate(resolve));
 test('Golden original sample fallback, while secure pin provider loads before the private gallery and IDs',()=>{
  assert.match(page,/id="svFeatured"/);
- assert.match(page,/smart-valet-smart-access-v13\.js\?v=13-universal-pin/);
+ assert.match(page,/smart-valet-smart-access-v13\.js\?v=13-pin-visibility/);
  assert.match(page,/smart-valet-smart-access-v13\.css\?v=13-universal-pin/);
- assert.ok(page.indexOf('smart-valet-smart-access-v13.js?v=13-universal-pin')<
-  page.indexOf('smart-valet-private-v7.js?v=10-coupon-gallery-v13-pin'));
- assert.ok(page.indexOf('smart-valet-private-v7.js?v=10-coupon-gallery-v13-pin')<
-  page.indexOf('smart-valet-identity-v11.js?v=12-optional-password-lakcim-v13-pin'));
+ assert.ok(page.indexOf('smart-valet-smart-access-v13.js?v=13-pin-visibility')<
+  page.indexOf('smart-valet-private-v7.js?v=10-coupon-gallery-v13-visibility'));
+ assert.ok(page.indexOf('smart-valet-private-v7.js?v=10-coupon-gallery-v13-visibility')<
+  page.indexOf('smart-valet-identity-v11.js?v=12-optional-password-lakcim-v13-visibility'));
  assert.match(demo,/quick\?\.renderFeatured\?\.\(\)/);
  assert.match(demo,/list\(\)\.find\(x=>x\.id===pinId\(\)\)\|\|list\(\)\[0\]/);
  assert.match(demo,/SHO_VALET_BKK_APPROVED_V5/);
@@ -170,4 +170,15 @@ test('no service-role, public URLs or unprotected image cache; browser JS syntax
  assert.doesNotMatch(js,/getPublicUrl|createSignedUrl|service_role|fetch\(|localStorage\.setItem\(.*blob|identity.*storage_path/i);
  for(const code of [js,demo,privateJS,idJS,reader])
   assert.doesNotThrow(()=>new vm.Script(code));
+});
+
+test('Pin actions use readable Hungarian labels and the quick-access module is not gated on remote Supabase load',()=>{
+ assert.match(privateJS,/pin:'Kitűzés',unpin:'Kitűzés megszüntetése'/);
+ assert.match(privateJS,/pin:'Pin',unpin:'Remove pin'/);
+ assert.match(page,/<script defer src="\.\/smart-valet-smart-access-v13\.js\?v=13-pin-visibility"><\/script>/);
+ const core=page.indexOf('smart-valet-smart-access-v13.js?v=13-pin-visibility');
+ const cdn=page.indexOf("load('https://cdn.jsdelivr.net/npm/@supabase/supabase-js");
+ assert.ok(core>=0&&core<cdn,'Smart Access loads separately before external auth libraries');
+ const nested=page.slice(cdn);
+ assert.doesNotMatch(nested,/load\('\.\/smart-valet-smart-access-v13\.js/);
 });
