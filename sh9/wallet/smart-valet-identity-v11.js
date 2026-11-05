@@ -9,7 +9,7 @@ const $=id=>d.getElementById(id),hu=()=>w.localStorage.getItem('sh9-language-v1'
 const text=(a,b)=>hu()?a:b;
 const profile=()=>w.localStorage.getItem('hh-profile')==='m'?'monika':'zsolt';
 const names={license:['Jogosítvány','Driving licence'],personal:['Személyi igazolvány','Identity card'],
- taj:['TAJ-kártya','TAJ health card'],tax:['Adókártya','Tax card']};
+ taj:['TAJ-kártya','TAJ health card'],tax:['Lakcímkártya','Address card']};
 const label=type=>names[type]?.[hu()?0:1]||type;
 const make=(tag,cls,value)=>{const x=d.createElement(tag);if(cls)x.className=cls;if(value!==undefined)x.textContent=value;return x};
 let client,records=new Map(),kind='',item=null,storedProfile='',side='front',viewSide='front',zoom=1;
