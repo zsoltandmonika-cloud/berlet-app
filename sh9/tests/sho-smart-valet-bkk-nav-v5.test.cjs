@@ -26,7 +26,7 @@ test('user-approved transparent Budapest pass is a real local AVIF and never a f
 });
 test('the approved image loads BEFORE the render code and is isolated to the featured pass',()=>{
  const art=html.indexOf('smart-valet-bkk-approved-v5.js?v=5-approved-budapest-pass');
- const app=html.indexOf('smart-valet-v1.js?v=9-igazolvanyok-label');
+ const app=html.indexOf('smart-valet-v1.js?v=10-coupons-id-subgroups');
  assert.ok(art>0&&app>art);
  assert.match(js,/if\(isBudapestPass\)/);
  assert.match(js,/else art\.append\(symbol\(iconType\(target\)\)\)/);
@@ -36,7 +36,7 @@ test('the approved image loads BEFORE the render code and is isolated to the fea
 test('Wallet nav matches the flat flush SHO Golden bar, not the old floating pill',()=>{
  assert.match(html,/class="sv-bottom nav" aria-label="SH9 Golden Standard navigáció"/);
  assert.match(html,/data-sh9-golden-bottom-nav="on"/);
- assert.match(html,/smart-valet-sho-theme-v2\.css\?v=9-loyalty-club-tile/);
+ assert.match(html,/smart-valet-sho-theme-v2\.css\?v=10-coupon-id-layout/);
  assert.match(css,/Wallet-only GOLDEN bottom navigation alignment/);
  const end=css.slice(css.lastIndexOf('/* v5 · Wallet-only GOLDEN'));
  assert.match(end,/nav\.sv-bottom\[data-sh9-golden-bottom-nav="on"\]\{/);
