@@ -26,7 +26,9 @@
    demoNotice:'Még nincs privát dokumentumfeltöltés. Az itt látható jegyek minták, nem érvényesek.',
    quickKicker:'SMART ACCESS',quickTitle:'Gyorselérés',sampleBadge:'MINTA',
    libraryKicker:'A TE TÁRCÁD',libraryTitle:'Jegyek és bérletek',
-   all:'Összes',loyalty:'Klubkártyák',identity:'Igazolványok',license:'Jogosítvány',health:'Egészség',card:'Bankkártyák',ticket:'Jegyek',pass:'Bérletek',document:'Dokumentumok',
+   all:'Összes',loyalty:'Klubkártyák',identity:'Igazolványok',license:'Jogosítvány',
+   coupon:'Kuponok',personalId:'Személyi igazolvány',tajId:'TAJ-kártya',taxId:'Adókártya',
+   idGroup:'Igazolványok',idNoUpload:'Az igazolványok biztonságos tárolása még nem aktív. Ebbe a csoportba egyelőre nem tölthető fel okmány.',health:'Egészség',card:'Bankkártyák',ticket:'Jegyek',pass:'Bérletek',document:'Dokumentumok',
    searchLabel:'Keresés a mintajegyekben',searchPlaceholder:'Keresés a tárcában…',
    newItem:'Új jegy vagy dokumentum',newItemInfo:'Biztonságos privát feltöltés a következő fejlesztési fázisban.',
    soon:'Hamarosan',realPass:'Meglévő Bérlet app megnyitása',sportLink:'Sport Central · jegyek keresése',
@@ -47,7 +49,9 @@
    demoNotice:'Private uploads are not enabled. All cards shown here are samples, not valid tickets.',
    quickKicker:'SMART ACCESS',quickTitle:'Quick access',sampleBadge:'SAMPLE',
    libraryKicker:'YOUR VALET',libraryTitle:'Tickets and passes',
-   all:'All',loyalty:'Club cards',identity:'ID Cards',license:'Driver licence',health:'Health',card:'Bank cards',ticket:'Tickets',pass:'Passes',document:'Documents',
+   all:'All',loyalty:'Club cards',identity:'ID Cards',license:'Driving licence',
+   coupon:'Coupons',personalId:'Identity card',tajId:'TAJ health insurance card',taxId:'Tax card',
+   idGroup:'ID Cards',idNoUpload:'Secure identity document storage is not active yet. Do not upload official ID documents here.',health:'Health',card:'Bank cards',ticket:'Tickets',pass:'Passes',document:'Documents',
    searchLabel:'Search sample tickets',searchPlaceholder:'Search your wallet…',
    newItem:'Add a ticket or document',newItemInfo:'Secure private uploads will be introduced in the next development phase.',
    soon:'Coming soon',realPass:'Open existing Bérlet app',sportLink:'Sport Central · find tickets',
@@ -63,7 +67,7 @@
    categoryDocument:'Document',categoryCard:'Card',featured:'FEATURED SAMPLE'
   })
  });
- let kind='all',selected=null,lastFocus=null,toastTimer=null;
+ let kind='all',selected=null,lastFocus=null,toastTimer=null,selectedIdType='';
  const profile=()=>{try{return w.localStorage.getItem('hh-profile')==='m'?'m':'z'}catch(_){return 'z'}};
  const lang=()=>{try{return w.localStorage.getItem('sh9-language-v1')==='en'?'en':'hu'}catch(_){return 'hu'}};
  const t=key=>I[lang()][key]||I.hu[key]||key;
@@ -194,9 +198,24 @@
    b.setAttribute('aria-pressed',String(current));
   }
   const host=$('svCards');host.replaceChildren();
-  if(kind==='loyalty'){
-   // The secure loyalty scroller is owned by the authenticated private module.
-   // Never substitute DEMO tickets for real user club cards.
+  const identity=$('svIdentityPanelV10');
+  if(identity){
+   identity.hidden=kind!=='identity';
+   const keys={license:'license',personal:'personalId',taj:'tajId',tax:'taxId'};
+   for(const child of identity.querySelectorAll('[data-id-type]')){
+    const active=kind==='identity'&&child.dataset.idType===selectedIdType;
+    child.classList.toggle('active',active);
+    child.setAttribute('aria-pressed',String(active));
+   }
+   const key=keys[selectedIdType];
+   $('svIdNoticeV10').textContent=kind==='identity'&&key?t(key)+' · '+t('idNoUpload'):t('idNoUpload');
+  }
+  const addPanel=d.querySelector('.sv-add-panel');
+  if(addPanel)addPanel.hidden=kind==='identity';
+  if(kind==='identity')return;
+  if(kind==='loyalty'||kind==='coupon'){
+   // Real retail cards and coupons are handled by the authenticated private gallery.
+   // Never substitute fictional demo tickets or generate redeemable codes.
    w.dispatchEvent(new CustomEvent('sho-valet-loyalty-view',{detail:{kind}}));
    return;
   }
@@ -228,6 +247,11 @@
   translateStatic();renderFeatured();renderCards();
   if(selected&&sample(selected))$('svDialogPin').textContent=(pinned(selected)?'★ ':'☆ ')+t(pinned(selected)?'unpin':'pin');
  }
+ for(const idButton of d.querySelectorAll('[data-id-type]'))
+  idButton.addEventListener('click',()=>{
+   selectedIdType=idButton.dataset.idType;
+   renderCards();
+  });
  for(const button of d.querySelectorAll('[data-kind]'))
   button.addEventListener('click',()=>{
    kind=button.dataset.kind;renderCards();
