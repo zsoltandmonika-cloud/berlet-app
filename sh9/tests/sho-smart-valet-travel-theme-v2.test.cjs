@@ -33,7 +33,8 @@ test('HD Wallet hero is local, resolution-independent, no external image tracker
  assert.doesNotMatch(html,/<img[^>]+https?:\/\//);
 });
 test('eight attractive category tiles use local scalable iconpack including all requested identity, licence, health, finance and document kinds',()=>{
- const categories=[...html.matchAll(/data-kind="([a-z]+)"/g)].map(a=>a[1]);
+ const grid=html.match(/<div class="sv-categories"[^>]*>([\s\S]*?)<\/div>/)?.[1]||'';
+ const categories=[...grid.matchAll(/data-kind="([a-z]+)"/g)].map(a=>a[1]);
  assert.deepEqual(categories,['loyalty','identity','license','health','card','ticket','pass','document']);
  const symbolIds=[...icons.matchAll(/<symbol id="([^"]+)"/g)].map(m=>m[1]);
  for(const name of ['all','loyalty','identity','license','health','payment','ticket','pass','document','bus','train','sport']){
