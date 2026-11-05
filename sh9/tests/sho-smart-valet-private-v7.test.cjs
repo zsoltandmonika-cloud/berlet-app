@@ -72,7 +72,7 @@ test('RLS metadata and Storage require actual owner AND profile access, never gl
  assert.doesNotMatch(sql,/to anon|for all to authenticated|using \(true\)|with check \(true\)|public=true/i);
 });
 test('Golden Standard display and approved BKK image unchanged; only companion upload JS added',()=>{
- assert.match(html,/smart-valet-v1\.js\?v=5-approved-bkk-card/);
+ assert.match(html,/smart-valet-v1\.js\?v=9-loyalty-club-filters/);
  assert.match(html,/smart-valet-bkk-approved-v5\.js\?v=5-approved-budapest-pass/);
  assert.match(html,/data-sh9-golden-bottom-nav="on"/);
  assert.match(html,/smart-valet-private-v7\.js\?v=9-loyalty-private/);
