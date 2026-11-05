@@ -101,7 +101,7 @@ test('Smart Valet uses a real internal PDF canvas, not an iframe/webview browser
  assert.match(reader,/w\.SHO_PRIVATE_DOCUMENT_READER_V1=Object\.freeze/);
  assert.match(readerCss,/\.sho-private-reader-v1\[open\]\{display:flex\}/);
  assert.doesNotMatch(walletJs,/<iframe|make\('iframe'/);
- assert.match(walletJs,/await reader\.open\(data,item\.file_name,\{mime:item\.mime_type\}\)/);
+ assert.match(walletJs,/await reader\.open\(data,item\.file_name,\{mime:item\.mime_type,pin\}\)/);
 });
 test('Valet production UI opens Add from whole tile, keeps Golden dock and images',()=>{
  assert.match(wallet,/sho-private-document-reader-v1\.js\?v=2-loyalty-image-zoom/);

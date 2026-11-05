@@ -8,7 +8,7 @@
  const PDFJS='https://cdn.jsdelivr.net/npm/pdfjs-dist@6.4.299/build/';
  let libPromise=null,dialog=null,canvas=null,scroller=null,statusNode=null;
  let pdf=null,loader=null,renderTask=null,activeBlob=null,activeURL=null,currentImage=null;
- let page=1,zoom=1,serial=0,painting=false,title='',kind='application/pdf';
+ let page=1,zoom=1,serial=0,painting=false,title='',kind='application/pdf',pinAction=null;
  const $=id=>d.getElementById(id);
  const node=(tag,klass,txt)=>{const e=d.createElement(tag);if(klass)e.className=klass;
   if(txt!==undefined)e.textContent=txt;return e};
@@ -42,7 +42,13 @@
   const foot=node('footer','sho-pr-footer');
   statusNode=node('p');statusNode.id='shoPrStatusV1';
   const download=btn('shoPrDownloadV1',label('⬇ Letöltés','⬇ Download'),()=>downloadOriginal());
-  foot.append(statusNode,download);
+  const pin=btn('shoPrPinV13','☆ '+label('Kitűzés','Pin'),()=>{
+   if(!pinAction)return;
+   pinAction.toggle();
+   showPinButton();
+  });
+  pin.hidden=true;
+  foot.append(statusNode,pin,download);
   dialog.append(head,controls,scroller,foot);
   d.body.append(dialog);
   dialog.addEventListener('cancel',e=>{e.preventDefault();void close()});
@@ -50,6 +56,12 @@
   w.addEventListener('storage',e=>{if(e.key==='hh-profile')void close()});
   w.addEventListener('beforeunload',()=>{if(activeURL)w.URL.revokeObjectURL(activeURL)});
  }
+ function showPinButton(){
+  const pin=$('shoPrPinV13');if(!pin)return;
+  pin.hidden=!pinAction;
+  if(pinAction)pin.textContent=pinAction.label();
+ }
+ w.addEventListener('sho-valet-pin-changed',showPinButton);
  function applyImageZoom(){
   if(!currentImage)return;
   // Scale the original image pixels without rendering a fake barcode.
@@ -127,6 +139,9 @@
   await discard();
   if(id!==serial)return;
   activeBlob=file;title=String(name||'document.pdf').replace(/[\u0000-\u001f<>]/g,' ').slice(0,140);
+  pinAction=options?.pin&&typeof options.pin.label==='function'&&
+   typeof options.pin.toggle==='function'?options.pin:null;
+  showPinButton();
   kind=String(options?.mime||file.type||'application/pdf');
   $('shoPrTitleV1').textContent=title;
   dialog.showModal();
@@ -159,6 +174,7 @@
   if(temporary)w.setTimeout(()=>w.URL.revokeObjectURL(url),60000);
  }
  async function close(){
+  pinAction=null;showPinButton();
   ++serial;
   if(dialog?.open)dialog.close();
   if(canvas&&scroller)await discard();
