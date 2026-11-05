@@ -259,7 +259,7 @@ async function save(){
   }
   // Photos and passphrase are discarded after saving; opening requires the passphrase.
   close();await refresh();open(type);
-  status(text('TADAAA! 🔐 Mindkét oldal titkosítva. Most megnyithatod.','Saved encrypted. Unlock your photos to view.'));
+  status(text('TADAAA! 🔐 Titkosított mentés elkészült.','Saved encrypted. Unlock your photos to view.'));
  }catch(e){
   if(c&&created&&rec){
    if(uploaded.length)try{await c.storage.from(BUCKET).remove(uploaded)}catch(_){}
@@ -322,21 +322,29 @@ function zoomBy(step){
 }
 async function saveBack(){
  if(!item||!activeKey||!draft.back||busy)return;
- busy=true;try{
-  const c=await authorized(storedProfile),cipher=await encrypt(draft.back,activeKey,item,'back');
+ busy=true;let clientForCleanup=null,uploaded=false,marked=false;
+ try{
+  const c=await authorized(storedProfile);clientForCleanup=c;
+  const cipher=await encrypt(draft.back,activeKey,item,'back');
   const upload=await c.storage.from(BUCKET).upload(item.back_storage_path,cipher,
    {contentType:'application/octet-stream',upsert:false});
   if(upload.error)throw upload.error;
-  const marked=await c.from(TABLE).update({back_saved_at:new Date().toISOString()})
+  uploaded=true;
+  const result=await c.from(TABLE).update({back_saved_at:new Date().toISOString()})
    .eq('id',item.id).eq('profile_key',storedProfile).select('id').single();
-  if(marked.error)throw marked.error;
+  if(result.error)throw result.error;
+  marked=true;
   decrypted.back=url(draft.back);
   $('svIdImageBackV11').src=decrypted.back;
   item.back_saved_at=new Date().toISOString();
   $('svIdAddBackV11').hidden=true;
   flipTo('back');await refresh();status(text('Hátlap titkosítva mentve.','Back saved encrypted.'));
- }catch(e){status(human(e),true)}
- finally{busy=false}
+ }catch(e){
+  if(uploaded&&!marked&&clientForCleanup){
+   try{await clientForCleanup.storage.from(BUCKET).remove([item.back_storage_path])}catch(_){}
+  }
+  status(human(e),true);
+ }finally{busy=false}
 }
 async function removeCard(){
  if(!item||!activeKey||busy)return;
