@@ -84,6 +84,7 @@ function lock(){
  const back=$('svIdImageBackV11');if(back)back.removeAttribute('src');
  const tile=d.querySelector('.sv-id-type-v10[data-id-type="'+kind+'"]');
  tile?.querySelector('.sv-id-photo-v11')?.remove();
+ tile?.classList.remove('has-photo');
 }
 function close(){
  $('svIdDialogV11')?.close();lock();kind='';item=null;
@@ -303,6 +304,7 @@ function showPreview(tileType,photo){
  tile.querySelector('.sv-id-photo-v11')?.remove();
  const img=make('img','sv-id-photo-v11');img.alt=text('Előlap előnézet','Front preview');img.src=photo;
  tile.querySelector('svg')?.insertAdjacentElement('afterend',img);
+ tile.classList.add('has-photo');
 }
 async function unlock(){
  if(!item||busy)return;
