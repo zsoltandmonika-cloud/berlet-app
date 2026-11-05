@@ -31,7 +31,7 @@ test('Igazolványok has 4 selectable subclasses but no sensitive upload entrypoi
  assert.match(idPanel[0],/aria-labelledby="svIdentityTitleV10" hidden/);
  const types=[...idPanel[0].matchAll(/data-id-type="([a-z]+)"/g)].map(x=>x[1]);
  assert.deepEqual(types,['license','personal','taj','tax']);
- for(const name of ['Jogosítvány','Személyi igazolvány','TAJ-kártya','Adókártya'])
+ for(const name of ['Jogosítvány','Személyi igazolvány','TAJ-kártya','Lakcímkártya'])
   assert.ok(idPanel[0].includes(name),name);
  assert.match(idPanel[0],/szándé|biztonságos tárolása még nem aktív/);
  assert.doesNotMatch(idPanel[0],/type="file"|type="submit"|<form|onclick=/);
@@ -43,7 +43,7 @@ test('Igazolványok has 4 selectable subclasses but no sensitive upload entrypoi
  assert.match(app,/idNoUpload/);
  assert.match(app,/personalId:'Identity card'/);
  assert.match(app,/tajId:'TAJ health insurance card'/);
- assert.match(app,/taxId:'Tax card'/);
+ assert.match(app,/taxId:'Address card'/);
  assert.match(theme,/\.sv-id-panel-v10\[hidden\],\.sv-add-panel\[hidden\]\{display:none!important\}/);
  assert.match(privateJs,/if\(activeCategory==='identity'\)return/);
  assert.match(privateJs,/if\(activeCategory==='identity'\)stateClose\(\)/);
