@@ -37,7 +37,7 @@ test('Existing Guardian auth and RLS profile ownership are enforced',()=>{
  assert.match(controller,/hh-guardian-family-auth-v785/);
  assert.match(controller,/hh_profile_access/);
  assert.match(controller,/profile_key/);
- assert.match(controller,/created_by/); // represented by database default, not explicit client trust?
+ assert.match(controller,/\.eq\('profile_key',p\)/); // Authenticated client validates its profile before reading
 });
 test('Quick access accepts a UUID extra card, with locked health but no preview',async()=>{
  const listeners={},cache=new Map(),host={children:[],classList:{add(){},remove(){}},replaceChildren(...x){this.children=x}};
