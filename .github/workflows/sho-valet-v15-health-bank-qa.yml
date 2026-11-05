@@ -1,0 +1,28 @@
+name: SHO Smart Valet v15 · Health & Bank Cards QA
+on:
+  pull_request:
+    paths:
+      - 'sh9/wallet/**'
+      - 'sh9/tests/sho-smart-valet-v15-health-bank.test.cjs'
+      - 'sh9/tests/sho-smart-valet-v10-coupons-identity.test.cjs'
+      - '.github/workflows/sho-valet-v15-health-bank-qa.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'sh9/wallet/**'
+      - 'sh9/tests/sho-smart-valet-v15-health-bank.test.cjs'
+permissions:
+  contents: read
+jobs:
+  health-bank-cards:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate security controls and pinning
+        run: |
+          node --check sh9/wallet/smart-valet-extra-v15.js
+          node --check sh9/wallet/smart-valet-smart-access-v13.js
+          node --test sh9/tests/sho-smart-valet-v15-health-bank.test.cjs
+          node --test sh9/tests/sho-smart-valet-v13-universal-pin.test.cjs
+          node --test sh9/tests/sho-smart-valet-v10-coupons-identity.test.cjs
