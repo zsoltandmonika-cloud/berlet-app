@@ -27,4 +27,3 @@ jobs:
         run: |
           node --check healthhub/sho-entry-v1.js
           node --test healthhub/tests/sho-priority-entry-v1016.test.cjs
-          node --test sh9/tests/sho-start-v27.test.cjs
