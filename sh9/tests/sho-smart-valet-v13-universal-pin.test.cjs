@@ -145,7 +145,7 @@ test('private cards and full-screen reader provide real pin/unpin buttons, not d
  assert.match(privateJS,/async function openPinned\(id,profile\)/);
  assert.match(privateJS,/await authorized\(profile\)/);
  assert.match(privateJS,/\.eq\('id',id\)\.eq\('profile_key',profile\)/);
- assert.match(reader,/id='shoPrPinV13'/);
+ assert.match(reader,/btn\('shoPrPinV13'/);
  assert.match(reader,/pinAction=options\?\.pin/);
  assert.match(reader,/function showPinButton\(\)/);
  assert.match(reader,/sho-valet-pin-changed/);
