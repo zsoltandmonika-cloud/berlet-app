@@ -9,8 +9,8 @@ const controller=read('sh9/wallet/smart-valet-extra-v15.js');
 const quick=read('sh9/wallet/smart-valet-smart-access-v13.js');
 const css=read('sh9/wallet/smart-valet-extra-v15.css');
 test('Health and bank categories load genuine secure-card controller, not generic upload',()=>{
- assert.match(page,/smart-valet-extra-v15\.css\?v=15-health-bank-glass/);
- assert.match(page,/load\('\.\/smart-valet-extra-v15\.js\?v=15-health-bank-secure'/);
+ assert.match(page,/smart-valet-extra-v15\.css\?v=16-unified-optical/);
+ assert.match(page,/load\('\.\/smart-valet-extra-v15\.js\?v=16-unified-optical'/);
  assert.ok(page.indexOf('smart-valet-extra-v15.js')>page.indexOf('smart-valet-identity-v11.js'));
  assert.match(demo,/addPanel\.hidden=\['identity','health','card'\]\.includes\(kind\)/);
  assert.match(controller,/sho-valet-filter-change/);
