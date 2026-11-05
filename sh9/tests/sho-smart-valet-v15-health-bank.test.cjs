@@ -40,7 +40,7 @@ test('Existing Guardian auth and RLS profile ownership are enforced',()=>{
  assert.match(controller,/\.eq\('profile_key',p\)/); // Authenticated client validates its profile before reading
 });
 test('Quick access accepts a UUID extra card, with locked health but no preview',async()=>{
- const listeners={},cache=new Map(),host={children:[],classList:{add(){},remove(){}},replaceChildren(...x){this.children=x}};
+ const listeners={},cache=new Map(),host={children:[],classList:{add(){},remove(){}},append(...x){this.children.push(...x)},replaceChildren(...x){this.children=x}};
  const badge={textContent:''},title={closest(){return {querySelector(){return badge}}}};
  const make=tag=>({tagName:tag,children:[],classList:{add(){},remove(){}},attrs:{},
   append(...x){this.children.push(...x)},replaceChildren(...x){this.children=x},
