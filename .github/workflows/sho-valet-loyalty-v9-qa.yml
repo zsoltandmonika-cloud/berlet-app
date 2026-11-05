@@ -1,0 +1,35 @@
+name: SHO Smart Valet v9 · Club Cards secure gallery QA
+on:
+  pull_request:
+    paths:
+      - 'sh9/wallet/**'
+      - 'sh9/shared/sho-private-document-reader-v1.js'
+      - 'sh9/tests/sho-smart-valet-loyalty-v9.test.cjs'
+      - 'sh9/tests/sho-smart-valet-travel-theme-v2.test.cjs'
+      - 'supabase/migrations/20261105154000_sho_valet_loyalty_category_v9.sql'
+      - '.github/workflows/sho-valet-loyalty-v9-qa.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'sh9/wallet/**'
+      - 'sh9/shared/sho-private-document-reader-v1.js'
+      - 'sh9/tests/sho-smart-valet-loyalty-v9.test.cjs'
+      - 'sh9/tests/sho-smart-valet-travel-theme-v2.test.cjs'
+      - 'supabase/migrations/20261105154000_sho_valet_loyalty_category_v9.sql'
+permissions:
+  contents: read
+jobs:
+  loyalty-gallery:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Syntax, private cards and Golden UI regressions
+        run: |
+          node --check sh9/wallet/smart-valet-v1.js
+          node --check sh9/wallet/smart-valet-private-v7.js
+          node --check sh9/shared/sho-private-document-reader-v1.js
+          node --test sh9/tests/sho-smart-valet-loyalty-v9.test.cjs
+          node --test sh9/tests/sho-smart-valet-travel-theme-v2.test.cjs
+          node --test sh9/tests/sho-smart-valet-private-v7.test.cjs
+          node --test sh9/tests/sho-smart-valet-preview-v1.test.cjs
