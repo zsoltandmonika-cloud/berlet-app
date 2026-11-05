@@ -21,10 +21,10 @@ test('only featured Budapest BKK pass uses montage; all other sample tickets ret
  assert.match(js,/const isBudapestPass=target\.provider==='BKK'&&target\.kind==='pass'/);
  assert.match(js,/const art=elt\('div','sv-feature-art'\+\(isBudapestPass\?' sv-feature-bkk':''\)\)/);
  assert.match(js,/if\(isBudapestPass\)/);
- assert.match(js,/image\.src='\.\/bkk-featured-v1\.webp'/);
- assert.match(js,/image\.width=207/);
- assert.match(js,/image\.height=140/);
- assert.match(js,/image\.addEventListener\('error',\(\)=>art\.replaceChildren\(symbol\(iconType\(target\)\)\)/);
+ assert.match(js,/image\.src=w\.SHO_VALET_BKK_APPROVED_V5\|\|'\.\/bkk-featured-v1\.webp'/);
+ assert.match(js,/image\.width=420/);
+ assert.match(js,/image\.height=280/);
+ assert.match(js,/image\.addEventListener\('error',\(\)=>\{/);
  assert.match(js,/else art\.append\(symbol\(iconType\(target\)\)\)/);
  assert.match(js,/host\.append\(copy,art\)/);
  assert.match(js,/z-bkk/);assert.match(js,/m-bkk/);
@@ -41,8 +41,8 @@ test('BKK montage keeps responsive frame, no colored square, and all card contro
  assert.match(js,/const target=list\(\)\.find\(x=>x\.id===pinId\(\)\)\|\|list\(\)\[0\]/);
 });
 test('cache-bust prevents old Edge script and css hiding the new featured image',()=>{
- assert.match(html,/smart-valet-v1\.js\?v=3-bkk-montage/);
- assert.match(html,/smart-valet-sho-theme-v2\.css\?v=4-approved-hero/);
+ assert.match(html,/smart-valet-v1\.js\?v=5-approved-bkk-card/);
+ assert.match(html,/smart-valet-sho-theme-v2\.css\?v=5-bkk-nav-golden/);
  assert.match(html,/sh9-golden-controls-v1\.js/);
  assert.match(html,/sh9-golden-bottom-nav-v924\.js/);
 });
