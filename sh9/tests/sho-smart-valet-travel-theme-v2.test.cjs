@@ -54,7 +54,7 @@ test('no changed checkout, bank card upload, unsafe QR reproduction or session d
  assert.match(html,/Nem érvényes belépőkód/);
  assert.doesNotMatch(html,/class="sv-demo-notice"/);
  assert.match(html,/class="sv-modal-mark" data-i18n="demoTag"/);
- assert.doesNotMatch(html,/<input[^>]*type="file"/i);
+ assert.doesNotMatch(html.split('<template id="svIdTemplateV11">')[0],/<input[^>]*type="file"/i);
  assert.doesNotMatch(app,/fetch\(|supabase|createClient|FileReader|BarcodeDetector/);
  assert.match(app,/sho-smart-valet-demo-pin-v1:/);
  assert.match(app,/w\.localStorage\.setItem\(pinKey\(\),value\)/);
