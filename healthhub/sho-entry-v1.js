@@ -31,5 +31,5 @@
  // v1016: The launcher is injected just after live-v191.js.
  // Do not gate Activity on window.load, which waits for unrelated images.
  // Keep bounded retries if a platform-specific wrapper is still initializing.
- root.setTimeout(launch,0);
+ launch();
 })(window,document);
