@@ -338,6 +338,7 @@ async function save(e){
  if(!title){modalStatus(t('Add meg a kártya nevét.','Enter a card name.'),true);return}
  const rec={id:w.crypto.randomUUID(),profile_key:p,category:cat,title,issuer:null,last_four:null,front_cipher:null,back_cipher:null,kdf_salt:null};
  busy=true;$('svExtraSaveV15').disabled=true;
+ let deviceOwner='';
  try{
   const c=await authorized(p);
   if(cat==='bank'){
@@ -349,15 +350,25 @@ async function save(e){
   if(files.back&&!files.front)throw Error('NO_FRONT');
   if(cat==='health'&&!files.front)throw Error('NO_FRONT');
   if(files.front){
+   const mode=$('svExtraPasswordEnabledV16').checked?'password':'device';
+   rec.protection_mode=mode;
+   const salt=w.crypto.getRandomValues(new Uint8Array(16));
    const pass=$('svExtraPassV15').value;
-   if(pass.length<8||pass!==$('svExtraPassConfirmV15').value)throw Error('PASS');
-   const salt=w.crypto.getRandomValues(new Uint8Array(16)),key=await keyFor(pass,salt);
+   if(mode==='password'&&(pass.length<8||pass!==$('svExtraPassConfirmV15').value))
+    throw Error('PASS');
+   const key=mode==='password'?await keyFor(pass,salt):await newDeviceKey();
    rec.kdf_salt=encode(salt);
    const front=await imageBlob(files.front);
    rec.front_cipher=await encrypt(front,key,rec,'front');
    if(files.back){
     const back=await imageBlob(files.back);
     rec.back_cipher=await encrypt(back,key,rec,'back');
+   }
+   if(mode==='device'){
+    const auth=await c.auth.getUser();
+    if(auth.error||!auth.data?.user?.id)throw Error('NO_LOGIN');
+    deviceOwner=auth.data.user.id;
+    await deviceKey('put',deviceOwner,rec.id,key);
    }
   }
   if(p!==profile()||profileAtOpen!==p||!$('svExtraDialogV15').open||
@@ -366,6 +377,7 @@ async function save(e){
   close();await refresh();
   status(t('TADAAA! 🎉 Kártya biztonságosan mentve.','TADAAA! 🎉 Card saved securely.'));
  }catch(err){
+  if(deviceOwner)try{await deviceKey('delete',deviceOwner,rec.id)}catch(_){}
   modalStatus(err?.message==='NO_FRONT'?t('Válassz előlapfotót a közös optikai kerettel.','Choose a front photo with the shared optical scanner.'):
    err?.message==='PASS'?t('Legalább 8 karakteres, egyező jelszavak szükségesek.','Passwords must match and contain at least 8 characters.'):
    err?.message==='LAST4'?t('Az utolsó négy számjegy pontosan 4 számjegy legyen.','Last four must be exactly four digits.'):
