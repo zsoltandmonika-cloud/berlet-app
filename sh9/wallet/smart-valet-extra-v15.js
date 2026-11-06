@@ -346,12 +346,25 @@ function togglePinButton(rec){
  button.disabled=!quick;
 }
 async function loadRecord(id){
- const p=profile(),c=await authorized(p);
- const {data,error}=await c.from(TABLE).select('id,profile_key,category,title,issuer,last_four,front_cipher,back_cipher,kdf_salt,protection_mode')
-  .eq('id',id).eq('profile_key',p).maybeSingle();
- if(error)throw error;
- if(p!==profile())throw Error('NO_ACCESS');
- return data;
+ const p=profile();
+ try{
+  const c=await authorized(p);
+  const {data,error}=await c.from(TABLE).select('id,profile_key,category,title,issuer,last_four,front_cipher,back_cipher,kdf_salt,protection_mode,created_at')
+   .eq('id',id).eq('profile_key',p).maybeSingle();
+  if(error)throw error;
+  if(p!==profile())throw Error('NO_ACCESS');
+  if(data?.category==='pass'){
+   try{
+    const auth=await c.auth.getUser();
+    if(auth.data?.user?.id)await cachePassRecord(data,auth.data.user.id);
+   }catch(_){}
+  }
+  return data;
+ }catch(e){
+  const local=await offlinePassRecord(p,id).catch(()=>null);
+  if(local&&p===profile())return local;
+  throw e;
+ }
 }
 function bankArt(rec){
  const art=$('svExtraBankArtV15');art.replaceChildren();
