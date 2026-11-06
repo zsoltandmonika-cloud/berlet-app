@@ -537,14 +537,22 @@ async function remove(){
 }
 async function resolvePinned(id,p){
  if(!validId(id)||p!==profile())throw Error('NO_ACCESS');
- const c=await authorized(p);
- const {data,error}=await c.from(TABLE).select('id,profile_key,category,title,issuer,last_four,protection_mode')
-  .eq('id',id).eq('profile_key',p).maybeSingle();
- if(error)throw error;
+ let data;
+ try{
+  const c=await authorized(p);
+  const result=await c.from(TABLE).select('id,profile_key,category,title,issuer,last_four,protection_mode')
+   .eq('id',id).eq('profile_key',p).maybeSingle();
+  if(result.error)throw result.error;
+  data=result.data;
+ }catch(e){
+  data=await offlinePassRecord(p,id).catch(()=>null);
+  if(!data)throw e;
+ }
  if(p!==profile())throw Error('NO_ACCESS');
  return data?{...data,protection_mode:modeOf(data),
-  subtitle:data.category==='health'?t('🔒 Titkosított egészségkártya','🔒 Encrypted health card'):
-   t('💳 '+(data.issuer||'')+(data.last_four?' · •••• '+data.last_four:''),'💳 '+(data.issuer||'')+(data.last_four?' · •••• '+data.last_four:''))}:null;
+  subtitle:data.category==='pass'?t('🚌 Budapest-bérlet · saját fotó','🚌 Budapest pass · saved photograph'):
+   data.category==='health'?t('🔒 Titkosított egészségkártya','🔒 Encrypted health card'):
+    t('💳 '+(data.issuer||'')+(data.last_four?' · •••• '+data.last_four:''),'💳 '+(data.issuer||'')+(data.last_four?' · •••• '+data.last_four:''))}:null;
 }
 async function previewPinned(id,p){
  if(!validId(id)||p!==profile())throw Error('NO_ACCESS');
