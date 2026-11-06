@@ -9,6 +9,15 @@ function localToday(){var d=new Date();return d.getFullYear()+'-'+String(d.getMo
 function validDay(v){return /^\d{4}-\d{2}-\d{2}$/.test(String(v||''))&&Number.isFinite(Date.parse(v+'T12:00:00'))&&new Date(v+'T12:00:00').getFullYear()===Number(v.slice(0,4))&&new Date(v+'T12:00:00').getMonth()+1===Number(v.slice(5,7))&&new Date(v+'T12:00:00').getDate()===Number(v.slice(8,10))}
 function dayView(c){var selected=state.period==='1d'&&state.selectedDay;if(!selected)return c;return {daily:c.daily.filter(function(x){return x.date===selected}),sessions:c.sessions.filter(function(x){return dayKey(x.startTime)===selected}),heart:c.heart.filter(function(x){return dayKey(x.time)===selected}),samsungHourlySteps:(c.samsungHourlySteps||[]).filter(function(x){return x.date===selected})}}
 var activityRenderSeq=0;
+// v2: per-tab-only, profile-scoped memo. Nothing is persisted and no cached
+// Health Connect cloud export is ever presented without a fresh Dropbox read.
+var activityLocalMemo=new Map();
+var activityLocalInflight=new Map();
+var activityCloudInflight=new Map();
+var LOCAL_MEMO_TTL_MS=45000;
+function cloneLocalRows(source){
+ return {imports:source.imports.slice(),activity:source.activity.slice()};
+}
 
 function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
 function activeProfileCode(){
@@ -20,7 +29,12 @@ function activeProfileCode(){
 function pkey(){return activeProfileCode()==='m'?'monika':'zsolt'}
 function n(v,d){v=Number(v);return Number.isFinite(v)?v.toLocaleString('hu-HU',{maximumFractionDigits:d==null?0:d}):'—'}
 function req(r){return new Promise(function(ok,no){r.onsuccess=function(){ok(r.result)};r.onerror=function(){no(r.error)}})}
-function openDb(){return new Promise(function(ok,no){var r=indexedDB.open(DB,3);r.onupgradeneeded=function(){var d=r.result;if(!d.objectStoreNames.contains('imports'))d.createObjectStore('imports',{keyPath:'id'});if(!d.objectStoreNames.contains('activity'))d.createObjectStore('activity',{keyPath:'id'})};r.onsuccess=function(){ok(r.result)};r.onerror=function(){no(r.error)}})}
+function openDb(){return new Promise(function(ok,no){
+ var r=indexedDB.open(DB);
+ r.onupgradeneeded=function(){r.transaction.abort();no(new Error('Nincs meglévő helyi Health Connect adatbázis'))};
+ r.onsuccess=function(){ok(r.result)};
+ r.onerror=function(){no(r.error)}
+})}
 function dayKey(v){var d=new Date(v);return Number.isFinite(d.getTime())?d.toISOString().slice(0,10):''}
 function mins(a,b){var m=(Date.parse(b)-Date.parse(a))/60000;return Number.isFinite(m)&&m>0?m:0}
 function dur(m){m=Math.round(Number(m)||0);var h=Math.floor(m/60),x=m%60;return h?(h+':'+String(x).padStart(2,'0')):(m+'p')}
@@ -89,7 +103,7 @@ function kpiIcon(k){
 function heroSrc(profile){return './assets/activity-hero-golden-v533-'+(profile==='monika'?'m':'z')+'.webp?v=533'}
 
 function manualLoad(profile){profile=profile||pkey();try{var a=JSON.parse(localStorage.getItem(MANUAL_KEY+profile)||'[]');return Array.isArray(a)?a:[]}catch(e){return []}}
-async function cloudBundle(profile){
+async function downloadCanonicalCloud(profile){
  try{
   var v=window.HH_DROPBOX_VAULT,p=profile||pkey();
   if(!v||!v.connected||!v.connected()||typeof v.downloadJson!=='function')return null;
@@ -114,15 +128,93 @@ async function cloudBundle(profile){
   return null;
  }
 }
+function cloudBundle(profile){
+ profile=profile||pkey();
+ if(profile!=='monika'&&profile!=='zsolt')return Promise.resolve(null);
+ var pending=activityCloudInflight.get(profile);
+ if(pending)return pending;
+ var job=downloadCanonicalCloud(profile);
+ activityCloudInflight.set(profile,job);
+ job.finally(function(){
+  if(activityCloudInflight.get(profile)===job)activityCloudInflight.delete(profile);
+ }).catch(function(){});
+ return job;
+}
 function manualSession(x){return {id:x.id,title:cat(x.type).label,manualType:x.type,startTime:x.startTime,endTime:new Date(Date.parse(x.startTime)+(Number(x.duration)||0)*60000).toISOString(),distanceKm:Number(x.distance)||0,caloriesKcal:Number(x.calories)||0,avgBpm:Number(x.avgBpm)||0,_manual:true}}
 // v1014: The verified, profile-scoped local cache can paint before Dropbox.
-async function readLocal(profile){
+async function scanLocalProfile(profile){
+ var t0=performance.now();
  profile=profile||pkey();
- var out={imports:[],activity:[]};
- try{var db=await openDb();try{var tx=db.transaction(['imports','activity']);out.imports=await req(tx.objectStore('imports').getAll())||[];out.activity=await req(tx.objectStore('activity').getAll())||[]}finally{db.close()}}catch(e){}
- out.imports=out.imports.filter(function(x){return x.profile===profile&&x.bundle});
- out.activity=out.activity.filter(function(x){return x.profile===profile});
+ if(profile!=='monika'&&profile!=='zsolt')throw new Error('Ismeretlen Aktivitás profil');
+ var out={imports:[],activity:[]},mode='none',db=null;
+ try{
+  db=await openDb();
+  var tx=db.transaction(['imports','activity'],'readonly');
+  var reads=['imports','activity'].map(function(name){
+   return new Promise(function(resolve,reject){
+    var st=tx.objectStore(name),values=[];
+    if(st.indexNames.contains('profile')){
+     mode='profile-index';
+     var ix=st.index('profile').getAll(IDBKeyRange.only(profile));
+     ix.onsuccess=function(){resolve(ix.result||[])};
+     ix.onerror=function(){reject(ix.error)};
+     return;
+    }
+    mode='profile-cursor';
+    var cursor=st.openCursor();
+    cursor.onsuccess=function(){
+     var row=cursor.result;
+     if(!row){resolve(values);return}
+     if(row.value&&row.value.profile===profile)values.push(row.value);
+     row.continue();
+    };
+    cursor.onerror=function(){reject(cursor.error)};
+   });
+  });
+  var result=await Promise.all(reads);
+  out.imports=result[0].filter(function(x){return x.profile===profile&&x.bundle});
+  out.activity=result[1].filter(function(x){return x.profile===profile});
+ }catch(e){
+  mode='local-unavailable';
+  out._localScanError=true;
+  console.warn('Activity Split test: readonly local data unavailable',e);
+ }finally{if(db)db.close()}
+ var diag=window.hhActivitySplitDiag||(window.hhActivitySplitDiag={});
+ diag.profile=profile;
+ diag.localMs=Math.round(performance.now()-t0);
+ diag.localMode=mode;
+ diag.imports=out.imports.length;
+ diag.localRows=out.activity.length;
  return out;
+}
+function readLocal(profile){
+ profile=profile||pkey();
+ var memo=activityLocalMemo.get(profile),now=performance.now();
+ var diag=window.hhActivitySplitDiag||(window.hhActivitySplitDiag={});
+ if(memo&&now-memo.at<=LOCAL_MEMO_TTL_MS){
+  diag.profile=profile;
+  diag.localMode='session-memory-profile';
+  diag.localMs=0;
+  diag.imports=memo.value.imports.length;
+  diag.localRows=memo.value.activity.length;
+  return Promise.resolve(cloneLocalRows(memo.value));
+ }
+ var inflight=activityLocalInflight.get(profile);
+ if(inflight){
+  diag.localMode='shared-pending-profile';
+  return inflight.then(cloneLocalRows);
+ }
+ // Cold load: same original, read-only per-profile cursor. Cache after
+ // completion only; never a speculative or cross-profile health-data cache.
+ var job=scanLocalProfile(profile).then(function(rows){
+  if(rows&&rows._localScanError!==true){
+   activityLocalMemo.set(profile,{at:performance.now(),value:cloneLocalRows(rows)});
+  }
+  return rows;
+ });
+ activityLocalInflight.set(profile,job);
+ job.finally(function(){if(activityLocalInflight.get(profile)===job)activityLocalInflight.delete(profile)}).catch(function(){});
+ return job.then(cloneLocalRows);
 }
 function attachCloud(local,cloud,profile){
  var out={imports:local.imports.slice(),activity:local.activity.slice()};
@@ -252,6 +344,7 @@ function nav(){
 async function render(profileOverride){
  var page=document.getElementById('hhActivityPage191');if(!page)return;
  var renderId=++activityRenderSeq,requestedProfile=profileOverride||pkey();
+ var renderStarted=performance.now();
   syncProfileTheme(requestedProfile);
  // Never replace a usable same-profile dashboard with a loading screen
  // merely because a background import finished or the tab gained focus.
@@ -284,19 +377,15 @@ async function render(profileOverride){
  var localPromise=readLocal(requestedProfile);
  var cloudPromise=cloudBundle(requestedProfile);
  var finalPainted=false;
- Promise.all([localPromise,heightPromise]).then(function(early){
-  if(renderId!==activityRenderSeq||finalPainted)return;
-  var hasMeasuredActivity=early[0].activity.length>0||early[0].imports.some(function(row){
-   return !!(row.bundle&&row.bundle.records&&Array.isArray(row.bundle.records.dailyActivity)&&row.bundle.records.dailyActivity.length);
-  });
-  if(!hasMeasuredActivity)return;
-  paintActivity(requestedProfile,attachCloud(early[0],null,requestedProfile),early[1],
-   {status:'pending',data:null,profile:requestedProfile},renderId,true);
- }).catch(function(){});
+ // Split validation: do not display a stale browser preview before Dropbox finishes.
+ // The first Activity KPI paint is the resolved canonical source (or marked offline).
  var sources=await Promise.all([localPromise,cloudPromise,heightPromise,samsungQuick]);
  if(renderId!==activityRenderSeq)return;
  finalPainted=true;
  var finalRaw=attachCloud(sources[0],sources[1],requestedProfile);
+ var diag=window.hhActivitySplitDiag||(window.hhActivitySplitDiag={});
+ diag.totalMs=Math.round(performance.now()-renderStarted);
+ diag.profile=requestedProfile;
  paintActivity(requestedProfile,finalRaw,sources[2],sources[3],renderId,false);
  if(sources[3].status==='pending')samsungPromise.then(function(result){
   if(renderId!==activityRenderSeq)return;
@@ -319,6 +408,21 @@ function paintActivity(requestedProfile,raw,profileHeight,samsungState,renderId,
  window.hhActivity191CurrentProfile=requestedProfile;
  window.hhActivity191Source={profile:requestedProfile,cloud:raw.latestCloud||null,rows:c.daily,samsung:samsungState,preview:!!preview};
  var f=periodDays(),g=m.goals;
+ var source=raw.latestCloud||null;
+ var diag=window.hhActivitySplitDiag||(window.hhActivitySplitDiag={});
+ diag.source=source?'Dropbox HC export':'csak helyi adat';
+ diag.exportedAt=source?(source.bundle&&source.bundle.exportedAt||source.importedAt||''):'';
+ diag.profile=requestedProfile;
+ diag.renderedAt=new Date().toISOString();
+ var sourceLine=source
+  ?'✅ '+esc(requestedProfile==='monika'?'Mónika':'Zsolt')+' · Dropbox Health Connect · export: '+esc(fmtDate(diag.exportedAt))
+  :'⚠️ Dropbox-export NEM igazolt. Az itt látható helyi adatok elavultak lehetnek.';
+ var sourceBanner='<div class="a191MetricsHint" style="font-size:12px;line-height:1.55;padding:12px;margin:0 0 9px;border-radius:12px;background:'+
+   (source?'#e5f7ed':'#ffefdf')+';color:#153e56" role="status">'+sourceLine+
+   '<div style="font-size:10px;margin-top:4px">Teszt v2 · helyi '+esc(diag.localMode||'?')+' '+esc(String(diag.localMs==null?'…':diag.localMs))+' ms · Dropbox '+esc(String(diag.cloudMs==null?'…':diag.cloudMs))+' ms · teljes '+esc(String(diag.totalMs==null?'…':diag.totalMs))+' ms. Helyi memóriacache max. 45 mp, a Dropbox mindig újraellenőrizve.</div></div>';
+ page.innerHTML=hero(requestedProfile)+'<div class="a191Body">'+sourceBanner+'<div class="a191ProfileDiag '+(requestedProfile==='monika'?'monika':'zsolt')+'">HEALTH CONNECT · '+(requestedProfile==='monika'?'MÓNIKA':'ZSOLT')+
+  '<button type="button" class="a191SourceButton" onclick="hh191SourceDetails()">ⓘ Adatforrások</button></div>'+ 
+
  page.innerHTML=hero(requestedProfile)+'<div class="a191Body"><div class="a191ProfileDiag '+(requestedProfile==='monika'?'monika':'zsolt')+'">HEALTH CONNECT · '+(requestedProfile==='monika'?'MÓNIKA':'ZSOLT')+
   '<button type="button" class="a191SourceButton" onclick="hh191SourceDetails()">ⓘ Adatforrások</button></div>'+ 
   '<div class="a191CalendarBar"><button type="button" class="a191CalendarOpen" onclick="hh191Calendar()" aria-label="Korábbi nap aktivitásának megtekintése">📅 Nap kiválasztása <span aria-hidden="true">›</span></button></div>'+
@@ -503,7 +607,13 @@ function refreshIfOpen(event){
 // The canonical cloud importer emits healthconnect-imported BEFORE
 // health-cloud-synced. Only the former refreshes Activity: the second
 // event previously aborted the first render and repeated Dropbox reads.
-window.addEventListener('healthhub:healthconnect-imported',refreshIfOpen);
+window.addEventListener('healthhub:healthconnect-imported',function(event){
+ var changed=event&&event.detail&&event.detail.profile;
+ if(changed==='monika'||changed==='zsolt')activityLocalMemo.delete(changed);
+ else activityLocalMemo.clear();
+ activityLocalInflight.clear();
+ refreshIfOpen(event);
+});
 window.hhCloseActivity=function(){var p=document.getElementById('hhActivityPage191');if(p)p.classList.remove('on');window.hh191CloseModal()}
 function wire(){var btn=Array.from(document.querySelectorAll('.homeModule')).find(function(x){var b=x.querySelector('b');return b&&b.textContent.trim()==='Activity'});if(btn){btn.removeAttribute('onclick');btn.onclick=function(e){e.preventDefault();window.hhOpenActivity()};btn.style.cursor='pointer'}}
 
