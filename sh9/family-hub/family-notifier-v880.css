@@ -47,3 +47,7 @@
 .fh-notice .fh-note-sync-status:empty{display:none}
 .fh-notice .fh-notice-note-save:disabled{opacity:.6;cursor:progress}
 .fh-notice .fh-notice-custom:empty{display:none}
+
+/* v909 · Per-event status note shown after the status. Shared Sticky comment remains independent. */
+.fh-notice .fh-notice-status-note{font:650 12px/1.45 system-ui;white-space:pre-wrap;overflow-wrap:anywhere;margin:2px 0 5px;padding:9px 10px;border-left:3px solid #ad7b1e;border-radius:5px 9px 9px 5px;color:#58360c;background:rgba(255,255,255,.40)}
+.fh-notice .fh-notice-status-note[hidden]{display:none!important}
