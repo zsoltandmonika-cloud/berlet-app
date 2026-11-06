@@ -28,7 +28,8 @@ function make(profile='monika'){
  const localActivity=[{id:'m',profile:'monika',date:today,steps:1200,updatedAt:localImport.importedAt},
    {id:'other',profile:'zsolt',date:today,steps:77777,updatedAt:localImport.importedAt}];
  function req(data){const q={};queueMicrotask(()=>{q.result=data;q.onsuccess?.()});return q}
- const indexedDB={open(name,version){assert.equal(name,'healthhub-connect-v1');
+ let dbOpens=0;
+ const indexedDB={open(name,version){dbOpens++;assert.equal(name,'healthhub-connect-v1');
   assert.equal(version,undefined,'no schema migrations during Activity reads');
   const q={};queueMicrotask(()=>{
     q.result={close(){},transaction(names,mode){
@@ -64,7 +65,7 @@ function make(profile='monika'){
       dailyActivity:[{date:today,steps,distanceMeters:6100,activeMinutes:70}],
       exerciseSessions:[],heartRate:[]}})},
   releaseSamsung(){completeSamsung({status:'not_connected',profile:'monika',data:null})},
-  stats(){return {cloudReads,syncReads}}};
+  stats(){return {cloudReads,syncReads,dbOpens}}};
 }
 test('verified Dropbox metrics appear only after profile-scoped source completes',async()=>{
  const h=make();
@@ -111,4 +112,20 @@ test('Activity source code is read-only, profile scoped, and HTML busts stale JS
  assert.match(script,/Dropbox-export NEM igazolt/);
  assert.doesNotMatch(script,/window\.hhHealthCloudSync\(false\)/);
  assert.match(html,/live-v191\.js\?v=1017-profile-memory-verified/);
+});
+
+test('v1017 repeat render reuses only local profile rows but refreshes cloud source',async()=>{
+ const h=make();h.w.hhOpenActivity();
+ for(let i=0;i<12;i++)await flush();
+ h.releaseCloud(6400);h.releaseSamsung();
+ for(let i=0;i<18;i++)await flush();
+ assert.equal(h.stats().dbOpens,1);
+ assert.equal(h.stats().cloudReads,1);
+ assert.equal(h.w.hhActivity191Cache.daily.find(x=>x.date===h.today).steps,6400);
+ h.w.hhRenderActivity191();
+ for(let i=0;i<20;i++)await flush();
+ assert.equal(h.stats().dbOpens,1,'local profile memo avoids duplicate IndexedDB scan');
+ assert.equal(h.stats().cloudReads,2,'canonical Dropbox file is revalidated');
+ assert.equal(h.w.hhActivity191Cache.daily.find(x=>x.date===h.today).steps,6400);
+ assert.match(h.nodes.hhActivityPage191.innerHTML,/Dropbox Health Connect/);
 });
