@@ -24,7 +24,7 @@ function controlsLocked(value){
  for(const id of ["swProfile","swFrom","swTo","swDate","swHour","swPriority","swMode"]){$(id).disabled=value}
 }
 function tick(){
- const s=watch.snapshot();ticker.textContent=timeText(s.totalMs);
+ const s=watch.snapshot();ticker.textContent=s.totalMs===null?"00:00.0":timeText(s.totalMs);
  if(runId&&!finished&&s.totalMs>=DEADLINE_MS){watch.timeout();endTimeout();return}
  $("swReport").textContent=JSON.stringify({
   schema:s.schema,state:s.state,totalMs:s.totalMs,
