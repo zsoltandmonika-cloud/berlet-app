@@ -4,14 +4,15 @@
  */
 (function(w,d){
 'use strict';
-const SOURCES=['demo','private','identity','extra'],ID_TYPES=['license','personal','taj','tax'];
+const SOURCES=['demo','private','identity','extra','app'],ID_TYPES=['license','personal','taj','tax'];
 const $=id=>d.getElementById(id);
 const profile=()=>w.localStorage.getItem('hh-profile')==='m'?'monika':'zsolt';
 const lang=()=>w.localStorage.getItem('sh9-language-v1')==='en'?'en':'hu';
 const t=(hu,en)=>lang()==='hu'?hu:en;
 const storeKey=p=>'sho-smart-valet-quick-access-v13:'+p;
 const valid=entry=>!!entry&&SOURCES.includes(entry.source)&&typeof entry.id==='string'&&
-  (entry.source==='identity'?ID_TYPES.includes(entry.id):
+  (entry.source==='app'?entry.id==='budapestgo':
+   entry.source==='identity'?ID_TYPES.includes(entry.id):
    (entry.source==='private'||entry.source==='extra')?/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(entry.id):
    /^[\w-]{1,80}$/.test(entry.id));
 let renderSerial=0,imageURL='',lastProfile='',ready=false;
@@ -104,6 +105,10 @@ function shell(pin){
  return{host,title,meta,art,open};
 }
 async function resolve(pin,p){
+ if(pin.source==='app'&&pin.id==='budapestgo')return{
+  title:'BudapestGO',category:'app',protection_mode:'none',
+  subtitle:t('Hivatalos elektronikus jegyek · BKK alkalmazás','Official mobile tickets · BKK app')
+ };
  if(pin.source==='private'){
   const src=w.SH9_VALET_PRIVATE_V7;
   if(!src?.resolvePinned)throw Error('NOT_READY');
@@ -140,6 +145,7 @@ async function image(pin,p,record){
 }
 async function openPinned(pin){
  if(!isPinned(pin.source,pin.id))return;
+ if(pin.source==='app'&&pin.id==='budapestgo')return w.SHO_BUDAPESTGO_V21?.open();
  const p=profile();
  try{
   if(pin.source==='private'){
@@ -187,6 +193,11 @@ function renderFeatured(){
         'ID card · '+(entry.protection_mode==='password'?'Password protected':'Private'))
      :t('Saját privát kártyád','Your private card'));
    ui.open.disabled=false;
+   if(pin.source==='app'&&pin.id==='budapestgo'){
+    ui.art.replaceChildren(node('span','sv-go-quick-icon-v21','GO'));
+    ui.art.classList.add('sv-go-quick-art-v21');
+    return; // Official app launcher only, never displays ticket codes or sensitive data.
+   }
    if(pin.source==='extra'&&entry.category==='bank'&&entry.protection_mode!=='device'){
     const bank=node('div','sv-extra-bank-art-v15');
     bank.append(node('span','sv-extra-bank-logo-v15','✦ '+String(entry.issuer||t('Bankkártya','Bank card'))),

@@ -211,6 +211,29 @@
   art.setAttribute('aria-hidden','true');
   host.append(copy,art);
  }
+ function appendBudapestGo(host,search){
+  if(!['pass','all'].includes(kind))return false;
+  if(search&&!'budapestgo bkk elektronikus jegyek bérletek official digital tickets passes'
+     .toLocaleLowerCase(lang()).includes(search))return false;
+  const quick=w.SHO_VALET_SMART_ACCESS_V13;
+  const pinned=!!quick?.isPinned('app','budapestgo');
+  const tile=elt('article','sv-go-card-v21');
+  const go=btn('','sv-go-main-v21',()=>w.SHO_BUDAPESTGO_V21?.open(),
+    t('open')+': BudapestGO');
+  const logo=elt('span','sv-go-logo-v21','GO');logo.setAttribute('aria-hidden','true');
+  const copy=elt('span','sv-go-copy-v21');
+  copy.append(elt('strong','sv-go-title-v21','BudapestGO'),
+   elt('small','sv-go-sub-v21',lang()==='hu'?
+    'Hivatalos elektronikus bérletek · megnyitás a BKK alkalmazásában':
+    'Official mobile tickets · opens the BKK app'));
+  go.append(logo,copy);
+  const pin=btn((pinned?'★ ':'☆ ')+t(pinned?'unpin':'pin'),'sv-go-pin-v21',()=>{
+   quick?.toggle({source:'app',id:'budapestgo'});
+  },t(pinned?'unpin':'pin')+': BudapestGO');
+  pin.disabled=!quick;
+  pin.setAttribute('aria-pressed',String(pinned));
+  tile.append(go,pin);host.append(tile);return true;
+ }
  function renderCards(){
   w.SHO_VALET_ACTIVE_CATEGORY_V9=kind;
   const search=$('svSearch').value.toLocaleLowerCase(lang()).trim();
@@ -223,6 +246,7 @@
    b.setAttribute('aria-pressed',String(current));
   }
   const host=$('svCards');host.replaceChildren();
+  const hasGo=appendBudapestGo(host,search);
   const identity=$('svIdentityPanelV10');
   if(identity){
    identity.hidden=kind!=='identity';
@@ -244,7 +268,7 @@
    w.dispatchEvent(new CustomEvent('sho-valet-loyalty-view',{detail:{kind}}));
    return;
   }
-  if(!filtered.length){
+  if(!filtered.length&&!hasGo){
    const box=elt('div','sv-empty');
    box.append(elt('div','sv-empty-icon','◇'),
     elt('strong','',search?t('noSearch'):t('empty')),

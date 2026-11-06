@@ -1,0 +1,30 @@
+name: SHO Smart Valet v21 · BudapestGO launcher pin QA
+on:
+  pull_request:
+    paths:
+      - 'sh9/wallet/**'
+      - 'sh9/tests/sho-smart-valet-v21-budapestgo.test.cjs'
+      - 'sh9/tests/sho-smart-valet-v13-universal-pin.test.cjs'
+      - '.github/workflows/sho-valet-v21-budapestgo-qa.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'sh9/wallet/**'
+      - 'sh9/tests/sho-smart-valet-v21-budapestgo.test.cjs'
+permissions:
+  contents: read
+jobs:
+  budapestgo:
+    runs-on: ubuntu-latest
+    timeout-minutes: 9
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate new app pin provider, mobile app launcher and unchanged private card behavior
+        run: |
+          node --check sh9/wallet/smart-valet-budapestgo-v21.js
+          node --check sh9/wallet/smart-valet-smart-access-v13.js
+          node --check sh9/wallet/smart-valet-v1.js
+          node --test sh9/tests/sho-smart-valet-v21-budapestgo.test.cjs
+          node --test sh9/tests/sho-smart-valet-v13-universal-pin.test.cjs
+          node --test sh9/tests/sho-smart-valet-v20-direct-inspect.test.cjs
+          node --test sh9/tests/sho-smart-valet-v17-bkk-pass.test.cjs
