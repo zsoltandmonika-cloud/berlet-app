@@ -8,7 +8,8 @@ let showing=false,side='front',urls={},zoom=1,dx=0,dy=0,lock=null;
 const fingers=new Map();let initialDistance=0,initialZoom=1,drag=null;
 function paint(){
  const img=$('svBkkFullImageV17');if(!img)return;
- img.src=side==='back'?(urls.back||urls.front):urls.front;
+ const next=side==='back'?(urls.back||urls.front):urls.front;
+ if(img.getAttribute('src')!==next)img.src=next;
  img.style.transform='translate('+dx+'px,'+dy+'px) scale('+zoom+')';
  $('svBkkZoomV17').textContent=Math.round(zoom*100)+'%';
  for(const b of d.querySelectorAll('#svBkkFullDialogV17 [data-bkk-side]')){
