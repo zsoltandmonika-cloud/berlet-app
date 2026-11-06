@@ -42,7 +42,7 @@ test('Golden Standard Activity One bars are responsive native routes without new
  assert.match(app,/id="activityGoldenTop".*data-sh9-golden-top="on"/);
  assert.match(app,/id="activityGoldenBottom".*data-sh9-golden-bottom-nav="on"/);
  assert.match(app,/a191Nav\{display:none!important\}/);
- assert.match(app,/window\.hh191Profile\(next\);paintButtons\(\)/);
+ assert.match(app,/window\.hh191Profile\(next\);mountHeroDock\(\);paintButtons\(\)/);
  assert.match(app,/window\.hh191CloseModal\(\)/);
  assert.match(app,/function home\(\)\{location\.assign\('\/berlet-app\/sh9\/'\)\}/);
  assert.ok(!app.includes("window.hh191Go=home;"),'HealthRadar must not silently redirect to heavy HealthHub home');
@@ -57,4 +57,29 @@ test('Golden Standard Activity One bars are responsive native routes without new
   './activity-premium-glass-v533.js',
   './hc-wear-history-v1150.js'
  ],'Golden nav must add zero JS dependencies');
+});
+
+test('Hero-bottom Golden dock remains attached after rerenders, without network or engine changes',()=>{
+ const app=fs.readFileSync(path.join(root,'activity-one/index.html'),'utf8');
+ assert.match(app,/#activityGoldenTop\{--sho-a:[^}]*position:absolute;left:4px;right:4px/);
+ assert.match(app,/#activityGoldenTop\{top:auto;bottom:4px;height:50px/);
+ assert.match(app,/body \.a191Page\{padding-top:0!important/);
+ assert.match(app,/var goldenHeroDock=document\.getElementById\('activityGoldenTop'\)/);
+ assert.match(app,/if\(goldenHeroDock\.parentElement!==hero\)hero\.appendChild\(goldenHeroDock\)/);
+ assert.match(app,/dockObserver\.observe\(page,\{childList:true\}\)/);
+ assert.match(app,/window\.hh191Profile\(next\);mountHeroDock\(\);paintButtons\(\)/);
+ assert.match(app,/#activityGoldenBottom\{--sho-a:[^}]*position:fixed/);
+ assert.doesNotMatch(app,/#activityGoldenTop\{top:calc\(env\(safe-area-inset-top/);
+ const scripts=[...app.matchAll(/<script\b[^>]*src="([^"]+)"/g)].map(m=>m[1].split('?')[0]);
+ assert.equal(scripts.length,8,'keep exact eight original Activity dependencies');
+ assert.deepEqual(scripts,[
+  './activity-fast/vault-read-v3.js',
+  './live-v369-distance.js',
+  './live-v371-samsung.js',
+  './live-v375-activity-timeline.js',
+  './activity-profile-test/activity-engine-v2.js',
+  './live-v363.js',
+  './activity-premium-glass-v533.js',
+  './hc-wear-history-v1150.js'
+ ]);
 });
