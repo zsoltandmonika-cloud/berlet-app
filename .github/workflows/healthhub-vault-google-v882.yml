@@ -1,0 +1,26 @@
+name: HealthHub v882 · Google Vault sign-in
+on:
+  pull_request:
+    paths:
+      - 'healthhub/central-vault/google-login-v882.js'
+      - 'healthhub/index.html'
+      - 'healthhub/tests/vault-google-login-v882.test.cjs'
+      - '.github/workflows/healthhub-vault-google-v882.yml'
+  push:
+    paths:
+      - 'healthhub/central-vault/google-login-v882.js'
+      - 'healthhub/index.html'
+      - 'healthhub/tests/vault-google-login-v882.test.cjs'
+jobs:
+  google-vault:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Browser auth bridge regression
+        run: |
+          node --check healthhub/central-vault/google-login-v882.js
+          node --test healthhub/tests/vault-google-login-v882.test.cjs
