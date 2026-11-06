@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="hu">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#071a36">
+<meta name="robots" content="noindex,nofollow">
+<title>SHO · Aktivitás · gyorsindítás teszt</title>
+<!-- Match the canonical HealthHub origin/path for assets, IndexedDB and Dropbox session.
+     This page is an isolated opt-in preview; SHO and HealthHub links are unchanged. -->
+<base href="/berlet-app/healthhub/">
+<link rel="icon" href="./assets/icons/favicon-v146.ico">
+<style>
+ html,body{margin:0;min-height:100%;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;background:#071a36;color:#e8f5ff}
+ #hhFastBoot{min-height:100dvh;display:grid;place-items:center;padding:24px;text-align:center;box-sizing:border-box}
+ #hhFastBoot b{display:block;font-size:22px;margin-bottom:10px}
+ #hhFastBoot span{font-size:13px;opacity:.8}
+ #hhFastBoot a{color:#96d4ff;display:block;margin-top:18px}
+ #hhFastBoot[hidden]{display:none!important}
+</style>
+<!-- Load the existing canonical Activity render/data modules only. -->
+<script defer src="./live-v161.js?v=2351"></script>
+<script defer src="./live-v165.js?v=1015"></script>
+<script defer src="./live-v369-distance.js?v=369"></script>
+<script defer src="./live-v371-samsung.js?v=387"></script>
+<script defer src="./live-v375-activity-timeline.js?v=376"></script>
+<script defer src="./live-v191.js?v=1015-stable-activity-refresh"></script>
+<script defer src="./live-v373-samsung-import.js?v=373"></script>
+<script defer src="./live-v363.js?v=624"></script>
+<script defer src="./activity-premium-glass-v533.js?v=5335"></script>
+<script defer src="./hc-wear-history-v1150.js?v=1153"></script>
+</head>
+<body>
+<div id="hhFastBoot" role="status">
+ <div><b>🏃 SHO · Aktivitás</b><span>Gyorsindítás · meglévő Health Connect adatok</span><a href="/berlet-app/healthhub/">Vissza a HealthHubhoz</a></div>
+</div>
+<script>
+(function(){
+ 'use strict';
+ var started=performance.now();
+ function home(){location.assign('/berlet-app/healthhub/')}
+ function complete(){
+  var boot=document.getElementById('hhFastBoot');
+  if(typeof window.hhOpenActivity!=='function'){
+   if(boot)boot.innerHTML='<div><b>Az Aktivitás nem indítható</b><span>A teljes HealthHub továbbra is elérhető.</span><a href="/berlet-app/healthhub/">HealthHub megnyitása</a></div>';
+   return;
+  }
+  // The native Activity navigation targets depend on Home-only controllers;
+  // never leave a blank standalone screen after a navigation tap.
+  window.show=home;
+  window.hh191Go=home;
+  window.hh191Quick=home;
+  window.hh191Settings=home;
+  try{
+   window.hhOpenActivity();
+   if(boot)boot.hidden=true;
+  }catch(error){
+   console.error('SHO Activity fast preview launch',error);
+   if(boot)boot.innerHTML='<div><b>Indítási hiba</b><span>A HealthHubban az eredeti Aktivitás tovább működik.</span><a href="/berlet-app/healthhub/">HealthHub megnyitása</a></div>';
+   return;
+  }
+  // Diagnostic only: no health values are recorded or transmitted.
+  var done=false,observer=new MutationObserver(function(){
+   if(done)return;
+   var pane=document.getElementById('hhActivityPage191');
+   if(!pane||!pane.querySelector('.a191Top'))return;
+   done=true;observer.disconnect();
+   var ms=Math.round(performance.now()-started);
+   document.documentElement.dataset.hhActivityFastFirstPaintMs=String(ms);
+   console.info('SHO Activity fast preview first data paint:',ms,'ms');
+   if(new URLSearchParams(location.search).get('diag')==='1'){
+    var indicator=document.createElement('aside');
+    indicator.style.cssText='position:fixed;top:5px;right:6px;z-index:9800;background:#0b2d50;color:#dff7ff;border:1px solid #83cefc;border-radius:16px;padding:5px 9px;font:700 10px system-ui;pointer-events:none';
+    indicator.textContent='Aktivitás indítás: '+(ms/1000).toFixed(1)+' mp';
+    document.body.appendChild(indicator);
+   }
+  });
+  observer.observe(document.getElementById('hhActivityPage191')||document.body,{childList:true,subtree:true});
+  setTimeout(function(){observer.disconnect()},60000);
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',complete,{once:true});
+ else complete();
+})();
+</script>
+</body>
+</html>
