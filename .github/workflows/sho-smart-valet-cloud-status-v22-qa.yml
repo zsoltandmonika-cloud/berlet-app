@@ -1,0 +1,28 @@
+name: SHO Smart Valet v22 · Cloud backup status QA
+on:
+  pull_request:
+    paths:
+      - 'sh9/wallet/smart-valet-cloud-status-v22.js'
+      - 'sh9/wallet/smart-valet-cloud-status-v22.css'
+      - 'sh9/wallet/index.html'
+      - 'sh9/tests/sho-smart-valet-cloud-status-v22.test.cjs'
+      - '.github/workflows/sho-smart-valet-cloud-status-v22-qa.yml'
+  push:
+    paths:
+      - 'sh9/wallet/smart-valet-cloud-status-v22.js'
+      - 'sh9/wallet/smart-valet-cloud-status-v22.css'
+      - 'sh9/wallet/index.html'
+      - 'sh9/tests/sho-smart-valet-cloud-status-v22.test.cjs'
+jobs:
+  valet-cloud-status:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate indicator and no-write regressions
+        run: |
+          node --check sh9/wallet/smart-valet-cloud-status-v22.js
+          node --test sh9/tests/sho-smart-valet-cloud-status-v22.test.cjs
