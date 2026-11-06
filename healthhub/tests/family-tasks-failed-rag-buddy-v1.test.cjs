@@ -65,7 +65,7 @@ test('dedicated failure closure timestamp never spoofs successful completion; ac
 test('syntax, cache versions and current successes still render normally',()=>{
  new vm.Script(ui);
  new vm.Script(notifier);
- assert.match(html,/family-tasks-v880\.js\?v=1064-failed-closed/);
+ assert.match(html,/family-tasks-v880\.js\?v=1065-status-note/);
  assert.match(html,/family-notifier-v880\.js\?v=919-failed-buddy/);
  assert.match(html,/family-failed-buddy-v1\.css\?v=1/);
  assert.match(ui,/function showSuccess\(message\)/);
