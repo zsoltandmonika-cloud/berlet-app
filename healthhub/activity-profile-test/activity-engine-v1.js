@@ -20,7 +20,13 @@ function activeProfileCode(){
 function pkey(){return activeProfileCode()==='m'?'monika':'zsolt'}
 function n(v,d){v=Number(v);return Number.isFinite(v)?v.toLocaleString('hu-HU',{maximumFractionDigits:d==null?0:d}):'—'}
 function req(r){return new Promise(function(ok,no){r.onsuccess=function(){ok(r.result)};r.onerror=function(){no(r.error)}})}
-function openDb(){return new Promise(function(ok,no){var r=indexedDB.open(DB,3);r.onupgradeneeded=function(){var d=r.result;if(!d.objectStoreNames.contains('imports'))d.createObjectStore('imports',{keyPath:'id'});if(!d.objectStoreNames.contains('activity'))d.createObjectStore('activity',{keyPath:'id'})};r.onsuccess=function(){ok(r.result)};r.onerror=function(){no(r.error)}})}
+// Read-only: opening a missing bridge DB must not silently create stores.
+function openDb(){return new Promise(function(ok,no){
+ var r=indexedDB.open(DB);
+ r.onupgradeneeded=function(){r.transaction.abort();no(new Error('Nincs meglévő helyi Health Connect adatbázis'))};
+ r.onsuccess=function(){ok(r.result)};
+ r.onerror=function(){no(r.error)}
+})}
 function dayKey(v){var d=new Date(v);return Number.isFinite(d.getTime())?d.toISOString().slice(0,10):''}
 function mins(a,b){var m=(Date.parse(b)-Date.parse(a))/60000;return Number.isFinite(m)&&m>0?m:0}
 function dur(m){m=Math.round(Number(m)||0);var h=Math.floor(m/60),x=m%60;return h?(h+':'+String(x).padStart(2,'0')):(m+'p')}
@@ -106,8 +112,6 @@ async function cloudBundle(profile){
    }
   }
   if(!raw||String(raw.profile||'').toLowerCase()!==p)return null;
-  localStorage.setItem('hh-activity-cloud-last-'+p,new Date().toISOString());
-  localStorage.setItem('hh-activity-cloud-exported-'+p,String(raw.exportedAt||''));
   var diag=window.hhActivitySplitDiag||(window.hhActivitySplitDiag={});
   diag.cloudMs=Math.round(performance.now()-cloudStart);
   diag.cloudStatus='verified-profile';
@@ -116,7 +120,6 @@ async function cloudBundle(profile){
   var diag=window.hhActivitySplitDiag||(window.hhActivitySplitDiag={});
   diag.cloudMs=Math.round(performance.now()-cloudStart);diag.cloudStatus='error';
   console.warn('Activity Cloud read failed',e);
-  localStorage.setItem('hh-activity-cloud-error-'+(profile||pkey()),String(e&&e.message||e));
   return null;
  }
 }
