@@ -558,9 +558,13 @@ async function previewPinned(id,p){
  if(!validId(id)||p!==profile())throw Error('NO_ACCESS');
  const rec=await loadRecord(id);
  if(!rec||modeOf(rec)!=='device'||!rec.front_cipher)return null;
- const c=await authorized(p),auth=await c.auth.getUser();
- if(auth.error||!auth.data?.user?.id)throw Error('NO_LOGIN');
- const key=await deviceKey('get',auth.data.user.id,id);
+ let owner=rec.owner_id||'';
+ try{
+  const c=await authorized(p),auth=await c.auth.getUser();
+  if(auth.error||!auth.data?.user?.id)throw Error('NO_LOGIN');
+  owner=auth.data.user.id;
+ }catch(e){if(rec.category!=='pass'||!owner)throw e}
+ const key=await deviceKey('get',owner,id);
  if(!key||key.extractable||key.algorithm?.name!=='AES-GCM')return null;
  const image=await decrypt(rec.front_cipher,key,rec,'front');
  if(p!==profile())throw Error('NO_ACCESS');
