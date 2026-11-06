@@ -87,9 +87,11 @@ const server=http.createServer(async(req,res)=>{
   page.on('pageerror',e=>browserErrors.push(String(e?.message||e).slice(0,250)));
   await page.goto(url,{waitUntil:'domcontentloaded'});
   await page.locator('#st22AlphaAB').waitFor({state:'visible',timeout:12000});
+  // Set mode before opening predictive station dropdowns. On narrow mobile
+  // viewports suggestions may physically overlay the planner's upper controls.
+  await page.locator('[data-st22-mode="depart"]').click();
   await page.locator('#st22From').fill('Budapest-Keleti');
   await page.locator('#st22To').fill('Kazincbarcika');
-  await page.locator('[data-st22-mode="depart"]').click();
   await page.locator('#st22Date').fill('2026-11-09');
   await page.locator('#st22Time').fill('16:00');
   await page.locator('#st22SearchMethod').selectOption('chatgpt');
