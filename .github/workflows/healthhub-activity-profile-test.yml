@@ -26,5 +26,7 @@ jobs:
       - name: Validate preview scripts, test active-profile-only data and no cache writes
         run: |
           node --check healthhub/activity-profile-test/activity-engine-v1.js
+          node --check healthhub/activity-profile-test/activity-engine-v2.js
           node --check healthhub/activity-profile-test/profile-isolation.test.cjs
-          node --test healthhub/activity-profile-test/profile-isolation.test.cjs
+          node --check healthhub/activity-profile-test/profile-memo-v2.test.cjs
+          node --test healthhub/activity-profile-test/profile-isolation.test.cjs healthhub/activity-profile-test/profile-memo-v2.test.cjs
