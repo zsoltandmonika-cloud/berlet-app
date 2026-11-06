@@ -487,6 +487,10 @@ function init(){
  '<p id="svExtraHintV15"></p><button type="button" id="svExtraAddV15" class="sv-extra-primary-v15"></button>'+
  '<p id="svExtraStatusV15" role="status" aria-live="polite"></p><div id="svExtraCardsV15" class="sv-extra-list-v15"></div>';
  $('svIdentityPanelV10').insertAdjacentElement('afterend',panel);
+ const legacy=dom('button','sv-extra-legacy-v17',t('📥 Régi Bérlet appból átvétel','📥 Import from old pass app'));
+ legacy.type='button';legacy.id='svExtraLegacyV17';legacy.hidden=true;
+ $('svExtraAddV15').insertAdjacentElement('afterend',legacy);
+ legacy.addEventListener('click',()=>void importLegacy());
  const dialog=dom('dialog','sv-id-dialog-v11 sv-extra-dialog-v15');dialog.id='svExtraDialogV15';
  dialog.append(d.getElementById('svExtraUnifiedTemplateV16').content.cloneNode(true));
  d.body.append(dialog);
