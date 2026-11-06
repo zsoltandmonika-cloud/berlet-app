@@ -497,6 +497,12 @@ async function save(e){
   if(p!==profile()||profileAtOpen!==p||!$('svExtraDialogV15').open||
    (category==='card'?'bank':category)!==cat)throw Error('NO_ACCESS');
   const {error}=await c.from(TABLE).insert(rec);if(error)throw error;
+  if(cat==='pass'){
+   try{
+    const user=await c.auth.getUser();
+    if(user.data?.user?.id)await cachePassRecord(rec,user.data.user.id);
+   }catch(_){/* Cloud record is already safely committed; offline cache is optional. */}
+  }
   close();await refresh();
   status(t('TADAAA! 🎉 Kártya biztonságosan mentve.','TADAAA! 🎉 Card saved securely.'));
  }catch(err){
@@ -517,6 +523,7 @@ async function remove(){
   const c=await authorized(p);
   const {error}=await c.from(TABLE).delete().eq('id',id).eq('profile_key',p);
   if(error)throw error;
+  if(active.category==='pass')try{await passCache('delete',p,id)}catch(_){}
   if(modeOf(active)==='device'){
    const auth=await c.auth.getUser();
    if(!auth.error&&auth.data?.user?.id)
