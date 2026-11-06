@@ -14,7 +14,8 @@
 <link rel="stylesheet" href="./smart-valet-private-v7.css?v=10-retail-coupons">
 <link rel="stylesheet" href="./smart-valet-identity-v11.css?v=12-password-switch">
 <link rel="stylesheet" href="./smart-valet-smart-access-v13.css?v=13-universal-pin-v14-visible">
-<link rel="stylesheet" href="./smart-valet-extra-v15.css?v=15-health-bank-glass">
+<link rel="stylesheet" href="./smart-valet-extra-v15.css?v=16-unified-optical">
+<link rel="stylesheet" href="./smart-valet-optical-v16.css?v=16-same-id-frame">
 <link rel="stylesheet" href="../shared/sho-private-document-reader-v1.css?v=1-sho-internal-reader">
 </head>
 <body>
@@ -245,6 +246,50 @@
 <input type="file" id="svIdCameraFallbackV11" capture="environment" accept="image/*" hidden>
 <input type="file" id="svIdBackExtraInputV11" capture="environment" accept="image/*" hidden>
 </template>
+<template id="svExtraUnifiedTemplateV16">
+<header class="sv-id-head-v11"><div><small>SHO · SECURE CARD VAULT</small><h2 id="svExtraDraftTitleV15"></h2></div><button type="button" id="svExtraCloseV15" aria-label="Bezárás">×</button></header>
+<p id="svExtraDialogStatusV15" class="sv-id-status-v11" role="status" aria-live="polite"></p>
+<form id="svExtraFormV15"><section id="svExtraEditV15">
+<p class="sv-id-hint-v11">🔒 Egységes kártyaolvasó: optikai keret, előlap és hátlap, képigazítás, titkosított mentés.</p>
+<label class="sv-id-pass-label-v11">Kártya neve / Card name<input id="svExtraTitleInputV15" maxlength="120" required autocomplete="off" placeholder="Pl. Egészségpénztár / OTP Bank"></label>
+<div id="svExtraBankFieldsV15" hidden>
+<label class="sv-id-pass-label-v11">Bank / Kártyakibocsátó<input id="svExtraIssuerV15" maxlength="100" autocomplete="off" placeholder="Pl. OTP, Erste"></label>
+<label class="sv-id-pass-label-v11">Utolsó 4 számjegy (opcionális)<input id="svExtraLast4V15" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" autocomplete="off" placeholder="1234"></label>
+</div>
+<div id="svExtraHealthFieldsV15">
+<div class="sv-id-two-sides-v11" id="svExtraPhotosV16">
+<div class="sv-id-draft-side-v11"><strong>ELŐLAP · FRONT</strong>
+<div class="sv-id-card-frame-v11"><img id="svExtraFrontPreviewV16" alt="Előlap előnézete" hidden><span id="svExtraFrontEmptyV16">📷</span></div>
+<div><button type="button" id="svExtraCaptureFrontV15">📷 Fotó</button><button type="button" id="svExtraAddFrontV15">📁 Fájl</button></div><small id="svExtraFrontNameV15">＋ Hozzáadás</small>
+<input type="file" id="svExtraFrontV15" accept="image/jpeg,image/png,image/webp" hidden><input type="file" id="svExtraFrontCameraV15" accept="image/*" capture="environment" hidden></div>
+<div class="sv-id-draft-side-v11"><strong>HÁTLAP · BACK</strong>
+<div class="sv-id-card-frame-v11"><img id="svExtraBackPreviewV16" alt="Hátlap előnézete" hidden><span id="svExtraBackEmptyV16">📷</span></div>
+<div><button type="button" id="svExtraCaptureBackV15">📷 Fotó</button><button type="button" id="svExtraAddBackV15">📁 Fájl</button></div><small id="svExtraBackNameV15">＋ Hozzáadás</small>
+<input type="file" id="svExtraBackV15" accept="image/jpeg,image/png,image/webp" hidden><input type="file" id="svExtraBackCameraV15" accept="image/*" capture="environment" hidden></div></div>
+<label class="sv-id-protection-switch-v12"><input type="checkbox" id="svExtraPasswordEnabledV16" checked>
+<span><strong>🔐 Jelszavas védelem</strong><small>Bekapcsolva a fotó rejtve marad. Kikapcsolva a kép csak ezen az eszközön, helyi kulccsal nyitható.</small></span></label>
+<div id="svExtraPasswordFieldsV16">
+<label class="sv-id-pass-label-v11">Titkosítási jelszó (min. 8 karakter)<input id="svExtraPassV15" type="password" minlength="8" autocomplete="new-password"></label>
+<label class="sv-id-pass-label-v11">Jelszó megerősítése<input id="svExtraPassConfirmV15" type="password" minlength="8" autocomplete="new-password"></label></div>
+<p class="sv-id-device-hint-v12" id="svExtraDeviceHintV16" hidden>🔓 A kulcs kizárólag ebben a böngészőben marad. Telefoncsere vagy böngészőadatok törlése után a képet nem lehet helyreállítani.</p></div>
+<p id="svExtraSafetyV15" class="sv-id-hint-v11"></p><button type="submit" id="svExtraSaveV15" class="sv-id-primary-v11">🔒 Kártya mentése</button>
+</section></form>
+<section id="svExtraViewerV15" hidden>
+<div id="svExtraBankArtV15" class="sv-extra-bank-art-v15" hidden></div>
+<div id="svExtraHealthViewerV15">
+<div id="svExtraLockedV15"><p class="sv-id-hint-v11">🔐 Jelszavas kártya, titkosított elő- és hátlap.</p>
+<label class="sv-id-pass-label-v11">Feloldó jelszó / Password<input type="password" id="svExtraPasswordOpenV15" autocomplete="off"></label>
+<button type="button" id="svExtraUnlockV15" class="sv-id-primary-v11">🔓 Kártya megnyitása</button></div>
+<div id="svExtraPhotoViewV16" hidden>
+<div class="sv-id-side-switch-v11" id="svExtraSideSwitchV16"><button type="button" data-side="front" class="active" aria-pressed="true">ELŐLAP</button><button type="button" data-side="back" aria-pressed="false">HÁTLAP</button></div>
+<div class="sv-id-view-scroll-v11"><div id="svExtraZoomFrameV16"><button type="button" class="sv-id-flipper-v11" id="svExtraFlipV15" aria-label="Előlap/hátlap megfordítása">
+<span class="sv-id-face-v11 is-front"><img id="svExtraImageV15" alt="Kártya előlap"></span>
+<span class="sv-id-face-v11 is-back"><img id="svExtraBackImageV16" alt="Kártya hátlap"></span></button></div></div>
+<div class="sv-id-zoom-buttons-v11"><button type="button" id="svExtraZoomOutV15">−</button><span id="svExtraZoomLabelV15">100%</span><button type="button" id="svExtraZoomInV15">＋</button></div></div></div>
+<div class="sv-id-view-actions-v11"><button type="button" id="svExtraPinDialogV15">☆ Kitűzés</button><button type="button" id="svExtraDeleteV15" class="sv-extra-delete-v15">🗑 Törlés</button></div>
+</section>
+</template>
+<script defer src="./smart-valet-optical-v16.js?v=16-one-frame"></script>
 <script defer src="./smart-valet-v1.js?v=10-coupons-id-subgroups-lakcim-v13-pin"></script>
 <script defer src="./smart-valet-smart-access-v13.js?v=13-pin-visibility"></script>
 <script>
@@ -266,7 +311,7 @@
         // external CDN chain. Authenticated originals still require Supabase.
         load('./smart-valet-private-v7.js?v=10-coupon-gallery-v13-visibility',function(){
           load('./smart-valet-identity-v11.js?v=12-optional-password-lakcim-v14-visible',function(){
-            load('./smart-valet-extra-v15.js?v=15-health-bank-secure',function(){});
+            load('./smart-valet-extra-v15.js?v=16-unified-optical',function(){});
           });
         });
       });

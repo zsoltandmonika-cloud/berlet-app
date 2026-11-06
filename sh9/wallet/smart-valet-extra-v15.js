@@ -1,7 +1,6 @@
-/* SHO Smart Valet v15 · profile-scoped health cards and masked bank cards.
- * Health photos encrypted in browser with per-card AES-GCM/PBKDF2 passphrase.
- * Bank records NEVER store PAN, CVV, PIN, expiry, magnetic data, or bank photos.
- * The database holds encrypted health photographs and RLS-protected metadata.
+/* SHO Smart Valet v16 · the same optical workflow as the Identity submodule.
+ * Health photos and deliberately redacted bank photos encrypted before upload.
+ * Unredacted bank photos, PAN, CVV, PIN and expiry are never persisted.
  */
 (function(w,d){
 'use strict';
@@ -14,8 +13,52 @@ const validId=id=>/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}
 const decode=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
 const encode=a=>{let s='';for(let i=0;i<a.length;i+=8192)s+=String.fromCharCode(...a.slice(i,i+8192));return btoa(s)};
 let client,category='',rows=[],busy=false,active=null,profileAtOpen='',serial=0;
-let files={front:null,back:null},viewURLs=[],flip='front',zoom=1;
-function release(){viewURLs.forEach(u=>URL.revokeObjectURL(u));viewURLs=[]}
+let files={front:null,back:null},viewURLs=[],previewURLs={front:'',back:''},flip='front',zoom=1;
+/* Device-bound, non-extractable AES key. Mirrors the ID wallet's optional password mode. */
+const EXTRA_KEY_DB='sho-valet-extra-device-v16',EXTRA_KEY_STORE='keys';
+function extraDB(){
+ return new Promise((resolve,reject)=>{
+  if(!w.indexedDB)return reject(Error('NO_INDEXED_DB'));
+  const r=w.indexedDB.open(EXTRA_KEY_DB,1);
+  r.onupgradeneeded=()=>{if(!r.result.objectStoreNames.contains(EXTRA_KEY_STORE))
+   r.result.createObjectStore(EXTRA_KEY_STORE)};
+  r.onsuccess=()=>resolve(r.result);
+  r.onerror=r.onblocked=()=>reject(Error('NO_INDEXED_DB'));
+ });
+}
+async function deviceKey(action,owner,id,value){
+ const db=await extraDB();
+ try{
+  return await new Promise((resolve,reject)=>{
+   const transaction=db.transaction(EXTRA_KEY_STORE,action==='get'?'readonly':'readwrite');
+   const store=transaction.objectStore(EXTRA_KEY_STORE);
+   const key=owner+'|'+id;
+   const request=action==='put'?store.put(value,key):action==='delete'?store.delete(key):store.get(key);
+   let outcome;
+   request.onsuccess=()=>{outcome=request.result};
+   request.onerror=()=>reject(Error('NO_INDEXED_DB'));
+   transaction.onerror=transaction.onabort=()=>reject(Error('NO_INDEXED_DB'));
+   transaction.oncomplete=()=>resolve(outcome);
+  });
+ }finally{db.close()}
+}
+async function newDeviceKey(){
+ return w.crypto.subtle.generateKey({name:'AES-GCM',length:256},false,['encrypt','decrypt']);
+}
+function modeOf(rec){return rec?.protection_mode==='device'?'device':'password'}
+function updateProtection(){
+ const enabled=$('svExtraPasswordEnabledV16').checked;
+ $('svExtraPasswordFieldsV16').hidden=!enabled;
+ $('svExtraDeviceHintV16').hidden=enabled;
+ if(!enabled){$('svExtraPassV15').value='';$('svExtraPassConfirmV15').value=''}
+}
+function release(){
+ viewURLs.forEach(u=>URL.revokeObjectURL(u));viewURLs=[];
+ for(const side of ['front','back']){
+  if(previewURLs[side])URL.revokeObjectURL(previewURLs[side]);
+  previewURLs[side]='';
+ }
+}
 function status(message,bad){
  const el=$('svExtraStatusV15');if(el){el.textContent=message||'';el.dataset.error=bad?'1':'0'}
 }
@@ -40,6 +83,8 @@ function human(e){
  case 'NO_LOGIN':return t('Jelentkezz be a Family Guardba.','Sign in to Family Guard.');
  case 'NO_ACCESS':return t('Nincs hozzáférés ehhez a profilhoz.','No access to this profile.');
  case 'BAD_PASS':return t('Hibás jelszó vagy sérült titkosított kép.','Wrong password or damaged encrypted image.');
+ case 'NO_DEVICE_KEY':return t('A helyi kulcs nincs meg ezen az eszközön. A kép nem állítható vissza.','Local key is missing. Image cannot be recovered.');
+ case 'NO_INDEXED_DB':return t('Ehhez az eszközhöz nem használható jelszó nélküli mentés.','Device-bound storage unavailable.');
  case 'NOT_READY':return t('A biztonságos tároló nem érhető el.','Secure vault is not available.');
  default:return t('Nem sikerült a művelet. A korábban mentett kártyák változatlanok.','Operation failed. Existing cards were not modified.');
  }
@@ -87,6 +132,7 @@ function close(){
  release();files={front:null,back:null};active=null;profileAtOpen='';flip='front';
  $('svExtraFormV15').reset();$('svExtraPasswordOpenV15').value='';
  $('svExtraImageV15').removeAttribute('src');
+ $('svExtraBackImageV16').removeAttribute('src');
  $('svExtraImageV15').hidden=true;
  $('svExtraLockedV15').hidden=true;
  $('svExtraViewerV15').hidden=true;
@@ -94,23 +140,52 @@ function close(){
 }
 function renderFormType(){
  const health=category==='health';
- $('svExtraHealthFieldsV15').hidden=!health;
+ $('svExtraHealthFieldsV15').hidden=false; // the SAME two-sided scanner for both groups
  $('svExtraBankFieldsV15').hidden=health;
  $('svExtraDraftTitleV15').textContent=health?t('Új egészségkártya','New health card'):t('Új bankkártya','New bank card');
  $('svExtraSafetyV15').textContent=health?
-  t('🔐 A fotók csak a jelszavaddal feloldható, titkosított formában mentődnek. A jelszó elvesztése esetén nem állíthatók vissza.',
-   '🔐 Photos are stored encrypted and only your password can unlock them. Lost passwords cannot be recovered.'):
-  t('💳 Biztonságos kártyaazonosító: csak a bank neve, egy becenév és legfeljebb az utolsó 4 számjegy. Nem fizetésre szolgál.',
-   '💳 Identification only: issuer, nickname, and optional last four digits. Not a payment method.');
+  t('🔐 Mindkét oldal ugyanazzal az optikai kerettel készül. A mentett képek jelszóval titkosítottak.',
+   '🔐 Both sides use the same optical frame. Photos are encrypted using your password.'):
+  t('💳 A bankkártya fotózása opcionális. Mielőtt mentenénk, a számot, lejáratot és CVV-t kézzel ki kell takarni. Az eredeti fotó nem kerül tárolásra.',
+   '💳 Bank photos are optional. Mask card number, expiry and CVV before saving. The original is never uploaded.');
 }
 function openAdd(){
  if(!['health','card'].includes(category)||busy)return;
  close();active=null;profileAtOpen=profile();
  renderFormType();$('svExtraEditV15').hidden=false;
- $('svExtraAddFrontV15').textContent=t('📁 Előlap · fájl','📁 Front · file');
- $('svExtraAddBackV15').textContent=t('📁 Hátlap · fájl','📁 Back · file');
+ $('svExtraPasswordEnabledV16').checked=true;updateProtection();
+ for(const which of ['Front','Back']){
+  $('svExtra'+which+'NameV15').textContent=t('＋ Hozzáadás','＋ Add');
+  $('svExtra'+which+'PreviewV16').removeAttribute('src');
+  $('svExtra'+which+'PreviewV16').hidden=true;
+  $('svExtra'+which+'EmptyV16').hidden=false;
+ }
  modalStatus('');
  $('svExtraDialogV15').showModal();
+}
+async function captureSide(which,mode){
+ if(busy||active||!['front','back'].includes(which))return;
+ const p=profileAtOpen,cat=category;
+ const api=w.SHO_VALET_OPTICAL_V16;
+ if(!api?.capture){
+  modalStatus(t('A közös optikai keret nem töltődött be. Frissítsd az oldalt.',
+   'Shared optical scanner unavailable. Reload the page.'),true);return;
+ }
+ const photo=await api.capture({
+  title:cat==='health'?t('Egészségkártya','Health card'):t('Bankkártya','Bank card'),
+  side:which,mode,bankRedact:cat==='card'
+ });
+ if(!photo||p!==profile()||p!==profileAtOpen||cat!==category||!$('svExtraDialogV15').open||active)return;
+ const cap=which==='front'?'Front':'Back';
+ if(previewURLs[which])URL.revokeObjectURL(previewURLs[which]);
+ previewURLs[which]=URL.createObjectURL(photo);
+ files[which]=photo;
+ $('svExtra'+cap+'PreviewV16').src=previewURLs[which];
+ $('svExtra'+cap+'PreviewV16').hidden=false;
+ $('svExtra'+cap+'EmptyV16').hidden=true;
+ $('svExtra'+cap+'NameV15').textContent=t('✓ Optikai keret OK','✓ Optical fit OK');
+ modalStatus(t('Kép elfogadva. Folytathatod a másik oldallal.',
+  'Photo accepted. Continue with the other side.'));
 }
 function renderGallery(){
  const host=$('svExtraCardsV15');host.replaceChildren();
@@ -120,7 +195,7 @@ function renderGallery(){
  }
  for(const rec of rows){
   const wrap=dom('article','sv-extra-item-v15');
-  const opener=dom('button','sv-extra-card-v15');
+  const opener=dom('button','sv-extra-card-v15 sv-id-type-v10');
   opener.type='button';opener.setAttribute('aria-label',t('Kártya megnyitása: ','Open card: ')+rec.title);
   const symbol=dom('span','sv-extra-icon-v15',rec.category==='health'?'🩺':'💳');
   const info=dom('span','sv-extra-info-v15');
@@ -129,7 +204,7 @@ function renderGallery(){
    t('🔐 Titkosított előlap / hátlap','🔐 Encrypted front / back')));
   opener.append(symbol,info);
   opener.addEventListener('click',()=>void openSaved(rec.id));
-  const pin=dom('button','sv-extra-pin-v15');
+  const pin=dom('button','sv-extra-pin-v15 sv-id-tile-pin-v14');
   pin.type='button';
   const quick=w.SHO_VALET_SMART_ACCESS_V13;
   const pinned=!!quick?.isPinned('extra',rec.id);
@@ -183,7 +258,7 @@ function togglePinButton(rec){
 }
 async function loadRecord(id){
  const p=profile(),c=await authorized(p);
- const {data,error}=await c.from(TABLE).select('id,profile_key,category,title,issuer,last_four,front_cipher,back_cipher,kdf_salt')
+ const {data,error}=await c.from(TABLE).select('id,profile_key,category,title,issuer,last_four,front_cipher,back_cipher,kdf_salt,protection_mode')
   .eq('id',id).eq('profile_key',p).maybeSingle();
  if(error)throw error;
  if(p!==profile())throw Error('NO_ACCESS');
@@ -208,39 +283,60 @@ async function openSaved(id){
   $('svExtraBankArtV15').hidden=!bank;
   $('svExtraHealthViewerV15').hidden=bank;
   if(bank)bankArt(rec);
-  else{
+  if(rec.front_cipher){
+   $('svExtraPhotoViewV16').hidden=true;
+   $('svExtraBankArtV15').hidden=true;
+   $('svExtraHealthViewerV15').hidden=false;
    $('svExtraLockedV15').hidden=false;$('svExtraImageV15').hidden=true;
    $('svExtraUnlockV15').textContent=t('🔓 Kártya megnyitása','🔓 Unlock card');
+  }else{
+   $('svExtraBankArtV15').hidden=false;
+   $('svExtraHealthViewerV15').hidden=true;
   }
   togglePinButton(rec);
   $('svExtraDialogV15').showModal();
+  if(rec.front_cipher&&modeOf(rec)==='device')void unlock();
  }catch(e){status(human(e),true)}
 }
 function renderPhoto(){
- if(!active||active.category!=='health')return;
+ if(!active?.front_cipher)return;
  if(flip==='back'&&!viewURLs[1])flip='front';
- const im=$('svExtraImageV15');
- im.src=flip==='back'?viewURLs[1]:viewURLs[0];
- im.hidden=false;$('svExtraLockedV15').hidden=true;
- im.style.transform='scale('+zoom+')';
- $('svExtraFlipV15').hidden=!viewURLs[1];
- $('svExtraFlipV15').textContent=flip==='front'?t('↻ Hátlap','↻ Back'):t('↻ Előlap','↻ Front');
+ const front=$('svExtraImageV15'),back=$('svExtraBackImageV16');
+ front.src=viewURLs[0];front.hidden=false;
+ if(viewURLs[1])back.src=viewURLs[1];else back.removeAttribute('src');
+ $('svExtraLockedV15').hidden=true;
+ $('svExtraFlipV15').classList.toggle('is-back',flip==='back');
+ $('svExtraZoomFrameV16').style.transform='scale('+zoom+')';
+ for(const b of d.querySelectorAll('#svExtraSideSwitchV16 [data-side]')){
+  const on=b.dataset.side===flip;b.classList.toggle('active',on);b.setAttribute('aria-pressed',String(on));
+  b.disabled=b.dataset.side==='back'&&!viewURLs[1];
+ }
  $('svExtraZoomLabelV15').textContent=Math.round(zoom*100)+'%';
 }
 async function unlock(){
  const rec=active,p=profileAtOpen,pass=$('svExtraPasswordOpenV15').value;
- if(!rec||rec.category!=='health'||busy)return;
- if(pass.length<8){modalStatus(t('Legalább 8 karakteres jelszót adj meg.','Enter a password of at least 8 characters.'),true);return}
+ if(!rec||!rec.front_cipher||busy)return;
+ const mode=modeOf(rec);
+ if(mode==='password'&&pass.length<8){
+  modalStatus(t('Legalább 8 karakteres jelszót adj meg.','Enter a password of at least 8 characters.'),true);return
+ }
  busy=true;$('svExtraUnlockV15').disabled=true;
  try{
-  await authorized(p);
-  const key=await keyFor(pass,decode(rec.kdf_salt));
+  const c=await authorized(p);
+  let key;
+  if(mode==='device'){
+   const auth=await c.auth.getUser();
+   if(auth.error||!auth.data?.user?.id)throw Error('NO_LOGIN');
+   key=await deviceKey('get',auth.data.user.id,rec.id);
+   if(!key||key.extractable||key.algorithm?.name!=='AES-GCM')throw Error('NO_DEVICE_KEY');
+  }else key=await keyFor(pass,decode(rec.kdf_salt));
   const first=await decrypt(rec.front_cipher,key,rec,'front');
   const second=rec.back_cipher?await decrypt(rec.back_cipher,key,rec,'back'):null;
   if(profile()!==p||active?.id!==rec.id||!$('svExtraDialogV15').open)throw Error('NO_ACCESS');
   release();viewURLs.push(URL.createObjectURL(first));
   if(second)viewURLs.push(URL.createObjectURL(second));
   $('svExtraPasswordOpenV15').value='';flip='front';zoom=1;
+  $('svExtraPhotoViewV16').hidden=false;
   renderPhoto();modalStatus(t('Kártya feloldva. A hátlaphoz használd a fordítást.','Card unlocked. Flip to see its back.'));
  }catch(e){modalStatus(human(e),true)}
  finally{busy=false;$('svExtraUnlockV15').disabled=false}
@@ -252,6 +348,7 @@ async function save(e){
  if(!title){modalStatus(t('Add meg a kártya nevét.','Enter a card name.'),true);return}
  const rec={id:w.crypto.randomUUID(),profile_key:p,category:cat,title,issuer:null,last_four:null,front_cipher:null,back_cipher:null,kdf_salt:null};
  busy=true;$('svExtraSaveV15').disabled=true;
+ let deviceOwner='';
  try{
   const c=await authorized(p);
   if(cat==='bank'){
@@ -259,17 +356,29 @@ async function save(e){
    const last=$('svExtraLast4V15').value.trim();
    if(last&&!/^[0-9]{4}$/.test(last))throw Error('LAST4');
    rec.last_four=last||null;
-  }else{
-   if(!files.front)throw Error('NO_FRONT');
+  }
+  if(files.back&&!files.front)throw Error('NO_FRONT');
+  if(cat==='health'&&!files.front)throw Error('NO_FRONT');
+  if(files.front){
+   const mode=$('svExtraPasswordEnabledV16').checked?'password':'device';
+   rec.protection_mode=mode;
+   const salt=w.crypto.getRandomValues(new Uint8Array(16));
    const pass=$('svExtraPassV15').value;
-   if(pass.length<8||pass!==$('svExtraPassConfirmV15').value)throw Error('PASS');
-   const salt=w.crypto.getRandomValues(new Uint8Array(16)),key=await keyFor(pass,salt);
+   if(mode==='password'&&(pass.length<8||pass!==$('svExtraPassConfirmV15').value))
+    throw Error('PASS');
+   const key=mode==='password'?await keyFor(pass,salt):await newDeviceKey();
    rec.kdf_salt=encode(salt);
    const front=await imageBlob(files.front);
    rec.front_cipher=await encrypt(front,key,rec,'front');
    if(files.back){
     const back=await imageBlob(files.back);
     rec.back_cipher=await encrypt(back,key,rec,'back');
+   }
+   if(mode==='device'){
+    const auth=await c.auth.getUser();
+    if(auth.error||!auth.data?.user?.id)throw Error('NO_LOGIN');
+    deviceOwner=auth.data.user.id;
+    await deviceKey('put',deviceOwner,rec.id,key);
    }
   }
   if(p!==profile()||profileAtOpen!==p||!$('svExtraDialogV15').open||
@@ -278,7 +387,8 @@ async function save(e){
   close();await refresh();
   status(t('TADAAA! 🎉 Kártya biztonságosan mentve.','TADAAA! 🎉 Card saved securely.'));
  }catch(err){
-  modalStatus(err?.message==='NO_FRONT'?t('Válassz előlapfotót.','Choose a front photo.'):
+  if(deviceOwner)try{await deviceKey('delete',deviceOwner,rec.id)}catch(_){}
+  modalStatus(err?.message==='NO_FRONT'?t('Válassz előlapfotót a közös optikai kerettel.','Choose a front photo with the shared optical scanner.'):
    err?.message==='PASS'?t('Legalább 8 karakteres, egyező jelszavak szükségesek.','Passwords must match and contain at least 8 characters.'):
    err?.message==='LAST4'?t('Az utolsó négy számjegy pontosan 4 számjegy legyen.','Last four must be exactly four digits.'):
    err?.message==='INVALID_IMAGE'?t('JPG, PNG vagy WebP kép szükséges, legfeljebb 12 MB.','Use a JPG, PNG or WebP image under 12 MB.'):
@@ -293,6 +403,11 @@ async function remove(){
   const c=await authorized(p);
   const {error}=await c.from(TABLE).delete().eq('id',id).eq('profile_key',p);
   if(error)throw error;
+  if(modeOf(active)==='device'){
+   const auth=await c.auth.getUser();
+   if(!auth.error&&auth.data?.user?.id)
+    try{await deviceKey('delete',auth.data.user.id,id)}catch(_){}
+  }
   if(w.SHO_VALET_SMART_ACCESS_V13?.isPinned('extra',id))
    w.SHO_VALET_SMART_ACCESS_V13.clear();
   close();await refresh();
@@ -302,13 +417,25 @@ async function remove(){
 async function resolvePinned(id,p){
  if(!validId(id)||p!==profile())throw Error('NO_ACCESS');
  const c=await authorized(p);
- const {data,error}=await c.from(TABLE).select('id,profile_key,category,title,issuer,last_four')
+ const {data,error}=await c.from(TABLE).select('id,profile_key,category,title,issuer,last_four,protection_mode')
   .eq('id',id).eq('profile_key',p).maybeSingle();
  if(error)throw error;
  if(p!==profile())throw Error('NO_ACCESS');
- return data?{...data,protection_mode:data.category==='health'?'password':'masked',
+ return data?{...data,protection_mode:modeOf(data),
   subtitle:data.category==='health'?t('🔒 Titkosított egészségkártya','🔒 Encrypted health card'):
    t('💳 '+(data.issuer||'')+(data.last_four?' · •••• '+data.last_four:''),'💳 '+(data.issuer||'')+(data.last_four?' · •••• '+data.last_four:''))}:null;
+}
+async function previewPinned(id,p){
+ if(!validId(id)||p!==profile())throw Error('NO_ACCESS');
+ const rec=await loadRecord(id);
+ if(!rec||modeOf(rec)!=='device'||!rec.front_cipher)return null;
+ const c=await authorized(p),auth=await c.auth.getUser();
+ if(auth.error||!auth.data?.user?.id)throw Error('NO_LOGIN');
+ const key=await deviceKey('get',auth.data.user.id,id);
+ if(!key||key.extractable||key.algorithm?.name!=='AES-GCM')return null;
+ const image=await decrypt(rec.front_cipher,key,rec,'front');
+ if(p!==profile())throw Error('NO_ACCESS');
+ return image;
 }
 async function openPinned(id,p){
  if(!await resolvePinned(id,p))return;
@@ -322,38 +449,21 @@ function init(){
  '<p id="svExtraHintV15"></p><button type="button" id="svExtraAddV15" class="sv-extra-primary-v15"></button>'+
  '<p id="svExtraStatusV15" role="status" aria-live="polite"></p><div id="svExtraCardsV15" class="sv-extra-list-v15"></div>';
  $('svIdentityPanelV10').insertAdjacentElement('afterend',panel);
- const dialog=dom('dialog','sv-extra-dialog-v15');dialog.id='svExtraDialogV15';
- dialog.innerHTML='<div class="sv-extra-modal-v15"><div class="sv-extra-modal-head-v15"><div><small>SHO · SMART VALET</small><h2 id="svExtraDraftTitleV15"></h2></div><button type="button" id="svExtraCloseV15" aria-label="Bezárás">×</button></div>'+
- '<p id="svExtraDialogStatusV15" role="status" aria-live="polite"></p>'+
- '<form id="svExtraFormV15"><section id="svExtraEditV15"><label>Kártya neve / Card name<input id="svExtraTitleInputV15" maxlength="120" required autocomplete="off" placeholder="Pl. Egészségpénztár / OTP bank"></label>'+
- '<div id="svExtraHealthFieldsV15"><div class="sv-extra-photo-grid-v15"><label>ELŐLAP · FRONT<input type="file" id="svExtraFrontV15" accept="image/jpeg,image/png,image/webp" hidden><input type="file" id="svExtraFrontCameraV15" accept="image/jpeg,image/png,image/webp" capture="environment" hidden><button type="button" id="svExtraAddFrontV15"></button><button type="button" id="svExtraCaptureFrontV15">📷 Fotó</button><small id="svExtraFrontNameV15"></small></label>'+
- '<label>HÁTLAP · BACK<input type="file" id="svExtraBackV15" accept="image/jpeg,image/png,image/webp" hidden><input type="file" id="svExtraBackCameraV15" accept="image/jpeg,image/png,image/webp" capture="environment" hidden><button type="button" id="svExtraAddBackV15"></button><button type="button" id="svExtraCaptureBackV15">📷 Fotó</button><small id="svExtraBackNameV15"></small></label></div>'+
- '<label>🔐 Titkosítási jelszó (min. 8 karakter)<input id="svExtraPassV15" type="password" minlength="8" autocomplete="new-password"></label>'+
- '<label>Jelszó megerősítése<input id="svExtraPassConfirmV15" type="password" minlength="8" autocomplete="new-password"></label></div>'+
- '<div id="svExtraBankFieldsV15"><label>Bank / Kártyakibocsátó<input id="svExtraIssuerV15" maxlength="100" autocomplete="off" placeholder="Pl. OTP, Erste"></label>'+
- '<label>Utolsó 4 számjegy (opcionális)<input id="svExtraLast4V15" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" autocomplete="off" placeholder="1234"></label></div>'+
- '<p id="svExtraSafetyV15" class="sv-extra-safety-v15"></p>'+
- '<button type="submit" id="svExtraSaveV15" class="sv-extra-primary-v15">🔒 Mentés</button></section></form>'+
- '<section id="svExtraViewerV15" hidden><div id="svExtraBankArtV15" class="sv-extra-bank-art-v15" hidden></div>'+
- '<div id="svExtraHealthViewerV15"><div id="svExtraLockedV15"><p>🔐 Jelszavas egészségkártya / Encrypted health card</p><input type="password" id="svExtraPasswordOpenV15" autocomplete="off" placeholder="Feloldó jelszó / Password"><button type="button" id="svExtraUnlockV15" class="sv-extra-primary-v15"></button></div>'+
- '<div class="sv-extra-photo-view-v15"><img id="svExtraImageV15" alt="Titkosított kártyafotó" hidden></div>'+
- '<div class="sv-extra-view-actions-v15"><button type="button" id="svExtraFlipV15" hidden>↻ Hátlap</button><button type="button" id="svExtraZoomOutV15">−</button><span id="svExtraZoomLabelV15">100%</span><button type="button" id="svExtraZoomInV15">+</button></div></div>'+
- '<div class="sv-extra-view-actions-v15"><button type="button" id="svExtraPinDialogV15">☆ Kitűzés</button><button type="button" id="svExtraDeleteV15" class="sv-extra-delete-v15">🗑 Törlés</button></div></section></div>';
+ const dialog=dom('dialog','sv-id-dialog-v11 sv-extra-dialog-v15');dialog.id='svExtraDialogV15';
+ dialog.append(d.getElementById('svExtraUnifiedTemplateV16').content.cloneNode(true));
  d.body.append(dialog);
  $('svExtraAddV15').addEventListener('click',openAdd);
  $('svExtraCloseV15').addEventListener('click',close);
  dialog.addEventListener('cancel',e=>{e.preventDefault();close()});
  $('svExtraFormV15').addEventListener('submit',e=>void save(e));
+ $('svExtraPasswordEnabledV16').addEventListener('change',updateProtection);
+ updateProtection();
  for(const side of ['Front','Back']){
-  const id='svExtra'+side+'V15',cameraId='svExtra'+side+'CameraV15';
-  $('svExtraAdd'+side+'V15').addEventListener('click',()=>$(id).click());
-  $('svExtraCapture'+side+'V15').addEventListener('click',()=>$(cameraId).click());
-  for(const input of [id,cameraId])$(input).addEventListener('change',e=>{
-   const f=e.target.files?.[0]||null;e.target.value='';
-   const which=side.toLowerCase();files[which]=f;
-   $('svExtra'+side+'NameV15').textContent=f?f.name:t('Nincs kiválasztva','Not selected');
-  });
+  $('svExtraAdd'+side+'V15').addEventListener('click',()=>void captureSide(side.toLowerCase(),'file'));
+  $('svExtraCapture'+side+'V15').addEventListener('click',()=>void captureSide(side.toLowerCase(),'camera'));
  }
+ for(const button of dialog.querySelectorAll('#svExtraSideSwitchV16 [data-side]'))
+  button.addEventListener('click',()=>{flip=button.dataset.side;zoom=1;renderPhoto()});
  $('svExtraUnlockV15').addEventListener('click',()=>void unlock());
  $('svExtraFlipV15').addEventListener('click',()=>{flip=flip==='front'?'back':'front';zoom=1;renderPhoto()});
  $('svExtraZoomOutV15').addEventListener('click',()=>{zoom=Math.max(1,zoom-.2);renderPhoto()});
@@ -385,5 +495,5 @@ function init(){
  renderCategory();
 }
 if(d.readyState==='loading')d.addEventListener('DOMContentLoaded',init,{once:true});else init();
-w.SHO_VALET_EXTRA_V15=Object.freeze({resolvePinned,openPinned,previewPinned:async()=>null});
+w.SHO_VALET_EXTRA_V15=Object.freeze({resolvePinned,openPinned,previewPinned});
 })(window,document);

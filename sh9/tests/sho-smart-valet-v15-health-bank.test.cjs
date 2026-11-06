@@ -9,19 +9,19 @@ const controller=read('sh9/wallet/smart-valet-extra-v15.js');
 const quick=read('sh9/wallet/smart-valet-smart-access-v13.js');
 const css=read('sh9/wallet/smart-valet-extra-v15.css');
 test('Health and bank categories load genuine secure-card controller, not generic upload',()=>{
- assert.match(page,/smart-valet-extra-v15\.css\?v=15-health-bank-glass/);
- assert.match(page,/load\('\.\/smart-valet-extra-v15\.js\?v=15-health-bank-secure'/);
+ assert.match(page,/smart-valet-extra-v15\.css\?v=16-unified-optical/);
+ assert.match(page,/load\('\.\/smart-valet-extra-v15\.js\?v=16-unified-optical'/);
  assert.ok(page.indexOf('smart-valet-extra-v15.js')>page.indexOf('smart-valet-identity-v11.js'));
  assert.match(demo,/addPanel\.hidden=\['identity','health','card'\]\.includes\(kind\)/);
  assert.match(controller,/sho-valet-filter-change/);
  assert.match(controller,/category==='health'\|\|category==='card'/);
  assert.match(controller,/id="svExtraAddV15"/);
- assert.match(controller,/id="svExtraFrontV15"/);
- assert.match(controller,/id="svExtraBackV15"/);
- assert.match(controller,/id="svExtraLast4V15"/);
+ assert.match(page,/id="svExtraFrontV15"/);
+ assert.match(page,/id="svExtraBackV15"/);
+ assert.match(page,/id="svExtraLast4V15"/);
  assert.match(css,/sv-extra-bank-art-v15/);
 });
-test('Sensitive health photos are encrypted before any storage, bank only stores last4',()=>{
+test('Health photos and privacy-masked bank scans encrypt before storage; no PAN/CVV fields',()=>{
  assert.match(controller,/crypto\.subtle\.deriveKey/);
  assert.match(controller,/name:'PBKDF2'/);
  assert.match(controller,/name:'AES-GCM'/);

@@ -265,6 +265,23 @@ function renderDraft(){
 function choose(which,mode){
  if(!['front','back'].includes(which))return;
  side=which;
+ // One canonical optical frame for Identity, Health and Bank categories.
+ const shared=w.SHO_VALET_OPTICAL_V16;
+ if(shared?.capture){
+  const originalKind=kind,originalProfile=storedProfile,originalItem=item;
+  void shared.capture({title:label(kind),side:which,mode}).then(async blob=>{
+   if(!blob||originalKind!==kind||originalProfile!==storedProfile||
+      originalItem!==item||!$('svIdDialogV11')?.open)return;
+   draft[which]=blob;
+   if(item&&which==='back'&&activeKey)await saveBack();
+   else{
+    renderDraft();
+    status(text('Kép a közös optikai keretből. Ellenőrizd a négy sarkot.',
+     'Image fitted using the unified optical frame. Check all four corners.'));
+   }
+  });
+  return;
+ }
  if(mode==='camera')void startCamera();
  else{$('svIdFileV11').value='';$('svIdFileV11').click()}
 }

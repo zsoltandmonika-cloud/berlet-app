@@ -1,0 +1,32 @@
+name: SHO Smart Valet v16 · Unified Optical QA
+on:
+  pull_request:
+    paths:
+      - 'sh9/wallet/**'
+      - 'sh9/tests/sho-smart-valet-v16-unified-optical.test.cjs'
+      - 'sh9/tests/sho-smart-valet-v15-health-bank.test.cjs'
+      - 'supabase/migrations/20261106024500_sho_valet_bank_masked_photos_v16.sql'
+      - '.github/workflows/sho-valet-v16-unified-optical-qa.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'sh9/wallet/**'
+      - 'sh9/tests/sho-smart-valet-v16-unified-optical.test.cjs'
+permissions:
+  contents: read
+jobs:
+  unified-optical:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate unified scanner, security and existing ID workflows
+        run: |
+          node --check sh9/wallet/smart-valet-optical-v16.js
+          node --check sh9/wallet/smart-valet-extra-v15.js
+          node --check sh9/wallet/smart-valet-identity-v11.js
+          node --test sh9/tests/sho-smart-valet-v16-unified-optical.test.cjs
+          node --test sh9/tests/sho-smart-valet-v15-health-bank.test.cjs
+          node --test sh9/tests/sho-smart-valet-v13-universal-pin.test.cjs
+          node --test sh9/tests/sho-smart-valet-id-v11.test.cjs
+          node --test sh9/tests/sho-smart-valet-v10-coupons-identity.test.cjs

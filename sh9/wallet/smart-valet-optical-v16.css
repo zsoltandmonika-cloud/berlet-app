@@ -1,0 +1,17 @@
+/* Same optics as existing SHO ID scanner, shared by all Smart Valet categories. */
+#svOptDialogV16{z-index:90060}
+#svOptDialogV16 .sv-id-crop-v11[hidden],#svOptDialogV16 [hidden]{display:none!important}
+#svOptCloseV16{min-width:42px;height:42px;border:1px solid #dec0ff;border-radius:12px;color:#fff;background:#403b75;font-size:27px}
+#svOptVideoV16{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+#svOptSnapV16{background:linear-gradient(120deg,#3883c4,#b468c5)}
+.sv-opt-mask-frame-v16{position:relative;touch-action:none}
+#svOptMaskImageV16{position:relative;width:100%;height:100%;object-fit:contain;transform:none}
+#svOptMaskCanvasV16{position:absolute;inset:0;width:100%;height:100%;touch-action:none;cursor:crosshair;z-index:2}
+#svOptMaskCountV16{display:block;margin:8px 0;font-size:12px;color:#ffd6f5}
+:root[data-sh9-golden-profile="z"] #svOptSnapV16{background:linear-gradient(115deg,#358bd1,#657cb8)}
+:root[data-sh9-golden-profile="m"] #svOptSnapV16{background:linear-gradient(115deg,#d475ad,#9468bb)}
+
+.sv-opt-confirm-v16{display:flex;align-items:center;gap:12px;margin:14px 0;padding:12px;
+ border-radius:12px;border:1px solid rgba(234,202,251,.6);background:rgba(53,51,112,.58);
+ color:#fff;font-size:12px;line-height:1.5}
+.sv-opt-confirm-v16 input{flex:none;width:24px;height:24px;accent-color:#c080e3}

@@ -131,6 +131,11 @@ async function image(pin,p,record){
   if(record.protection_mode!=='device')return null;
   return w.SHO_VALET_IDENTITY_V13?.previewPinned?.(pin.id,p,record)||null;
  }
+ if(pin.source==='extra'){
+  // Follow the same protected-thumbnail privacy rule as Identity cards.
+  if(record.protection_mode!=='device')return null;
+  return w.SHO_VALET_EXTRA_V15?.previewPinned?.(pin.id,p,record)||null;
+ }
  return null;
 }
 async function openPinned(pin){
@@ -182,7 +187,7 @@ function renderFeatured(){
         'ID card · '+(entry.protection_mode==='password'?'Password protected':'Private'))
      :t('Saját privát kártyád','Your private card'));
    ui.open.disabled=false;
-   if(pin.source==='extra'&&entry.category==='bank'){
+   if(pin.source==='extra'&&entry.category==='bank'&&entry.protection_mode!=='device'){
     const bank=node('div','sv-extra-bank-art-v15');
     bank.append(node('span','sv-extra-bank-logo-v15','✦ '+String(entry.issuer||t('Bankkártya','Bank card'))),
      node('span','sv-extra-bank-number-v15','•••• •••• •••• '+(entry.last_four||'••••')),
