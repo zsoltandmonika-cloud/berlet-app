@@ -94,10 +94,15 @@ async function cloudBundle(profile){
   var v=window.HH_DROPBOX_VAULT,p=profile||pkey();
   if(!v||!v.connected||!v.connected()||typeof v.downloadJson!=='function')return null;
   var raw=null,path='/HealthHub/profiles/'+p+'-health-connect.json';
-  try{raw=await v.downloadJson(path)}catch(e){
-   if(e&&e.status!==409)throw e;
-   path='/incoming-'+p+'.json';
-   raw=await v.downloadJson(path);
+  var source=window.HH_HEALTH_CONNECT_SOURCE_V1015;
+  if(source&&typeof source.read==='function'){
+   var received=await source.read(p,false);raw=received.raw;path=received.path;
+  }else{
+   try{raw=await v.downloadJson(path)}catch(e){
+    if(e&&e.status!==409)throw e;
+    path='/incoming-'+p+'.json';
+    raw=await v.downloadJson(path);
+   }
   }
   if(!raw||String(raw.profile||'').toLowerCase()!==p)return null;
   localStorage.setItem('hh-activity-cloud-last-'+p,new Date().toISOString());
@@ -110,23 +115,17 @@ async function cloudBundle(profile){
  }
 }
 function manualSession(x){return {id:x.id,title:cat(x.type).label,manualType:x.type,startTime:x.startTime,endTime:new Date(Date.parse(x.startTime)+(Number(x.duration)||0)*60000).toISOString(),distanceKm:Number(x.distance)||0,caloriesKcal:Number(x.calories)||0,avgBpm:Number(x.avgBpm)||0,_manual:true}}
-async function load(profile){
+// v1014: The verified, profile-scoped local cache can paint before Dropbox.
+async function readLocal(profile){
  profile=profile||pkey();
  var out={imports:[],activity:[]};
  try{var db=await openDb();try{var tx=db.transaction(['imports','activity']);out.imports=await req(tx.objectStore('imports').getAll())||[];out.activity=await req(tx.objectStore('activity').getAll())||[]}finally{db.close()}}catch(e){}
  out.imports=out.imports.filter(function(x){return x.profile===profile&&x.bundle});
  out.activity=out.activity.filter(function(x){return x.profile===profile});
- // Bounded wait: a disconnected Dropbox must not leave the entire Activity blank.
- // The raw local bridge records are retained untouched and clearly labelled if
- // the fresh source cannot be confirmed in time.
- var cloudTimeout=Object.freeze({timeout:true}),cloudTimeoutId=0;
- var cloudTimeoutPromise=new Promise(function(resolve){
-  cloudTimeoutId=setTimeout(function(){resolve(cloudTimeout)},12000);
- });
- var cloud=await Promise.race([cloudBundle(profile),cloudTimeoutPromise]);
- clearTimeout(cloudTimeoutId);
- out._cloudTimedOut=cloud===cloudTimeout;
- if(out._cloudTimedOut)cloud=null;
+ return out;
+}
+function attachCloud(local,cloud,profile){
+ var out={imports:local.imports.slice(),activity:local.activity.slice()};
  if(cloud){
   /* Activity needs the profile-filtered local bridge cache as well as fresh Cloud data.
      Both are already scoped to the requested profile, so keep them together. */
@@ -254,7 +253,11 @@ async function render(profileOverride){
  var page=document.getElementById('hhActivityPage191');if(!page)return;
  var renderId=++activityRenderSeq,requestedProfile=profileOverride||pkey();
   syncProfileTheme(requestedProfile);
- page.innerHTML=hero(requestedProfile)+'<div class="a191Body"><div class="a191ProfileDiag '+(requestedProfile==='monika'?'monika':'zsolt')+'">HEALTH CONNECT · '+(requestedProfile==='monika'?'MÓNIKA':'ZSOLT')+'</div><div class="a191Load" role="status" aria-live="polite">Aktivitás adatok betöltése, egy pillanat...</div></div>'+nav();
+ // Never replace a usable same-profile dashboard with a loading screen
+ // merely because a background import finished or the tab gained focus.
+ var hasVisibleData=window.hhActivity191CurrentProfile===requestedProfile&&
+   !!page.querySelector('.a191Top');
+ if(!hasVisibleData)page.innerHTML=hero(requestedProfile)+'<div class="a191Body"><div class="a191ProfileDiag '+(requestedProfile==='monika'?'monika':'zsolt')+'">HEALTH CONNECT · '+(requestedProfile==='monika'?'MÓNIKA':'ZSOLT')+'</div><div class="a191Load" role="status" aria-live="polite">Aktivitás adatok betöltése · Dropbox ellenőrzése…</div></div>'+nav();
  // v1013: independent source reads run concurrently rather than
  // serializing the Health Connect Dropbox, height and Samsung Dropbox waits.
  // Preserve all profile/freshness checks and Samsung's original merge.
@@ -266,42 +269,66 @@ async function render(profileOverride){
   Promise.resolve().then(function(){return samsungApi.load(requestedProfile,window.HH_DROPBOX_VAULT)})
    .catch(function(){return {status:'unavailable',data:null,profile:requestedProfile}}):
   Promise.resolve({status:'not_configured',data:null,profile:requestedProfile});
- // Samsung Direct is optional and may remain pending forever when its
- // cloud export/session is unavailable. Its absence must not block HC.
- var samsungGuard=new Promise(function(resolve){
-  var settled=false;
-  var timer=setTimeout(function(){
-   if(!settled){settled=true;resolve({status:'pending',data:null,profile:requestedProfile})}
-  },2500);
-  Promise.resolve(samsungPromise).then(function(value){
-   if(!settled){settled=true;clearTimeout(timer);resolve(value)}
-  },function(){
-   if(!settled){settled=true;clearTimeout(timer);resolve({status:'unavailable',data:null,profile:requestedProfile})}
+ // The Samsung SDK export is optional. Its missing/slow Dropbox file must
+ // not hold the authoritative Health Connect dashboard hostage indefinitely.
+ function timelyOptional(promise){
+  return new Promise(function(resolve){
+   var timer=setTimeout(function(){resolve({status:'pending',data:null,profile:requestedProfile})},2500);
+   Promise.resolve(promise).then(function(value){clearTimeout(timer);resolve(value)},
+    function(){clearTimeout(timer);resolve({status:'unavailable',data:null,profile:requestedProfile})});
   });
- });
- var sources=await Promise.all([load(requestedProfile),heightPromise,samsungGuard]);
+ }
+ var samsungQuick=timelyOptional(samsungPromise);
+ // v1014: begin all current reads together but render verified local data
+ // without waiting for potentially slow, optional cloud sources.
+ var localPromise=readLocal(requestedProfile);
+ var cloudPromise=cloudBundle(requestedProfile);
+ var finalPainted=false;
+ Promise.all([localPromise,heightPromise]).then(function(early){
+  if(renderId!==activityRenderSeq||finalPainted)return;
+  var hasMeasuredActivity=early[0].activity.length>0||early[0].imports.some(function(row){
+   return !!(row.bundle&&row.bundle.records&&Array.isArray(row.bundle.records.dailyActivity)&&row.bundle.records.dailyActivity.length);
+  });
+  if(!hasMeasuredActivity)return;
+  paintActivity(requestedProfile,attachCloud(early[0],null,requestedProfile),early[1],
+   {status:'pending',data:null,profile:requestedProfile},renderId,true);
+ }).catch(function(){});
+ var sources=await Promise.all([localPromise,cloudPromise,heightPromise,samsungQuick]);
  if(renderId!==activityRenderSeq)return;
- var raw=sources[0],profileHeight=sources[1],samsungState=sources[2];
+ finalPainted=true;
+ var finalRaw=attachCloud(sources[0],sources[1],requestedProfile);
+ paintActivity(requestedProfile,finalRaw,sources[2],sources[3],renderId,false);
+ if(sources[3].status==='pending')samsungPromise.then(function(result){
+  if(renderId!==activityRenderSeq)return;
+  if(result&&result.status==='ready'){
+   paintActivity(requestedProfile,finalRaw,sources[2],result,renderId,false);
+  }else if(window.hhActivity191Source&&window.hhActivity191Source.profile===requestedProfile){
+   window.hhActivity191Source.samsung=result;
+  }
+ }).catch(function(){});
+}
+function paintActivity(requestedProfile,raw,profileHeight,samsungState,renderId,preview){
+ if(renderId!==activityRenderSeq)return;
+ var page=document.getElementById('hhActivityPage191');if(!page)return;
+ var samsungApi=window.HH_SAMSUNG_SOURCE_V371;
  var c=collect(raw,requestedProfile);
  if(samsungApi&&samsungApi.merge)c=samsungApi.merge(c,samsungState,requestedProfile);
  var view=dayView(c),m=metrics(view,requestedProfile,profileHeight);
  window.hhActivity191SamsungSource=samsungState;
  window.hhActivity191Cache=c;window.hhActivity191View=view;window.hhActivity191DistanceMetrics=m;window.hhActivity191Height=profileHeight;
  window.hhActivity191CurrentProfile=requestedProfile;
- window.hhActivity191Source={profile:requestedProfile,cloud:raw.latestCloud||null,rows:c.daily,samsung:samsungState};
+ window.hhActivity191Source={profile:requestedProfile,cloud:raw.latestCloud||null,rows:c.daily,samsung:samsungState,preview:!!preview};
  var f=periodDays(),g=m.goals;
- var missingMeasuredDay=state.period==='1d'&&!m.daily.length;
  page.innerHTML=hero(requestedProfile)+'<div class="a191Body"><div class="a191ProfileDiag '+(requestedProfile==='monika'?'monika':'zsolt')+'">HEALTH CONNECT · '+(requestedProfile==='monika'?'MÓNIKA':'ZSOLT')+
   '<button type="button" class="a191SourceButton" onclick="hh191SourceDetails()">ⓘ Adatforrások</button></div>'+ 
-  (raw._cloudTimedOut?'<div class="a191MetricsHint" role="status">⚠️ A Dropbox nem válaszolt 12 másodpercen belül. Csak a böngészőben korábban tárolt mérési adatok jelennek meg, nem élő és nem ellenőrzött friss értékek.</div>':(!raw.latestCloud?'<div class="a191MetricsHint" role="status">⚠️ Friss Dropbox Health Connect-export nem érhető el. Az esetleg megjelenő adatok helyi mentésből származnak.</div>':''))+
-  (missingMeasuredDay?'<div class="a191MetricsHint" role="status">A kiválasztott napra nincs mért aktivitási adat. Ez nem nulla lépést jelent.</div>':'')+
   '<div class="a191CalendarBar"><button type="button" class="a191CalendarOpen" onclick="hh191Calendar()" aria-label="Korábbi nap aktivitásának megtekintése">📅 Nap kiválasztása <span aria-hidden="true">›</span></button></div>'+
  (state.period==='1d'&&state.selectedDay?'<div class="a191CalendarBar"><div class="a191CalendarOpen" style="background:var(--soft)"><span>📅 '+esc(state.selectedDay)+' · kiválasztott nap</span><button type="button" onclick="hh191Today()" style="border:0;border-radius:9px;padding:6px 9px;background:var(--a);color:#fff;font-weight:800">Ma ↩</button></div></div>':'')+
  (state.period==='1d'&&state.selectedDay&&!view.daily.length?'<div class="a191MetricsHint">Nincs erre a napra aktivitási rekord. A hiányzó adat nem mért nulla.</div>':'')+
+ (preview?'<div class="a191MetricsHint" role="status">⏳ Helyi gyorsnézet · korábban importált adatok. Frissítés a Dropboxból folyamatban…</div>':'')+
  '<div class="a191Top">'+
- kpi('steps','Lépések',(missingMeasuredDay?'—':n(m.steps,0)),'lépés',pct(m.steps,g.steps),n(g.steps,0),'blue')+
- kpi('cal',m.hasSamsungCalories?'Kalória · Samsung':'Elégetett kalória',missingMeasuredDay?'—':(m.confirmedCalories?n(m.cal,0):(m.steps>0?'—':'0')),'kcal',pct(m.cal,g.cal),n(g.cal,0),'orange')+
- kpi('time',m.hasSamsungActiveTime?'Aktív idő · Samsung':'Aktív idő · HC',missingMeasuredDay?'—':(m.active>0?Math.round(m.active):(m.steps>0?'—':'0')),'perc',pct(m.active,g.active),n(g.active,0),'green')+
+ kpi('steps','Lépések',(state.selectedDay&&state.period==='1d'&&!view.daily.length?'—':n(m.steps,0)),'lépés',pct(m.steps,g.steps),n(g.steps,0),'blue')+
+ kpi('cal',m.hasSamsungCalories?'Kalória · Samsung':'Elégetett kalória',m.confirmedCalories?n(m.cal,0):(m.steps>0?'—':'0'),'kcal',pct(m.cal,g.cal),n(g.cal,0),'orange')+
+ kpi('time',m.hasSamsungActiveTime?'Aktív idő · Samsung':'Aktív idő · HC',m.active>0?Math.round(m.active):(m.steps>0?'—':'0'),'perc',pct(m.active,g.active),n(g.active,0),'green')+
  kpi('dist','Távolság'+(m.estimated?' ≈':''),m.dist==null?'—':n(m.dist,1),'km',pct(m.dist,g.dist),n(g.dist,1),'violet')+
  '</div>'+
  '<div class="a191Small">'+
@@ -335,7 +362,7 @@ async function render(profileOverride){
   distCard.onkeydown=function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();window.hh191DistanceDetails()}};
  }
  // Render the independent estimate only after the profile-specific Activity dashboard is ready.
- if(window.HH_CALORIE_ENGINE_V363&&window.HH_CALORIE_ENGINE_V363.render)
+ if(!preview&&window.HH_CALORIE_ENGINE_V363&&window.HH_CALORIE_ENGINE_V363.render)
   window.HH_CALORIE_ENGINE_V363.render(requestedProfile,view).catch(function(e){console.warn('Calorie Engine',e)});
 }
 function modal(html){var m=document.getElementById('hh191Modal');if(!m)return;m.innerHTML='<div class="a191Sheet">'+html+'</div>';m.classList.add('on')}
@@ -367,7 +394,7 @@ window.hh191SourceDetails=function(){
  var direct=Array.isArray(bundle.records&&bundle.records.dailyActivity)?bundle.records.dailyActivity.find(function(x){return x.date===today}):null;
  var displayed=(src.rows||[]).find(function(x){return x.date===today});
  var samsung=src.samsung||{},sd=samsung.data&&samsung.data.days&&samsung.data.days.get(today);
- var directStatus=samsung.status==='ready'?
+ var directStatus=samsung.status==='pending'?'⏳ Samsung-export ellenőrzése folyamatban':samsung.status==='ready'?
    (samsung.data&&samsung.data.staleToday?'⚠️ Samsung SDK-export mai napi adatai elavultak, ezért nem használjuk őket':'✅ Samsung Data SDK export betöltve'):
    samsung.status==='not_connected'?'Még nincs Samsung SDK exportfájl':
    samsung.status==='invalid'?'⚠️ Érvénytelen Samsung SDK export':
@@ -376,7 +403,7 @@ window.hh191SourceDetails=function(){
  function value(r,key,dec,unit){var x=r&&r[key];return x!=null&&Number.isFinite(Number(x))?n(x,dec)+(unit?' '+unit:''):'nincs';}
  function row(label,data){return '<div class="a191SourceRow"><b>'+esc(label)+'</b><span>'+esc(data)+'</span></div>'}
  var html='<div class="a191SheetHead"><div><small>📡 HEALTHHUB · '+esc(profile.toUpperCase())+'</small><h3>Activity adatforrások</h3></div><button onclick="hh191CloseModal()">×</button></div>'+
- '<div class="a191Weather"><span>'+(cloud?'✅ Dropbox-export elérhető':'⚠️ Nincs elérhető aktuális Dropbox-export')+'</span>'+
+ '<div class="a191Weather"><span>'+(src.preview?'⏳ Dropbox-forrás ellenőrzése folyamatban':cloud?'✅ Dropbox-export elérhető':'⚠️ Nincs elérhető aktuális Dropbox-export')+'</span>'+
  '<span>Vizsgált nap: '+esc(today)+' · Export ideje: '+esc(cloud?fmtDate(cloud.importedAt):'nincs információ')+'</span>'+
  '<span>Health Connect adat ≠ Samsung Health napi összesítő. Az eltérés nem jelenti automatikusan az óra hibáját.</span>'+
  '<span>'+esc(directStatus)+(samsung.data&&samsung.data.exportedAt?' · '+esc(fmtDate(samsung.data.exportedAt)):'')+'</span>'+
@@ -453,14 +480,15 @@ function ensure(){
 }
 window.hhOpenActivity=function(){
  ensure();document.getElementById('hhActivityPage191').classList.add('on');render();
- // A successful cloud import already emits health-cloud-synced and is handled
- // below. Do not start another full render from the same completion callback.
- if(typeof window.hhHealthCloudSync==='function')
-  window.hhHealthCloudSync(false).catch(function(){});
+ // v1014: render() already downloads the canonical HC file. Avoid a second
+ // automatic cloud import and the subsequent duplicate full re-render.
+ // Startup, focus and explicit sync flows remain unchanged.
 }
 window.hhRenderActivity191=render;
 var activityRefreshTimer=0;
-function refreshIfOpen(){
+function refreshIfOpen(event){
+ var changed=event&&event.detail&&event.detail.profile;
+ if(changed&&changed!==pkey())return;
  var p=document.getElementById('hhActivityPage191');
  if(!p||!p.classList.contains('on'))return;
  // Imported + cloud-synced are commonly dispatched together. Debounce them
@@ -472,8 +500,10 @@ function refreshIfOpen(){
   if(page&&page.classList.contains('on'))render();
  },220);
 }
+// The canonical cloud importer emits healthconnect-imported BEFORE
+// health-cloud-synced. Only the former refreshes Activity: the second
+// event previously aborted the first render and repeated Dropbox reads.
 window.addEventListener('healthhub:healthconnect-imported',refreshIfOpen);
-window.addEventListener('healthhub:health-cloud-synced',refreshIfOpen);
 window.hhCloseActivity=function(){var p=document.getElementById('hhActivityPage191');if(p)p.classList.remove('on');window.hh191CloseModal()}
 function wire(){var btn=Array.from(document.querySelectorAll('.homeModule')).find(function(x){var b=x.querySelector('b');return b&&b.textContent.trim()==='Activity'});if(btn){btn.removeAttribute('onclick');btn.onclick=function(e){e.preventDefault();window.hhOpenActivity()};btn.style.cursor='pointer'}}
 
