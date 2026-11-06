@@ -12,12 +12,12 @@ function createTripProvider({getExistingResults}={}){
   privacy:"local_private",cacheMs:0,
   async search({query,signal}){
    if(signal?.aborted)return {status:"unavailable"};
-   const {from,to,travelDate}=query||{};
+   const {from,to,travelDate,time,mode}=query||{};
    if(!from||!to||!travelDate)return {status:"not_covered"};
    /* The host owns device access, licensed data and running each original engine.
     * Never access another module's IndexedDB or profile scope.
     */
-   const providerResults=await getExistingResults({from,to,travelDate,signal});
+   const providerResults=await getExistingResults({from,to,travelDate,time,mode,signal});
    if(signal?.aborted)return {status:"unavailable"};
    if(!providerResults)return {status:"not_covered"};
    const result=prefilter({query:{from,to,travelDate},providerResults,
