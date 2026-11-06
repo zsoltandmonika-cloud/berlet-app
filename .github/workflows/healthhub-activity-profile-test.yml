@@ -1,0 +1,30 @@
+name: HealthHub Activity profile split · isolated QA
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "healthhub/activity-profile-test/**"
+      - "healthhub/live-v191.js"
+      - ".github/workflows/healthhub-activity-profile-test.yml"
+  pull_request:
+    paths:
+      - "healthhub/activity-profile-test/**"
+      - "healthhub/live-v191.js"
+      - ".github/workflows/healthhub-activity-profile-test.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check-profile-split:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate preview scripts, test active-profile-only data and no cache writes
+        run: |
+          node --check healthhub/activity-profile-test/activity-engine-v1.js
+          node --check healthhub/activity-profile-test/profile-isolation.test.cjs
+          node --test healthhub/activity-profile-test/profile-isolation.test.cjs
