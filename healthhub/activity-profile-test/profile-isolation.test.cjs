@@ -107,7 +107,7 @@ test('split profile engine uses exact current canonical cloud and no speculative
  assert.doesNotMatch(script,/fastReadSnapshot|fastSaveSnapshot|sho-activity-fast-preview/);
  assert.doesNotMatch(script,/Promise\.all\(\[localPromise,heightPromise\]\)\.then/);
  assert.match(script,/Dropbox-export NEM igazolt/);
- assert.match(page,/activity-profile-test\/activity-engine-v1\.js/);
+ assert.match(page,/activity-profile-test\/activity-engine-v2\.js/);
  assert.match(page,/hh191ManualSave=function\(\)/);
 });
 test('one active profile uses exact profile cloud file and rejects other profile local records',async()=>{
