@@ -21,6 +21,14 @@ function nval(id){return $(id)?.value?.trim?.()||""}
 function mode(){return [...document.querySelectorAll("[data-st22-mode]")].find(x=>x.classList.contains("active"))?.dataset.st22Mode||"now"}
 function activeProfile(){try{return localStorage.getItem("hh-profile")==="m"?"m":"z"}catch(_){return "z"}}
 function ts(ms){if(!Number.isFinite(ms))return "00:00.0";const secs=Math.floor(ms/1000);return String(Math.floor(secs/60)).padStart(2,"0")+":"+String(secs%60).padStart(2,"0")+"."+String(Math.floor(ms%1000/100))}
+function scenarioKey(q,profile,priority){
+ // Stable anonymous key for within-tab matched A/B comparisons only.
+ // No locations or addresses appear in the copied timing report.
+ const s=[q.from,q.to,q.date,q.time,q.mode,profile,priority].join("|");
+ let h=2166136261;
+ for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}
+ return (h>>>0).toString(36);
+}
 function node(tag,className,text,parent){
  const el=document.createElement(tag);if(className)el.className=className;
  if(text!==undefined)el.textContent=String(text);
@@ -91,12 +99,13 @@ function showHistory(){
    s.cloudSaved?"igazolt":"nem",s.preparedCandidates+" jelölt",s.result])
     node("td","",v,r);
  }
- const a=history.filter(x=>x.arm==="legacy"&&x.cloudSaved);
- const b=history.filter(x=>x.arm==="super"&&x.cloudSaved);
+ const latest=history[history.length-1]?.scenario;
+ const a=history.filter(x=>x.scenario===latest&&x.arm==="legacy"&&x.cloudSaved);
+ const b=history.filter(x=>x.scenario===latest&&x.arm==="super"&&x.cloudSaved);
  if(a.length&&b.length){
   const median=items=>{const t=items.map(x=>x.totalMs).sort((a,b)=>a-b);return t[Math.floor((t.length-1)/2)]};
   node("p","ab-delta","Automatikusan mentett A/B medián: A "+ts(median(a))+" · B "+ts(median(b))+
-   " | csak azonos útvonalakkal és dátumokkal vethető össze tisztességesen.",historyEl);
+   " | ugyanaz a teljes keresési szcenárió (útvonal, dátum, idő, profil és preferencia).",historyEl);
  }
 }
 function record(result){
@@ -104,7 +113,7 @@ function record(result){
  const v=clock.snapshot();
  history.push({arm:state.arm,totalMs:v.totalMs,cloudSaved:v.cloudSaved,
   preparedCandidates:state.candidates,preparationMs:state.prepareMs,
-  promptChars:state.promptChars,result});
+  promptChars:state.promptChars,scenario:state.scenario,result});
  if(history.length>8)history=history.slice(-8);
  showHistory();
 }
@@ -267,7 +276,8 @@ async function launch(){
  }
  const token=++serial;
  state={id,token,profile:p,arm,query:q,done:false,candidates:0,
-  prepStatus:"not_requested",prepareMs:0,promptChars:built.bytes};
+  prepStatus:"not_requested",prepareMs:0,promptChars:built.bytes,
+  scenario:scenarioKey(q,p,nval("st22Priority"))};
  try{clock.start({id,profile:p})}catch(_){
   popup.close();say("Nem sikerült elindítani a stoppert.");state=null;return
  }
