@@ -53,6 +53,14 @@
 .st22-alpha-route .ab-route-leg{border-left:3px solid #8fc1f3;background:rgba(124,171,230,.1);padding:10px;display:grid;gap:4px;border-radius:8px}
 .st22-alpha-route small{color:#c6d9ee}
 @media(max-width:600px){.st22-alpha-panel .ab-arms,.st22-alpha-panel .ab-stages{grid-template-columns:1fr}.st22-alpha-panel .ab-top{align-items:start}.st22-alpha-panel .ab-stages span{min-height:33px}}
+
+/* A/B choice is directly above the form, never hidden under mobile autocomplete. */
+.st22-alpha-modebar{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:0 0 10px;padding:6px;border-radius:13px;background:rgba(16,35,62,.87);border:1px solid #6e9aca6b;position:relative;z-index:75}
+.st22-alpha-modebar label{display:flex;align-items:center;justify-content:center;gap:7px;padding:10px 6px;border-radius:9px;background:rgba(88,138,201,.14);color:#eaf3ff;font-size:11px;font-weight:800;cursor:pointer;text-align:center}
+.st22-alpha-modebar input{width:17px;height:17px;accent-color:#a0cfff;flex:0 0 auto}
+[data-st22-profile=m] .st22-alpha-modebar{border-color:#eeafda7a}
+[data-st22-profile=m] .st22-alpha-modebar input{accent-color:#ffc3e4}
+@media(max-width:370px){.st22-alpha-modebar label{font-size:10px;gap:4px;padding:8px 4px}}
 </style>
 </head>
 <body>
