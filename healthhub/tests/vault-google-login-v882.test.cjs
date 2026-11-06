@@ -5,17 +5,19 @@ const src=fs.readFileSync(path.join(ROOT,'healthhub/central-vault/google-login-v
 const html=fs.readFileSync(path.join(ROOT,'healthhub/index.html'),'utf8');
 const PENDING='hh-vault-google-pending-v882',SKEY='hh-supabase-health-session-v1',REM='hh-health-vault-trusted-device-v332';
 function setup(opts={}){
- const saved=new Map(),local=new Map(),nodes=new Map(),events={oauth:[],reload:0,login:0,select:0};
+ const saved=new Map(),local=new Map(),nodes=new Map(),events={oauth:[],reload:0,login:0,select:0,mount:0};
  const storage=m=>({getItem:key=>m.get(key)||null,setItem:(key,v)=>m.set(key,String(v)),removeItem:key=>m.delete(key)});
  const checkbox={checked:opts.remember===undefined?true:opts.remember};
  function element(tag){
   return {tag,children:[],hidden:false,disabled:false,dataset:{},textContent:'',id:'',className:'',
    setAttribute(){},addEventListener(){},
-   appendChild(c){this.children.push(c);if(c.id)nodes.set(c.id,c)},
+   appendChild(c){this.children.push(c);c.parentNode=this;if(c.id)nodes.set(c.id,c)},
    append(...items){items.forEach(x=>this.appendChild(x))},
+   insertBefore(c){this.appendChild(c)},
+   remove(){if(this.parentNode)this.parentNode.children=this.parentNode.children.filter(x=>x!==this);nodes.delete(this.id)},
    replaceChildren(...items){this.children=items}};
  }
- const box=element('section');
+ const box=element('section'),inlinePanel=element('section'),inlineParent=element('section');inlineParent.appendChild(inlinePanel);
  const doc={head:element('head'),createElement:element,getElementById:id=>nodes.get(id)||null,
   querySelector:q=>q==='#hhCentralAuthOverlayV332 .hhca-box'?box:
    q==='#hhcaLoginV332 input[name=remember]'?checkbox:null};
@@ -34,6 +36,7 @@ function setup(opts={}){
   }}}
  })};
  const vault={openLogin:()=>{events.login++;return 'legacy-login';},
+  mount:()=>{events.mount++;return 'legacy-mount';},
   getStatus:()=>({authenticated:opts.alreadyLoggedIn===true})};
  const w={HH_DAILY_HEALTH_SYNC_V319:vault,
   HH_CENTRAL_VAULT:{enabled:true,supabaseUrl:'https://test-project.supabase.co',publishableKey:'sb_publishable_'+'x'.repeat(35)},
@@ -42,7 +45,7 @@ function setup(opts={}){
  if(opts.native)saved.set('hh-one-native-oauth-v1063','1');
  const ctx={window:w,document:doc,Date,Promise,JSON,Number,Error};
  vm.runInNewContext(src,ctx);
- return {w,box,doc,saved,local,events,checkbox,session,api:w.HH_VAULT_GOOGLE_V882};
+ return {w,box,doc,inlinePanel,inlineParent,saved,local,events,checkbox,session,api:w.HH_VAULT_GOOGLE_V882};
 }
 test('one-click Google module loads after the existing v680 Vault, without modifying its code',()=>{
  assert.doesNotThrow(()=>new vm.Script(src));
@@ -65,6 +68,16 @@ test('existing password login is preserved; Google button starts only on explici
  assert.equal(JSON.parse(x.saved.get(PENDING)).remember,true);
  assert.equal(x.events.reload,0,'no unverified session handoff');
  assert.equal(x.saved.has(SKEY),false);
+});
+test('Google button is shown directly in the original inline Health Vault panel',()=>{
+ const x=setup();
+ const old=x.w.HH_DAILY_HEALTH_SYNC_V319.mount(x.inlinePanel);
+ assert.equal(old,'legacy-mount');
+ assert.equal(x.events.mount,1);
+ const panel=x.inlineParent.children.find(n=>n.id==='hhVaultGoogleInlineV882');
+ assert.ok(panel);
+ assert.match(panel.children[0].textContent,/Google-fiókkal/);
+ assert.equal(panel.children[0].disabled,false);
 });
 test('verified callback adopts the existing account and keeps profile ACL intact',async()=>{
  const x=setup();
