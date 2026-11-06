@@ -59,7 +59,7 @@ test('failed Dropbox read is evicted and may be retried',async()=>{
  await second;
 });
 test('source overlap does not trigger duplicate Activity rerenders',()=>{
- assert.match(activity,/window\.addEventListener\('healthhub:healthconnect-imported',refreshIfOpen\)/);
+ assert.match(activity,/window\.addEventListener\('healthhub:healthconnect-imported',function\(event\)/);
  assert.doesNotMatch(activity,/window\.addEventListener\('healthhub:health-cloud-synced',refreshIfOpen\)/);
  assert.match(activity,/var changed=event&&event\.detail&&event\.detail\.profile/);
  assert.match(activity,/if\(changed&&changed!==pkey\(\)\)return/);
@@ -69,6 +69,6 @@ test('source overlap does not trigger duplicate Activity rerenders',()=>{
  assert.match(activity,/window\.HH_HEALTH_CONNECT_SOURCE_V1015/);
  assert.match(sync,/try\{got=await readSharedCloud\(profile,!!force\)\}/);
  assert.match(html,/live-v165\.js\?v=1015-shared-hc-read/);
- assert.match(html,/live-v191\.js\?v=1015-stable-activity-refresh/);
+ assert.match(html,/live-v191\.js\?v=1017-profile-memory-verified/);
  assert.match(html,/live-v260\.js\?v=1015-activity-event-dedupe/);
 });
