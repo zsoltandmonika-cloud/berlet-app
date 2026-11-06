@@ -351,6 +351,11 @@ function togglePinButton(rec){
 }
 async function loadRecord(id){
  const p=profile();
+ // A pass already cached on this device must open immediately, even with no signal.
+ if(category==='pass'){
+  const local=await offlinePassRecord(p,id).catch(()=>null);
+  if(local&&p===profile())return local;
+ }
  try{
   const c=await authorized(p);
   const {data,error}=await c.from(TABLE).select('id,profile_key,category,title,issuer,last_four,front_cipher,back_cipher,kdf_salt,protection_mode,created_at')
