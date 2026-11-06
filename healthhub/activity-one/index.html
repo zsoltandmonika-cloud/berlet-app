@@ -18,10 +18,11 @@ html,body{margin:0;min-height:100%;background:#08172d;color:#ecf7ff;font:15px/1.
 #splitBoot[hidden],#splitTools[hidden]{display:none!important}
 /* SHO Golden Standard · lightweight Activity One replica.
    Inline only: no external CSS/JS, no additional network calls or data work. */
-#activityGoldenTop,#activityGoldenBottom{--sho-a:#a2d2ff;position:fixed;left:50%;transform:translateX(-50%);width:min(420px,calc(100% - 8px));box-sizing:border-box;z-index:8900}
+#activityGoldenBottom{--sho-a:#a2d2ff;position:fixed;left:50%;transform:translateX(-50%);width:min(420px,calc(100% - 8px));box-sizing:border-box;z-index:8900}
+#activityGoldenTop{--sho-a:#a2d2ff;position:absolute;left:4px;right:4px;width:auto;transform:none;box-sizing:border-box;z-index:30}
 #activityGoldenTop[data-profile="m"],#activityGoldenBottom[data-profile="m"]{--sho-a:#f8b4d7;--sho-soft:rgba(249,166,211,.25)}
 #activityGoldenTop[data-profile="z"],#activityGoldenBottom[data-profile="z"]{--sho-a:#a2d2ff;--sho-soft:rgba(121,191,255,.22)}
-#activityGoldenTop{top:calc(env(safe-area-inset-top,0px) + 4px);height:50px;display:grid;grid-template-columns:1.1fr 1.15fr .95fr .92fr;align-items:stretch;overflow:hidden;border:1px solid rgba(174,208,241,.30);border-radius:14px;background:rgba(8,42,80,.60);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);box-shadow:inset 0 1px 0 rgba(255,255,255,.12),0 6px 20px rgba(0,8,24,.30)}
+#activityGoldenTop{top:auto;bottom:4px;height:50px;display:grid;grid-template-columns:1.1fr 1.15fr .95fr .92fr;align-items:stretch;overflow:hidden;border:1px solid rgba(174,208,241,.30);border-radius:14px;background:rgba(8,42,80,.60);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);box-shadow:inset 0 1px 0 rgba(255,255,255,.12),0 6px 20px rgba(0,8,24,.30)}
 #activityGoldenTop .sho-cell{position:relative;min-width:0;height:100%;display:flex;align-items:center;justify-content:center}
 #activityGoldenTop .sho-cell+.sho-cell::before{content:"";position:absolute;left:0;top:13px;bottom:13px;width:1px;background:rgba(178,215,247,.22);pointer-events:none}
 #activityGoldenTop .sho-action{appearance:none;text-decoration:none;border:0;background:transparent;color:#f2f8ff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;height:100%;width:100%;min-width:0;padding:4px 1px;font:750 10.4px/1.12 system-ui,sans-serif;cursor:pointer}
@@ -41,7 +42,7 @@ html,body{margin:0;min-height:100%;background:#08172d;color:#ecf7ff;font:15px/1.
 #activityGoldenTop :is(button,a):focus-visible,#activityGoldenBottom :is(button,a):focus-visible{outline:2px solid var(--sho-a);outline-offset:-3px;border-radius:7px}
 #activityGoldenTop[hidden],#activityGoldenBottom[hidden]{display:none!important}
 body .a191Nav{display:none!important}
-body .a191Page{padding-top:calc(60px + env(safe-area-inset-top,0px))!important;padding-bottom:calc(80px + env(safe-area-inset-bottom,0px))!important;box-sizing:border-box!important}
+body .a191Page{padding-top:0!important;padding-bottom:calc(80px + env(safe-area-inset-bottom,0px))!important;box-sizing:border-box!important}
 body .a191Card.manual{display:block}
 @media(max-width:350px){#activityGoldenTop{grid-template-columns:1fr 1.1fr .9fr .93fr}#activityGoldenTop .sho-action span,#activityGoldenTop .sho-language>span{font-size:9.7px}#activityGoldenTop .sho-flags button{width:29px;font-size:21px}}
 </style>
@@ -77,6 +78,18 @@ body .a191Card.manual{display:block}
 (function(){
 'use strict';
 var started=performance.now();
+var goldenHeroDock=document.getElementById('activityGoldenTop');
+function mountHeroDock(){
+ // The verified Activity engine rebuilds the Hero on profile and period changes.
+ // Reattach the same dock element to the Hero rather than adding new listeners
+ // or a second dock. This only moves one DOM node and performs zero I/O.
+ var page=document.getElementById('hhActivityPage191');
+ var hero=page&&page.querySelector('.a191Hero');
+ if(!hero)return false;
+ if(goldenHeroDock.parentElement!==hero)hero.appendChild(goldenHeroDock);
+ goldenHeroDock.hidden=false;
+ return true;
+}
 function home(){location.assign('/berlet-app/sh9/')}
 function paintButtons(){
  var code=localStorage.getItem('hh-profile')==='m'?'m':'z';
@@ -119,7 +132,7 @@ function bindGoldenBars(){
  var byId=function(id){return document.getElementById(id)};
  byId('aOneProfile').onclick=function(){
   var next=localStorage.getItem('hh-profile')==='m'?'z':'m';
-  window.hh191Profile(next);paintButtons();
+  window.hh191Profile(next);mountHeroDock();paintButtons();
  };
  byId('aOneHU').onclick=function(){setLanguage('hu')};
  byId('aOneEN').onclick=function(){setLanguage('en')};
@@ -159,8 +172,14 @@ function start(){
  bindGoldenBars();
  try{
   window.hhOpenActivity();
+  var page=document.getElementById('hhActivityPage191');
+  mountHeroDock();
+  // Direct-child mutations only: ignore hundreds of interior KPI changes.
+  // Preserves scrolling with the Hero, including after every rerender.
+  var dockObserver=new MutationObserver(mountHeroDock);
+  dockObserver.observe(page,{childList:true});
+  window.addEventListener('pagehide',function(){dockObserver.disconnect()},{once:true});
   boot.hidden=true;
-  document.getElementById('activityGoldenTop').hidden=false;
   document.getElementById('activityGoldenBottom').hidden=false;
  }catch(err){
   console.error('Activity profile-split preview',err);
