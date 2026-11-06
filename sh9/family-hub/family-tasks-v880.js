@@ -434,18 +434,57 @@ function reloadSoon(){
  refreshId=w.setTimeout(()=>{refreshId=null;fetchData()},280);
 }
 async function changeTask(task,patch){
- if(!api||!user)return;
+ if(!api||!user)return false;
  try{
   const {data,error}=await api.from(TABLE).update({...patch,updated_by_profile:self()})
     .eq('id',task.id).eq('revision',task.revision).select('id').maybeSingle();
   if(error)throw error;
-  if(!data){announce('Közben változott a feladat. Frissítettem, próbáld újra.');}
-  else {
-    announce('✓ Mentve · Buddy értesíti az érintetteket.');
-    if(patch.status&&patch.status!==task.status&&['progress','done','failed'].includes(patch.status))showTaskOutcome(patch.status,task.title);
-   }
-  await fetchData();
- }catch(e){announce('Nem sikerült menteni: '+e.message)}
+  if(!data){
+   announce('Közben változott a feladat. Frissítettem, próbáld újra.');
+   await fetchData();return false;
+  }
+  announce('✓ Mentve · Buddy értesíti az érintetteket.');
+  if(patch.status&&patch.status!==task.status&&['progress','done','failed'].includes(patch.status))showTaskOutcome(patch.status,task.title);
+  await fetchData();return true;
+ }catch(e){announce('Nem sikerült menteni: '+e.message);return false}
+}
+function closeStatusNote(){
+ if(statusNoteSaving)return;
+ $('fhStatusNoteDialog').hidden=true;
+ statusNoteContext=null;
+}
+function openStatusNote(task,nextStatus){
+ if(!api||!user)return;
+ statusNoteContext={task,status:nextStatus};
+ const failed=nextStatus==='failed';
+ $('fhStatusNoteTitle').textContent=failed?'Miért nem teljesült?':'Státusz megjegyzés';
+ $('fhStatusNoteHint').textContent=failed
+  ?'A feladat „Nem teljesült” státusszal zárul. Az indoklás nem kötelező.'
+  :'Aktuális állapot: '+statuses[nextStatus]+'. A megjegyzés opcionális.';
+ $('fhStatusNoteText').value=task.status===nextStatus?(task.status_note||''):'';
+ $('fhStatusNoteSave').textContent=failed&&task.status!=='failed'?'⚫ Lezárás · Nem teljesült':'✓ Megjegyzés mentése';
+ $('fhStatusNoteCount').textContent=$('fhStatusNoteText').value.length+'/500';
+ $('fhStatusNoteError').textContent='';
+ $('fhStatusNoteDialog').hidden=false;
+ $('fhStatusNoteText').focus();
+}
+async function saveStatusNote(e){
+ e.preventDefault();
+ if(!statusNoteContext||statusNoteSaving)return;
+ const context=statusNoteContext,reason=$('fhStatusNoteText').value.trim();
+ if(reason.length>500){$('fhStatusNoteError').textContent='Legfeljebb 500 karakter írható.';return}
+ if(context.status===context.task.status&&reason===(context.task.status_note||'')){
+  closeStatusNote();return;
+ }
+ statusNoteSaving=true;
+ $('fhStatusNoteSave').disabled=true;
+ $('fhStatusNoteError').textContent='Mentés…';
+ try{
+  const saved=await changeTask(context.task,{status:context.status,status_note:reason});
+  if(saved){
+   $('fhStatusNoteDialog').hidden=true;statusNoteContext=null;
+  }else $('fhStatusNoteError').textContent='A mentés nem sikerült. Ellenőrizd a feladatot, majd próbáld újra.';
+ }finally{statusNoteSaving=false;$('fhStatusNoteSave').disabled=false}
 }
 function assignTask(t,p){
  const current=t.assigned_agent?'lena':t.assigned_profile;
@@ -600,6 +639,11 @@ function wire(){
  $('fhAdd').addEventListener('click',showSheet);
  $('fhClose').addEventListener('click',hideSheet);
  $('fhBackdrop').addEventListener('click',hideSheet);
+ $('fhStatusNoteForm').addEventListener('submit',saveStatusNote);
+ $('fhStatusNoteCancel').addEventListener('click',closeStatusNote);
+ $('fhStatusNoteText').addEventListener('input',()=>{$('fhStatusNoteCount').textContent=$('fhStatusNoteText').value.length+'/500'});
+ $('fhStatusNoteDialog').addEventListener('click',e=>{if(e.target===$('fhStatusNoteDialog'))closeStatusNote()});
+ d.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('fhStatusNoteDialog').hidden)closeStatusNote()});
  $('fhForm').addEventListener('submit',save);
  $('fhVoice').addEventListener('click',startDictation);
  $('fhSuccessClose').addEventListener('click',hideSuccess);
