@@ -8,7 +8,7 @@ const css=fs.readFileSync(path.join(root,'sh9/wallet/smart-valet-bkk-fullscreen-
 test('90-degree rotation is accessible in the existing full-screen photo viewer',()=>{
  assert.match(page,/id="svBkkRotateV18"/);
  assert.match(page,/aria-label="Bérletkép elforgatása 90 fokkal"/);
- assert.match(page,/smart-valet-bkk-fullscreen-v17\.js\?v=18-rotate-fit/);
+ assert.match(page,/smart-valet-bkk-fullscreen-v17\.js\?v=19-default-90/);
  assert.match(page,/smart-valet-bkk-fullscreen-v17\.css\?v=18-rotate-fit/);
  assert.match(src,/rotation=\(rotation\+90\)%360/);
  assert.match(src,/rotate\('\+rotation\+'deg\)/);
@@ -75,26 +75,34 @@ test('fullscreen rotation, zoom, flip and exiting work together in a simulated m
  assert.equal(api.show({frontUrl:'blob:front',backUrl:'blob:back',fullscreen:false}),true);
  const image=make('svBkkFullImageV17'),stage=make('svBkkImageStageV17');
  image.events.load();
- assert.match(image.style.transform,/rotate\(0deg\) scale\(1\)/);
+ assert.match(image.style.transform,/rotate\(90deg\) scale\(1\)/);
+ assert.equal(make('svBkkRotateV18').attrs['aria-pressed'],'true');
  assert.ok(Number.parseInt(image.style.width)>0);
  stage.clientWidth=760;stage.clientHeight=370;
  make('svBkkRotateV18').events.click();
  await Promise.resolve();await Promise.resolve();
- assert.equal(orientationLocks,1);
- assert.match(image.style.transform,/rotate\(90deg\) scale\(1\)/);
+ assert.equal(orientationLocks,0);
+ assert.match(image.style.transform,/rotate\(180deg\) scale\(1\)/);
  assert.ok(Number.parseInt(image.style.height)<=stage.clientWidth);
  assert.ok(Number.parseInt(image.style.width)<=stage.clientHeight);
  make('svBkkZoomInV17').events.click();
- assert.match(image.style.transform,/rotate\(90deg\) scale\(1\.3\)/);
+ assert.match(image.style.transform,/rotate\(180deg\) scale\(1\.3\)/);
  sideBtns[1].events.click();
  image.events.load();
- assert.match(image.style.transform,/rotate\(90deg\) scale\(1\)/);
- make('svBkkRotateV18').events.click();
  assert.match(image.style.transform,/rotate\(180deg\) scale\(1\)/);
- assert.ok(orientationUnlocks>=1);
+ make('svBkkRotateV18').events.click();
+ assert.match(image.style.transform,/rotate\(270deg\) scale\(1\)/);
+ await Promise.resolve();await Promise.resolve();
+ assert.equal(orientationLocks,1);
  make('svBkkCloseV17').events.click();
  assert.equal(make('svBkkFullDialogV17').open,false);
  assert.equal(image.getAttribute('src'),null);
+ assert.ok(orientationUnlocks>=1);
+ // Re-opening a pass also starts at 90°, not at the previous manually selected angle.
+ assert.equal(api.show({frontUrl:'blob:front',backUrl:'blob:back',fullscreen:false}),true);
+ image.events.load();
+ assert.match(image.style.transform,/rotate\(90deg\) scale\(1\)/);
+ make('svBkkCloseV17').events.click();
 });
 test('existing pass regression code and nonofficial-photo wording are retained',()=>{
  assert.match(src,/data-bkk-side/);

@@ -87,7 +87,7 @@ async function keepAwake(){
 function show({frontUrl,backUrl=null,title='Budapest-bérlet',fullscreen=true}={}){
  if(typeof frontUrl!=='string'||!frontUrl.startsWith('blob:'))return false;
  init();if(showing)close();
- showing=true;urls={front:frontUrl,back:backUrl};side='front';zoom=1;dx=0;dy=0;rotation=0;
+ showing=true;urls={front:frontUrl,back:backUrl};side='front';zoom=1;dx=0;dy=0;rotation=90; // default inspection orientation
  $('svBkkFullTitleV17').textContent=String(title).slice(0,110);
  const dlg=$('svBkkFullDialogV17');
  dlg.showModal();paint();void keepAwake();
