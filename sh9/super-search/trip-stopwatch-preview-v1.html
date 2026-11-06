@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="hu" data-profile="z">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0c1727">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; connect-src 'self' https://*.supabase.co; img-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'none'">
+<title>SHO · Léna keresési stopper · Alpha</title>
+<style>
+:root{color-scheme:dark;--accent:#91c2ff;--soft:rgba(109,174,245,.13);--stroke:rgba(150,191,237,.24);--text:#eef6ff;--muted:#b8cbe2;background:#091322;font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
+:root[data-profile=m]{--accent:#ffb9e6;--soft:rgba(245,153,218,.14);--stroke:rgba(245,161,221,.27)}
+*{box-sizing:border-box}body{margin:0;padding:clamp(12px,3vw,30px);min-height:100vh;background:radial-gradient(ellipse at 74% 2%,var(--soft),transparent 55%),#091322;color:var(--text)}
+main{margin:auto;max-width:960px}.glass{border:1px solid var(--stroke);border-radius:26px;background:linear-gradient(146deg,rgba(30,51,77,.87),rgba(11,22,40,.92));box-shadow:0 18px 72px rgba(0,0,0,.4);padding:clamp(16px,3vw,30px)}
+.eyebrow{color:var(--accent);letter-spacing:.18em;text-transform:uppercase;font-size:.72rem;font-weight:800}
+h1{font-size:clamp(1.5rem,4vw,2.18rem);margin:7px 0 8px}h2{font-size:1.15rem;color:var(--accent);margin:24px 0 12px}
+p{line-height:1.52;color:var(--muted)}.lead{max-width:740px;margin:5px 0 18px}
+.tag{display:inline-flex;border:1px solid var(--stroke);padding:7px 13px;border-radius:999px;font-size:.76rem;color:var(--accent);background:var(--soft);font-weight:750}
+.clockwrap{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,2fr);gap:20px;align-items:center;margin:22px 0}
+.clock{background:radial-gradient(ellipse at center,var(--soft),transparent 68%),#0a192d;border:1px solid var(--stroke);border-radius:22px;min-height:152px;display:flex;align-items:center;justify-content:center;flex-direction:column}
+#swTime{font-size:clamp(2.5rem,5vw,4.1rem);font-weight:760;letter-spacing:.025em;font-variant-numeric:tabular-nums;color:var(--accent)}
+.clock small{color:var(--muted);letter-spacing:.1em;text-transform:uppercase;font-weight:700}
+.stages{display:grid;gap:9px}.stage{border-radius:13px;background:rgba(9,24,43,.66);padding:12px;border:1px solid var(--stroke);font-size:.91rem;color:#d8e7f7}.stage[data-done=true]{border-color:var(--accent);color:#f5f9ff}
+fieldset{padding:0;border:0;margin:0}legend{font-weight:760;font-size:1.02rem;margin-bottom:12px}
+.inputs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+label{display:grid;gap:6px;color:#e1ecfa;font-weight:650;font-size:.89rem}
+input,select,textarea{font:inherit;color:#eff8ff;background:#102640;border:1px solid #7096c17b;border-radius:12px;padding:12px;width:100%;min-width:0;outline-offset:2px}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--accent)}
+button,.cta{font:inherit;border-radius:13px;padding:13px 19px;text-decoration:none;cursor:pointer;font-weight:770;border:1px solid var(--stroke);color:#fff;background:#1a3655;display:inline-flex;align-items:center;justify-content:center}
+.cta{background:linear-gradient(135deg,#2b73bd,#19426e);border-color:var(--accent)}
+button:disabled,input:disabled,select:disabled{opacity:.53;cursor:not-allowed}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin:20px 0 8px}.actions>*{flex:1;min-width:170px}
+#swStatus{border-left:3px solid var(--accent);border-radius:8px;background:var(--soft);padding:12px 14px;min-height:48px;color:var(--text)}
+.note{font-size:.83rem;border:1px dashed var(--stroke);padding:11px 13px;border-radius:13px}
+.manual{margin-top:18px;border-top:1px solid var(--stroke);padding-top:8px}
+textarea{resize:vertical;min-height:102px;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:.81rem}
+pre{background:#081629;color:#cce0f7;border:1px solid var(--stroke);border-radius:12px;padding:13px;font:12px/1.55 ui-monospace,Consolas,monospace;overflow:auto}
+#swRoute{border:1px solid var(--stroke);padding:18px;border-radius:17px;background:#0b2038}
+#swRoute[hidden]{display:none}#swRoute h3{color:var(--accent);margin:0 0 10px}.route-sub,.route-note{font-size:.86rem}
+.route-hero{font-size:1.8rem;font-weight:760;color:var(--text);margin:7px 0 17px}
+.leg{border-left:3px solid var(--accent);padding:12px 14px;background:var(--soft);margin-bottom:10px;border-radius:9px}
+.leg p{margin:6px 0}.leg small{color:var(--muted)}.smallrow{display:flex;justify-content:space-between;gap:16px;align-items:center;flex-wrap:wrap}
+a.textlink{color:var(--accent);font-weight:720}
+@media(max-width:640px){.clockwrap,.inputs{grid-template-columns:1fr}.clock{min-height:110px}.actions>*{min-width:100%}}
+</style>
+</head>
+<body>
+<main class="glass">
+<div class="eyebrow">SHO · Smart Hub One · Alpha Stopwatch</div>
+<h1>⏱️ Léna keresés · Teljes stopper</h1>
+<p class="lead">Mérjük a teljes utat: <strong>Léna indítása → privát felhőmentés → útiterv látható a grafikus keresőben</strong>. A ChatGPT külön lapon nyílik, az eredményt ez a lap kizárólag azonos keresésazonosítóval és meglévő Family Guard-jogosultsággal fogadja.</p>
+<span class="tag">Külön tesztoldal · 0 OpenAI API · nincs adatbázis-írás</span>
+<div class="clockwrap">
+ <div class="clock"><span id="swTime">00:00.0</span><small>Teljes eltelt idő</small></div>
+ <div class="stages">
+  <div id="swStarted" class="stage" data-done="false">① Léna még nem indult</div>
+  <div id="swSaved" class="stage" data-done="false">② My Trips felhőmentésre vár</div>
+  <div id="swRendered" class="stage" data-done="false">③ Grafikus útitervre vár</div>
+ </div>
+</div>
+<form id="swForm" onsubmit="return false">
+<fieldset>
+<legend>Keresés · csak a megadott változók</legend>
+<div class="inputs">
+<label>Profil<select id="swProfile"><option value="z">Zsolt 💙</option><option value="m">Mónika 🩷</option></select></label>
+<label>Keresési prioritás<select id="swPriority"><option value="balanced">Léna ajánlása</option><option value="wait">Legkevesebb várakozás</option><option value="transfers">Legkevesebb átszállás</option><option value="walk">Legkevesebb gyaloglás</option><option value="duration">Legrövidebb idő</option></select></label>
+<label>Honnan?<input id="swFrom" type="text" maxlength="120" placeholder="Mónika munkahelye" required></label>
+<label>Hová?<input id="swTo" type="text" maxlength="120" placeholder="Kazincbarcika" required></label>
+<label>Mód<select id="swMode"><option value="depart">Indulás ekkor</option><option value="arrive">Érkezés eddig</option><option value="now">Indulás most</option></select></label>
+<label>Dátum<input id="swDate" type="date" required></label>
+<label>Időpont<input id="swHour" type="time" required></label>
+</div>
+</fieldset>
+</form>
+<div class="actions">
+<a href="https://chatgpt.com/" id="swLaunch" class="cta" rel="noopener noreferrer" target="_blank">✨ Léna indítása · START</a>
+<button id="swStop" type="button" disabled>■ Mérés megszakítása</button>
+</div>
+<p id="swStatus" role="status" aria-live="polite">A mérés akkor indul, amikor megnyomod a Léna indítása gombot. A ChatGPT-ben szükség lehet a Küldés gombra.</p>
+<p class="note">**Automatikus STOP feltétele:** az új ChatGPT-beszélgetés valóban el tudja menteni a kért, egyedi azonosítójú TripPacket a HealthHub-Core Supabase-be, és a Family Guardba bejelentkezett böngésző ezt jogosultan látja. A ChatGPT saját böngészőfüle önmagában nem tud adatot visszaküldeni ide. Felhőkapcsolat hiányában a stopper nem fog automatikusan megállni.</p>
+<h2>Grafikus útiterv · automatikus betöltés</h2>
+<section id="swRoute" hidden aria-label="A Léna által mentett útiterv"></section>
+<div class="manual">
+<h2>Kézi JSON tartalék · külön mért útvonal</h2>
+<p>Ha ChatGPT nem tud Supabase-be menteni, az elkészült <code>sh9.trip-pack/1</code> JSON itt beilleszthető. Ez megállítja a stoppert, de <strong>nem jelent automatikus mentést</strong> és nem módosítja a My Trips adatait.</p>
+<textarea id="swManualJson" maxlength="60000" placeholder='{"schema":"sh9.trip-pack/1", ...}' aria-label="Kézi TripPack JSON"></textarea>
+<div class="actions"><button type="button" id="swManualButton" disabled>📥 Kézi JSON megjelenítése</button></div>
+</div>
+<div class="smallrow">
+<h2>Mérési jegyzőkönyv</h2>
+<button id="swCopy" type="button">📋 Idők másolása</button>
+</div>
+<pre id="swReport" aria-live="off">{}</pre>
+<p class="note">Az időmérés a böngészőben futó stopperrel történik. A <em>cloudObservedMs</em> az első sikeres visszaolvasás ideje, nem a szerveroldali írás pontos időpontja. A valódi AI-inferencia ideje önmagában nem mérhető a ChatGPT weboldaláról. Ez a tesztoldal külön fejlesztési ágon van, az éles Smart Trip, My Trips és taskbar érintetlen.</p>
+<p><a class="textlink" href="../smart-travel/my-trips/">My Trips megnyitása</a></p>
+</main>
+<script src="../../healthhub/central-vault/config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.2/dist/umd/supabase.min.js"></script>
+<script src="../smart-travel/public-transport/smart-trip/smart-trip-pack-v1078.js"></script>
+<script src="../smart-travel/public-transport/smart-trip/smart-trip-chatgpt-handoff-v1076.js"></script>
+<script type="module" src="./trip-stopwatch-preview-v1.mjs"></script>
+</body>
+</html>
