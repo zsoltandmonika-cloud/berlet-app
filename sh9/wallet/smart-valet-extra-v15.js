@@ -481,6 +481,16 @@ async function openPinned(id,p){
  category=pinned.category==='bank'?'card':pinned.category;
  renderCategory();await openSaved(id);
 }
+async function openBudapest(){
+ if(busy)return;
+ const button=d.querySelector('[data-kind="pass"]');
+ if(button&&!button.classList.contains('active'))button.click();
+ category='pass';renderCategory();
+ await refresh();
+ if(rows.length)await openSaved(rows[0].id);
+ else openAdd();
+}
+function getBudapestId(){return category==='pass'&&rows.length?rows[0].id:null}
 function init(){
  if(!$('svIdentityPanelV10'))return;
  const panel=dom('section','sv-extra-panel-v15');panel.id='svExtraPanelV15';panel.hidden=true;
@@ -547,5 +557,5 @@ function init(){
  renderCategory();
 }
 if(d.readyState==='loading')d.addEventListener('DOMContentLoaded',init,{once:true});else init();
-w.SHO_VALET_EXTRA_V15=Object.freeze({resolvePinned,openPinned,previewPinned});
+w.SHO_VALET_EXTRA_V15=Object.freeze({resolvePinned,openPinned,previewPinned,openBudapest,getBudapestId});
 })(window,document);
