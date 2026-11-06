@@ -52,6 +52,52 @@ function updateProtection(){
  $('svExtraDeviceHintV16').hidden=enabled;
  if(!enabled){$('svExtraPassV15').value='';$('svExtraPassConfirmV15').value=''}
 }
+/* Offline copy contains ONLY end-to-end encrypted pass photos and metadata.
+ * The legacy berlet-db remains untouched. Unlocked plaintext is NEVER cached.
+ */
+const PASS_DB='sho-bkk-secure-cache-v17',PASS_STORE='encrypted';
+function passDB(){
+ return new Promise((resolve,reject)=>{
+  if(!w.indexedDB)return reject(Error('NO_INDEXED_DB'));
+  const req=w.indexedDB.open(PASS_DB,1);
+  req.onupgradeneeded=()=>{
+   if(!req.result.objectStoreNames.contains(PASS_STORE))
+    req.result.createObjectStore(PASS_STORE);
+  };
+  req.onsuccess=()=>resolve(req.result);
+  req.onerror=req.onblocked=()=>reject(Error('NO_INDEXED_DB'));
+ });
+}
+async function passCache(action,p,id,data=null){
+ const db=await passDB();
+ try{
+  return await new Promise((resolve,reject)=>{
+   const tx=db.transaction(PASS_STORE,action==='get'||action==='list'?'readonly':'readwrite');
+   const store=tx.objectStore(PASS_STORE),key=p+'|'+id;
+   let answer;
+   const req=action==='get'?store.get(key):action==='list'?store.getAll():
+    action==='put'?store.put(data,key):store.delete(key);
+   req.onsuccess=()=>{answer=req.result};
+   req.onerror=()=>reject(Error('NO_INDEXED_DB'));
+   tx.onerror=tx.onabort=()=>reject(Error('NO_INDEXED_DB'));
+   tx.oncomplete=()=>resolve(action==='list'?
+    (answer||[]).filter(v=>v?.profile_key===p&&v.category==='pass'):answer);
+  });
+ }finally{db.close()}
+}
+async function cachePassRecord(rec,owner){
+ if(!rec||rec.category!=='pass'||!owner||!validId(rec.id))return;
+ if(!rec.front_cipher||!rec.back_cipher||!rec.kdf_salt)return;
+ const clone={...rec,owner_id:owner};
+ await passCache('put',rec.profile_key,rec.id,clone);
+}
+async function offlinePassRecord(p,id){
+ if(!validId(id))return null;
+ const record=await passCache('get',p,id);
+ return record?.profile_key===p&&record.category==='pass'&&
+  validId(record.id)&&record.id===id&&record.front_cipher&&record.back_cipher?record:null;
+}
+
 function release(){
  viewURLs.forEach(u=>URL.revokeObjectURL(u));viewURLs=[];
  for(const side of ['front','back']){
