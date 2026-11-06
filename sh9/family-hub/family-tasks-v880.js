@@ -16,6 +16,7 @@ let categoryRows=[],presetRows=[],cat=catDefault.slice();
 const names={monika:'Mónika',zsolt:'Zsolt',lena:'Léna'};
 const statuses={todo:'🔴 Még nem kezdte',progress:'🟠 Folyamatban',done:'🟢 Kész',failed:'⚫ Nem teljesült'};
 let user=null,authorized=[],tasks=[],logs=[],hiddenLogs=new Set(),hiddenTasks=new Set(),showHidden=false,tab='mine',selected='zsolt',category='🏠 Otthon',due='none',loading=false,refreshId=null,liveChannel=null;
+let statusNoteContext=null,statusNoteSaving=false;
 function self(){try{return w.localStorage.getItem('hh-profile')==='m'?'monika':'zsolt'}catch(_){return 'zsolt'}}
 function imgFor(p){
  const avatar=w.HH_GOLDEN_AVATARS_V529||{};
@@ -60,7 +61,7 @@ function render(){
   hiddenToggle.hidden=!count&&!showHidden;
  }
  if(tab==='log'){
-  records=logs.filter(e=>(showHidden?hiddenLogs.has(String(e.id)):!hiddenLogs.has(String(e.id)))&&(e.title_snapshot+' '+e.event_type+' '+label(e.actor_profile)+' '+label(e.recipient_profile)).toLocaleLowerCase('hu-HU').includes(needle));
+  records=logs.filter(e=>(showHidden?hiddenLogs.has(String(e.id)):!hiddenLogs.has(String(e.id)))&&(e.title_snapshot+' '+e.event_type+' '+label(e.actor_profile)+' '+label(e.recipient_profile)+' '+(e.current_value?.note||'')).toLocaleLowerCase('hu-HU').includes(needle));
   if(!records.length){$('fhList').append(element('p','fh-empty','Ebben a 30 napos időszakban nincs ilyen naplóbejegyzés.'));return}
   records.forEach(e=>{
     const name=e.title_snapshot||'Feladat';
@@ -77,6 +78,9 @@ function render(){
     item.append(element('strong',null,label(e.actor_profile)+' '+sentence),element('p',null,'„'+name+'”'));
     if(e.event_type==='status'){
       item.append(element('p',null,'Állapot: '+(statuses[e.previous_value?.status]||'–')+' → '+(statuses[e.current_value?.status]||'–')));
+      if(e.current_value?.note)item.append(element('p','fh-log-note','📝 '+e.current_value.note));
+    }else if(e.event_type==='edited'&&e.current_value?.note!==e.previous_value?.note){
+      item.append(element('p','fh-log-note',e.current_value?.note?'📝 '+e.current_value.note:'📝 Státusz megjegyzés törölve'));
     }else if(e.event_type==='assigned'){
       const dest=e.current_value?.agent==='lena'?'Léna':label(e.current_value?.assignee);
       item.append(element('p',null,'Felelős: '+dest));
@@ -91,7 +95,7 @@ function render(){
    (showHidden?hiddenTasks.has(String(t.id)):!hiddenTasks.has(String(t.id)))&&
    (tab==='mine'?(t.assigned_profile===self()&&!t.assigned_agent):
     tab==='issued'?(t.creator_profile===self()&&(t.assigned_profile!==self()||!!t.assigned_agent)):true)
-   &&(t.title+' '+t.category+' '+label(t.assigned_profile)).toLocaleLowerCase('hu-HU').includes(needle));
+   &&(t.title+' '+t.category+' '+label(t.assigned_profile)+' '+(t.status_note||'')).toLocaleLowerCase('hu-HU').includes(needle));
  if(!records.length){$('fhList').append(element('p','fh-empty','Itt még nincs teendő. A ＋ Új feladat gombbal kezdheted.'));return}
  records.forEach(t=>{
    const card=element('article','fh-card glass'+(t.status==='done'?' is-done':t.status==='failed'?' is-failed':''));card.id='task-'+t.id;card.dataset.id=t.id;
@@ -141,10 +145,18 @@ function render(){
    card.append(provenance);
    const rag=element('div','fh-rag');
    [['todo','🔴 Teendő'],['progress','🟠 Folyamatban'],['done','🟢 Kész'],['failed','⚫ Nem teljesült']].forEach(([k,name])=>{
-     const b=button(name,t.status===k?'active':'',()=>changeTask(t,{status:k}));
+     const b=button(name,t.status===k?'active':'',()=>{
+      if(k==='failed')openStatusNote(t,'failed');
+      else if(t.status!==k)changeTask(t,{status:k,status_note:''});
+     });
      b.dataset.status=k;b.setAttribute('aria-pressed',String(t.status===k));rag.append(b);
    });
    card.append(rag);
+   const statusNote=element('div','fh-status-note-block');
+   if(t.status_note)statusNote.append(element('p','fh-status-note-text','📝 '+t.status_note));
+   const editStatusNote=button(t.status_note?'✎ Megjegyzés módosítása':'＋ Státusz megjegyzés (opcionális)','fh-status-note-edit',()=>openStatusNote(t,t.status));
+   editStatusNote.setAttribute('aria-label','Státusz megjegyzés: '+t.title);
+   statusNote.append(editStatusNote);card.append(statusNote);
    const actions=element('div','fh-actions'),assign=element('div','fh-reassign');
    ['monika','zsolt','lena'].forEach(p=>{
      const b=button('',((t.assigned_agent?'lena':t.assigned_profile)===p?'selected':''),()=>assignTask(t,p));
@@ -388,7 +400,7 @@ async function fetchData(){
  loading=true;
  const thirty=new Date(Date.now()-30*864e5).toISOString();
  const result=await Promise.all([
-  api.from(TABLE).select('id,title,details,category,creator_profile,assigned_profile,assigned_agent,status,due_at,completed_at,closed_at,reaction,stars,revision,created_at,updated_at').order('updated_at',{ascending:false}).limit(150),
+  api.from(TABLE).select('id,title,details,category,creator_profile,assigned_profile,assigned_agent,status,due_at,completed_at,closed_at,reaction,stars,revision,created_at,updated_at,status_note').order('updated_at',{ascending:false}).limit(150),
   api.from(LOG).select('id,task_id,event_type,actor_profile,recipient_profile,title_snapshot,previous_value,current_value,created_at').gte('created_at',thirty).order('id',{ascending:false}).limit(120),
   api.from(HIDDEN_LOG).select('log_id').eq('profile_key',self()).limit(1500),
   api.from(HIDDEN_TASK).select('task_id').eq('profile_key',self()).limit(1500)
@@ -411,7 +423,7 @@ async function refreshWhenForeground(){
  if(loading){fetchAgain=true;return}
  try{
   const {data,error}=await api.from(TABLE)
-    .select('id,title,details,category,creator_profile,assigned_profile,assigned_agent,status,due_at,completed_at,closed_at,reaction,stars,revision,created_at,updated_at')
+    .select('id,title,details,category,creator_profile,assigned_profile,assigned_agent,status,due_at,completed_at,closed_at,reaction,stars,revision,created_at,updated_at,status_note')
     .order('updated_at',{ascending:false}).limit(150);
   if(error){announce('Adathiba: '+error.message);return}
   tasks=data||[];setStats();render();
@@ -422,18 +434,57 @@ function reloadSoon(){
  refreshId=w.setTimeout(()=>{refreshId=null;fetchData()},280);
 }
 async function changeTask(task,patch){
- if(!api||!user)return;
+ if(!api||!user)return false;
  try{
   const {data,error}=await api.from(TABLE).update({...patch,updated_by_profile:self()})
     .eq('id',task.id).eq('revision',task.revision).select('id').maybeSingle();
   if(error)throw error;
-  if(!data){announce('Közben változott a feladat. Frissítettem, próbáld újra.');}
-  else {
-    announce('✓ Mentve · Buddy értesíti az érintetteket.');
-    if(patch.status&&patch.status!==task.status&&['progress','done','failed'].includes(patch.status))showTaskOutcome(patch.status,task.title);
-   }
-  await fetchData();
- }catch(e){announce('Nem sikerült menteni: '+e.message)}
+  if(!data){
+   announce('Közben változott a feladat. Frissítettem, próbáld újra.');
+   await fetchData();return false;
+  }
+  announce('✓ Mentve · Buddy értesíti az érintetteket.');
+  if(patch.status&&patch.status!==task.status&&['progress','done','failed'].includes(patch.status))showTaskOutcome(patch.status,task.title);
+  await fetchData();return true;
+ }catch(e){announce('Nem sikerült menteni: '+e.message);return false}
+}
+function closeStatusNote(){
+ if(statusNoteSaving)return;
+ $('fhStatusNoteDialog').hidden=true;
+ statusNoteContext=null;
+}
+function openStatusNote(task,nextStatus){
+ if(!api||!user)return;
+ statusNoteContext={task,status:nextStatus};
+ const failed=nextStatus==='failed';
+ $('fhStatusNoteTitle').textContent=failed?'Miért nem teljesült?':'Státusz megjegyzés';
+ $('fhStatusNoteHint').textContent=failed
+  ?'A feladat „Nem teljesült” státusszal zárul. Az indoklás nem kötelező.'
+  :'Aktuális állapot: '+statuses[nextStatus]+'. A megjegyzés opcionális.';
+ $('fhStatusNoteText').value=task.status===nextStatus?(task.status_note||''):'';
+ $('fhStatusNoteSave').textContent=failed&&task.status!=='failed'?'⚫ Lezárás · Nem teljesült':'✓ Megjegyzés mentése';
+ $('fhStatusNoteCount').textContent=$('fhStatusNoteText').value.length+'/500';
+ $('fhStatusNoteError').textContent='';
+ $('fhStatusNoteDialog').hidden=false;
+ $('fhStatusNoteText').focus();
+}
+async function saveStatusNote(e){
+ e.preventDefault();
+ if(!statusNoteContext||statusNoteSaving)return;
+ const context=statusNoteContext,reason=$('fhStatusNoteText').value.trim();
+ if(reason.length>500){$('fhStatusNoteError').textContent='Legfeljebb 500 karakter írható.';return}
+ if(context.status===context.task.status&&reason===(context.task.status_note||'')){
+  closeStatusNote();return;
+ }
+ statusNoteSaving=true;
+ $('fhStatusNoteSave').disabled=true;
+ $('fhStatusNoteError').textContent='Mentés…';
+ try{
+  const saved=await changeTask(context.task,{status:context.status,status_note:reason});
+  if(saved){
+   $('fhStatusNoteDialog').hidden=true;statusNoteContext=null;
+  }else $('fhStatusNoteError').textContent='A mentés nem sikerült. Ellenőrizd a feladatot, majd próbáld újra.';
+ }finally{statusNoteSaving=false;$('fhStatusNoteSave').disabled=false}
 }
 function assignTask(t,p){
  const current=t.assigned_agent?'lena':t.assigned_profile;
@@ -588,6 +639,11 @@ function wire(){
  $('fhAdd').addEventListener('click',showSheet);
  $('fhClose').addEventListener('click',hideSheet);
  $('fhBackdrop').addEventListener('click',hideSheet);
+ $('fhStatusNoteForm').addEventListener('submit',saveStatusNote);
+ $('fhStatusNoteCancel').addEventListener('click',closeStatusNote);
+ $('fhStatusNoteText').addEventListener('input',()=>{$('fhStatusNoteCount').textContent=$('fhStatusNoteText').value.length+'/500'});
+ $('fhStatusNoteDialog').addEventListener('click',e=>{if(e.target===$('fhStatusNoteDialog'))closeStatusNote()});
+ d.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('fhStatusNoteDialog').hidden)closeStatusNote()});
  $('fhForm').addEventListener('submit',save);
  $('fhVoice').addEventListener('click',startDictation);
  $('fhSuccessClose').addEventListener('click',hideSuccess);

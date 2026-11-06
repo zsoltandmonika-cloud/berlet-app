@@ -1,0 +1,20 @@
+/* Family Tasks v882 · optional per-status note; no dependency on Activity. */
+.fh-status-note-block{display:grid;justify-items:start;gap:6px;margin:8px 1px 10px}
+.fh-status-note-text,.fh-log-note{margin:0;max-width:100%;overflow-wrap:anywhere;white-space:pre-wrap;line-height:1.4;font-size:12px;color:#f2e8ff;background:rgba(137,163,216,.12);border:1px solid rgba(184,207,247,.22);border-radius:12px;padding:9px 12px}
+.fh-status-note-edit{min-height:35px;padding:6px 11px;border-radius:11px;border:1px solid var(--line);color:#d3eaff;background:rgba(30,71,122,.30);font:750 11px/1.3 inherit;cursor:pointer}
+.fh-status-note-edit:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.fh-status-note-dialog{position:fixed;inset:0;z-index:2050;background:rgba(2,9,24,.80);-webkit-backdrop-filter:blur(9px);backdrop-filter:blur(9px);display:grid;place-items:center;padding:16px}
+.fh-status-note-dialog[hidden]{display:none!important}
+.fh-status-note-panel{width:min(100%,450px);border-radius:22px;padding:20px;background:linear-gradient(140deg,rgba(33,69,111,.98),rgba(17,27,55,.98) 65%,rgba(55,34,79,.96));border:1px solid var(--line);box-shadow:0 16px 55px rgba(0,0,0,.47)}
+.fh-status-note-panel h2{margin:0 0 8px;font:850 22px/1.2 system-ui,sans-serif;color:#fff}
+.fh-status-note-panel p{margin:0 0 15px;color:#d0dced;font-size:13px;line-height:1.4}
+.fh-status-note-panel label{display:block;margin-bottom:6px;color:#f1f7ff;font-size:12px;font-weight:800}
+.fh-status-note-panel textarea{box-sizing:border-box;width:100%;min-height:116px;resize:vertical;padding:13px;font:15px/1.45 system-ui,sans-serif;color:#eef7ff;border-radius:14px;border:1px solid rgba(198,223,255,.48);background:rgba(5,17,40,.80)}
+.fh-status-note-panel textarea:focus{outline:2px solid var(--accent);outline-offset:2px}
+.fh-status-note-count{display:block;text-align:right;font-size:11px;color:#c0d7eb;margin-top:5px}
+.fh-status-note-actions{display:flex;gap:8px;margin-top:14px}
+.fh-status-note-actions button{flex:1;min-height:46px;border-radius:12px;font-weight:800;font-size:12px;cursor:pointer}
+.fh-status-note-cancel{background:rgba(255,255,255,.10);border:1px solid var(--line);color:#e0ecf7}
+.fh-status-note-save{background:linear-gradient(110deg,#86c6ff,#e9a9d5);border:0;color:#12253b}
+.fh-status-note-save:disabled{opacity:.54;cursor:wait}
+.fh-status-note-error{display:block;min-height:16px;margin-top:8px;color:#ffcbda;font-size:11px}
