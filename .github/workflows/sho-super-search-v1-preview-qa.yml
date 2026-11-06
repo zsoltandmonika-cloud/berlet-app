@@ -10,6 +10,8 @@ on:
       - 'healthhub/tests/sho-super-search-shadow-preview-v2.test.mjs'
       - 'healthhub/tests/sho-super-search-worker-v3.test.mjs'
       - 'healthhub/tests/sho-super-search-shadow-preview-v3.test.mjs'
+      - 'healthhub/tests/sh9-hybrid-offline-compare-v1121.test.cjs'
+      - 'sh9/smart-travel/smart-trip/hybrid-offline-compare-v1121.html'
       - '.github/workflows/sho-super-search-v1-preview-qa.yml'
   workflow_dispatch:
 
@@ -37,5 +39,7 @@ jobs:
           node --check sh9/super-search/local-shadow-preview-v3.mjs
       - name: Super Search privacy, scopes, fallback and concurrency
         run: node --test healthhub/tests/sho-super-search-v1.test.mjs healthhub/tests/sho-super-search-trip-review-v1.test.mjs healthhub/tests/sho-super-search-local-shadow-v2.test.mjs healthhub/tests/sho-super-search-shadow-preview-v2.test.mjs healthhub/tests/sho-super-search-worker-v3.test.mjs healthhub/tests/sho-super-search-shadow-preview-v3.test.mjs
+      - name: Verify real-data-ready offline A/B cold-warm benchmark
+        run: node --test healthhub/tests/sh9-hybrid-offline-compare-v1121.test.cjs
       - name: Existing Smart Trip adapters regression (no product changes)
         run: node --test healthhub/tests/sh9-hybrid-fast-core-v1117.test.mjs healthhub/tests/sh9-mav-fast-core-v1120.test.cjs healthhub/tests/sh9-provider-result-merge-v1110.test.mjs
