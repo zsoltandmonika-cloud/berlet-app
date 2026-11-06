@@ -119,9 +119,12 @@ async function load(profile){
  // Bounded wait: a disconnected Dropbox must not leave the entire Activity blank.
  // The raw local bridge records are retained untouched and clearly labelled if
  // the fresh source cannot be confirmed in time.
- var cloudTimeout=Object.freeze({timeout:true});
- var cloud=await Promise.race([cloudBundle(profile),
-  new Promise(function(resolve){setTimeout(function(){resolve(cloudTimeout)},12000)})]);
+ var cloudTimeout=Object.freeze({timeout:true}),cloudTimeoutId=0;
+ var cloudTimeoutPromise=new Promise(function(resolve){
+  cloudTimeoutId=setTimeout(function(){resolve(cloudTimeout)},12000);
+ });
+ var cloud=await Promise.race([cloudBundle(profile),cloudTimeoutPromise]);
+ clearTimeout(cloudTimeoutId);
  out._cloudTimedOut=cloud===cloudTimeout;
  if(out._cloudTimedOut)cloud=null;
  if(cloud){
