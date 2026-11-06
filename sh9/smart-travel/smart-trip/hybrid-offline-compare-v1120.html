@@ -1,0 +1,836 @@
+<!doctype html><html lang="hu"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>SHO Smart Trip Offline GTFS Benchmark v1120</title><style>:root{color-scheme:dark;font:16px system-ui,sans-serif;background:#0c1323;color:#eaf3ff}*{box-sizing:border-box}body{max-width:820px;margin:auto;padding:20px}main{border:1px solid #44628a;border-radius:18px;background:#17243a;padding:24px}h1{font-size:1.6rem}p,small{color:#c7d8ef;line-height:1.5}fieldset{border:1px solid #52729c;border-radius:12px;padding:14px;margin:16px 0;display:grid;grid-template-columns:repeat(auto-fit,minmax(195px,1fr));gap:12px}legend{padding:0 8px}label{display:grid;gap:5px}input,select{width:100%;background:#111e31;color:white;border:1px solid #6e94c2;border-radius:8px;padding:11px;font:inherit}button{border:1px solid #9ad0ff;background:#315b95;color:#fff;font:inherit;font-weight:bold;padding:13px 19px;border-radius:10px;cursor:pointer}button:disabled{opacity:.5}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#0b1629;border:1px solid #3f5c7e;padding:15px;border-radius:12px;font-size:13px}.note{border-left:3px solid #78acee;padding:12px;background:#202f4a}</style></head><body><main><h1>🧪 Hybrid GTFS · Eredeti vs gyorsított v1120</h1><p class="note"><strong>Önálló HTML, internet és telepítés nélkül.</strong> A kiválasztott, engedélyezett GTFS JSON-adatokat csak helyben olvassa. Nem tölt fel semmit, nem módosítja a Smart Tripet, My Tripset vagy a preferenciákat.</p><fieldset><legend>1 · GTFS keresési JSON (nem ZIP)</legend><label>MÁV JSON<input type="file" id="mav" accept=".json,application/json"></label><label>Volán JSON<input type="file" id="volan" accept=".json,application/json"></label></fieldset><p><small>A korábban átalakított <code>sh9-mav-gtfs-v1</code> JSON szükséges. Legalább egy fájl kell; maximum 22 MB/fájl. Az eredeti GTFS ZIP itt nem dolgozható fel.</small></p><fieldset><legend>2 · Keresési teszt</legend><label>Indulási állomás<input id="from" maxlength="120" placeholder="Pontos GTFS megállónév"></label><label>Érkezési állomás<input id="to" maxlength="120" placeholder="Pontos GTFS megállónév"></label><label>Dátum<input type="date" id="date"></label><label>Indulási idő<input type="time" id="time" value="15:15"></label><label>Mérések<select id="runs"><option value="3">3 · gyors</option><option value="5">5 · alapos</option><option value="10">10 · terheléses</option></select></label></fieldset><button id="run">▶ Sebességmérés</button><p id="status" role="status" aria-live="polite"></p><h2>Időeredmények</h2><pre id="output">Még nincs mérés.</pre><p><small>Az eredeti és gyorsított GTFS-motor összehasonlítása, teljes találategyezőség-ellenőrzéssel; a GPT-6 és a My Trips mentés idejét nem tartalmazza. BKK és több szolgáltatós, ajtótól ajtóig tartó kapcsolatok még nem részei ennek a mérésnek.</small></p></main><script>
+/* SH9 MÁV Phase 2C · local GTFS timetable engine.
+ * Schedule-only, zero polling. No live delay, platform or GPS assertions.
+ * Dataset is generated from an authorized GTFS archive, never hardcoded demo data.
+ */
+(function(root,factory){'use strict';const api=factory();if(typeof module==='object'&&module.exports)module.exports=api;if(root)root.SH9_MAV_GTFS_CORE_V1=api;})(typeof window!=='undefined'?window:null,function(){
+'use strict';
+const TZ='Europe/Budapest',MAX_TRIPS=40000,MAX_STOPS=9000;
+const clock=new Intl.DateTimeFormat('en-GB',{timeZone:TZ,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23'});
+const normalize=x=>String(x??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim().replace(/\s+/g,' ');
+const short=x=>normalize(x).replace(/\b(palyaudvar|vasutallomas|megallohely|allomas)\b/g,'').trim();
+function localParts(time){
+ const parts={};for(const p of clock.formatToParts(time))if(p.type!=='literal')parts[p.type]=Number(p.value);
+ return parts;
+}
+function budapestDay(date){const p=localParts(date);return [p.year,p.month,p.day].map((x,i)=>String(x).padStart(i?2:4,'0')).join('-')}
+function dayShift(ymd,days){const t=new Date(ymd+'T12:00:00Z');if(!Number.isFinite(t.getTime()))return null;t.setUTCDate(t.getUTCDate()+days);return t.toISOString().slice(0,10)}
+function wallEpoch(ymd,minute){
+ if(!/^\d{4}-\d\d-\d\d$/.test(ymd)||!Number.isFinite(minute)||minute<0||minute>=48*60)return NaN;
+ const [y,m,d]=ymd.split('-').map(Number);
+ const target=Date.UTC(y,m-1,d,0,0,0)+Math.round(minute*60000);
+ let guess=target-3600000;
+ // Resolve actual Budapest DST offset using its timezone database.
+ for(let i=0;i<4;i++){
+  const p=localParts(new Date(guess));
+  const observed=Date.UTC(p.year,p.month-1,p.day,p.hour,p.minute);
+  const delta=target-observed;
+  if(!delta)break;guess+=delta;
+ }
+ return guess;
+}
+function serviceActive(s,ymd){
+ if(!s||typeof s!=='object')return false;
+ const day=ymd.replace(/-/g,'');
+ if(Object.prototype.hasOwnProperty.call(s.exceptions||{},day))return s.exceptions[day]===1;
+ if(!/^\d{8}$/.test(s.from||'')||!/^\d{8}$/.test(s.to||'')||day<s.from||day>s.to)return false;
+ if(!/^[01]{7}$/.test(s.days||''))return false;
+ const dayOfWeek=(new Date(ymd+'T12:00:00Z').getUTCDay()+6)%7;
+ return s.days[dayOfWeek]==='1';
+}
+function validate(data,{allowPrivate=false}={}){
+ if(!data||data.schema!=='sh9-mav-gtfs-v1'||data.timezone!==TZ||
+    !Array.isArray(data.stops)||!Array.isArray(data.trips)||
+    data.stops.length<2||data.stops.length>MAX_STOPS||data.trips.length>MAX_TRIPS||
+    !data.services||typeof data.services!=='object'||Array.isArray(data.services)||
+    typeof data.source!=='string'||data.source.length>180||
+    !/^\d{4}-\d{2}-\d{2}T/.test(data.generatedAt||'')||
+    !(data.rightsConfirmed===true||(allowPrivate===true&&data.rightsConfirmed===false&&data.localOnly===true)))return null;
+ const stopMap=new Map(),trips=[];
+ for(const row of data.stops){
+  if(!Array.isArray(row)||row.length<2||typeof row[0]!=='string'||typeof row[1]!=='string'||!row[0]||!row[1]||row[0].length>100||row[1].length>160)return null;
+  stopMap.set(row[0],row[1]);
+ }
+ for(const t of data.trips){
+  if(!t||typeof t.id!=='string'||typeof t.service!=='string'||typeof t.route!=='string'||
+     !Array.isArray(t.stops)||t.stops.length<2||t.stops.length>400)return null;
+  if(!Object.prototype.hasOwnProperty.call(data.services,t.service))return null;
+  let last=-1;
+  const events=[];
+  for(const pair of t.stops){
+   if(!Array.isArray(pair)||pair.length!==3||!stopMap.has(pair[0])||
+      !Number.isInteger(pair[1])||!Number.isInteger(pair[2])||
+      pair[1]<0||pair[2]<pair[1]||pair[2]>2879||pair[1]<last)return null;
+   last=pair[2];events.push(pair);
+  }
+  trips.push(t);
+ }
+ return {stops:stopMap,trips,services:data.services,source:data.source,generatedAt:data.generatedAt};
+}
+function stationIds(data,value){
+ const needle=short(value);if(needle.length<3)return [];
+ const all=[...data.stops].map(([id,name])=>({id,name:short(name)}));
+ const exact=all.filter(x=>x.name===needle);
+ if(exact.length)return exact.map(x=>x.id);
+ const partial=all.filter(x=>x.name.includes(needle)||needle.includes(x.name));
+ // Ambiguous generic station-name matches should not silently choose one.
+ const groups=new Set(partial.map(x=>x.name));
+ return groups.size===1?partial.map(x=>x.id):[];
+}
+function instances(data,startDay,endDay){
+ const all=[];
+ for(let off=-1;off<=2;off++){
+  const ymd=dayShift(startDay,off);
+  if(!ymd||ymd>endDay&&off>0)continue;
+  for(const t of data.trips){
+   if(!serviceActive(data.services[t.service],ymd))continue;
+   const events=t.stops.map(([id,arr,dep])=>({id,arrival:wallEpoch(ymd,arr),departure:wallEpoch(ymd,dep)}));
+   all.push({trip:t,events});
+  }
+ }
+ return all;
+}
+/* v981: prune strictly inferior connections sharing the SAME departure time.
+ * The Friday SAJÓ 16:55 direct must outrank/remove an itinerary starting
+ * on that train that reaches the same destination much later by changing.
+ * Other departure times remain genuine choices; never fabricate availability. */
+function rankJourneys(journeys,query,{ranking='recommended'}={}){
+ const mode=query?.mode==='arrive'?'arrive':'depart';
+ const pivot=Date.parse(query?.when||'');
+ const groups=new Map();
+ for(const j of journeys||[]){
+  const dep=Date.parse(j?.departure),arr=Date.parse(j?.arrival);
+  if(!Number.isFinite(dep)||!Number.isFinite(arr)||dep>=arr)continue;
+  if(!groups.has(dep))groups.set(dep,[]);
+  groups.get(dep).push(j);
+ }
+ const kept=[];
+ for(const group of groups.values()){
+  group.sort((a,b)=>Date.parse(a.arrival)-Date.parse(b.arrival)||a.transfers-b.transfers);
+  let bestTransfers=Infinity;
+  for(const j of group){
+   if(j.transfers>=bestTransfers)continue;
+   kept.push(j);bestTransfers=j.transfers;
+  }
+ }
+ function score(j){
+  const dep=Date.parse(j.departure),arr=Date.parse(j.arrival);
+  const wait=Number.isFinite(pivot)?
+   Math.max(0,mode==='arrive'?(pivot-arr)/60000:(dep-pivot)/60000):0;
+  const ride=(arr-dep)/60000;
+  return ride + Math.max(0,j.transfers)*50 + wait*.45;
+ }
+ kept.sort((a,b)=>{
+  if(ranking==='earliest')return Date.parse(a.departure)-Date.parse(b.departure)||
+   a.transfers-b.transfers||Date.parse(a.arrival)-Date.parse(b.arrival);
+  if(ranking==='arrival')return Date.parse(a.arrival)-Date.parse(b.arrival)||
+   a.transfers-b.transfers||Date.parse(a.departure)-Date.parse(b.departure);
+  if(ranking==='transfers')return a.transfers-b.transfers||
+   Date.parse(a.arrival)-Date.parse(b.arrival)||Date.parse(a.departure)-Date.parse(b.departure);
+  if(ranking==='duration')return a.durationMinutes-b.durationMinutes||
+   a.transfers-b.transfers||Date.parse(a.departure)-Date.parse(b.departure);
+  const diff=score(a)-score(b);
+  return diff||a.transfers-b.transfers||
+   Date.parse(a.arrival)-Date.parse(b.arrival)||Date.parse(a.departure)-Date.parse(b.departure);
+ });
+ return {journeys:kept,removed:Math.max(0,(journeys||[]).length-kept.length),
+  total:(journeys||[]).length};
+}
+function route(data,query,{limit=3,maxTransfers=1,localOnly=false,ranking='chronological'}={}){
+ const parsed=validate(data,{allowPrivate:localOnly===true});
+ if(!parsed||!query||!['now','depart','arrive'].includes(query.mode))return {status:'invalid-feed',journeys:[]};
+ const date=new Date(query.when);
+ if(!Number.isFinite(date.getTime()))return {status:'invalid-query',journeys:[]};
+ const origin=new Set(stationIds(parsed,query.from)),dest=new Set(stationIds(parsed,query.to));
+ if(!origin.size||!dest.size)return {status:'station-not-in-feed',journeys:[],source:parsed.source};
+ const pivot=date.getTime(),earliest=query.mode==='arrive'?pivot-12*3600000:pivot,latest=query.mode==='arrive'?pivot:pivot+12*3600000;
+ const day=budapestDay(date),all=instances(parsed,day,dayShift(day,2));
+ const starts=[],byStop=new Map();
+ for(const x of all){
+  for(let i=0;i<x.events.length;i++){
+   const e=x.events[i];
+   if(e.departure>latest||e.departure<earliest-6*3600000)continue;
+   const item={x,i};
+   if(!byStop.has(e.id))byStop.set(e.id,[]);
+   byStop.get(e.id).push(item);
+   if(origin.has(e.id)&&e.departure>=earliest&&e.departure<=latest)starts.push(item);
+  }
+ }
+ for(const v of byStop.values())v.sort((a,b)=>a.x.events[a.i].departure-b.x.events[b.i].departure);
+ const results=[],keys=new Set();
+ function leg(x,i,j){
+  const a=x.events[i],b=x.events[j];
+  return {tripId:x.trip.id,service:x.trip.route,headsign:String(x.trip.headsign||'').slice(0,100),
+   from:dataStop(a.id),to:dataStop(b.id),departure:new Date(a.departure).toISOString(),arrival:new Date(b.arrival).toISOString(),
+   intermediateStops:x.events.slice(i+1,j).map(e=>({name:dataStop(e.id),arrival:new Date(e.arrival).toISOString(),departure:new Date(e.departure).toISOString()}))};
+ }
+ function dataStop(id){return parsed.stops.get(id)||id}
+ function add(legs){
+  const first=Date.parse(legs[0].departure),last=Date.parse(legs[legs.length-1].arrival);
+  if(first<earliest||last>latest||last<=first||last-first>12*3600000)return;
+  const key=legs.map(l=>l.tripId).join('|')+'|'+first+'|'+last;
+  if(keys.has(key))return;keys.add(key);
+  results.push({legs,departure:new Date(first).toISOString(),arrival:new Date(last).toISOString(),
+   durationMinutes:Math.round((last-first)/60000),transfers:legs.length-1,live:false,platform:null,delayMinutes:null});
+ }
+ // Arrive-by needs a departure window before the requested arrival time.
+ // First legs do not need to arrive at the goal in this phase.
+ for(const {x,i} of starts){
+  const hops=x.events;
+  for(let j=i+1;j<hops.length;j++){
+   const stop=hops[j],start=hops[i];
+   if(stop.arrival<=start.departure||stop.arrival>latest)continue;
+   if(dest.has(stop.id))add([leg(x,i,j)]);
+   if(maxTransfers<1||stop.arrival>latest-5*60000)continue;
+   const onward=byStop.get(stop.id)||[];
+   let examined=0;
+   for(const {x:y,i:k} of onward){
+    const dep=y.events[k].departure;
+    if(dep<stop.arrival+5*60000)continue;
+    if(dep>stop.arrival+180*60000||dep>latest)break;
+    if(y.trip.id===x.trip.id)continue;
+    if(++examined>120)break;
+    for(let m=k+1;m<y.events.length;m++){
+     if(y.events[m].arrival>latest)break;
+     if(dest.has(y.events[m].id))add([leg(x,i,j),leg(y,k,m)]);
+    }
+   }
+  }
+ }
+ results.sort((a,b)=>query.mode==='arrive'
+   ?Date.parse(b.arrival)-Date.parse(a.arrival)||Date.parse(b.departure)-Date.parse(a.departure)||a.transfers-b.transfers
+   :Date.parse(a.departure)-Date.parse(b.departure)||a.transfers-b.transfers||Date.parse(a.arrival)-Date.parse(b.arrival));
+ const smart=ranking==='chronological'?null:rankJourneys(results,query,{ranking});
+ const ranked=smart?.journeys||results;
+ return {status:'ok',source:parsed.source,generatedAt:parsed.generatedAt,
+   totalJourneys:ranked.length,dominatedRemoved:smart?.removed||0,ranking,
+   journeys:ranked.slice(0,Math.max(1,Math.min(60,limit)))};
+}
+return Object.freeze({TZ,normalize,short,budapestDay,dayShift,wallEpoch,serviceActive,validate,stationIds,rankJourneys,route});
+});
+
+;(function(){
+/* SH9 v1110 · ONE result aggregator for THREE existing engines.
+ * No route graph, GTFS downloads, credentials or personal storage.
+ * Takes already computed BKK (Guardian), MÁV Rail and Volán Smart outputs.
+ * Statuses, provenance and unverified walking are never upgraded to facts.
+ */
+const MAX=30,TRANSIT=new Set(["bus","tram","train","metro","hev","other"]);
+const clean=x=>String(x??"").replace(/[\u0000-\u001f<>]/g," ").trim().slice(0,120);
+const norm=x=>clean(x).normalize("NFD").replace(/[\u0300-\u036f]/g,"")
+ .toLowerCase().replace(/[^\p{L}\p{N}]+/gu," ").trim().replace(/\s+/g," ");
+const parse=x=>x instanceof Date?x.getTime():typeof x==="number"?x:Date.parse(x);
+const iso=x=>new Date(x).toISOString();
+function validTime(start,end){
+ const a=parse(start),b=parse(end);
+ return Number.isFinite(a)&&Number.isFinite(b)&&b>a&&b-a<=24*3600000;
+}
+function names(l){return {
+ from:clean(l.from),to:clean(l.to),
+ departure:iso(parse(l.departure)),arrival:iso(parse(l.arrival)),
+ line:clean(l.line),mode:l.mode||"other",status:"timetable"
+}}
+function base(provider,from,to,legs,{source,generatedAt,walkMeters=null,
+ walkVerified=false,waitMinutes=null,waitVerified=false,confidence="timetable"}={}){
+ if(!["bkk","mav","volan"].includes(provider)||!clean(from)||!clean(to)||
+  norm(from)===norm(to)||!Array.isArray(legs)||legs.length<1||legs.length>6||
+  !legs.every(x=>TRANSIT.has(x.mode)&&x.line&&x.from&&x.to&&validTime(x.departure,x.arrival)))
+  return null;
+ for(let i=1;i<legs.length;i++){
+  if(parse(legs[i].departure)-parse(legs[i-1].arrival)<5*60000)return null;
+  // Different stations are not silently treated as the same walking transfer.
+  if(norm(legs[i].from)!==norm(legs[i-1].to))return null;
+ }
+ const start=parse(legs[0].departure),end=parse(legs.at(-1).arrival);
+ if(!validTime(start,end))return null;
+ const walk=Number.isFinite(walkMeters)&&walkMeters>=0?Math.round(walkMeters):null;
+ const wait=Number.isFinite(waitMinutes)&&waitMinutes>=0?waitMinutes:null;
+ return Object.freeze({
+  provider,from:clean(from),to:clean(to),departure:iso(start),arrival:iso(end),
+  legs:legs.map(l=>Object.freeze(names(l))),transfers:legs.length-1,
+  durationMinutes:Math.round((end-start)/60000),
+  source:clean(source)||provider,generatedAt:generatedAt||null,
+  walkMeters:walk,walkVerified:walkVerified===true,
+  waitMinutes:wait,waitVerified:waitVerified===true,
+  confidence,realTime:false
+ });
+}
+function mav(result,{from,to}={}){
+ if(!result||result.status!=="ok"||!Array.isArray(result.journeys)||
+  !/m[aá]v|rail|vasút|gtfs/i.test(String(result.source||"")))return [];
+ return result.journeys.slice(0,MAX).map(j=>{
+  if(!Array.isArray(j.legs)||!j.legs.length)return null;
+  return base("mav",from||j.legs[0].from,to||j.legs.at(-1).to,
+   j.legs.map(l=>({mode:"train",line:clean(l.service||l.tripId),
+    from:l.from,to:l.to,departure:l.departure,arrival:l.arrival})),
+   {source:result.source,generatedAt:result.generatedAt});
+ }).filter(Boolean);
+}
+function volan(list,{from,to,stopById,source="Volán GTFS (helyi)",generatedAt}={}){
+ if(!Array.isArray(list)||!stopById||!String(source).toLowerCase().includes("volán"))return [];
+ const get=id=>{
+  const s=stopById instanceof Map?stopById.get(id):stopById[id];
+  return clean(s?.name);
+ };
+ return list.slice(0,MAX).map(j=>{
+  if(!j||!j.trip||!Array.isArray(j.trip.stops)||
+   !Number.isInteger(j.start)||!Number.isInteger(j.end)||
+   j.start<0||j.end<=j.start||j.end>=j.trip.stops.length)return null;
+  const origin=get(j.trip.stops[j.start][0]),dest=get(j.trip.stops[j.end][0]);
+  const line=clean(j.route?.number||j.trip?.number||j.route?.name);
+  if(!line||!origin||!dest)return null;
+  return base("volan",from||origin,to||dest,[{
+   mode:"bus",line,from:origin,to:dest,departure:j.depart,arrival:j.arrive
+  }],{source,generatedAt});
+ }).filter(Boolean);
+}
+function bkk(plans,{from,to,source="BKK Zrt., CC BY 4.0",generatedAt,
+ timingValidator}={}){
+ if(!Array.isArray(plans)||source!=="BKK Zrt., CC BY 4.0")return [];
+ // Use Guardian's existing verifiedTiming() as the only authority for
+ // real scheduled clocks, not the visual Trip Plan Flow's estimated times.
+ if(typeof timingValidator!=="function")return [];
+ return plans.slice(0,MAX).map(p=>{
+  if(!p||!Array.isArray(p.legs)||!p.legs.length||p.legs.length>6)return null;
+  const times=timingValidator(p);
+  if(!times||!validTime(times.departure,times.arrival)||
+   !Array.isArray(p.timing?.matchedLegs)||p.timing.matchedLegs.length!==p.legs.length)
+   return null;
+  // Verified matching metadata lacks per-leg exact clock values. Never
+  // fabricate interchanges; a complete GTFS per-leg schedule is required.
+  if(!Array.isArray(p.timing.legTimes)||p.timing.legTimes.length!==p.legs.length)return null;
+  const legs=p.legs.map((leg,i)=>{
+   const t=p.timing.legTimes[i];
+   return {mode:leg.line?.mode||(/^260$/.test(String(leg.line?.id))?"bus":"tram"),
+    line:clean(leg.line?.id),from:leg.enter?.name,to:leg.exit?.name,
+    departure:t?.departure,arrival:t?.arrival};
+  });
+  return base("bkk",from||p.legs[0].enter?.name,
+   to||p.legs.at(-1).exit?.name,legs,{
+    source,generatedAt,
+    walkMeters:p.walk,walkVerified:times.walkMinutes!==null,
+    waitMinutes:times.waitMinutes,waitVerified:times.waitMinutes!==null
+   });
+ }).filter(Boolean);
+}
+function rating(x){
+ if(!x||!Array.isArray(x.legs))return {stars:0,provisional:true,score:Infinity};
+ const confidence=x.confidence==="timetable";
+ const walkConfirmed=x.walkVerified&&x.walkMeters!==null;
+ const waitConfirmed=x.waitVerified&&x.waitMinutes!==null;
+ const verified=walkConfirmed&&waitConfirmed&&confidence;
+ const ideal=verified&&x.transfers<=2&&x.walkMeters<=350&&x.waitMinutes<=5;
+ const stars=ideal?5:Math.min(4,1+
+  (confidence?1:0)+(x.transfers<=1?1:0)+(walkConfirmed&&x.walkMeters<=350?1:0));
+ const cost=x.durationMinutes+x.transfers*15+
+  (walkConfirmed?x.walkMeters/75:12)+(waitConfirmed?x.waitMinutes:12);
+ return {stars,provisional:!verified,score:cost};
+}
+function combine({bkk:ba=[],mav:ma=[],volan:vo=[]},{from,to,travelDate}={}){
+ const errors=[],eligible=[],excluded=[];
+ if(!from||!to||!/^\d{4}-\d\d-\d\d$/.test(travelDate||""))
+  return {status:"invalid_request",options:[],excluded:[],errors:["missing_query"]};
+ for(const item of [...ba,...ma,...vo]){
+  if(!item||!Array.isArray(item.legs))continue;
+  const routeDay=new Intl.DateTimeFormat("en-CA",{timeZone:"Europe/Budapest",
+   year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(new Date(item.departure));
+  const p=Object.fromEntries(routeDay.map(y=>[y.type,y.value]));
+  const day=[p.year,p.month,p.day].join("-");
+  if(norm(item.from)!==norm(from)||norm(item.to)!==norm(to)||day!==travelDate){
+   excluded.push({provider:item.provider,reason:"different_endpoints_or_day"});
+   continue;
+  }
+  eligible.push(item);
+ }
+ const fingerprints=new Set();
+ const sorted=eligible.sort((a,b)=>rating(a).score-rating(b).score||
+  parse(a.arrival)-parse(b.arrival));
+ const options=[];
+ for(const x of sorted){
+  const fingerprint=x.legs.map(l=>[l.line,l.departure,l.arrival,l.from,l.to].join("|")).join("~");
+  if(fingerprints.has(fingerprint))continue;
+  fingerprints.add(fingerprint);
+  options.push({...x,evaluation:rating(x)});
+  if(options.length===12)break;
+ }
+ return {status:options.length?"ok":"no_comparable_results",options,excluded,errors};
+}
+function toTripPack(choice,travelDate){
+ if(!choice||choice.confidence!=="timetable"||!choice.legs?.length||
+  !/^\d{4}-\d\d-\d\d$/.test(travelDate))throw Error("unverified_provider_choice");
+ const hh=t=>new Intl.DateTimeFormat("en-GB",{timeZone:"Europe/Budapest",
+  hour:"2-digit",minute:"2-digit",hourCycle:"h23"}).format(new Date(t));
+ return {
+  schema:"sh9.trip-pack/1",title:choice.from+" → "+choice.to,travelDate,
+  from:choice.from,to:choice.to,departure:hh(choice.departure),arrival:hh(choice.arrival),
+  arrivalStatus:"timetable",segments:choice.legs.map(l=>({
+   mode:l.mode,line:l.line,from:l.from,to:l.to,departure:hh(l.departure),
+   arrival:hh(l.arrival),status:"timetable",
+   note:choice.source+"; késés és peron nem ellenőrzött."
+  })),summary:"Forrás: "+choice.source+
+   ". Nem élő menetrend. A gyaloglás/átszállás csak külön ellenőrzés esetén tekinthető biztosnak.",
+  alerts:[{title:"Menetrend, nem valós idejű adat",
+   text:"Indulás előtt ellenőrizd az aktuális eltéréseket az üzemeltetőnél."}],
+  alternatives:[],sources:[{name:choice.source,url:choice.provider==="bkk"?
+   "https://opendata.bkk.hu/data-sources":choice.provider==="mav"?
+   "https://mavplusz.hu/":"https://www.mavcsoport.hu/"}]
+ };
+}
+globalThis.SHO_ADAPTER_V1110=Object.freeze({mav,volan,bkk,combine,rating,toTripPack});
+
+})();
+;(function(){
+/* SHO Smart Trip AI · Hybrid GTFS Fast Core v1117 (preview ONLY).
+ * Converts ALREADY-COMPUTED provider results to a small, auditable candidate set.
+ * Never reads private GTFS from another device, never calls GPT or Supabase,
+ * never changes existing search preferences or writes any personal data.
+ * This file is deliberately NOT referenced by the production Smart Trip page.
+ */
+const {mav,volan,bkk,combine}=globalThis.SHO_ADAPTER_V1110;
+
+const SCHEMA="sh9.gtfs-candidates/1";
+const MAX_CANDIDATES=5;
+const MAX_JSON_BYTES=1900;
+const validDay=s=>typeof s==="string"&&/^\d{4}-\d{2}-\d{2}$/.test(s)&&
+ Number.isFinite(Date.parse(s+"T12:00:00Z"))&&new Date(s+"T12:00:00Z").toISOString().slice(0,10)===s;
+const safe=(s,n=100)=>String(s??"").replace(/[\u0000-\u001f<>]/g," ").replace(/\s+/g," ").trim().slice(0,n);
+const timeOf=iso=>new Intl.DateTimeFormat("en-GB",{timeZone:"Europe/Budapest",
+ hour:"2-digit",minute:"2-digit",hourCycle:"h23"}).format(new Date(iso));
+const validQuery=q=>q&&validDay(q.travelDate)&&typeof q.from==="string"&&
+ typeof q.to==="string"&&safe(q.from).length>1&&safe(q.to).length>1&&
+ safe(q.from).toLocaleLowerCase("hu-HU")!==safe(q.to).toLocaleLowerCase("hu-HU");
+function category(x){
+ const names=x.legs.map(l=>l.line).join(" ");
+ if(x.provider==="volan"&&x.transfers===0)return "direct_volan";
+ if(x.provider==="mav"&&/saj[oó]/i.test(names))return "sajo_express";
+ if(x.provider==="mav"&&/(?:^|\s)(?:IC|EC|RJ|EX|expressz)(?:\s|\d|$)/i.test(names))
+  return "other_express";
+ return "other";
+}
+/* Diversity is for WHAT GPT-6 gets to evaluate, not an imposed choice.
+ * A verified direct Volán or Sajó must not disappear merely because an
+ * earlier generic duration sort returned five other routes first.
+ */
+function selectCandidates(options,limit=MAX_CANDIDATES){
+ if(!Array.isArray(options))return [];
+ const max=Math.max(1,Math.min(MAX_CANDIDATES,Number.isInteger(limit)?limit:MAX_CANDIDATES));
+ const picked=[],used=new Set();
+ const take=predicate=>{
+  const index=options.findIndex((x,i)=>!used.has(i)&&predicate(x));
+  if(index>=0&&picked.length<max){picked.push(options[index]);used.add(index)}
+ };
+ take(x=>category(x)==="direct_volan");
+ take(x=>category(x)==="sajo_express");
+ take(x=>category(x)==="other_express");
+ for(const provider of ["bkk","volan","mav"])take(x=>x.provider===provider);
+ options.forEach((x,i)=>{
+  if(picked.length<max&&!used.has(i)){picked.push(x);used.add(i)}
+ });
+ return picked;
+}
+function compact(x){
+ return {
+  provider:x.provider,kind:category(x),source:safe(x.source,70),
+  departure:timeOf(x.departure),arrival:timeOf(x.arrival),
+  transfers:x.transfers,
+  waitMinutes:x.waitVerified?x.waitMinutes:null,
+  walkMeters:x.walkVerified?x.walkMeters:null,
+  confidence:"timetable_not_live",
+  legs:x.legs.map(l=>[l.mode,safe(l.line,30),safe(l.from,65),safe(l.to,65),
+   timeOf(l.departure),timeOf(l.arrival)])
+ };
+}
+function candidateEnvelope(query,options,{maxBytes=MAX_JSON_BYTES}={}){
+ if(!validQuery(query)||!Array.isArray(options)||!options.length)return null;
+ const from=safe(query.from,100),to=safe(query.to,100);
+ const output={schema:SCHEMA,from,to,travelDate:query.travelDate,
+  caution:"Menetrend, nem élő adat. Gyaloglás és átszállás csak igazolt esetben biztos.",
+  options:options.map(compact)};
+ const json=JSON.stringify(output);
+ if(typeof TextEncoder!=="undefined"?new TextEncoder().encode(json).length>maxBytes:
+    json.length>maxBytes)return null;
+ return json;
+}
+/* The clock is injected to make timing testable without falsifying results.
+ * providerResults must be outputs of existing BKK, MÁV and Volán planners.
+ * All unavailable/invalid sources fail closed; no route inference or stitching.
+ */
+function prefilter({query,providerResults={},clock=()=>performance.now(),
+ maxCandidates=MAX_CANDIDATES,maxJsonBytes=MAX_JSON_BYTES}={}){
+ if(!validQuery(query))return {status:"invalid_query",candidates:[],elapsedMs:null};
+ const begun=clock(),timings={},failures=[];
+ const timed=(name,fn)=>{
+  const start=clock();
+  try{return fn()}catch(_){failures.push(name);return []}
+  finally{timings[name+"Ms"]=Math.max(0,clock()-start)}
+ };
+ const source=providerResults||{};
+ const ma=timed("mav",()=>source.mav?mav(source.mav,{from:query.from,to:query.to}):[]);
+ const vo=timed("volan",()=>Array.isArray(source.volan)?
+  volan(source.volan,{from:query.from,to:query.to,stopById:source.volanStops,
+   source:source.volanSource||"Volán GTFS (helyi)",generatedAt:source.volanGeneratedAt}):[]);
+ const ba=timed("bkk",()=>Array.isArray(source.bkk)&&
+  typeof source.bkkTimingValidator==="function"?
+  bkk(source.bkk,{from:query.from,to:query.to,
+   source:"BKK Zrt., CC BY 4.0",timingValidator:source.bkkTimingValidator,
+   generatedAt:source.bkkGeneratedAt}):[]);
+ const merged=timed("combine",()=>combine({mav:ma,volan:vo,bkk:ba},query));
+ if(!merged||!Array.isArray(merged.options)){
+  return {status:"fallback_required",candidates:[],elapsedMs:Math.max(0,clock()-begun),
+   timings,failures:[...failures,"combine"]};
+ }
+ const chosen=timed("selection",()=>selectCandidates(merged.options,maxCandidates));
+ let included=chosen;
+ const json=timed("serialization",()=>{
+  // Reduce the number of complete alternatives, NEVER truncate a leg or clock.
+  // The preferred direct Volán and Sajó candidates remain first.
+  while(included.length){
+   const raw=candidateEnvelope(query,included,{maxBytes:maxJsonBytes});
+   if(raw)return raw;
+   included=included.slice(0,-1);
+  }
+  return null;
+ });
+ const elapsedMs=Math.max(0,clock()-begun);
+ if(!chosen.length)return {status:"fallback_required",reason:"no_comparable_verified_routes",
+  candidates:[],timings,elapsedMs,failures,excluded:merged.excluded?.length||0};
+ if(!json)return {status:"fallback_required",reason:"candidate_payload_exceeds_budget",
+  candidates:[],timings,elapsedMs,failures,excluded:merged.excluded?.length||0};
+ return {status:"ready",schema:SCHEMA,candidates:included,json,timings,elapsedMs,
+  failures,excluded:merged.excluded?.length||0,sourceCount:{mav:ma.length,volan:vo.length,bkk:ba.length}};
+}
+/* Minimal future end-to-end telemetry contract; stages capture durations only.
+ * Do not record routes, addresses, health data, JSON or access tokens.
+ */
+function createTimingTrace(clock=()=>performance.now()){
+ const stages=[],start=clock();let previous=start;
+ return Object.freeze({
+  mark(stage){
+   if(!["gtfs","gpt6","validate","save","my_trips"].includes(stage))return false;
+   const now=clock();stages.push({stage,elapsedMs:Math.max(0,now-previous)});
+   previous=now;return true;
+  },
+  summary(){return {totalMs:Math.max(0,clock()-start),stages:stages.map(x=>({...x})),
+   completed:stages.some(x=>x.stage==="my_trips")}}
+ });
+}
+globalThis.SHO_HYBRID_V1117=Object.freeze({SCHEMA,MAX_CANDIDATES,MAX_JSON_BYTES,category,selectCandidates,candidateEnvelope,prefilter,createTimingTrace});
+
+})();
+/* SH9 Smart Trip Hybrid · OPT-IN fast GTFS engine v1120 (preview only).
+ * Schedule-only, zero polling. No live delay, platform or GPS assertions.
+ * Derived from the existing verified v1 core, preserving its routing semantics.\n * Explicit prepare() snapshots the validated feed and caches only one travel-day slice.\n * Not imported by production; no automatic feed upload, API call or database write.
+ */
+(function(root,factory){'use strict';const api=factory();if(typeof module==='object'&&module.exports)module.exports=api;if(root)root.SH9_MAV_GTFS_FAST_V1120=api;})(typeof window!=='undefined'?window:null,function(){
+'use strict';
+const TZ='Europe/Budapest',MAX_TRIPS=40000,MAX_STOPS=9000;
+/* Keys are opaque tokens, never the mutable caller's dataset object. */
+const preparedStore=new WeakMap(),preparedParsed=new WeakSet();
+const instanceCache=new WeakMap(),stopCache=new WeakMap();
+const clock=new Intl.DateTimeFormat('en-GB',{timeZone:TZ,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23'});
+const normalize=x=>String(x??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim().replace(/\s+/g,' ');
+const short=x=>normalize(x).replace(/\b(palyaudvar|vasutallomas|megallohely|allomas)\b/g,'').trim();
+function localParts(time){
+ const parts={};for(const p of clock.formatToParts(time))if(p.type!=='literal')parts[p.type]=Number(p.value);
+ return parts;
+}
+function budapestDay(date){const p=localParts(date);return [p.year,p.month,p.day].map((x,i)=>String(x).padStart(i?2:4,'0')).join('-')}
+function dayShift(ymd,days){const t=new Date(ymd+'T12:00:00Z');if(!Number.isFinite(t.getTime()))return null;t.setUTCDate(t.getUTCDate()+days);return t.toISOString().slice(0,10)}
+function wallEpoch(ymd,minute){
+ if(!/^\d{4}-\d\d-\d\d$/.test(ymd)||!Number.isFinite(minute)||minute<0||minute>=48*60)return NaN;
+ const [y,m,d]=ymd.split('-').map(Number);
+ const target=Date.UTC(y,m-1,d,0,0,0)+Math.round(minute*60000);
+ let guess=target-3600000;
+ // Resolve actual Budapest DST offset using its timezone database.
+ for(let i=0;i<4;i++){
+  const p=localParts(new Date(guess));
+  const observed=Date.UTC(p.year,p.month-1,p.day,p.hour,p.minute);
+  const delta=target-observed;
+  if(!delta)break;guess+=delta;
+ }
+ return guess;
+}
+function serviceActive(s,ymd){
+ if(!s||typeof s!=='object')return false;
+ const day=ymd.replace(/-/g,'');
+ if(Object.prototype.hasOwnProperty.call(s.exceptions||{},day))return s.exceptions[day]===1;
+ if(!/^\d{8}$/.test(s.from||'')||!/^\d{8}$/.test(s.to||'')||day<s.from||day>s.to)return false;
+ if(!/^[01]{7}$/.test(s.days||''))return false;
+ const dayOfWeek=(new Date(ymd+'T12:00:00Z').getUTCDay()+6)%7;
+ return s.days[dayOfWeek]==='1';
+}
+function validate(data,{allowPrivate=false}={}){
+ if(!data||data.schema!=='sh9-mav-gtfs-v1'||data.timezone!==TZ||
+    !Array.isArray(data.stops)||!Array.isArray(data.trips)||
+    data.stops.length<2||data.stops.length>MAX_STOPS||data.trips.length>MAX_TRIPS||
+    !data.services||typeof data.services!=='object'||Array.isArray(data.services)||
+    typeof data.source!=='string'||data.source.length>180||
+    !/^\d{4}-\d{2}-\d{2}T/.test(data.generatedAt||'')||
+    !(data.rightsConfirmed===true||(allowPrivate===true&&data.rightsConfirmed===false&&data.localOnly===true)))return null;
+ const stopMap=new Map(),trips=[];
+ for(const row of data.stops){
+  if(!Array.isArray(row)||row.length<2||typeof row[0]!=='string'||typeof row[1]!=='string'||!row[0]||!row[1]||row[0].length>100||row[1].length>160)return null;
+  stopMap.set(row[0],row[1]);
+ }
+ for(const t of data.trips){
+  if(!t||typeof t.id!=='string'||typeof t.service!=='string'||typeof t.route!=='string'||
+     !Array.isArray(t.stops)||t.stops.length<2||t.stops.length>400)return null;
+  if(!Object.prototype.hasOwnProperty.call(data.services,t.service))return null;
+  let last=-1;
+  const events=[];
+  for(const pair of t.stops){
+   if(!Array.isArray(pair)||pair.length!==3||!stopMap.has(pair[0])||
+      !Number.isInteger(pair[1])||!Number.isInteger(pair[2])||
+      pair[1]<0||pair[2]<pair[1]||pair[2]>2879||pair[1]<last)return null;
+   last=pair[2];events.push(pair);
+  }
+  trips.push(t);
+ }
+ return {stops:stopMap,trips,services:data.services,source:data.source,generatedAt:data.generatedAt};
+}
+/* Explicit, one-time validation plus independent snapshot.
+ * The caller cannot mutate the prepared timetable by changing the original JSON.
+ * A private dataset never becomes usable through public (localOnly:false) routing.
+ * No private data is added to window, localStorage, network or a global map.
+ */
+function prepare(data,{allowPrivate=false}={}){
+ const parsed=validate(data,{allowPrivate});
+ if(!parsed)return null;
+ const stops=new Map(parsed.stops);
+ const trips=parsed.trips.map(t=>({...t,stops:t.stops.map(pair=>pair.slice())}));
+ const services=Object.create(null);
+ for(const [name,s] of Object.entries(parsed.services)){
+  const exceptions=Object.create(null);
+  for(const [day,status] of Object.entries(s.exceptions||{}))exceptions[day]=status;
+  services[name]={from:s.from,to:s.to,days:s.days,exceptions};
+ }
+ const compiled={stops,trips,services,source:parsed.source,generatedAt:parsed.generatedAt};
+ const token=Object.freeze({});
+ preparedStore.set(token,{parsed:compiled,private:data.rightsConfirmed===false});
+ preparedParsed.add(compiled);
+ return token;
+}
+function stationIds(data,value){
+ const needle=short(value);if(needle.length<3)return [];
+ let all=stopCache.get(data);
+ if(!all){
+  all=[...data.stops].map(([id,name])=>({id,name:short(name)}));
+  if(preparedParsed.has(data))stopCache.set(data,all);
+ }
+ const exact=all.filter(x=>x.name===needle);
+ if(exact.length)return exact.map(x=>x.id);
+ const partial=all.filter(x=>x.name.includes(needle)||needle.includes(x.name));
+ // Ambiguous generic station-name matches should not silently choose one.
+ const groups=new Set(partial.map(x=>x.name));
+ return groups.size===1?partial.map(x=>x.id):[];
+}
+function instances(data,startDay,endDay){
+ const hit=preparedParsed.has(data)?instanceCache.get(data):null;
+ if(hit&&hit.day===startDay&&hit.endDay===endDay)return hit.all;
+ const all=[];
+ for(let off=-1;off<=2;off++){
+  const ymd=dayShift(startDay,off);
+  if(!ymd||ymd>endDay&&off>0)continue;
+  for(const t of data.trips){
+   if(!serviceActive(data.services[t.service],ymd))continue;
+   const events=t.stops.map(([id,arr,dep])=>({id,arrival:wallEpoch(ymd,arr),departure:wallEpoch(ymd,dep)}));
+   all.push({trip:t,events});
+  }
+ }
+ if(preparedParsed.has(data))instanceCache.set(data,{day:startDay,endDay,all});
+ return all;
+}
+/* v981: prune strictly inferior connections sharing the SAME departure time.
+ * The Friday SAJÓ 16:55 direct must outrank/remove an itinerary starting
+ * on that train that reaches the same destination much later by changing.
+ * Other departure times remain genuine choices; never fabricate availability. */
+function rankJourneys(journeys,query,{ranking='recommended'}={}){
+ const mode=query?.mode==='arrive'?'arrive':'depart';
+ const pivot=Date.parse(query?.when||'');
+ const groups=new Map();
+ for(const j of journeys||[]){
+  const dep=Date.parse(j?.departure),arr=Date.parse(j?.arrival);
+  if(!Number.isFinite(dep)||!Number.isFinite(arr)||dep>=arr)continue;
+  if(!groups.has(dep))groups.set(dep,[]);
+  groups.get(dep).push(j);
+ }
+ const kept=[];
+ for(const group of groups.values()){
+  group.sort((a,b)=>Date.parse(a.arrival)-Date.parse(b.arrival)||a.transfers-b.transfers);
+  let bestTransfers=Infinity;
+  for(const j of group){
+   if(j.transfers>=bestTransfers)continue;
+   kept.push(j);bestTransfers=j.transfers;
+  }
+ }
+ function score(j){
+  const dep=Date.parse(j.departure),arr=Date.parse(j.arrival);
+  const wait=Number.isFinite(pivot)?
+   Math.max(0,mode==='arrive'?(pivot-arr)/60000:(dep-pivot)/60000):0;
+  const ride=(arr-dep)/60000;
+  return ride + Math.max(0,j.transfers)*50 + wait*.45;
+ }
+ kept.sort((a,b)=>{
+  if(ranking==='earliest')return Date.parse(a.departure)-Date.parse(b.departure)||
+   a.transfers-b.transfers||Date.parse(a.arrival)-Date.parse(b.arrival);
+  if(ranking==='arrival')return Date.parse(a.arrival)-Date.parse(b.arrival)||
+   a.transfers-b.transfers||Date.parse(a.departure)-Date.parse(b.departure);
+  if(ranking==='transfers')return a.transfers-b.transfers||
+   Date.parse(a.arrival)-Date.parse(b.arrival)||Date.parse(a.departure)-Date.parse(b.departure);
+  if(ranking==='duration')return a.durationMinutes-b.durationMinutes||
+   a.transfers-b.transfers||Date.parse(a.departure)-Date.parse(b.departure);
+  const diff=score(a)-score(b);
+  return diff||a.transfers-b.transfers||
+   Date.parse(a.arrival)-Date.parse(b.arrival)||Date.parse(a.departure)-Date.parse(b.departure);
+ });
+ return {journeys:kept,removed:Math.max(0,(journeys||[]).length-kept.length),
+  total:(journeys||[]).length};
+}
+function route(data,query,{limit=3,maxTransfers=1,localOnly=false,ranking='chronological'}={}){
+ const prepared=preparedStore.get(data);
+ const parsed=prepared?
+  (prepared.private&&localOnly!==true?null:prepared.parsed):
+  validate(data,{allowPrivate:localOnly===true});
+ if(!parsed||!query||!['now','depart','arrive'].includes(query.mode))return {status:'invalid-feed',journeys:[]};
+ const date=new Date(query.when);
+ if(!Number.isFinite(date.getTime()))return {status:'invalid-query',journeys:[]};
+ const origin=new Set(stationIds(parsed,query.from)),dest=new Set(stationIds(parsed,query.to));
+ if(!origin.size||!dest.size)return {status:'station-not-in-feed',journeys:[],source:parsed.source};
+ const pivot=date.getTime(),earliest=query.mode==='arrive'?pivot-12*3600000:pivot,latest=query.mode==='arrive'?pivot:pivot+12*3600000;
+ const day=budapestDay(date),all=instances(parsed,day,dayShift(day,2));
+ const starts=[],byStop=new Map();
+ for(const x of all){
+  for(let i=0;i<x.events.length;i++){
+   const e=x.events[i];
+   if(e.departure>latest||e.departure<earliest-6*3600000)continue;
+   const item={x,i};
+   if(!byStop.has(e.id))byStop.set(e.id,[]);
+   byStop.get(e.id).push(item);
+   if(origin.has(e.id)&&e.departure>=earliest&&e.departure<=latest)starts.push(item);
+  }
+ }
+ for(const v of byStop.values())v.sort((a,b)=>a.x.events[a.i].departure-b.x.events[b.i].departure);
+ const results=[],keys=new Set();
+ function leg(x,i,j){
+  const a=x.events[i],b=x.events[j];
+  return {tripId:x.trip.id,service:x.trip.route,headsign:String(x.trip.headsign||'').slice(0,100),
+   from:dataStop(a.id),to:dataStop(b.id),departure:new Date(a.departure).toISOString(),arrival:new Date(b.arrival).toISOString(),
+   intermediateStops:x.events.slice(i+1,j).map(e=>({name:dataStop(e.id),arrival:new Date(e.arrival).toISOString(),departure:new Date(e.departure).toISOString()}))};
+ }
+ function dataStop(id){return parsed.stops.get(id)||id}
+ function add(legs){
+  const first=Date.parse(legs[0].departure),last=Date.parse(legs[legs.length-1].arrival);
+  if(first<earliest||last>latest||last<=first||last-first>12*3600000)return;
+  const key=legs.map(l=>l.tripId).join('|')+'|'+first+'|'+last;
+  if(keys.has(key))return;keys.add(key);
+  results.push({legs,departure:new Date(first).toISOString(),arrival:new Date(last).toISOString(),
+   durationMinutes:Math.round((last-first)/60000),transfers:legs.length-1,live:false,platform:null,delayMinutes:null});
+ }
+ // Arrive-by needs a departure window before the requested arrival time.
+ // First legs do not need to arrive at the goal in this phase.
+ for(const {x,i} of starts){
+  const hops=x.events;
+  for(let j=i+1;j<hops.length;j++){
+   const stop=hops[j],start=hops[i];
+   if(stop.arrival<=start.departure||stop.arrival>latest)continue;
+   if(dest.has(stop.id))add([leg(x,i,j)]);
+   if(maxTransfers<1||stop.arrival>latest-5*60000)continue;
+   const onward=byStop.get(stop.id)||[];
+   let examined=0;
+   for(const {x:y,i:k} of onward){
+    const dep=y.events[k].departure;
+    if(dep<stop.arrival+5*60000)continue;
+    if(dep>stop.arrival+180*60000||dep>latest)break;
+    if(y.trip.id===x.trip.id)continue;
+    if(++examined>120)break;
+    for(let m=k+1;m<y.events.length;m++){
+     if(y.events[m].arrival>latest)break;
+     if(dest.has(y.events[m].id))add([leg(x,i,j),leg(y,k,m)]);
+    }
+   }
+  }
+ }
+ results.sort((a,b)=>query.mode==='arrive'
+   ?Date.parse(b.arrival)-Date.parse(a.arrival)||Date.parse(b.departure)-Date.parse(a.departure)||a.transfers-b.transfers
+   :Date.parse(a.departure)-Date.parse(b.departure)||a.transfers-b.transfers||Date.parse(a.arrival)-Date.parse(b.arrival));
+ const smart=ranking==='chronological'?null:rankJourneys(results,query,{ranking});
+ const ranked=smart?.journeys||results;
+ return {status:'ok',source:parsed.source,generatedAt:parsed.generatedAt,
+   totalJourneys:ranked.length,dominatedRemoved:smart?.removed||0,ranking,
+   journeys:ranked.slice(0,Math.max(1,Math.min(60,limit)))};
+}
+return Object.freeze({TZ,normalize,short,budapestDay,dayShift,wallEpoch,serviceActive,validate,prepare,stationIds,rankJourneys,route});
+});
+
+(function(){
+"use strict";
+const $=id=>document.getElementById(id),core=window.SH9_MAV_GTFS_CORE_V1,fast=window.SH9_MAV_GTFS_FAST_V1120,hybrid=window.SHO_HYBRID_V1117,now=()=>performance.now();
+const round=x=>Math.max(0,Math.round(x*1000)/1000);
+const stats=a=>{const s=[...a].sort((a,b)=>a-b),q=p=>s[Math.ceil((s.length-1)*p)];return {runs:s.length,p50Ms:round(q(.5)),p95Ms:round(q(.95)),minMs:round(s[0]),maxMs:round(s[s.length-1])}};
+async function measure(provider,file,q,when,runs){
+ const o={provider,status:"file_not_selected",fileReadMs:null,parseMs:null,
+   validationMs:null,prepareMs:null,legacyRoute:null,fastRoute:null,speedup:null,
+   parity:false,routeCount:0,prefilter:null};
+ if(!file)return o;
+ if(file.size>22*1024*1024){o.status="file_too_large";return o}
+ let source,data,t=now();
+ try{source=await file.text();o.fileReadMs=round(now()-t);
+  t=now();data=JSON.parse(source);o.parseMs=round(now()-t);source=null;
+ }catch(e){o.status="read_or_json_error";return o}
+ t=now();let valid;
+ try{valid=core.validate(data,{allowPrivate:true})}catch(e){valid=null}
+ o.validationMs=round(now()-t);
+ if(!valid){o.status="invalid_schema_or_rights";return o}
+ if(provider==="volan"&&!String(data.source).includes("Volán")){o.status="wrong_provider";return o}
+ if(provider==="mav"&&!/m[aá]v|vasút|rail|gtfs/i.test(String(data.source))){o.status="wrong_provider";return o}
+ t=now();let compiled;
+ try{compiled=fast.prepare(data,{allowPrivate:true})}catch(e){compiled=null}
+ o.prepareMs=round(now()-t);
+ if(!compiled){o.status="prepare_failed";return o}
+ const baseline=[],optimized=[];
+ let last=null;
+ for(let i=0;i<runs;i++){
+  let legacy,quick;
+  const q1={from:q.from,to:q.to,mode:"depart",when};
+  const opts={limit:30,maxTransfers:1,localOnly:true,ranking:"recommended"};
+  t=now();
+  try{legacy=core.route(data,q1,opts)}catch(e){o.status="legacy_route_error";return o}
+  baseline.push(now()-t);
+  t=now();
+  try{quick=fast.route(compiled,q1,opts)}catch(e){o.status="fast_route_error";return o}
+  optimized.push(now()-t);
+  if(JSON.stringify(legacy)!==JSON.stringify(quick)){
+   o.status="result_mismatch";o.parity=false;return o;
+  }
+  last=quick;
+ }
+ o.parity=true;o.status=last.status;
+ o.legacyRoute=stats(baseline);o.fastRoute=stats(optimized);
+ o.speedup=optimized.length&&o.fastRoute.p50Ms>0?
+  round(o.legacyRoute.p50Ms/o.fastRoute.p50Ms):null;
+ o.routeCount=last.journeys?.length||0;
+ if(provider==="mav"&&last.status==="ok"){
+  t=now();const r=hybrid.prefilter({query:{from:q.from,to:q.to,travelDate:q.date},
+   providerResults:{mav:last},maxJsonBytes:2400,clock:now});
+  o.prefilter={status:r.status,candidates:r.candidates?.length||0,elapsedMs:round(now()-t)}
+ }else if(provider==="volan")o.prefilter={status:"adapter_not_wired",candidates:0};
+ return o
+}
+$("run").addEventListener("click",async function(){
+ this.disabled=true;$("status").textContent="Helyi mérés fut…";
+ try{
+  const q={from:$("from").value.trim(),to:$("to").value.trim(),date:$("date").value,time:$("time").value};
+  if(q.from.length<2||q.to.length<2||q.from===q.to||!/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/.test(q.date)||!/^[0-2][0-9]:[0-5][0-9]$/.test(q.time))throw Error("Két pontos megálló és érvényes dátum/idő kell.");
+  const instant=core.wallEpoch(q.date,Number(q.time.slice(0,2))*60+Number(q.time.slice(3,5)));
+  if(!Number.isFinite(instant))throw Error("Időzóna-hiba.");
+  const when=new Date(instant).toISOString(),start=now(),n=Number($("runs").value);
+  const mav=await measure("mav",$("mav").files[0],q,when,n),volan=await measure("volan",$("volan").files[0],q,when,n);
+  const report={schema:"sh9.gtfs-offline-benchmark/1",localOnly:true,measurements:[mav,volan],
+   totalProbeMs:round(now()-start),gpt6Ms:null,cloudSaveMs:null,endToEndMs:null,
+   note:"Valós helyi GTFS keresés, NEM ChatGPT vagy My Trips végponttól végpontig mérés."};
+  $("output").textContent=JSON.stringify(report,null,2);
+  $("status").textContent="Helyi mérés kész. Az eltérő és hiányzó lefedettség az eredményben szerepel."
+ }catch(e){$("status").textContent=e.message||"Hiba"}finally{this.disabled=false}
+});
+})();
+</script></body></html>
