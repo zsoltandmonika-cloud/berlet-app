@@ -338,7 +338,7 @@
         // external CDN chain. Authenticated originals still require Supabase.
         load('./smart-valet-private-v7.js?v=10-coupon-gallery-v13-visibility',function(){
           load('./smart-valet-identity-v11.js?v=12-optional-password-lakcim-v14-visible',function(){
-            load('./smart-valet-extra-v15.js?v=20-auto-inspect',function(){});
+            load('./smart-valet-extra-v15.js?v=20-auto-inspect',function(){window.SHO_VALET_CLOUD_STATUS_V22?.refresh?.()});
           });
         });
       });
