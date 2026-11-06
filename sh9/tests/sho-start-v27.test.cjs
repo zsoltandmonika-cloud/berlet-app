@@ -124,3 +124,26 @@ test('v934 shared Wallet deep link opens the real existing SHO Wallet handler',(
  assert.match(srcJs,/wallet\(\)/);
  assert.match(srcJs,/history\.replaceState/);
 });
+
+test('SHO core tiles respond before deferred JS wiring is ready',()=>{
+ const urls={
+  'Egészség':'/berlet-app/healthhub/',
+  'Biztonság':'/berlet-app/healthhub/guardian/',
+  'Utazás':'/berlet-app/sh9/smart-travel/',
+  'Sport':'/berlet-app/sh9/sport/',
+  'Wallet':'/berlet-app/sh9/wallet/',
+  'Táplálkozás':'/berlet-app/healthhub/nutrition/',
+  'Aktivitás':'/berlet-app/healthhub/activity-one/?source=sho',
+  'Alvás':'/berlet-app/healthhub/?sho=sleep'
+ };
+ for(const page of ['sh9/index.html','sh9/sho-preview/index.html']){
+  const html=src(page);
+  for(const [label,url] of Object.entries(urls)){
+   const markup='<button class="tile" data-module="'+label+'" type="button" onclick="location.assign(\''+url+'\')"';
+   assert.ok(html.includes(markup),page+' '+label+' must be clickable before deferred JS loads');
+  }
+ }
+ const wiring=src('sh9/sho-preview/sho-wiring-v2.js');
+ assert.match(wiring,/el\.onclick=\(\)=>navModule\(el\.dataset\.module\)/,
+  'once ready, existing canonical click handler still replaces the native fallback');
+});
