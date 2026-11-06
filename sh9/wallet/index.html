@@ -16,7 +16,7 @@
 <link rel="stylesheet" href="./smart-valet-smart-access-v13.css?v=13-universal-pin-v14-visible">
 <link rel="stylesheet" href="./smart-valet-extra-v15.css?v=16-unified-optical">
 <link rel="stylesheet" href="./smart-valet-optical-v16.css?v=17-pass-no-crop">
-<link rel="stylesheet" href="./smart-valet-bkk-fullscreen-v17.css?v=17-pass-photo-zoom">
+<link rel="stylesheet" href="./smart-valet-bkk-fullscreen-v17.css?v=18-rotate-fit">
 <link rel="stylesheet" href="../shared/sho-private-document-reader-v1.css?v=1-sho-internal-reader">
 </head>
 <body>
@@ -300,7 +300,8 @@
  <div class="sv-bkk-display-v17" id="svBkkImageStageV17"><img id="svBkkFullImageV17" alt="Saját Budapest-bérlet fotója" draggable="false"></div>
  <footer class="sv-bkk-controls-v17">
   <div class="sv-bkk-sides-v17"><button type="button" data-bkk-side="front" class="active" aria-pressed="true">ELŐLAP</button>
-   <button type="button" data-bkk-side="back" aria-pressed="false">HÁTLAP</button></div>
+   <button type="button" data-bkk-side="back" aria-pressed="false">HÁTLAP</button>
+   <button type="button" id="svBkkRotateV18" aria-label="Bérletkép elforgatása 90 fokkal" aria-pressed="false" title="Kép elforgatása 90°-kal">↻ 90°</button></div>
   <div class="sv-bkk-zoom-v17">
    <button type="button" id="svBkkZoomOutV17" aria-label="Kicsinyítés">−</button>
    <span id="svBkkZoomV17">100%</span><button type="button" id="svBkkZoomInV17" aria-label="Nagyítás">＋</button>
@@ -310,7 +311,7 @@
 </dialog>
 </template>
 <script defer src="./smart-valet-bkk-legacy-v17.js?v=17-read-only-import"></script>
-<script defer src="./smart-valet-bkk-fullscreen-v17.js?v=17-fullscreen"></script>
+<script defer src="./smart-valet-bkk-fullscreen-v17.js?v=18-rotate-fit"></script>
 <script defer src="./smart-valet-optical-v16.js?v=17-pass-no-crop"></script>
 <script defer src="./smart-valet-v1.js?v=10-coupons-id-subgroups-lakcim-v13-pin"></script>
 <script defer src="./smart-valet-smart-access-v13.js?v=13-pin-visibility"></script>
