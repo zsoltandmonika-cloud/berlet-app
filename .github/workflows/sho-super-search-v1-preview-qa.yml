@@ -5,6 +5,7 @@ on:
     paths:
       - 'sh9/super-search/**'
       - 'healthhub/tests/sho-super-search-v1.test.mjs'
+      - 'healthhub/tests/sho-trip-stopwatch-v1.test.mjs'
       - 'healthhub/tests/sho-super-search-trip-review-v1.test.mjs'
       - 'healthhub/tests/sho-super-search-local-shadow-v2.test.mjs'
       - 'healthhub/tests/sho-super-search-shadow-preview-v2.test.mjs'
@@ -29,6 +30,8 @@ jobs:
       - name: Syntax check all search core modules
         run: |
           node --check sh9/super-search/sho-super-search-core-v1.mjs
+          node --check sh9/super-search/trip-stopwatch-core-v1.mjs
+          node --check sh9/super-search/trip-stopwatch-preview-v1.mjs
           node --check sh9/super-search/travel-gtfs-provider-v1.mjs
           node --check sh9/super-search/sport-public-provider-v1.mjs
           node --check sh9/super-search/travel-review-handoff-v1.mjs
@@ -41,5 +44,7 @@ jobs:
         run: node --test healthhub/tests/sho-super-search-v1.test.mjs healthhub/tests/sho-super-search-trip-review-v1.test.mjs healthhub/tests/sho-super-search-local-shadow-v2.test.mjs healthhub/tests/sho-super-search-shadow-preview-v2.test.mjs healthhub/tests/sho-super-search-worker-v3.test.mjs healthhub/tests/sho-super-search-shadow-preview-v3.test.mjs
       - name: Verify real-data-ready offline A/B cold-warm benchmark
         run: node --test healthhub/tests/sh9-hybrid-offline-compare-v1121.test.cjs
+      - name: Léna stopwatch correlation, prompt and privacy regression
+        run: node --test healthhub/tests/sho-trip-stopwatch-v1.test.mjs
       - name: Existing Smart Trip adapters regression (no product changes)
         run: node --test healthhub/tests/sh9-hybrid-fast-core-v1117.test.mjs healthhub/tests/sh9-mav-fast-core-v1120.test.cjs healthhub/tests/sh9-provider-result-merge-v1110.test.mjs
