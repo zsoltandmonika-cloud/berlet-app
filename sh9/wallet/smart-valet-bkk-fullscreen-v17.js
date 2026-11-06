@@ -4,7 +4,7 @@
 (function(w,d){
 'use strict';
 const $=id=>d.getElementById(id);
-let showing=false,side='front',urls={},zoom=1,dx=0,dy=0,lock=null,rotation=0,orientationLocked=false;
+let showing=false,side='front',urls={},zoom=1,dx=0,dy=0,lock=null,rotation=0,orientationLocked=false,onDismiss=null;
 const fingers=new Map();let initialDistance=0,initialZoom=1,drag=null;
 function paint(){
  const img=$('svBkkFullImageV17');if(!img)return;
@@ -79,15 +79,18 @@ function close(){
  const img=$('svBkkFullImageV17');img.removeAttribute('src');
  img.classList.remove('sv-bkk-fitted-v18');img.style.removeProperty('width');img.style.removeProperty('height');
  void releaseLock();
+ const done=onDismiss;onDismiss=null;
+ if(typeof done==='function')try{done()}catch(_){}
 }
 async function keepAwake(){
  if(!('wakeLock' in navigator)||d.visibilityState!=='visible')return;
  try{lock=await navigator.wakeLock.request('screen')}catch(_){}
 }
-function show({frontUrl,backUrl=null,title='Budapest-bérlet',fullscreen=true}={}){
+function show({frontUrl,backUrl=null,title='Budapest-bérlet',fullscreen=true,onClose=null}={}){
  if(typeof frontUrl!=='string'||!frontUrl.startsWith('blob:'))return false;
  init();if(showing)close();
- showing=true;urls={front:frontUrl,back:backUrl};side='front';zoom=1;dx=0;dy=0;rotation=90; // default inspection orientation
+ showing=true;onDismiss=typeof onClose==='function'?onClose:null;
+ urls={front:frontUrl,back:backUrl};side='front';zoom=1;dx=0;dy=0;rotation=90; // default inspection orientation
  $('svBkkFullTitleV17').textContent=String(title).slice(0,110);
  const dlg=$('svBkkFullDialogV17');
  dlg.showModal();paint();void keepAwake();

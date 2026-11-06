@@ -13,7 +13,7 @@ const validId=id=>/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}
 const decode=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
 const encode=a=>{let s='';for(let i=0;i<a.length;i+=8192)s+=String.fromCharCode(...a.slice(i,i+8192));return btoa(s)};
 let client,category='',rows=[],busy=false,active=null,profileAtOpen='',serial=0;
-let files={front:null,back:null},viewURLs=[],previewURLs={front:'',back:''},flip='front',zoom=1;
+let files={front:null,back:null},viewURLs=[],previewURLs={front:'',back:''},flip='front',zoom=1,autoInspect=false;
 /* Device-bound, non-extractable AES key. Mirrors the ID wallet's optional password mode. */
 const EXTRA_KEY_DB='sho-valet-extra-device-v16',EXTRA_KEY_STORE='keys';
 function extraDB(){
@@ -179,7 +179,7 @@ async function imageBlob(file,forPass=false){
 }
 function close(){
  const dialog=$('svExtraDialogV15');if(dialog?.open)dialog.close();
- release();files={front:null,back:null};active=null;profileAtOpen='';flip='front';
+ release();files={front:null,back:null};active=null;profileAtOpen='';flip='front';autoInspect=false;
  $('svExtraFormV15').reset();$('svExtraPasswordOpenV15').value='';
  $('svExtraImageV15').removeAttribute('src');
  $('svExtraBackImageV16').removeAttribute('src');
@@ -284,7 +284,7 @@ function renderGallery(){
    (rec.issuer||'')+(rec.last_four?' · •••• '+rec.last_four:''):
    t('🔐 Titkosított előlap / hátlap','🔐 Encrypted front / back')));
   opener.append(symbol,info);
-  opener.addEventListener('click',()=>void openSaved(rec.id));
+  opener.addEventListener('click',()=>void openSaved(rec.id,{inspect:rec.category==='pass'}));
   const pin=dom('button','sv-extra-pin-v15 sv-id-tile-pin-v14');
   pin.type='button';
   const quick=w.SHO_VALET_SMART_ACCESS_V13;
@@ -381,9 +381,9 @@ function bankArt(rec){
  art.append(dom('span','sv-extra-bank-number-v15','••••  ••••  ••••  '+(rec.last_four||'••••')));
  art.append(dom('span','sv-extra-bank-owner-v15',rec.title));
 }
-async function openSaved(id){
+async function openSaved(id,options={}){
  if(!validId(id)||busy)return;
- close();modalStatus('');
+ close();autoInspect=options.inspect===true;modalStatus('');
  try{
   const rec=await loadRecord(id);if(!rec)return;
   if(!['health','bank','pass'].includes(rec.category))return;
@@ -459,6 +459,19 @@ async function unlock(){
   $('svExtraPhotoViewV16').hidden=false;
   $('svExtraInspectV17').hidden=active.category!=='pass';
   renderPhoto();modalStatus(t('Kártya feloldva. A hátlaphoz használd a fordítást.','Card unlocked. Flip to see its back.'));
+  // Saved passes immediately enter their full-screen 90° inspection viewer
+  // after decryption. A password-protected pass still asks for its password.
+  if(autoInspect&&rec.category==='pass'&&viewURLs[0]){
+   autoInspect=false;
+   const id=rec.id,owner=p;
+   const opened=w.SHO_BKK_FULLSCREEN_V17?.show({
+    frontUrl:viewURLs[0],backUrl:viewURLs[1]||null,
+    title:rec.title,fullscreen:true,
+    onClose:()=>{if(active?.id===id&&profileAtOpen===owner)close()}
+   });
+   if(!opened)modalStatus(t('A teljes képernyős mód nem érhető el. Használd az alábbi gombot.',
+    'Full-screen unavailable. Use the button below.'),true);
+  }
  }catch(e){modalStatus(human(e),true)}
  finally{busy=false;$('svExtraUnlockV15').disabled=false}
 }
@@ -584,7 +597,7 @@ async function openPinned(id,p){
  const pinned=await resolvePinned(id,p);
  if(!pinned)return;
  category=pinned.category==='bank'?'card':pinned.category;
- renderCategory();await openSaved(id);
+ renderCategory();await openSaved(id,{inspect:pinned.category==='pass'});
 }
 async function openBudapest(){
  if(busy)return;
@@ -594,10 +607,10 @@ async function openBudapest(){
  const local=await passCache('list',profile(),'').catch(()=>[]);
  if(local.length){
   rows=local.sort((a,b)=>String(b.created_at||'').localeCompare(String(a.created_at||'')));
-  renderGallery();await openSaved(rows[0].id);return;
+  renderGallery();await openSaved(rows[0].id,{inspect:true});return;
  }
  await refresh();
- if(rows.length)await openSaved(rows[0].id);
+ if(rows.length)await openSaved(rows[0].id,{inspect:true});
  else openAdd();
 }
 function getBudapestId(){return category==='pass'&&rows.length?rows[0].id:null}
@@ -665,7 +678,14 @@ function init(){
  w.addEventListener('pagehide',()=>{++serial;close()});
  d.addEventListener('visibilitychange',()=>{if(d.hidden){++serial;close()}});
  category=w.SHO_VALET_ACTIVE_CATEGORY_V9==='pass'?'pass':category;
- renderCategory();if(category==='pass')void refresh();
+ renderCategory();
+ if(category==='pass'){
+  void refresh().then(()=>{
+   // The dedicated Bérletek launch route opens the saved pass directly.
+   if(/[?&]category=pass(?:&|$)/.test(w.location?.search||'')&&rows.length)
+    return openSaved(rows[0].id,{inspect:true});
+  });
+ }
 }
 if(d.readyState==='loading')d.addEventListener('DOMContentLoaded',init,{once:true});else init();
 w.SHO_VALET_EXTRA_V15=Object.freeze({resolvePinned,openPinned,previewPinned,openBudapest,getBudapestId});
