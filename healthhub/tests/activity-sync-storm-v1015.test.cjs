@@ -65,6 +65,6 @@ test('rollback script references and Activity refresh behavior are consistent',(
  assert.ok(!sync.includes('readSharedCloud('));
  assert.ok(profiles.includes("if(isOn('hhActivityPage191')"));
  assert.ok(html.includes('live-v165.js?v=306-rollback-20261106'));
- assert.ok(html.includes('live-v191.js?v=1013-rollback-20261106'));
+ assert.ok(html.includes('live-v191.js?v=1013-source-guard-20261106'));
  assert.ok(html.includes('live-v260.js?v=303-rollback-20261106'));
 });
