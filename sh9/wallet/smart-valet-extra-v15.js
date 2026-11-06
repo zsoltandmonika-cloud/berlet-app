@@ -510,7 +510,7 @@ async function save(e){
   if(cat==='pass'){
    try{
     const user=await c.auth.getUser();
-    if(user.data?.user?.id)await cachePassRecord(rec,user.data.user.id);
+    if(user.data?.user?.id)await cachePassRecord({...rec,created_at:new Date().toISOString()},user.data.user.id);
    }catch(_){/* Cloud record is already safely committed; offline cache is optional. */}
   }
   close();await refresh();
