@@ -61,6 +61,7 @@ test('fullscreen rotation, zoom, flip and exiting work together in a simulated m
   exitFullscreen(){return Promise.resolve()}
  };
  make('svBkkFullDialogV17').querySelectorAll=()=>sideBtns;
+ make('svBkkFullTemplateV17').content={cloneNode:()=>({})};
  const screen={orientation:{
   lock(_mode){orientationLocks++;return Promise.resolve()},
   unlock(){orientationUnlocks++}
