@@ -8,7 +8,7 @@ import {createStopwatch,handoffPrompt} from "./trip-stopwatch-core-v1.mjs";
 const $=id=>document.getElementById(id);
 const lab=$("swStatus"),ticker=$("swTime"),start=$("swLaunch");
 const watch=createStopwatch(),DEADLINE_MS=10*60*1000,POLL_MS=3000;
-let timer=null,poller=null,client=null,query=null,runId=null,checking=false,finished=false;
+let timer=null,poller=null,client=null,query=null,runId=null,checking=null,finished=false;
 const profile=()=>$("swProfile").value;
 const key=()=>profile()==="m"?"monika":"zsolt";
 function timeText(ms){
@@ -25,6 +25,7 @@ function controlsLocked(value){
 }
 function tick(){
  const s=watch.snapshot();ticker.textContent=timeText(s.totalMs);
+ if(runId&&!finished&&s.totalMs>=DEADLINE_MS){watch.timeout();endTimeout();return}
  $("swReport").textContent=JSON.stringify({
   schema:s.schema,state:s.state,totalMs:s.totalMs,
   cloudObservedMs:s.cloudObservedMs,uiRenderMs:s.uiRenderMs,
@@ -101,8 +102,8 @@ async function readCloud(id,p){
  return {status:"ok",trip:normalized};
 }
 async function checkCloud(id,p){
- if(checking||finished||runId!==id)return;
- checking=true;
+ if(checking===id||finished||runId!==id)return;
+ checking=id;
  try{
   const r=await readCloud(id,p);
   if(runId!==id||finished)return;
@@ -128,7 +129,7 @@ async function checkCloud(id,p){
  }catch(_){
   if(runId===id&&!finished)stage("swSaved","Nem sikerült ellenőrizni a felhőmentést",false);
  }finally{
-  checking=false;
+  if(checking===id)checking=null;
   if(runId===id&&!finished){
    if(watch.snapshot().totalMs>=DEADLINE_MS){
     watch.timeout();endTimeout();
@@ -165,7 +166,7 @@ function startRun(event){
  const url=new URL("https://chatgpt.com/");
  url.searchParams.set("q",prompt);
  start.href=url.href;
- query=q;runId=id;finished=false;
+ query=q;runId=id;checking=null;finished=false;
  watch.start({id,profile:p});
  clearTimers();$("swStop").disabled=false;
  controlsLocked(true);$("swRoute").hidden=true;
@@ -180,6 +181,7 @@ function startRun(event){
  void checkCloud(id,p);
 }
 start.addEventListener("click",startRun);
+$("swForm").addEventListener("submit",event=>event.preventDefault());
 $("swStop").addEventListener("click",()=>{
  if(!runId||finished)return;
  watch.cancel();finished=true;clearTimers();controlsLocked(false);
@@ -212,7 +214,8 @@ const dt=Object.fromEntries(new Intl.DateTimeFormat("en-CA",{timeZone:"Europe/Bu
  hourCycle:"h23"}).formatToParts(new Date()).map(x=>[x.type,x.value]));
 $("swDate").value=[dt.year,dt.month,dt.day].join("-");
 $("swHour").value=dt.hour+":"+dt.minute;
-$("swProfile").value=localStorage.getItem("hh-profile")==="m"?"m":"z";
+let savedProfile="z";try{savedProfile=localStorage.getItem("hh-profile")==="m"?"m":"z"}catch(_){}
+$("swProfile").value=savedProfile;
 $("swProfile").addEventListener("change",()=>document.documentElement.dataset.profile=profile());
 document.documentElement.dataset.profile=profile();
 tick();
