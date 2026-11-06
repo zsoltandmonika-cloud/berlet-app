@@ -12,6 +12,7 @@
 <link rel="stylesheet" href="./smart-valet-v1.css?v=1-premium-glass">
 <link rel="stylesheet" href="./smart-valet-sho-theme-v2.css?v=10-coupon-id-layout">
 <link rel="stylesheet" href="./smart-valet-private-v7.css?v=10-retail-coupons">
+<link rel="stylesheet" href="./smart-valet-cloud-status-v22.css?v=22-backup-indicator">
 <link rel="stylesheet" href="./smart-valet-identity-v11.css?v=12-password-switch">
 <link rel="stylesheet" href="./smart-valet-smart-access-v13.css?v=13-universal-pin-v14-visible">
 <link rel="stylesheet" href="./smart-valet-budapestgo-v21.css?v=21-go-launcher-pin">
@@ -311,6 +312,7 @@
  </footer>
 </dialog>
 </template>
+<script defer src="./smart-valet-cloud-status-v22.js?v=22-backup-indicator"></script>
 <script defer src="./smart-valet-bkk-legacy-v17.js?v=17-read-only-import"></script>
 <script defer src="./smart-valet-bkk-fullscreen-v17.js?v=20-auto-inspect"></script>
 <script defer src="./smart-valet-optical-v16.js?v=17-pass-no-crop"></script>
@@ -336,7 +338,7 @@
         // external CDN chain. Authenticated originals still require Supabase.
         load('./smart-valet-private-v7.js?v=10-coupon-gallery-v13-visibility',function(){
           load('./smart-valet-identity-v11.js?v=12-optional-password-lakcim-v14-visible',function(){
-            load('./smart-valet-extra-v15.js?v=20-auto-inspect',function(){});
+            load('./smart-valet-extra-v15.js?v=20-auto-inspect',function(){window.SHO_VALET_CLOUD_STATUS_V22?.refresh?.()});
           });
         });
       });
