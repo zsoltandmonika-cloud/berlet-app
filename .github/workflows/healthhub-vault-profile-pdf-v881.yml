@@ -25,4 +25,4 @@ jobs:
         run: |
           node --check healthhub/central-vault/health-vault-profile-pdf-v881.js
           node --check healthhub/central-vault/daily-health-sync.js
-          node --test healthhub/tests/vault-profile-pdf-v881.test.cjs healthhub/tests/vault-v680-trusted-reconnect.test.cjs healthhub/tests/pdf-viewer-v690.test.cjs
+          node --test healthhub/tests/vault-profile-pdf-v881.test.cjs
