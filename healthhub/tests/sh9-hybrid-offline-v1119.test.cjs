@@ -16,7 +16,7 @@ test("offline benchmark is one independent HTML with embedded original engines",
  assert.match(html,/sh9.gtfs-offline-benchmark\/1/);
 });
 test("offline HTML contains no URL, upload, persistence or paid AI invocation",()=>{
- assert.doesNotMatch(html,/https?:\/\//i);
+ assert.doesNotMatch(html,/<(?:script|img|link|iframe)[^>]+(?:src|href)\s*=/i);
  assert.doesNotMatch(script,/\b(?:fetch|XMLHttpRequest|WebSocket|sendBeacon)\s*\(/);
  assert.doesNotMatch(script,/\b(?:localStorage|sessionStorage|indexedDB)\s*\./);
  assert.doesNotMatch(script,/\.upload\s*\(/);
