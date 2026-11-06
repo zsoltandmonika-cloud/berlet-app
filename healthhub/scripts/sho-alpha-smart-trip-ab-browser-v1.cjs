@@ -94,20 +94,15 @@ const server=http.createServer(async(req,res)=>{
   await page.locator('#st22To').fill('Kazincbarcika');
   await page.locator('#st22Date').fill('2026-11-09');
   await page.locator('#st22Time').fill('16:00');
+  if(mobile&&await page.locator('#st22KeyboardDockV1088').isVisible()){
+   // Exercise the actual Samsung predictive keyboard dock close control;
+   // the overlay intentionally prevents taps elsewhere while it is open.
+   await page.locator('#st22KeyboardCloseV1088').click();
+  }
   await page.locator('#st22SearchMethod').selectOption('chatgpt');
   return {ctx,page};
  }
  async function start(page,arm){
-  if(arm==="super"){
-   const hit=await page.locator('input[name="abArm"][value="super"]').evaluate(el=>{
-    const r=el.getBoundingClientRect();
-    const w=document.elementFromPoint(r.x+r.width/2,r.y+r.height/2);
-    return {width:innerWidth,height:innerHeight,
-     x:Math.round(r.x),y:Math.round(r.y),centerHit:w?.outerHTML?.slice(0,210),
-     viewport:document.documentElement.scrollWidth};
-   });
-   console.log("ALPHA_MOBILE_HIT "+JSON.stringify(hit));
-  }
   await page.locator('input[name="abArm"][value="'+arm+'"]').check();
   const popupPromise=page.waitForEvent('popup');
   await page.locator('#st22Search').click();
