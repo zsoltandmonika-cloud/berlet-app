@@ -74,7 +74,7 @@ test('all three submodules expose the same password toggle and device-key mode',
  assert.match(extra,/function updateProtection\(\)/);
  assert.match(extra,/mode==='password'\?await keyFor\(pass,salt\):await newDeviceKey\(\)/);
  assert.match(extra,/deviceKey\('put',deviceOwner,rec.id,key\)/);
- assert.match(extra,/deviceKey\('get',auth.data.user.id,rec.id\)/);
+ assert.match(extra,/deviceKey\('get',owner,rec.id\)/);
  assert.match(extra,/previewPinned/);
  assert.match(read('sh9/wallet/smart-valet-smart-access-v13.js'),/SHO_VALET_EXTRA_V15\?\.previewPinned/);
 });
