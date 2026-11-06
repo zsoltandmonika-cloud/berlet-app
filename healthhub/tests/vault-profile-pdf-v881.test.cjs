@@ -12,6 +12,7 @@ function sandbox(options={}){
   return {tag,children:[],dataset:{},textContent:'',id:'',disabled:false,
    setAttribute(){},addEventListener(){},
    appendChild(c){this.children.push(c);if(c.id)nodes.set(c.id,c)},
+   append(...args){args.forEach(c=>this.appendChild(c))},
    replaceChildren(...args){this.children=args},
    querySelector(){return null}};
  }
