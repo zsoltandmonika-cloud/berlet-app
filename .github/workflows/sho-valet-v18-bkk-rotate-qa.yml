@@ -1,0 +1,27 @@
+name: SHO Smart Valet v18 · Rotate Budapest Pass QA
+on:
+  pull_request:
+    paths:
+      - 'sh9/wallet/**'
+      - 'sh9/tests/sho-smart-valet-v18-bkk-rotate.test.cjs'
+      - '.github/workflows/sho-valet-v18-bkk-rotate-qa.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'sh9/wallet/**'
+      - 'sh9/tests/sho-smart-valet-v18-bkk-rotate.test.cjs'
+permissions:
+  contents: read
+jobs:
+  rotate-pass:
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate orientation, fit, fullscreen and original Valet behavior
+        run: |
+          node --check sh9/wallet/smart-valet-bkk-fullscreen-v17.js
+          node --test sh9/tests/sho-smart-valet-v18-bkk-rotate.test.cjs
+          node --test sh9/tests/sho-smart-valet-v17-bkk-pass.test.cjs
+          node --test sh9/tests/sho-smart-valet-v16-unified-optical.test.cjs
+          node --test sh9/tests/sho-smart-valet-v15-health-bank.test.cjs
