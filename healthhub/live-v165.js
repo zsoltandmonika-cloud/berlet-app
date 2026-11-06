@@ -2,6 +2,8 @@
 'use strict';
 /* HealthHub v1.108 — unified Health + Activity Cloud sync */
 var busy=false;
+// v1015: one profile-scoped Health Connect fetch shared by import + Activity.
+var sharedCloud=new Map(),SHARED_TTL_MS=12000;
 function pkey(){return localStorage.getItem('hh-profile')==='m'?'monika':'zsolt'}
 function pname(p){return p==='monika'?'Mónika':'Zsolt'}
 function toast(s){try{window.toast&&window.toast(s)}catch(e){}}
@@ -19,12 +21,28 @@ async function downloadRaw(profile){
   return {raw:await v.downloadJson(legacyPath(profile)),path:legacyPath(profile)};
  }
 }
+function readSharedCloud(profile,force){
+ if(profile!=='monika'&&profile!=='zsolt')return Promise.reject(new Error('Hibás Health Connect profil.'));
+ var now=Date.now(),old=sharedCloud.get(profile);
+ if(old&&(old.pending||(!force&&now-old.at<SHARED_TTL_MS)))return old.promise;
+ var row={at:now,pending:true,promise:null};
+ row.promise=downloadRaw(profile).then(function(value){
+  row.pending=false;row.at=Date.now();
+  return value;
+ },function(e){
+  if(sharedCloud.get(profile)===row)sharedCloud.delete(profile);
+  throw e;
+ });
+ sharedCloud.set(profile,row);
+ return row.promise;
+}
+window.HH_HEALTH_CONNECT_SOURCE_V1015={read:readSharedCloud,version:'1015'};
 async function processIncoming(profile,force){
  if(busy||typeof window.hhImportHealthConnectRaw!=='function'||!connected())return false;
  busy=true;
  try{
   var got;
-  try{got=await downloadRaw(profile)}catch(e){if(e&&e.status===409)return false;throw e}
+  try{got=await readSharedCloud(profile,!!force)}catch(e){if(e&&e.status===409)return false;throw e}
   var raw=got&&got.raw;if(!raw)return false;
   if(String(raw.profile||'').toLowerCase()!==profile)throw new Error('A Health Connect Cloud profil nem egyezik.');
   var exportedAt=raw.exportedAt||raw.rangeEnd||'';
