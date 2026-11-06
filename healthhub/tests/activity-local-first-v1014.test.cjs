@@ -55,45 +55,47 @@ function make(profile='monika'){
   releaseSamsung(){completeSamsung({status:'not_connected',profile:'monika',data:null})},
   stats(){return {cloudReads,syncReads}}};
 }
-
-test('Nov 3 restored Activity uses measured profile-only data after canonical sources complete',async()=>{
+test('local profile activity paints before deferred Dropbox and Samsung, then gets fresh verified cloud',async()=>{
  const h=make();
  h.w.hhOpenActivity();
- for(let i=0;i<10;i++)await flush();
- assert.match(h.nodes.hhActivityPage191.innerHTML,/Aktivitás adatok betöltése/);
- assert.equal(h.w.hhActivity191Cache,undefined,'legacy mode deliberately waits for sources instead of showing a possibly stale preview');
- assert.equal(h.stats().cloudReads,1,'canonical Dropbox file is requested for the active profile');
- assert.equal(h.stats().syncReads,1,'legacy opening reactivates the Health Connect import flow');
- h.releaseCloud(9012);h.releaseSamsung();
- for(let i=0;i<16;i++)await flush();
+ for(let i=0;i<12;i++)await flush();
+ assert.match(h.nodes.hhActivityPage191.innerHTML,/Helyi gyorsnézet/);
  assert.equal(h.w.hhActivity191CurrentProfile,'monika');
- assert.equal(h.w.hhActivity191Cache.daily.find(x=>x.date===h.today).steps,9012);
- assert.ok(h.w.hhActivity191Source.cloud,'Dropbox export metadata is present');
- assert.equal(h.w.hhActivity191Cache.daily.find(x=>x.date===h.today).steps===77777,false,'other profile stays excluded');
+ assert.equal(h.w.hhActivity191Cache.daily.find(x=>x.date===h.today).steps,1200);
+ assert.equal(h.w.hhActivity191Source.preview,true);
+ assert.equal(h.stats().cloudReads,1,'one canonical Dropbox fetch');
+ assert.equal(h.stats().syncReads,0,'opening Activity cannot start duplicate HC import');
+ h.releaseCloud();h.releaseSamsung();
+ for(let i=0;i<15;i++)await flush();
  assert.doesNotMatch(h.nodes.hhActivityPage191.innerHTML,/Helyi gyorsnézet/);
+ assert.equal(h.w.hhActivity191Source.preview,false);
+ assert.ok(h.w.hhActivity191Source.cloud,'verified cloud metadata populated');
+ assert.equal(h.w.hhActivity191Cache.daily.find(x=>x.date===h.today).steps,9012);
+ assert.equal(h.stats().cloudReads,1);
 });
-test('optional Samsung source cannot hold Activity blank indefinitely',async()=>{
+test('slow optional Samsung export cannot delay verified Health Connect result',async()=>{
  const h=make();h.w.hhOpenActivity();
  for(let i=0;i<12;i++)await flush();
+ assert.match(h.nodes.hhActivityPage191.innerHTML,/Helyi gyorsnézet/);
  h.releaseCloud(7100);
- // Leave the optional Samsung source pending beyond its 2.5s safety limit.
- await new Promise(resolve=>setTimeout(resolve,2625));
- for(let i=0;i<12;i++)await flush();
+ await new Promise(resolve=>setTimeout(resolve,2650));
+ for(let i=0;i<8;i++)await flush();
+ assert.doesNotMatch(h.nodes.hhActivityPage191.innerHTML,/Helyi gyorsnézet/);
  assert.equal(h.w.hhActivity191Cache.daily.find(x=>x.date===h.today).steps,7100);
  assert.equal(h.w.hhActivity191Source.samsung.status,'pending');
- assert.equal(h.w.hhActivity191CurrentProfile,'monika');
  h.releaseSamsung();
+ for(let i=0;i<8;i++)await flush();
+ assert.equal(h.w.hhActivity191Source.samsung.status,'not_connected');
+ assert.equal(h.stats().cloudReads,1);
 });
-test('Nov 3 baseline is loaded with a fresh JS cache key and retains profile guards',()=>{
- assert.match(script,/async function load\(profile\)/);
+test('Activity source code is read-only, profile scoped, and HTML busts stale JS',()=>{
+ assert.match(script,/async function readLocal\(profile\)/);
  assert.match(script,/out\.imports=out\.imports\.filter\(function\(x\)\{return x\.profile===profile/);
  assert.match(script,/out\.activity=out\.activity\.filter\(function\(x\)\{return x\.profile===profile/);
- assert.match(script,/var sources=await Promise\.all\(\[load\(requestedProfile\),heightPromise,samsungGuard\]\)/);
- assert.match(script,/window\.hhHealthCloudSync\(false\)/);
- assert.doesNotMatch(script,/Helyi gyorsnézet/);
- assert.match(html,/live-v191\.js\?v=1013-source-guard-20261106/);
- assert.match(script,/var cloud=await Promise\.race/);
- assert.match(script,/out\._cloudTimedOut/);
- assert.match(script,/var missingMeasuredDay/);
- assert.match(script,/A Dropbox nem válaszolt 12 másodpercen belül/);
+ assert.match(script,/var cloudPromise=cloudBundle\(requestedProfile\)/);
+ assert.match(script,/finalPainted/);
+ assert.match(script,/var samsungQuick=timelyOptional\(samsungPromise\)/);
+ assert.match(script,/Helyi gyorsnézet/);
+ assert.doesNotMatch(script,/window\.hhHealthCloudSync\(false\)/);
+ assert.match(html,/live-v191\.js\?v=1015-stable-activity-refresh/);
 });
