@@ -123,3 +123,12 @@ test("ambiguous stations and missing stations never become fabricated matches",(
    legacy.route(f,q,{ranking:"recommended"}));
  }
 });
+
+test("malformed but declared service entries preserve legacy no-route behavior",()=>{
+ const f=feed();f.services.wd=null;
+ const token=fast.prepare(f);
+ assert.ok(token);
+ const q=query("2026-10-28T14:50:00Z","depart");
+ assert.deepEqual(fast.route(token,q,{ranking:"recommended"}),
+  legacy.route(f,q,{ranking:"recommended"}));
+});
