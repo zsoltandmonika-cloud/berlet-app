@@ -18,6 +18,8 @@
  #hhFastBoot a{color:#96d4ff;display:block;margin-top:18px}
  #hhFastBoot[hidden]{display:none!important}
 </style>
+<!-- Reuse the actual SHO Golden Standard CSS; no duplicate design implementation. -->
+<link rel="stylesheet" href="/berlet-app/sh9/shared/sh9-golden-controls-v1.css?v=934-activity-fast">
 <!-- Load the existing canonical Activity render/data modules only. -->
 <script defer src="./activity-fast/vault-read-v3.js?v=3-no-startup-sync"></script>
 <script defer src="./activity-fast/single-profile-cloud-v3.js?v=3-active-profile"></script>
@@ -30,6 +32,7 @@
 <script defer src="./live-v363.js?v=624"></script>
 <script defer src="./activity-premium-glass-v533.js?v=5335"></script>
 <script defer src="./hc-wear-history-v1150.js?v=1153"></script>
+<script defer src="/berlet-app/sh9/shared/sh9-golden-controls-v1.js?v=934-activity-fast-host"></script>
 </head>
 <body>
 <div id="hhFastBoot" role="status">
@@ -60,6 +63,36 @@
   var diagTimer=setInterval(diagRefresh,700);
   setTimeout(function(){clearInterval(diagTimer);diagRefresh()},65000);
  }
+ // Forward the Golden profile switch to Activity's real profile controller.
+ // The standalone page intentionally doesn't load the whole HealthHub state manager.
+ window.hhToggleProfileOneClick=function(){
+  if(typeof window.hh191ToggleProfile==='function'){
+   window.hh191ToggleProfile();
+   window.setTimeout(function(){window.SH9_GOLDEN_CONTROLS_V1?.paint?.()},50);
+  }
+ };
+ function paintNavLabels(){
+  var page=document.getElementById('hhActivityPage191'),nav=page?.querySelector('.a191Nav');
+  if(!nav)return;
+  var en=localStorage.getItem('sh9-language-v1')==='en';
+  var labels=en?['Home','Health','Activity','Records','Medications','More']:['Kezdőlap','Egészség','Aktivitás','Leletek','Gyógyszerek','Továbbiak'];
+  nav.querySelectorAll('button').forEach(function(button,i){
+   var b=button.querySelector('b');
+   if(b&&labels[i]&&b.textContent!==labels[i])b.textContent=labels[i];
+  });
+ }
+ var navLabelObserver;
+ function initLabels(){
+  var page=document.getElementById('hhActivityPage191');
+  if(!page||navLabelObserver)return;
+  paintNavLabels();
+  navLabelObserver=new MutationObserver(paintNavLabels);
+  navLabelObserver.observe(page,{childList:true,subtree:true});
+ }
+ window.addEventListener('sh9:languagechange',paintNavLabels);
+ window.addEventListener('healthhub:profile-changed',function(){
+  window.setTimeout(function(){paintNavLabels();window.SH9_GOLDEN_CONTROLS_V1?.paint?.()},50);
+ });
  function complete(){
   var boot=document.getElementById('hhFastBoot');
   if(typeof window.hhOpenActivity!=='function'){
@@ -74,6 +107,7 @@
   window.hh191Settings=home;
   try{
    window.hhOpenActivity();
+   initLabels();
    if(boot)boot.hidden=true;
   }catch(error){
    console.error('SHO Activity fast preview launch',error);
