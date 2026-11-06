@@ -8,7 +8,7 @@
 if(w.HH_VAULT_GOOGLE_V882)return;
 const CFG=w.HH_CENTRAL_VAULT||{},PENDING='hh-vault-google-pending-v882',
  SKEY='hh-supabase-health-session-v1',REM='hh-health-vault-trusted-device-v332',
- ROOT='hhVaultGoogleV882',CSS='hhVaultGoogleStyleV882';
+ ROOT='hhVaultGoogleV882',INLINE='hhVaultGoogleInlineV882',CSS='hhVaultGoogleStyleV882';
 let sdkPromise=null,api=null,busy=false,message='',installed=false;
 const vault=()=>w.HH_DAILY_HEALTH_SYNC_V319;
 function textOnly(x){return String(x||'').slice(0,140)}
@@ -53,7 +53,11 @@ function css(){
  '#'+ROOT+' p{margin:0;font-size:11px;line-height:1.45;color:#53748b}'+
  '#'+ROOT+' button{border:1px solid #82b9d5;background:#ecf7fd;border-radius:12px;min-height:46px;padding:10px;color:#195574;font:750 13px system-ui;cursor:pointer}'+
  '#'+ROOT+' button:disabled{opacity:.62;cursor:wait}'+
- '#'+ROOT+' .hhvg-error{color:#a03646;font-weight:650;overflow-wrap:anywhere}';
+ '#'+ROOT+' .hhvg-error{color:#a03646;font-weight:650;overflow-wrap:anywhere}'+
+ '#'+INLINE+'{margin:10px 0;padding:12px;border:1px solid #a8cadc;border-radius:13px;background:#e7f4fc;color:#164f70;font:12px system-ui}'+
+ '#'+INLINE+' button{width:100%;min-height:44px;border:1px solid #7eaccd;border-radius:11px;background:#fff;color:#17536b;font:750 13px system-ui;padding:9px}'+
+ '#'+INLINE+' button:disabled{opacity:.58}'+
+ '#'+INLINE+' p{font-size:11px;margin:7px 0 0;color:#45687f}';
  d.head.appendChild(s);
 }
 function mount(){
@@ -84,6 +88,25 @@ function mount(){
   feedback.setAttribute('role','alert');feedback.textContent=message;root.appendChild(feedback);
  }
 }
+function mountInline(host){
+ if(!host||!host.parentNode)return;
+ const loggedIn=!!vault()?.getStatus?.()?.authenticated;
+ let root=d.getElementById(INLINE);
+ if(loggedIn){if(root)root.remove();return}
+ css();
+ if(!root){
+  root=d.createElement('section');root.id=INLINE;root.setAttribute('aria-label','Google-belépés a Health Vaultba');
+  host.parentNode.insertBefore(root,host.nextSibling);
+ }
+ root.replaceChildren();
+ const button=d.createElement('button');button.type='button';button.disabled=busy||nativeView();
+ button.textContent=busy?'⏳ Google-bejelentkezés…':'🔐 Belépés Google-fiókkal';
+ button.addEventListener('click',()=>{void start()});
+ const hint=d.createElement('p');hint.textContent=nativeView()?'A Google-belépéshez nyisd meg a HealthHubot Chrome-ban.':
+  'Egy Google-belépéssel hozzáférhetsz a jogosult egészségügyi profilokhoz.';
+ root.append(button,hint);
+ if(message){const p=d.createElement('p');p.textContent=message;p.setAttribute('role','alert');root.appendChild(p)}
+}
 function errorMessage(err){
  if(err?.message==='no_profile')return 'A kiválasztott Google-fiókhoz nincs Health Vault-profiljogosultság. Másik Google-fiókkal próbáld.';
  if(err?.message==='sdk_unavailable')return 'A Google-belépési modul nem töltődött be. Ellenőrizd a kapcsolatot.';
@@ -99,7 +122,7 @@ async function start(){
  busy=true;message='';mount();
  try{
   const auth=await client();
-  const remember=!!d.querySelector('#hhcaLoginV332 input[name=remember]')?.checked;
+  const remember=!!(d.querySelector('#hhcaLoginV332 input[name=remember]')||d.querySelector('#hhcs-login-form input[name=remember]'))?.checked;
   w.sessionStorage.setItem(PENDING,JSON.stringify({schema:1,at:Date.now(),remember}));
   const {error}=await auth.auth.signInWithOAuth({
    provider:'google',options:{redirectTo:w.location.origin+w.location.pathname}
@@ -151,11 +174,15 @@ async function finish(){
   mount();return false;
  }
 }
+const originalMount=vault()?.mount;
+if(typeof originalMount==='function'){
+ vault().mount=function(host){const value=originalMount.apply(this,arguments);mountInline(host);return value};
+}
 const previous=vault()?.openLogin;
 if(typeof previous==='function'){
  vault().openLogin=function(){const result=previous.apply(this,arguments);mount();return result};
  installed=true;
 }
-w.HH_VAULT_GOOGLE_V882={start,finish,mount,installed};
+w.HH_VAULT_GOOGLE_V882={start,finish,mount,mountInline,installed};
 if(pending())void finish();
 })(window,document);
