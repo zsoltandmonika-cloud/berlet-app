@@ -5,6 +5,7 @@ on:
     paths:
       - 'sh9/super-search/**'
       - 'healthhub/scripts/sho-super-search-alpha-browser-v1.cjs'
+      - 'healthhub/scripts/sho-trip-stopwatch-alpha-browser-v1.cjs'
       - '.github/workflows/sho-super-search-alpha-browser-v1.yml'
   workflow_dispatch:
 
@@ -28,3 +29,7 @@ jobs:
         env:
           NODE_PATH: /tmp/sho-alpha/node_modules
         run: node healthhub/scripts/sho-super-search-alpha-browser-v1.cjs
+      - name: Léna stopwatch · real Chromium UI with mocked cloud read
+        env:
+          NODE_PATH: /tmp/sho-alpha/node_modules
+        run: node healthhub/scripts/sho-trip-stopwatch-alpha-browser-v1.cjs
