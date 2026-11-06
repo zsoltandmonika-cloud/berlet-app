@@ -14,7 +14,7 @@ test('Health and bank categories load genuine secure-card controller, not generi
  assert.ok(page.indexOf('smart-valet-extra-v15.js')>page.indexOf('smart-valet-identity-v11.js'));
  assert.match(demo,/addPanel\.hidden=\['identity','health','card'\]\.includes\(kind\)/);
  assert.match(controller,/sho-valet-filter-change/);
- assert.match(controller,/category==='health'\|\|category==='card'/);
+ assert.match(controller,/\['health','card','pass'\]\.includes\(category\)/);
  assert.match(controller,/id="svExtraAddV15"/);
  assert.match(page,/id="svExtraFrontV15"/);
  assert.match(page,/id="svExtraBackV15"/);
