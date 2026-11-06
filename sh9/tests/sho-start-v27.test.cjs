@@ -15,7 +15,7 @@ test('SHO grid is exactly 4×3: Wallet takes former Family updates spot, bottom 
  assert.doesNotMatch(html,/data-module="Családi aktualitások"/);
  assert.doesNotMatch(html,/class="tile wallet"/);
  assert.equal((html.match(/<button class="tile" data-module=/g)||[]).length,12);
- assert.match(html,/sho-wiring-v2\.js\?v=935-smart-valet-fullscreen/);
+ assert.match(html,/sho-wiring-v2\.js\?v=936-activity-one-route/);
 });
 
 test('SHO keeps shared taskbar, native OTA and Outlook bindings',()=>{
