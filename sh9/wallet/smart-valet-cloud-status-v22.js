@@ -102,11 +102,13 @@ async function check(){
  }catch(e){
   if(serial!==epoch||key!==profile())return;
   const code=e?.message;
-  const needsLogin=code==='LOGIN_REQUIRED',unauthorized=code==='ACCESS_DENIED';
-  display(needsLogin?'locked':unauthorized?'locked':'error',
+  const needsLogin=code==='LOGIN_REQUIRED',unauthorized=code==='ACCESS_DENIED',notReady=code==='NOT_READY';
+  display(notReady?'checking':needsLogin||unauthorized?'locked':'error',
+   notReady?t('☁️ Felhőmentés: kapcsolat előkészítése','☁️ Preparing cloud connection'):
    needsLogin?t('🔐 Központi mentés: belépés szükséges','🔐 Cloud backup: sign-in needed'):
    unauthorized?t('🔒 Nincs profil-hozzáférés','🔒 No profile access'):
    t('⚠️ Felhőmentés nem ellenőrizhető','⚠️ Cloud backup not verified'),
+   notReady?t('A privát tároló betöltése után ellenőrizzük.','Verification starts after private storage loads.'):
    needsLogin?t('A Smart Valet a Family Guard Google-belépését használja.','Smart Valet uses Family Guard Google sign-in.'):
    t('A felhőmentés állapota jelenleg nem igazolható.','Cloud backup status could not be confirmed.'));
  }finally{
