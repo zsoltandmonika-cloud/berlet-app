@@ -139,18 +139,19 @@ function close(){
  $('svExtraEditV15').hidden=true;
 }
 function renderFormType(){
- const health=category==='health';
+ const health=category==='health',pass=category==='pass';
  $('svExtraHealthFieldsV15').hidden=false; // the SAME two-sided scanner for both groups
- $('svExtraBankFieldsV15').hidden=health;
- $('svExtraDraftTitleV15').textContent=health?t('Új egészségkártya','New health card'):t('Új bankkártya','New bank card');
- $('svExtraSafetyV15').textContent=health?
+ $('svExtraBankFieldsV15').hidden=health||pass;
+ $('svExtraDraftTitleV15').textContent=pass?t('Új Budapest-bérlet','New Budapest pass'):health?t('Új egészségkártya','New health card'):t('Új bankkártya','New bank card');
+ $('svExtraDialogV15').classList.toggle('sv-extra-pass-v17',pass);
+ $('svExtraSafetyV15').textContent=pass?t('🚌 Az eredeti bérletfotót tároljuk. Ez nem hivatalos mobilbérlet. Az ellenőrzéshez az eredeti dokumentum vagy hivatalos alkalmazás szükséges.', '🚌 This is a saved pass photo, not an official mobile ticket. Use the original document or official app for checks.'):health?
   t('🔐 Mindkét oldal ugyanazzal az optikai kerettel készül. A mentett képek jelszóval titkosítottak.',
    '🔐 Both sides use the same optical frame. Photos are encrypted using your password.'):
   t('💳 A bankkártya fotózása opcionális. Mielőtt mentenénk, a számot, lejáratot és CVV-t kézzel ki kell takarni. Az eredeti fotó nem kerül tárolásra.',
    '💳 Bank photos are optional. Mask card number, expiry and CVV before saving. The original is never uploaded.');
 }
 function openAdd(){
- if(!['health','card'].includes(category)||busy)return;
+ if(!['health','card','pass'].includes(category)||busy)return;
  close();active=null;profileAtOpen=profile();
  renderFormType();$('svExtraEditV15').hidden=false;
  $('svExtraPasswordEnabledV16').checked=true;updateProtection();
@@ -172,8 +173,8 @@ async function captureSide(which,mode){
    'Shared optical scanner unavailable. Reload the page.'),true);return;
  }
  const photo=await api.capture({
-  title:cat==='health'?t('Egészségkártya','Health card'):t('Bankkártya','Bank card'),
-  side:which,mode,bankRedact:cat==='card'
+  title:cat==='pass'?t('Budapest-bérlet','Budapest pass'):cat==='health'?t('Egészségkártya','Health card'):t('Bankkártya','Bank card'),
+  side:which,mode,bankRedact:cat==='card',preserveWhole:cat==='pass'
  });
  if(!photo||p!==profile()||p!==profileAtOpen||cat!==category||!$('svExtraDialogV15').open||active)return;
  const cap=which==='front'?'Front':'Back';
@@ -197,7 +198,7 @@ function renderGallery(){
   const wrap=dom('article','sv-extra-item-v15');
   const opener=dom('button','sv-extra-card-v15 sv-id-type-v10');
   opener.type='button';opener.setAttribute('aria-label',t('Kártya megnyitása: ','Open card: ')+rec.title);
-  const symbol=dom('span','sv-extra-icon-v15',rec.category==='health'?'🩺':'💳');
+  const symbol=dom('span','sv-extra-icon-v15',rec.category==='pass'?'🚌':rec.category==='health'?'🩺':'💳');
   const info=dom('span','sv-extra-info-v15');
   info.append(dom('strong',null,rec.title),dom('small',null,rec.category==='bank'?
    (rec.issuer||'')+(rec.last_four?' · •••• '+rec.last_four:''):
@@ -215,13 +216,14 @@ function renderGallery(){
  }
 }
 function renderCategory(){
- const on=category==='health'||category==='card';
+ const on=['health','card','pass'].includes(category);
  $('svExtraPanelV15').hidden=!on;
- $('svCards').hidden=on;
+ $('svCards').hidden=on&&category!=='pass';
  if(!on){return}
- $('svExtraTitleV15').textContent=category==='health'?t('Egészségkártyák','Health cards'):t('Bankkártyák','Bank cards');
- $('svExtraAddV15').textContent=category==='health'?t('＋ Új egészségkártya','＋ Add health card'):t('＋ Új bankkártya','＋ Add bank card');
- $('svExtraHintV15').textContent=category==='health'?
+ $('svExtraTitleV15').textContent=category==='pass'?t('Saját Budapest-bérletek','My Budapest passes'):category==='health'?t('Egészségkártyák','Health cards'):t('Bankkártyák','Bank cards');
+ $('svExtraAddV15').textContent=category==='pass'?t('＋ Budapest-bérlet hozzáadása','＋ Add Budapest pass'):category==='health'?t('＋ Új egészségkártya','＋ Add health card'):t('＋ Új bankkártya','＋ Add bank card');
+ $('svExtraLegacyV17').hidden=category!=='pass';
+ $('svExtraHintV15').textContent=category==='pass'?t('A bérlet teljes képét megőrizzük, a kódot nem vágjuk le. A régi Bérlet appból egy kattintással átmásolhatod.', 'Full photo is kept without cropping barcodes. You can copy from the legacy pass app.'):category==='health'?
   t('TAJ-kártya: az Igazolványok között található. Itt további egészségkártyákat tárolhatsz.',
    'Your TAJ card is under ID Cards. Store additional health cards here.'):
   t('Biztonságosan maszkolt kártyanézet, teljes kártyaszám és CVV nélkül.',
@@ -232,12 +234,12 @@ function renderCategory(){
 async function refresh(){
  const p=profile(),cat=category,id=++serial;
  rows=[];renderGallery();
- if(!['health','card'].includes(cat))return;
+ if(!['health','card','pass'].includes(cat))return;
  status(t('Kártyák betöltése…','Loading cards…'));
  try{
   const c=await authorized(p);
   const {data,error}=await c.from(TABLE).select('id,profile_key,category,title,issuer,last_four,created_at')
-   .eq('profile_key',p).eq('category',cat==='card'?'bank':'health').order('created_at',{ascending:false}).limit(100);
+   .eq('profile_key',p).eq('category',cat==='card'?'bank':cat).order('created_at',{ascending:false}).limit(100);
   if(error)throw error;
   if(id!==serial||cat!==category||p!==profile())return;
   rows=data||[];
@@ -275,11 +277,13 @@ async function openSaved(id){
  close();modalStatus('');
  try{
   const rec=await loadRecord(id);if(!rec)return;
-  if(!['health','bank'].includes(rec.category))return;
+  if(!['health','bank','pass'].includes(rec.category))return;
   active=rec;profileAtOpen=profile();
   $('svExtraDraftTitleV15').textContent=rec.title;
   $('svExtraEditV15').hidden=true;$('svExtraViewerV15').hidden=false;
-  const bank=rec.category==='bank';
+  const bank=rec.category==='bank',pass=rec.category==='pass';
+ $('svExtraDialogV15').classList.toggle('sv-extra-pass-v17',pass);
+ $('svExtraInspectV17').hidden=!pass;
   $('svExtraBankArtV15').hidden=!bank;
   $('svExtraHealthViewerV15').hidden=bank;
   if(bank)bankArt(rec);
@@ -342,8 +346,8 @@ async function unlock(){
  finally{busy=false;$('svExtraUnlockV15').disabled=false}
 }
 async function save(e){
- e.preventDefault();if(busy||!['health','card'].includes(category)||active)return;
- const p=profileAtOpen,cat=category==='card'?'bank':'health';
+ e.preventDefault();if(busy||!['health','card','pass'].includes(category)||active)return;
+ const p=profileAtOpen,cat=category==='card'?'bank':category;
  const title=$('svExtraTitleInputV15').value.trim().slice(0,120);
  if(!title){modalStatus(t('Add meg a kártya nevét.','Enter a card name.'),true);return}
  const rec={id:w.crypto.randomUUID(),profile_key:p,category:cat,title,issuer:null,last_four:null,front_cipher:null,back_cipher:null,kdf_salt:null};
@@ -351,6 +355,7 @@ async function save(e){
  let deviceOwner='';
  try{
   const c=await authorized(p);
+  if(cat==='pass')rec.issuer='BKK';
   if(cat==='bank'){
    rec.issuer=$('svExtraIssuerV15').value.trim().slice(0,100)||null;
    const last=$('svExtraLast4V15').value.trim();
@@ -359,6 +364,7 @@ async function save(e){
   }
   if(files.back&&!files.front)throw Error('NO_FRONT');
   if(cat==='health'&&!files.front)throw Error('NO_FRONT');
+  if(cat==='pass'&&(!files.front||!files.back))throw Error('NO_BOTH');
   if(files.front){
    const mode=$('svExtraPasswordEnabledV16').checked?'password':'device';
    rec.protection_mode=mode;
@@ -382,13 +388,14 @@ async function save(e){
    }
   }
   if(p!==profile()||profileAtOpen!==p||!$('svExtraDialogV15').open||
-   (category==='card'?'bank':'health')!==cat)throw Error('NO_ACCESS');
+   (category==='card'?'bank':category)!==cat)throw Error('NO_ACCESS');
   const {error}=await c.from(TABLE).insert(rec);if(error)throw error;
   close();await refresh();
   status(t('TADAAA! 🎉 Kártya biztonságosan mentve.','TADAAA! 🎉 Card saved securely.'));
  }catch(err){
   if(deviceOwner)try{await deviceKey('delete',deviceOwner,rec.id)}catch(_){}
-  modalStatus(err?.message==='NO_FRONT'?t('Válassz előlapfotót a közös optikai kerettel.','Choose a front photo with the shared optical scanner.'):
+  modalStatus(err?.message==='NO_BOTH'?t('A Budapest-bérlet mindkét oldalát add hozzá.','Add both sides of the Budapest pass.'):
+   err?.message==='NO_FRONT'?t('Válassz előlapfotót a közös optikai kerettel.','Choose a front photo with the shared optical scanner.'):
    err?.message==='PASS'?t('Legalább 8 karakteres, egyező jelszavak szükségesek.','Passwords must match and contain at least 8 characters.'):
    err?.message==='LAST4'?t('Az utolsó négy számjegy pontosan 4 számjegy legyen.','Last four must be exactly four digits.'):
    err?.message==='INVALID_IMAGE'?t('JPG, PNG vagy WebP kép szükséges, legfeljebb 12 MB.','Use a JPG, PNG or WebP image under 12 MB.'):
@@ -438,8 +445,9 @@ async function previewPinned(id,p){
  return image;
 }
 async function openPinned(id,p){
- if(!await resolvePinned(id,p))return;
- category=(await resolvePinned(id,p)).category==='bank'?'card':'health';
+ const pinned=await resolvePinned(id,p);
+ if(!pinned)return;
+ category=pinned.category==='bank'?'card':pinned.category;
  renderCategory();await openSaved(id);
 }
 function init(){
