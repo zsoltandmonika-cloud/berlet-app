@@ -327,6 +327,7 @@ async function openSaved(id){
    $('svExtraBankArtV15').hidden=false;
    $('svExtraHealthViewerV15').hidden=true;
   }
+  $('svExtraInspectV17').hidden=true;
   togglePinButton(rec);
   $('svExtraDialogV15').showModal();
   if(rec.front_cipher&&modeOf(rec)==='device')void unlock();
@@ -494,6 +495,15 @@ function init(){
  const dialog=dom('dialog','sv-id-dialog-v11 sv-extra-dialog-v15');dialog.id='svExtraDialogV15';
  dialog.append(d.getElementById('svExtraUnifiedTemplateV16').content.cloneNode(true));
  d.body.append(dialog);
+ const inspector=dom('button','sv-id-primary-v11 sv-extra-inspect-v17',
+  t('⛶ Teljes képernyős bérletkép','⛶ Full-screen pass photo'));
+ inspector.id='svExtraInspectV17';inspector.type='button';inspector.hidden=true;
+ $('svExtraPinDialogV15').insertAdjacentElement('beforebegin',inspector);
+ inspector.addEventListener('click',()=>{
+  if(active?.category!=='pass'||profile()!==profileAtOpen||!viewURLs[0])return;
+  w.SHO_BKK_FULLSCREEN_V17?.show({frontUrl:viewURLs[0],backUrl:viewURLs[1]||null,
+   title:active.title||'Budapest-bérlet',fullscreen:true});
+ });
  $('svExtraAddV15').addEventListener('click',openAdd);
  $('svExtraCloseV15').addEventListener('click',close);
  dialog.addEventListener('cancel',e=>{e.preventDefault();close()});
