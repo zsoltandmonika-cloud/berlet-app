@@ -41,7 +41,7 @@ function dispatchProfileChanged(code,source){
   }catch(e){}
 }
 
-async function refreshVisibleProfileData(code,seq,reason){
+async function refreshVisibleProfileData(code,seq){
   code=codeOf(code);
   var profile=keyOf(code);
   if(seq!==switchSeq||currentCode()!==code||refreshing)return false;
@@ -52,9 +52,7 @@ async function refreshVisibleProfileData(code,seq,reason){
     if(isOn('healthSection')&&typeof window.renderHealthSection==='function'){
       try{await window.renderHealthSection()}catch(e){console.warn('HealthHub HealthRadar rerender',e)}
     }
-    // v1015: Activity handles the prior import event itself. Do not re-render
-    // its dashboard again for the following cloud-synced notification.
-    if(reason!=='cloud'&&isOn('hhActivityPage191')&&typeof window.hhRenderActivity191==='function'){
+    if(isOn('hhActivityPage191')&&typeof window.hhRenderActivity191==='function'){
       try{await window.hhRenderActivity191(profile)}catch(e){console.warn('HealthHub Activity rerender',e)}
     }
     if(isOn('hhSleepPage')&&typeof window.hhRenderSleep==='function'){
