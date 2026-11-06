@@ -419,11 +419,8 @@ function paintActivity(requestedProfile,raw,profileHeight,samsungState,renderId,
   :'⚠️ Dropbox-export NEM igazolt. Az itt látható helyi adatok elavultak lehetnek.';
  var sourceBanner='<div class="a191MetricsHint" style="font-size:12px;line-height:1.55;padding:12px;margin:0 0 9px;border-radius:12px;background:'+
    (source?'#e5f7ed':'#ffefdf')+';color:#153e56" role="status">'+sourceLine+
-   '<div style="font-size:10px;margin-top:4px">Teszt v2 · helyi '+esc(diag.localMode||'?')+' '+esc(String(diag.localMs==null?'…':diag.localMs))+' ms · Dropbox '+esc(String(diag.cloudMs==null?'…':diag.cloudMs))+' ms · teljes '+esc(String(diag.totalMs==null?'…':diag.totalMs))+' ms. Helyi memóriacache max. 45 mp, a Dropbox mindig újraellenőrizve.</div></div>';
+   '<div style="font-size:10px;margin-top:4px">Aktivitás v2 · helyi '+esc(diag.localMode||'?')+' '+esc(String(diag.localMs==null?'…':diag.localMs))+' ms · Dropbox '+esc(String(diag.cloudMs==null?'…':diag.cloudMs))+' ms · teljes '+esc(String(diag.totalMs==null?'…':diag.totalMs))+' ms. Helyi memóriacache max. 45 mp, a Dropbox mindig újraellenőrizve.</div></div>';
  page.innerHTML=hero(requestedProfile)+'<div class="a191Body">'+sourceBanner+'<div class="a191ProfileDiag '+(requestedProfile==='monika'?'monika':'zsolt')+'">HEALTH CONNECT · '+(requestedProfile==='monika'?'MÓNIKA':'ZSOLT')+
-  '<button type="button" class="a191SourceButton" onclick="hh191SourceDetails()">ⓘ Adatforrások</button></div>'+ 
-
- page.innerHTML=hero(requestedProfile)+'<div class="a191Body"><div class="a191ProfileDiag '+(requestedProfile==='monika'?'monika':'zsolt')+'">HEALTH CONNECT · '+(requestedProfile==='monika'?'MÓNIKA':'ZSOLT')+
   '<button type="button" class="a191SourceButton" onclick="hh191SourceDetails()">ⓘ Adatforrások</button></div>'+ 
   '<div class="a191CalendarBar"><button type="button" class="a191CalendarOpen" onclick="hh191Calendar()" aria-label="Korábbi nap aktivitásának megtekintése">📅 Nap kiválasztása <span aria-hidden="true">›</span></button></div>'+
  (state.period==='1d'&&state.selectedDay?'<div class="a191CalendarBar"><div class="a191CalendarOpen" style="background:var(--soft)"><span>📅 '+esc(state.selectedDay)+' · kiválasztott nap</span><button type="button" onclick="hh191Today()" style="border:0;border-radius:9px;padding:6px 9px;background:var(--a);color:#fff;font-weight:800">Ma ↩</button></div></div>':'')+
