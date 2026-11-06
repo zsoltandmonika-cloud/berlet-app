@@ -11,7 +11,7 @@ const css=read('sh9/wallet/smart-valet-optical-v16.css');
 const extraCss=read('sh9/wallet/smart-valet-extra-v15.css');
 const migration=read('supabase/migrations/20261106024500_sho_valet_bank_masked_photos_v16.sql');
 test('one optical frame is used by all three card categories',()=>{
- assert.match(html,/smart-valet-optical-v16\.js\?v=16-one-frame/);
+ assert.match(html,/smart-valet-optical-v16\.js\?v=17-pass-no-crop/);
  assert.match(html,/svExtraUnifiedTemplateV16/);
  assert.match(identity,/w\.SHO_VALET_OPTICAL_V16/);
  assert.match(extra,/w\.SHO_VALET_OPTICAL_V16/);
