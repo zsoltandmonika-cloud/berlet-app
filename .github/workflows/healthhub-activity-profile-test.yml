@@ -5,11 +5,13 @@ on:
     branches: [main]
     paths:
       - "healthhub/activity-profile-test/**"
+      - "healthhub/activity-one/**"
       - "healthhub/live-v191.js"
       - ".github/workflows/healthhub-activity-profile-test.yml"
   pull_request:
     paths:
       - "healthhub/activity-profile-test/**"
+      - "healthhub/activity-one/**"
       - "healthhub/live-v191.js"
       - ".github/workflows/healthhub-activity-profile-test.yml"
   workflow_dispatch:
@@ -29,4 +31,5 @@ jobs:
           node --check healthhub/activity-profile-test/activity-engine-v2.js
           node --check healthhub/activity-profile-test/profile-isolation.test.cjs
           node --check healthhub/activity-profile-test/profile-memo-v2.test.cjs
-          node --test healthhub/activity-profile-test/profile-isolation.test.cjs healthhub/activity-profile-test/profile-memo-v2.test.cjs
+          node --check healthhub/activity-profile-test/activity-one-release.test.cjs
+          node --test healthhub/activity-profile-test/profile-isolation.test.cjs healthhub/activity-profile-test/profile-memo-v2.test.cjs healthhub/activity-profile-test/activity-one-release.test.cjs
