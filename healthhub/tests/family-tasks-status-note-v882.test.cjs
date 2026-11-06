@@ -16,8 +16,8 @@ test('optional free text entry is bounded and accessible, failed status asks why
  assert.match(html,/id="fhStatusNoteText"[^>]*maxlength="500"/);
  assert.match(html,/id="fhStatusNoteCancel"/);
  assert.match(html,/id="fhStatusNoteSave"/);
- assert.match(html,/family-tasks-v880\.js\?v=1065-status-note/);
- assert.match(html,/family-status-note-v882\.css\?v=882/);
+ assert.match(html,/family-tasks-v880\.js\?v=1066-status-note-voice/);
+ assert.match(html,/family-status-note-v882\.css\?v=883-dictation/);
  assert.match(js,/Miért nem teljesült\?/);
  assert.match(js,/Az indoklás nem kötelező/);
  assert.match(js,/if\(k==='failed'\)openStatusNote\(t,'failed'\)/);
