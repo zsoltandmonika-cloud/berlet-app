@@ -31,6 +31,6 @@ jobs:
           node --check sh9/super-search/travel-local-gtfs-shadow-v2.mjs
           node --check sh9/super-search/local-shadow-preview-v2.mjs
       - name: Super Search privacy, scopes, fallback and concurrency
-        run: node --test healthhub/tests/sho-super-search-v1.test.mjs healthhub/tests/sho-super-search-trip-review-v1.test.mjs
+        run: node --test healthhub/tests/sho-super-search-v1.test.mjs healthhub/tests/sho-super-search-trip-review-v1.test.mjs healthhub/tests/sho-super-search-local-shadow-v2.test.mjs healthhub/tests/sho-super-search-shadow-preview-v2.test.mjs
       - name: Existing Smart Trip adapters regression (no product changes)
         run: node --test healthhub/tests/sh9-hybrid-fast-core-v1117.test.mjs healthhub/tests/sh9-mav-fast-core-v1120.test.cjs healthhub/tests/sh9-provider-result-merge-v1110.test.mjs
