@@ -24,7 +24,7 @@
 <script defer src="./live-v369-distance.js?v=369"></script>
 <script defer src="./live-v371-samsung.js?v=387"></script>
 <script defer src="./live-v375-activity-timeline.js?v=376"></script>
-<script defer src="./live-v191.js?v=1015-stable-activity-refresh"></script>
+<script defer src="./activity-fast/activity-engine-v2.js?v=2-local-verified-snapshot"></script>
 <script defer src="./live-v373-samsung-import.js?v=373"></script>
 <script defer src="./live-v363.js?v=624"></script>
 <script defer src="./activity-premium-glass-v533.js?v=5335"></script>
@@ -70,9 +70,17 @@
    console.info('SHO Activity fast preview first data paint:',ms,'ms');
    if(new URLSearchParams(location.search).get('diag')==='1'){
     var indicator=document.createElement('aside');
-    indicator.style.cssText='position:fixed;top:5px;right:6px;z-index:9800;background:#0b2d50;color:#dff7ff;border:1px solid #83cefc;border-radius:16px;padding:5px 9px;font:700 10px system-ui;pointer-events:none';
-    indicator.textContent='Aktivitás indítás: '+(ms/1000).toFixed(1)+' mp';
+    indicator.style.cssText='position:fixed;top:5px;right:6px;z-index:9800;background:#0b2d50;color:#dff7ff;border:1px solid #83cefc;border-radius:16px;padding:5px 9px;font:700 9px system-ui;pointer-events:none;max-width:90vw';
     document.body.appendChild(indicator);
+    var startedAt=performance.now();
+    function updateDiagnostics(){
+     var diag=window.hhActivityFastDiag||{};
+     var fmt=function(n){return Number.isFinite(n)?(n/1000).toFixed(1)+'s':'…'};
+     indicator.textContent='Adatok: '+(ms/1000).toFixed(1)+'s | helyi: '+fmt(diag.localMs)+' | Dropbox: '+fmt(diag.cloudMs)+' | '+(diag.firstSource==='local-snapshot'?'cache':diag.firstSource==='existing-local'?'helyi':diag.firstSource==='cloud'?'felhő':diag.firstSource==='no-cloud'?'offline':'—');
+     indicator.title='Csak betöltési idők, személyes aktivitásadatokat nem naplózunk.';
+     if(diag.cloudMs!=null||performance.now()-startedAt>45000)clearInterval(updater);
+    }
+    var updater=setInterval(updateDiagnostics,800);updateDiagnostics();
    }
   });
   observer.observe(document.getElementById('hhActivityPage191')||document.body,{childList:true,subtree:true});
