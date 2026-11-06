@@ -42,7 +42,7 @@ test('Golden Standard Activity One bars are responsive native routes without new
  assert.match(app,/id="activityGoldenTop".*data-sh9-golden-top="on"/);
  assert.match(app,/id="activityGoldenBottom".*data-sh9-golden-bottom-nav="on"/);
  assert.match(app,/a191Nav\{display:none!important\}/);
- assert.match(app,/window\.hh191Profile\(next\);paintButtons\(\)/);
+ assert.match(app,/window\.hh191Profile\(next\);mountHeroDock\(\);paintButtons\(\)/);
  assert.match(app,/window\.hh191CloseModal\(\)/);
  assert.match(app,/function home\(\)\{location\.assign\('\/berlet-app\/sh9\/'\)\}/);
  assert.ok(!app.includes("window.hh191Go=home;"),'HealthRadar must not silently redirect to heavy HealthHub home');
