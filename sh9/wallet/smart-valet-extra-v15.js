@@ -417,13 +417,25 @@ async function remove(){
 async function resolvePinned(id,p){
  if(!validId(id)||p!==profile())throw Error('NO_ACCESS');
  const c=await authorized(p);
- const {data,error}=await c.from(TABLE).select('id,profile_key,category,title,issuer,last_four,protection_mode,front_cipher')
+ const {data,error}=await c.from(TABLE).select('id,profile_key,category,title,issuer,last_four,protection_mode')
   .eq('id',id).eq('profile_key',p).maybeSingle();
  if(error)throw error;
  if(p!==profile())throw Error('NO_ACCESS');
- return data?{...data,protection_mode:data.front_cipher?modeOf(data):'masked',
+ return data?{...data,protection_mode:modeOf(data),
   subtitle:data.category==='health'?t('🔒 Titkosított egészségkártya','🔒 Encrypted health card'):
    t('💳 '+(data.issuer||'')+(data.last_four?' · •••• '+data.last_four:''),'💳 '+(data.issuer||'')+(data.last_four?' · •••• '+data.last_four:''))}:null;
+}
+async function previewPinned(id,p){
+ if(!validId(id)||p!==profile())throw Error('NO_ACCESS');
+ const rec=await loadRecord(id);
+ if(!rec||modeOf(rec)!=='device'||!rec.front_cipher)return null;
+ const c=await authorized(p),auth=await c.auth.getUser();
+ if(auth.error||!auth.data?.user?.id)throw Error('NO_LOGIN');
+ const key=await deviceKey('get',auth.data.user.id,id);
+ if(!key||key.extractable||key.algorithm?.name!=='AES-GCM')return null;
+ const image=await decrypt(rec.front_cipher,key,rec,'front');
+ if(p!==profile())throw Error('NO_ACCESS');
+ return image;
 }
 async function openPinned(id,p){
  if(!await resolvePinned(id,p))return;
@@ -483,5 +495,5 @@ function init(){
  renderCategory();
 }
 if(d.readyState==='loading')d.addEventListener('DOMContentLoaded',init,{once:true});else init();
-w.SHO_VALET_EXTRA_V15=Object.freeze({resolvePinned,openPinned,previewPinned:async()=>null});
+w.SHO_VALET_EXTRA_V15=Object.freeze({resolvePinned,openPinned,previewPinned});
 })(window,document);
