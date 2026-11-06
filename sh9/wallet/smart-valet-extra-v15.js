@@ -591,6 +591,11 @@ async function openBudapest(){
  const button=d.querySelector('[data-kind="pass"]');
  if(button&&!button.classList.contains('active'))button.click();
  category='pass';renderCategory();
+ const local=await passCache('list',profile(),'').catch(()=>[]);
+ if(local.length){
+  rows=local.sort((a,b)=>String(b.created_at||'').localeCompare(String(a.created_at||'')));
+  renderGallery();await openSaved(rows[0].id);return;
+ }
  await refresh();
  if(rows.length)await openSaved(rows[0].id);
  else openAdd();
