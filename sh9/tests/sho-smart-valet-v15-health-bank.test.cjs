@@ -27,7 +27,7 @@ test('Health photos and privacy-masked bank scans encrypt before storage; no PAN
  assert.match(controller,/name:'AES-GCM'/);
  assert.match(controller,/iterations:ITER/);
  assert.match(controller,/ITER=310000/);
- assert.match(controller,/const front=await imageBlob\(files\.front\)/);
+ assert.match(controller,/const front=await imageBlob\(files\.front,cat==='pass'\)/);
  assert.match(controller,/rec\.front_cipher=await encrypt\(front,key,rec,'front'\)/);
  assert.match(controller,/rec\.last_four=last\|\|null/);
  assert.match(controller,/const rec=\{id:w\.crypto\.randomUUID\(\),profile_key:p,category:cat,title,issuer:null,last_four:null/);
