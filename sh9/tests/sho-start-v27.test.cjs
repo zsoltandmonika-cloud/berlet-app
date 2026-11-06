@@ -30,7 +30,7 @@ test('SHO keeps shared taskbar, native OTA and Outlook bindings',()=>{
 
 test('three new tiles route to actual HealthHub destinations and remain bilingual',()=>{
  const js=src('sh9/sho-preview/sho-wiring-v2.js');
- for(const marker of ["'Táplálkozás':HH+'nutrition/'","'Aktivitás':HH+'?sho=activity'","'Alvás':HH+'?sho=sleep'"]){
+ for(const marker of ["'Táplálkozás':HH+'nutrition/'","'Aktivitás':HH+'activity-one/?source=sho'","'Alvás':HH+'?sho=sleep'"]){
   assert.ok(js.includes(marker),marker);
  }
  assert.match(js,/\[data-module\]/);
@@ -39,6 +39,20 @@ test('three new tiles route to actual HealthHub destinations and remain bilingua
  assert.match(js,/Alvás:'Sleep'/);
 });
 
+test('SHO Activity launches standalone verified profile reader, preserving other module routes',()=>{
+ const routing=src('sh9/sho-preview/sho-wiring-v2.js');
+ const entry=src('healthhub/activity-one/index.html');
+ const engine=src('healthhub/activity-profile-test/activity-engine-v2.js');
+ assert.match(routing,/'Aktivitás':HH\+'activity-one\/\?source=sho'/);
+ assert.doesNotMatch(routing,/'Aktivitás':HH\+'\?sho=activity'/);
+ assert.match(routing,/'Alvás':HH\+'\?sho=sleep'/);
+ assert.match(routing,/'Egészség':HH,/);
+ assert.match(entry,/activity-profile-test\/activity-engine-v2\.js/);
+ assert.doesNotMatch(entry,/window\.hh191ManualSave=function/);
+ assert.match(engine,/window\.hh191ManualSave=function/);
+ assert.match(engine,/LOCAL_MEMO_TTL_MS=45000/);
+ assert.match(engine,/source\.read\(p,false\)/);
+});
 test('Sleep and Activity bridge opens only canonical HealthHub modules, on explicit opt-in route',()=>{
  const html=src('healthhub/index.html');
  const js=src('healthhub/sho-entry-v1.js');
