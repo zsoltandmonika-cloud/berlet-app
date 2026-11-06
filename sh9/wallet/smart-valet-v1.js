@@ -68,6 +68,7 @@
   })
  });
  let kind='all',selected=null,lastFocus=null,toastTimer=null,selectedIdType='';
+ if(/[?&]category=pass(?:&|$)/.test(w.location?.search||''))kind='pass';
  const profile=()=>{try{return w.localStorage.getItem('hh-profile')==='m'?'m':'z'}catch(_){return 'z'}};
  const lang=()=>{try{return w.localStorage.getItem('sh9-language-v1')==='en'?'en':'hu'}catch(_){return 'hu'}};
  const t=key=>I[lang()][key]||I.hu[key]||key;
