@@ -10,11 +10,11 @@ const quick=read('sh9/wallet/smart-valet-smart-access-v13.js');
 const css=read('sh9/wallet/smart-valet-extra-v15.css');
 test('Health and bank categories load genuine secure-card controller, not generic upload',()=>{
  assert.match(page,/smart-valet-extra-v15\.css\?v=16-unified-optical/);
- assert.match(page,/load\('\.\/smart-valet-extra-v15\.js\?v=16-unified-optical'/);
+ assert.match(page,/load\('\.\/smart-valet-extra-v15\.js\?v=17-budapest-pass'/);
  assert.ok(page.indexOf('smart-valet-extra-v15.js')>page.indexOf('smart-valet-identity-v11.js'));
  assert.match(demo,/addPanel\.hidden=\['identity','health','card'\]\.includes\(kind\)/);
  assert.match(controller,/sho-valet-filter-change/);
- assert.match(controller,/category==='health'\|\|category==='card'/);
+ assert.match(controller,/\['health','card','pass'\]\.includes\(category\)/);
  assert.match(controller,/id="svExtraAddV15"/);
  assert.match(page,/id="svExtraFrontV15"/);
  assert.match(page,/id="svExtraBackV15"/);
@@ -27,7 +27,7 @@ test('Health photos and privacy-masked bank scans encrypt before storage; no PAN
  assert.match(controller,/name:'AES-GCM'/);
  assert.match(controller,/iterations:ITER/);
  assert.match(controller,/ITER=310000/);
- assert.match(controller,/const front=await imageBlob\(files\.front\)/);
+ assert.match(controller,/const front=await imageBlob\(files\.front,cat==='pass'\)/);
  assert.match(controller,/rec\.front_cipher=await encrypt\(front,key,rec,'front'\)/);
  assert.match(controller,/rec\.last_four=last\|\|null/);
  assert.match(controller,/const rec=\{id:w\.crypto\.randomUUID\(\),profile_key:p,category:cat,title,issuer:null,last_four:null/);

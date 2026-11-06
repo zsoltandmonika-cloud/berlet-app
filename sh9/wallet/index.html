@@ -15,7 +15,8 @@
 <link rel="stylesheet" href="./smart-valet-identity-v11.css?v=12-password-switch">
 <link rel="stylesheet" href="./smart-valet-smart-access-v13.css?v=13-universal-pin-v14-visible">
 <link rel="stylesheet" href="./smart-valet-extra-v15.css?v=16-unified-optical">
-<link rel="stylesheet" href="./smart-valet-optical-v16.css?v=16-same-id-frame">
+<link rel="stylesheet" href="./smart-valet-optical-v16.css?v=17-pass-no-crop">
+<link rel="stylesheet" href="./smart-valet-bkk-fullscreen-v17.css?v=17-pass-photo-zoom">
 <link rel="stylesheet" href="../shared/sho-private-document-reader-v1.css?v=1-sho-internal-reader">
 </head>
 <body>
@@ -138,7 +139,7 @@
   </section>
 
   <div class="sv-links">
-   <a class="sv-link" href="/berlet-app/" rel="noopener"><span>▣</span><span data-i18n="realPass">Meglévő Bérlet app megnyitása</span><span aria-hidden="true">↗</span></a>
+   <a class="sv-link" href="/berlet-app/" id="svLegacyPassLinkV17" rel="noopener"><span>▣</span><span data-i18n="realPass">Meglévő Bérlet app megnyitása</span><span aria-hidden="true">↗</span></a>
    <a class="sv-link" href="../sport/"><span>⚽</span><span data-i18n="sportLink">Sport Central · jegyek keresése</span><span aria-hidden="true">↗</span></a>
   </div>
 
@@ -289,7 +290,28 @@
 <div class="sv-id-view-actions-v11"><button type="button" id="svExtraPinDialogV15">☆ Kitűzés</button><button type="button" id="svExtraDeleteV15" class="sv-extra-delete-v15">🗑 Törlés</button></div>
 </section>
 </template>
-<script defer src="./smart-valet-optical-v16.js?v=16-one-frame"></script>
+<template id="svBkkFullTemplateV17">
+<dialog id="svBkkFullDialogV17" class="sv-bkk-full-v17">
+ <header class="sv-bkk-header-v17">
+  <div><small>SHO · SMART VALET</small><h2 id="svBkkFullTitleV17">Budapest-bérlet</h2></div>
+  <button type="button" id="svBkkCloseV17" aria-label="Bezárás">✕</button>
+ </header>
+ <p class="sv-bkk-legal-v17">ℹ️ Bérletfotó, nem hivatalos digitális bérlet. Ellenőrzéskor az eredeti bérlet vagy a hivatalos alkalmazás szükséges.</p>
+ <div class="sv-bkk-display-v17" id="svBkkImageStageV17"><img id="svBkkFullImageV17" alt="Saját Budapest-bérlet fotója" draggable="false"></div>
+ <footer class="sv-bkk-controls-v17">
+  <div class="sv-bkk-sides-v17"><button type="button" data-bkk-side="front" class="active" aria-pressed="true">ELŐLAP</button>
+   <button type="button" data-bkk-side="back" aria-pressed="false">HÁTLAP</button></div>
+  <div class="sv-bkk-zoom-v17">
+   <button type="button" id="svBkkZoomOutV17" aria-label="Kicsinyítés">−</button>
+   <span id="svBkkZoomV17">100%</span><button type="button" id="svBkkZoomInV17" aria-label="Nagyítás">＋</button>
+   <button type="button" id="svBkkFitV17">Igazítás</button>
+  </div>
+ </footer>
+</dialog>
+</template>
+<script defer src="./smart-valet-bkk-legacy-v17.js?v=17-read-only-import"></script>
+<script defer src="./smart-valet-bkk-fullscreen-v17.js?v=17-fullscreen"></script>
+<script defer src="./smart-valet-optical-v16.js?v=17-pass-no-crop"></script>
 <script defer src="./smart-valet-v1.js?v=10-coupons-id-subgroups-lakcim-v13-pin"></script>
 <script defer src="./smart-valet-smart-access-v13.js?v=13-pin-visibility"></script>
 <script>
@@ -311,7 +333,7 @@
         // external CDN chain. Authenticated originals still require Supabase.
         load('./smart-valet-private-v7.js?v=10-coupon-gallery-v13-visibility',function(){
           load('./smart-valet-identity-v11.js?v=12-optional-password-lakcim-v14-visible',function(){
-            load('./smart-valet-extra-v15.js?v=16-unified-optical',function(){});
+            load('./smart-valet-extra-v15.js?v=17-budapest-pass',function(){});
           });
         });
       });

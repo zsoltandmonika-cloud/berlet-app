@@ -68,6 +68,7 @@
   })
  });
  let kind='all',selected=null,lastFocus=null,toastTimer=null,selectedIdType='';
+ if(/[?&]category=pass(?:&|$)/.test(w.location?.search||''))kind='pass';
  const profile=()=>{try{return w.localStorage.getItem('hh-profile')==='m'?'m':'z'}catch(_){return 'z'}};
  const lang=()=>{try{return w.localStorage.getItem('sh9-language-v1')==='en'?'en':'hu'}catch(_){return 'hu'}};
  const t=key=>I[lang()][key]||I.hu[key]||key;
@@ -103,6 +104,13 @@
  function pinned(id){return !!id&&pinId()===id}
  function setPin(id){
   if(!list().some(x=>x.id===id))return;
+  const original=sample(id);
+  if(original?.provider==='BKK'&&original.kind==='pass'){
+   const saved=w.SHO_VALET_EXTRA_V15?.getBudapestId?.();
+   if(saved){w.SHO_VALET_SMART_ACCESS_V13?.toggle({source:'extra',id:saved});render()}
+   else void w.SHO_VALET_EXTRA_V15?.openBudapest?.();
+   return;
+  }
   const quick=w.SHO_VALET_SMART_ACCESS_V13;
   if(quick){
    const wasPinned=quick.isPinned('demo',id);
@@ -137,6 +145,9 @@
  }
  function modal(id){
   const item=sample(id);if(!item)return;
+  if(item.provider==='BKK'&&item.kind==='pass'&&w.SHO_VALET_EXTRA_V15?.openBudapest){
+   void w.SHO_VALET_EXTRA_V15.openBudapest();return;
+  }
   selected=id;lastFocus=d.activeElement;
   $('svDialogTitle').textContent=label(item);
   $('svDialogIcon').replaceChildren(symbol(iconType(item)));
@@ -246,8 +257,11 @@
    const opener=btn('','sv-item-main',()=>modal(item.id),t('open')+': '+label(item));
    const icon=elt('span','sv-item-glyph');icon.append(symbol(iconType(item)));icon.setAttribute('aria-hidden','true');
    const info=elt('span','sv-item-info');
+   const isBkk=item.provider==='BKK'&&item.kind==='pass';
+   const bkkId=isBkk?w.SHO_VALET_EXTRA_V15?.getBudapestId?.():null;
    info.append(elt('span','sv-type',t(item.kind==='pass'?'categoryPass':'categoryTicket')),
-     elt('strong','',label(item)),elt('small','',item.provider+' · '+t('sample')));
+     elt('strong','',label(item)),elt('small','',isBkk?
+      (bkkId?t('pinned'):t('newItem')):item.provider+' · '+t('sample')));
    opener.append(icon,info);
    const pin=btn(pinned(item.id)?'★':'☆','sv-icon-button'+(pinned(item.id)?' is-pinned':''),
       ()=>setPin(item.id),t(pinned(item.id)?'unpin':'pin')+': '+label(item));

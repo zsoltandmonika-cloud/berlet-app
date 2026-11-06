@@ -101,3 +101,18 @@
  .sv-extra-panel-v15 .sv-extra-card-v15.sv-id-type-v10{padding:7px;min-height:100px}
  .sv-extra-dialog-v15 .sv-id-two-sides-v11{gap:6px}
 }
+
+/* v17 · BKK pass import, portrait preview and safe full-screen action. */
+.sv-extra-legacy-v17{display:block;width:100%;margin:10px 0 15px;padding:12px;border-radius:15px;
+ border:1px solid rgba(194,218,255,.67);background:linear-gradient(115deg,rgba(52,103,164,.67),rgba(94,71,153,.73));
+ color:#fff;min-height:46px;font-size:14px;font-weight:750;cursor:pointer;box-shadow:0 7px 22px rgba(5,9,28,.23)}
+.sv-extra-legacy-v17[hidden],.sv-extra-inspect-v17[hidden],#svLegacyPassLinkV17[hidden]{display:none!important}
+.sv-extra-dialog-v15.sv-extra-pass-v17 .sv-id-draft-side-v11 .sv-id-card-frame-v11{
+ aspect-ratio:.72/1;min-height:170px}
+.sv-extra-dialog-v15.sv-extra-pass-v17 .sv-id-draft-side-v11 .sv-id-card-frame-v11 img{object-fit:contain}
+.sv-extra-dialog-v15.sv-extra-pass-v17 #svExtraFlipV15{
+ aspect-ratio:.72/1;max-width:min(70vw,450px);margin:auto}
+.sv-extra-dialog-v15.sv-extra-pass-v17 .sv-id-view-actions-v11{flex-wrap:wrap}
+.sv-extra-dialog-v15.sv-extra-pass-v17 .sv-extra-inspect-v17{
+ flex:1 1 100%;width:100%;min-height:54px;margin:8px 0;padding:11px 15px;font-size:14px;
+ background:linear-gradient(110deg,#4389c8,#a66abb)}

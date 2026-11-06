@@ -7,7 +7,7 @@
 const RATIO=1.586, $=id=>d.getElementById(id);
 const t=(hu,en)=>w.localStorage.getItem('sh9-language-v1')==='en'?en:hu;
 let running=false,finish=null,source=null,sourceURL='',renderURL='',stream=null,purpose='health',side='front',title='';
-let imageBlob=null,rects=[],working=false,pointer=null;const URLs=new Set();
+let imageBlob=null,rects=[],working=false,pointer=null,preserveWhole=false,passRatio=.72;const URLs=new Set();
 const revoke=u=>{if(u){URL.revokeObjectURL(u);URLs.delete(u)}};
 const objectURL=blob=>{const u=URL.createObjectURL(blob);URLs.add(u);return u};
 function stop(){const vid=$('svOptVideoV16');if(vid){vid.pause();vid.srcObject=null}
@@ -50,6 +50,9 @@ async function showSource(f){
   $('svOptCropImageV16').src=sourceURL;
   ['svOptX','svOptY'].forEach(id=>$(id).value='50');$('svOptZoom').value='1';
   $('svOptCropV16').hidden=false;$('svOptMaskV16').hidden=true;
+  $('svOptCropImageV16').style.objectFit=preserveWhole?'contain':'cover';
+  for(const id of ['svOptX','svOptY','svOptZoom'])$(id).closest('label').hidden=preserveWhole;
+  $('svOptCropHintV17').textContent=preserveWhole?t('A teljes bérletkép megmarad, a QR/vonalkódot nem vágjuk le.','Full pass image is preserved, QR/barcodes will not be cropped.'):'1.586:1';
   cropStyle();stop();
   notice('Igazítsd a képet a kártyakerethez.','Fit the photo inside the card frame.');
  }catch(_){notice('Csak érvényes JPG, PNG vagy WebP, maximum 12 MB.','Valid JPG, PNG or WebP up to 12 MB required.',true)}
@@ -71,7 +74,7 @@ function snapshot(){
  const sx=Math.max(0,(fr.left-vr.left-ox)/scale),sy=Math.max(0,(fr.top-vr.top-oy)/scale);
  const sw=Math.min(v.videoWidth-sx,fr.width/scale),sh=Math.min(v.videoHeight-sy,fr.height/scale);
  if(sw<80||sh<55)return;
- const c=d.createElement('canvas');c.width=1500;c.height=Math.round(1500/RATIO);
+ const c=d.createElement('canvas');c.width=1500;c.height=Math.round(1500/(preserveWhole?passRatio:RATIO));
  const ctx=c.getContext('2d');ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';
  ctx.drawImage(v,sx,sy,sw,sh,0,0,c.width,c.height);
  c.toBlob(blob=>{stop();if(running&&blob)void showSource(blob)},'image/jpeg',.92);
@@ -87,11 +90,13 @@ async function cropped(){
   const src=await imageOf(source);
   try{
    const z=Number($('svOptZoom').value),x=Number($('svOptX').value)/100,y=Number($('svOptY').value)/100;
-   let cw=Math.min(src.width,src.height*RATIO),ch=cw/RATIO;cw/=z;ch/=z;
+   let cw=preserveWhole?src.width:Math.min(src.width,src.height*RATIO),ch=preserveWhole?src.height:cw/RATIO;
+   if(!preserveWhole){cw/=z;ch/=z}
    const c=d.createElement('canvas');
-   c.width=Math.min(1800,Math.max(900,Math.round(cw)));c.height=Math.round(c.width/RATIO);
+   const scale=Math.min(1,1800/Math.max(cw,ch));
+   c.width=Math.max(320,Math.round(cw*scale));c.height=Math.max(320,Math.round(ch*scale));
    const ctx=c.getContext('2d');ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';
-   ctx.drawImage(src.image,(src.width-cw)*x,(src.height-ch)*y,cw,ch,0,0,c.width,c.height);
+   ctx.drawImage(src.image,preserveWhole?0:(src.width-cw)*x,preserveWhole?0:(src.height-ch)*y,cw,ch,0,0,c.width,c.height);
    const blob=await new Promise(resolve=>c.toBlob(resolve,'image/jpeg',.92));
    if(!blob||blob.size>1800000)throw Error('IMAGE');
    if(!running)return;
@@ -168,7 +173,7 @@ function init(){
  dlg.innerHTML='<header class="sv-id-head-v11"><div><small>SHO · UNIFIED OPTICAL FRAME</small><h2 id="svOptTitleV16"></h2></div><button type="button" id="svOptCloseV16" aria-label="Bezárás">×</button></header>'+
  '<p id="svOptStatusV16" class="sv-id-status-v11" role="status" aria-live="polite"></p>'+
  '<section id="svOptCropV16" class="sv-id-crop-v11" hidden><h3>Kártya optikai igazítása · Optical card fit</h3>'+
- '<p>1.586:1 keret. Ellenőrizd a négy sarkot és az adatokat.</p>'+
+ '<p id="svOptCropHintV17">Ellenőrizd a négy sarkot és az adatokat.</p>'+
  '<div class="sv-id-crop-frame-v11"><img id="svOptCropImageV16" alt="Kártya keretbe igazítása"></div>'+
  '<label>Vízszintes igazítás<input type="range" id="svOptX" min="0" max="100" value="50"></label>'+
  '<label>Függőleges igazítás<input type="range" id="svOptY" min="0" max="100" value="50"></label>'+
@@ -180,7 +185,7 @@ function init(){
  '<span id="svOptMaskCountV16"></span><label class="sv-opt-confirm-v16"><input type="checkbox" id="svOptConfirmV16"> Minden kártyaszámot, lejáratot, CVV-t és egyéb érzékeny adatot kitakartam.</label><div><button type="button" id="svOptUndoV16">↶ Visszavonás</button><button type="button" id="svOptSaveMaskV16" class="sv-id-primary-v11">🔒 Kitakart kép elfogadása</button></div></section>'+
  '<div class="sv-id-camera-overlay-v11" id="svOptCameraV16" hidden>'+
  '<video id="svOptVideoV16" autoplay muted playsinline></video><div id="svOptGuideV16" class="sv-id-camera-guide-v11"><span id="svOptGuideTextV16"></span></div>'+
- '<div class="sv-id-camera-actions-v11"><button type="button" id="svOptCancelCameraV16">Mégse</button><button type="button" id="svOptSnapV16">◉ Fotó</button></div></div>'+
+ '<div class="sv-id-camera-actions-v11"><button type="button" id="svOptRotateV17" hidden>↻ Keret</button><button type="button" id="svOptCancelCameraV16">Mégse</button><button type="button" id="svOptSnapV16">◉ Fotó</button></div></div>'+
  '<input type="file" hidden accept="image/jpeg,image/png,image/webp" id="svOptFileV16">'+
  '<input type="file" hidden accept="image/*" capture="environment" id="svOptCameraInputV16">';
  d.body.append(dlg);
@@ -189,6 +194,10 @@ function init(){
  $('svOptCancelCropV16').addEventListener('click',()=>end(null));
  $('svOptCancelCameraV16').addEventListener('click',()=>end(null));
  $('svOptSnapV16').addEventListener('click',snapshot);
+ $('svOptRotateV17').addEventListener('click',()=>{
+  passRatio=passRatio===.72?RATIO:.72;
+  $('svOptGuideV16').style.aspectRatio=passRatio+' / 1';
+ });
  for(const id of ['svOptFileV16','svOptCameraInputV16'])
   $(id).addEventListener('change',e=>{const f=e.target.files?.[0];e.target.value='';if(f)void showSource(f);else end(null)});
  for(const id of ['svOptX','svOptY','svOptZoom'])$(id).addEventListener('input',cropStyle);
@@ -212,6 +221,10 @@ async function capture(options={}){
  title=String(options.title||t('Kártya','Card')).slice(0,90);
  side=options.side==='back'?'back':'front';
  purpose=options.bankRedact?'bank':'health';
+ preserveWhole=options.preserveWhole===true;passRatio=.72;
+ $('svOptRotateV17').hidden=!preserveWhole;
+ $('svOptGuideV16').style.aspectRatio=preserveWhole?passRatio+' / 1':'1.586 / 1';
+ $('svOptCropV16').querySelector('.sv-id-crop-frame-v11').style.aspectRatio=preserveWhole?'auto':'1.586 / 1';
  const label=title+' · '+(side==='front'?t('ELŐLAP','FRONT'):t('HÁTLAP','BACK'));
  $('svOptTitleV16').textContent=label;
  $('svOptGuideTextV16').textContent=label;
