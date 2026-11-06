@@ -31,8 +31,8 @@ test('Wallet launcher and old preview both route to the same new screen without 
  assert.match(routing,/\$\('heroWallet'\)\.onclick=wallet/);
  assert.match(routing,/params\.get\('sho'\)==='wallet'/);
  assert.match(routing,/params\.delete\('sho'\)/);
- assert.match(home,/sho-wiring-v2\.js\?v=935-smart-valet-fullscreen/);
- assert.match(preview,/sho-wiring-v2\.js\?v=935-smart-valet-fullscreen/);
+ assert.match(home,/sho-wiring-v2\.js\?v=936-activity-one-route/);
+ assert.match(preview,/sho-wiring-v2\.js\?v=936-activity-one-route/);
  assert.equal((home.match(/class="tile" data-module=/g)||[]).length,12);
 });
 test('five categories, search and demo pinning are interactive, but only a sample ID is persisted per profile',()=>{
