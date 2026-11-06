@@ -9,6 +9,8 @@ const read=p=>fs.readFileSync(path.join(root,p),'utf8');
 const js=read('sh9/family-hub/family-tasks-v880.js');
 const html=read('sh9/family-hub/index.html');
 const css=read('sh9/family-hub/family-status-note-v882.css');
+const notifier=read('sh9/family-hub/family-notifier-v880.js');
+const stickyCss=read('sh9/family-hub/family-notifier-v880.css');
 const sql=read('supabase/migrations/20261106122247_family_tasks_status_note_v882.sql');
 
 test('optional free text entry is bounded and accessible, failed status asks why',()=>{
@@ -56,4 +58,18 @@ test('database update is additive, existing RLS and audit are preserved',()=>{
  assert.match(sql,/revoke all on function hh_task_internal\.log_task_change/);
  assert.doesNotMatch(sql,/drop table|disable row level security|drop policy|truncate|delete from|alter table.*disable trigger/i);
  assert.doesNotMatch(js,/window\.hh191|hhOpenActivity|HealthHub Activity|activity-engine-v2/);
+});
+
+test('Buddy Sticky shows event-specific status note, independent of editable shared note',()=>{
+ assert.ok(notifier.includes("e.event_type==='status'||e.event_type==='edited'"));
+ assert.ok(notifier.includes("e.current_value?.note"));
+ assert.ok(notifier.includes("statusNote.textContent='📝 Státusz megjegyzés: '"));
+ assert.ok(notifier.includes('detail,statusNote,custom,editBox'));
+ assert.ok(notifier.includes("reportedStatus=e.event_type==='status'?e.current_value?.status:data.status"));
+ assert.ok(notifier.includes('statusNote.hidden=!eventStatusNote'));
+ assert.ok(stickyCss.includes('.fh-notice-status-note[hidden]'));
+ assert.ok(notifier.includes("custom.textContent=existing?'✎ '"));
+ assert.ok(notifier.includes("NOTES_TABLE='hh_family_task_sticky_notes'"));
+ assert.doesNotMatch(notifier,/setInterval\(/);
+ new vm.Script(notifier);
 });
