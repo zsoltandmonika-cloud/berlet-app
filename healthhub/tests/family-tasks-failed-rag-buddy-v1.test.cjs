@@ -66,7 +66,7 @@ test('syntax, cache versions and current successes still render normally',()=>{
  new vm.Script(ui);
  new vm.Script(notifier);
  assert.match(html,/family-tasks-v880\.js\?v=1066-status-note-voice/);
- assert.match(html,/family-notifier-v880\.js\?v=919-failed-buddy/);
+ assert.match(html,/family-notifier-v880\.js\?v=920-sticky-status-note/);
  assert.match(html,/family-failed-buddy-v1\.css\?v=1/);
  assert.match(ui,/function showSuccess\(message\)/);
  assert.match(ui,/overlay\.dataset\.result='created'/);

@@ -164,7 +164,7 @@ function openTask(taskId){
 }
 function style(){
  if(d.getElementById('fhNotifierCssV880'))return;
- const s=d.createElement('link');s.id='fhNotifierCssV880';s.rel='stylesheet';s.href='/berlet-app/sh9/family-hub/family-notifier-v880.css?v=908-cloud-notes';d.head.append(s);
+ const s=d.createElement('link');s.id='fhNotifierCssV880';s.rel='stylesheet';s.href='/berlet-app/sh9/family-hub/family-notifier-v880.css?v=909-status-note';d.head.append(s);
  const buddyCss=d.createElement('link');buddyCss.rel='stylesheet';buddyCss.href='/berlet-app/sh9/family-hub/family-failed-buddy-v1.css?v=1';d.head.append(buddyCss);
 }
 function makeUi(){
@@ -228,6 +228,12 @@ function drawPending(){
  const detail=d.createElement('p');detail.className='fh-notice-details';
  if(e.current_value?.due)detail.textContent='Határidő: '+new Date(e.current_value.due).toLocaleDateString('hu-HU');
  if(e.current_value?.status)detail.textContent+=(detail.textContent?' · ':'')+'Állapot: '+(e.current_value.status==='done'?'Kész':e.current_value.status==='progress'?'Folyamatban':e.current_value.status==='failed'?'Nem teljesült':'Teendő');
+ // The audited event contains the note for this transition. Keep it read-only and separate
+ // from the shared, editable Sticky Note text. No additional network request is needed.
+ const eventStatusNote=(e.event_type==='status'||e.event_type==='edited')?String(e.current_value?.note||'').trim():'';
+ const statusNote=d.createElement('p');statusNote.className='fh-notice-status-note';
+ statusNote.hidden=!eventStatusNote;
+ if(eventStatusNote)statusNote.textContent='📝 Státusz megjegyzés: '+eventStatusNote;
  const custom=d.createElement('div');custom.className='fh-notice-custom';
  const existing=stickyText(pkey,e.task_id);
  custom.textContent=existing?'✎ '+existing:'';
@@ -256,7 +262,7 @@ function drawPending(){
  editor.addEventListener('click',event=>{event.stopPropagation();editBox.hidden=!editBox.hidden;if(!editBox.hidden)textarea.focus()});
  const foot=d.createElement('button');foot.type='button';foot.className='fh-note-link';foot.textContent='Feladat megnyitása ›';
  foot.addEventListener('click',event=>{event.stopPropagation();openTask(e.task_id)});
- node.append(top,buddy,...(pose?[pose]:[]),h,info,meta,detail,custom,editBox,syncLabel,foot);
+ node.append(top,buddy,...(pose?[pose]:[]),h,info,meta,detail,statusNote,custom,editBox,syncLabel,foot);
  holder.replaceChildren(node);ping();
  void getSharedNote(e.task_id,pkey,node,custom,textarea,editBox,syncLabel);
  // The card survives until X, including navigation/reloads; acknowledging it is independent of opening the task.
@@ -264,11 +270,12 @@ function drawPending(){
   api.from('hh_family_tasks').select('category,details,due_at,status,creator_profile').eq('id',e.task_id).maybeSingle().then(({data,error})=>{
    if(error||!data||!node.isConnected)return;
    const parts=[];
-   if(data.creator_profile)actor.textContent='Feladó: '+(data.creator_profile==='monika'?'Mónika':data.creator_profile==='zsolt'?'Zsolt':'Család')+(e.event_type==='status'?' · Készre állította: '+actorName:'');
+   if(data.creator_profile)actor.textContent='Feladó: '+(data.creator_profile==='monika'?'Mónika':data.creator_profile==='zsolt'?'Zsolt':'Család')+(e.event_type==='status'?' · Állapotot módosította: '+actorName:'');
    if(data.category)parts.push(data.category);
    if(data.details)parts.push(data.details);
    if(data.due_at)parts.push('Határidő: '+new Date(data.due_at).toLocaleDateString('hu-HU'));
-   parts.push('Állapot: '+(data.status==='done'?'Kész':data.status==='progress'?'Folyamatban':data.status==='failed'?'Nem teljesült':'Teendő'));
+   const reportedStatus=e.event_type==='status'?e.current_value?.status:data.status;
+   parts.push('Állapot: '+(reportedStatus==='done'?'Kész':reportedStatus==='progress'?'Folyamatban':reportedStatus==='failed'?'Nem teljesült':'Teendő'));
    detail.textContent=parts.join(' · ');
   }).catch(()=>{});
  }
@@ -381,6 +388,6 @@ function initialize(){
  d.addEventListener('click',()=>{if(profile()!==currentProfile)w.setTimeout(join,0)});
  join();
 }
-w.HH_FAMILY_NOTIFIER_V880={openTask,markSeen,version:'908-cloud-sync'};
+w.HH_FAMILY_NOTIFIER_V880={openTask,markSeen,version:'909-status-note'};
 if(d.readyState==='loading')d.addEventListener('DOMContentLoaded',initialize,{once:true});else initialize();
 })(window,document);
