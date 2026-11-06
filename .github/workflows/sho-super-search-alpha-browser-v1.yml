@@ -6,6 +6,10 @@ on:
       - 'sh9/super-search/**'
       - 'healthhub/scripts/sho-super-search-alpha-browser-v1.cjs'
       - 'healthhub/scripts/sho-trip-stopwatch-alpha-browser-v1.cjs'
+      - 'healthhub/scripts/sho-alpha-smart-trip-ab-browser-v1.cjs'
+      - 'sh9/smart-travel/public-transport/smart-trip/alpha-stopwatch-v1.html'
+      - 'sh9/smart-travel/public-transport/smart-trip/smart-trip-ai-alpha-v1.js'
+      - 'sh9/smart-travel/public-transport/smart-trip/smart-trip-alpha-ab-v1.mjs'
       - '.github/workflows/sho-super-search-alpha-browser-v1.yml'
   workflow_dispatch:
 
@@ -33,3 +37,7 @@ jobs:
         env:
           NODE_PATH: /tmp/sho-alpha/node_modules
         run: node healthhub/scripts/sho-trip-stopwatch-alpha-browser-v1.cjs
+      - name: Original Smart Trip Golden UI · A/B timed search in real Chromium
+        env:
+          NODE_PATH: /tmp/sho-alpha/node_modules
+        run: node healthhub/scripts/sho-alpha-smart-trip-ab-browser-v1.cjs
