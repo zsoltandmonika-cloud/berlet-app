@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="hu">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#071a36">
+<meta name="robots" content="noindex,nofollow">
+<title>SHO · Aktivitás · profil szétválasztás teszt</title>
+<base href="/berlet-app/healthhub/">
+<link rel="icon" href="./assets/icons/favicon-v146.ico">
+<style>
+html,body{margin:0;min-height:100%;background:#08172d;color:#ecf7ff;font:15px/1.5 system-ui,-apple-system,Segoe UI,sans-serif}
+#splitBoot{box-sizing:border-box;min-height:100dvh;display:grid;place-items:center;padding:24px;text-align:center}
+#splitBoot>div{max-width:360px}
+#splitBoot b{display:block;font-size:21px;margin-bottom:9px}
+#splitBoot span{font-size:12px;opacity:.85}
+#splitBoot a{display:block;margin-top:16px;color:#a8ddff}
+#splitBoot[hidden],#splitTools[hidden]{display:none!important}
+#splitTools{position:fixed;top:max(5px,env(safe-area-inset-top));left:50%;transform:translateX(-50%);width:min(420px,calc(100% - 16px));display:flex;gap:6px;justify-content:center;align-items:center;padding:7px;z-index:10002;border:1px solid rgba(171,203,241,.42);border-radius:17px;background:rgba(9,25,54,.86);box-shadow:0 3px 19px rgba(0,0,0,.38);backdrop-filter:blur(15px);-webkit-backdrop-filter:blur(15px)}
+#splitTools button,#splitTools a{font:800 12px/1.2 system-ui;border:1px solid rgba(181,210,237,.35);border-radius:12px;min-height:37px;background:rgba(255,255,255,.08);color:white;text-decoration:none;display:grid;place-items:center;padding:0 10px;cursor:pointer}
+#splitTools button{flex:1}
+#splitTools button.selected-m{background:rgba(249,166,211,.31);border-color:#f9a6d3}
+#splitTools button.selected-z{background:rgba(121,191,255,.29);border-color:#79bfff}
+#splitTools a{flex:0 0 auto}
+body .a191Card.manual{display:none!important}
+body .a191Hero{padding-top:49px!important;box-sizing:content-box!important;background:#0b2246!important}
+body .a191Hero>img{height:calc(100% - 49px)!important}
+body .a191HeroHits{top:49px!important}
+</style>
+<script defer src="./activity-fast/vault-read-v3.js?v=3-read-only"></script>
+<script defer src="./live-v369-distance.js?v=369"></script>
+<script defer src="./live-v371-samsung.js?v=387"></script>
+<script defer src="./live-v375-activity-timeline.js?v=376"></script>
+<script defer src="./activity-profile-test/activity-engine-v1.js?v=1-current-canonical-source"></script>
+<script defer src="./live-v363.js?v=624"></script>
+<script defer src="./activity-premium-glass-v533.js?v=5335"></script>
+<script defer src="./hc-wear-history-v1150.js?v=1153"></script>
+</head>
+<body>
+<main id="splitBoot" role="status">
+ <div><b>🔎 SHO · Aktivitás profilonként</b>
+ <span>Ugyanaz a jelenlegi Health Connect/Dropbox adatszett, külön Mónika és Zsolt helyi olvasással. Nincs gyorsítótár és nincs adatírás.</span>
+ <a href="/berlet-app/healthhub/">Eredeti HealthHub megnyitása</a></div>
+</main>
+<nav id="splitTools" aria-label="Teszt · profilok" hidden>
+ <button type="button" id="splitMonika">🩷 Mónika</button>
+ <button type="button" id="splitZsolt">💙 Zsolt</button>
+ <a href="/berlet-app/healthhub/" title="Éles, működő HealthHub megnyitása">Éles ↗</a>
+</nav>
+<script>
+(function(){
+'use strict';
+var started=performance.now();
+function home(){location.assign('/berlet-app/healthhub/')}
+function paintButtons(){
+ var current=localStorage.getItem('hh-profile')==='m'?'m':'z';
+ var m=document.getElementById('splitMonika'),z=document.getElementById('splitZsolt');
+ m.className=current==='m'?'selected-m':'';
+ z.className=current==='z'?'selected-z':'';
+ m.setAttribute('aria-pressed',String(current==='m'));
+ z.setAttribute('aria-pressed',String(current==='z'));
+}
+function start(){
+ var boot=document.getElementById('splitBoot');
+ if(typeof window.hhOpenActivity!=='function'){
+  boot.innerHTML='<div><b>Hiba: az Aktivitás tesztmotor nem indult</b><a href="/berlet-app/healthhub/">Eredeti HealthHub</a></div>';
+  return;
+ }
+ // The dedicated preview never mutates Health Connect, Dropbox, or imports.
+ // Existing authenticated session and canonical browser-local data are read only.
+ window.show=home;
+ window.hh191Go=home;
+ window.hh191Quick=home;
+ window.hh191Settings=function(){alert('A tesztoldal csak olvasási ellenőrzésre szolgál.')};
+ window.hh191SamsungImport=function(){alert('Samsung-feltöltés itt ki van kapcsolva. Az éles HealthHub nem változott.')};
+ window.hh191ManualSave=function(){alert('Mentés a tesztoldalon letiltva. Az éles HealthHub változatlan.')};
+ document.getElementById('splitMonika').onclick=function(){window.hh191Profile('m');paintButtons()};
+ document.getElementById('splitZsolt').onclick=function(){window.hh191Profile('z');paintButtons()};
+ window.addEventListener('healthhub:profile-changed',paintButtons);
+ paintButtons();
+ try{
+  window.hhOpenActivity();
+  boot.hidden=true;
+  document.getElementById('splitTools').hidden=false;
+ }catch(err){
+  console.error('Activity profile-split preview',err);
+  boot.innerHTML='<div><b>Hiba a profilteszt indításakor</b><span>'+String(err&&err.message||err).replace(/[<>]/g,'')+'</span><a href="/berlet-app/healthhub/">Eredeti HealthHub</a></div>';
+ }
+ var once=false;
+ var obs=new MutationObserver(function(){
+  if(once)return;
+  var p=document.getElementById('hhActivityPage191');
+  if(!p||!p.querySelector('.a191Top'))return;
+  once=true;obs.disconnect();
+  var ms=Math.round(performance.now()-started);
+  window.hhActivitySplitFirstPaintMs=ms;
+  console.info('SHO Activity Split preview: validated-source first paint',ms,'ms',
+   window.hhActivitySplitDiag||{});
+ });
+ obs.observe(document.getElementById('hhActivityPage191')||document.body,{childList:true,subtree:true});
+ setTimeout(function(){obs.disconnect()},90000);
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});
+else start();
+})();
+</script>
+</body>
+</html>
