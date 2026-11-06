@@ -427,12 +427,18 @@ async function unlock(){
  }
  busy=true;$('svExtraUnlockV15').disabled=true;
  try{
-  const c=await authorized(p);
+  let owner=rec.owner_id||'';
+  try{
+   const c=await authorized(p),auth=await c.auth.getUser();
+   if(auth.error||!auth.data?.user?.id)throw Error('NO_LOGIN');
+   owner=auth.data.user.id;
+  }catch(e){
+   // Existing encrypted pass cache can be unlocked offline; other cards require live auth.
+   if(rec.category!=='pass'||!rec.owner_id)throw e;
+  }
   let key;
   if(mode==='device'){
-   const auth=await c.auth.getUser();
-   if(auth.error||!auth.data?.user?.id)throw Error('NO_LOGIN');
-   key=await deviceKey('get',auth.data.user.id,rec.id);
+   key=await deviceKey('get',owner,rec.id);
    if(!key||key.extractable||key.algorithm?.name!=='AES-GCM')throw Error('NO_DEVICE_KEY');
   }else key=await keyFor(pass,decode(rec.kdf_salt));
   const first=await decrypt(rec.front_cipher,key,rec,'front');
