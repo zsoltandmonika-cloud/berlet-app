@@ -2,7 +2,7 @@
 <html lang="hu"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#091628"><title>Family Hub · Family Tasks</title>
-<link rel="stylesheet" href="./family-tasks-v880.css?v=880"><link rel="stylesheet" href="./family-tasks-v881.css?v=909-profile-quick"><link rel="stylesheet" href="./family-failed-buddy-v1.css?v=1"><link rel="stylesheet" href="./family-status-note-v882.css?v=882">
+<link rel="stylesheet" href="./family-tasks-v880.css?v=880"><link rel="stylesheet" href="./family-tasks-v881.css?v=909-profile-quick"><link rel="stylesheet" href="./family-failed-buddy-v1.css?v=1"><link rel="stylesheet" href="./family-status-note-v882.css?v=883-dictation">
 <link rel="stylesheet" href="/berlet-app/sh9/shared/sh9-golden-controls-v1.css?v=934-unified-glass-dock">
 <link rel="stylesheet" href="/berlet-app/sh9/shared/sh9-golden-bottom-nav-v924.css?v=924-unified">
 </head><body>
@@ -94,8 +94,14 @@
   <h2 id="fhStatusNoteTitle">Státusz megjegyzés</h2>
   <p id="fhStatusNoteHint">A megjegyzés opcionális.</p>
   <label for="fhStatusNoteText">Megjegyzés · nem kötelező</label>
-  <textarea id="fhStatusNoteText" rows="4" maxlength="500" placeholder="Pl. A szolgáltató lemondta az időpontot."></textarea>
-  <small class="fh-status-note-count" id="fhStatusNoteCount">0/500</small>
+  <div class="fh-status-note-input-wrap">
+   <textarea id="fhStatusNoteText" rows="4" maxlength="500" placeholder="Pl. A szolgáltató lemondta az időpontot."></textarea>
+   <button type="button" id="fhStatusNoteVoice" class="fh-status-note-microphone" aria-label="Magyar hangdiktálás a státusz megjegyzéshez" aria-pressed="false" title="Magyar hangdiktálás">🎙️</button>
+  </div>
+  <div class="fh-status-note-caption">
+   <small id="fhStatusNoteVoiceStatus" class="fh-status-note-voice-status" aria-live="polite"></small>
+   <small class="fh-status-note-count" id="fhStatusNoteCount">0/500</small>
+  </div>
   <div class="fh-status-note-actions">
    <button type="button" id="fhStatusNoteCancel" class="fh-status-note-cancel">Mégse</button>
    <button type="submit" id="fhStatusNoteSave" class="fh-status-note-save">✓ Mentés</button>
@@ -116,7 +122,7 @@
 <script src="../../healthhub/central-vault/config.js?v=785-family-live-publishable"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.2/dist/umd/supabase.min.js"></script>
 <script defer src="../../healthhub/guardian/guardian-native-auth-v1063.js?v=1063-pkce-external-browser"></script>
-<script defer src="./family-tasks-v880.js?v=1065-status-note"></script>
+<script defer src="./family-tasks-v880.js?v=1066-status-note-voice"></script>
 
 <script defer src="./family-notifier-v880.js?v=919-failed-buddy"></script>
 <script defer src="/berlet-app/sh9/shared/sh9-golden-controls-v1.js?v=934-unified-glass-dock"></script>

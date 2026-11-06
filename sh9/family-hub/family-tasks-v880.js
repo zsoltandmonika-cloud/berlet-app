@@ -16,7 +16,7 @@ let categoryRows=[],presetRows=[],cat=catDefault.slice();
 const names={monika:'Mónika',zsolt:'Zsolt',lena:'Léna'};
 const statuses={todo:'🔴 Még nem kezdte',progress:'🟠 Folyamatban',done:'🟢 Kész',failed:'⚫ Nem teljesült'};
 let user=null,authorized=[],tasks=[],logs=[],hiddenLogs=new Set(),hiddenTasks=new Set(),showHidden=false,tab='mine',selected='zsolt',category='🏠 Otthon',due='none',loading=false,refreshId=null,liveChannel=null;
-let statusNoteContext=null,statusNoteSaving=false;
+let statusNoteContext=null,statusNoteSaving=false,statusNoteRecognition=null;
 function self(){try{return w.localStorage.getItem('hh-profile')==='m'?'monika':'zsolt'}catch(_){return 'zsolt'}}
 function imgFor(p){
  const avatar=w.HH_GOLDEN_AVATARS_V529||{};
@@ -448,13 +448,74 @@ async function changeTask(task,patch){
   await fetchData();return true;
  }catch(e){announce('Nem sikerült menteni: '+e.message);return false}
 }
+function stopStatusNoteDictation(){
+ const rec=statusNoteRecognition;
+ statusNoteRecognition=null;
+ if(rec){try{rec.abort()}catch(_){}}
+ const b=$('fhStatusNoteVoice');
+ if(b){b.classList.remove('listening');b.setAttribute('aria-pressed','false')}
+}
+function startStatusNoteDictation(){
+ if(!statusNoteContext||statusNoteSaving||$('fhStatusNoteDialog').hidden)return;
+ const status=$('fhStatusNoteVoiceStatus'),b=$('fhStatusNoteVoice');
+ if(statusNoteRecognition){
+  stopStatusNoteDictation();
+  status.textContent='A diktálás leállítva.';
+  return;
+ }
+ const Speech=w.SpeechRecognition||w.webkitSpeechRecognition;
+ if(!Speech){
+  status.textContent='Ezen a böngészőn nincs natív hangfelismerés. Használd a Samsung billentyűzet 🎙️ mikrofonját.';
+  return;
+ }
+ const rec=new Speech();
+ rec.lang='hu-HU';rec.continuous=false;rec.interimResults=false;rec.maxAlternatives=1;
+ statusNoteRecognition=rec;
+ b.classList.add('listening');b.setAttribute('aria-pressed','true');
+ status.textContent='🎙️ Figyelek… diktáld be a megjegyzést magyarul!';
+ rec.onresult=e=>{
+  if(statusNoteRecognition!==rec||!statusNoteContext||statusNoteSaving||$('fhStatusNoteDialog').hidden)return;
+  const words=Array.from(e.results).map(x=>x[0]?.transcript||'').join(' ').trim();
+  if(!words)return;
+  const input=$('fhStatusNoteText'),current=input.value;
+  const glue=current&&(!/\s$/.test(current))?' ':'';
+  const space=500-current.length-glue.length;
+  if(space<=0){
+   status.textContent='Elérted az 500 karakteres korlátot. A meglévő szöveg nem változott.';
+   return;
+  }
+  input.value=current+glue+words.slice(0,space);
+  input.dispatchEvent(new Event('input',{bubbles:true}));
+  status.textContent=words.length>space
+   ?'✓ A diktálásból 500 karakterig illesztettem be. A szöveg szerkeszthető.'
+   :'✓ Bediktálva · a szöveg szerkeszthető, mentés még nem történt.';
+ };
+ rec.onerror=e=>{
+  if(statusNoteRecognition!==rec)return;
+  status.textContent=e.error==='not-allowed'?'Mikrofonengedély nincs megadva.':
+   e.error==='no-speech'?'Nem hallottam beszédet. Próbáld újra.':
+   'A hangbevitel nem sikerült. Használható a billentyűzet mikrofonja.';
+ };
+ rec.onend=()=>{
+  if(statusNoteRecognition!==rec)return;
+  statusNoteRecognition=null;
+  b.classList.remove('listening');b.setAttribute('aria-pressed','false');
+ };
+ try{rec.start()}catch(_){
+  if(statusNoteRecognition===rec)statusNoteRecognition=null;
+  b.classList.remove('listening');b.setAttribute('aria-pressed','false');
+  status.textContent='A diktálás nem indítható. Használható a billentyűzet mikrofonja.';
+ }
+}
 function closeStatusNote(){
  if(statusNoteSaving)return;
+ stopStatusNoteDictation();
  $('fhStatusNoteDialog').hidden=true;
  statusNoteContext=null;
 }
 function openStatusNote(task,nextStatus){
  if(!api||!user)return;
+ stopStatusNoteDictation();
  statusNoteContext={task,status:nextStatus};
  const failed=nextStatus==='failed';
  $('fhStatusNoteTitle').textContent=failed?'Miért nem teljesült?':'Státusz megjegyzés';
@@ -465,12 +526,14 @@ function openStatusNote(task,nextStatus){
  $('fhStatusNoteSave').textContent=failed&&task.status!=='failed'?'⚫ Lezárás · Nem teljesült':'✓ Megjegyzés mentése';
  $('fhStatusNoteCount').textContent=$('fhStatusNoteText').value.length+'/500';
  $('fhStatusNoteError').textContent='';
+ $('fhStatusNoteVoiceStatus').textContent='';
  $('fhStatusNoteDialog').hidden=false;
- $('fhStatusNoteText').focus();
+ // Do not open the virtual keyboard until the user chooses typing over dictation.
 }
 async function saveStatusNote(e){
  e.preventDefault();
  if(!statusNoteContext||statusNoteSaving)return;
+ stopStatusNoteDictation();
  const context=statusNoteContext,reason=$('fhStatusNoteText').value.trim();
  if(reason.length>500){$('fhStatusNoteError').textContent='Legfeljebb 500 karakter írható.';return}
  if(context.status===context.task.status&&reason===(context.task.status_note||'')){
@@ -641,6 +704,7 @@ function wire(){
  $('fhBackdrop').addEventListener('click',hideSheet);
  $('fhStatusNoteForm').addEventListener('submit',saveStatusNote);
  $('fhStatusNoteCancel').addEventListener('click',closeStatusNote);
+ $('fhStatusNoteVoice').addEventListener('click',startStatusNoteDictation);
  $('fhStatusNoteText').addEventListener('input',()=>{$('fhStatusNoteCount').textContent=$('fhStatusNoteText').value.length+'/500'});
  $('fhStatusNoteDialog').addEventListener('click',e=>{if(e.target===$('fhStatusNoteDialog'))closeStatusNote()});
  d.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('fhStatusNoteDialog').hidden)closeStatusNote()});
