@@ -1,0 +1,28 @@
+name: HealthHub Vault v881 · Separate profile PDF diagnostics
+on:
+  pull_request:
+    paths:
+      - 'healthhub/central-vault/health-vault-profile-pdf-v881.js'
+      - 'healthhub/central-vault/daily-health-sync.js'
+      - 'healthhub/index.html'
+      - 'healthhub/tests/vault-profile-pdf-v881.test.cjs'
+      - '.github/workflows/healthhub-vault-profile-pdf-v881.yml'
+  push:
+    paths:
+      - 'healthhub/central-vault/health-vault-profile-pdf-v881.js'
+      - 'healthhub/index.html'
+      - 'healthhub/tests/vault-profile-pdf-v881.test.cjs'
+jobs:
+  separate-pdf:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Syntax and read-only dual-profile regression
+        run: |
+          node --check healthhub/central-vault/health-vault-profile-pdf-v881.js
+          node --check healthhub/central-vault/daily-health-sync.js
+          node --test healthhub/tests/vault-profile-pdf-v881.test.cjs
