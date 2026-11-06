@@ -188,6 +188,36 @@ async function captureSide(which,mode){
  modalStatus(t('Kép elfogadva. Folytathatod a másik oldallal.',
   'Photo accepted. Continue with the other side.'));
 }
+function setPassPhoto(which,photo,label){
+ if(!['front','back'].includes(which)||!(photo instanceof Blob))return;
+ const side=which==='front'?'Front':'Back';
+ if(previewURLs[which])URL.revokeObjectURL(previewURLs[which]);
+ previewURLs[which]=URL.createObjectURL(photo);
+ files[which]=photo;
+ $('svExtra'+side+'PreviewV16').src=previewURLs[which];
+ $('svExtra'+side+'PreviewV16').hidden=false;
+ $('svExtra'+side+'EmptyV16').hidden=true;
+ $('svExtra'+side+'NameV15').textContent=label||t('✓ Optikai kép elfogadva','✓ Optical photo accepted');
+}
+async function importLegacy(){
+ if(category!=='pass'||busy)return;
+ const p=profile();
+ if(!w.confirm(t('A régi Bérlet app képeit a MOST kiválasztott profilhoz másoljuk. A régi bérlet változatlanul megmarad. Folytatod?',
+ 'Copy legacy pass photos to the CURRENT profile? The old pass remains untouched. Continue?')))return;
+ try{
+  const photos=await w.SHO_BKK_LEGACY_V17.read();
+  if(p!==profile())throw Error('NO_ACCESS');
+  openAdd();$('svExtraTitleInputV15').value=t('Budapest-bérlet','Budapest pass');
+  setPassPhoto('front',photos.front,t('✓ Régi appból átvéve','✓ Imported from old app'));
+  setPassPhoto('back',photos.back,t('✓ Régi appból átvéve','✓ Imported from old app'));
+  modalStatus(t('Mindkét kép betöltve. Válaszd ki a védelmet, majd mentsd el! A régi app érintetlen.',
+   'Both photos loaded. Choose protection and save. The old app remains unchanged.'));
+ }catch(e){
+  status(e?.message==='NO_LEGACY'?
+   t('Ezen a böngészőn nem található a régi bérlet mindkét képe. Használd a régi eszközt, vagy fotózd újra.',
+     'Both legacy photos were not found in this browser. Use the old device or scan again.'):human(e),true);
+ }
+}
 function renderGallery(){
  const host=$('svExtraCardsV15');host.replaceChildren();
  if(!rows.length){
