@@ -156,20 +156,24 @@ async function decrypt(cipher,key,rec,side){
   return new Blob([content],{type:'image/jpeg'});
  }catch(_){throw Error('BAD_PASS')}
 }
-async function imageBlob(file){
+async function imageBlob(file,forPass=false){
  if(!file||!['image/jpeg','image/png','image/webp'].includes(file.type)||file.size>12000000||file.size<100)
   throw Error('INVALID_IMAGE');
  const u=URL.createObjectURL(file),im=new Image();
  try{
   im.src=u;await im.decode();
   if(im.naturalWidth<100||im.naturalHeight<60)throw Error('INVALID_IMAGE');
-  const scale=Math.min(1,1400/Math.max(im.naturalWidth,im.naturalHeight));
+  const scale=Math.min(1,(forPass?1800:1400)/Math.max(im.naturalWidth,im.naturalHeight));
   const c=d.createElement('canvas');c.width=Math.round(im.naturalWidth*scale);c.height=Math.round(im.naturalHeight*scale);
   const ctx=c.getContext('2d');if(!ctx)throw Error('INVALID_IMAGE');
   ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';
   ctx.drawImage(im,0,0,c.width,c.height);
-  const blob=await new Promise(resolve=>c.toBlob(resolve,'image/jpeg',.86));
-  if(!blob||blob.size>1200000)throw Error('INVALID_IMAGE');
+  let blob=null;
+  for(const quality of forPass?[.94,.88,.82,.76]:[.86]){
+   blob=await new Promise(resolve=>c.toBlob(resolve,'image/jpeg',quality));
+   if(blob?.size<=1350000)break;
+  }
+  if(!blob||blob.size>1350000)throw Error('INVALID_IMAGE');
   return blob;
  }finally{URL.revokeObjectURL(u)}
 }
@@ -482,10 +486,10 @@ async function save(e){
     throw Error('PASS');
    const key=mode==='password'?await keyFor(pass,salt):await newDeviceKey();
    rec.kdf_salt=encode(salt);
-   const front=await imageBlob(files.front);
+   const front=await imageBlob(files.front,cat==='pass');
    rec.front_cipher=await encrypt(front,key,rec,'front');
    if(files.back){
-    const back=await imageBlob(files.back);
+    const back=await imageBlob(files.back,cat==='pass');
     rec.back_cipher=await encrypt(back,key,rec,'back');
    }
    if(mode==='device'){
