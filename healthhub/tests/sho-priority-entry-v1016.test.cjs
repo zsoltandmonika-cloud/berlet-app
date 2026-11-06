@@ -46,7 +46,7 @@ test('Priority bridge is actually injected after executable Activity tag in SHO 
  const end=html.indexOf('  const liveWithWellbeingClick=liveWithShoPriority.replace(',begin);
  assert.ok(begin>0&&end>begin,'isolated snippet is present in inline bootstrap');
  const source=html.slice(begin,end);
- const activity='<script src="./live-v191.js?v=1013-rollback-20261106"></script>';
+ const activity='<script src="./live-v191.js?v=1013-source-guard-20261106"></script>';
  function evaluate(search){
   const context={location:{search},URLSearchParams,live:'before '+activity+' after'};
   vm.runInNewContext(source+';globalThis.result=liveWithShoPriority;',context);
@@ -63,7 +63,7 @@ test('HealthHub injects SHO bridge after Activity module API instead of after do
  assert.match(html,/const shoBridgeScript=\(shoTarget==='activity'\|\|shoTarget==='sleep'\)/);
  assert.match(html,/const liveWithShoPriority=shoBridgeScript/);
  assert.match(html,/live\.replace\(/);
- assert.match(html,/live-v191\.js\?v=1013-rollback-20261106/);
+ assert.match(html,/live-v191\.js\?v=1013-source-guard-20261106/);
  assert.match(html,/sho-entry-v1\.js\?v=1016-priority-boot/);
  assert.doesNotMatch(html,/shoBridge\.src=/);
  assert.doesNotMatch(bridge,/addEventListener\('load'/);
