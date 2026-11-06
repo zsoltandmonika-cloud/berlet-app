@@ -448,6 +448,7 @@ async function unlock(){
   if(second)viewURLs.push(URL.createObjectURL(second));
   $('svExtraPasswordOpenV15').value='';flip='front';zoom=1;
   $('svExtraPhotoViewV16').hidden=false;
+  $('svExtraInspectV17').hidden=active.category!=='pass';
   renderPhoto();modalStatus(t('Kártya feloldva. A hátlaphoz használd a fordítást.','Card unlocked. Flip to see its back.'));
  }catch(e){modalStatus(human(e),true)}
  finally{busy=false;$('svExtraUnlockV15').disabled=false}
