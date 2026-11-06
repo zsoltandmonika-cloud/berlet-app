@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#071a36">
 <meta name="robots" content="noindex,nofollow">
-<title>SHO · Aktivitás · profil szétválasztás teszt</title>
+<title>SHO · Aktivitás · profilteszt v2</title>
 <base href="/berlet-app/healthhub/">
 <link rel="icon" href="./assets/icons/favicon-v146.ico">
 <style>
@@ -30,15 +30,15 @@ body .a191Page{padding-top:53px!important;box-sizing:border-box!important}
 <script defer src="./live-v369-distance.js?v=369"></script>
 <script defer src="./live-v371-samsung.js?v=387"></script>
 <script defer src="./live-v375-activity-timeline.js?v=376"></script>
-<script defer src="./activity-profile-test/activity-engine-v1.js?v=1-current-canonical-source"></script>
+<script defer src="./activity-profile-test/activity-engine-v2.js?v=2-session-profile-memo"></script>
 <script defer src="./live-v363.js?v=624"></script>
 <script defer src="./activity-premium-glass-v533.js?v=5335"></script>
 <script defer src="./hc-wear-history-v1150.js?v=1153"></script>
 </head>
 <body>
 <main id="splitBoot" role="status">
- <div><b>🔎 SHO · Aktivitás profilonként</b>
- <span>Ugyanaz a jelenlegi Health Connect/Dropbox adatszett, külön Mónika és Zsolt helyi olvasással. Nincs gyorsítótár és nincs adatírás.</span>
+ <div><b>🔎 SHO · Aktivitás profilonként · v2</b>
+ <span>Ugyanaz a jelenlegi Health Connect/Dropbox adatszett, külön Mónika és Zsolt helyi olvasással. 45 másodperces, kizárólag munkameneten belüli helyi gyorsítótár, friss Dropbox-ellenőrzéssel. Nincs adatírás.</span>
  <a href="/berlet-app/healthhub/">Eredeti HealthHub megnyitása</a></div>
 </main>
 <nav id="splitTools" aria-label="Teszt · profilok" hidden>
@@ -93,7 +93,7 @@ function start(){
   once=true;obs.disconnect();
   var ms=Math.round(performance.now()-started);
   window.hhActivitySplitFirstPaintMs=ms;
-  console.info('SHO Activity Split preview: validated-source first paint',ms,'ms',
+  console.info('SHO Activity Split v2: validated-source first paint',ms,'ms',
    window.hhActivitySplitDiag||{});
  });
  obs.observe(document.getElementById('hhActivityPage191')||document.body,{childList:true,subtree:true});
