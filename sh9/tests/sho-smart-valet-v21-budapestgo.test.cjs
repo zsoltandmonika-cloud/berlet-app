@@ -60,7 +60,7 @@ test('pinned BudapestGO opens the official application launcher without viewing 
 });
 test('BudapestGO tile appears within the existing Bérletek category with independent pin toggle',()=>{
  assert.match(demo,/function appendBudapestGo\(host,search\)/);
- assert.match(demo,/!\\['pass','all'\\]/);
+ assert.match(demo,/\['pass','all'\]\.includes\(kind\)/);
  assert.match(demo,/quick\?\.toggle\(\{source:'app',id:'budapestgo'\}\)/);
  assert.match(demo,/w\.SHO_BUDAPESTGO_V21\?\.open\(\)/);
  assert.match(demo,/const hasGo=appendBudapestGo\(host,search\)/);
