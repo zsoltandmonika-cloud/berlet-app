@@ -9,7 +9,7 @@ if(w.HH_VAULT_GOOGLE_V882)return;
 const CFG=w.HH_CENTRAL_VAULT||{},PENDING='hh-vault-google-pending-v882',
  SKEY='hh-supabase-health-session-v1',REM='hh-health-vault-trusted-device-v332',
  ROOT='hhVaultGoogleV882',INLINE='hhVaultGoogleInlineV882',CSS='hhVaultGoogleStyleV882';
-let sdkPromise=null,api=null,busy=false,message='',installed=false;
+let sdkPromise=null,api=null,busy=false,message='',installed=false,inlineHost=null;
 const vault=()=>w.HH_DAILY_HEALTH_SYNC_V319;
 function textOnly(x){return String(x||'').slice(0,140)}
 function pending(){
@@ -90,6 +90,7 @@ function mount(){
 }
 function mountInline(host){
  if(!host||!host.parentNode)return;
+ inlineHost=host;
  const loggedIn=!!vault()?.getStatus?.()?.authenticated;
  let root=d.getElementById(INLINE);
  if(loggedIn){if(root)root.remove();return}
@@ -118,8 +119,8 @@ function errorMessage(err){
 }
 async function start(){
  if(busy)return;
- if(nativeView()){message='Az alkalmazáson belüli bejelentkezés helyett nyisd meg a HealthHubot Chrome-ban.';mount();return}
- busy=true;message='';mount();
+ if(nativeView()){message='Az alkalmazáson belüli bejelentkezés helyett nyisd meg a HealthHubot Chrome-ban.';mount();mountInline(inlineHost);return}
+ busy=true;message='';mount();mountInline(inlineHost);
  try{
   const auth=await client();
   const remember=!!(d.querySelector('#hhcaLoginV332 input[name=remember]')||d.querySelector('#hhcs-login-form input[name=remember]'))?.checked;
@@ -130,7 +131,7 @@ async function start(){
   if(error)throw error;
   // Supabase navigates to Google; callback is completed only on a return visit.
  }catch(e){
-  clearPending();message=errorMessage(e);busy=false;mount();
+  clearPending();message=errorMessage(e);busy=false;mount();mountInline(inlineHost);
  }
 }
 async function finish(){
@@ -171,7 +172,7 @@ async function finish(){
  }catch(e){
   clearPending();message=errorMessage(e);busy=false;
   if(vault()?.openLogin) vault().openLogin();
-  mount();return false;
+  mount();mountInline(inlineHost);return false;
  }
 }
 const originalMount=vault()?.mount;
