@@ -68,6 +68,16 @@ test('bank card encrypted photos optional, health image required, both require p
  assert.match(migration,/hh_valet_extra_v16_back_requires_front/);
  assert.match(migration,/front_cipher is null and back_cipher is null and kdf_salt is null/);
 });
+test('all three submodules expose the same password toggle and device-key mode',()=>{
+ assert.match(html,/id="svExtraPasswordEnabledV16"/);
+ assert.match(html,/class="sv-id-protection-switch-v12"/);
+ assert.match(extra,/function updateProtection\(\)/);
+ assert.match(extra,/mode==='password'\?await keyFor\(pass,salt\):await newDeviceKey\(\)/);
+ assert.match(extra,/deviceKey\('put',deviceOwner,rec.id,key\)/);
+ assert.match(extra,/deviceKey\('get',auth.data.user.id,rec.id\)/);
+ assert.match(extra,/previewPinned/);
+ assert.match(read('sh9/wallet/smart-valet-smart-access-v13.js'),/SHO_VALET_EXTRA_V15\?\.previewPinned/);
+});
 test('no scanner leftovers or decrypted images when leaving the page or hiding app',()=>{
  assert.match(optical,/visibilitychange/);
  assert.match(optical,/pagehide/);
