@@ -650,7 +650,8 @@ function init(){
  w.addEventListener('sh9:languagechange',()=>{renderCategory();renderGallery()});
  w.addEventListener('pagehide',()=>{++serial;close()});
  d.addEventListener('visibilitychange',()=>{if(d.hidden){++serial;close()}});
- renderCategory();
+ category=w.SHO_VALET_ACTIVE_CATEGORY_V9==='pass'?'pass':category;
+ renderCategory();if(category==='pass')void refresh();
 }
 if(d.readyState==='loading')d.addEventListener('DOMContentLoaded',init,{once:true});else init();
 w.SHO_VALET_EXTRA_V15=Object.freeze({resolvePinned,openPinned,previewPinned,openBudapest,getBudapestId});
