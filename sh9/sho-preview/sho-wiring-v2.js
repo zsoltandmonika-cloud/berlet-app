@@ -71,13 +71,13 @@ function wallet(){
   '</small></span></button><button class="pin" type="button" data-pin="'+t.id+
   '" aria-label="Kitűzés">'+(pins[profile]===t.id?'📌':'☆')+'</button></div>';
  }
- html+='</div><div class="actions"><button class="action primary" id="realPass" type="button">🎟️ Meglévő Bérlet app</button>'+
+ html+='</div><div class="actions"><button class="action primary" id="realPass" type="button">🎟️ Budapest-bérlet · Smart Valet</button>'+
   '<button class="action" id="addPhoto" type="button">📷 Próba fotó</button></div>'+
-  '<p class="muted">A Bérlet app a már mentett bérleteket mutatja. Az univerzális, titkosított Wallet még nincs élesítve.</p>';
+  '<p class="muted">A Budapest-bérlet mostantól a Smart Valet Bérletek kategóriájában kezelhető.</p>';
  open('💳 Smart Wallet · '+(profile==='z'?'Zsolt':'Mónika'),html);
  d.querySelectorAll('[data-open]').forEach(n=>n.onclick=()=>view(n.dataset.open));
  d.querySelectorAll('[data-pin]').forEach(n=>n.onclick=()=>{setPin(n.dataset.pin);wallet()});
- $('realPass').onclick=()=>goto(ROOT);
+ $('realPass').onclick=()=>goto(SH9+'wallet/?category=pass');
  $('addPhoto').onclick=()=>$('photo').click();
 }
 function view(id){
