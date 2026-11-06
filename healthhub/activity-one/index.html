@@ -16,15 +16,34 @@ html,body{margin:0;min-height:100%;background:#08172d;color:#ecf7ff;font:15px/1.
 #splitBoot span{font-size:12px;opacity:.85}
 #splitBoot a{display:block;margin-top:16px;color:#a8ddff}
 #splitBoot[hidden],#splitTools[hidden]{display:none!important}
-#splitTools{position:fixed;top:max(5px,env(safe-area-inset-top));left:50%;transform:translateX(-50%);width:min(420px,calc(100% - 16px));display:flex;gap:6px;justify-content:center;align-items:center;padding:7px;z-index:10002;border:1px solid rgba(171,203,241,.42);border-radius:17px;background:rgba(9,25,54,.86);box-shadow:0 3px 19px rgba(0,0,0,.38);backdrop-filter:blur(15px);-webkit-backdrop-filter:blur(15px)}
-#splitTools button,#splitTools a{font:800 12px/1.2 system-ui;border:1px solid rgba(181,210,237,.35);border-radius:12px;min-height:37px;background:rgba(255,255,255,.08);color:white;text-decoration:none;display:grid;place-items:center;padding:0 10px;cursor:pointer}
-#splitTools button{flex:1}
-#splitTools button.selected-m{background:rgba(249,166,211,.31);border-color:#f9a6d3}
-#splitTools button.selected-z{background:rgba(121,191,255,.29);border-color:#79bfff}
-#splitTools a{flex:0 0 auto}
-body .a191Card.manual{display:flex}
-/* Reserve genuine space for test-only profile controls, preserving the approved Hero. */
-body .a191Page{padding-top:53px!important;box-sizing:border-box!important}
+/* SHO Golden Standard · lightweight Activity One replica.
+   Inline only: no external CSS/JS, no additional network calls or data work. */
+#activityGoldenTop,#activityGoldenBottom{--sho-a:#a2d2ff;position:fixed;left:50%;transform:translateX(-50%);width:min(420px,calc(100% - 8px));box-sizing:border-box;z-index:8900}
+#activityGoldenTop[data-profile="m"],#activityGoldenBottom[data-profile="m"]{--sho-a:#f8b4d7;--sho-soft:rgba(249,166,211,.25)}
+#activityGoldenTop[data-profile="z"],#activityGoldenBottom[data-profile="z"]{--sho-a:#a2d2ff;--sho-soft:rgba(121,191,255,.22)}
+#activityGoldenTop{top:calc(env(safe-area-inset-top,0px) + 4px);height:50px;display:grid;grid-template-columns:1.1fr 1.15fr .95fr .92fr;align-items:stretch;overflow:hidden;border:1px solid rgba(174,208,241,.30);border-radius:14px;background:rgba(8,42,80,.60);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);box-shadow:inset 0 1px 0 rgba(255,255,255,.12),0 6px 20px rgba(0,8,24,.30)}
+#activityGoldenTop .sho-cell{position:relative;min-width:0;height:100%;display:flex;align-items:center;justify-content:center}
+#activityGoldenTop .sho-cell+.sho-cell::before{content:"";position:absolute;left:0;top:13px;bottom:13px;width:1px;background:rgba(178,215,247,.22);pointer-events:none}
+#activityGoldenTop .sho-action{appearance:none;text-decoration:none;border:0;background:transparent;color:#f2f8ff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;height:100%;width:100%;min-width:0;padding:4px 1px;font:750 10.4px/1.12 system-ui,sans-serif;cursor:pointer}
+#activityGoldenTop .sho-action svg{display:block;flex:none;width:20px;height:20px;fill:none;stroke:var(--sho-a);stroke-width:1.8;stroke-linejoin:round;stroke-linecap:round;filter:drop-shadow(0 1px 3px rgba(0,0,0,.3))}
+#activityGoldenTop .sho-action span,#activityGoldenTop .sho-language>span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font:750 10.4px/1.12 system-ui,sans-serif;color:#f4f8ff}
+#activityGoldenTop .sho-action .switch{color:var(--sho-a)}
+#activityGoldenTop .sho-action:active,#activityGoldenTop .sho-flags button:active{background:var(--sho-soft)}
+#activityGoldenTop .sho-language{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;min-width:0}
+#activityGoldenTop .sho-flags{display:flex;align-items:center;justify-content:center;gap:1px;height:29px}
+#activityGoldenTop .sho-flags button{appearance:none;display:grid;place-items:center;width:32px;height:30px;padding:0;border:1px solid transparent;border-radius:9px;background:transparent;font:23px/1 "Segoe UI Emoji","Apple Color Emoji",system-ui;cursor:pointer}
+#activityGoldenTop .sho-flags button.chosen{background:var(--sho-soft);border-color:var(--sho-a)}
+#activityGoldenBottom{bottom:0;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));height:calc(65px + env(safe-area-inset-bottom,0px));padding:4px 4px calc(5px + env(safe-area-inset-bottom,0px));background:#0e1d38;border-top:1px solid rgba(136,197,245,.27);box-shadow:0 -5px 13px rgba(0,0,0,.3)}
+#activityGoldenBottom :is(button,a){appearance:none;text-decoration:none;min-width:0;border:0;background:transparent;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:3px;color:#b9d0e8;font:700 10px/1.2 system-ui,sans-serif;cursor:pointer;padding:1px 0}
+#activityGoldenBottom svg{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:1.85;stroke-linecap:round;stroke-linejoin:round}
+#activityGoldenBottom .golden-primary svg,#activityGoldenBottom .golden-primary span{color:var(--sho-a)}
+#activityGoldenBottom :is(button,a) span{font-size:10px;text-align:center;white-space:nowrap}
+#activityGoldenTop :is(button,a):focus-visible,#activityGoldenBottom :is(button,a):focus-visible{outline:2px solid var(--sho-a);outline-offset:-3px;border-radius:7px}
+#activityGoldenTop[hidden],#activityGoldenBottom[hidden]{display:none!important}
+body .a191Nav{display:none!important}
+body .a191Page{padding-top:calc(60px + env(safe-area-inset-top,0px))!important;padding-bottom:calc(80px + env(safe-area-inset-bottom,0px))!important;box-sizing:border-box!important}
+body .a191Card.manual{display:block}
+@media(max-width:350px){#activityGoldenTop{grid-template-columns:1fr 1.1fr .9fr .93fr}#activityGoldenTop .sho-action span,#activityGoldenTop .sho-language>span{font-size:9.7px}#activityGoldenTop .sho-flags button{width:29px;font-size:21px}}
 </style>
 <script defer src="./activity-fast/vault-read-v3.js?v=3-read-only"></script>
 <script defer src="./live-v369-distance.js?v=369"></script>
@@ -41,23 +60,76 @@ body .a191Page{padding-top:53px!important;box-sizing:border-box!important}
  <span>Valós Health Connect és Dropbox aktivitási adatok, külön Mónika és Zsolt profillal. A manuális rögzítés is elérhető, az adatok megjelenítése csak ellenőrzött forrás után történik.</span>
  <a href="/berlet-app/healthhub/">Eredeti HealthHub megnyitása</a></div>
 </main>
-<nav id="splitTools" aria-label="Aktivitás · profilok" hidden>
- <button type="button" id="splitMonika">🩷 Mónika</button>
- <button type="button" id="splitZsolt">💙 Zsolt</button>
- <a href="/berlet-app/healthhub/" title="Teljes HealthHub kezdőlap">HealthHub ↗</a>
+<nav id="activityGoldenTop" data-sh9-golden-top="on" data-profile="z" aria-label="SHO Golden Standard felső taskbar" hidden>
+ <div class="sho-cell"><button type="button" id="aOneProfile" class="sho-action" aria-label="Profilváltás"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.4"/><path d="M5 20v-2.3A5.2 5.2 0 0 1 10.2 12.5h3.6A5.2 5.2 0 0 1 19 17.7V20m-1-15 2 2-2 2m2-2h-5"/></svg><span><span id="aOneProfileName">Zsolt</span> <span class="switch" aria-hidden="true">⇄</span></span></button></div>
+ <div class="sho-cell"><a id="aOneTasks" href="/berlet-app/sh9/family-hub/" class="sho-action" aria-label="Feladatok"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="m7.5 9 1.5 1.5 2.5-3M13.5 9H17M7.5 15h9"/></svg><span id="aOneTasksLabel">Feladatok</span></a></div>
+ <div class="sho-cell"><a id="aOneWallet" href="/berlet-app/sh9/wallet/" class="sho-action" aria-label="Smart Wallet"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="6" width="18" height="14" rx="3"/><path d="M3 10h18M15 15h3M6 6V4h12"/></svg><span>Wallet</span></a></div>
+ <div class="sho-cell sho-language"><div class="sho-flags"><button type="button" id="aOneHU" aria-label="Magyar" aria-pressed="true" class="chosen">🇭🇺</button><button type="button" id="aOneEN" aria-label="Canadian English" aria-pressed="false">🇨🇦</button></div><span id="aOneLangLabel">Nyelv</span></div>
+</nav>
+<nav id="activityGoldenBottom" data-sh9-golden-bottom-nav="on" data-profile="z" aria-label="SHO Golden Standard navigáció" hidden>
+ <a id="aOneHome" href="/berlet-app/sh9/" class="golden-primary" data-sh9-bottom-role="home" aria-label="SHO kezdőlap"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 11 9-8 9 8v10h-7v-7h-4v7H3z"/></svg><span id="aOneHomeLabel">Kezdőlap</span></a>
+ <a id="aOneAsk" href="/berlet-app/healthhub/index.html?sh9nav=admin&sh9cfg=asklena" class="golden-primary" data-sh9-bottom-role="ask" aria-label="Kérdezd Lénát"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 11.3c0 4.5-3.7 8.2-8.2 8.2-1.5 0-3-.4-4.2-1.1L3 20l1.5-4.6A8.25 8.25 0 1 1 20.5 11.3Z"/><path d="M9 11h6"/></svg><span id="aOneAskLabel">Kérdezd Lénát</span></a>
+ <button type="button" id="aOneBack" aria-label="Vissza"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5m7-7-7 7 7 7"/></svg><span id="aOneBackLabel">Vissza</span></button>
+ <a id="aOneAlerts" href="/berlet-app/sh9/notification-center/" aria-label="Értesítések"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 17h12l-2-3V9a4 4 0 0 0-8 0v5zM10 20a2 2 0 0 0 4 0"/></svg><span id="aOneAlertsLabel">Értesítések</span></a>
+ <a id="aOneAdmin" href="/berlet-app/healthhub/index.html?sh9nav=admin" aria-label="Admin"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="m9 2 1 3h4l1-3 3 2-1 3 3 2v4l-3 1 1 3-3-2-2-3h-3l-2 3-3-2 1-3-3-2V9l3-2-1-3z"/></svg><span>Admin</span></a>
 </nav>
 <script>
 (function(){
 'use strict';
 var started=performance.now();
-function home(){location.assign('/berlet-app/healthhub/')}
+function home(){location.assign('/berlet-app/sh9/')}
 function paintButtons(){
- var current=localStorage.getItem('hh-profile')==='m'?'m':'z';
- var m=document.getElementById('splitMonika'),z=document.getElementById('splitZsolt');
- m.className=current==='m'?'selected-m':'';
- z.className=current==='z'?'selected-z':'';
- m.setAttribute('aria-pressed',String(current==='m'));
- z.setAttribute('aria-pressed',String(current==='z'));
+ var code=localStorage.getItem('hh-profile')==='m'?'m':'z';
+ var name=code==='m'?'Mónika':'Zsolt',next=code==='m'?'Zsolt':'Mónika';
+ document.getElementById('activityGoldenTop').dataset.profile=code;
+ document.getElementById('activityGoldenBottom').dataset.profile=code;
+ document.getElementById('aOneProfileName').textContent=name;
+ document.getElementById('aOneProfile').setAttribute('aria-label',next+' profiljára váltás');
+}
+function paintLanguage(){
+ var english=localStorage.getItem('sh9-language-v1')==='en';
+ document.getElementById('aOneHU').classList.toggle('chosen',!english);
+ document.getElementById('aOneEN').classList.toggle('chosen',english);
+ document.getElementById('aOneHU').setAttribute('aria-pressed',String(!english));
+ document.getElementById('aOneEN').setAttribute('aria-pressed',String(english));
+ document.getElementById('aOneTasksLabel').textContent=english?'Tasks':'Feladatok';
+ document.getElementById('aOneLangLabel').textContent=english?'Language':'Nyelv';
+ document.getElementById('aOneHomeLabel').textContent=english?'Home':'Kezdőlap';
+ document.getElementById('aOneAskLabel').textContent=english?'Ask Léna':'Kérdezd Lénát';
+ document.getElementById('aOneBackLabel').textContent=english?'Back':'Vissza';
+ document.getElementById('aOneAlertsLabel').textContent=english?'Notifications':'Értesítések';
+}
+function setLanguage(code){
+ localStorage.setItem('sh9-language-v1',code);
+ paintLanguage();
+ window.dispatchEvent(new CustomEvent('sh9:languagechange',{detail:{language:code}}));
+}
+function back(){
+ var modal=document.getElementById('hh191Modal');
+ if(modal&&modal.classList.contains('on')){
+  if(typeof window.hh191CloseModal==='function')window.hh191CloseModal();
+  return;
+ }
+ var sameOrigin=false;
+ try{sameOrigin=!!document.referrer&&new URL(document.referrer).origin===location.origin}catch(e){}
+ if(sameOrigin&&history.length>1)history.back();
+ else location.assign('/berlet-app/sh9/');
+}
+function bindGoldenBars(){
+ var byId=function(id){return document.getElementById(id)};
+ byId('aOneProfile').onclick=function(){
+  var next=localStorage.getItem('hh-profile')==='m'?'z':'m';
+  window.hh191Profile(next);paintButtons();
+ };
+ byId('aOneHU').onclick=function(){setLanguage('hu')};
+ byId('aOneEN').onclick=function(){setLanguage('en')};
+ byId('aOneBack').onclick=back;
+ window.addEventListener('healthhub:profile-changed',paintButtons);
+ window.addEventListener('storage',function(event){
+  if(event.key==='hh-profile')paintButtons();
+  if(event.key==='sh9-language-v1')paintLanguage();
+ });
+ paintButtons();paintLanguage();
 }
 function start(){
  var boot=document.getElementById('splitBoot');
@@ -69,8 +141,13 @@ function start(){
  // Original, profile-specific Health Connect / Dropbox reads are authoritative.
  // Manual Activity writes use the native profile-scoped manual record key.
  window.show=home;
- window.hh191Go=home;
- window.hh191Quick=home;
+ window.hh191Go=function(target){
+  if(target==='home')home();
+  else location.assign('/berlet-app/healthhub/index.html?sh9nav=health');
+ };
+ window.hh191Quick=function(label){
+  location.assign('/berlet-app/healthhub/index.html?sh9nav=health');
+ };
  // The original Activity engine retains manual recording and every profile-scoped
  // operation. Never override its hh191ManualSave implementation.
  window.hh191Settings=function(){
@@ -79,14 +156,12 @@ function start(){
  window.hh191SamsungImport=function(){
   alert('Samsung-export importálása a teljes HealthHubban érhető el; az aktuális, korábban exportált mérési adatok itt is láthatók.');
  };
- document.getElementById('splitMonika').onclick=function(){window.hh191Profile('m');paintButtons()};
- document.getElementById('splitZsolt').onclick=function(){window.hh191Profile('z');paintButtons()};
- window.addEventListener('healthhub:profile-changed',paintButtons);
- paintButtons();
+ bindGoldenBars();
  try{
   window.hhOpenActivity();
   boot.hidden=true;
-  document.getElementById('splitTools').hidden=false;
+  document.getElementById('activityGoldenTop').hidden=false;
+  document.getElementById('activityGoldenBottom').hidden=false;
  }catch(err){
   console.error('Activity profile-split preview',err);
   boot.innerHTML='<div><b>Hiba a profilteszt indításakor</b><span>'+String(err&&err.message||err).replace(/[<>]/g,'')+'</span><a href="/berlet-app/healthhub/">Eredeti HealthHub</a></div>';
