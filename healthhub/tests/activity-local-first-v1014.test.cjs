@@ -72,23 +72,28 @@ test('Nov 3 restored Activity uses measured profile-only data after canonical so
  assert.equal(h.w.hhActivity191Cache.daily.find(x=>x.date===h.today).steps===77777,false,'other profile stays excluded');
  assert.doesNotMatch(h.nodes.hhActivityPage191.innerHTML,/Helyi gyorsnézet/);
 });
-test('Nov 3 restored Activity waits for optional Samsung source as the baseline behavior',async()=>{
+test('optional Samsung source cannot hold Activity blank indefinitely',async()=>{
  const h=make();h.w.hhOpenActivity();
  for(let i=0;i<12;i++)await flush();
  h.releaseCloud(7100);
- for(let i=0;i<12;i++)await flush();
- assert.equal(h.w.hhActivity191Cache,undefined,'baseline waits for Samsung completion');
- h.releaseSamsung();
+ // Leave the optional Samsung source pending beyond its 2.5s safety limit.
+ await new Promise(resolve=>setTimeout(resolve,2625));
  for(let i=0;i<12;i++)await flush();
  assert.equal(h.w.hhActivity191Cache.daily.find(x=>x.date===h.today).steps,7100);
- assert.equal(h.w.hhActivity191Source.samsung.status,'not_connected');
+ assert.equal(h.w.hhActivity191Source.samsung.status,'pending');
+ assert.equal(h.w.hhActivity191CurrentProfile,'monika');
+ h.releaseSamsung();
 });
 test('Nov 3 baseline is loaded with a fresh JS cache key and retains profile guards',()=>{
  assert.match(script,/async function load\(profile\)/);
  assert.match(script,/out\.imports=out\.imports\.filter\(function\(x\)\{return x\.profile===profile/);
  assert.match(script,/out\.activity=out\.activity\.filter\(function\(x\)\{return x\.profile===profile/);
- assert.match(script,/var sources=await Promise\.all\(\[load\(requestedProfile\),heightPromise,samsungPromise\]\)/);
+ assert.match(script,/var sources=await Promise\.all\(\[load\(requestedProfile\),heightPromise,samsungGuard\]\)/);
  assert.match(script,/window\.hhHealthCloudSync\(false\)/);
  assert.doesNotMatch(script,/Helyi gyorsnézet/);
- assert.match(html,/live-v191\.js\?v=1013-rollback-20261106/);
+ assert.match(html,/live-v191\.js\?v=1013-source-guard-20261106/);
+ assert.match(script,/var cloud=await Promise\.race/);
+ assert.match(script,/out\._cloudTimedOut/);
+ assert.match(script,/var missingMeasuredDay/);
+ assert.match(script,/A Dropbox nem válaszolt 12 másodpercen belül/);
 });
