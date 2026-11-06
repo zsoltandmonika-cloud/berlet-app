@@ -1,0 +1,30 @@
+name: SHO AI Super Search Alpha 1 - Real Browser
+
+on:
+  pull_request:
+    paths:
+      - 'sh9/super-search/**'
+      - 'healthhub/scripts/sho-super-search-alpha-browser-v1.cjs'
+      - '.github/workflows/sho-super-search-alpha-browser-v1.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  chromium-browser-alpha:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install pinned browser test runner
+        run: npm install --prefix /tmp/sho-alpha --no-save --no-audit --no-fund playwright@1.64.1
+      - name: Install Chromium headless with system dependencies
+        run: /tmp/sho-alpha/node_modules/.bin/playwright install --with-deps --only-shell chromium
+      - name: Alpha Test 1 (real Chromium, synthetic same-origin GTFS only)
+        env:
+          NODE_PATH: /tmp/sho-alpha/node_modules
+        run: node healthhub/scripts/sho-super-search-alpha-browser-v1.cjs
