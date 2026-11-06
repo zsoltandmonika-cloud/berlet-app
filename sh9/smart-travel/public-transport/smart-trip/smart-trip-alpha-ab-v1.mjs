@@ -49,6 +49,11 @@ bar.innerHTML=`
 <p class="ab-privacy">Az A/B eredmény csak ebben a böngészőfülben él. A teljes időt a keresőgomb megnyomásától a grafikus megjelenésig mérjük. A Supabase-t kizárólag meglévő Family Guard-jogosultsággal, olvasásra használjuk. A ChatGPT-ben szükség lehet a Küldés gombra.</p>
 `;
 form.after(bar);
+// Keep the A/B selector ABOVE the prediction fields on narrow mobile screens.
+// The detailed stopwatch remains below the original search form.
+const abModeBar=bar.querySelector(".ab-arms");
+abModeBar.classList.add("st22-alpha-modebar");
+form.before(abModeBar);
 const watchEl=$("abClock"),summary=$("abStatus"),historyEl=$("abHistory");
 const selectedArm=()=>document.querySelector('input[name="abArm"]:checked')?.value||"legacy";
 function say(s){summary.textContent=s}
