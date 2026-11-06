@@ -1,0 +1,24 @@
+name: Family Tasks v882 · Status Note QA
+on:
+  pull_request:
+    paths:
+      - 'sh9/family-hub/**'
+      - 'healthhub/tests/family-tasks-status-note-v882.test.cjs'
+      - 'supabase/migrations/20261106122247_family_tasks_status_note_v882.sql'
+      - '.github/workflows/family-tasks-status-note-v882.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'sh9/family-hub/**'
+      - 'healthhub/tests/family-tasks-status-note-v882.test.cjs'
+      - 'supabase/migrations/20261106122247_family_tasks_status_note_v882.sql'
+jobs:
+  status-note:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Syntax and status note regression
+        run: |
+          node --check sh9/family-hub/family-tasks-v880.js
+          node --check healthhub/tests/family-tasks-status-note-v882.test.cjs
+          node --test healthhub/tests/family-tasks-status-note-v882.test.cjs healthhub/tests/family-tasks-v880.test.cjs healthhub/tests/family-tasks-v881.test.cjs healthhub/tests/family-tasks-failed-rag-buddy-v1.test.cjs
