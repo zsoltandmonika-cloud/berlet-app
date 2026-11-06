@@ -46,15 +46,15 @@ test('Golden Standard Activity One bars are responsive native routes without new
  assert.match(app,/window\.hh191CloseModal\(\)/);
  assert.match(app,/function home\(\)\{location\.assign\('\/berlet-app\/sh9\/'\)\}/);
  assert.ok(!app.includes("window.hh191Go=home;"),'HealthRadar must not silently redirect to heavy HealthHub home');
- const scriptUrls=[...app.matchAll(/<script\b[^>]*src="([^"]+)"/g)].map(m=>m[1]);
+ const scriptUrls=[...app.matchAll(/<script\b[^>]*src="([^"]+)"/g)].map(m=>m[1].split('?')[0]);
  assert.deepEqual(scriptUrls,[
-  './activity-fast/vault-read-v3.js?v=3-read-only',
-  './live-v369-distance.js?v=369',
-  './live-v371-samsung.js?v=371',
-  './live-v375-activity-timeline.js?v=376',
-  './activity-profile-test/activity-engine-v2.js?v=2-session-profile-memo',
-  './live-v363.js?v=624',
-  './activity-premium-glass-v533.js?v=5335',
-  './hc-wear-history-v1150.js?v=1153'
+  './activity-fast/vault-read-v3.js',
+  './live-v369-distance.js',
+  './live-v371-samsung.js',
+  './live-v375-activity-timeline.js',
+  './activity-profile-test/activity-engine-v2.js',
+  './live-v363.js',
+  './activity-premium-glass-v533.js',
+  './hc-wear-history-v1150.js'
  ],'Golden nav must add zero JS dependencies');
 });
