@@ -59,8 +59,8 @@ test('isolated script parses and boots only after the trusted Vault client',()=>
 test('Zsolt and Mónika get independent ACL labels and on-demand archive counts',async()=>{
  const e=sandbox();
  assert.equal(e.labels().length,2);
- assert.match(e.labels()[0].permission,/engedélyezve/);
- assert.match(e.labels()[1].permission,/engedélyezve/);
+ assert.match(e.labels()[0].permission,/Profiljogosultság rendben/);
+ assert.match(e.labels()[1].permission,/Profiljogosultság rendben/);
  assert.equal(e.calls.length,0,'no background inventory polling');
  assert.equal(e.api.openLogin(),'original-login');
  assert.equal(e.opens(),1,'original Vault login remains unchanged');
