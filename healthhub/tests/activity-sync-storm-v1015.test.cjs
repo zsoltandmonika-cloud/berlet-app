@@ -25,46 +25,50 @@ function make(){
  vm.runInNewContext(sync,context,{filename:'live-v165.js'});
  return{w,reads,pending,listeners,timers};
 }
-
-test('Nov 3 importer reads only the requested profile file',async()=>{
- const h=make(),applied=[];
- h.w.hhImportHealthConnectRaw=async function(raw,path){applied.push({profile:raw.profile,path})};
- const pending=h.w.hhHealthCloudSyncProfile('monika',true);
- assert.deepEqual(h.reads,['/HealthHub/profiles/monika-health-connect.json']);
- h.pending['/HealthHub/profiles/monika-health-connect.json'].resolve({profile:'monika',exportedAt:'2026-11-03T08:00:00Z',records:{dailyActivity:[]}});
- assert.equal(await pending,true);
- assert.deepEqual(applied,[{profile:'monika',path:'Dropbox /HealthHub/profiles/monika-health-connect.json'}]);
- assert.equal(h.reads.some(x=>x.includes('zsolt-health-connect')),false);
+test('simultaneous Activity and importer requests share one Dropbox read per profile',async()=>{
+ const h=make(),api=h.w.HH_HEALTH_CONNECT_SOURCE_V1015;
+ assert.ok(api&&typeof api.read==='function');
+ const a=api.read('monika',false),b=api.read('monika',false),c=api.read('zsolt',false);
+ assert.equal(h.reads.length,2,'one read for each distinct profile');
+ assert.ok(h.pending['/HealthHub/profiles/monika-health-connect.json']);
+ assert.ok(h.pending['/HealthHub/profiles/zsolt-health-connect.json']);
+ const mz={profile:'monika',exportedAt:'2026-11-05T07:00:00Z',records:{dailyActivity:[{date:'2026-11-05',steps:123}]}};
+ const zz={profile:'zsolt',exportedAt:'2026-11-05T07:05:00Z',records:{dailyActivity:[{date:'2026-11-05',steps:678}]}};
+ h.pending['/HealthHub/profiles/monika-health-connect.json'].resolve(mz);
+ h.pending['/HealthHub/profiles/zsolt-health-connect.json'].resolve(zz);
+ const results=await Promise.all([a,b,c]);
+ assert.equal(results[0].raw.profile,'monika');
+ assert.equal(results[1].raw.profile,'monika');
+ assert.equal(results[2].raw.profile,'zsolt');
+ await api.read('monika',false);
+ assert.equal(h.reads.length,2,'12-second session cache prevents duplicate fetch');
+ const forced=api.read('monika',true);
+ assert.equal(h.reads.length,3,'explicit force must bypass completed response');
+ h.pending['/HealthHub/profiles/monika-health-connect.json'].resolve(mz);
+ await forced;
+ await assert.rejects(api.read('other',false),/profil/i);
 });
-test('Nov 3 importer refuses wrong-profile Health Connect file without importing',async()=>{
- const h=make();let applied=0;
- h.w.hhImportHealthConnectRaw=async function(){applied++};
- const p=h.w.hhHealthCloudSyncProfile('monika',true);
- h.pending['/HealthHub/profiles/monika-health-connect.json'].resolve({profile:'zsolt',records:{}});
- assert.equal(await p,false);
- assert.equal(applied,0);
+test('failed Dropbox read is evicted and may be retried',async()=>{
+ const h=make(),api=h.w.HH_HEALTH_CONNECT_SOURCE_V1015;
+ const first=api.read('monika',false);
+ h.pending['/HealthHub/profiles/monika-health-connect.json'].reject(new Error('offline'));
+ await assert.rejects(first,/offline/);
+ const second=api.read('monika',false);
+ assert.equal(h.reads.length,2);
+ h.pending['/HealthHub/profiles/monika-health-connect.json'].resolve({profile:'monika',records:{}});
+ await second;
 });
-test('Nov 3 restores canonical importer without 12-second in-memory response cache',async()=>{
- const h=make();let applied=0;
- h.w.hhImportHealthConnectRaw=async function(){applied++};
- assert.equal(h.w.HH_HEALTH_CONNECT_SOURCE_V1015,undefined);
- const one=h.w.hhHealthCloudSyncProfile('monika',true);
- h.pending['/HealthHub/profiles/monika-health-connect.json'].resolve({profile:'monika',exportedAt:'2026-11-03T08:00:00Z'});
- assert.equal(await one,true);
- const two=h.w.hhHealthCloudSyncProfile('monika',true);
- assert.equal(h.reads.length,2,'explicit second sync starts a new source read');
- h.pending['/HealthHub/profiles/monika-health-connect.json'].resolve({profile:'monika',exportedAt:'2026-11-03T09:00:00Z'});
- assert.equal(await two,true);
- assert.equal(applied,2);
-});
-test('rollback script references and Activity refresh behavior are consistent',()=>{
- assert.ok(activity.includes("window.addEventListener('healthhub:healthconnect-imported',refreshIfOpen)"));
- assert.ok(activity.includes("window.addEventListener('healthhub:health-cloud-synced',refreshIfOpen)"));
- assert.ok(activity.includes('window.hhHealthCloudSync(false)'));
- assert.ok(sync.includes('try{got=await downloadRaw(profile)}'));
- assert.ok(!sync.includes('readSharedCloud('));
- assert.ok(profiles.includes("if(isOn('hhActivityPage191')"));
- assert.ok(html.includes('live-v165.js?v=306-rollback-20261106'));
- assert.ok(html.includes('live-v191.js?v=1013-source-guard-20261106'));
- assert.ok(html.includes('live-v260.js?v=303-rollback-20261106'));
+test('source overlap does not trigger duplicate Activity rerenders',()=>{
+ assert.match(activity,/window\.addEventListener\('healthhub:healthconnect-imported',refreshIfOpen\)/);
+ assert.doesNotMatch(activity,/window\.addEventListener\('healthhub:health-cloud-synced',refreshIfOpen\)/);
+ assert.match(activity,/var changed=event&&event\.detail&&event\.detail\.profile/);
+ assert.match(activity,/if\(changed&&changed!==pkey\(\)\)return/);
+ assert.match(profiles,/if\(reason!=='cloud'&&isOn\('hhActivityPage191'\)/);
+ assert.match(activity,/var hasVisibleData=window\.hhActivity191CurrentProfile===requestedProfile/);
+ assert.match(activity,/if\(!hasVisibleData\)page\.innerHTML=/);
+ assert.match(activity,/window\.HH_HEALTH_CONNECT_SOURCE_V1015/);
+ assert.match(sync,/try\{got=await readSharedCloud\(profile,!!force\)\}/);
+ assert.match(html,/live-v165\.js\?v=1015-shared-hc-read/);
+ assert.match(html,/live-v191\.js\?v=1015-stable-activity-refresh/);
+ assert.match(html,/live-v260\.js\?v=1015-activity-event-dedupe/);
 });
