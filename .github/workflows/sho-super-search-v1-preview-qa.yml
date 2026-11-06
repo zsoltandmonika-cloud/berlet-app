@@ -1,0 +1,59 @@
+name: SHO AI Super Search v1 (isolated preview)
+
+on:
+  pull_request:
+    paths:
+      - 'sh9/super-search/**'
+      - 'healthhub/tests/sho-super-search-v1.test.mjs'
+      - 'healthhub/tests/sho-trip-stopwatch-v1.test.mjs'
+      - 'healthhub/tests/sho-alpha-smart-trip-ab-v1.test.mjs'
+      - 'sh9/smart-travel/public-transport/smart-trip/alpha-stopwatch-v1.html'
+      - 'sh9/smart-travel/public-transport/smart-trip/smart-trip-ai-alpha-v1.js'
+      - 'sh9/smart-travel/public-transport/smart-trip/smart-trip-alpha-ab-v1.mjs'
+      - 'healthhub/tests/sho-super-search-trip-review-v1.test.mjs'
+      - 'healthhub/tests/sho-super-search-local-shadow-v2.test.mjs'
+      - 'healthhub/tests/sho-super-search-shadow-preview-v2.test.mjs'
+      - 'healthhub/tests/sho-super-search-worker-v3.test.mjs'
+      - 'healthhub/tests/sho-super-search-shadow-preview-v3.test.mjs'
+      - 'healthhub/tests/sh9-hybrid-offline-compare-v1121.test.cjs'
+      - 'sh9/smart-travel/smart-trip/hybrid-offline-compare-v1121.html'
+      - '.github/workflows/sho-super-search-v1-preview-qa.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  super-search-preview:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Syntax check all search core modules
+        run: |
+          node --check sh9/super-search/sho-super-search-core-v1.mjs
+          node --check sh9/super-search/trip-stopwatch-core-v1.mjs
+          node --check sh9/super-search/trip-stopwatch-preview-v1.mjs
+          node --check sh9/super-search/trip-ab-prompt-v1.mjs
+          node --check sh9/smart-travel/public-transport/smart-trip/smart-trip-alpha-ab-v1.mjs
+          node --check sh9/smart-travel/public-transport/smart-trip/smart-trip-ai-alpha-v1.js
+          node --check sh9/super-search/travel-gtfs-provider-v1.mjs
+          node --check sh9/super-search/sport-public-provider-v1.mjs
+          node --check sh9/super-search/travel-review-handoff-v1.mjs
+          node --check sh9/super-search/travel-local-gtfs-shadow-v2.mjs
+          node --check sh9/super-search/local-shadow-preview-v2.mjs
+          node --check sh9/super-search/travel-worker-bridge-v3.mjs
+          node --check sh9/super-search/local-gtfs-worker-v3.mjs
+          node --check sh9/super-search/local-shadow-preview-v3.mjs
+      - name: Super Search privacy, scopes, fallback and concurrency
+        run: node --test healthhub/tests/sho-super-search-v1.test.mjs healthhub/tests/sho-super-search-trip-review-v1.test.mjs healthhub/tests/sho-super-search-local-shadow-v2.test.mjs healthhub/tests/sho-super-search-shadow-preview-v2.test.mjs healthhub/tests/sho-super-search-worker-v3.test.mjs healthhub/tests/sho-super-search-shadow-preview-v3.test.mjs
+      - name: Verify real-data-ready offline A/B cold-warm benchmark
+        run: node --test healthhub/tests/sh9-hybrid-offline-compare-v1121.test.cjs
+      - name: Léna stopwatch correlation, prompt and privacy regression
+        run: node --test healthhub/tests/sho-trip-stopwatch-v1.test.mjs
+      - name: Smart Trip original Golden A/B UI and compact prompt parity
+        run: node --test healthhub/tests/sho-alpha-smart-trip-ab-v1.test.mjs
+      - name: Existing Smart Trip adapters regression (no product changes)
+        run: node --test healthhub/tests/sh9-hybrid-fast-core-v1117.test.mjs healthhub/tests/sh9-mav-fast-core-v1120.test.cjs healthhub/tests/sh9-provider-result-merge-v1110.test.mjs
