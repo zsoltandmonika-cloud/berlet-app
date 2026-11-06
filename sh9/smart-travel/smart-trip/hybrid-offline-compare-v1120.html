@@ -600,9 +600,11 @@ function prepare(data,{allowPrivate=false}={}){
  const trips=parsed.trips.map(t=>({...t,stops:t.stops.map(pair=>pair.slice())}));
  const services=Object.create(null);
  for(const [name,s] of Object.entries(parsed.services)){
+  if(!s||typeof s!=='object'){services[name]=s;continue}
   const exceptions=Object.create(null);
-  for(const [day,status] of Object.entries(s.exceptions||{}))exceptions[day]=status;
-  services[name]={from:s.from,to:s.to,days:s.days,exceptions};
+  if(s.exceptions&&typeof s.exceptions==='object')
+   for(const [day,status] of Object.entries(s.exceptions))exceptions[day]=status;
+  services[name]={...s,exceptions};
  }
  const compiled={stops,trips,services,source:parsed.source,generatedAt:parsed.generatedAt};
  const token=Object.freeze({});
