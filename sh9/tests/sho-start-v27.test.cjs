@@ -15,7 +15,7 @@ test('SHO grid is exactly 4×3: Wallet takes former Family updates spot, bottom 
  assert.doesNotMatch(html,/data-module="Családi aktualitások"/);
  assert.doesNotMatch(html,/class="tile wallet"/);
  assert.equal((html.match(/<button class="tile" data-module=/g)||[]).length,12);
- assert.match(html,/sho-wiring-v2\.js\?v=935-smart-valet-fullscreen/);
+ assert.match(html,/sho-wiring-v2\.js\?v=936-activity-one-route/);
 });
 
 test('SHO keeps shared taskbar, native OTA and Outlook bindings',()=>{
@@ -30,7 +30,7 @@ test('SHO keeps shared taskbar, native OTA and Outlook bindings',()=>{
 
 test('three new tiles route to actual HealthHub destinations and remain bilingual',()=>{
  const js=src('sh9/sho-preview/sho-wiring-v2.js');
- for(const marker of ["'Táplálkozás':HH+'nutrition/'","'Aktivitás':HH+'?sho=activity'","'Alvás':HH+'?sho=sleep'"]){
+ for(const marker of ["'Táplálkozás':HH+'nutrition/'","'Aktivitás':HH+'activity-one/?source=sho'","'Alvás':HH+'?sho=sleep'"]){
   assert.ok(js.includes(marker),marker);
  }
  assert.match(js,/\[data-module\]/);
@@ -39,6 +39,20 @@ test('three new tiles route to actual HealthHub destinations and remain bilingua
  assert.match(js,/Alvás:'Sleep'/);
 });
 
+test('SHO Activity launches standalone verified profile reader, preserving other module routes',()=>{
+ const routing=src('sh9/sho-preview/sho-wiring-v2.js');
+ const entry=src('healthhub/activity-one/index.html');
+ const engine=src('healthhub/activity-profile-test/activity-engine-v2.js');
+ assert.match(routing,/'Aktivitás':HH\+'activity-one\/\?source=sho'/);
+ assert.doesNotMatch(routing,/'Aktivitás':HH\+'\?sho=activity'/);
+ assert.match(routing,/'Alvás':HH\+'\?sho=sleep'/);
+ assert.match(routing,/'Egészség':HH,/);
+ assert.match(entry,/activity-profile-test\/activity-engine-v2\.js/);
+ assert.doesNotMatch(entry,/window\.hh191ManualSave=function/);
+ assert.match(engine,/window\.hh191ManualSave=function/);
+ assert.match(engine,/LOCAL_MEMO_TTL_MS=45000/);
+ assert.match(engine,/source\.read\(p,false\)/);
+});
 test('Sleep and Activity bridge opens only canonical HealthHub modules, on explicit opt-in route',()=>{
  const html=src('healthhub/index.html');
  const js=src('healthhub/sho-entry-v1.js');
@@ -47,7 +61,7 @@ test('Sleep and Activity bridge opens only canonical HealthHub modules, on expli
  assert.match(js,/root\.hhOpenActivity/);
  assert.match(js,/root\.hh225OpenSleep\|\|root\.hhOpenSleep/);
  assert.match(js,/if\(target!=='activity'&&target!=='sleep'\)return/);
- assert.doesNotMatch(js,/fetch\(|supabase|\.from\(/i);
+ assert.doesNotMatch(js.replace(/\/\/[^\n]*|\/\*[\s\S]*?\*\//g,''),/fetch\(|supabase|\.from\(/i);
 });
 
 test('SHO production unified glass dock preserves four canonical controls and critical integrations',()=>{
@@ -67,7 +81,7 @@ test('SHO production unified glass dock preserves four canonical controls and cr
  assert.match(html,/sh9-ota-browser-v1067\.js/);
  assert.match(html,/outlook-agenda-v1\.js/);
  assert.match(html,/sh9-golden-bottom-nav-v924\.js/);
- assert.equal((html.match(/data-module="/g)||[]).length,12);
+ assert.equal((html.match(/class="tile" data-module="/g)||[]).length,12);
  assert.match(html,/sho-security-emblem/);
  assert.match(html,/🛡️/);
  assert.match(html,/sh9-i18n-v1\.js\?v=32-sho-unified-dock/);

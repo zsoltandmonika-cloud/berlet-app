@@ -7,12 +7,22 @@ on:
       - "healthhub/activity-profile-test/**"
       - "healthhub/activity-one/**"
       - "healthhub/live-v191.js"
+      - "sh9/index.html"
+      - "sh9/sho-preview/index.html"
+      - "sh9/sho-preview/sho-wiring-v2.js"
+      - "sh9/tests/sho-start-v27.test.cjs"
+      - "sh9/tests/sho-smart-valet-preview-v1.test.cjs"
       - ".github/workflows/healthhub-activity-profile-test.yml"
   pull_request:
     paths:
       - "healthhub/activity-profile-test/**"
       - "healthhub/activity-one/**"
       - "healthhub/live-v191.js"
+      - "sh9/index.html"
+      - "sh9/sho-preview/index.html"
+      - "sh9/sho-preview/sho-wiring-v2.js"
+      - "sh9/tests/sho-start-v27.test.cjs"
+      - "sh9/tests/sho-smart-valet-preview-v1.test.cjs"
       - ".github/workflows/healthhub-activity-profile-test.yml"
   workflow_dispatch:
 
@@ -33,3 +43,4 @@ jobs:
           node --check healthhub/activity-profile-test/profile-memo-v2.test.cjs
           node --check healthhub/activity-profile-test/activity-one-release.test.cjs
           node --test healthhub/activity-profile-test/profile-isolation.test.cjs healthhub/activity-profile-test/profile-memo-v2.test.cjs healthhub/activity-profile-test/activity-one-release.test.cjs
+          node --test sh9/tests/sho-start-v27.test.cjs sh9/tests/sho-smart-valet-preview-v1.test.cjs
