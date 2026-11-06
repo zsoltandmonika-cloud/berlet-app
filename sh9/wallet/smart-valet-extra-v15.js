@@ -319,11 +319,22 @@ async function refresh(){
   if(error)throw error;
   if(id!==serial||cat!==category||p!==profile())return;
   rows=data||[];
+  const oldLink=$('svLegacyPassLinkV17');if(oldLink&&cat==='pass')oldLink.hidden=rows.length>0;
   $('svCount').textContent=String(rows.length);
   renderGallery();status('');
   w.dispatchEvent(new CustomEvent('sho-valet-extra-ready',{detail:{profile:p}}));
  }catch(e){
   if(id!==serial)return;
+  if(cat==='pass'){
+   try{
+    const local=await passCache('list',p,'');
+    if(id!==serial||p!==profile()||cat!==category)return;
+    rows=local.sort((a,b)=>String(b.created_at||'').localeCompare(String(a.created_at||'')));
+    renderGallery();$('svCount').textContent=String(rows.length);
+    status(rows.length?t('Offline: a titkosított bérletmásolat elérhető.','Offline: encrypted pass copy available.'):human(e),!rows.length);
+    return;
+   }catch(_){}
+  }
   status(human(e),true);
   $('svCount').textContent='0';
  }
