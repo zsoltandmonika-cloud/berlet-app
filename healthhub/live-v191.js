@@ -116,7 +116,14 @@ async function load(profile){
  try{var db=await openDb();try{var tx=db.transaction(['imports','activity']);out.imports=await req(tx.objectStore('imports').getAll())||[];out.activity=await req(tx.objectStore('activity').getAll())||[]}finally{db.close()}}catch(e){}
  out.imports=out.imports.filter(function(x){return x.profile===profile&&x.bundle});
  out.activity=out.activity.filter(function(x){return x.profile===profile});
- var cloud=await cloudBundle(profile);
+ // Bounded wait: a disconnected Dropbox must not leave the entire Activity blank.
+ // The raw local bridge records are retained untouched and clearly labelled if
+ // the fresh source cannot be confirmed in time.
+ var cloudTimeout=Object.freeze({timeout:true});
+ var cloud=await Promise.race([cloudBundle(profile),
+  new Promise(function(resolve){setTimeout(function(){resolve(cloudTimeout)},12000)})]);
+ out._cloudTimedOut=cloud===cloudTimeout;
+ if(out._cloudTimedOut)cloud=null;
  if(cloud){
   /* Activity needs the profile-filtered local bridge cache as well as fresh Cloud data.
      Both are already scoped to the requested profile, so keep them together. */
@@ -256,7 +263,20 @@ async function render(profileOverride){
   Promise.resolve().then(function(){return samsungApi.load(requestedProfile,window.HH_DROPBOX_VAULT)})
    .catch(function(){return {status:'unavailable',data:null,profile:requestedProfile}}):
   Promise.resolve({status:'not_configured',data:null,profile:requestedProfile});
- var sources=await Promise.all([load(requestedProfile),heightPromise,samsungPromise]);
+ // Samsung Direct is optional and may remain pending forever when its
+ // cloud export/session is unavailable. Its absence must not block HC.
+ var samsungGuard=new Promise(function(resolve){
+  var settled=false;
+  var timer=setTimeout(function(){
+   if(!settled){settled=true;resolve({status:'pending',data:null,profile:requestedProfile})}
+  },2500);
+  Promise.resolve(samsungPromise).then(function(value){
+   if(!settled){settled=true;clearTimeout(timer);resolve(value)}
+  },function(){
+   if(!settled){settled=true;clearTimeout(timer);resolve({status:'unavailable',data:null,profile:requestedProfile})}
+  });
+ });
+ var sources=await Promise.all([load(requestedProfile),heightPromise,samsungGuard]);
  if(renderId!==activityRenderSeq)return;
  var raw=sources[0],profileHeight=sources[1],samsungState=sources[2];
  var c=collect(raw,requestedProfile);
@@ -267,15 +287,18 @@ async function render(profileOverride){
  window.hhActivity191CurrentProfile=requestedProfile;
  window.hhActivity191Source={profile:requestedProfile,cloud:raw.latestCloud||null,rows:c.daily,samsung:samsungState};
  var f=periodDays(),g=m.goals;
+ var missingMeasuredDay=state.period==='1d'&&!m.daily.length;
  page.innerHTML=hero(requestedProfile)+'<div class="a191Body"><div class="a191ProfileDiag '+(requestedProfile==='monika'?'monika':'zsolt')+'">HEALTH CONNECT · '+(requestedProfile==='monika'?'MÓNIKA':'ZSOLT')+
   '<button type="button" class="a191SourceButton" onclick="hh191SourceDetails()">ⓘ Adatforrások</button></div>'+ 
+  (raw._cloudTimedOut?'<div class="a191MetricsHint" role="status">⚠️ A Dropbox nem válaszolt 12 másodpercen belül. Csak a böngészőben korábban tárolt mérési adatok jelennek meg, nem élő és nem ellenőrzött friss értékek.</div>':(!raw.latestCloud?'<div class="a191MetricsHint" role="status">⚠️ Friss Dropbox Health Connect-export nem érhető el. Az esetleg megjelenő adatok helyi mentésből származnak.</div>':''))+
+  (missingMeasuredDay?'<div class="a191MetricsHint" role="status">A kiválasztott napra nincs mért aktivitási adat. Ez nem nulla lépést jelent.</div>':'')+
   '<div class="a191CalendarBar"><button type="button" class="a191CalendarOpen" onclick="hh191Calendar()" aria-label="Korábbi nap aktivitásának megtekintése">📅 Nap kiválasztása <span aria-hidden="true">›</span></button></div>'+
  (state.period==='1d'&&state.selectedDay?'<div class="a191CalendarBar"><div class="a191CalendarOpen" style="background:var(--soft)"><span>📅 '+esc(state.selectedDay)+' · kiválasztott nap</span><button type="button" onclick="hh191Today()" style="border:0;border-radius:9px;padding:6px 9px;background:var(--a);color:#fff;font-weight:800">Ma ↩</button></div></div>':'')+
  (state.period==='1d'&&state.selectedDay&&!view.daily.length?'<div class="a191MetricsHint">Nincs erre a napra aktivitási rekord. A hiányzó adat nem mért nulla.</div>':'')+
  '<div class="a191Top">'+
- kpi('steps','Lépések',(state.selectedDay&&state.period==='1d'&&!view.daily.length?'—':n(m.steps,0)),'lépés',pct(m.steps,g.steps),n(g.steps,0),'blue')+
- kpi('cal',m.hasSamsungCalories?'Kalória · Samsung':'Elégetett kalória',m.confirmedCalories?n(m.cal,0):(m.steps>0?'—':'0'),'kcal',pct(m.cal,g.cal),n(g.cal,0),'orange')+
- kpi('time',m.hasSamsungActiveTime?'Aktív idő · Samsung':'Aktív idő · HC',m.active>0?Math.round(m.active):(m.steps>0?'—':'0'),'perc',pct(m.active,g.active),n(g.active,0),'green')+
+ kpi('steps','Lépések',(missingMeasuredDay?'—':n(m.steps,0)),'lépés',pct(m.steps,g.steps),n(g.steps,0),'blue')+
+ kpi('cal',m.hasSamsungCalories?'Kalória · Samsung':'Elégetett kalória',missingMeasuredDay?'—':(m.confirmedCalories?n(m.cal,0):(m.steps>0?'—':'0')),'kcal',pct(m.cal,g.cal),n(g.cal,0),'orange')+
+ kpi('time',m.hasSamsungActiveTime?'Aktív idő · Samsung':'Aktív idő · HC',missingMeasuredDay?'—':(m.active>0?Math.round(m.active):(m.steps>0?'—':'0')),'perc',pct(m.active,g.active),n(g.active,0),'green')+
  kpi('dist','Távolság'+(m.estimated?' ≈':''),m.dist==null?'—':n(m.dist,1),'km',pct(m.dist,g.dist),n(g.dist,1),'violet')+
  '</div>'+
  '<div class="a191Small">'+
