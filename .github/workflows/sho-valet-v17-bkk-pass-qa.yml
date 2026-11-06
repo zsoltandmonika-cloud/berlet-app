@@ -1,0 +1,33 @@
+name: SHO Smart Valet v17 · Budapest Pass Integration QA
+on:
+  pull_request:
+    paths:
+      - 'sh9/wallet/**'
+      - 'sh9/tests/sho-smart-valet-v17-bkk-pass.test.cjs'
+      - 'sh9/sho-preview/sho-wiring-v2.js'
+      - 'supabase/migrations/20261106014500_sho_valet_budapest_pass_v17.sql'
+      - '.github/workflows/sho-valet-v17-bkk-pass-qa.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'sh9/wallet/**'
+      - 'sh9/tests/sho-smart-valet-v17-bkk-pass.test.cjs'
+permissions:
+  contents: read
+jobs:
+  budapest-pass:
+    runs-on: ubuntu-latest
+    timeout-minutes: 9
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate legacy migration, full-screen and preserved existing Valet flows
+        run: |
+          node --check sh9/wallet/smart-valet-optical-v16.js
+          node --check sh9/wallet/smart-valet-extra-v15.js
+          node --check sh9/wallet/smart-valet-bkk-fullscreen-v17.js
+          node --check sh9/wallet/smart-valet-bkk-legacy-v17.js
+          node --test sh9/tests/sho-smart-valet-v17-bkk-pass.test.cjs
+          node --test sh9/tests/sho-smart-valet-v16-unified-optical.test.cjs
+          node --test sh9/tests/sho-smart-valet-v15-health-bank.test.cjs
+          node --test sh9/tests/sho-smart-valet-v13-universal-pin.test.cjs
+          node --test sh9/tests/sho-smart-valet-v10-coupons-identity.test.cjs
