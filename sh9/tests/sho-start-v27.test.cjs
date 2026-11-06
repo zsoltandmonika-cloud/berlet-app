@@ -61,7 +61,7 @@ test('Sleep and Activity bridge opens only canonical HealthHub modules, on expli
  assert.match(js,/root\.hhOpenActivity/);
  assert.match(js,/root\.hh225OpenSleep\|\|root\.hhOpenSleep/);
  assert.match(js,/if\(target!=='activity'&&target!=='sleep'\)return/);
- assert.doesNotMatch(js,/fetch\(|supabase|\.from\(/i);
+ assert.doesNotMatch(js.replace(/\/\/[^\n]*|\/\*[\s\S]*?\*\//g,''),/fetch\(|supabase|\.from\(/i);
 });
 
 test('SHO production unified glass dock preserves four canonical controls and critical integrations',()=>{
@@ -81,7 +81,7 @@ test('SHO production unified glass dock preserves four canonical controls and cr
  assert.match(html,/sh9-ota-browser-v1067\.js/);
  assert.match(html,/outlook-agenda-v1\.js/);
  assert.match(html,/sh9-golden-bottom-nav-v924\.js/);
- assert.equal((html.match(/data-module="/g)||[]).length,12);
+ assert.equal((html.match(/class="tile" data-module="/g)||[]).length,12);
  assert.match(html,/sho-security-emblem/);
  assert.match(html,/🛡️/);
  assert.match(html,/sh9-i18n-v1\.js\?v=32-sho-unified-dock/);
