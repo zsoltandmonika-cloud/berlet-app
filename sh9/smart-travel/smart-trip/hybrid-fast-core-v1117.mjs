@@ -98,13 +98,23 @@ function prefilter({query,providerResults={},clock=()=>performance.now(),
    timings,failures:[...failures,"combine"]};
  }
  const chosen=timed("selection",()=>selectCandidates(merged.options,maxCandidates));
- const json=timed("serialization",()=>candidateEnvelope(query,chosen,{maxBytes:maxJsonBytes}));
+ let included=chosen;
+ const json=timed("serialization",()=>{
+  // Reduce the number of complete alternatives, NEVER truncate a leg or clock.
+  // The preferred direct Volán and Sajó candidates remain first.
+  while(included.length){
+   const raw=candidateEnvelope(query,included,{maxBytes:maxJsonBytes});
+   if(raw)return raw;
+   included=included.slice(0,-1);
+  }
+  return null;
+ });
  const elapsedMs=Math.max(0,clock()-begun);
  if(!chosen.length)return {status:"fallback_required",reason:"no_comparable_verified_routes",
   candidates:[],timings,elapsedMs,failures,excluded:merged.excluded?.length||0};
  if(!json)return {status:"fallback_required",reason:"candidate_payload_exceeds_budget",
   candidates:[],timings,elapsedMs,failures,excluded:merged.excluded?.length||0};
- return {status:"ready",schema:SCHEMA,candidates:chosen,json,timings,elapsedMs,
+ return {status:"ready",schema:SCHEMA,candidates:included,json,timings,elapsedMs,
   failures,excluded:merged.excluded?.length||0,sourceCount:{mav:ma.length,volan:vo.length,bkk:ba.length}};
 }
 /* Minimal future end-to-end telemetry contract; stages capture durations only.
