@@ -9,7 +9,11 @@ const fingers=new Map();let initialDistance=0,initialZoom=1,drag=null;
 function paint(){
  const img=$('svBkkFullImageV17');if(!img)return;
  const next=side==='back'?(urls.back||urls.front):urls.front;
- if(img.getAttribute('src')!==next)img.src=next;
+ if(img.getAttribute('src')!==next){
+  img.classList.remove('sv-bkk-fitted-v18');
+  img.style.removeProperty('width');img.style.removeProperty('height');
+  img.src=next;
+ }
  img.style.transform='translate('+dx+'px,'+dy+'px) rotate('+rotation+'deg) scale('+zoom+')';
  const turn=$('svBkkRotateV18');
  if(turn){turn.setAttribute('aria-pressed',String(rotation%180!==0));turn.title=rotation+'°'}
@@ -34,6 +38,7 @@ function fitToStage(){
  const fit=Math.min(width/displayW,height/displayH);
  img.style.width=Math.max(1,Math.floor(img.naturalWidth*fit))+'px';
  img.style.height=Math.max(1,Math.floor(img.naturalHeight*fit))+'px';
+ img.classList.add('sv-bkk-fitted-v18');
  paint();
 }
 function releaseOrientation(){
@@ -71,7 +76,9 @@ function close(){
  const dialog=$('svBkkFullDialogV17');
  if(d.fullscreenElement===dialog&&d.exitFullscreen)void d.exitFullscreen().catch(()=>{});
  if(dialog?.open)dialog.close();
- $('svBkkFullImageV17').removeAttribute('src');void releaseLock();
+ const img=$('svBkkFullImageV17');img.removeAttribute('src');
+ img.classList.remove('sv-bkk-fitted-v18');img.style.removeProperty('width');img.style.removeProperty('height');
+ void releaseLock();
 }
 async function keepAwake(){
  if(!('wakeLock' in navigator)||d.visibilityState!=='visible')return;
