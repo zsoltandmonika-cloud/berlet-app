@@ -168,7 +168,7 @@
   '.app-header','.topbar','.hero','#heroH'
  ];
  const currentPath=()=>w.location?.pathname||'';
- const healthShell=()=>/\/healthhub\/(?:index\.html)?$/.test(currentPath())||/\/healthhub\/activity-fast\/(?:index\.html)?$/.test(currentPath());
+ const healthShell=()=>/\/healthhub\/(?:index\.html)?$/.test(currentPath());
  function visibleOverlay(id){
   const el=$(id);
   return el&&el.classList?.contains('on')?el:null;
