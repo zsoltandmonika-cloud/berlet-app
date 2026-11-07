@@ -18,7 +18,7 @@ function fakeResponse(whenIso){
   }
  });
  const wrap=steps=>({legs:[{steps}]});
- return {routes:[
+ return {demoFixture:true,routes:[
   wrap([
    walk(10,680),
    ride("Próbamegálló A","Próbamegálló B",70,280,"DEMO V1","Volán tesztadat","BUS"),
