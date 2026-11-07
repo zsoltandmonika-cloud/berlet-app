@@ -1,6 +1,6 @@
 # Smart Trip V5 · Google Routes guarded backend
 
-**Status: quota-only SQL migration applied to HealthHub-Core on 2026-11-07; Edge Function NOT deployed; Google requests remain hardcoded OFF.**
+**Status: quota SQL deployed, Edge Function v2 deployed with JWT ON and compile-time Google requests OFF (verified 2026-11-07).**
 No production Smart Trip UI, My Trips or Storage objects have been changed.
 The $5 Google Billing budget is a notification, **not a hard cap**.
 
@@ -13,6 +13,8 @@ The $5 Google Billing budget is a notification, **not a hard cap**.
 - Endpoint request timeout 12 s; strict input size and response size.
 - Approved key stays server-only; no AI forwarding, UI writes or caching.
 - A compile-time OFF switch remains until launch approval.
+- Transit requests prefer FEWER_TRANSFERS and require offset-qualified RFC3339 departure times (e.g. 2026-11-27T15:00:00+01:00).
+- Responses, when legally permitted and activated, are tagged text_only, Google Maps-attributed, and ai_processing disabled. No Google content to an LLM or any map.
 
 ## SQL migration applied and verified
 `supabase/migrations/20261107170126_sho_smart_trip_google_quota_v1.sql` is recorded in Supabase migration history under the same timestamp.
@@ -28,10 +30,12 @@ The $5 Google Billing budget is a notification, **not a hard cap**.
    quota reductions where possible. A shared key used elsewhere can bypass the
    in-app cap: only **this** server endpoint is covered.
 3. Complete backup/restore readiness (including separate private Storage files) before broader rollout.
-4. Verify service_role key and server-only secret storage, and deploy the new Edge Function **with its hardcoded OFF switch unchanged**.
+4. Edge Function v2 deployed with JWT ON and hardcoded OFF. Next: operator must save `HH_SMART_TRIP_GOOGLE_ROUTES_KEY` through Supabase Secrets (never chat or git); check source and auth without exposing keys.
 5. Validate Google service-specific content terms, provider response, attribution and route accuracy.
 6. Approve activation explicitly only after live security tests and measured costs.
 7. Keep My Trips/AI integrations separate and legally reviewed.
+
+Detailed checklists: `eea-usage-guard.md`, `google-key-onboarding.md`, and `production-rollout-gates.md`. Strict manual Google billing account / EEA terms review remains OPEN.
 
 **Budget truth:** 20/day and 200/month limit the *number* of calls, not USD
 spend. The cost may vary by SKU and cannot be guaranteed under $5 merely by
