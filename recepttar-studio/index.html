@@ -403,7 +403,7 @@
   <input id="newTitle" class="field-input" autocomplete="off" placeholder="pl. Sajtos pogácsa">
   <label class="field-label" for="newCategory">Kategória</label>
   <input id="newCategory" class="field-input" list="categoryList" autocomplete="off" placeholder="Válassz vagy írj újat">
-  <label class="sync-choice"><input id="newCentralSync" type="checkbox" checked> <span><b>Központi mentés</b><small>Puter felhőmentéssel telefonon és PC-n is megjelenik.</small></span></label>
+  <label class="sync-choice"><input id="newCentralSync" type="checkbox" checked disabled> <span><b>☁ Automatikus felhőmentés</b><small>Minden recept és kép a központi Puter-tárhelyre kerül. Helyi biztonsági másolat csak sikertelen szinkron esetén marad.</small></span></label>
   <div class="dialog-actions">
     <button value="cancel" class="outline-btn">Mégse</button>
     <button type="button" id="saveNewRecipe" class="primary-btn">Mentés</button>
@@ -433,7 +433,7 @@
     <span aria-hidden="true">🎨</span>
     <span><b>Kép és receptkártya újragenerálása</b><small>A recept a Léna Golden Standard szerkesztőben nyílik meg.</small></span>
   </button>
-  <p class="local-note">Az alapadatok és a videólink helyben mentődnek; Puter-bejelentkezéssel a többi eszközre is szinkronizálódnak. Az eredeti receptfájl nem sérül.</p>
+  <p class="local-note">Az alapadatok és a videólink felhőbe szinkronizálódnak. Sikertelen hálózati mentés esetén figyelmeztetés jelenik meg.</p>
   <div class="danger-row">
     <button type="button" id="resetRecipe" class="outline-btn">Alapadatok visszaállítása</button>
     <button type="button" id="deleteRecipe" class="danger-btn">🗑️ Törlés</button>
@@ -453,7 +453,7 @@
     <button id="adminAddRecipe" class="outline-btn">＋ Kártya feltöltése</button>
     <button id="syncSettingsBtn" class="outline-btn">☁ Központi tárhely</button>
   </div>
-  <p class="local-note">Az új recept először ezen az eszközön mentődik. Központi mentéssel ugyanaz a recept PC-n, telefonon és másik gépen is megnyitható.</p>
+  <p class="local-note">A központi Puter-felhő az elsődleges tárhely. Sikertelen felhőmentéskor a rendszer csak ideiglenes biztonsági másolatot őriz meg, és figyelmeztet.</p>
 
   <section class="category-admin-box">
     <div class="category-admin-head">
@@ -650,8 +650,8 @@
     </section>
 
     <label class="sync-choice">
-      <input id="studioCentralSync" type="checkbox" checked>
-      <span><b>Központi mentés</b><small>A kész kártya és az olvasható recept a Puter felhőbe is bekerül.</small></span>
+      <input id="studioCentralSync" type="checkbox" checked disabled>
+      <span><b>☁ Automatikus felhőmentés bekapcsolva</b><small>A recept, a címlapfotó és a képes kártya automatikusan a Puter-felhőbe szinkronizálódik. Sikertelen mentés esetén figyelmeztetés jelenik meg.</small></span>
     </label>
 
     <div class="studio-provider-note">
@@ -674,7 +674,7 @@
 <script src="../recepttar/data.js?v=25"></script>
 <script src="../recepttar/readable-data.js?v=35"></script>
 <script src="stangli-2026.js?v=1"></script>
-<script src="app.js?v=42"></script>
+<script src="app.js?v=43"></script>
 
 <script defer src="/berlet-app/sh9/shared/sh9-golden-controls-v1.js?v=934-unified-glass-dock"></script>
 <script defer src="/berlet-app/sh9/shared/sh9-golden-bottom-nav-v924.js?v=924-unified"></script>
