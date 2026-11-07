@@ -15,7 +15,7 @@ The $5 Google Billing budget is a notification, **not a hard cap**.
 - A compile-time OFF switch remains until launch approval.
 
 ## SQL staged, NOT applied
-`supabase/migrations/20261107120000_sho_smart_trip_google_quota_v1.sql`
+`supabase/migrations/20261107170126_sho_smart_trip_google_quota_v1.sql`
 is an isolated proposal. It must be security-reviewed and deployed only after
 backup/restore readiness, then confirmed with concurrent calls in staging.
 The SQL restricts counter mutation to an explicit service-role RPC; tables have
