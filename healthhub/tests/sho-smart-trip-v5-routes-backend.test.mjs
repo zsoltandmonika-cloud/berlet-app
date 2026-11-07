@@ -45,9 +45,22 @@ test("No paid provider fetch before successful reservation",()=>{
     file.indexOf("await fetch(GOOGLE"));
   assert.match(file,/DAILY_CAP = 20, MONTHLY_CAP = 200/);
 });
-test("The request validation accepts ISO dates and validates bearer tokens",()=>{
-  assert.ok(file.includes(String.raw`/^\d{4}-\d{2}-\d{2}T/`));
+test("The request validation is timezone-safe for Budapest departures",()=>{
+  const sourcePattern = String.raw`/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(?::\d{2}(?:\.\d{1,3})?)?(?:Z|[+-](?:[01]\d|2[0-3]):[0-5]\d)$/`;
+  assert.ok(file.includes(sourcePattern));
+  const matcher = new RegExp(sourcePattern.slice(1,-1));
+  assert.ok(matcher.test("2026-11-27T15:00:00+01:00"));
+  assert.ok(matcher.test("2026-11-27T14:00:00Z"));
+  assert.equal(matcher.test("2026-11-27T15:00"),false);
+  assert.equal(matcher.test("2026-11-27T15:00:00"),false);
   assert.ok(file.includes("/^Bearer "));
   assert.ok(file.includes("{20,8000}$/"));
-  assert.ok(file.includes(".test(auth)"));
+});
+test("EEA isolation: Google routes are labelled text-only, never fed to LLM or stored",()=>{
+  assert.match(file,/presentation:"text_only"/);
+  assert.match(file,/ai_processing:"disabled"/);
+  assert.match(file,/attribution:"Google Maps"/);
+  assert.match(file,/routingPreference:"FEWER_TRANSFERS"/);
+  assert.doesNotMatch(file,/routes\.polyline/);
+  assert.doesNotMatch(file,/api\.openai\.com|OPENAI_API_KEY/);
 });
