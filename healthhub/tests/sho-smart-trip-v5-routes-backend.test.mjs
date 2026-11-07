@@ -65,15 +65,17 @@ test("EEA isolation: Google routes are labelled text-only, never fed to LLM or s
   assert.doesNotMatch(file,/api\.openai\.com|OPENAI_API_KEY/);
 });
 
-test("Secret diagnostic is authenticated, zero-billing, and hides key value",()=>{
-  assert.match(file,/payload\?\.mode === "secret_check"/);
-  assert.match(file,/authenticate\(req,profile as "m"\|"z"\)/);
-  assert.match(file,/env\("HH_SMART_TRIP_GOOGLE_ROUTES_KEY"\)/);
-  assert.match(file,/google_request:false,quota_consumed:0/);
-  assert.match(file,/validity:"not_verified"/);
-  assert.match(file,/google_api_enabled:false/);
-  assert.ok(file.indexOf('payload?.mode === "secret_check"') <
+test("Route preflight authenticates but does not reserve quota or call Google",()=>{
+  assert.match(file,/\.mode === "route_preflight"/);
+  assert.match(file,/request_valid:true,user_authorized:true/);
+  assert.match(file,/google_enabled:false,google_request:false,quota_consumed:0/);
+  assert.match(file,/source:"local_validation",note:"not_live_google_result"/);
+  assert.doesNotMatch(file,/secret_check|google_key_local_check/);
+  assert.ok(file.indexOf('if (!await authenticate(req, query.profile))') <
+    file.indexOf('.mode === "route_preflight"'));
+  assert.ok(file.indexOf('.mode === "route_preflight"') <
     file.indexOf('admin.rpc("hh_smart_trip_google_reserve")'));
-  assert.ok(file.indexOf('payload?.mode === "secret_check"') <
+  assert.ok(file.indexOf('.mode === "route_preflight"') <
     file.indexOf("await fetch(GOOGLE"));
+  assert.match(file,/unsupported_mode/);
 });
