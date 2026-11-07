@@ -1,7 +1,7 @@
 # Smart Trip V5 · Google Routes guarded backend
 
-**Status: development-only; not deployed; billing/network hard-lock remains FALSE.**
-This branch changes no production Smart Trip, My Trips or Supabase database.
+**Status: quota-only SQL migration applied to HealthHub-Core on 2026-11-07; Edge Function NOT deployed; Google requests remain hardcoded OFF.**
+No production Smart Trip UI, My Trips or Storage objects have been changed.
 The $5 Google Billing budget is a notification, **not a hard cap**.
 
 ## Implemented
@@ -14,23 +14,23 @@ The $5 Google Billing budget is a notification, **not a hard cap**.
 - Approved key stays server-only; no AI forwarding, UI writes or caching.
 - A compile-time OFF switch remains until launch approval.
 
-## SQL staged, NOT applied
-`supabase/migrations/20261107170126_sho_smart_trip_google_quota_v1.sql`
-is an isolated proposal. It must be security-reviewed and deployed only after
-backup/restore readiness, then confirmed with concurrent calls in staging.
-The SQL restricts counter mutation to an explicit service-role RPC; tables have
-RLS with no anon/authenticated access.
+## SQL migration applied and verified
+`supabase/migrations/20261107170126_sho_smart_trip_google_quota_v1.sql` is recorded in Supabase migration history under the same timestamp.
+- Isolated PostgreSQL 17 test: 25 parallel calls, exactly 20 allowed, 5 denied; monthly cap and grants passed.
+- Production: quota table/function exist, RLS enabled, anon/authenticated RPC denied, service_role RPC allowed.
+- 25-call production smoke test wrapped in transaction and rolled back; quota counter remains 0.
+- Backup existence reported by user, but independent restoration proof and private Storage object backup remain outstanding.
+- Security Advisors reports RLS-with-no-policy informational item for the quota table; deliberate because clients have no direct table access.
 
 ## Remaining activation gates
 1. Review Routes API charges and EEA Google Maps Platform data-use conditions.
 2. Confirm $5 budget alerts, API key restricted to Routes API, and Google Cloud
    quota reductions where possible. A shared key used elsewhere can bypass the
    in-app cap: only **this** server endpoint is covered.
-3. Test database migration and run >=25 concurrent reservation attempts in a
-   **separate non-production** environment, confirming 20/day 200/month.
-4. Perform security and regression tests; check service_role key and secret storage.
-5. Validate provider response, attribution rules and route accuracy.
-6. Deploy deliberately with rollback; only then change hardcoded OFF switch.
+3. Complete backup/restore readiness (including separate private Storage files) before broader rollout.
+4. Verify service_role key and server-only secret storage, and deploy the new Edge Function **with its hardcoded OFF switch unchanged**.
+5. Validate Google service-specific content terms, provider response, attribution and route accuracy.
+6. Approve activation explicitly only after live security tests and measured costs.
 7. Keep My Trips/AI integrations separate and legally reviewed.
 
 **Budget truth:** 20/day and 200/month limit the *number* of calls, not USD
