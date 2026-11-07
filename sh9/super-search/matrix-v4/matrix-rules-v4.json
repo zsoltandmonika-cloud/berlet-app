@@ -1,0 +1,54 @@
+{
+  "schema": "sho.matrix-rules/4",
+  "version": "4.0.0-alpha",
+  "commands": {
+    "R": "route",
+    "P": [
+      "BKK",
+      "MAV",
+      "VOLAN"
+    ],
+    "J": "join_at_verified_nodes",
+    "C": "validate_schedule_and_connections",
+    "O": "select_one",
+    "T": "sh9.trip-pack/1",
+    "L": "optional_lena_touch"
+  },
+  "parallel": {
+    "sources": [
+      "bkk",
+      "mav",
+      "volan"
+    ],
+    "deadlineMs": 12000,
+    "maxRoutesPerSource": 40,
+    "maxLegs": 8,
+    "maxPaths": 500
+  },
+  "connections": {
+    "bkkToBkkMinMinutes": 5,
+    "intercityTransferMinMinutes": 8,
+    "walkToLocalMinMinutes": 2,
+    "maxWaitMinutes": 90,
+    "mustMatchVerifiedCanonicalNodeId": true,
+    "verifiedWalkEdgeRequiredForDistinctNodes": true
+  },
+  "ranking": {
+    "distancePreference": [
+      "direct_volan",
+      "sajo_express",
+      "other_express",
+      "other"
+    ],
+    "maxTransfers": 4,
+    "preferLessWaiting": true,
+    "preferLessWalking": true,
+    "preferFewerTransfers": true
+  },
+  "output": {
+    "tripPackSchema": "sh9.trip-pack/1",
+    "save": "existing_my_trips_only_on_explicit_authenticated_action",
+    "allowUnverifiedEndToEnd": false,
+    "aiStoryBlocksRouteRender": false
+  }
+}

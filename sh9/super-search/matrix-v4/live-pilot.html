@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="hu"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#08152e">
+<title>SHO Matrix Search V4 · valódi helyi menetrend pilot</title>
+<style>
+:root{color-scheme:dark;--accent:#7bc5ff;--stroke:rgba(194,224,255,.22);--glass:rgba(28,52,90,.52)}
+*{box-sizing:border-box}html{font-family:system-ui,-apple-system,Segoe UI,Arial,sans-serif;background:#08142a;color:#edf4ff}body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 72% 0%,#1b3264b8,transparent 60%),radial-gradient(ellipse at 12% 73%,#502c6b77,transparent 52%),#07132a;padding:16px}
+main{width:min(100%,900px);margin:auto;padding-bottom:48px}a{color:#a5d8ff}h1{font-size:clamp(23px,5vw,34px);margin:6px 0}h2{font-size:18px;margin:0 0 12px}h3{font-size:15px;margin:0}
+p,small{color:#d0deed;line-height:1.45}small{display:block}.eyebrow{color:var(--accent);font-size:12px;font-weight:800;letter-spacing:.15em;text-transform:uppercase}.glass{border:1px solid var(--stroke);background:var(--glass);border-radius:20px;backdrop-filter:blur(13px);box-shadow:0 12px 35px #0004;padding:18px;margin:16px 0}
+input,select,button{font:inherit}input,select{background:#091c3d;color:#fff;border:1px solid #8ab0db66;border-radius:12px;min-width:0;padding:12px;width:100%}input:focus-visible,select:focus-visible,button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+label{display:block;font-size:12px;font-weight:700;color:#b9cff0;margin-bottom:6px}.fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}.triple{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.source{background:#0a1c3a95;border:1px solid #afd7ff33;border-radius:15px;padding:14px}.source h3{display:flex;align-items:center;gap:9px;margin-bottom:12px}.source .fields{grid-template-columns:1fr}.source input{font-size:13px;padding:11px}
+.action{border:1px solid #b0dfff70;border-radius:14px;padding:14px 20px;font-size:15px;font-weight:800;color:#05152b;background:linear-gradient(110deg,#8fe0ff,#a9b4ff 65%,#ffc0ed);cursor:pointer;min-height:49px}.action:disabled{opacity:.6;cursor:progress}.secondary{background:transparent;color:#d8e9ff}.actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+#elapsed{font-variant-numeric:tabular-nums;font-weight:900;font-size:28px;color:#bbecff}.monika{--accent:#ffb2e4}.note{color:#fbd5dc}.hidden{display:none!important}.result{display:grid;gap:10px}article.leg{border:1px solid #b4d9ff38;background:#061933a0;border-radius:12px;padding:11px 13px}.leg strong{display:block;margin-bottom:3px}.stat{display:flex;justify-content:space-between;gap:10px;align-items:center;border-bottom:1px solid #a4c8ff24;padding:6px 0}.stat span:first-child{font-weight:650}.stat span:last-child{color:#acd0f5;word-break:break-word}.pill{font-size:12px;border:1px solid #afd9ff66;padding:4px 9px;border-radius:99px;color:#bedcff}.muted{color:#a7bedb}
+@media(max-width:660px){.triple{grid-template-columns:1fr}.fields{grid-template-columns:1fr 1fr}.glass{padding:14px}.source .fields{grid-template-columns:1fr 1fr}.source input{font-size:12px}.stat{flex-direction:column;align-items:flex-start;gap:2px}}
+</style>
+</head>
+<body><main>
+<div class="eyebrow">SHO Smart Trip · Matrix V4 · izolált pilot</div>
+<h1>⚡ Három kereső, egy stopper</h1>
+<p>Készüléken tárolt MÁV és Volán, valamint hivatalos BKK menetrendi próba. A 3 kereső párhuzamosan indul. <strong>Ez még megállótól megállóig teszt, nem teljes ajtótól ajtóig tervezés.</strong></p>
+<section class="glass" aria-labelledby="settings"><h2 id="settings">Keresési kérés</h2>
+<div class="fields">
+<div><label for="day">Utazás dátuma</label><input id="day" type="date" value="2026-11-27"></div>
+<div><label for="time">Indulás legkorábban</label><input id="time" type="time" value="15:15"></div>
+<div><label for="profile">Profil (teszt: nincs felhőírás)</label><select id="profile"><option value="m">🩷 Mónika</option><option value="z">💙 Zsolt</option></select></div>
+<div><label for="primary">Melyik szolgáltató teljes útját mutassuk?</label><select id="primary"><option value="mav">🚆 MÁV</option><option value="volan">🚌 Volán</option><option value="bkk">🚋 BKK</option></select></div>
+</div></section>
+<section class="glass" aria-labelledby="sources"><h2 id="sources">Párhuzamos keresőszálak</h2>
+<p class="muted">A mezőknek az adott szolgáltató GTFS-fájljában található <strong>pontos megállónevet</strong> kell tartalmazniuk. A szolgáltatók induló és célállomásait nem tekintjük automatikusan azonos helynek.</p>
+<div class="triple">
+<div class="source"><h3>🚋 BKK <span class="pill" id="tag-bkk">nem indult</span></h3><div class="fields">
+<div><label for="bkk-from">Induló megálló</label><input id="bkk-from" value="Kolosy tér" autocomplete="off"></div>
+<div><label for="bkk-to">Érkező megálló</label><input id="bkk-to" value="Margit híd, budai hídfő H" autocomplete="off"></div>
+</div><small>Hivatalos 17, 19, 41, 260 GTFS-szelet. <a href="../../smart-travel/public-transport/smart-trip/">Smart Trip</a></small></div>
+<div class="source"><h3>🚆 MÁV <span class="pill" id="tag-mav">nem indult</span></h3><div class="fields">
+<div><label for="mav-from">Induló állomás</label><input id="mav-from" value="Budapest-Keleti" autocomplete="off"></div>
+<div><label for="mav-to">Érkező állomás</label><input id="mav-to" value="Kazincbarcika" autocomplete="off"></div>
+</div><small>Saját helyi menetrend szükséges. <a href="../../smart-travel/public-transport/mav/">MÁV GTFS megnyitása</a></small></div>
+<div class="source"><h3>🚌 Volán <span class="pill" id="tag-volan">nem indult</span></h3><div class="fields">
+<div><label for="volan-from">Induló megálló</label><input id="volan-from" value="Budapest, Stadion autóbusz-pályaudvar" autocomplete="off"></div>
+<div><label for="volan-to">Érkező megálló</label><input id="volan-to" value="Kazincbarcika, autóbusz-állomás" autocomplete="off"></div>
+</div><small>Saját helyi menetrend szükséges. <a href="../../smart-travel/public-transport/volan/">Volán GTFS megnyitása</a></small></div>
+</div>
+</section>
+<section class="glass" aria-label="Keresés indítása">
+<div class="actions"><button class="action" id="run" type="button">⚡ 3 keresés párhuzamosan</button>
+<button class="action secondary" id="cancel" type="button" disabled>Megszakítás</button>
+<strong id="elapsed">0,0 mp</strong></div>
+<p id="status" role="status" aria-live="polite">Kész a próbára. Helyi GTFS csak keresésindítás után olvasódik.</p>
+</section>
+<section id="results" class="glass hidden" aria-labelledby="resultTitle">
+<h2 id="resultTitle">Keresési eredmény</h2><div id="metrics"></div>
+<div id="travel" class="result"></div><p id="story"></p>
+<p class="note">⚠️ Az útiterv ezen a pilotoldalon nincs My Tripsbe mentve, és Léna szövege egyelőre szabályalapú. Nem állítunk valós idejű késési vagy ajtótól ajtóig információt.</p>
+</section>
+<footer><small>Csak olvasás · nincs privát GTFS-feltöltés · nincs adatbázismódosítás · éles Smart Trip változatlan · Matrix V4 külön pilot.</small></footer>
+</main>
+<script src="../../smart-travel/public-transport/mav/rail-gtfs-core-v1.js"></script>
+<script src="../../smart-travel/public-transport/smart-trip/smart-trip-pack-v1078.js"></script>
+<script type="module" src="./matrix-live-pilot-v4.mjs"></script>
+</body></html>
