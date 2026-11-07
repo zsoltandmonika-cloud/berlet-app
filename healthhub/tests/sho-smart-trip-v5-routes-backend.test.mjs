@@ -47,5 +47,5 @@ test("No paid provider fetch before successful reservation",()=>{
 });
 test("The request validation must accept a genuine ISO date",()=>{
   assert.ok(file.includes(String.raw`/^\d{4}-\d{2}-\d{2}T/`));
-  assert.ok(file.includes(String.raw`/^Bearer [A-Za-z0-9._~+\/= -]`)===false);
+  assert.ok(file.includes(String.raw`/^Bearer [A-Za-z0-9._~+\\/=-]{20,8000}$/`));
 });
