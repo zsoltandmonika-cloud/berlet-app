@@ -1,24 +1,24 @@
 {
   "schema": "healthhub.daily-health-public/1",
-  "date": "2026-11-06",
-  "generatedAt": "2026-11-06T07:56:46+01:00",
+  "date": "2026-11-07",
+  "generatedAt": "2026-11-07T03:07:48+01:00",
   "location": "Budapest",
   "weather": {
     "available": true,
-    "observedAt": "2026-11-06T07:45",
-    "temperature": 4.1,
-    "apparentTemperature": 1.5,
-    "daytimeMaxFeelsLike": 9.2,
-    "uvMax": 2.5,
-    "pressureHpa": 1027.2,
-    "pressureChange6h": -1.6,
-    "windGust": 5.8
+    "observedAt": "2026-11-07T03:00",
+    "temperature": 3.6,
+    "apparentTemperature": 0.2,
+    "daytimeMaxFeelsLike": 6.8,
+    "uvMax": 2.4,
+    "pressureHpa": 1029.2,
+    "pressureChange6h": 0.8,
+    "windGust": 12.2
   },
   "air": {
     "available": true,
-    "observedAt": "2026-11-06T07:00",
-    "aqi": 42.0,
-    "pm25": 19.2,
+    "observedAt": "2026-11-07T03:00",
+    "aqi": 41.0,
+    "pm25": 16.1,
     "pollen": {
       "available": true,
       "name": "Éger",
