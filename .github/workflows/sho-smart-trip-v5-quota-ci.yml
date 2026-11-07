@@ -7,6 +7,7 @@ on:
       - 'healthhub/tests/sho-smart-trip-v5-routes-backend.test.mjs'
       - 'healthhub/tests/sho-smart-trip-v5-google-first.test.mjs'
       - 'healthhub/tests/sho-smart-trip-v5-first-preflight.test.mjs'
+      - 'healthhub/tests/sho-smart-trip-v5-preflight-ui.test.mjs'
       - 'sh9/smart-travel/public-transport/smart-trip/v5/**'
       - '.github/workflows/sho-smart-trip-v5-quota-ci.yml'
   push:
@@ -18,6 +19,7 @@ on:
       - 'healthhub/tests/sho-smart-trip-v5-routes-backend.test.mjs'
       - 'healthhub/tests/sho-smart-trip-v5-google-first.test.mjs'
       - 'healthhub/tests/sho-smart-trip-v5-first-preflight.test.mjs'
+      - 'healthhub/tests/sho-smart-trip-v5-preflight-ui.test.mjs'
       - 'sh9/smart-travel/public-transport/smart-trip/v5/**'
       - '.github/workflows/sho-smart-trip-v5-quota-ci.yml'
 permissions:
@@ -56,6 +58,8 @@ jobs:
         run: node --test healthhub/tests/sho-smart-trip-v5-google-first.test.mjs
       - name: Verify first pilot request contract and zero-cost preflight
         run: node --test healthhub/tests/sho-smart-trip-v5-first-preflight.test.mjs
+      - name: Verify V5 authenticated click-to-preflight client and endpoint isolation
+        run: node --test healthhub/tests/sho-smart-trip-v5-preflight-ui.test.mjs
       - name: Create isolated Postgres roles and load proposed migration
         run: |
           psql -v ON_ERROR_STOP=1 -c "CREATE ROLE anon; CREATE ROLE authenticated; CREATE ROLE service_role;"
