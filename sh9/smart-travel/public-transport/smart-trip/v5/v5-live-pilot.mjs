@@ -70,7 +70,7 @@ $("demo").addEventListener("click",()=>{
   if(typeof adapter?.normalizeRoutes!=="function")throw Error(
    "A meglévő v1073 Google Routes adapter nem érhető el.");
   const response=fakeResponse(query.when);
-  const ranked=evaluateRoutes(response,query,adapter);
+  const ranked=evaluateRoutes(response,{...query,demo:true},adapter);
   const elapsed=(performance.now()-start)/1000;
   render(ranked,query,elapsed);
   $("elapsed").textContent=elapsed.toFixed(2).replace(".",",")+" mp";
@@ -97,3 +97,6 @@ $("profile").addEventListener("change",()=>{
  html.dataset.profile=$("profile").value;
 });
 html.dataset.profile=$("profile").value;
+
+// Reuse exactly the same query validation for the read-only preflight button.
+export {getQuery};
