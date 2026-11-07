@@ -54,10 +54,12 @@ button.secondary{border-color:#bbd4ff70;background:#132949aa;color:#f3f8ff}
 </div>
 <div class="actions">
 <button id="demo" type="button" class="primary">⚡ V5 folyamat tesztelése (DEMO)</button>
+<button id="preflight" type="button" class="secondary">🔐 Bejelentkezett előteszt · 0 Google-kérés</button>
 <button id="maps" type="button" class="secondary">🌍 Google Maps élő megnyitása</button>
 <div class="meter" id="elapsed">0,00 mp</div>
 </div>
 <p class="status" id="status" role="status">A DEMO gomb 4 kitalált, Google-formátumú útvonalat vizsgál. A Google Maps gomb a hivatalos oldalt nyitja meg külön, de annak eredménye automatikusan nem olvasható vissza.</p>
+<p class="status" id="preflightStatus" role="status" aria-live="polite">🔐 Előteszt: csak a Family Guard-bejelentkezést, profiljogosultságot, koordinátákat és indulási időt ellenőrzi. A Google API és a My Trips mentése kikapcsolva marad.</p>
 </section>
 <section id="output" class="glass" hidden>
 <h2>📋 SHO Preference Engine · összehasonlítás</h2>
@@ -70,7 +72,10 @@ button.secondary{border-color:#bbd4ff70;background:#132949aa;color:#f3f8ff}
 </section>
 <footer style="margin-top:20px"><small>Csak külön fejlesztési felület · nincs Google Routes API költség · nincs Supabase írás · nincs My Trips módosítás · az éles SHO Smart Trip változatlan.</small></footer>
 </main>
+<script src="../../../../../healthhub/central-vault/config.js?v=972-family-publishable"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.2/dist/umd/supabase.min.js"></script>
 <script src="../../mav/rail-gtfs-core-v1.js"></script>
 <script src="../smart-trip-multimodal-v1073.js"></script>
 <script type="module" src="./v5-live-pilot.mjs"></script>
+<script type="module" src="./v5-preflight-ui.mjs"></script>
 </body></html>
