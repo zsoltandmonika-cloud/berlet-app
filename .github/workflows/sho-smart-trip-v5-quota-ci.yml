@@ -1,0 +1,79 @@
+name: Smart Trip V5 Google quota safety
+on:
+  pull_request:
+    paths:
+      - 'supabase/functions/hh-smart-trip-routes-v1/**'
+      - 'supabase/migrations/*sho_smart_trip_google_quota*'
+      - 'healthhub/tests/sho-smart-trip-v5-routes-backend.test.mjs'
+      - '.github/workflows/sho-smart-trip-v5-quota-ci.yml'
+  push:
+    branches:
+      - feature/smart-trip-v5-routes-backend-gated
+    paths:
+      - 'supabase/functions/hh-smart-trip-routes-v1/**'
+      - 'supabase/migrations/*sho_smart_trip_google_quota*'
+      - 'healthhub/tests/sho-smart-trip-v5-routes-backend.test.mjs'
+      - '.github/workflows/sho-smart-trip-v5-quota-ci.yml'
+permissions:
+  contents: read
+jobs:
+  quota-safety:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_DB: sho_quota_ci
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: test-only-password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d sho_quota_ci"
+          --health-interval 5s --health-timeout 3s --health-retries 10
+    env:
+      PGHOST: localhost
+      PGPORT: '5432'
+      PGUSER: postgres
+      PGDATABASE: sho_quota_ci
+      PGPASSWORD: test-only-password
+      PGCONNECT_TIMEOUT: '5'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify fail-closed security and quota source contracts
+        run: node --test healthhub/tests/sho-smart-trip-v5-routes-backend.test.mjs
+      - name: Create isolated Postgres roles and load proposed migration
+        run: |
+          psql -v ON_ERROR_STOP=1 -c "CREATE ROLE anon; CREATE ROLE authenticated; CREATE ROLE service_role;"
+          psql -v ON_ERROR_STOP=1 -f supabase/migrations/20261107120000_sho_smart_trip_google_quota_v1.sql
+      - name: Test 25 concurrent Google reservations and monthly cap
+        shell: bash
+        run: |
+          set -euo pipefail
+          results="$RUNNER_TEMP/sho-quota-results.txt"
+          : > "$results"
+          for i in $(seq 1 25); do
+            (
+              psql -At -v ON_ERROR_STOP=1 -c "SET request.jwt.claim.role TO 'service_role'; SELECT allowed FROM public.hh_smart_trip_google_reserve();" | tail -1 >> "$results"
+            ) &
+          done
+          wait
+          allowed="$(grep -c '^t$' "$results" || true)"
+          denied="$(grep -c '^f$' "$results" || true)"
+          echo "Concurrent 25: allowed=$allowed blocked=$denied"
+          test "$allowed" -eq 20
+          test "$denied" -eq 5
+          d="$(psql -At -v ON_ERROR_STOP=1 -c "SELECT used FROM public.hh_smart_trip_google_quota WHERE period_kind='day';")"
+          m="$(psql -At -v ON_ERROR_STOP=1 -c "SELECT used FROM public.hh_smart_trip_google_quota WHERE period_kind='month';")"
+          test "$d" -eq 20
+          test "$m" -eq 20
+          psql -v ON_ERROR_STOP=1 -c "UPDATE public.hh_smart_trip_google_quota SET used=0 WHERE period_kind='day'; UPDATE public.hh_smart_trip_google_quota SET used=200 WHERE period_kind='month';"
+          blocked="$(psql -At -v ON_ERROR_STOP=1 -c "SET request.jwt.claim.role TO 'service_role'; SELECT allowed FROM public.hh_smart_trip_google_reserve();" | tail -1)"
+          test "$blocked" = f
+      - name: Validate database RPC permissions
+        run: |
+          psql -v ON_ERROR_STOP=1 -At -c "SELECT CASE WHEN has_function_privilege('anon','public.hh_smart_trip_google_reserve()','EXECUTE') OR has_function_privilege('authenticated','public.hh_smart_trip_google_reserve()','EXECUTE') OR NOT has_function_privilege('service_role','public.hh_smart_trip_google_reserve()','EXECUTE') THEN 1 ELSE 0 END;" | grep -qx '0'
