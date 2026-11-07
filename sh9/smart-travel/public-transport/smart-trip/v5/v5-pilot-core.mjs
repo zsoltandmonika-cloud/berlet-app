@@ -48,8 +48,11 @@ function evaluateRoutes(payload,query,adapter,{max=4}={}){
   const priority=metrics.directVolan?0:metrics.sajoExpress?1:
    metrics.hasTrain?2:3;
   const penalty=(risky?100000:0)+(metrics.doorToDoor?0:2500);
+  // Apply explicit user choice without discarding the user-specific provider order.
+  const walkWeight=query?.priority==="walk"?8:2.5;
+  const transferWeight=query?.priority==="transfers"?115:35;
   const score=penalty+priority*300+metrics.durationMin+
-   metrics.walkMin*2.5+metrics.transfers*35+
+   metrics.walkMin*walkWeight+metrics.transfers*transferWeight+
    (buffer!==null&&buffer<12?40:0);
   candidates.push(Object.freeze({ordinal:i+1,route,metrics,
    score:Math.round(score*10)/10,
