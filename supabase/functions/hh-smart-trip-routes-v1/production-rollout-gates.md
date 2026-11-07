@@ -1,7 +1,7 @@
 # Smart Trip V5 · Production backup / rollout gate (2026-11-07)
 
-**Status: NOT READY TO DEPLOY.** The quota migration and new Edge Function are
-reviewable only in draft PR #792. The paid Google path is hardcoded OFF.
+**Status: quota-only migration DEPLOYED 2026-11-07 to HealthHub-Core; Edge Function NOT DEPLOYED; paid Google path remains hardcoded OFF.**
+The migration was additive; no existing tables, Storage objects or Smart Trip clients changed. The user confirmed seeing an early-morning database backup, but restore validation and Storage export are still outstanding.
 
 ## Verified with read-only Supabase inspection
 - Target project: HealthHub-Core in a **Pro** organization, PostgreSQL 17.
@@ -12,7 +12,8 @@ reviewable only in draft PR #792. The paid Google path is hardcoded OFF.
 - We have **not** established actual database backup timestamp, object export,
   offsite storage integrity, or a successful restore drill.
 
-## Backup gate: all boxes required before production schema change
+## Backup gate: remaining checks before any API activation or broad rollout
+- [x] User confirmed a daily backup is visible after 01:00; exact timestamp and restore integrity have not been independently verified.
 - [ ] Open [Database > Backups](https://supabase.com/dashboard/project/vhsrupphzcjkdrusonzh/database/backups);
       inspect a successful backup timestamp and retention. Pro entitlement
       does not prove that a usable backup exists for this particular project.
@@ -29,23 +30,15 @@ reviewable only in draft PR #792. The paid Google path is hardcoded OFF.
 - [ ] Confirm the current Smart Trip, My Trips, HealthHub and Storage operation
       before the change; keep the existing rollback checkpoint.
 
-## Deploy sequence **after** all gates pass
-1. Confirm no live Google Routes integration is enabled.
-2. Apply additive migration
-   `supabase/migrations/20261107120000_sho_smart_trip_google_quota_v1.sql`
-   using a reviewed migration workflow. No existing tables are modified.
-3. Run the read-only `quota-preflight.sql` to verify RLS, quota function grants
-   and a zero count in the new table. Then separately test reservations in
-   a transaction that is guaranteed to ROLLBACK.
-4. Run Supabase Security Advisors and existing regression checks.
-5. Deploy the new Edge Function **only while the compile-time Google flag
-   remains false**. Do not configure a billing-capable Google key yet.
-6. Review Google Routes SKU and EEA terms for display, AI and persistence,
-   set Google-side quotas where supported, restrict the key, ensure no other
-   caller uses it; then request a separate conscious activation.
-7. On outage, leave the endpoint disabled and continue existing Matrix/GTFS
-   search. No reason to restore the entire database merely to revert this
-   isolated feature.
+## Remaining rollout sequence **after** all gates pass
+1. Quota-only SQL migration `supabase/migrations/20261107170126_sho_smart_trip_google_quota_v1.sql` was applied as Supabase migration 20261107170126.
+2. Verified on production: RLS enabled, 0 initial quota rows, anon/authenticated cannot execute RPC, service_role can.
+3. Rolled-back production smoke test: 20 accepted, 5 denied, rollback preserved zero counters.
+4. Supabase Security Advisors: one expected informational RLS-no-policy flag for the locked-down quota table; RLS and revoked client grants are intentional.
+5. Confirm backup restore plan and separate private Storage file backup before broader rollout.
+6. Deploy the Edge Function **only while the compile-time Google flag remains false**. Do not configure a billing-capable Google key yet.
+7. Review Google Routes SKU and EEA terms for display, AI and persistence; configure key/provider protection, then separate deliberate activation.
+8. On outage, leave endpoint disabled and continue existing Matrix/GTFS search.
 
 ## Safety: what this is and is not
 The SQL protects **one endpoint** by atomically allowing at most 20 attempted
