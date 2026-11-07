@@ -34,7 +34,7 @@ function input(raw: unknown) {
       !validCoord(b.lat,90) || !validCoord(b.lng,180)) return null;
   const departed = q.departureTime;
   if (typeof departed !== "string" || departed.length > 40 ||
-      !/^\\d{4}-\\d{2}-\\d{2}T/.test(departed)) return null;
+      !/^\d{4}-\d{2}-\d{2}T/.test(departed)) return null;
   const millis = Date.parse(departed);
   if (!Number.isFinite(millis) || millis < Date.now() - 60000 ||
       millis > Date.now() + 90 * 86400000) return null;
@@ -46,7 +46,7 @@ function input(raw: unknown) {
 }
 async function authenticate(req: Request, profile: "m"|"z") {
   const auth = req.headers.get("Authorization") || "";
-  if (!/^Bearer [A-Za-z0-9._~+\\/=-]{20,8000}$/.test(auth)) return false;
+  if (!/^Bearer [A-Za-z0-9._~+\/=-]{20,8000}$/.test(auth)) return false;
   if (!env("SUPABASE_URL") || !env("SUPABASE_ANON_KEY")) return false;
   const client = createClient(env("SUPABASE_URL"), env("SUPABASE_ANON_KEY"), {
     global: {headers: {Authorization: auth}},
