@@ -12,7 +12,7 @@ const google=require("../../sh9/smart-travel/public-transport/smart-trip/smart-t
 const query={
  from:"Egy demo kiindulópont",to:"Egy demo cél",mode:"depart",
  date:"2026-11-27",time:"15:15",priority:"balanced",
- when:"2026-11-27T14:15:00Z"
+ when:"2026-11-27T14:15:00Z",demo:true
 };
 const fixture=fakeResponse(query.when);
 test("V5 uses the unchanged official Google response normalizer",()=>{
@@ -24,7 +24,7 @@ test("Four distinct synthetic Google-shaped routes are ranked, with direct Volá
  assert.equal(candidates[0].metrics.directVolan,true);
  assert.ok(candidates.some(x=>x.metrics.sajoExpress));
  assert.ok(candidates.some(x=>x.metrics.transfers>0));
- assert.equal(candidates[0].source,"google-routes");
+ assert.equal(candidates[0].source,"synthetic-demo");
 });
 test("Alternative routes preserve source order identity while allowing SHO display order",()=>{
  const ranked=evaluateRoutes(fixture,query,google);
@@ -44,8 +44,8 @@ test("Explicit less walking preference keeps complete route metrics",()=>{
  assert.ok(ranked.every(x=>x.metrics.durationMin>0));
 });
 test("Ranker rejects empty or invalid provider response rather than inventing routes",()=>{
- assert.deepEqual(evaluateRoutes({routes:[]},query,google),[]);
- assert.deepEqual(evaluateRoutes({routes:[{legs:[]}]},query,google),[]);
+ assert.deepEqual(evaluateRoutes({demoFixture:true,routes:[]},query,google),[]);
+ assert.deepEqual(evaluateRoutes({demoFixture:true,routes:[{legs:[]}]},query,google),[]);
 });
 test("Missing normalizer fails closed",()=>{
  assert.throws(()=>evaluateRoutes(fixture,query,{}),/missing_existing_google_adapter/);
@@ -91,4 +91,15 @@ test("Isolated V5 preview has no cloud writer, no backend key and no map+routes 
   assert.ok(html.includes('src="'+src+'"'));
   assert.equal(path.posix.normalize(dir+src).startsWith("sh9/smart-travel/public-transport/"),true);
  }
+});
+
+test("Real Google-like routes are never sent into the demo preference ranker",()=>{
+ const withoutLabel={routes:fixture.routes};
+ assert.throws(()=>evaluateRoutes(withoutLabel,query,google),/v5_demo_only_real_google_blocked/);
+ assert.throws(()=>evaluateRoutes(fixture,{...query,demo:false},google),/v5_demo_only_real_google_blocked/);
+});
+test("Synthetic ranking never claims to be Google Maps Content",()=>{
+ const candidate=evaluateRoutes(fixture,query,google)[0];
+ assert.equal(candidate.source,"synthetic-demo");
+ assert.equal(candidate.attribution,"DEMO · nem Google-adat");
 });
