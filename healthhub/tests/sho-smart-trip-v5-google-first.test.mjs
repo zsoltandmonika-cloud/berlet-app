@@ -88,7 +88,7 @@ test("Isolated V5 preview has no cloud writer, no backend key and no map+routes 
  assert.doesNotMatch(core,/fetch\(|\.insert\(|\.upsert\(|localStorage\.|sessionStorage\./);
  assert.doesNotMatch(prod,/v5-live-pilot|v5-pilot-core/);
  for(const src of ["../../mav/rail-gtfs-core-v1.js","../smart-trip-multimodal-v1073.js","./v5-live-pilot.mjs"]){
-  assert.match(html,new RegExp(src.replace(/[.*+?^$\{\}()|[\]\\]/g,"\\$&")));
+  assert.ok(html.includes('src="'+src+'"'));
   assert.equal(path.posix.normalize(dir+src).startsWith("sh9/smart-travel/public-transport/"),true);
  }
 });
