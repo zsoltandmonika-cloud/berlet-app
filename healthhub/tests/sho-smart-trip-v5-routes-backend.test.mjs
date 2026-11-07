@@ -24,7 +24,7 @@ test("V5 request bounds and provider timeout",()=>{
   assert.match(file,/180000/);
 });
 
-const migration = readFileSync("supabase/migrations/20261107120000_sho_smart_trip_google_quota_v1.sql","utf8");
+const migration = readFileSync("supabase/migrations/20261107170126_sho_smart_trip_google_quota_v1.sql","utf8");
 test("Shared global daily 20 / monthly 200 quota is atomic",()=>{
   assert.match(migration,/pg_advisory_xact_lock/);
   assert.match(migration,/dc >= 20 OR mc >= 200/);
