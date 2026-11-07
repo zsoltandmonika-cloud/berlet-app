@@ -1,99 +1,115 @@
 {
   "schemaVersion": 1,
-  "date": "2026-11-06",
-  "generatedAt": "2026-11-06T13:10:58+01:00",
-  "headline": "A reggel fő témái: White House denies Hegseth and Rubio to leave jobs after Republican election losses; Trump signs order to preserve Oval Office as national monument",
+  "date": "2026-11-07",
+  "generatedAt": "2026-11-07T12:08:05+01:00",
+  "headline": "A reggel fő témái: With Stephen Miller pick, Trump readies for a battle; Paraguay's president impeached and under house arrest after bank collapse",
   "sections": [
     {
       "id": "executive",
       "title": "Vezetői összefoglaló",
       "items": [
-        "BBC World: White House denies Hegseth and Rubio to leave jobs after Republican election losses",
-        "BBC World: Trump signs order to preserve Oval Office as national monument",
-        "BBC World: Two dead after bus crashes in France, officials say",
-        "BBC World: Kenyan doomsday cult leader given life sentence for murdering 191 people"
+        "BBC World: With Stephen Miller pick, Trump readies for a battle",
+        "BBC World: Paraguay's president impeached and under house arrest after bank collapse",
+        "BBC World: Pope in 'pretty good health' as he starts Latin America tour",
+        "BBC World: AI stocks climb after trillions wiped from market values"
       ]
     },
     {
       "id": "overnight",
       "title": "Éjszakai fejlemények",
       "items": [
-        "BBC World: White House denies Hegseth and Rubio to leave jobs after Republican election losses",
-        "BBC World: Trump signs order to preserve Oval Office as national monument",
-        "BBC World: Two dead after bus crashes in France, officials say"
+        "BBC World: With Stephen Miller pick, Trump readies for a battle",
+        "BBC World: Paraguay's president impeached and under house arrest after bank collapse",
+        "BBC World: Pope in 'pretty good health' as he starts Latin America tour"
       ]
     },
     {
       "id": "geopolitics",
       "title": "Külpolitika / Geopolitika",
       "items": [
-        "BBC World: White House denies Hegseth and Rubio to leave jobs after Republican election losses",
-        "BBC World: Trump signs order to preserve Oval Office as national monument",
-        "BBC World: Two dead after bus crashes in France, officials say"
+        "BBC World: With Stephen Miller pick, Trump readies for a battle",
+        "BBC World: Paraguay's president impeached and under house arrest after bank collapse",
+        "BBC World: Pope in 'pretty good health' as he starts Latin America tour"
       ]
     },
     {
       "id": "hungary",
       "title": "Magyarország",
       "items": [
-        "DigitalHungary -: Átfogó megállapodást kötött a One Magyarország és a Network4 Media Group - DigitalHungary -",
-        "M4 Sport: Montenegró Eb-selejtezős legyőzésével mutatkozott be kapitányként Sótonyi László a férfi kézilabda-válogatott élén - M4 Sport",
-        "hiros.hu: Magyarország vízkészletei történelmi mélyponton - hiros.hu"
+        "Index.hu: Külföld - Orbán Anita bejelentette, 2028-ban ismét Magyarország védheti Európa keleti határait - Index.hu",
+        "Kontroll: Magyarország költi az egyik legkevesebbet az EU-ban szociális ellátásokra - Kontroll",
+        "Világgazdaság: Közeledhet a nagy gázfordulat, Kapitány István most lengethette be a jövőt – Magyarország alighanem a román tengerterületekre kacsintgat - Világgazdaság"
       ]
     },
     {
       "id": "economy",
       "title": "Gazdaság / Piacok",
       "items": [
-        "BBC Business: How does it affect me if share prices fall?",
-        "BBC Business: Elon Musk appears to signal the end of the road for Cybertruck",
-        "BBC Business: Firms told to publish salaries in job adverts ahead of new law"
+        "BBC Business: AI stocks climb after trillions wiped from market values",
+        "BBC Business: Why the US midterms sparked an AI stock selloff",
+        "BBC Business: How does it affect me if share prices fall?"
       ]
     },
     {
       "id": "technology",
       "title": "Technológia / AI",
       "items": [
-        "BBC Technology: Global stocks plunge as fears over US AI slowdown spread to Asia and Europe",
         "BBC Technology: Elon Musk appears to signal the end of the road for Cybertruck",
-        "BBC Technology: The engine parts that 'fight the laws of the universe'"
+        "BBC Technology: AI stocks climb after trillions wiped from market values",
+        "BBC Technology: Why the US midterms sparked an AI stock selloff"
       ]
     },
     {
       "id": "risks",
       "title": "Mai kockázatok",
       "items": [
-        "Figyelmi pont: Elon Musk appears to signal the end of the road for Cybertruck (BBC World).",
-        "Figyelmi pont: Somalia's top court rejects president's term extension amid political crisis (BBC World).",
-        "Figyelmi pont: Interest rates hiked to 4% in first increase in over three years (BBC Business)."
+        "Figyelmi pont: Elon Musk appears to signal the end of the road for Cybertruck (BBC Business)."
       ]
     },
     {
       "id": "watch",
       "title": "Mi számít igazán / Figyelmi szint",
       "items": [
-        "BBC World: White House denies Hegseth and Rubio to leave jobs after Republican election losses",
-        "BBC World: Trump signs order to preserve Oval Office as national monument"
+        "BBC World: With Stephen Miller pick, Trump readies for a battle",
+        "BBC World: Paraguay's president impeached and under house arrest after bank collapse"
       ]
     }
   ],
   "sources": [
     {
-      "title": "White House denies Hegseth and Rubio to leave jobs after Republican election losses",
+      "title": "With Stephen Miller pick, Trump readies for a battle",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cqg7xxg4jdv5o?at_medium=RSS&at_campaign=rss",
+      "url": "https://www.bbc.co.uk/news/articles/crp3gg2z171go?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-07"
+    },
+    {
+      "title": "Paraguay's president impeached and under house arrest after bank collapse",
+      "publisher": "BBC World",
+      "url": "https://www.bbc.co.uk/news/articles/c68jzzvjgdy9o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-07"
+    },
+    {
+      "title": "Pope in 'pretty good health' as he starts Latin America tour",
+      "publisher": "BBC World",
+      "url": "https://www.bbc.co.uk/news/articles/c60e0001ve9wo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-07"
+    },
+    {
+      "title": "AI stocks climb after trillions wiped from market values",
+      "publisher": "BBC World",
+      "url": "https://www.bbc.co.uk/news/articles/c35ynnpzdq51o?at_medium=RSS&at_campaign=rss",
       "publishedAt": "2026-11-06"
     },
     {
-      "title": "Trump signs order to preserve Oval Office as national monument",
+      "title": "New wave of bomb threats hit European airlines",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cmy0eeg101djo?at_medium=RSS&at_campaign=rss",
+      "url": "https://www.bbc.co.uk/news/articles/cq62yy064vjpo?at_medium=RSS&at_campaign=rss",
       "publishedAt": "2026-11-06"
     },
     {
-      "title": "Two dead after bus crashes in France, officials say",
+      "title": "Spain's rail authorities face European fraud probe after Urda rail disaster",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cmly00l4p3lwo?at_medium=RSS&at_campaign=rss",
+      "url": "https://www.bbc.co.uk/news/articles/c6x2wwnz5445o?at_medium=RSS&at_campaign=rss",
       "publishedAt": "2026-11-06"
     },
     {
@@ -103,75 +119,63 @@
       "publishedAt": "2026-11-06"
     },
     {
-      "title": "Pope begins lengthy trip to Latin America weeks after lung cancer surgery",
+      "title": "Two dead after bus crashes in France, officials say",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cqn06j0y61k6o?at_medium=RSS&at_campaign=rss",
+      "url": "https://www.bbc.co.uk/news/articles/cmly00l4p3lwo?at_medium=RSS&at_campaign=rss",
       "publishedAt": "2026-11-06"
     },
     {
-      "title": "Tanzanian opposition leader found guilty of inciting unrest but acquitted of treason",
-      "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/ckp8g4pm0y4lo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-06"
+      "title": "Külföld - Orbán Anita bejelentette, 2028-ban ismét Magyarország védheti Európa keleti határait - Index.hu",
+      "publisher": "Index.hu",
+      "url": "https://news.google.com/rss/articles/CBMiogFBVV95cUxPWFVDb0lCc2o2ZUlJWENUQXlKam14Y3ZKTHFydEpPM3J5aWlvaXhYYV9VdXR3QnZYX2JXOFRzN2ttTEwyTWg3Tl9KR2RjS3VJZWNGcUdvdnhYUkNmM2RnLUF5aG02OHhzRHhoS19Db2hYSXZHc0J3dS1SNFlzTDlaeWdaczVQOGtNSFVZUjVQUk8wMHlPOUNOdGZZSmtoRkxtc3c?oc=5",
+      "publishedAt": "2026-11-07"
     },
     {
-      "title": "Elon Musk appears to signal the end of the road for Cybertruck",
-      "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cq1j33w7d232o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-06"
+      "title": "Magyarország költi az egyik legkevesebbet az EU-ban szociális ellátásokra - Kontroll",
+      "publisher": "Kontroll",
+      "url": "https://news.google.com/rss/articles/CBMiugFBVV95cUxOcmJoOFplVDVlQmxyNjlOM0pfbWstZWI2SndnT2dJQW5PRkE1eTBjSFRNWWdVcm9qQ3RmTTZVbzVBeGNaZ2JMZm1RaFN6SngycmhpdV9BclRaeFRjUVhJVEh6ZUtqMEJ1ZHZXd2RUbXhhMjB2VGpTcWNBS2FRZ2VXdV9vSXZSNXlObDV6a0prOVpMSkJFZm5tTGl0MFRwUUVrUzdXeUR3YkR6Q1QwdkF5WUVmaTFXZHdtdkE?oc=5",
+      "publishedAt": "2026-11-07"
     },
     {
-      "title": "Somalia's top court rejects president's term extension amid political crisis",
-      "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/c977ppnezep6o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-06"
-    },
-    {
-      "title": "Átfogó megállapodást kötött a One Magyarország és a Network4 Media Group - DigitalHungary -",
-      "publisher": "DigitalHungary -",
-      "url": "https://news.google.com/rss/articles/CBMitgFBVV95cUxNNzF5S0g5bHB2aGNnU2xKcEpZemtXZUc1VnJKdVdMd2NmNHBVMXZ5T1lLSXJoT0xxd2xWa3BqQmtuMGhET24waFZ0ZFdKZTZyRDlzUjlqdTVFY0czbzh6VW5pMDM0UFpHUU5BaUNndVhnNm1jbXo4THVQMmVZc3NyWnJSaDhNdXlXZFNNNW5iYmQwc2xBQzE3MFBkeTV1WHJhakhwN0lxTjVmR1EtOGcydG02ZUh2Zw?oc=5",
-      "publishedAt": "2026-11-06"
-    },
-    {
-      "title": "Montenegró Eb-selejtezős legyőzésével mutatkozott be kapitányként Sótonyi László a férfi kézilabda-válogatott élén - M4 Sport",
-      "publisher": "M4 Sport",
-      "url": "https://news.google.com/rss/articles/CBMi8AFBVV95cUxQQjhaUXVYbEJ1Z2dBcXA2bWlCUDhPOHl3cHBfNzFEYWQwUjlDaGVSRTAxMEtQVzVZNmZfVUdiV3M2YzBkREd3QUJUeDN0eTlsTkItRHNXRjdPd1RZVDZzbnVOQklZMXo0YlJzcUVRQ3B2ejBncUFWN0FKNXlYM1JoVGpuenZ1OTBIcE9Ha3N2a01zNUYtT18tdms0cmhFaTQtUkduUWE2cjB5anVRalprSF9QVWoydTRsd3VFaTNGTjFOT2N6Rmd0MzE0RmI3cEJ4ZGVHQlJkYnFEb2MxX3VmQm1CWUtQbjRBOE0zempxZzQ?oc=5",
-      "publishedAt": "2026-11-06"
-    },
-    {
-      "title": "Magyarország vízkészletei történelmi mélyponton - hiros.hu",
-      "publisher": "hiros.hu",
-      "url": "https://news.google.com/rss/articles/CBMie0FVX3lxTFBJbWNiQjNZanJuM2I1b2otWG1ZdS1XLUxOcEVSOWVxMGxYcTFLVk9FcFRfR1NYeTNUWTlOejdpOEQ3MFpHaVpTTjEtZHJEWkJ1TUVNd3A0WjEzRmZJVjdQZVdoRWNURzI0YlJaNFJqamtmTUw0VVNwQ0hzUQ?oc=5",
-      "publishedAt": "2026-11-06"
-    },
-    {
-      "title": "Nemcsak Milánó és Magyarország, egész Európa hallotta a Fradi szurkolóit - 24.hu",
-      "publisher": "24.hu",
-      "url": "https://news.google.com/rss/articles/CBMiggFBVV95cUxOOVB4ZlIweEQ2NGJQQ1BLZEhUaERYbzltTHMtZHZuNktMTDViaHdjUzVnZmk1aDFUUXdPbmlxS1JmQkZSWXRWOEotb2QybF9KdzFlbDQwZDE1MnBTaTg1eXpsWWxaeVlON1gxT1B3andWVmV5WFRyQkJjYnNHTThDTlBR?oc=5",
-      "publishedAt": "2026-11-06"
-    },
-    {
-      "title": "Franco Coppola lett Magyarország új apostoli nunciusa - Felvidék.ma",
-      "publisher": "Felvidék.ma",
-      "url": "https://news.google.com/rss/articles/CBMijgFBVV95cUxOUTMwVUxLcGFsQTRobE4wZGZEVUtrLVhDal9NQU9RamozQWV0WHNJQnBSTVVOREk4WXNuYk83T0hzdlhlb3FfZG5OMmw4RXVxU0xMLXBoMmZFRnhKVTZMR1BCd0RPcjZyVlFhR3M0NWRVUkpVSl8wV1lfM1N0N1J5RGQtVEZ0Y0otUzJzd3pR?oc=5",
-      "publishedAt": "2026-11-06"
-    },
-    {
-      "title": "Magyarország–Észak-Írország: két újoncot avathatnak a vendégek - nb1.hu",
-      "publisher": "nb1.hu",
-      "url": "https://news.google.com/rss/articles/CBMicEFVX3lxTE1kTUJCeDNUNDByaTZWbjROMElXOHZ5SVY0QjNCWTdFQ0F5YW5YR3pTZ3FmbGY5a0NvRnVReWQxemVaT2dOUG1hazNWTldhS1Y1dW1FcHBKcUp3aWprMlhLeElBWDY2bWx1WlQ0RlVuamw?oc=5",
-      "publishedAt": "2026-11-05"
-    },
-    {
-      "title": "Önnek szólhat ez a különdíj, ha... - EY",
-      "publisher": "EY",
-      "url": "https://news.google.com/rss/articles/CBMikAFBVV95cUxNalp5UDdfaUtOeWU5V242NU5TTS00ejJMeFY2aUVNTWlTTGx2aE5CSmlHX29VODVPSHp1Vkh2bjU4aG5yNW9RMlB4aVRZaENSWjJCNndPdkMzaUVjN0ZwUjJyVnlLLThaaEotWWp3QVV3bld3ZV9JT0RpNVhXTUhyTXNTZ0l6czlxZGpyTDd4eE4?oc=5",
-      "publishedAt": "2026-11-06"
-    },
-    {
-      "title": "Orbán Anitától hangos a teljes ukrán sajtó, kemény ítéletet mondott Ukrajna jövőjéről: Magyarország csapást mért Zelenszkijékre – egyedül rajtunk múlik az uniós csatlakozásuk folytatása - Világgazdaság",
+      "title": "Közeledhet a nagy gázfordulat, Kapitány István most lengethette be a jövőt – Magyarország alighanem a román tengerterületekre kacsintgat - Világgazdaság",
       "publisher": "Világgazdaság",
-      "url": "https://news.google.com/rss/articles/CBMikAFBVV95cUxOLVRlaWpMVGhVcEFKSGNBbEVPVU1KckRsM2JmUzRiaGxxUnZUSjZ4RklIcUxHamgyX1B3aFdVbzZWa3RvLW5pREFMTUlaaHBQZmVobGJqV3I1VlU3X2ZheVZiVUJfbTZNckpvYVlMdWc0QTBBOEpGSmxpUFdpUk16d2VpSmVnYUZiTnFOY2tTc2U?oc=5",
+      "url": "https://news.google.com/rss/articles/CBMipgFBVV95cUxOQjZDRnNPWUtXdG9pX0ROWjVQX2xQMTdURjJqV1VpZHpMUFJLMEVhQkpJX3A2aktvdXlZWGgyU2FBVW0xS1hYSE96eVlvWld3d1VfT0ViWTI3WHoyYXpVRnN4bTJyV1RnT2o3SWJWQnZYNDJaN3Z3V1dTUkd4azlKUnhaakZiaE4yMHhRYUd0N0hydUo0WmxvQWJ5Ri10VnBwb1ZVR1h3?oc=5",
+      "publishedAt": "2026-11-07"
+    },
+    {
+      "title": "Pusztuljon a gumi, törjön a fékpedál! Magyarország legmenőbb vezetéstechnikai tréningjén jártunk - | hvg.hu",
+      "publisher": "| hvg.hu",
+      "url": "https://news.google.com/rss/articles/CBMipAFBVV95cUxOUHNkMlIxTW5YNkpPYWc1ODU2SDRxd3gyUlN2ODVKSWVoalBYbWN6YldRZkVmMzhxSDFIMm9QNGc2dGFCS3U3QkFKV3AyM0wxcC1GVlROYVFuSGlNRjZJckNrcS1GRmtGakZJMDdZbHhseFB0NUM1V3hNS2o0aENyTHhSYjlVNGdTdXRMTHlhZk9DWU90bnRoSGFNNnpRSGZnWFBrWQ?oc=5",
+      "publishedAt": "2026-11-07"
+    },
+    {
+      "title": "Margaret Island: Eső | Magyarország, szeretlek! zenekara - MédiaKlikk",
+      "publisher": "MédiaKlikk",
+      "url": "https://news.google.com/rss/articles/CBMimwFBVV95cUxNcWp3VElZc0gzc2Rva0pVTmJ1T0pKMXpKbGlGbFBCS3pzWFhDOUlqZV9CSlB6M1BfV042NnJydkZrRG5fWjljN0dKLTJCbkhLN00xVHdCdmh5YkVRa0Rrc2hnckt4dHloQ0tiR0szLVVWYkhHMTNaZzlZYnZsYmNsODE3cTE4QVk5YzlCQWtpWElUd1dQVWpNQ1libw?oc=5",
+      "publishedAt": "2026-11-07"
+    },
+    {
+      "title": "Mindössze 11 ember él Magyarország legkisebb településén, itt a toplista - ORIGO",
+      "publisher": "ORIGO",
+      "url": "https://news.google.com/rss/articles/CBMigwFBVV95cUxQQUVXOVNDd2pscUt6d0JIWmgwbXB2eXZ3aVhwNlVxZERnMXlBdG5oMElqNVhnNlZvOUFxaWR5M0hLOU1IUm9rVnYtRGd6Nmpld184SVpicElIMDVWT1ZhMEhMc2RmSDZZR2hUMzBUSVRlVm5PQWdaNDgzQll0VzdHYWNUWQ?oc=5",
+      "publishedAt": "2026-11-07"
+    },
+    {
+      "title": "Magyarország hároméves halasztást kért az egyik EU-s szabályra, ám csak egyet adnának - Economx.hu",
+      "publisher": "Economx.hu",
+      "url": "https://news.google.com/rss/articles/CBMiygFBVV95cUxQSXVjcDFpNEhXY0hhV2ZlcG83RmZvUVR2RlJPdGRDWFVWdnBNWXBFQ0NIWVM3WXg4a2UxNzNKTnEyMVQwRGhDcW95V1JKZ3g4UElyOGFoVnd3cUFFenZVNmk0RGw5UVVMNldDdHZObGdaVHJKWnJJR2J2UlQ2NEg4MzNUaG9MUkZXckxvOE01ZUF0VVFoM2hUSEJxVWFEMUpmSFFDS0F1X3BqWHNXZjRTX3N0WWgwb0NjRWtNSFZLMnNCQzMzb25iQk5n?oc=5",
+      "publishedAt": "2026-11-07"
+    },
+    {
+      "title": "Budapesten az EPP-delegáció: a médiaszabadság és Magyarország jövője a középpontban - www.pmonline.hu",
+      "publisher": "www.pmonline.hu",
+      "url": "https://news.google.com/rss/articles/CBMirwFBVV95cUxOYm5XVV96TWZueWZqeXZQejZjNVFiY1pWWC1nRENlcDJzSkE4TllzYktSNDZna2xPWVJ2VTRjZjlUQnVTanQxMGJBeUZzUk96VWU3enVmbTg3bnlqcnhVQ0VVUV9UcWtyZlV2YVdmalVHM2Z1ZmFOaEFXYjltR3Noa1IyUzJ1UE1MQ1RCVk1UV0M4Y2twbDNjcy1mUTExdk5Zdm1fQnJuc1pSdlZJeEZB?oc=5",
+      "publishedAt": "2026-11-07"
+    },
+    {
+      "title": "Why the US midterms sparked an AI stock selloff",
+      "publisher": "BBC Business",
+      "url": "https://www.bbc.co.uk/news/articles/crlykkzwwpydo?at_medium=RSS&at_campaign=rss",
       "publishedAt": "2026-11-06"
     },
     {
@@ -181,38 +185,26 @@
       "publishedAt": "2026-11-06"
     },
     {
-      "title": "Firms told to publish salaries in job adverts ahead of new law",
+      "title": "Why smoky bacon crisps threaten to reignite rows over EU rules",
+      "publisher": "BBC Business",
+      "url": "https://www.bbc.co.uk/news/articles/cm1dwwqrr1kvo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-06"
+    },
+    {
+      "title": "Elon Musk appears to signal the end of the road for Cybertruck",
+      "publisher": "BBC Business",
+      "url": "https://www.bbc.co.uk/news/articles/cq1j33w7d232o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-06"
+    },
+    {
+      "title": "PM tells firms to publish salaries in job adverts ahead of new law",
       "publisher": "BBC Business",
       "url": "https://www.bbc.co.uk/news/articles/cmd9343z3zw2o?at_medium=RSS&at_campaign=rss",
       "publishedAt": "2026-11-06"
     },
     {
-      "title": "'I was asked if I was a crier': Your worst job interviews revealed",
-      "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/c3j4751pqnj8o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-06"
-    },
-    {
-      "title": "The engine parts that 'fight the laws of the universe'",
-      "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/cwe9lmp1pyyxo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-06"
-    },
-    {
-      "title": "Interest rates hiked to 4% in first increase in over three years",
-      "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/ck5ynw45jrgqo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-05"
-    },
-    {
-      "title": "Faisal Islam: How high will interest rates go?",
-      "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/ckr5y0y37gv3o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-05"
-    },
-    {
       "title": "Global stocks plunge as fears over US AI slowdown spread to Asia and Europe",
-      "publisher": "BBC Business",
+      "publisher": "BBC Technology",
       "url": "https://www.bbc.co.uk/news/articles/cmn04705rd8jo?at_medium=RSS&at_campaign=rss",
       "publishedAt": "2026-11-06"
     }
