@@ -30,7 +30,7 @@ function parseRules(raw){
   raw.connections?.verifiedWalkEdgeRequiredForDistinctNodes!==true||
   raw.output?.allowUnverifiedEndToEnd!==false||
   !Number.isInteger(raw.parallel?.deadlineMs)||raw.parallel.deadlineMs<250||
-  raw.parallel.deadlineMs>10000||
+  raw.parallel.deadlineMs>20000||
   !Number.isInteger(raw.parallel?.maxLegs)||raw.parallel.maxLegs<2||
   raw.parallel.maxLegs>12||
   !Number.isInteger(raw.parallel?.maxPaths)||raw.parallel.maxPaths<1||
