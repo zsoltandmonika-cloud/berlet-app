@@ -49,7 +49,7 @@ jobs:
       - name: Create isolated Postgres roles and load proposed migration
         run: |
           psql -v ON_ERROR_STOP=1 -c "CREATE ROLE anon; CREATE ROLE authenticated; CREATE ROLE service_role;"
-          psql -v ON_ERROR_STOP=1 -f supabase/migrations/20261107120000_sho_smart_trip_google_quota_v1.sql
+          psql -v ON_ERROR_STOP=1 -f supabase/migrations/20261107170126_sho_smart_trip_google_quota_v1.sql
       - name: Test 25 concurrent Google reservations and monthly cap
         shell: bash
         run: |
