@@ -452,7 +452,7 @@ function renderHome(){
  list.forEach(r=>{const a=document.createElement("article");a.className="card";const media=document.createElement("div");media.className="card-media";
  if(r.mime==="application/pdf"){const d=document.createElement("div");d.className="pdf-tile";d.textContent="📄";media.appendChild(d)}else{const im=document.createElement("img");im.loading="lazy";im.src=r.file;im.alt=r.title;media.appendChild(im)}
  media.onclick=()=>openRecipe(r.id,true);const body=document.createElement("div");body.className="card-body";body.innerHTML='<h2 class="card-title"></h2><div class="card-sub"><span class="cat"></span><div class="card-actions"><button class="fav"></button><button class="open">⛶</button></div></div>';
- body.querySelector(".card-title").textContent=r.title;body.querySelector(".cat").textContent="📂 "+r.category+(r.localCustom?" · helyi":r.central?" · ☁ központi":"");const fav=body.querySelector(".fav");fav.textContent=isFav(r.id)?"★":"☆";fav.onclick=()=>{setFav(r.id,!isFav(r.id));renderHome()};body.querySelector(".open").onclick=()=>openRecipe(r.id,true);a.append(media,body);$("#grid").appendChild(a)})
+ body.querySelector(".card-title").textContent=r.title;body.querySelector(".cat").textContent="📂 "+r.category+(r.pending?" · ⚠️ szinkronra vár":r.localCustom||r.central?" · ☁ felhő":" · alaprecept");const fav=body.querySelector(".fav");fav.textContent=isFav(r.id)?"★":"☆";fav.onclick=()=>{setFav(r.id,!isFav(r.id));renderHome()};body.querySelector(".open").onclick=()=>openRecipe(r.id,true);a.append(media,body);$("#grid").appendChild(a)})
 }
 function showHome(push){setOriginalFullscreen(false);currentId=null;$("#recipeView").hidden=true;$("#homeView").hidden=false;if(push)history.pushState({view:"home"},"","#home");window.scrollTo({top:0,behavior:"instant"});renderHome()}
 function setMode(mode){
@@ -530,7 +530,7 @@ function closeYoutubePlayer(){
  const d=$("#youtubeDialog");if(d.open)d.close();$("#youtubePlayer").removeAttribute("src")
 }
 function openRecipe(id,push){
- setOriginalFullscreen(false);const r=getRecipe(id);if(!r||r.deleted){showHome(push);return}currentId=id;$("#homeView").hidden=true;$("#recipeView").hidden=false;$("#recipeCategory").textContent=r.category+(r.localCustom?" · helyi":r.central?" · ☁ központi":"");$("#recipeTitle").textContent=r.title;$("#favBtn").textContent=isFav(id)?"★":"☆";
+ setOriginalFullscreen(false);const r=getRecipe(id);if(!r||r.deleted){showHome(push);return}currentId=id;$("#homeView").hidden=true;$("#recipeView").hidden=false;$("#recipeCategory").textContent=r.category+(r.pending?" · ⚠️ felhőmentésre vár":r.localCustom||r.central?" · ☁ felhő":" · alaprecept");$("#recipeTitle").textContent=r.title;$("#favBtn").textContent=isFav(id)?"★":"☆";
  renderReadableFor(id);renderRecipeFeedback(id);renderRecipeNutriStrip(id);renderRecipeVideo(r);
  if(r.mime==="application/pdf"){$("#recipeImage").hidden=true;$("#recipeImageHint").hidden=true;$("#recipePdf").hidden=false;$("#recipePdf").src=r.file}else{$("#recipePdf").hidden=true;$("#recipeImage").hidden=false;$("#recipeImageHint").hidden=false;$("#recipeImage").src=r.file;$("#recipeImage").alt=r.title}
  setMode("original");if(push)history.pushState({view:"recipe",id},"","#recipe="+encodeURIComponent(id));window.scrollTo({top:0,behavior:"instant"})
@@ -554,8 +554,9 @@ async function saveEdit(){
  ensureManagedCategory(category);await saveCategoryConfig();
  const prev=getMeta(currentId),m={...prev,title,category,youtubeId,deleted:!!prev.deleted,updatedAt:new Date().toISOString()};setMeta(currentId,m);
  if(r.localCustom){const row=await dbGet(r.id);if(row){row.title=title;row.category=category;row.youtubeId=youtubeId;row.pending=true;await dbPut(row);await loadCustomRecipes()}}
- await saveRecipeMetaCloud(currentId,m);
- $("#editDialog").close();openRecipe(currentId,false);renderHome();toast("Recept adatai elmentve.")
+ const saved=await saveRecipeMetaCloud(currentId,m);
+ if(r.localCustom){await syncLocalRecipe(r.id,{silent:true,refresh:false});await loadSharedRecipes();await loadCustomRecipes()}
+ $("#editDialog").close();openRecipe(currentId,false);renderHome();toast(saved?"☁ Receptadatok felhőbe mentve.":"⚠️ A módosítás felhőszinkronra vár.")
 }
 function deleteCurrent(){if(!currentId)return;const r=getRecipe(currentId);if(!r)return;if(!confirm("Biztosan törlöd ezt a receptet?\n\n"+r.title+"\n\nA törlés visszaállítható."))return;const m=getMeta(currentId);m.deleted=true;setMeta(currentId,m);$("#editDialog").close();showHome(true);toast("Recept a kukába került.")}
 function resetCurrent(){if(!currentId)return;const m=getMeta(currentId);delete m.title;delete m.category;m.deleted=false;if(Object.keys(m).length)setMeta(currentId,m);else localStorage.removeItem(keyMeta(currentId));const r=getRecipe(currentId);$("#editTitle").value=r.title;fillEditCategorySelect(r.category);toast("Alapadatok visszaállítva.")}
@@ -569,10 +570,11 @@ function newId(){return"u"+Date.now().toString(36)+Math.random().toString(36).sl
 async function saveNew(){
  const title=$("#newTitle").value.trim(),category=cleanCategoryName($("#newCategory").value);if(!selectedNewBlob){alert("Először válassz vagy fotózz egy receptképet.");return}if(!title){alert("Add meg a recept nevét.");return}if(!category){alert("Add meg a kategóriát.");return}
  ensureManagedCategory(category);await saveCategoryConfig();
- const central=$("#newCentralSync").checked;let cloudOk=false;
- if(central){try{cloudOk=!!(await ensurePuterSignIn())}catch(e){console.warn(e);toast("A recept helyben megmarad; a központi felhőhöz bejelentkezés kell.")}}
- const id=newId();await dbPut({id,title,category,originalName:title+".jpg",blob:selectedNewBlob,pending:central,createdAt:Date.now()});$("#addDialog").close();await loadCustomRecipes();activeCategory="Mind";favoritesOnly=false;showHome(false);toast("Új recept elmentve.");
- if(central&&cloudOk)await syncLocalRecipe(id)
+ let cloudOk=false;
+ try{cloudOk=!!(await ensurePuterSignIn())}catch(e){console.warn(e);alert("A felhőbe mentéshez jelentkezz be a Puter-fiókba. A feltöltés még nem történt meg.");return}
+ if(!cloudOk){alert("A felhőbe mentéshez bejelentkezés szükséges.");return}
+ const id=newId();await dbPut({id,title,category,originalName:title+".jpg",blob:selectedNewBlob,pending:true,createdAt:Date.now()});$("#addDialog").close();await loadCustomRecipes();activeCategory="Mind";favoritesOnly=false;showHome(false);
+ const synced=await syncLocalRecipe(id);if(!synced)toast("⚠️ Felhőmentésre vár: Admin → Központi tárhely.")
 }
 
 
@@ -901,7 +903,7 @@ async function openCurrentRecipeInStudio(){
  if(!currentId)return;const r=getRecipe(currentId);if(!r)return;const source=await recipeStudioSource(r);
  if(source.ingredients.length<2||source.steps.length<2){alert("A Golden kártyához előbb dolgozd fel a receptet, hogy meglegyenek a hozzávalók és az elkészítési lépések.");$("#editDialog").close();setMode("readable");return}
  $("#editDialog").close();fillCategoryList();resetStudio();studioEditingId=r.id;studioDraft=source;await loadStudioArtwork(r);studioFillEditor();$("#studioPreview").hidden=false;renderStudioPreview();
- $("#studioDialogTitle").textContent="🎨 Recept javítása és újragenerálása";$("#studioFinalize").textContent="✅ Javítás mentése";$("#studioCentralSync").checked=!!(r.central||r.pending||r.studio);updateStudioProviderBadge();$("#studioDialog").showModal();await studioRenderExactCard()
+ $("#studioDialogTitle").textContent="🎨 Recept javítása és újragenerálása";$("#studioFinalize").textContent="✅ Javítás mentése";$("#studioCentralSync").checked=true;updateStudioProviderBadge();$("#studioDialog").showModal();await studioRenderExactCard()
 }
 function studioPullEditor(){
  if(!studioDraft)return null;
@@ -1137,18 +1139,21 @@ async function studioCardBlob(d){
 }
 async function studioFinalize(){
  if(!studioDraft)return;const d=studioPullEditor();if(!d.title||!d.category||!d.ingredients.length||!d.steps.length){alert("A véglegesítéshez kell cím, kategória, hozzávaló és elkészítés.");return}
- const central=$("#studioCentralSync").checked;let cloudOk=false;
- if(central){try{cloudOk=!!(await ensurePuterSignIn())}catch(e){console.warn(e);toast("A recept helyben mentődik; a központi felhőhöz bejelentkezés kell.")}}
+ let cloudOk=false;
+ try{cloudOk=!!(await ensurePuterSignIn())}catch(e){console.warn(e);alert("A felhőkapcsolat nem jött létre. A módosítás még nincs elmentve; jelentkezz be a Puter-fiókba, és próbáld újra.");return}
+ if(!cloudOk){alert("A felhőbe mentéshez bejelentkezés szükséges.");return}
  busy(true,"Golden kártya készítése és mentés…");
  try{
    const editing=studioEditingId,previous=editing?await dbGet(editing):null,id=editing||newId(),existingYoutubeId=editing?String(getRecipe(id)?.youtubeId||previous?.youtubeId||""):"",readable={status:"verified",source:"studio_golden_v2",ingredients:d.ingredients,steps:d.steps,notes:[d.servings+" · "+d.time+" · "+d.difficulty].concat(d.notes||[]),updatedAt:new Date().toISOString()};
    const blob=await studioCardBlob(d);
    const wasCentral=!!(editing&&getRecipe(id)?.central);
-   await dbPut({id,title:d.title,category:d.category,originalName:d.title+".jpg",blob,heroBlob:studioPhotoBlob||null,processBlob:studioProcessBlob||null,pending:central,localOverride:wasCentral&&!central,createdAt:previous?.createdAt||getRecipe(id)?.createdAt||Date.now(),readable,studio:true,studioData:{title:d.title,category:d.category,servings:d.servings,time:d.time,difficulty:d.difficulty,ingredients:d.ingredients,steps:d.steps,notes:d.notes||[]},youtubeId:existingYoutubeId});
+   await dbPut({id,title:d.title,category:d.category,originalName:d.title+".jpg",blob,heroBlob:studioPhotoBlob||null,processBlob:studioProcessBlob||null,pending:true,localOverride:false,createdAt:previous?.createdAt||getRecipe(id)?.createdAt||Date.now(),readable,studio:true,studioData:{title:d.title,category:d.category,servings:d.servings,time:d.time,difficulty:d.difficulty,ingredients:d.ingredients,steps:d.steps,notes:d.notes||[]},youtubeId:existingYoutubeId});
    setReadable(id,readable);const meta=getMeta(id);meta.title=d.title;meta.category=d.category;meta.deleted=false;meta.updatedAt=new Date().toISOString();setMeta(id,meta);await saveRecipeMetaCloud(id,meta);
-   if(central&&cloudOk)await syncLocalRecipe(id,{silent:true,refresh:false});
-   if(central&&cloudOk)await loadSharedRecipes();await loadCustomRecipes();$("#studioDialog").close();activeCategory="Mind";favoritesOnly=false;
-   if(editing){history.replaceState({view:"recipe",id},"","#recipe="+encodeURIComponent(id));openRecipe(id,false);toast("✓ A recept és a Golden kártya frissítve.")}else{showHome(false);toast("✓ Golden Standard recept elmentve.")}
+   const synced=await syncLocalRecipe(id,{silent:true,refresh:false});
+   if(synced)await loadSharedRecipes();
+   await loadCustomRecipes();$("#studioDialog").close();activeCategory="Mind";favoritesOnly=false;
+   if(editing){history.replaceState({view:"recipe",id},"","#recipe="+encodeURIComponent(id));openRecipe(id,false)}else showHome(false);
+   toast(synced?"☁ Recept, képek és Golden kártya felhőbe mentve.":"⚠️ A felhőmentés sikertelen. A változtatás biztonsági másolatban vár, és újrapróbálható az Admin → Központi tárhely menüben.")
    studioEditingId=null
  }catch(e){console.error(e);alert("A recept mentése nem sikerült: "+e.message)}finally{busy(false)}
 }
@@ -1799,4 +1804,4 @@ function openInitialRoute(){
  if(id&&getRecipe(id)){history.replaceState({view:"recipe",id},"",location.pathname+location.search+"#recipe="+encodeURIComponent(id));openRecipe(id,false);return}
  history.replaceState({view:"home"},"",location.pathname+location.search+"#home");renderHome()
 }
-(async()=>{migrateCanonicalBaseState();await loadSharedRecipes();await loadCloudRecipeMeta();await loadCategoryConfig();await loadCustomRecipes();await loadTasteFeedback();await loadNutritionCache();openInitialRoute();updateStudioProviderBadge();if(puterCloudReady()&&puter.auth.isSignedIn())syncPendingToCloud();void 0})().catch(e=>{console.error(e);renderHome()});
+(async()=>{migrateCanonicalBaseState();await loadSharedRecipes();await loadCloudRecipeMeta();await loadCategoryConfig();await loadCustomRecipes();await loadTasteFeedback();await loadNutritionCache();openInitialRoute();updateStudioProviderBadge();if(puterCloudReady()&&puter.auth.isSignedIn())await syncPendingToCloud();void 0})().catch(e=>{console.error(e);renderHome()});
