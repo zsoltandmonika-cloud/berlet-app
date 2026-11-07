@@ -3,7 +3,11 @@
   "version": "4.0.0-alpha",
   "commands": {
     "R": "route",
-    "P": ["BKK", "MAV", "VOLAN"],
+    "P": [
+      "BKK",
+      "MAV",
+      "VOLAN"
+    ],
     "J": "join_at_verified_nodes",
     "C": "validate_schedule_and_connections",
     "O": "select_one",
@@ -11,8 +15,12 @@
     "L": "optional_lena_touch"
   },
   "parallel": {
-    "sources": ["bkk", "mav", "volan"],
-    "deadlineMs": 3500,
+    "sources": [
+      "bkk",
+      "mav",
+      "volan"
+    ],
+    "deadlineMs": 12000,
     "maxRoutesPerSource": 40,
     "maxLegs": 8,
     "maxPaths": 500
@@ -26,7 +34,12 @@
     "verifiedWalkEdgeRequiredForDistinctNodes": true
   },
   "ranking": {
-    "distancePreference": ["direct_volan", "sajo_express", "other_express", "other"],
+    "distancePreference": [
+      "direct_volan",
+      "sajo_express",
+      "other_express",
+      "other"
+    ],
     "maxTransfers": 4,
     "preferLessWaiting": true,
     "preferLessWalking": true,
