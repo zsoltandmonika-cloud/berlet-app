@@ -1130,4 +1130,4 @@ let __lastCentralRefresh=Date.now();
 document.addEventListener("visibilitychange",()=>{if(!document.hidden&&Date.now()-__lastCentralRefresh>30000){__lastCentralRefresh=Date.now();refreshSharedRecipes(true);loadTasteFeedback();loadNutritionCache()}if(!document.hidden&&$("#cookModeDialog").open&&!cookState.wakeLock)requestCookWakeLock()});
 window.addEventListener("popstate",e=>{const st=e.state;if(st&&st.view==="recipe"&&st.id){openRecipe(st.id,false);return}showHome(false)});
 (async()=>{migrateCanonicalBaseState();await loadSharedRecipes();await loadCustomRecipes();await loadTasteFeedback();await loadNutritionCache();history.replaceState({view:"home"},"","#home");renderHome();updateStudioProviderBadge();if(puterCloudReady()&&puter.auth.isSignedIn())syncPendingToCloud();void 0})().catch(e=>{console.error(e);renderHome()});
-if("serviceWorker"in navigator&&location.protocol.startsWith("http"))navigator.serviceWorker.register("./sw.js?v=35").catch(()=>{});
+if("serviceWorker"in navigator&&location.protocol.startsWith("http"))navigator.serviceWorker.register("./sw.js?v=36").catch(()=>{});
