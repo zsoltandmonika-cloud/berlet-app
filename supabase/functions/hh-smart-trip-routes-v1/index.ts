@@ -1,5 +1,5 @@
 // SHO Smart Trip V5: isolated, fail-closed Google Routes server integration.
-// NOT deployed or called by the V5 UI. No Google request until quota + EEA review.
+// Deployed in OFF mode; V5 UI not wired. No Google request until quota + EEA review.
 import { createClient } from "npm:@supabase/supabase-js@2.57.2";
 
 const ORIGIN = "https://zsoltandmonika-cloud.github.io";
@@ -33,8 +33,9 @@ function input(raw: unknown) {
   if (!a || !b || !validCoord(a.lat,90) || !validCoord(a.lng,180) ||
       !validCoord(b.lat,90) || !validCoord(b.lng,180)) return null;
   const departed = q.departureTime;
+  // Explicit UTC offset is mandatory. Bare Budapest local time is ambiguous.
   if (typeof departed !== "string" || departed.length > 40 ||
-      !/^\d{4}-\d{2}-\d{2}T/.test(departed)) return null;
+      !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(?::\d{2}(?:\.\d{1,3})?)?(?:Z|[+-](?:[01]\d|2[0-3]):[0-5]\d)$/.test(departed)) return null;
   const millis = Date.parse(departed);
   if (!Number.isFinite(millis) || millis < Date.now() - 60000 ||
       millis > Date.now() + 90 * 86400000) return null;
@@ -114,7 +115,9 @@ Deno.serve(async (req: Request) => {
         origin:{location:{latLng:query.origin}},
         destination:{location:{latLng:query.destination}},
         travelMode:"TRANSIT",departureTime:query.departureTime,
-        computeAlternativeRoutes:true,languageCode:"hu",units:"METRIC"
+        computeAlternativeRoutes:true,
+        transitPreferences:{routingPreference:"FEWER_TRANSFERS"},
+        languageCode:"hu",units:"METRIC"
       })
     });
     if (!result.ok) return json(req,502,{error:"provider_unavailable"});
@@ -125,7 +128,10 @@ Deno.serve(async (req: Request) => {
     const parsed = JSON.parse(body);
     if (!Array.isArray(parsed.routes) || parsed.routes.length > 16)
       return json(req,502,{error:"provider_response_invalid"});
-    return json(req,200,{source:"google_routes",routes:parsed.routes.slice(0,4)});
+    // EEA compliance: caller must keep Google content in a map-free,
+    // Google-attributed view. Never pass provider response to an LLM or persist it.
+    return json(req,200,{source:"google_routes",presentation:"text_only",
+      ai_processing:"disabled",attribution:"Google Maps",routes:parsed.routes.slice(0,4)});
   } catch {return json(req,502,{error:"provider_timeout_or_unavailable"});}
   finally {clearTimeout(deadline);}
 });
