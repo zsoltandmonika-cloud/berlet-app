@@ -1,0 +1,29 @@
+name: Smart Trip V5 Google quota safety
+on:
+  pull_request:
+    paths:
+      - 'supabase/functions/hh-smart-trip-routes-v1/**'
+      - 'supabase/migrations/*sho_smart_trip_google_quota*'
+      - 'healthhub/tests/sho-smart-trip-v5-routes-backend.test.mjs'
+      - '.github/workflows/sho-smart-trip-v5-quota-ci.yml'
+  push:
+    branches:
+      - feature/smart-trip-v5-routes-backend-gated
+    paths:
+      - 'supabase/functions/hh-smart-trip-routes-v1/**'
+      - 'supabase/migrations/*sho_smart_trip_google_quota*'
+      - 'healthhub/tests/sho-smart-trip-v5-routes-backend.test.mjs'
+      - '.github/workflows/sho-smart-trip-v5-quota-ci.yml'
+permissions:
+  contents: read
+jobs:
+  quota-safety:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify fail-closed quota and permissions
+        run: node --test healthhub/tests/sho-smart-trip-v5-routes-backend.test.mjs
