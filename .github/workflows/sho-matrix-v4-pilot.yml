@@ -7,6 +7,7 @@ on:
       - "sh9/super-search/matrix-v4/**"
       - "healthhub/tests/sho-matrix-search-v4-pilot.test.mjs"
       - "healthhub/tests/sho-matrix-source-adapters-v4.test.mjs"
+      - "healthhub/tests/sho-matrix-live-pilot-v4.test.mjs"
       - ".github/workflows/sho-matrix-v4-pilot.yml"
   pull_request:
     paths:
@@ -28,7 +29,13 @@ jobs:
         run: node --check sh9/super-search/matrix-v4/matrix-search-engine-v4.mjs
       - name: Syntax check · existing-source adapters
         run: node --check sh9/super-search/matrix-v4/matrix-existing-sources-v4.mjs
+      - name: Syntax checks · real workers and live pilot
+        run: |
+          node --check sh9/super-search/matrix-v4/matrix-local-feed-reader-v4.mjs
+          node --check sh9/super-search/matrix-v4/matrix-local-worker-v4.mjs
+          node --check sh9/super-search/matrix-v4/matrix-worker-provider-v4.mjs
+          node --check sh9/super-search/matrix-v4/matrix-live-pilot-v4.mjs
       - name: Strict JSON rules
         run: node -e 'const x=require("./sh9/super-search/matrix-v4/matrix-rules-v4.json"); if (x.schema!=="sho.matrix-rules/4") process.exit(1)'
       - name: Architecture, concurrency, source adapters and existing TripPack
-        run: node --test healthhub/tests/sho-matrix-search-v4-pilot.test.mjs healthhub/tests/sho-matrix-source-adapters-v4.test.mjs
+        run: node --test healthhub/tests/sho-matrix-search-v4-pilot.test.mjs healthhub/tests/sho-matrix-source-adapters-v4.test.mjs healthhub/tests/sho-matrix-live-pilot-v4.test.mjs
