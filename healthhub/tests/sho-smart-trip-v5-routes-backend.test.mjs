@@ -64,3 +64,16 @@ test("EEA isolation: Google routes are labelled text-only, never fed to LLM or s
   assert.doesNotMatch(file,/routes\.polyline/);
   assert.doesNotMatch(file,/api\.openai\.com|OPENAI_API_KEY/);
 });
+
+test("Secret diagnostic is authenticated, zero-billing, and hides key value",()=>{
+  assert.match(file,/payload\?\.mode === "secret_check"/);
+  assert.match(file,/authenticate\(req,profile as "m"\|"z"\)/);
+  assert.match(file,/env\("HH_SMART_TRIP_GOOGLE_ROUTES_KEY"\)/);
+  assert.match(file,/google_request:false,quota_consumed:0/);
+  assert.match(file,/validity:"not_verified"/);
+  assert.match(file,/google_api_enabled:false/);
+  assert.ok(file.indexOf('payload?.mode === "secret_check"') <
+    file.indexOf('admin.rpc("hh_smart_trip_google_reserve")'));
+  assert.ok(file.indexOf('payload?.mode === "secret_check"') <
+    file.indexOf("await fetch(GOOGLE"));
+});
