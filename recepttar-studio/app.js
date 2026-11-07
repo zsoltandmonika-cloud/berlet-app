@@ -22,7 +22,12 @@ function migrateCanonicalBaseState(){
 
 function keyFav(id){return"lena21:fav:"+id}function keyText(id){return"lena21:text:"+id}function keyMeta(id){return"lena22:meta:"+id}
 function keyReadable(id){return"lena25:readable:"+id}
-function getReadable(id){try{const local=localStorage.getItem(keyReadable(id));if(local)return JSON.parse(local)}catch(e){}return sharedReadable[id]||baseReadable[id]||{status:"unprocessed",ingredients:[],steps:[],notes:[]}}
+function getReadable(id){
+ let local=null;try{local=JSON.parse(localStorage.getItem(keyReadable(id))||"null")}catch(e){}
+ const cloud=sharedReadable[id];
+ if(cloud&&(!local||String(cloud.updatedAt||"")>=String(local.updatedAt||"")))return cloud;
+ return local||cloud||baseReadable[id]||{status:"unprocessed",ingredients:[],steps:[],notes:[]}
+}
 function setReadable(id,v){localStorage.setItem(keyReadable(id),JSON.stringify(v))}
 function clearReadableLocal(id){localStorage.removeItem(keyReadable(id))}
 function statusInfo(status){if(status==="verified")return["✅ Ellenőrzött","status-verified"];if(status==="review")return["⚠️ Ellenőrzésre vár","status-review"];return["○ Nincs feldolgozva","status-unprocessed"]}
@@ -1782,13 +1787,37 @@ function openReadableEditor(){
  $("#notesEditor").value=(d.notes||[]).join("\n");
  $("#structuredDialog").showModal()
 }
-function saveStructuredReadable(){
- if(!currentId)return;
+async function saveStructuredReadableToCloud(id,data){
+ const r=getRecipe(id);if(!r)throw new Error("A recept nem található.");
+ const previous=await dbGet(id),card=await recipeCardSourceBlob(r);
+ await dbPut({
+   id,title:r.title,category:r.category,originalName:previous?.originalName||r.originalName||r.title+".jpg",
+   blob:card,mime:previous?.mime||r.mime||card.type||"image/jpeg",
+   heroBlob:previous?.heroBlob||null,processBlob:previous?.processBlob||null,
+   pending:true,localOverride:false,createdAt:previous?.createdAt||r.createdAt||Date.now(),
+   readable:data,studio:!!(previous?.studio||r.studioData),studioData:previous?.studioData||r.studioData||null,
+   youtubeId:String(r.youtubeId||previous?.youtubeId||"")
+ });
+ setReadable(id,data);
+ const synced=await syncLocalRecipe(id,{silent:true,refresh:false});
+ if(synced)await loadSharedRecipes();
+ await loadCustomRecipes();
+ return synced;
+}
+async function saveStructuredReadable(){
+ if(!currentId)return;const id=currentId;
  const status=$("#structuredStatus").value,ingredients=splitLines($("#ingredientsEditor").value),steps=splitLines($("#stepsEditor").value),notes=splitLines($("#notesEditor").value);
  if(status==="verified"&&(!ingredients.length||!steps.length)){alert("Ellenőrzött recepthez kell legalább egy hozzávaló és egy elkészítési lépés.");return}
- setReadable(currentId,{status,ingredients,steps,notes,updatedAt:new Date().toISOString()});
- $("#structuredDialog").close();renderReadableFor(currentId);
- if(status==="verified"){setMode("readable");toast("✓ Olvasható recept ellenőrzöttként elmentve.")}else if(status==="review"){setMode("original");toast("Mentve: ellenőrzésre vár.")}else{setMode("original");toast("Mentve: nincs feldolgozva.")}
+ try{if(!await ensurePuterSignIn())throw new Error("Puter bejelentkezés szükséges")}
+ catch(e){alert("A szerkesztés felhőmentéséhez bejelentkezés kell: "+(e.message||e));return}
+ busy(true,"Receptlépések mentése a Puter-felhőbe…");
+ try{
+   const data={status,ingredients,steps,notes,source:"manual_cloud_editor",updatedAt:new Date().toISOString()};
+   const synced=await saveStructuredReadableToCloud(id,data);
+   $("#structuredDialog").close();renderReadableFor(id);setMode(status==="verified"?"readable":"original");
+   toast(synced?"☁ A recept szövege felhőbe mentve, visszaellenőrizve.":"⚠️ A felhőmentés sikertelen. A változtatás szinkronra vár.");
+ }catch(e){console.error(e);alert("Nem sikerült a recept szövegét elmenteni: "+(e.message||e))}
+ finally{busy(false)}
 }
 function resetIngredientChecks(){
  if(!currentId)return;const d=getReadable(currentId);(d.ingredients||[]).forEach((_,i)=>localStorage.removeItem(ingredientCheckKey(currentId,i)));(d.steps||[]).forEach((_,i)=>localStorage.removeItem(stepCheckKey(currentId,i)));renderReadableFor(currentId);toast("Minden pipa törölve.")
@@ -1796,8 +1825,17 @@ function resetIngredientChecks(){
 function changeReadableFont(delta){
  const n=Math.max(15,Math.min(26,currentReadableFont()+delta));localStorage.setItem("lena25:font",String(n));applyReadableFont()
 }
-function clearStructuredOverride(){
- if(!currentId)return;if(!confirm("Töröljük ezen a recepten a helyi strukturált javítást?"))return;clearReadableLocal(currentId);$("#structuredDialog").close();renderReadableFor(currentId);toast("Helyi javítás törölve.")
+async function clearStructuredOverride(){
+ if(!currentId||!confirm("Visszaállítsuk a recept eredeti feldolgozott adatait a felhőben is?"))return;
+ const id=currentId;
+ try{
+   if(!await ensurePuterSignIn())throw new Error("Puter bejelentkezés szükséges");
+   const fallback=baseReadable[id]||{status:"unprocessed",ingredients:[],steps:[],notes:[]};
+   const data={...fallback,updatedAt:new Date().toISOString()};
+   const ok=await saveStructuredReadableToCloud(id,data);
+   $("#structuredDialog").close();renderReadableFor(id);
+   toast(ok?"☁ Eredeti receptadatok felhőbe visszaállítva.":"⚠️ A visszaállítás felhőszinkronra vár.");
+ }catch(e){alert("A visszaállítás nem sikerült: "+(e.message||e))}
 }
 
 initCategoryStripScroll();
