@@ -13,6 +13,7 @@ The $5 Google Billing budget is a notification, **not a hard cap**.
 - Endpoint request timeout 12 s; strict input size and response size.
 - Approved key stays server-only; no AI forwarding, UI writes or caching.
 - A compile-time OFF switch remains until launch approval.
+- Authenticated `mode: secret_check` diagnostic tests only existence and basic copy-format of the server-side Google key; never calls Google, never spends quota, never exposes key value. This **does not verify Google authentication or exact byte equality**.
 - Transit requests prefer FEWER_TRANSFERS and require offset-qualified RFC3339 departure times (e.g. 2026-11-27T15:00:00+01:00).
 - Responses, when legally permitted and activated, are tagged text_only, Google Maps-attributed, and ai_processing disabled. No Google content to an LLM or any map.
 
@@ -42,3 +43,22 @@ spend. The cost may vary by SKU and cannot be guaranteed under $5 merely by
 counting requests. Trial terms and Google-side billing apply independently.
 
 Run: `node --test healthhub/tests/sho-smart-trip-v5-routes-backend.test.mjs`.
+
+## Non-billing key diagnostic (requires signed-in user's JWT)
+
+Supabase Dashboard > Edge Functions > `hh-smart-trip-routes-v1` > **Test**.
+
+- Method: POST
+- Content-Type: `application/json`
+- Authorization: `Bearer <a legitimate signed-in Supabase Auth user JWT>`
+  (a publishable/anon API key is **not** a user JWT).
+- JSON body: `{"mode":"secret_check","profile":"z"}`
+- No `Origin` header is needed in the Supabase Dashboard tester.
+- `status: "missing"`: the runtime cannot read the secret.
+- `status: "format_invalid"`: likely copy error, whitespace, quote or malformed key.
+- `status: "format_ok"`: plausible secret present; **the Google key may still be wrong, revoked, or restricted**.
+- `validity:"not_verified",google_request:false,quota_consumed:0` are expected.
+
+Never send the user JWT or Google API key in chat. The Google-off hard gate
+is not modified. Confirm actual Google validity only via one separately
+approved, quota-counted Google Routes request after EEA review and secret setup.
