@@ -2015,3 +2015,41 @@ body:has(.youtube-dialog[open]){overflow:hidden}
  .youtube-edit-row{grid-template-columns:1fr}.youtube-edit-row .compact-btn{min-height:42px}
  .youtube-edit-preview{grid-template-columns:96px minmax(0,1fr)}.youtube-edit-preview img{width:96px}
 }
+
+/* v45 · Egységes, minden recepthez látható felhős szerkesztő műveletek. */
+.recipe-editor-actions{
+ display:grid;
+ grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+ gap:10px;
+ padding:11px 12px;
+ margin:0;
+ background:rgba(18,21,18,.95);
+ border-bottom:1px solid rgba(224,187,117,.28);
+}
+.recipe-editor-actions button{
+ display:flex;align-items:center;justify-content:center;
+ min-width:0;min-height:47px;
+ padding:10px 12px;
+ border-radius:13px;
+ font-family:inherit;font-size:14px;font-weight:800;
+ white-space:normal;line-height:1.25;
+ cursor:pointer;
+}
+.recipe-edit-main{
+ background:linear-gradient(135deg,#b78739,#f3cb7a)!important;
+ color:#25180b!important;
+ border:1px solid #edc985!important;
+ box-shadow:0 3px 15px rgba(167,116,35,.25);
+}
+.recipe-image-replace{
+ background:rgba(76,62,40,.55)!important;
+ color:#fff0cb!important;
+ border:1px solid rgba(234,196,111,.65)!important;
+}
+.recipe-editor-actions button:focus-visible{
+ outline:3px solid #f9d883;outline-offset:2px;
+}
+@media(max-width:410px){
+ .recipe-editor-actions{gap:7px;padding:8px 9px}
+ .recipe-editor-actions button{font-size:12px;min-height:51px;padding:8px 6px}
+}
