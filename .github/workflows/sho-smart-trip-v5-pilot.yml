@@ -1,0 +1,32 @@
+name: Smart Trip V5 · Google-first Pilot QA
+on:
+  push:
+    branches:
+      - feature/sho-smart-trip-v5-google-first-pilot
+    paths:
+      - "sh9/smart-travel/public-transport/smart-trip/v5/**"
+      - "healthhub/tests/sho-smart-trip-v5-google-first.test.mjs"
+      - ".github/workflows/sho-smart-trip-v5-pilot.yml"
+  pull_request:
+    paths:
+      - "sh9/smart-travel/public-transport/smart-trip/v5/**"
+      - "healthhub/tests/sho-smart-trip-v5-google-first.test.mjs"
+      - ".github/workflows/sho-smart-trip-v5-pilot.yml"
+permissions:
+  contents: read
+jobs:
+  google-first-demo:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - name: V5 syntax checks
+        run: |
+          node --check sh9/smart-travel/public-transport/smart-trip/v5/v5-pilot-core.mjs
+          node --check sh9/smart-travel/public-transport/smart-trip/v5/v5-demo-fixture.mjs
+          node --check sh9/smart-travel/public-transport/smart-trip/v5/v5-live-pilot.mjs
+      - name: Offline Google-shaped processing and production isolation
+        run: node --test healthhub/tests/sho-smart-trip-v5-google-first.test.mjs
