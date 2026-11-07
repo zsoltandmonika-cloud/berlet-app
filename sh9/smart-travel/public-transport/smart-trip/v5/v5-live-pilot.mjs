@@ -97,3 +97,6 @@ $("profile").addEventListener("change",()=>{
  html.dataset.profile=$("profile").value;
 });
 html.dataset.profile=$("profile").value;
+
+// Reuse exactly the same query validation for the read-only preflight button.
+export {getQuery};
