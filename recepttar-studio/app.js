@@ -248,9 +248,10 @@ async function currentPuterUser(){
 }
 async function ensurePuterSignIn(forcePick=false){
  if(!puterCloudReady())throw new Error("A Puter felhő nem érhető el.");
- if(puter.auth.isSignedIn()&&!forcePick)return currentPuterUser();
+ if(puter.auth.isSignedIn()&&!forcePick)return await currentPuterUser()||{signedIn:true};
  await puter.auth.signIn(forcePick?{request_auth:true}:{});
- return currentPuterUser()
+ if(!puter.auth.isSignedIn())throw new Error("Puter-bejelentkezés nem sikerült.");
+ return await currentPuterUser()||{signedIn:true}
 }
 async function loadSharedRecipes(){
  sharedRecipes.forEach(r=>r._url&&URL.revokeObjectURL(r._url));sharedRecipes=[];sharedReadable={};
