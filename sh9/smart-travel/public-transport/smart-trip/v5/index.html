@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="hu"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#07152c">
+<meta name="description" content="SHO Smart Trip V5 · Google-first külön próba. DEMO-adatok, nincs fizetős API-hívás.">
+<title>Smart Trip V5 · Google First · Léna Touch pilot</title>
+<link rel="icon" type="image/png" href="../../../../assets/sh9-icon.png">
+<style>
+:root{color-scheme:dark;--accent:#7ac7ff;--accent-tint:rgba(72,159,251,.22);--glass:rgba(16,39,77,.72);--line:rgba(200,225,255,.23);font-family:system-ui,-apple-system,"Segoe UI",Arial,sans-serif}
+:root[data-profile="m"]{--accent:#ffaddf;--accent-tint:rgba(252,111,198,.22)}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 15% -15%,#30529b83,transparent 60%),radial-gradient(ellipse at 84% 75%,#702c8e66,transparent 60%),#071124;color:#f0f7ff;padding:15px}
+main{max-width:920px;margin:0 auto;padding:15px 0 45px}h1{font-size:clamp(25px,5.3vw,40px);margin:8px 0 10px}h2{font-size:19px;margin:0 0 15px}h3{font-size:17px;margin:0}p{color:#c8d8ea;line-height:1.5}small{color:#a9c5df;font-size:12px}strong{color:white}a{color:var(--accent)}
+.labeltop{text-transform:uppercase;letter-spacing:.15em;color:var(--accent);font-size:12px;font-weight:850}
+.hero{position:relative;overflow:hidden;border-radius:24px;border:1px solid #b4dbff47;padding:28px 21px;background:radial-gradient(circle at 89% 25%,#8d6bc78c,transparent 41%),linear-gradient(120deg,#0e3259,#10203c 62%,#271b50);box-shadow:0 22px 45px #0005}
+.hero:after{content:"";position:absolute;width:210px;height:210px;right:-74px;top:-75px;border:2px solid #c9d6ff53;border-radius:50%;box-shadow:0 0 0 26px #98a9ff11,0 0 0 60px #98a9ff0a;pointer-events:none}
+.hero p{margin:0;max-width:680px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:15px 0 0}
+.chip{border:1px solid #d9e8ff6a;border-radius:999px;background:#05163265;padding:5px 10px;font-size:11px;font-weight:800;color:#d8edff}
+.chip.warn{border-color:#ffcb8a8a;color:#ffdbba}
+.glass{border:1px solid var(--line);background:var(--glass);border-radius:20px;padding:19px;margin-top:16px;backdrop-filter:blur(15px);box-shadow:0 12px 34px #0004}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px}
+.field{display:flex;flex-direction:column;gap:7px}.field label{font-size:12px;color:#bbd1e8;font-weight:750}
+input,select{width:100%;min-width:0;color:#fff;background:#07182f;border:1px solid #aed2ff63;border-radius:13px;padding:13px;font:inherit;font-size:14px}
+input:focus,select:focus,button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+button{font:inherit;border-radius:13px;border:1px solid transparent;cursor:pointer;padding:13px 18px;min-height:46px;font-weight:800}
+button.primary{background:linear-gradient(110deg,#83daff,#acbafa 60%,#ffc7e8);color:#07172d;box-shadow:0 6px 22px #508efe55}
+button.secondary{border-color:#bbd4ff70;background:#132949aa;color:#f3f8ff}
+.actions{display:flex;flex-wrap:wrap;gap:9px;align-items:center;margin-top:17px}
+.meter{margin-left:auto;color:var(--accent);font-size:22px;font-weight:850;font-variant-numeric:tabular-nums}
+.status{padding:10px 12px;background:#081a38a8;border:1px solid #b4dfff2b;border-radius:13px;font-size:13px;color:#d6e9ff;margin-top:14px}
+.results{display:grid;gap:11px}.candidate{border:1px solid #9ac4fa38;border-radius:15px;padding:14px;background:#0516319c}
+.candidate.best{border:1px solid var(--accent);box-shadow:inset 0 1px 0 #ffffff17,0 6px 28px #4c86e42b}
+.candidate-head{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.candidate-head h3{flex:1}.badge{font-size:11px;color:#d4ebff;border:1px solid #91bbff70;padding:5px 8px;border-radius:999px}.badge.best{background:var(--accent-tint);color:var(--accent)}
+.stats{display:flex;flex-wrap:wrap;gap:8px;font-size:13px;color:#c9daef;margin:11px 0 0}.stats span{padding:5px 8px;background:#0a2852a3;border-radius:9px}
+.quote{font-size:15px;line-height:1.65;color:#f6efff;background:linear-gradient(125deg,#182751a3,#3a2152a9);padding:17px;border-radius:16px;border:1px solid #d6c3ff4a;margin:16px 0 0}
+.disclaimer{color:#ffd7b9;font-size:12px}
+@media(max-width:550px){.grid{grid-template-columns:1fr}.meter{margin:0}.hero{padding:24px 16px}.glass{padding:15px}}
+</style>
+</head>
+<body><main>
+<header class="hero">
+  <div class="labeltop">SHO · Smart Trip V5 · elkülönített fejlesztői pilot</div>
+  <h1>🌐 Google First <span style="color:#bcdcff">+</span> ✨ Léna Touch</h1>
+  <p>A Google tervezi, a SHO értékeli, Léna személyessé teszi. Az eredmény visszakerülhet a Smart Tripbe, ha az API, adatkezelés és mentés feltételeit jóváhagytuk.</p>
+  <div class="chips"><span class="chip">Premium Glassy</span><span class="chip warn">Google Routes API: KIKAPCSOLVA</span><span class="chip warn">AI-hívás: KIKAPCSOLVA</span><span class="chip warn">My Trips mentés: KIKAPCSOLVA</span></div>
+</header>
+<section class="glass"><h2>🧭 Útvonaltervezési kérés</h2>
+<div class="grid">
+<div class="field"><label for="from">Honnan</label><input id="from" value="Budapest, Bécsi út 154." autocomplete="street-address"></div>
+<div class="field"><label for="to">Hová</label><input id="to" value="Kazincbarcika, autóbusz-állomás" autocomplete="off"></div>
+<div class="field"><label for="date">Utazás napja</label><input id="date" type="date" value="2026-11-27"></div>
+<div class="field"><label for="time">Indulás</label><input id="time" type="time" value="15:15"></div>
+<div class="field"><label for="profile">Profil</label><select id="profile"><option value="m">🩷 Mónika</option><option value="z">💙 Zsolt</option></select></div>
+<div class="field"><label for="focus">Fő szempont</label><select id="focus"><option value="balanced">Léna ajánlása</option><option value="walk">Kevesebb gyaloglás</option><option value="transfers">Kevesebb átszállás</option></select></div>
+</div>
+<div class="actions">
+<button id="demo" type="button" class="primary">⚡ V5 folyamat tesztelése (DEMO)</button>
+<button id="maps" type="button" class="secondary">🌍 Google Maps élő megnyitása</button>
+<div class="meter" id="elapsed">0,00 mp</div>
+</div>
+<p class="status" id="status" role="status">A DEMO gomb 4 kitalált, Google-formátumú útvonalat vizsgál. A Google Maps gomb a hivatalos oldalt nyitja meg külön, de annak eredménye automatikusan nem olvasható vissza.</p>
+</section>
+<section id="output" class="glass" hidden>
+<h2>📋 SHO Preference Engine · összehasonlítás</h2>
+<p class="disclaimer">SZINTETIKUS DEMO. Az itt látható járatok, indulások, átszállások nem valós menetrendek, utazásra nem használhatók.</p>
+<div id="summary" class="status"></div>
+<div class="results" id="candidates"></div>
+<h2 style="margin-top:20px">✨ Léna Touch · minta</h2>
+<div class="quote" id="story"></div>
+<p class="disclaimer">Léna szövege szabályalapú próba, nem GPT-válasz. Sem Google-tartalom, sem személyes útvonal nem kerül AI-hoz vagy felhőbe.</p>
+</section>
+<footer style="margin-top:20px"><small>Csak külön fejlesztési felület · nincs Google Routes API költség · nincs Supabase írás · nincs My Trips módosítás · az éles SHO Smart Trip változatlan.</small></footer>
+</main>
+<script src="../mav/rail-gtfs-core-v1.js"></script>
+<script src="../smart-trip-multimodal-v1073.js"></script>
+<script type="module" src="./v5-live-pilot.mjs"></script>
+</body></html>
