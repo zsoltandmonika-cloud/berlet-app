@@ -899,6 +899,47 @@ async function loadStudioArtwork(r){
  studioPhotoBlob=hero||null;studioProcessBlob=process||null;
  if(studioPhotoBlob){studioPhotoUrl=URL.createObjectURL(studioPhotoBlob);$("#studioPhotoPreview").src=studioPhotoUrl;$("#studioPhotoPreview").hidden=false;$("#studioHero").style.backgroundImage='linear-gradient(rgba(0,0,0,.08),rgba(0,0,0,.42)),url("'+studioPhotoUrl+'")';$("#studioHero").classList.add("has-photo")}
 }
+// Card files remain user-editable on every recipe, including GitHub base cards and PDFs.
+async function recipeCardSourceBlob(r){
+ if(!r)throw new Error("A recept nem található.");
+ const local=await dbGet(r.id);
+ if(local?.blob)return local.blob;
+ if(!r.file)throw new Error("Nem található az eredeti receptkártya.");
+ const res=await fetch(r.file);
+ if(!res.ok)throw new Error("Az eredeti receptkártya nem olvasható ("+res.status+").");
+ return res.blob();
+}
+async function replaceCurrentCardImage(file){
+ const id=currentId,r=id?getRecipe(id):null;
+ if(!r||!file)return;
+ if(!["image/png","image/jpeg","image/webp"].includes(file.type)){alert("PNG, JPG vagy WebP képet válassz.");return}
+ if(file.size>15*1024*1024){alert("A kép legfeljebb 15 MB lehet.");return}
+ try{
+   if(!puterCloudReady())throw new Error("Puter Cloud nem érhető el.");
+   const user=await ensurePuterSignIn();
+   if(!user)throw new Error("A felhőmentéshez Puter-bejelentkezés szükséges.");
+ }catch(e){alert("A képcseréhez Puter-felhőkapcsolat kell: "+(e.message||e));return}
+ busy(true,"Eredeti képes receptkártya felhőbe mentése…");
+ try{
+   const previous=await dbGet(id),readable=previous?.readable||getReadable(id);
+   await dbPut({
+     id,title:r.title,category:r.category,blob:file,mime:file.type,
+     originalName:file.name||r.title+".png",heroBlob:previous?.heroBlob||null,
+     processBlob:previous?.processBlob||null,pending:true,localOverride:false,
+     createdAt:previous?.createdAt||r.createdAt||Date.now(),
+     readable,studioData:previous?.studioData||r.studioData||null,
+     studio:!!(previous?.studio||r.studioData),
+     youtubeId:String(r.youtubeId||previous?.youtubeId||"")
+   });
+   const synced=await syncLocalRecipe(id,{silent:true,refresh:false});
+   if(synced)await loadSharedRecipes();
+   await loadCustomRecipes();
+   renderHome();openRecipe(id,false);
+   toast(synced?"☁ Az új receptkártya a Puter-felhőben mentve és visszaellenőrizve.":"⚠️ A képcsere szinkronra vár. A helyi biztonsági másolat megmaradt.");
+ }catch(e){
+   console.error(e);alert("A képkártya mentése nem sikerült: "+(e.message||e))
+ }finally{busy(false)}
+}
 async function openCurrentRecipeInStudio(){
  if(!currentId)return;const r=getRecipe(currentId);if(!r)return;const source=await recipeStudioSource(r);
  $("#editDialog").close();fillCategoryList();resetStudio();studioEditingId=r.id;studioDraft=source;await loadStudioArtwork(r);studioFillEditor();$("#studioPreview").hidden=false;renderStudioPreview();
@@ -1785,7 +1826,7 @@ $("#homeTimerDialog").onclick=e=>{if(e.target===$("#homeTimerDialog"))closeHomeT
 $("#saveStructured").onclick=saveStructuredReadable;
 $("#clearStructured").onclick=clearStructuredOverride;
 $("#studioBtn").onclick=openStudio;$("#addRecipeBtn").onclick=openAdd;$("#chooseImageBtn").onclick=()=>$("#newImageInput").click();$("#newImageInput").onchange=e=>handleNewImage(e.target.files&&e.target.files[0]);$("#saveNewRecipe").onclick=saveNew;
-$("#topHome").onclick=()=>showHome(true);$("#homeBtn").onclick=()=>showHome(true);$("#healthRadarExportBtn").onclick=()=>toast("❤️ HealthRadar export előkészítve. Ezt a funkciót később aktiváljuk.");$("#backBtn").onclick=()=>history.back();$("#shareBtn").onclick=shareCurrentRecipe;$("#editBtn").onclick=openEdit;$("#editFullRecipeBtn").onclick=openCurrentRecipeInStudio;$("#editRegenerateCard").onclick=openCurrentRecipeInStudio;$("#navHome").onclick=()=>showHome(true);$("#navFav").onclick=()=>{favoritesOnly=true;showHome(true)};$("#navAdmin").onclick=openAdmin;$("#navAsk").onclick=askLena;
+$("#topHome").onclick=()=>showHome(true);$("#homeBtn").onclick=()=>showHome(true);$("#healthRadarExportBtn").onclick=()=>toast("❤️ HealthRadar export előkészítve. Ezt a funkciót később aktiváljuk.");$("#backBtn").onclick=()=>history.back();$("#shareBtn").onclick=shareCurrentRecipe;$("#editBtn").onclick=openEdit;$("#editFullRecipeBtn").onclick=openCurrentRecipeInStudio;$("#replaceCardImageBtn").onclick=()=>{if(!currentId)return;$("#replaceCardImageInput").value="";$("#replaceCardImageInput").click()};$("#replaceCardImageInput").onchange=e=>replaceCurrentCardImage(e.target.files?.[0]);$("#editRegenerateCard").onclick=openCurrentRecipeInStudio;$("#navHome").onclick=()=>showHome(true);$("#navFav").onclick=()=>{favoritesOnly=true;showHome(true)};$("#navAdmin").onclick=openAdmin;$("#navAsk").onclick=askLena;
 $("#closeAdmin").onclick=()=>$("#adminDialog").close();$("#addCategoryBtn").onclick=addManagedCategory;$("#newCategoryName").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();addManagedCategory()}});$("#adminStudio").onclick=()=>{$("#adminDialog").close();openStudio()};$("#adminAddRecipe").onclick=()=>{$("#adminDialog").close();openAdd()};$("#syncSettingsBtn").onclick=openSyncSettings;$("#closeSync").onclick=()=>$("#syncDialog").close();$("#cloudSignIn").onclick=()=>cloudSignIn(false);$("#cloudSwitchAccount").onclick=()=>cloudSignIn(true);$("#cloudRefresh").onclick=cloudRefresh;
 $("#closeStudio").onclick=()=>$("#studioDialog").close();
 $("#recipeImage").onclick=()=>{if(!document.body.classList.contains("original-card-fullscreen"))openRecipePhoto()};$("#closePhotoLightbox").onclick=closeRecipePhoto;$("#photoLightbox").onclick=e=>{if(e.target===$("#photoLightbox"))closeRecipePhoto()};$("#photoLightbox").addEventListener("close",()=>{if(photoLightboxObjectUrl){URL.revokeObjectURL(photoLightboxObjectUrl);photoLightboxObjectUrl=null}});
