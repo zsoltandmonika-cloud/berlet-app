@@ -13,7 +13,13 @@ function pairsFor(graph,name){
  return raw.slice(0,name==="bkk"?3:MAX_PAIRS).filter(p=>
   p&&nodes.has(p.fromNode)&&nodes.has(p.toNode)&&p.fromNode!==p.toNode&&
   clean(p.fromStop).length>=2&&clean(p.toStop).length>=2&&
-  clean(p.fromStop)!==clean(p.toStop));
+  clean(p.fromStop)!==clean(p.toStop)&&
+  (Array.isArray(nodes.get(p.fromNode).feedStops?.[name])?
+   nodes.get(p.fromNode).feedStops[name].includes(clean(p.fromStop)):
+   clean(nodes.get(p.fromNode).feedStops?.[name])===clean(p.fromStop))&&
+  (Array.isArray(nodes.get(p.toNode).feedStops?.[name])?
+   nodes.get(p.toNode).feedStops[name].includes(clean(p.toStop)):
+   clean(nodes.get(p.toNode).feedStops?.[name])===clean(p.toStop)));
 }
 function resolveNode(graph,provider,stop){
  const exact=clean(stop);
@@ -29,6 +35,9 @@ function nodesForLegs(legs,pair,graph,provider){
  for(let i=0;i<legs.length;i++){
   const x=legs[i];
   if(!x||!clean(x.from)||!clean(x.to))return null;
+  // Never trust a pair's human-friendly names unless actual timetable leg agrees.
+  if(i===0&&clean(x.from)!==clean(pair.fromStop))return null;
+  if(i===legs.length-1&&clean(x.to)!==clean(pair.toStop))return null;
   const from=i===0?pair.fromNode:resolveNode(graph,provider,x.from);
   const to=i===legs.length-1?pair.toNode:resolveNode(graph,provider,x.to);
   if(!from||!to||from===to)return null;
