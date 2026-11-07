@@ -80,6 +80,8 @@
     </button>
     <button id="editBtn" class="nav-btn" title="Szerkesztés">✏️</button>
     <button id="editFullRecipeBtn" class="nav-btn" type="button" title="Kép feltöltése, recept és kártya szerkesztése" style="background:linear-gradient(135deg,#84601f,#d5a74e);color:#fff;border:1px solid #f5d688;font-weight:800">📷 Kép + recept szerkesztése</button>
+    <button id="replaceCardImageBtn" class="nav-btn" type="button" title="Az eredeti receptkártya képfájljának cseréje. Puter felhőmentéssel.">🖼️ Kártyakép cseréje</button>
+    <input id="replaceCardImageInput" type="file" accept="image/png,image/jpeg,image/webp" hidden>
     <button id="favBtn" class="nav-btn" title="Kedvenc">☆</button>
   </section>
   <section class="recipe-head">
@@ -674,7 +676,7 @@
 <script src="../recepttar/data.js?v=25"></script>
 <script src="../recepttar/readable-data.js?v=35"></script>
 <script src="stangli-2026.js?v=1"></script>
-<script src="app.js?v=43"></script>
+<script src="app.js?v=44"></script>
 
 <script defer src="/berlet-app/sh9/shared/sh9-golden-controls-v1.js?v=934-unified-glass-dock"></script>
 <script defer src="/berlet-app/sh9/shared/sh9-golden-bottom-nav-v924.js?v=924-unified"></script>
