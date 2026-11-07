@@ -1,7 +1,8 @@
 /* SHO Smart Trip V5 · Google-first read-only scoring pilot.
  * Pure analysis of a Google Routes-shaped response. Never calls Google/LLM
  * and never writes Maps-derived data into My Trips or persistent storage.
- * Source payload must come from approved server-side gateway in later phase.
+ * This ranker is STRICTLY SYNTHETIC DEMO only. Google Maps Content may not
+ * be fed to Lena scoring/LLM or mixed with maps without a separate legal grant.
  */
 const clean=s=>typeof s==="string"?s.replace(/[\u0000-\u001f<>]/g," ").trim().slice(0,140):"";
 const epoch=s=>typeof s==="string"?Date.parse(s):NaN;
@@ -32,6 +33,8 @@ function stat(j){
   directVolan:busSingle,sajoExpress:sajo,hasTrain:train,doorToDoor:!!j.doorToDoor};
 }
 function evaluateRoutes(payload,query,adapter,{max=4}={}){
+ if(payload?.demoFixture!==true || query?.demo!==true)
+  throw Error("v5_demo_only_real_google_blocked");
  if(!adapter||typeof adapter.normalizeRoutes!=="function")throw Error("missing_existing_google_adapter");
  const routes=adapter.normalizeRoutes(payload,query).slice(0,Math.min(4,Math.max(1,max)));
  const candidates=[];
@@ -57,7 +60,7 @@ function evaluateRoutes(payload,query,adapter,{max=4}={}){
   candidates.push(Object.freeze({ordinal:i+1,route,metrics,
    score:Math.round(score*10)/10,
    risk:risky?"tight_connection":"normal",priority,
-   source:"google-routes",attribution:"© Google Maps"}));
+   source:"synthetic-demo",attribution:"DEMO · nem Google-adat"}));
  }
  return candidates.sort((a,b)=>a.score-b.score||
   epoch(a.route.arrival)-epoch(b.route.arrival)||a.ordinal-b.ordinal);
