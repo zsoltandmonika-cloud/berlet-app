@@ -554,17 +554,53 @@ function openEdit(){
  $("#editYoutubeUrl").value=youtubeWatchUrl(r.youtubeId||"");renderEditYoutubePreview();$("#editDialog").showModal()
 }
 async function saveEdit(){
- if(!currentId)return;const r=getRecipe(currentId);if(!r)return;const title=$("#editTitle").value.trim()||r.title,category=cleanCategoryName($("#editCategory").value)||r.category,rawYoutube=$("#editYoutubeUrl").value.trim(),youtubeId=youtubeVideoId(rawYoutube);
- if(rawYoutube&&!youtubeId){alert("Ez nem felismerhető YouTube-link. Illessz be youtube.com vagy youtu.be videólinket.");$("#editYoutubeUrl").focus();return}
- ensureManagedCategory(category);await saveCategoryConfig();
- const prev=getMeta(currentId),m={...prev,title,category,youtubeId,deleted:!!prev.deleted,updatedAt:new Date().toISOString()};setMeta(currentId,m);
- if(r.localCustom){const row=await dbGet(r.id);if(row){row.title=title;row.category=category;row.youtubeId=youtubeId;row.pending=true;await dbPut(row);await loadCustomRecipes()}}
- const saved=await saveRecipeMetaCloud(currentId,m);
- if(r.localCustom){await syncLocalRecipe(r.id,{silent:true,refresh:false});await loadSharedRecipes();await loadCustomRecipes()}
- $("#editDialog").close();openRecipe(currentId,false);renderHome();toast(saved?"☁ Receptadatok felhőbe mentve.":"⚠️ A módosítás felhőszinkronra vár.")
+ if(!currentId)return;const id=currentId,r=getRecipe(id);if(!r)return;
+ const title=$("#editTitle").value.trim()||r.title,category=cleanCategoryName($("#editCategory").value)||r.category;
+ const rawYoutube=$("#editYoutubeUrl").value.trim(),youtubeId=youtubeVideoId(rawYoutube);
+ if(rawYoutube&&!youtubeId){alert("Ez nem felismerhető YouTube-link.");return}
+ try{if(!await ensurePuterSignIn())throw new Error("Puter-fiók szükséges")}
+ catch(e){alert("A mentéshez Puter-bejelentkezés szükséges: "+(e.message||e));return}
+ busy(true,"Receptadatok felhőmentése…");
+ try{
+   ensureManagedCategory(category);await saveCategoryConfig();
+   const prev=getMeta(id),m={...prev,title,category,youtubeId,deleted:!!prev.deleted,updatedAt:new Date().toISOString()};
+   setMeta(id,m);
+   const row=await dbGet(id);
+   if(row){
+     row.title=title;row.category=category;row.youtubeId=youtubeId;row.pending=true;
+     await dbPut(row)
+   }
+   const saved=await saveRecipeMetaCloud(id,m);
+   let cardSaved=true;
+   if(row){cardSaved=await syncLocalRecipe(id,{silent:true,refresh:false});if(cardSaved)await loadSharedRecipes();await loadCustomRecipes()}
+   $("#editDialog").close();openRecipe(id,false);renderHome();
+   toast(saved&&cardSaved?"☁ Receptadatok felhőbe mentve.":"⚠️ A receptadatok mentése felhőszinkronra vár.");
+ }catch(e){console.error(e);alert("A mentés nem sikerült: "+(e.message||e))}
+ finally{busy(false)}
 }
-function deleteCurrent(){if(!currentId)return;const r=getRecipe(currentId);if(!r)return;if(!confirm("Biztosan törlöd ezt a receptet?\n\n"+r.title+"\n\nA törlés visszaállítható."))return;const m=getMeta(currentId);m.deleted=true;setMeta(currentId,m);$("#editDialog").close();showHome(true);toast("Recept a kukába került.")}
-function resetCurrent(){if(!currentId)return;const m=getMeta(currentId);delete m.title;delete m.category;m.deleted=false;if(Object.keys(m).length)setMeta(currentId,m);else localStorage.removeItem(keyMeta(currentId));const r=getRecipe(currentId);$("#editTitle").value=r.title;fillEditCategorySelect(r.category);toast("Alapadatok visszaállítva.")}
+async function deleteCurrent(){
+ if(!currentId)return;const id=currentId,r=getRecipe(id);if(!r)return;
+ if(!confirm("Biztosan törlöd ezt a receptet?\n\n"+r.title+"\n\nA törlés visszaállítható."))return;
+ try{
+   if(!await ensurePuterSignIn())throw new Error("Puter bejelentkezés szükséges.");
+   const m={...getMeta(id),deleted:true,updatedAt:new Date().toISOString()};
+   const ok=await saveRecipeMetaCloud(id,m);
+   if(!ok)throw new Error("Nem sikerült a felhőmentés.");
+   setMeta(id,m);$("#editDialog").close();showHome(true);toast("☁ Recept a felhőben is a kukába került.")
+ }catch(e){alert("A törlést nem sikerült a felhőbe menteni: "+(e.message||e))}
+}
+async function resetCurrent(){
+ if(!currentId)return;const id=currentId;
+ try{
+   if(!await ensurePuterSignIn())throw new Error("Puter bejelentkezés szükséges.");
+   const m={...getMeta(id),updatedAt:new Date().toISOString(),deleted:false};
+   delete m.title;delete m.category;
+   if(!await saveRecipeMetaCloud(id,m))throw new Error("Felhőhiba");
+   setMeta(id,m);
+   const r=getRecipe(id);$("#editTitle").value=r.title;fillEditCategorySelect(r.category);
+   toast("☁ Alapadatok felhőben visszaállítva.")
+ }catch(e){alert("A visszaállítás nem sikerült: "+(e.message||e))}
+}
 
 function filenameTitle(name){return(name||"").replace(/\.[^.]+$/,"").replace(/[_-]+/g," ").trim()}
 async function processImage(file){const bm=await createImageBitmap(file,{imageOrientation:"from-image"}),max=1800,scale=Math.min(1,max/Math.max(bm.width,bm.height)),c=document.createElement("canvas");c.width=Math.max(1,Math.round(bm.width*scale));c.height=Math.max(1,Math.round(bm.height*scale));const x=c.getContext("2d");x.fillStyle="#fff";x.fillRect(0,0,c.width,c.height);x.imageSmoothingEnabled=true;x.imageSmoothingQuality="high";x.drawImage(bm,0,0,c.width,c.height);bm.close();return new Promise((res,rej)=>c.toBlob(b=>b?res(b):rej(new Error("Képfeldolgozási hiba")),"image/jpeg",.9))}
