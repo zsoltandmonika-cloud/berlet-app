@@ -5,9 +5,10 @@ import { createClient } from "npm:@supabase/supabase-js@2.57.2";
 const ORIGIN = "https://zsoltandmonika-cloud.github.io";
 const GOOGLE = "https://routes.googleapis.com/directions/v2:computeRoutes";
 const env = (k: string) => Deno.env.get(k) || "";
-// Compile-time OFF: do not flip without atomic per-user/day reservation,
-// Google Cloud quota configuration, billing approval and EEA terms review.
+// Compile-time OFF until quota migration deployed and reviewed, Google Cloud billing,
+// service key and EEA content usage approved. Quota must be enforced before fetch.
 const ATOMIC_QUOTA_AND_LEGAL_GATE_VERIFIED = false;
+const DAILY_CAP = 20, MONTHLY_CAP = 200;
 const FIELD_MASK = [
   "routes.duration", "routes.legs.steps.travelMode",
   "routes.legs.steps.staticDuration", "routes.legs.steps.distanceMeters",
@@ -74,13 +75,38 @@ Deno.serve(async (req: Request) => {
   if (!ATOMIC_QUOTA_AND_LEGAL_GATE_VERIFIED ||
       env("HH_SMART_TRIP_V5_APPROVED") !== "true")
     return json(req,503,{error:"provider_not_enabled",fallback:"matrix_v4"});
-  // Paid path is intentionally unreachable in this reviewed scaffold.
-  // Never move this request behind only an env flag: implement atomic quota reservation first.
+  // Every attempt reserves BEFORE contacting Google, under a DB transaction lock.
+  // A missing/misconfigured RPC, expired service key or exceeded limit fails closed.
+  // No refund on provider timeouts: the provider may still have billed the request.
+  const adminKey = env("SUPABASE_SERVICE_ROLE_KEY");
+  const googleKey = env("HH_SMART_TRIP_GOOGLE_ROUTES_KEY");
+  if (!adminKey || googleKey.length < 25)
+    return json(req,503,{error:"provider_not_configured",fallback:"matrix_v4"});
+  let reservation: {allowed:boolean,daily_used:number,monthly_used:number}|undefined;
+  try {
+    const admin = createClient(env("SUPABASE_URL"),adminKey,{
+      auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false}
+    });
+    const {data,error} = await admin.rpc("hh_smart_trip_google_reserve");
+    if (error || !Array.isArray(data) || data.length !== 1)
+      return json(req,503,{error:"quota_guard_unavailable",fallback:"matrix_v4"});
+    reservation = data[0];
+    if (!reservation || typeof reservation.allowed !== "boolean" ||
+        !Number.isInteger(reservation.daily_used) ||
+        !Number.isInteger(reservation.monthly_used) ||
+        reservation.daily_used < 0 || reservation.monthly_used < 0 ||
+        reservation.daily_used > DAILY_CAP || reservation.monthly_used > MONTHLY_CAP)
+      return json(req,503,{error:"quota_guard_invalid",fallback:"matrix_v4"});
+    if (!reservation.allowed)
+      return json(req,429,{error:"google_quota_exhausted",fallback:"matrix_v4",
+        daily_limit:DAILY_CAP,monthly_limit:MONTHLY_CAP});
+  } catch {
+    return json(req,503,{error:"quota_guard_unavailable",fallback:"matrix_v4"});
+  }
   const controller = new AbortController();
   const deadline = setTimeout(()=>controller.abort(),12000);
   try {
-    const key = env("HH_SMART_TRIP_GOOGLE_ROUTES_KEY");
-    if (key.length < 25) return json(req,503,{error:"provider_not_configured"});
+    const key = googleKey;
     const result = await fetch(GOOGLE,{method:"POST",signal:controller.signal,
       headers:{"Content-Type":"application/json","X-Goog-Api-Key":key,
         "X-Goog-FieldMask":FIELD_MASK},
