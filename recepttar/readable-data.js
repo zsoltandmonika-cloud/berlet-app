@@ -2023,5 +2023,42 @@ window.LENA_READABLE = {
     "notes": [
       "4–5 adag. Ha nincs külön tojássárgája, használj 5 egész tojást."
     ]
+  },
+  "d9c1fa7b8e624c03": {
+    "status": "verified",
+    "source": "lena_recipe_studio_curated",
+    "ingredients": [
+      "450 g csípős, füstölt kolbász",
+      "2 × 400 g konzerv vörösbab (lecsepegtetve)",
+      "1 × 340 g konzerv csemegekukorica (lecsepegtetve)",
+      "2 nagy vöröshagyma",
+      "4 gerezd fokhagyma",
+      "2 × 400 g konzerv darabolt paradicsom",
+      "2 evőkanál sűrített paradicsom",
+      "150 ml víz",
+      "1 teáskanál római kömény",
+      "1 teáskanál füstölt pirospaprika",
+      "1 teáskanál szárított oregánó",
+      "Chili ízlés szerint (a kolbász erősségétől függően)",
+      "Só ízlés szerint, csak a főzés legvégén",
+      "2 kocka legalább 70%-os étcsokoládé (opcionális)",
+      "Friss petrezselyem vagy koriander a tálaláshoz (opcionális)"
+    ],
+    "steps": [
+      "A kolbászt karikázd fel, és közepes lángon 4–5 perc alatt pirítsd meg, hogy kiengedje a fűszeres zsírját. A pirult kolbászt szedd ki egy tányérra.",
+      "A visszamaradt kolbászzsíron dinszteld üvegesre az apróra vágott hagymát, kb. 6–8 perc alatt. Ha túl sok zsír sült ki, egy részét öntsd le.",
+      "Add hozzá a zúzott fokhagymát, a római köményt, az oregánót és a sűrített paradicsomot. Röviden pirítsd meg, majd a füstölt pirospaprikát is keverd bele. Ne égesd meg a paprikát!",
+      "Öntsd fel a darabolt paradicsommal és 150 ml vízzel. Tedd vissza a pirított kolbászt, és kis lángon, időnként megkeverve főzd 20–25 percig.",
+      "Add hozzá a leszűrt, átöblített vörösbabot és a lecsepegtetett kukoricát. Főzd még 10–15 percig, hogy besűrűsödjön és összeérjenek az ízek.",
+      "Kóstold meg, és csak most állítsd be a sót és a csípősséget. Ha szeretnéd mélyebbé tenni az ízét, olvassz bele 2 kocka legalább 70%-os étcsokoládét.",
+      "Tálald forrón, friss petrezselyemmel vagy korianderrel. Friss kenyér vagy rizs jól illik hozzá."
+    ],
+    "notes": [
+      "4–5 kiadós adag; 15 perc előkészítés és 35–40 perc főzés (összesen kb. 50–55 perc).",
+      "Darált sertés- vagy marhahús nélkül készül. A füstölt kolbász íze és zsiradéka adja az alapot.",
+      "A füstölt kolbász eleve sós, ezért sózni kizárólag a végén érdemes.",
+      "Az étcsokoládé opcionális; nem édesíti, hanem mélyíti a paradicsomos-füstös ízt.",
+      "Ha túl sűrű, adj hozzá még 50–100 ml vizet; ha híg, fedő nélkül forrald rövid ideig."
+    ]
   }
 };
