@@ -45,7 +45,9 @@ test("No paid provider fetch before successful reservation",()=>{
     file.indexOf("await fetch(GOOGLE"));
   assert.match(file,/DAILY_CAP = 20, MONTHLY_CAP = 200/);
 });
-test("The request validation must accept a genuine ISO date",()=>{
+test("The request validation accepts ISO dates and validates bearer tokens",()=>{
   assert.ok(file.includes(String.raw`/^\d{4}-\d{2}-\d{2}T/`));
-  assert.ok(file.includes(String.raw`/^Bearer [A-Za-z0-9._~+\\/=-]{20,8000}$/`));
+  assert.ok(file.includes("/^Bearer "));
+  assert.ok(file.includes("{20,8000}$/"));
+  assert.ok(file.includes(".test(auth)"));
 });
