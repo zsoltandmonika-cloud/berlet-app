@@ -88,7 +88,8 @@ function normalizedLeg(leg,provider,nodes){
  }catch(_){return null}
  const start=epoch(leg.departure),end=epoch(leg.arrival);
  if(!finite(start)||!finite(end)||end<=start||end-start>24*3600000)return null;
- if(day(start)!==day(end)&&end-start>4*3600000)return null;
+ // Overnight train/bus services are valid with offset-aware timestamps.
+ // Their source timetable and actual arrival must remain independently verified.
  if(leg.mode==="walk"){
   if(leg.geometryVerified!==true||!finite(leg.walkMeters)||leg.walkMeters<0||
    leg.walkMeters>5000)return null;
@@ -227,7 +228,7 @@ function toTripPack(best,request,graph){
  const metrics=best.metric;
  return {schema:"sh9.trip-pack/1",title:from+" → "+to,travelDate:request.date,
   from,to,departure:hh(best.legs[0].departure),arrival:hh(best.legs.at(-1).arrival),
-  arrivalStatus:"timetable",
+  arrivalStatus:best.legs.at(-1).mode==="walk"?"estimated":"timetable",
   summary:"Menetrendi útvonal · "+metrics.transfers+" átszállás, "+
    metrics.waitingMinutes+" perc várakozás, "+metrics.walkMeters+
    " m ellenőrzött gyaloglás. Nem élő járatállapot.",
@@ -300,8 +301,9 @@ function quickLenaTouch(pack,{name=""}={}){
   pack.segments.length===0)return "";
  const rides=pack.segments.filter(s=>s.mode!=="walk");
  const direct=rides.length===1;
+ const hasLong=pack.segments.some(s=>s.mode==="train"||s.mode==="bus");
  const intro=clean(name,36)?clean(name,36)+", ":"";
- const first=direct?"ezzel az egy távolsági járattal":
+ const first=direct?(hasLong?"ezzel a közvetlen járattal":"ezzel a közvetlen kapcsolattal"):
   "ezzel az összeállított, "+Math.max(0,rides.length-1)+" átszállásos útvonallal";
  return intro+"a menetrend alapján "+first+" indulnék. "+
   "A járatokat és az esetleges késéseket indulás előtt érdemes újra ellenőrizni.";
