@@ -5,6 +5,8 @@ on:
       - 'supabase/functions/hh-smart-trip-routes-v1/**'
       - 'supabase/migrations/*sho_smart_trip_google_quota*'
       - 'healthhub/tests/sho-smart-trip-v5-routes-backend.test.mjs'
+      - 'healthhub/tests/sho-smart-trip-v5-google-first.test.mjs'
+      - 'sh9/smart-travel/public-transport/smart-trip/v5/**'
       - '.github/workflows/sho-smart-trip-v5-quota-ci.yml'
   push:
     branches:
@@ -13,6 +15,8 @@ on:
       - 'supabase/functions/hh-smart-trip-routes-v1/**'
       - 'supabase/migrations/*sho_smart_trip_google_quota*'
       - 'healthhub/tests/sho-smart-trip-v5-routes-backend.test.mjs'
+      - 'healthhub/tests/sho-smart-trip-v5-google-first.test.mjs'
+      - 'sh9/smart-travel/public-transport/smart-trip/v5/**'
       - '.github/workflows/sho-smart-trip-v5-quota-ci.yml'
 permissions:
   contents: read
@@ -46,6 +50,8 @@ jobs:
           node-version: '22'
       - name: Verify fail-closed security and quota source contracts
         run: node --test healthhub/tests/sho-smart-trip-v5-routes-backend.test.mjs
+      - name: Verify synthetic V5 pilot and Google content isolation
+        run: node --test healthhub/tests/sho-smart-trip-v5-google-first.test.mjs
       - name: Create isolated Postgres roles and load proposed migration
         run: |
           psql -v ON_ERROR_STOP=1 -c "CREATE ROLE anon; CREATE ROLE authenticated; CREATE ROLE service_role;"
