@@ -63,39 +63,29 @@ async function authenticate(req: Request, profile: "m"|"z") {
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response(null, {status:204,headers:cors(req)});
   if (req.method !== "POST") return json(req,405,{error:"method_not_allowed"});
-  const reqOrigin = req.headers.get("Origin");
-  if (reqOrigin && reqOrigin !== ORIGIN) return json(req,403,{error:"origin_denied"});
+  if (req.headers.get("Origin") !== ORIGIN) return json(req,403,{error:"origin_denied"});
   if (!req.headers.get("content-type")?.startsWith("application/json")) return json(req,415,{error:"json_required"});
   const declared = Number(req.headers.get("content-length") || 0);
   if (declared > 2500) return json(req,413,{error:"request_too_large"});
   let raw: unknown;
   try { const body = await req.text(); if (body.length > 2500) throw Error("large"); raw = JSON.parse(body); }
   catch { return json(req,400,{error:"invalid_json"}); }
-  // Authenticated, strictly non-billing diagnostic. Never expose the secret.
-  // Dashboard's function tester may omit Origin; regular route calls may not.
-  const payload = raw && typeof raw === "object" && !Array.isArray(raw)
-    ? raw as Record<string,unknown> : null;
-  if (payload?.mode === "secret_check") {
-    const profile = payload.profile;
-    if ((profile !== "m" && profile !== "z") ||
-        Object.keys(payload).some(k => k !== "mode" && k !== "profile"))
-      return json(req,400,{error:"invalid_diagnostic_request"});
-    if (!await authenticate(req,profile as "m"|"z"))
-      return json(req,403,{error:"unauthorized_profile"});
-    const key = env("HH_SMART_TRIP_GOOGLE_ROUTES_KEY");
-    const configured = key.length > 0;
-    const plausible = configured && key.length >= 25 && key.length <= 160 &&
-      /^[A-Za-z0-9_-]+$/.test(key) && key === key.trim();
-    // Presence/format checks CANNOT verify exact copying or Google authorization.
-    return json(req,200,{test:"google_key_local_check",
-      status:!configured?"missing":plausible?"format_ok":"format_invalid",
-      google_request:false,quota_consumed:0,
-      validity:"not_verified",google_api_enabled:false});
-  }
-  if (reqOrigin !== ORIGIN) return json(req,403,{error:"origin_required"});
   const query = input(raw);
   if (!query) return json(req,400,{error:"invalid_route_request"});
   if (!await authenticate(req, query.profile)) return json(req,403,{error:"unauthorized_profile"});
+  // Route preflight checks the real request contract without touching Google,
+  // reserving quota or inspecting any secret. Explicitly labelled OFF.
+  if ((raw as Record<string,unknown>).mode === "route_preflight") {
+    const keys = Object.keys(raw as Record<string,unknown>);
+    if (keys.some(k => !["mode","profile","origin","destination","departureTime"].includes(k)))
+      return json(req,400,{error:"invalid_preflight_request"});
+    return json(req,200,{status:"ready_for_review",mode:"route_preflight",
+      request_valid:true,user_authorized:true,
+      google_enabled:false,google_request:false,quota_consumed:0,
+      source:"local_validation",note:"not_live_google_result"});
+  }
+  if ((raw as Record<string,unknown>).mode !== undefined)
+    return json(req,400,{error:"unsupported_mode"});
   if (!ATOMIC_QUOTA_AND_LEGAL_GATE_VERIFIED ||
       env("HH_SMART_TRIP_V5_APPROVED") !== "true")
     return json(req,503,{error:"provider_not_enabled",fallback:"matrix_v4"});
