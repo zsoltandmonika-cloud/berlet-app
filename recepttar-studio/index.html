@@ -11,7 +11,7 @@
 <link rel="icon" type="image/svg+xml" href="favicon.svg?v=1">
 <link rel="shortcut icon" href="favicon.svg?v=1">
 <link rel="apple-touch-icon" href="icon-192.png?v=1">
-<link rel="stylesheet" href="styles.css?v=41">
+<link rel="stylesheet" href="styles.css?v=42">
 <link rel="stylesheet" href="/berlet-app/sh9/shared/sh9-golden-controls-v1.css?v=934-unified-glass-dock">
 <link rel="stylesheet" href="/berlet-app/sh9/shared/sh9-golden-bottom-nav-v924.css?v=924-unified">
 </head>
@@ -78,12 +78,14 @@
     <button id="shareBtn" class="nav-btn recipe-icon-btn" title="Megosztás" aria-label="Recept megosztása">
       <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.7 10.7 6.6-4.2M8.7 13.3l6.6 4.2"/></svg>
     </button>
-    <button id="editBtn" class="nav-btn" title="Szerkesztés">✏️</button>
-    <button id="editFullRecipeBtn" class="nav-btn" type="button" title="Kép feltöltése, recept és kártya szerkesztése" style="background:linear-gradient(135deg,#84601f,#d5a74e);color:#fff;border:1px solid #f5d688;font-weight:800">📷 Kép + recept szerkesztése</button>
-    <button id="replaceCardImageBtn" class="nav-btn" type="button" title="Az eredeti receptkártya képfájljának cseréje. Puter felhőmentéssel.">🖼️ Kártyakép cseréje</button>
-    <input id="replaceCardImageInput" type="file" accept="image/png,image/jpeg,image/webp" hidden>
+    <button id="editBtn" class="nav-btn" title="Alapadatok és videó szerkesztése">✏️</button>
     <button id="favBtn" class="nav-btn" title="Kedvenc">☆</button>
   </section>
+  <div class="recipe-editor-actions" role="group" aria-label="Recept szerkesztési műveletek">
+    <button id="editFullRecipeBtn" class="recipe-edit-main" type="button" title="Minden recept szerkeszthető, és a módosítások a Puter-felhőbe kerülnek.">✏️ Teljes recept szerkesztése</button>
+    <button id="replaceCardImageBtn" class="recipe-image-replace" type="button" title="Az eredeti receptkártya képfájljának cseréje és automatikus Puter felhőmentés.">🖼️ Kártyakép cseréje</button>
+    <input id="replaceCardImageInput" type="file" accept="image/png,image/jpeg,image/webp" hidden>
+  </div>
   <section class="recipe-head">
     <div class="eyebrow" id="recipeCategory"></div>
     <h1 id="recipeTitle"></h1>
@@ -676,7 +678,7 @@
 <script src="../recepttar/data.js?v=25"></script>
 <script src="../recepttar/readable-data.js?v=35"></script>
 <script src="stangli-2026.js?v=1"></script>
-<script src="app.js?v=44"></script>
+<script src="app.js?v=45"></script>
 
 <script defer src="/berlet-app/sh9/shared/sh9-golden-controls-v1.js?v=934-unified-glass-dock"></script>
 <script defer src="/berlet-app/sh9/shared/sh9-golden-bottom-nav-v924.js?v=924-unified"></script>
