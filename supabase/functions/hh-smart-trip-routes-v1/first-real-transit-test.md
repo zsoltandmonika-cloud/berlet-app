@@ -5,6 +5,24 @@ The first test uses Mónika's saved workplace → Kazincbarcika destination
 already provided by the isolated V5 form, for 2026-11-27 15:00 Budapest time.
 
 ## Stage 0: authenticated, zero-Google route preflight (deploy v4)
+
+**New isolated V5 UI implementation (feature branch only, not yet published
+as a production page):** The `Bejelentkezett előteszt · 0 Google-kérés`
+button explicitly uses the current Family Guard Supabase session via
+`hh-guardian-family-auth-v785`. It is designed to invoke the OFF-mode
+`route_preflight` only when a user clicks, never automatically. The client
+is in `v5-preflight-ui.mjs`, calling `v5-preflight-core.mjs`; the Google
+API key is neither loaded nor displayed. A separate Node test mocks the
+Supabase request and confirms no arbitrary URL, no invalid response acceptance
+and no request without a user session. This is not yet a live browser
+end-to-end test and does not claim successful authentication on the user's
+Samsung phone.
+
+**Access:** When the isolated V5 preview is specifically published through
+the approved hosting workflow, open its standalone URL, make sure Family Guard
+is logged in on that browser, then click the preflight button. Do not assume
+a feature-branch GitHub source file is the deployed public site.
+
 - Edge Function: `hh-smart-trip-routes-v1`, Supabase HealthHub-Core.
 - JWT verification ON; route requires an authenticated account entitled to
   profile `m` and the allowlisted GitHub Pages Origin.
@@ -46,6 +64,8 @@ Checklist:
 - [x] 25-concurrent CI case verified, 20 accepted/5 rejected.
 - [x] Server-side source hardcodes `ATOMIC_QUOTA_AND_LEGAL_GATE_VERIFIED=false`.
 - [x] Deployment v4 checked: verify_jwt=true, Google OFF, quota counter 0.
+- [x] Authenticated-click V5 pilot UI code committed and mocked client tests pass.
+- [ ] Feature-only pilot published separately without touching production Smart Trip.
 - [ ] Authenticated POST Stage 0 exercised on a logged-in device, results verified.
 - [ ] Google key present in Supabase Secrets and Routes API restriction verified.
       The user deferred separate key diagnostics; verify on first approved live
