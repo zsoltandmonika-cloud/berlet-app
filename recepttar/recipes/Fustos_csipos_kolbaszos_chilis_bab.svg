@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" role="img" aria-label="Füstös, csípős kolbászos chilis bab vörösbabbal, kukoricával és paradicsomos szósszal">
+<defs>
+ <radialGradient id="bg"><stop stop-color="#7f3526"/><stop offset="1" stop-color="#23120e"/></radialGradient>
+ <linearGradient id="sauce" x2="0" y2="1"><stop stop-color="#e34c25"/><stop offset=".6" stop-color="#9f261a"/><stop offset="1" stop-color="#55160e"/></linearGradient>
+ <linearGradient id="rim" x2="0" y2="1"><stop stop-color="#ad8271"/><stop offset="1" stop-color="#492821"/></linearGradient>
+ <radialGradient id="sausage"><stop stop-color="#e98648"/><stop offset=".75" stop-color="#af2e1b"/><stop offset="1" stop-color="#6d1c14"/></radialGradient>
+ <filter id="shadow"><feGaussianBlur stdDeviation="28"/></filter>
+ <pattern id="linen" width="35" height="35" patternUnits="userSpaceOnUse"><path d="M0 0h35M0 0v35" stroke="#cf9371" stroke-opacity=".08"/></pattern>
+</defs>
+<rect width="1200" height="800" fill="url(#bg)"/><rect width="1200" height="800" fill="url(#linen)"/>
+<ellipse cx="790" cy="673" rx="378" ry="79" fill="#090807" opacity=".6" filter="url(#shadow)"/>
+<ellipse cx="804" cy="425" rx="371" ry="284" fill="#29150f" stroke="#c18b6d" stroke-width="30"/>
+<path d="M445 426Q457 705 802 712Q1156 708 1162 428Z" fill="#4a2419"/>
+<ellipse cx="802" cy="398" rx="349" ry="256" fill="url(#rim)" stroke="#dd9a70" stroke-width="19"/>
+<ellipse cx="802" cy="399" rx="319" ry="228" fill="url(#sauce)" stroke="#642e1d" stroke-width="12"/>
+<g fill="#521b2a" stroke="#32131b" stroke-width="5">
+<ellipse cx="579" cy="350" rx="53" ry="30" transform="rotate(-30 579 350)"/><ellipse cx="662" cy="278" rx="53" ry="32" transform="rotate(32 662 278)"/>
+<ellipse cx="793" cy="240" rx="58" ry="36" transform="rotate(-15 793 240)"/><ellipse cx="924" cy="269" rx="51" ry="31" transform="rotate(-35 924 269)"/>
+<ellipse cx="1049" cy="355" rx="52" ry="33" transform="rotate(29 1049 355)"/><ellipse cx="981" cy="477" rx="51" ry="33" transform="rotate(-21 981 477)"/>
+<ellipse cx="870" cy="544" rx="55" ry="31" transform="rotate(20 870 544)"/><ellipse cx="754" cy="519" rx="53" ry="31" transform="rotate(-45 754 519)"/>
+<ellipse cx="621" cy="474" rx="56" ry="32" transform="rotate(30 621 474)"/>
+</g>
+<g fill="url(#sausage)" stroke="#69241b" stroke-width="8">
+<ellipse cx="725" cy="369" rx="82" ry="45" transform="rotate(-30 725 369)"/><ellipse cx="919" cy="355" rx="82" ry="48" transform="rotate(36 919 355)"/>
+<ellipse cx="804" cy="459" rx="84" ry="46" transform="rotate(11 804 459)"/><ellipse cx="1014" cy="435" rx="66" ry="41" transform="rotate(-21 1014 435)"/>
+<ellipse cx="611" cy="412" rx="63" ry="40" transform="rotate(16 611 412)"/>
+</g>
+<g fill="#f7bf37" stroke="#cc8d18" stroke-width="3">
+<circle cx="611" cy="302" r="17"/><circle cx="837" cy="303" r="15"/><circle cx="960" cy="315" r="18"/><circle cx="1064" cy="411" r="16"/>
+<circle cx="694" cy="490" r="18"/><circle cx="895" cy="484" r="16"/><circle cx="958" cy="530" r="17"/><circle cx="550" cy="425" r="15"/><circle cx="781" cy="566" r="15"/>
+</g>
+<g fill="none" stroke="#75b562" stroke-width="10" stroke-linecap="round">
+<path d="M799 349q-22-50-42-45m42 45q14-42 45-43m-45 43q-28 0-39 26m39-26q35 2 48 27"/>
+<path d="M919 218q-24-46-44-46m44 46q26-33 55-30m-55 30q19 18 34 35"/>
+</g>
+<path d="M0 0h480v800H0Z" fill="#211b18" opacity=".92"/>
+<path d="M60 80h345" stroke="#d4a466" stroke-width="4"/><text x="60" y="135" fill="#d7b581" font-family="Georgia,serif" font-size="29" letter-spacing="4">LÉNA RECEPTTÁR STÚDIÓ</text>
+<text x="60" y="260" fill="#faf0df" font-family="Georgia,serif" font-weight="bold" font-size="73">Füstös,</text>
+<text x="60" y="345" fill="#faf0df" font-family="Georgia,serif" font-weight="bold" font-size="73">csípős</text>
+<text x="60" y="430" fill="#faf0df" font-family="Georgia,serif" font-weight="bold" font-size="66">chilis bab</text>
+<text x="60" y="490" fill="#edb578" font-family="Georgia,serif" font-size="44">kolbásszal</text>
+<path d="M60 535h345" stroke="#d4a466" stroke-width="3"/>
+<text x="60" y="592" fill="#f2d6ac" font-family="Arial,sans-serif" font-size="30">Csípős füstölt kolbász</text>
+<text x="60" y="636" fill="#f2d6ac" font-family="Arial,sans-serif" font-size="30">vörösbab • kukorica</text>
+<text x="60" y="714" fill="#f2d6ac" font-family="Arial,sans-serif" font-size="33">4–5 adag  •  55 perc</text>
+</svg>
