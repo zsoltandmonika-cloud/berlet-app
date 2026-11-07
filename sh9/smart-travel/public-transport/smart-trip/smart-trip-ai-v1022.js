@@ -346,6 +346,18 @@
    }
    bkkTag('small','st22-bkk-note','BKK menetrendi indulás · '+query.date+
     ' · Nem valós idejű · Megállótól megállóig',card);
+   // Show one A-plan narrative only for the independently verified BKK feed.
+   // Never forward Google Maps Content to Léna or change the search ranking.
+   if(i===0){
+    const lena=w.SH9_SMART_TRIP_LENA_TOUCH_V1?.explainBkk?.(item,data,
+     {profile:currentProfile,priority:priority?.value||'balanced',index:i});
+    if(lena?.lines?.length){
+     const block=bkkTag('div','st22-bkk-lena','',card);
+     bkkTag('strong','',lena.title,block);
+     lena.lines.forEach(line=>bkkTag('p','',line,block));
+     bkkTag('small','',lena.provenance,block);
+    }
+   }
    const save=bkkTag('button','st22-bkk-save','💾 Mentés My Tripsbe',card);
    save.type='button';
    save.addEventListener('click',async()=>{

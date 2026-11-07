@@ -18,3 +18,9 @@
 .st22-bkk-save:disabled{opacity:.60;cursor:progress}
 .st22-bkk-save:focus-visible{outline:2px solid rgba(177,210,237,.92);outline-offset:2px}
 @media (max-width:480px){.st22-bkk-card{padding:12px 13px}.st22-bkk-time{font-size:20px}}
+
+/* Léna Touch v1: a single A-plan explanation, matching the existing glass cards. */
+.st22-bkk-lena{padding:11px 13px;border:1px solid rgba(228,157,241,.32);background:rgba(70,42,105,.22);border-radius:13px}
+.st22-bkk-lena strong{font-size:13px;color:#f9d3fa}
+.st22-bkk-lena p{font-size:12px;line-height:1.5;margin:7px 0 0;color:#e1d9f4}
+.st22-bkk-lena small{display:block;margin-top:7px;font-size:11px;opacity:.78}

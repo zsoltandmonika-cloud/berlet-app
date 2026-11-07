@@ -1,0 +1,41 @@
+name: SHO Smart Trip Léna Touch V1 safe narration
+on:
+  pull_request:
+    paths:
+      - 'sh9/smart-travel/public-transport/smart-trip/smart-trip-lena-touch-v1.js'
+      - 'sh9/smart-travel/public-transport/smart-trip/smart-trip-result-v1072.js'
+      - 'sh9/smart-travel/public-transport/smart-trip/smart-trip-ai-v1022.js'
+      - 'sh9/smart-travel/public-transport/smart-trip/smart-trip-bkk-v1107.css'
+      - 'sh9/smart-travel/public-transport/smart-trip/index.html'
+      - 'healthhub/tests/sho-smart-trip-lena-touch-v1.test.mjs'
+      - '.github/workflows/sho-smart-trip-lena-touch-v1-qa.yml'
+  push:
+    branches: [main, feature/smart-trip-lena-touch-v1-verified-only]
+    paths:
+      - 'sh9/smart-travel/public-transport/smart-trip/smart-trip-lena-touch-v1.js'
+      - 'sh9/smart-travel/public-transport/smart-trip/smart-trip-result-v1072.js'
+      - 'sh9/smart-travel/public-transport/smart-trip/smart-trip-ai-v1022.js'
+      - 'sh9/smart-travel/public-transport/smart-trip/smart-trip-bkk-v1107.css'
+      - 'sh9/smart-travel/public-transport/smart-trip/index.html'
+      - 'healthhub/tests/sho-smart-trip-lena-touch-v1.test.mjs'
+      - '.github/workflows/sho-smart-trip-lena-touch-v1-qa.yml'
+permissions:
+  contents: read
+jobs:
+  verified-source-narration:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check syntax of unchanged search and new presentation
+        run: |
+          node --check sh9/smart-travel/public-transport/smart-trip/smart-trip-lena-touch-v1.js
+          node --check sh9/smart-travel/public-transport/smart-trip/smart-trip-result-v1072.js
+          node --check sh9/smart-travel/public-transport/smart-trip/smart-trip-ai-v1022.js
+      - name: Verify source isolation, narrative precision and unchanged UI controls
+        run: node --test healthhub/tests/sho-smart-trip-lena-touch-v1.test.mjs
+      - name: Verify existing result renderer contract
+        run: node --test healthhub/tests/sh9-smart-trip-results-v1072.test.cjs

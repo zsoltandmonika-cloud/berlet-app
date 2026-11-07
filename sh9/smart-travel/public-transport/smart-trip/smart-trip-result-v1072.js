@@ -110,7 +110,7 @@
   }
   if(!items.length)return null;
   return {items,source:{
-   name:label,coverage:source.coverage,
+   kind:source.kind,name:label,coverage:source.coverage,
    generatedAt:txt(source.generatedAt||'',40),
    attribution:txt(source.attribution||'',80),
    walkTimeEstimated:source.walkTimeEstimated===true,
@@ -218,12 +218,26 @@
       (s.kind==='walk'?' · '+s.distanceMeters+' m':s.direction?' · Irány: '+s.direction:''),body);
    });
    const rationale=node('div','st22-r-rationale',null,panel);
-   node('strong','','✨ Léna értékelése',rationale);
-   node('p','',j.transfers===0?'Átszállás nélküli menetrendi lehetőség.':
-    j.transfers===1?'Egy átszállásos, ellenőrzött menetrendi útvonal.':
-    j.transfers+' átszállás szükséges.',rationale);
-   node('p','',j.doorToDoor?'A gyalogos szakaszok útvonaladata hiteles forrásból származik; a sétaidő becslés.':
-    'Az ötcsillagos, ajtótól ajtóig minősítéshez a gyalogos összeköttetést is ellenőrizni kell.',rationale);
+   // Narrative is source-gated: licensed local GTFS only, never Google Maps Content.
+   let lena=null;
+   try{
+    const p=w.localStorage.getItem('hh-profile')==='m'?'m':'z';
+    const priority=d.getElementById('st22Priority')?.value||'balanced';
+    lena=w.SH9_SMART_TRIP_LENA_TOUCH_V1?.explainJourney?.(
+     j,source,{profile:p,priority,index});
+   }catch(_){}
+   if(lena?.lines?.length){
+    node('strong','',lena.title,rationale);
+    lena.lines.forEach(line=>node('p','',line,rationale));
+    node('small','',lena.provenance,rationale);
+   }else{
+    node('strong','','✨ Léna értékelése',rationale);
+    node('p','',j.transfers===0?'Átszállás nélküli menetrendi lehetőség.':
+     j.transfers===1?'Egy átszállásos, ellenőrzött menetrendi útvonal.':
+     j.transfers+' átszállás szükséges.',rationale);
+    node('p','',j.doorToDoor?'A gyalogos szakaszok útvonaladata hiteles forrásból származik; a sétaidő becslés.':
+     'Az ötcsillagos, ajtótól ajtóig minősítéshez a gyalogos összeköttetést is ellenőrizni kell.',rationale);
+   }
   }
   function open(data){
    if(!data||!data.items?.length||!data.source?.verified)return false;
