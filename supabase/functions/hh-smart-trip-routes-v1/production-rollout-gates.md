@@ -1,6 +1,6 @@
 # Smart Trip V5 · Production backup / rollout gate (2026-11-07)
 
-**Status: quota-only migration DEPLOYED 2026-11-07 to HealthHub-Core; Edge Function NOT DEPLOYED; paid Google path remains hardcoded OFF.**
+**Status: quota-only migration DEPLOYED 2026-11-07 to HealthHub-Core; Edge Function v2 DEPLOYED with JWT ON; paid Google path remains hardcoded OFF.**
 The migration was additive; no existing tables, Storage objects or Smart Trip clients changed. The user confirmed seeing an early-morning database backup, but restore validation and Storage export are still outstanding.
 
 ## Verified with read-only Supabase inspection
@@ -36,8 +36,8 @@ The migration was additive; no existing tables, Storage objects or Smart Trip cl
 3. Rolled-back production smoke test: 20 accepted, 5 denied, rollback preserved zero counters.
 4. Supabase Security Advisors: one expected informational RLS-no-policy flag for the locked-down quota table; RLS and revoked client grants are intentional.
 5. Confirm backup restore plan and separate private Storage file backup before broader rollout.
-6. Deploy the Edge Function **only while the compile-time Google flag remains false**. Do not configure a billing-capable Google key yet.
-7. Review Google Routes SKU and EEA terms for display, AI and persistence; configure key/provider protection, then separate deliberate activation.
+6. Edge Function v2 was deployed with the compile-time Google flag remaining false. Server-side key is still an operator-only pending step; leave activation OFF.
+7. Initial EEA review completed: Google Routes steps/descriptions may not appear with any map; do not feed Google content to an LLM. Confirm the exact contract and permitted use before activation.
 8. On outage, leave endpoint disabled and continue existing Matrix/GTFS search.
 
 ## Safety: what this is and is not
