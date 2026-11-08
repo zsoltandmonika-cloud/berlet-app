@@ -1,6 +1,6 @@
 /* Nutrition v1172 · glass predictive Favorites search; no changes to wheel cards. */
 #hhQuickShell[data-mode="wheel"] .hh-quick-search-v1172{display:block}
-.hh-quick-search-v1172{position:relative;z-index:6;flex:0 0 auto;width:min(100% - 32px,440px);margin:8px auto 2px;isolation:isolate}
+.hh-quick-search-v1172{position:relative;z-index:6;flex:0 0 auto;width:min(calc(100% - 32px),440px);margin:8px auto 2px;isolation:isolate}
 .hh-quick-search-control-v1172{display:flex;align-items:center;min-height:46px;gap:6px;padding:3px 5px 3px 13px;border:1px solid color-mix(in srgb,var(--accent,#8ccaff) 65%,transparent);background:linear-gradient(135deg,rgba(21,46,75,.95),rgba(9,28,51,.92));border-radius:16px;box-shadow:0 5px 20px #0005,inset 0 1px #ffffff25;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
 .hh-quick-search-control-v1172:focus-within{border-color:var(--accent,#8ccaff);box-shadow:0 0 0 2px color-mix(in srgb,var(--accent,#8ccaff) 20%,transparent),0 7px 24px #0006}
 .hh-quick-search-ico-v1172{font-size:20px;color:var(--accent,#8ccaff);line-height:1;flex:none}
