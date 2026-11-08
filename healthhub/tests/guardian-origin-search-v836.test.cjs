@@ -34,7 +34,7 @@ test('v836 keeps the accepted v834/v835 layout and adds one compact fullscreen-o
  assert.match(css,/\.hh-origin-typing-v836 #guardianMapOriginV836/);
  assert.match(css,/#guardianMapOriginResultsV836\[hidden\]\{display:none!important\}/);
  assert.doesNotMatch(css,/maplibregl-ctrl|\.map-follow|\.map-3d|\.map-family/);
- assert.doesNotMatch(js,/navigator\.geolocation|getCurrentPosition|watchPosition|setItem\(|new .*Map\(/);
+ assert.doesNotMatch(js,/navigator\.geolocation|getCurrentPosition|watchPosition|setItem\(|new (?:w\.)?maplibregl\.Map\(/);
  assert.doesNotMatch(html,/guardian-map-sources-v833/);
 });
 test('v836 verified From search reuses exact same favourite+Photon parsing and Smart Travel endpoints',()=>{
@@ -125,7 +125,7 @@ test('v1168 failed mobile GPS yields short user-readable message and exits loadi
  assert.match(js,/clearGpsTimeout\(\)/);
  assert.match(js,/gpsStatus\.hidden=kind!=='error'/);
  assert.match(js,/Hely nem érhető el\. Válassz címet vagy megállót\./);
- assert.match(js,/pagehide',\(\)=>\{clearGpsTimeout\(\)/);
+ assert.match(js,/pagehide',\(\)=>\{clearNearby\(\);clearGpsTimeout\(\)/);
  assert.doesNotMatch(js,/GPS-hiba|A böngésző 16 másodperc|nem feltétlenül a telefonod/);
  assert.doesNotMatch(fields,/GPS-hiba 1|GPS-hiba 3/);
 });

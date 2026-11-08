@@ -1,4 +1,4 @@
-name: Family Guard · Jelenlegi hely indulási pont v1167
+name: Family Guard · Jelenlegi hely és közeli megállók v1169
 on:
   push:
     branches: [main]
@@ -6,9 +6,11 @@ on:
       - 'healthhub/guardian/index.html'
       - 'healthhub/guardian/guardian.js'
       - 'healthhub/guardian/guardian-origin-search-v836.js'
+      - 'healthhub/guardian/guardian-smart-hub-router-v804.js'
       - 'healthhub/guardian/guardian-origin-search-v836.css'
       - 'healthhub/guardian/guardian-smart-hub-fields-v806.js'
       - 'healthhub/tests/guardian-origin-search-v836.test.cjs'
+      - 'healthhub/tests/smart-hub-router-v804.test.cjs'
       - 'healthhub/tests/smart-hub-v806.test.cjs'
       - '.github/workflows/guardian-current-origin-v1165.yml'
   pull_request:
@@ -16,9 +18,11 @@ on:
       - 'healthhub/guardian/index.html'
       - 'healthhub/guardian/guardian.js'
       - 'healthhub/guardian/guardian-origin-search-v836.js'
+      - 'healthhub/guardian/guardian-smart-hub-router-v804.js'
       - 'healthhub/guardian/guardian-origin-search-v836.css'
       - 'healthhub/guardian/guardian-smart-hub-fields-v806.js'
       - 'healthhub/tests/guardian-origin-search-v836.test.cjs'
+      - 'healthhub/tests/smart-hub-router-v804.test.cjs'
       - 'healthhub/tests/smart-hub-v806.test.cjs'
       - '.github/workflows/guardian-current-origin-v1165.yml'
 permissions:
