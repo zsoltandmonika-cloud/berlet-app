@@ -1,0 +1,37 @@
+name: Smart Trip V5 REAL 3-mode test safety
+on:
+  pull_request:
+    paths:
+      - 'supabase/functions/hh-smart-trip-real-pilot-v1/**'
+      - 'sh9/smart-travel/public-transport/smart-trip/v5/real-test/**'
+      - 'healthhub/tests/sho-smart-trip-v5-real-trimodal.test.mjs'
+      - '.github/workflows/sho-smart-trip-v5-real-trimodal.yml'
+  push:
+    branches: [feature/smart-trip-v5-real-trimodal-test, main]
+    paths:
+      - 'supabase/functions/hh-smart-trip-real-pilot-v1/**'
+      - 'sh9/smart-travel/public-transport/smart-trip/v5/real-test/**'
+      - 'healthhub/tests/sho-smart-trip-v5-real-trimodal.test.mjs'
+      - '.github/workflows/sho-smart-trip-v5-real-trimodal.yml'
+permissions:
+  contents: read
+jobs:
+  real-only-guard:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Syntax check browser client and evaluator
+        run: |
+          node --check sh9/smart-travel/public-transport/smart-trip/v5/real-test/engine.mjs
+          node --check sh9/smart-travel/public-transport/smart-trip/v5/real-test/client.mjs
+      - name: Verify source attribution, BKK/MAV/Volan, quota and opt-in constraints
+        run: node --test healthhub/tests/sho-smart-trip-v5-real-trimodal.test.mjs
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - name: Type-check isolated Supabase Edge Function
+        run: deno check supabase/functions/hh-smart-trip-real-pilot-v1/index.ts
