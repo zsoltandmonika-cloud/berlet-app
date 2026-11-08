@@ -124,7 +124,7 @@ test("Stuck Google pilot must stop on delayed auth and display exact HTTP 503 re
  assert.match(client,/A keresés lezárult hibával/);
  assert.match(client,/networkStarted=true/);
  assert.match(client,/if\(!networkStarted\)alreadyRun=false/);
- assert.match(ui,/client\.mjs\?v=quality-v1/);
+ assert.match(ui,/client\.mjs\?v=quota-nocharge-v1/);
 });
 
 test("New and legacy Supabase env keys are supported without disclosing secrets",()=>{
