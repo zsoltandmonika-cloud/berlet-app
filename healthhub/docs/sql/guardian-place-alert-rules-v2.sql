@@ -22,4 +22,5 @@ create policy "buddy_place_rules_update_v2" on public.hh_guardian_place_alert_ru
  with check (exists(select 1 from public.hh_profile_access a where a.user_id=(select auth.uid()) and a.profile_key=hh_guardian_place_alert_rules_v2.profile_key));
 create policy "buddy_place_rules_delete_v2" on public.hh_guardian_place_alert_rules_v2 for delete to authenticated
  using (exists(select 1 from public.hh_profile_access a where a.user_id=(select auth.uid()) and a.profile_key=hh_guardian_place_alert_rules_v2.profile_key));
+revoke all on public.hh_guardian_place_alert_rules_v2 from anon,authenticated;
 grant select,insert,update,delete on public.hh_guardian_place_alert_rules_v2 to authenticated;
