@@ -95,7 +95,16 @@ test("Browser is opt-in, no map, no GPT, no key, no persistence or changes to le
  assert.match(ui,/id="agree"/);assert.match(ui,/id="run"/);
  assert.match(ui,/Legfeljebb 3|legfeljebb 3/);
  assert.match(ui,/BKK/);assert.match(ui,/MÁV/);assert.match(ui,/Volán/);
- assert.doesNotMatch(ui,/<a\b|<iframe|google\.com\/maps/i);
+ assert.doesNotMatch(ui,/<iframe|google\.com\/maps\/dir\//i);
+ assert.match(ui,/class="gm-attribution" translate="no">Google Maps<\/span>/);
+ assert.match(ui,/href="\.\/privacy\.html"/);
+ assert.match(ui,/href="\.\/terms\.html"/);
+ for(const file of ["privacy.html","terms.html"]){
+  const t=get("sh9/smart-travel/public-transport/smart-trip/v5/real-test/"+file);
+  assert.match(t,/Google Maps/);
+  assert.match(t,/policies\.google\.com\/privacy/);
+  assert.doesNotMatch(t,/<iframe|google\.com\/maps\/dir\//i);
+ }
  assert.doesNotMatch(client,/HH_SMART_TRIP_GOOGLE_ROUTES_KEY|SUPABASE_SERVICE_ROLE_KEY|localStorage\.setItem|sessionStorage\.setItem|innerHTML/);
  assert.match(client,/hh-guardian-family-auth-v785/);
  assert.match(client,/addEventListener\("click"/);

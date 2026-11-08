@@ -42,6 +42,12 @@ border-radius:11px;overflow-wrap:anywhere}
 .story{padding:15px 16px;border:1px solid #e1a6e96c;border-radius:14px;
 background:linear-gradient(140deg,#512a6580,#172855cc);font-size:15px}
 .note{font-size:12px;color:#f0d2a0}
+.gm-attribution{display:inline-block;font:400 14px/1.5 system-ui,sans-serif;color:#fff;
+letter-spacing:normal;white-space:nowrap;vertical-align:baseline}
+.source-attribution{background:#070e29;border:1px solid #b4c7f965;
+border-radius:12px;padding:9px 12px;margin-bottom:12px}
+.legal a{color:#f0c5ff;text-decoration:underline;text-underline-offset:3px}
+
 [hidden]{display:none!important}
 @media(max-width:610px){.case{grid-template-columns:1fr}.coverage{grid-template-columns:1fr}
 header,.panel{padding:15px}}
@@ -83,11 +89,13 @@ egyetlen A terv. A BKK helyi szakaszaira nem vonatkozik a távolsági sorrend.</
 <b>legfeljebb 3, esetleg díjköteles</b> Google Routes-lekérdezést e két hely
 koordinátáival és a megadott időponttal. Tudomásul veszem, hogy a találatokat
 csak itt, térkép nélkül jelenítjük meg; nem mentjük és nem küldjük LLM-nek.</span></label>
+<p class="legal"><small>A próba feltételei: <a href="./terms.html">Felhasználási feltételek</a> és <a href="./privacy.html">Adatkezelési tájékoztató</a>. A bejelentkezési token kizárólag a Supabase-nek, a két koordináta a Google Routes-nak kerül átadásra.</small></p>
 <button id="run" type="button">🚀 Valódi háromrendszeres teszt indítása</button>
 <p id="status" role="status" aria-live="polite">A teszt nem indult el. Semmilyen API-kérés nem fut automatikusan.</p>
 <p id="timing" hidden></p>
 </section>
 <section class="panel" id="out" hidden>
+<div class="source-attribution">Útvonal- és közlekedési adatok: <span class="gm-attribution" translate="no">Google Maps</span></div>
 <h2>📊 Valós lefedettségi ellenőrzés</h2>
 <div class="coverage" id="coverage"></div>
 <p class="note">A fenti jelzések a Google-válaszokban felismert közlekedési
