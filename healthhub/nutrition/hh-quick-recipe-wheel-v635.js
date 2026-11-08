@@ -10,7 +10,7 @@ const dlg=$('hhQuickDialog'),shell=$('hhQuickShell'),rail=$('hhQuickRail'),libra
 if(!api||!dlg||!shell||!rail||!library)return;
 const reduced=window.matchMedia('(prefers-reduced-motion: reduce)');
 const keySound='hh-quick-wheel-sound-v1';
-let recipes=[],selection=0,activeId='',editing=null,photoData='',photoRemoved=false,editSaving=false,busy=false,scrollTimer=null,scrollUser=false,lastTick=-1,audioCtx=null,lastRecord=0;
+let recipes=[],selection=0,activeId='',editing=null,photoData='',photoRemoved=false,editSaving=false,orderSaving=false,busy=false,scrollTimer=null,scrollUser=false,lastTick=-1,audioCtx=null,lastRecord=0;
 const $f=id=>$(id),fmt=n=>Number(n||0).toLocaleString('hu-HU',{maximumFractionDigits:1});
 const safeNum=(v,maximum)=>{const n=Number(v);return Number.isFinite(n)&&n>=0&&n<=maximum?n:null};
 const str=(v,max=100)=>String(v==null?'':v).trim().slice(0,max);
@@ -91,6 +91,9 @@ function allRecipes(){
    archived:false,order:x.order,updatedAt:x.updatedAt});
  });
  const stored=Array.isArray(data.quickRecipeOrder?.ids)?data.quickRecipeOrder.ids:[];
+ const order=window.HH_NUTRITION_FAVORITES_ORDER_V1146;
+ if(order?.ordered)return order.ordered(base,stored);
+ // Graceful fallback if the optional ordering helper failed to load.
  const at=new Map(stored.map((id,i)=>[id,i]));
  return base.sort((a,b)=>{
   if(!!a.shared!==!!b.shared)return a.shared?-1:1;
@@ -245,7 +248,8 @@ function recordSelected(){
  }catch(e){window.alert('A gyorsbevitel nem menthető: '+(e&&e.message||'ismeretlen hiba'))}
  finally{busy=false;selectUI()}
 }
-function showEditor(recipeId,create=false){
+function showEditor(recipeId,create=false,preserveScroll=false){
+ const oldListScroll=preserveScroll?library.scrollTop:0;
  shell.dataset.mode='edit';
  $('hhQuickSuccess').dataset.open='false';
  $('hhQuickProfile').textContent=api.getProfile()==='monika'?'Közös + saját · Mónika naplója':'Közös + saját · Zsolt naplója';
@@ -286,6 +290,8 @@ function showEditor(recipeId,create=false){
  if(!common)$('hhQuickStudioHeading').textContent=q.name==='Új kedvenc'?'Új recept':'Recept szerkesztése';
  const list=document.createDocumentFragment();
  const personal=items.filter(x=>!x.shared),shared=items.filter(x=>x.shared);
+ const currentOrder=api.getData().quickRecipeOrder?.ids||[];
+ const unifiedOrder=Array.isArray(currentOrder)&&currentOrder.some(id=>id.startsWith('quick:shared-'));
  const createBtn=document.createElement('button');createBtn.type='button';createBtn.textContent='＋ Új recept';createBtn.addEventListener('click',()=>showEditor(null,true));list.append(createBtn);
  items.forEach((item,index)=>{
   const line=document.createElement('div');line.className='hh-quick-edit-row';
@@ -299,28 +305,60 @@ function showEditor(recipeId,create=false){
   for(const [dir,label] of [[-1,'Feljebb'],[1,'Lejjebb']]){
    const btn=document.createElement('button');btn.type='button';btn.className='hh-quick-move';
    btn.textContent=dir<0?'↑':'↓';btn.title=label+': '+item.name;btn.setAttribute('aria-label',label+': '+item.name);
-   const group=item.shared?shared:personal,from=group.findIndex(x=>x.id===item.id);
-   btn.disabled=from+dir<0||from+dir>=group.length;
+   const target=index+dir;
+   // Navigation uses the complete visible list, not two isolated sections.
+   btn.disabled=orderSaving||target<0||target>=items.length;
    btn.addEventListener('click',async()=>{
-    if(editSaving)return;
-    const ids=group.map(x=>item.shared?x.sharedFoodId:x.id),to=from+dir;
-    if(from<0||to<0||to>=ids.length)return;
-    [ids[from],ids[to]]=[ids[to],ids[from]];
-    btn.disabled=true;
+    if(editSaving||orderSaving)return;
+    const ordered=window.HH_NUTRITION_FAVORITES_ORDER_V1146;
+    const move=ordered?.move?.(items,index,dir);
+    if(!move){$('hhQuickEditStatus').textContent='⚠ A sorrendvezérlő nem elérhető. Frissítsd az oldalt.';return}
+    const profileOrder=unifiedOrder||move.crossesBoundary;
+    const group=item.shared?shared:personal;
+    orderSaving=true;
+    library.querySelectorAll('.hh-quick-move').forEach(x=>x.disabled=true);
+    $('hhQuickEditStatus').textContent=profileOrder?
+     '⟳ Egységes Kedvencek sorrend mentése a profilhoz…':
+     item.shared?'☁️ Közös Kedvencek sorrendjének mentése…':'⟳ Saját sorrend mentése…';
+    let status='';
     try{
-     if(item.shared){
-      $('hhQuickEditStatus').textContent='☁️ Közös Kedvencek sorrendjének mentése…';
-      await window.HH_SHARED_FOOD_LIBRARY_V1118.reorderFavorites(ids);
-     }else api.reorderRecipes(ids);
-     showEditor(item.id);
-     $('hhQuickEditStatus').textContent='✓ Sorrend mentve. '+(item.shared?'Mindkét profilban azonos.':'Saját sorrend frissítve.');
-    }catch(e){$('hhQuickEditStatus').textContent='⚠ Sorrendmentési hiba: '+e.message;btn.disabled=false}
+     if(profileOrder){
+      // Cross-boundary reorder is profile-scoped and Dropbox-synced via the
+      // existing Nutrition quickRecipeOrder; no shared food data is modified.
+      api.reorderRecipes(move.ids);
+      status='✓ Teljes Kedvencek sorrend mentve a profilhoz · automatikus felhőszinkronra vár.';
+     }else{
+      const from=group.findIndex(x=>x.id===item.id),to=from+dir;
+      if(from<0||to<0||to>=group.length)throw Error('A lista időközben megváltozott.');
+      const ids=group.map(x=>item.shared?x.sharedFoodId:x.id);
+      [ids[from],ids[to]]=[ids[to],ids[from]];
+      if(item.shared){
+       await window.HH_SHARED_FOOD_LIBRARY_V1118.reorderFavorites(ids);
+       status='✓ Közös sorrend mentve a Dropboxba · mindkét profilban azonos.';
+      }else{
+       api.reorderRecipes(ids);
+       status='✓ Saját sorrend mentve · automatikus Dropbox-szinkronra vár.';
+      }
+     }
+    }catch(error){
+     status='⚠ Sorrendmentési hiba: '+String(error?.message||'próbáld újra').slice(0,160);
+     // The shared library may have gained a new recipe on another device.
+     // Never overwrite a stale list; refresh it and allow a new attempt.
+     if(item.shared&&/megváltoztak|ütközött/.test(status)){
+      try{await window.HH_SHARED_FOOD_LIBRARY_V1118.load(true)}catch(_){}
+     }
+    }finally{
+     orderSaving=false;
+     showEditor(item.id,false,true);
+     $('hhQuickEditStatus').textContent=status;
+    }
    });
    arrows.append(btn);
   }
   line.append(name,arrows);list.append(line);
  });
  library.replaceChildren(list);
+ if(preserveScroll)library.scrollTop=oldListScroll;
  $('hhQuickEditName').focus({preventScroll:true});
 }
 async function compressImage(file){
