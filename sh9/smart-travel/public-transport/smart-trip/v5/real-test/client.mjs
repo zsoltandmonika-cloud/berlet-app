@@ -53,13 +53,15 @@ function output(data,priority,elapsed){
  const list=$("candidates");list.replaceChildren();
  result.candidates.slice(0,8).forEach((c,i)=>{
   const card=node("article","",list,"route"+(i===0?" best":""));
-  node("h3",i===0?"🏆 Léna A terve":"Alternatíva "+(i+1),card);
+  node("h3",i===0?"🏆 Előzetes A-jelölt · Google":"Alternatíva "+(i+1),card);
   node("div","Google keresési profil: "+c.variant+
    " · Teljes becsült út: "+c.durationMinutes+" perc"+
    " · Átszállás: "+c.transfers+
    " · Gyaloglás: "+(c.walkMeters===null?"nem ismert":Math.round(c.walkMeters)+" m")+
-   " · Menetrendi átszállási ablak: "+
+   " · Gyaloglás utáni átszállási tartalék: "+
    (c.shortestMargin===null?"nincs vagy nem ismert":c.shortestMargin+" perc"),card,"meta");
+  if(c.finalWalkMeters!==null)node("div","Utolsó séta a célhoz: "+
+   c.finalWalkMeters+" m"+(c.finalWalkMeters>300?" · a kívánt rövid sétánál hosszabb lehet":""),card,"meta");
   const ol=node("ol","",card,"stops");
   c.rides.forEach(r=>{
    node("li",(r.line||"Ismeretlen járat")+" · "+r.kind+
@@ -77,9 +79,9 @@ function output(data,priority,elapsed){
   result.googleRequests+"; független üzemeltetői ellenőrzés: NEM történt.");
  $("timing").hidden=false;
  show("status",result.best?"✅ Valódi Google Routes-válasz beérkezett. "+
-  (result.fullCoverage?"Mindhárom szolgáltató szerepel a visszakapott jelöltekben.":
+  (result.fullCoverage?"Mindhárom szolgáltató megjelenik az összesített Google-találatok között, nem feltétlenül ugyanazon az útvonalon.":
   "Nem mindhárom szolgáltató szerepel a Google-alternatívákban.")+
-  " A tényleges menetrendi szolgáltatói ellenőrzés külön feladat.":
+  " Ez előzetes Google-jelölt, független menetrendi ellenőrzés nélkül.":
   "⚠️ A Google-válaszban nincs ellenőrizhető útvonal, ezért nem mutatok kitalált eredményt.");
 }
 // Config diagnosis uses the SAME signed-in user and fixed fixture as the real
