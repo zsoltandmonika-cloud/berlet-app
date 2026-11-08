@@ -10,7 +10,7 @@
  const vault=()=>root.HH_NUTRITION_IMAGE_V641;
  const active=()=>root.HH_NUTRITION_QUICK_API?.getProfile?.();
  const regex=/^data:image\/(?:jpeg|png|webp);base64,[a-z0-9+/=]+$/i;
- let sharedLoad=null;
+ let sharedLoad=null,sharedRefreshStarted=false;
  const isPhoto=(value)=>typeof value==='string'&&value.length<1300000&&regex.test(value);
  function resolve(entry,data,sharedItems=[]){
   if(!entry||typeof entry!=='object')return null;
@@ -69,8 +69,11 @@
  }
  function requestShared(){
   const library=shared();
-  if(sharedLoad||!library?.load)return;
-  sharedLoad=Promise.resolve().then(()=>library.load()).catch(()=>{}).finally(()=>{sharedLoad=null});
+  if(sharedRefreshStarted||!library?.load)return;
+  sharedRefreshStarted=true;
+  // One non-blocking remote refresh per page when an old shared favorite has
+  // no local image metadata. The diary itself renders before this finishes.
+  sharedLoad=Promise.resolve().then(()=>library.load(true)).catch(()=>{}).finally(()=>{sharedLoad=null});
  }
  function attach(left,entry,profile,data){
   if(!left||!entry||!['monika','zsolt'].includes(profile))return;
