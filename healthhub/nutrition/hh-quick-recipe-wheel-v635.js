@@ -262,6 +262,49 @@ function recordSelected(){
  }catch(e){window.alert('A gyorsbevitel nem menthető: '+(e&&e.message||'ismeretlen hiba'))}
  finally{busy=false;selectUI()}
 }
+function launchFavoriteAiScan(){
+ if(!editing||editing.shared||!dlg.open||shell.dataset.mode!=='edit'||editSaving||orderSaving||busy)return;
+ const scanner=window.HH_LENA_AI_SCAN_V753;
+ const status=$('hhQuickEditStatus'),profile=api.getProfile(),draftId=editing.id;
+ if(typeof scanner?.openForFavorite!=='function'){
+  status.textContent='⚠ Léna AI Scan még nem töltődött be. Frissítsd az oldalt.';return;
+ }
+ // Closing the modal (not hideDialog) preserves unsaved editor form values.
+ dlg.close();
+ const opened=scanner.openForFavorite(profile,result=>{
+  if(api.getProfile()!==profile||editing?.id!==draftId){
+   if(!dlg.open)dlg.showModal();
+   status.textContent='⚠ A profil vagy a recept időközben megváltozott. Scan adatok nem kerültek át.';
+   return;
+  }
+  shell.dataset.mode='edit';
+  if(!dlg.open)dlg.showModal();
+  if(!result){
+   status.textContent='AI Scan bezárva · a korábbi receptadatokat megtartottam.';
+   return;
+  }
+  $('hhQuickEditName').value=result.name;
+  $('hhQuickEditDescription').value=result.description||'AI Scan · becsült adag';
+  $('hhQuickEditMeal').value=result.meal;
+  $('hhQuickEditCategory').value=result.category||'Főételek';
+  $('hhQuickEditIngredients').value=result.ingredients||'';
+  for(const key of ['kcal','protein','carbs','fat']){
+   $('hhQuickEdit'+key[0].toUpperCase()+key.slice(1)).value=result.nutrients[key];
+  }
+  if(result.kind==='drink')$('hhQuickEditIcon').value='🥤';
+  else $('hhQuickEditIcon').value='🍽️';
+  if(result.imageData&&/^data:image\/jpeg;base64,/.test(result.imageData)){
+   photoData=result.imageData;photoRemoved=false;
+   $('hhQuickEditPhoto').value='';
+  }
+  status.textContent='✓ AI Scan eredmény átvéve, még NINCS MENTVE. Ellenőrizd az adagot, tápértéket és a fotót, majd nyomd meg a Recept mentése gombot.';
+ });
+ if(!opened){
+  if(!dlg.open)dlg.showModal();
+  status.textContent='⚠ AI Scan most nem indítható. Próbáld újra a Kedvencek szerkesztőből.';
+ }
+}
+
 function showEditor(recipeId,create=false,preserveScroll=false){
  const oldListScroll=preserveScroll?library.scrollTop:0;
  shell.dataset.mode='edit';
@@ -273,6 +316,8 @@ function showEditor(recipeId,create=false,preserveScroll=false){
  editing={...q,nutrients:{...q.nutrients}};
  photoData=editing.image||'';photoRemoved=false;portalPhotoData='';
  const common=!!q.shared;
+ // Scan-to-Favorites v1148 operates on profile-scoped recipes only.
+ $('hhQuickAIScanV1148').hidden=common;
  shell.dataset.shared=String(common);
  $('hhQuickSharedControls').hidden=!common;
  for(const id of ['hhQuickEditCategory','hhQuickEditOrder','hhQuickEditArchived','hhQuickEditIcon','hhQuickEditTheme']){
@@ -689,6 +734,7 @@ $('hhQuickSharedMainCourse')?.addEventListener('click',()=>{
  const button=$('hhQuickSharedMainCourse');button.textContent='✓ Főételek kijelölve · Mentés szükséges';
  button.dataset.selected='true';
 });
+$('hhQuickAIScanV1148').addEventListener('click',launchFavoriteAiScan);
 $('hhQuickImagePortalOpen').addEventListener('click',showPortal);
 $('hhQuickPortalBack').addEventListener('click',()=>{shell.dataset.mode='edit'});
 $('hhQuickGenerateImage').addEventListener('click',generatePortalImage);
