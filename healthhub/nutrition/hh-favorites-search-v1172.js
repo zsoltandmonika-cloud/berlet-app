@@ -46,6 +46,7 @@
   if(matching.length)input.setAttribute('aria-activedescendant','hhQuickFavoriteOptionV1172-'+highlight);
  }
  function refresh(){
+  status.dataset.show='false';
   if(!dialog.open||shell.dataset.mode!=='wheel'){close();return}
   const q=input.value.trim();matching=find(q);
   if(!q){status.textContent='';close();return}
@@ -87,6 +88,7 @@
   microphone.setAttribute('aria-pressed','false');
  }
  function speak(){
+  status.dataset.show='true';
   if(listening){stopVoice();status.textContent='Hangkeresés leállítva.';return}
   const Recognition=w.SpeechRecognition||w.webkitSpeechRecognition;
   if(!Recognition){status.textContent='Ebben a böngészőben a hangkeresés nem támogatott. A gépelős keresés működik.';return}
@@ -140,7 +142,7 @@
  });
  input.addEventListener('focus',()=>{if(input.value.trim())refresh()});
  microphone.addEventListener('click',speak);
- dialog.addEventListener('close',()=>{stopVoice();input.value='';matching=[];status.textContent='';close()});
+ dialog.addEventListener('close',()=>{stopVoice();input.value='';matching=[];status.textContent='';status.dataset.show='false';close()});
  d.addEventListener('pointerdown',event=>{if(!event.target.closest?.('#hhQuickFavoriteSearchBoxV1172'))close()});
  // Recipe photo/cloud refresh updates the rail without changing search state.
  const observer=new MutationObserver(()=>{if(!results.hidden&&input.value.trim())refresh()});
