@@ -85,8 +85,11 @@ test("Edge Function is 1 fixed test/day, 3 quota-reserved Google requests, witho
  assert.match(edge,/hh_profile_access/);
  assert.match(edge,/auth\.getUser/);
  assert.match(edge,/daily_used!==reserved/);
- assert.match(edge,/hh_smart_trip_google_reserve/);
- assert.ok(edge.indexOf("await reserveQuota(admin)")<edge.indexOf("await fetchVariant(key,variant)"));
+ assert.match(edge,/hh_smart_trip_google_reserve_pilot/);
+ assert.match(edge,/p_expected_daily_used:expectedDailyUsed/);
+ assert.match(edge,/reserveQuota\(admin,reserved\)/);
+ assert.match(edge,/if\(!quota.allowed\)/);
+ assert.ok(edge.indexOf("await reserveQuota(admin,reserved)")<edge.indexOf("await fetchVariant(key,variant)"));
  assert.match(edge,/googleRequests:attempted,quotaReserved:reserved/);
  assert.match(edge,/presentation:"map_free_text_only",ai_processing:"disabled",save:false/);
  assert.doesNotMatch(edge,/console\.log|console\.error|console\.warn/);
@@ -121,7 +124,7 @@ test("Stuck Google pilot must stop on delayed auth and display exact HTTP 503 re
  assert.match(client,/A keresés lezárult hibával/);
  assert.match(client,/networkStarted=true/);
  assert.match(client,/if\(!networkStarted\)alreadyRun=false/);
- assert.match(ui,/client\.mjs\?v=quality-v1/);
+ assert.match(ui,/client\.mjs\?v=quota-nocharge-v1/);
 });
 
 test("New and legacy Supabase env keys are supported without disclosing secrets",()=>{
