@@ -8,6 +8,7 @@ on:
       - 'sh9/tests/sho-notification-center-v1.test.cjs'
       - 'sh9/tests/sho-buddy-place-alerts-v1.test.cjs'
       - 'sh9/tests/sho-buddy-place-alert-rules-v2.test.cjs'
+      - 'sh9/tests/sho-buddy-android-foreground-v2.test.cjs'
       - 'sh9/notification-center/notification-place-alerts-v2.js'
       - 'sh9/notification-center/notification-place-alerts-v2.css'
       - 'healthhub/guardian/guardian-place-alert-rules-v2.js'
@@ -44,4 +45,4 @@ jobs:
           node --check sh9/sho-preview/sho-wiring-v2.js
       - name: Notification core, Golden Standard and launcher regression
         run: |
-          node --test sh9/tests/sho-buddy-place-alert-rules-v2.test.cjs sh9/tests/sho-buddy-place-alerts-v1.test.cjs sh9/tests/sho-notification-center-v1.test.cjs sh9/tests/sho-notification-chime-v2.test.cjs sh9/tests/sho-notification-golden-routing-v4.test.cjs sh9/tests/sho-global-notification-bell-v5.test.cjs sh9/tests/sho-sport-radar-notification-bridge-v1.test.cjs sh9/tests/sho-sport-radar-feed-v1.test.cjs
+          node --test sh9/tests/sho-buddy-android-foreground-v2.test.cjs sh9/tests/sho-buddy-place-alert-rules-v2.test.cjs sh9/tests/sho-buddy-place-alerts-v1.test.cjs sh9/tests/sho-notification-center-v1.test.cjs sh9/tests/sho-notification-chime-v2.test.cjs sh9/tests/sho-notification-golden-routing-v4.test.cjs sh9/tests/sho-global-notification-bell-v5.test.cjs sh9/tests/sho-sport-radar-notification-bridge-v1.test.cjs sh9/tests/sho-sport-radar-feed-v1.test.cjs

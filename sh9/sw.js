@@ -60,7 +60,7 @@ self.addEventListener('push',event=>{
  })());
 });
 self.addEventListener('notificationclick',event=>{
- if(event.notification?.data?.kind!=='sho-test-v3')return;
+ if(!['sho-test-v3','sho-buddy-place-foreground-v2'].includes(event.notification?.data?.kind))return;
  event.notification.close();
  event.waitUntil((async()=>{
   const safeTarget=new URL('notification-center/',ROOT).href;
