@@ -328,6 +328,8 @@ function render(){
   const name=document.createElement('strong');name.textContent=(e.icon||'🍽️')+' '+e.name;
   const smaller=document.createElement('small');smaller.textContent=e.time+' · '+e.meal+(e.quantityText?' · '+e.quantityText:'')+(e.source==='estimated'?' · becsült':'');
   left.append(name,smaller);
+  // v1150: view-only thumbnail from the original Favorite, no extra diary fields.
+  root.HH_NUTRITION_DIARY_FAVORITE_ART_V1150?.attach?.(left,e,active,d);
   const c=document.createElement('b');c.textContent=e.nutrients?.kcal==null?'— kcal':fmt(e.nutrients.kcal,0)+' kcal';
   const edit=document.createElement('button');edit.type='button';edit.className='mini';edit.textContent='Szerk.';edit.addEventListener('click',()=>editEntry(e));
   const del=document.createElement('button');del.type='button';del.className='mini';del.textContent='×';del.title='Bevitel törlése';del.addEventListener('click',()=>{update(d=>{const row=d.entries.find(x=>x.id===e.id);if(row){row.deleted=true;row.updatedAt=stamp();}})});
