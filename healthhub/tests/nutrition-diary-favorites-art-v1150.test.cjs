@@ -140,8 +140,8 @@ test('Production markup and diary renderer are wired to existing source IDs, nev
  assert.ok(html.indexOf('hh-diary-favorites-art-v1150.js')<html.indexOf('nutrition-preview-v592.js'));
  assert.match(css,/width:59\.8px;height:59\.8px;flex:0 0 59\.8px/);
  assert.match(css,/width:50\.6px;height:50\.6px;flex-basis:50\.6px/);
- assert.equal(59.8/52,1.15);
- assert.equal(50.6/44,1.15);
+ assert.ok(Math.abs(59.8/52-1.15)<1e-10);
+ assert.ok(Math.abs(50.6/44-1.15)<1e-10);
  assert.match(css,/var\(--accent\)/);
  assert.match(css,/var\(--accentWash\)/);
  assert.match(css,/object-fit:cover/);
