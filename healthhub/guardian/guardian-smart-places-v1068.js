@@ -107,8 +107,14 @@
  function notify(place,type){
   if(!enabled||d.hidden)return;
   const text=own(place.profile)+(type==='arrival'?' megérkezett ide: ':' elindult innen: ')+place.name;
-  toast.textContent='🔔 '+text;toast.hidden=false;
-  w.clearTimeout?.(flashTimer);flashTimer=w.setTimeout?.(()=>{toast.hidden=true},6200);
+  // v1: use the approved SHO green/amber Buddy popup and local Notification Center bridge.
+  // Keep the existing Smart Places toast as a safe fallback.
+  let buddyShown=false;
+  try{buddyShown=w.SHO_SMART_BUDDY_PLACE_ALERT_V1?.show(place,type,text)===true}catch(_){}
+  if(!buddyShown){
+   toast.textContent='🔔 '+text;toast.hidden=false;
+   w.clearTimeout?.(flashTimer);flashTimer=w.setTimeout?.(()=>{toast.hidden=true},6200);
+  }
   tone(type==='arrival'?place.arrival:place.departure);
   // Only when already granted by explicit user gesture. Never request permission silently.
   try{if(w.Notification?.permission==='granted')new w.Notification('SH9 Smart Places',{body:text,tag:'sh9-place-'+place.profile+'-'+place.index})}catch(_){}
