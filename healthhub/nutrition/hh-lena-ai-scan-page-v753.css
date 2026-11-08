@@ -123,3 +123,14 @@ body.hhScanOpen753>.shell{display:none!important}
 .hhScanPage753[data-profile="monika"] #hhScanApplyFavoriteV1148{background:linear-gradient(120deg,#a1498d,#6755a8)}
 #hhScanApplyFavoriteV1148:disabled{opacity:.52;cursor:not-allowed}
 .hhScanPage753 #hhScanApplyFavoriteV1148[hidden],.hhScanPage753 #hhScanSharedSection753[hidden],.hhScanPage753 #hhScanSave753[hidden]{display:none!important}
+
+/* v1149 · one-click Favorites save, only after AI Scan review. */
+.hhScanFavoriteQuickV1149{display:flex;flex-direction:column;gap:6px;margin:14px 0 10px;padding:12px;border:1px solid color-mix(in srgb,var(--sc) 55%,transparent);border-radius:16px;background:linear-gradient(145deg,#0d2a46,#10213bcf);box-shadow:0 6px 23px var(--scWash)}
+.hhScanFavoriteQuickV1149[hidden]{display:none!important}
+#hhScanFavoriteSaveV1149{min-height:56px;width:100%;border:1px solid var(--sc);border-radius:14px;font-size:15px;font-weight:850;background:linear-gradient(120deg,#186b85,#2989a1);color:#fff;box-shadow:0 5px 18px var(--scWash);cursor:pointer}
+.hhScanPage753[data-profile="monika"] #hhScanFavoriteSaveV1149{background:linear-gradient(120deg,#ae438e,#7d52b5)}
+#hhScanFavoriteSaveV1149:disabled{opacity:.52;cursor:not-allowed}
+.hhScanFavoriteQuickV1149 small{font-size:11px;color:#c2ddec;text-align:center}
+#hhScanFavoriteSaveStatusV1149{font-size:12px;line-height:1.45;color:#baf3df;margin:3px 0 0;overflow-wrap:anywhere}
+#hhScanFavoriteSaveStatusV1149[data-error="true"]{color:#ffd1b1}
+#hhScanFavoriteSaveStatusV1149[hidden]{display:none!important}
