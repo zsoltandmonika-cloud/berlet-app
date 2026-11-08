@@ -1,0 +1,26 @@
+/* Nutrition v1172 · glass predictive Favorites search; no changes to wheel cards. */
+#hhQuickShell[data-mode="wheel"] .hh-quick-search-v1172{display:block}
+.hh-quick-search-v1172{position:relative;z-index:6;flex:0 0 auto;width:min(100% - 32px,440px);margin:8px auto 2px;isolation:isolate}
+.hh-quick-search-control-v1172{display:flex;align-items:center;min-height:46px;gap:6px;padding:3px 5px 3px 13px;border:1px solid color-mix(in srgb,var(--accent,#8ccaff) 65%,transparent);background:linear-gradient(135deg,rgba(21,46,75,.95),rgba(9,28,51,.92));border-radius:16px;box-shadow:0 5px 20px #0005,inset 0 1px #ffffff25;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+.hh-quick-search-control-v1172:focus-within{border-color:var(--accent,#8ccaff);box-shadow:0 0 0 2px color-mix(in srgb,var(--accent,#8ccaff) 20%,transparent),0 7px 24px #0006}
+.hh-quick-search-ico-v1172{font-size:20px;color:var(--accent,#8ccaff);line-height:1;flex:none}
+#hhQuickFavoriteSearchV1172{min-width:0;flex:1;width:100%;color:#f5faff;font:600 13px/1.3 system-ui;letter-spacing:.01em;background:transparent;border:0;outline:0;height:35px;padding:0 3px}
+#hhQuickFavoriteSearchV1172::placeholder{color:#b6cce4;opacity:.88}
+#hhQuickFavoriteSearchV1172::-webkit-search-cancel-button{cursor:pointer;filter:grayscale(1) brightness(2)}
+.hh-quick-search-mic-v1172{flex:none;border:1px solid #acd1e255;border-radius:12px;min-width:38px;min-height:36px;background:linear-gradient(130deg,#2a5277,#192c4a);color:#e8f8ff;font-size:18px;line-height:1;box-shadow:inset 0 1px #ffffff20;cursor:pointer}
+.hh-quick-search-mic-v1172[data-listening="true"]{border-color:#84f0cf;background:#12564f;box-shadow:0 0 13px #57dabc88;animation:hh-quick-mic-pulse-v1172 1s ease-in-out infinite}
+@keyframes hh-quick-mic-pulse-v1172{50%{box-shadow:0 0 18px #57dabc}}
+.hh-quick-search-suggestions-v1172{position:absolute;top:calc(100% + 5px);left:0;right:0;max-height:min(43dvh,320px);overflow-y:auto;padding:5px;border:1px solid color-mix(in srgb,var(--accent,#8ccaff) 64%,transparent);border-radius:14px;background:linear-gradient(160deg,rgba(16,36,66,.98),rgba(7,19,37,.99));box-shadow:0 15px 35px #000a;backdrop-filter:blur(18px)}
+.hh-quick-search-suggestions-v1172[hidden]{display:none}
+.hh-qsearch-result-v1172{display:flex;gap:9px;align-items:center;text-align:left;width:100%;padding:9px 10px;color:#f4faff;background:transparent;border:0;border-radius:10px;font:inherit;cursor:pointer}
+.hh-qsearch-result-v1172:hover,.hh-qsearch-result-v1172[data-highlighted="true"]{background:color-mix(in srgb,var(--accent,#8ccaff) 20%,#0b2340)}
+.hh-qsearch-ico-v1172{font-size:21px;flex:none}
+.hh-qsearch-copy-v1172{display:flex;flex-direction:column;min-width:0;gap:2px}
+.hh-qsearch-copy-v1172 strong{font:800 12px/1.25 system-ui;white-space:nowrap;text-overflow:ellipsis;overflow:hidden}
+.hh-qsearch-copy-v1172 small{font:500 10px/1.3 system-ui;color:#bad3e6;white-space:nowrap;text-overflow:ellipsis;overflow:hidden}
+.hh-qsearch-empty-v1172{padding:13px;text-align:center;font-size:11px;color:#bcd7ef}
+.hh-quick-search-status-v1172{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+#hhQuickShell[data-mode="edit"] .hh-quick-search-v1172,#hhQuickShell[data-mode="portal"] .hh-quick-search-v1172{display:none}
+#hhQuickShell[data-mode="wheel"] .hh-quick-wheel-view{justify-content:center}
+@media(max-height:600px){.hh-quick-search-v1172{margin-top:3px}.hh-quick-search-control-v1172{min-height:40px}#hhQuickFavoriteSearchV1172{height:32px}.hh-quick-search-mic-v1172{min-height:33px}}
+@media(prefers-reduced-motion:reduce){.hh-quick-search-mic-v1172[data-listening="true"]{animation:none}}
