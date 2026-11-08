@@ -171,7 +171,8 @@
     });
     nearby.append(button);
    }
-   nearby.append(detail);
+   // Detail appears immediately under the heading, always visible on mobile.
+   nearby.insertBefore(detail,nearby.children[1]||null);
    note.textContent='Távolság légvonalban, nem menetrendi indulás';
    nearby.append(note);
    const target=destination;

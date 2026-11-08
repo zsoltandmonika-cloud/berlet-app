@@ -24,7 +24,7 @@ test('v836 keeps the accepted v834/v835 layout and adds one compact fullscreen-o
     'guardianMapOriginResultsV836','guardianMapOriginStatusV836'])
   assert.equal((block.match(new RegExp('id="'+id+'"','g'))||[]).length,1,id);
  assert.match(html,/guardian-origin-search-v836\.css\?v=1169-nearby-stops-map-first/);
- assert.match(html,/guardian-origin-search-v836\.js\?v=1170-stop-departures/);
+ assert.match(html,/guardian-origin-search-v836\.js\?v=1170-stop-details-top/);
  assert.match(html,/guardian-attribution-dot-v834\.css/);
  assert.match(html,/guardian-zoom-center-v835\.css/);
  assert.match(html,/guardian-keyboard-guard-v832\.js/);
@@ -187,6 +187,7 @@ test('v1170 nearest stop rows select and disclose planned departures and officia
  assert.match(js,/button\.addEventListener\('click',\(\)=>\{/);
  assert.match(js,/button\.setAttribute\('aria-pressed','true'\)/);
  assert.match(js,/showStopDetails\(stop\)/);
+ assert.match(js,/nearby\.insertBefore\(detail,nearby\.children\[1\]\|\|null\)/);
  assert.match(js,/scheduledStopDepartures\(timetable,stop\.refs,Date\.now\(\),4\)/);
  assert.match(js,/https:\/\/go\.bkk\.hu\//);
  assert.match(js,/hh-transit-timetable-ready-v1170/);
