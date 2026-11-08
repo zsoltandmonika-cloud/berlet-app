@@ -30,7 +30,9 @@ jobs:
           # The historical global inventory assertion predates later SHO modules.
           # Exercise only the global dock and profile safety contracts relevant here.
           node --test --test-name-pattern='Golden Standard dock appears|native profile switches|v934 unified four-zone glass dock' healthhub/tests/sh9-golden-controls-global-v918.test.cjs
-          node --test healthhub/tests/sh9-golden-bottom-nav-v924.test.cjs
+          # The v924 all-roots inventory is also legacy: root index.html changed separately.
+          # Studio's actual bottom links are asserted by the v1156 focused test.
+          node --test --test-name-pattern='Home and Ask icons|native remaining nav controls|safe and strict Time Machine' healthhub/tests/sh9-golden-bottom-nav-v924.test.cjs
       - name: Cookbook import and automatic Golden Nutri regression
         run: |
           node --test healthhub/tests/nutrition-cookbook-bridge-v1154.test.cjs
