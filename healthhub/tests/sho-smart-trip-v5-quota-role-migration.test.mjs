@@ -29,8 +29,8 @@ test("Google pilot still reserves quota before every paid provider request",()=>
  const edge=readFileSync(
   "supabase/functions/hh-smart-trip-real-pilot-v1/index.ts","utf8"
  );
- assert.match(edge,/admin\.rpc\("hh_smart_trip_google_reserve"\)/);
- assert.ok(edge.indexOf("await reserveQuota(admin)")>0);
- assert.ok(edge.indexOf("await reserveQuota(admin)")<edge.indexOf("await fetchVariant(key,variant)"));
+ assert.match(edge,/admin\.rpc\("hh_smart_trip_google_reserve_pilot"/);
+ assert.ok(edge.indexOf("await reserveQuota(admin,reserved)")>0);
+ assert.ok(edge.indexOf("await reserveQuota(admin,reserved)")<edge.indexOf("await fetchVariant(key,variant)"));
  assert.match(edge,/quota\.daily_used!==reserved/);
 });
