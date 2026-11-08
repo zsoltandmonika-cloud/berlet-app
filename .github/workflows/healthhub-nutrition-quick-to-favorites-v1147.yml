@@ -1,0 +1,39 @@
+name: Nutrition Quick Intake → Favorites editor v1147
+on:
+  pull_request:
+    paths:
+      - 'healthhub/nutrition/hh-manual-intake-v1130.js'
+      - 'healthhub/nutrition/hh-quick-recipe-wheel-v635.js'
+      - 'healthhub/nutrition/index.html'
+      - 'healthhub/tests/nutrition-quick-intake-favorites-v1147.test.cjs'
+      - 'healthhub/tests/nutrition-manual-intake-v1130.test.cjs'
+      - '.github/workflows/healthhub-nutrition-quick-to-favorites-v1147.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'healthhub/nutrition/hh-manual-intake-v1130.js'
+      - 'healthhub/nutrition/hh-quick-recipe-wheel-v635.js'
+      - 'healthhub/nutrition/index.html'
+      - 'healthhub/tests/nutrition-quick-intake-favorites-v1147.test.cjs'
+      - 'healthhub/tests/nutrition-manual-intake-v1130.test.cjs'
+      - '.github/workflows/healthhub-nutrition-quick-to-favorites-v1147.yml'
+permissions:
+  contents: read
+jobs:
+  quick-intake:
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Static syntax and integration
+        run: |
+          node --check healthhub/nutrition/hh-manual-intake-v1130.js
+          node --check healthhub/nutrition/hh-quick-recipe-wheel-v635.js
+          node --test healthhub/tests/nutrition-quick-intake-favorites-v1147.test.cjs
+      - name: Legacy manual save and favorites order invariants
+        run: |
+          node --test healthhub/tests/nutrition-manual-intake-v1130.test.cjs
+          node --test healthhub/tests/nutrition-favorites-unified-reorder-v1146.test.cjs
