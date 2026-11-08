@@ -132,22 +132,40 @@ Deno.serve(async(req:Request)=>{
  if((raw as Record<string,unknown>).mode==="diagnose"){
   const ready={google_key:key.length>=25,admin_key:adminKey.length>20,
    public_key:supabaseKey("public").length>20,quota_readable:false};
+  // A failed pre-quota HTTP 503 MUST NOT permanently block the test button.
+  // Read both quotas without reserving, and allow a new explicit click only
+  // when the server can prove this day's Google usage is still ZERO.
+  let quotaUsedToday:number|null=null,quotaUsedMonth:number|null=null;
   if(ready.admin_key){
    try{
     const db=createClient(getenv("SUPABASE_URL"),adminKey,{
      auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false}
     });
     const day=new Date().toISOString().slice(0,10);
-    const {error}=await db.from("hh_smart_trip_google_quota")
-      .select("used").eq("period_kind","day").eq("period_start",day).limit(1);
-    ready.quota_readable=!error;
+    const month=day.slice(0,7)+"-01";
+    const [d,m]=await Promise.all([
+     db.from("hh_smart_trip_google_quota").select("used")
+       .eq("period_kind","day").eq("period_start",day).limit(1),
+     db.from("hh_smart_trip_google_quota").select("used")
+       .eq("period_kind","month").eq("period_start",month).limit(1)
+    ]);
+    const count=(r:typeof d)=>{
+     if(r.error||!Array.isArray(r.data)||r.data.length>1)return null;
+     const n=r.data.length?r.data[0]?.used:0;
+     return Number.isInteger(n)&&n>=0?n:null;
+    };
+    quotaUsedToday=count(d);quotaUsedMonth=count(m);
+    ready.quota_readable=quotaUsedToday!==null&&quotaUsedMonth!==null;
    }catch{}
   }
   const missing=Object.entries(ready).filter(([,ok])=>!ok)
     .map(([name])=>name);
+  const newAttemptAllowed=missing.length===0&&quotaUsedToday===0&&
+    quotaUsedMonth!==null&&quotaUsedMonth<200;
   return json(req,200,{schema:"sho.smart-trip.diagnostic/1",
    status:missing.length?"not_ready":"ready_for_real_test",
-   checks:ready,blocking:missing,googleRequests:0,quotaReserved:0,
+   checks:ready,blocking:missing,quotaUsedToday,quotaUsedMonth,
+   newAttemptAllowed,googleRequests:0,quotaReserved:0,
    source:"local_server_config",paidProviderContacted:false});
  }
  if(!adminKey||adminKey.length<20)return json(req,503,{
