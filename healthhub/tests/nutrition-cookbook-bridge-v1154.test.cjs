@@ -53,8 +53,10 @@ test('Studio remains normally browsable, import mode requires explicit query and
  assert.ok(studioHTML.indexOf('app.js?v=1154')<studioHTML.indexOf('hh-nutrition-export-v1154.js'));
  assert.match(studioJS,/a\.dataset\.recipeId=r\.id/);
  assert.match(studioJS,/LENA_RECIPE_NUTRITION_EXPORT_V1154/);
- assert.match(studioBridge,/params\.get\('hhNutritionImport'\)!=='1'/);
- assert.match(studioBridge,/addEventListener\('click',[\s\S]*?,true\)/);
+ assert.match(studioHTML,/hhAdd320ButtonV1160/);
+ assert.match(studioBridge,/source\(\)\?\.currentRecipeId\?\.\(\)/);
+ assert.match(studioBridge,/importMode=params\.get\('hhNutritionImport'\)==='1'/);
+ assert.match(studioBridge,/if\(importMode\)d\.addEventListener\('click',[\s\S]*?,true\)/);
  assert.match(studioBridge,/e\.target\.closest\('\.fav'\)/);
  assert.match(studioBridge,/HH_COOKBOOK_PORTION_MATH_V1154\.calculate\(n,320\)/);
  assert.match(studioBridge,/sessionStorage\.setItem\(storageKey,JSON\.stringify\(payload\)\)/);
@@ -87,6 +89,7 @@ test('Imported image in same blue/pink Golden Glassy diary frame, fallback for P
  assert.match(art,/imageRef:entry\.cookbookImport\.imageRef\|\|null/);
  assert.match(art,/scope:'personal'/);
  assert.match(studioBridge,/imageMissing:!image/);
+ assert.match(studioBridge,/imageMissingReason/);
  assert.match(importer,/item\.imageMissing/);
  assert.match(nutritionHTML,/hh-diary-favorites-art-v1150\.css/);
 });

@@ -1,0 +1,48 @@
+name: Nutrition · Cookbook One-Tap Repair v1160
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'recepttar-studio/index.html'
+      - 'recepttar-studio/app.js'
+      - 'recepttar-studio/hh-nutrition-export-v1154.js'
+      - 'recepttar-studio/hh-cookbook-one-tap-v1160.css'
+      - 'healthhub/nutrition/index.html'
+      - 'healthhub/nutrition/hh-cookbook-import-v1154.js'
+      - 'healthhub/nutrition/hh-bevitel-premium-v643.js'
+      - 'healthhub/tests/nutrition-cookbook-one-tap-v1160.test.cjs'
+      - 'healthhub/tests/nutrition-cookbook-bridge-v1154.test.cjs'
+      - 'healthhub/tests/recepttar-studio-topbar-off-v1156.test.cjs'
+      - '.github/workflows/nutrition-cookbook-one-tap-v1160.yml'
+  pull_request:
+    paths:
+      - 'recepttar-studio/index.html'
+      - 'recepttar-studio/app.js'
+      - 'recepttar-studio/hh-nutrition-export-v1154.js'
+      - 'recepttar-studio/hh-cookbook-one-tap-v1160.css'
+      - 'healthhub/nutrition/index.html'
+      - 'healthhub/nutrition/hh-cookbook-import-v1154.js'
+      - 'healthhub/nutrition/hh-bevitel-premium-v643.js'
+      - 'healthhub/tests/nutrition-cookbook-one-tap-v1160.test.cjs'
+      - 'healthhub/tests/nutrition-cookbook-bridge-v1154.test.cjs'
+      - 'healthhub/tests/recepttar-studio-topbar-off-v1156.test.cjs'
+      - '.github/workflows/nutrition-cookbook-one-tap-v1160.yml'
+permissions:
+  contents: read
+jobs:
+  cookbook-fix:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: End-to-end mocked one-tap import with no image/Dropbox and manual button
+        run: node --test healthhub/tests/nutrition-cookbook-one-tap-v1160.test.cjs
+      - name: Existing Nutrition/Recipe Studio contracts
+        run: |
+          node --test healthhub/tests/nutrition-cookbook-bridge-v1154.test.cjs
+          node --test healthhub/tests/nutrition-bevitel-recipe-studio-v1151.test.cjs
+          node --test healthhub/tests/recepttar-studio-topbar-off-v1156.test.cjs
+          node --test healthhub/tests/recepttar-studio-puter-local-first-v1159.test.cjs

@@ -139,6 +139,7 @@ function advance(){
    }
    const target=new URL('../../recepttar-studio/',window.location.href);
    target.searchParams.set('hhNutritionImport','1');
+   target.searchParams.set('v','1160');
    target.searchParams.set('profile',profile);
    if(selectedMeal)target.searchParams.set('meal',selectedMeal);
    window.location.assign(target.href);

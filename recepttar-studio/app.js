@@ -413,6 +413,7 @@ window.LENA_RECIPE_NUTRITION_EXPORT_V1154=Object.freeze({
  recipe:id=>{const r=getRecipe(id);return r&&!r.deleted?
   {id:r.id,title:r.title,category:r.category,mime:r.mime}:null},
  nutrition:id=>getNutrition(id),
+ currentRecipeId:()=>currentId,
  photo:nutritionImportPhotoV1154,
  showRecipe:id=>{if(getRecipe(id)){openRecipe(id,true);setMode('readable')}}
 });

@@ -5,9 +5,16 @@
 (function(w,d){
 'use strict';
 const params=new URLSearchParams(w.location.search);
-if(params.get('hhNutritionImport')!=='1')return;
-const profile=params.get('profile');
-if(!['zsolt','monika'].includes(profile))return;
+const importMode=params.get('hhNutritionImport')==='1';
+// The regular editor also exposes a clear diary button on the recipe detail.
+// The homepage card-click interception remains exclusive to importMode.
+const profileFromStore=()=>{
+ try{
+  const raw=w.localStorage.getItem('hh-profile')||w.localStorage.getItem('hh-nutrition-PREVIEW-profile');
+  return raw==='m'||raw==='monika'?'monika':raw==='z'||raw==='zsolt'?'zsolt':null;
+ }catch(_){return null}
+};
+const profile=['zsolt','monika'].includes(params.get('profile'))?params.get('profile'):profileFromStore();
 const MEALS=['Reggeli','Tízórai','Ebéd','Uzsonna','Vacsora','Egyéb'];
 const meal=MEALS.includes(params.get('meal'))?params.get('meal'):null;
 const storageKey='hh:recipe-studio:handoff:v1154';
@@ -18,13 +25,17 @@ function notice(message,error=false){
   el=d.createElement('div');
   el.id='hhRecipeImportStatusV1154';el.setAttribute('role','status');el.setAttribute('aria-live','polite');
   el.style.cssText='margin:8px 14px 13px;padding:12px 15px;border:1px solid #83e4d388;border-radius:15px;background:linear-gradient(125deg,#153b4c,#14283b);color:#e9fff6;font:700 13px/1.45 system-ui;box-shadow:0 8px 18px #0006';
-  const anchor=d.querySelector('#homeView .search-section');
+  const anchor=d.querySelector('header.app-header');
   if(anchor)anchor.insertAdjacentElement('afterend',el);else d.body.prepend(el);
+  el.style.position='relative';el.style.zIndex='17';
  }
  el.style.borderColor=error?'#f5a6b0aa':'#83e4d388';
  el.textContent=message;
 }
-notice('🥗 HealthHub naplózás: válassz egy receptkártyát. Alapadag: 320 g · automatikus mentés · '+(profile==='monika'?'Mónika':'Zsolt')+'.');
+if(importMode){
+ d.body.dataset.hhCookbookImport='1';
+ notice('🥗 Napi naplóba mentés · Kattints egyszer a kiválasztott receptre. Alapadag: 320 g · '+(profile==='monika'?'Mónika':profile==='zsolt'?'Zsolt':'Profil kiválasztása szükséges')+'.');
+}
 async function jpegData(blob){
  if(!blob)return null;
  if(!/^image\/(?:jpeg|png|webp|svg\+xml)$/i.test(blob.type||''))return null;
@@ -66,6 +77,10 @@ function source(){
 }
 async function choose(id){
  if(busy)return;busy=true;
+ if(!profile){
+  notice('⚠ Nincs kiválasztott HealthHub-profil. Nyisd meg a Táplálkozás modult, válassz profilt, majd az Étel → Léna Cookbook útvonalat.',true);
+  busy=false;return;
+ }
  const api=source(),recipe=api?.recipe?.(id);
  if(!recipe){notice('A recept nem érhető el. Frissítsd az oldalt.',true);busy=false;return;}
  try{
@@ -78,29 +93,52 @@ async function choose(id){
    return;
   }
   notice('⏳ '+recipe.title+' · 320 g előkészítése, receptkép átvitele…');
-  const blob=await api.photo(id);
-  const image=await jpegData(blob);
+  // Missing/offline art must NEVER block diary nutrition recording.
+  let image=null,imageMissingReason='';
+  try{
+   const blob=await api.photo(id);
+   image=await jpegData(blob);
+   if(!image)imageMissingReason='A receptnél nincs menthető kép.';
+  }catch(e){
+   imageMissingReason='A receptkép most nem érhető el; a tápértéket ettől még naplózzuk.';
+   console.warn('Cookbook image optional for diary handoff',e);
+  }
   // No fabricated image for PDF-only recipes; the diary shows its glass emoji.
   const token=(w.crypto?.randomUUID?.()||Date.now()+'-'+Math.random().toString(36).slice(2));
   const payload={
    schema:'healthhub.cookbook.handoff/1',token,createdAt:Date.now(),
    profile,meal,recipeId:String(recipe.id).slice(0,120),
    name:String(recipe.title).slice(0,80),image,
-   imageMissing:!image,grams:portion.grams,
+   imageMissing:!image,imageMissingReason,grams:portion.grams,
    finishedWeightGrams:portion.finishedWeightGrams,
    nutrients:portion.nutrients,source:'estimated'
   };
   try{w.sessionStorage.setItem(storageKey,JSON.stringify(payload))}
   catch(e){throw Error('Az átmeneti biztonságos adatátadás nem sikerült. Ellenőrizd a böngésző tárhelyét.')}
-  w.location.assign(new URL('../healthhub/nutrition/?hhCookbookImport=1',w.location.href).href);
+  w.location.assign(new URL('../healthhub/nutrition/?hhCookbookImport=1&v=1160',w.location.href).href);
  }catch(e){
   notice('⚠ Az import nem sikerült: '+String(e?.message||e).slice(0,180),true);
  }finally{busy=false}
 }
-d.addEventListener('click',e=>{
+if(importMode)d.addEventListener('click',e=>{
  const card=e.target?.closest?.('#grid .card[data-recipe-id]');
  if(!card||e.target.closest('.fav'))return;
  e.preventDefault();e.stopImmediatePropagation();
- choose(card.dataset.recipeId);
+ void choose(card.dataset.recipeId);
 },true);
+const btn=d.getElementById('hhAdd320ButtonV1160');
+if(btn)btn.addEventListener('click',e=>{
+ e.preventDefault();
+ const id=source()?.currentRecipeId?.();
+ if(!id){notice('⚠ Előbb nyiss meg egy receptet.',true);return}
+ void choose(id);
+});
+w.HH_LENA_COOKBOOK_IMPORT_V1160=Object.freeze({
+ version:1160,importMode,choose,
+ profile:()=>profile,
+ ready:id=>{
+  try{return !!w.HH_COOKBOOK_PORTION_MATH_V1154?.calculate(source()?.nutrition?.(id),320)}
+  catch(_){return false}
+ }
+});
 })(window,document);

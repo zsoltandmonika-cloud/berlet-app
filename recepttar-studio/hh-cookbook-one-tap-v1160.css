@@ -1,0 +1,28 @@
+/* Cookbook one-tap HealthHub diary action v1160.
+ * Only the individual recipe page; never changes the other SHO modules. */
+.recipe-editor-actions .hh-cookbook-add-v1160{
+ grid-column:1 / -1;
+ width:100%;
+ min-height:58px;
+ border:1px solid rgba(164,231,202,.74)!important;
+ background:linear-gradient(120deg,#183c40 0%,#215d5a 54%,#3b7156 100%)!important;
+ color:#edfff6!important;
+ font-weight:900!important;
+ font-size:16px;
+ letter-spacing:.015em;
+ box-shadow:0 6px 17px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.25);
+ text-shadow:0 1px 1px rgba(0,0,0,.25);
+}
+.recipe-editor-actions .hh-cookbook-add-v1160:hover{
+ background:linear-gradient(120deg,#20595d,#35816d)!important
+}
+.recipe-editor-actions .hh-cookbook-add-v1160:focus-visible{
+ outline:3px solid #aeebcf;outline-offset:3px
+}
+body[data-hh-cookbook-import="1"] #hhRecipeImportStatusV1154{
+ border-color:#82e2b1!important;
+ box-shadow:0 8px 24px rgba(0,0,0,.3);
+}
+@media(max-width:480px){
+ .recipe-editor-actions .hh-cookbook-add-v1160{font-size:14px;min-height:54px}
+}

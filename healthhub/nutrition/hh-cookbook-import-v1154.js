@@ -42,14 +42,21 @@ async function importOne(){
   if(api.getProfile()!==item.profile)
    throw Error('Közben profilt váltottál. Válts vissza '+(item.profile==='monika'?'Mónika':'Zsolt')+' profiljára a naplózáshoz.');
   notice('🥗 '+item.name+' · 320 g · naplózás és képszinkron…');
-  let imageRef=null;
+  let imageRef=null,imageNote='';
   if(item.image){
    if(typeof item.image!=='string'||item.image.length>875000||
       !/^data:image\/jpeg;base64,[a-z0-9+/=]+$/i.test(item.image))
     throw Error('A receptkép nem megfelelő formátumú.');
-   if(!vault?.connected?.()||typeof vault.save!=='function')
-    throw Error('A receptkép tartós mentéséhez Dropbox-kapcsolat szükséges.');
-   imageRef=await vault.save(item.profile,item.image);
+   if(vault?.connected?.()&&typeof vault.save==='function'){
+    try{
+     imageRef=await vault.save(item.profile,item.image);
+    }catch(e){
+     console.warn('Cookbook image vault unavailable; keeping valid diary nutrition',e);
+     imageNote=' A receptkép Dropbox-feltöltése sikertelen, a tápértéket naplóztam.';
+    }
+   }else{
+    imageNote=' A Dropbox-képtár nincs csatlakoztatva, a recept kép nélkül került be.';
+   }
    if(api.getProfile()!==item.profile)throw Error('Profilváltás történt a kép mentése közben.');
   }
   const result=api.recordCookbookPortion({
@@ -59,13 +66,13 @@ async function importOne(){
   });
   w.sessionStorage.removeItem(KEY);
   notice('✨ TADAAA! '+result.name+' · 320 g · '+Math.round(result.kcal)+' kcal a Napi naplóban.'+
-   (item.imageMissing?' A receptnél nem volt átvihető ételfotó.':'')+
+   (item.imageMissing?' A receptnél nem volt átvihető ételfotó.':imageNote)+
    ' Dropbox-szinkron ellenőrzése…');
   d.getElementById('log')?.scrollIntoView?.({behavior:'smooth',block:'start'});
   try{
    const synced=await api.syncNow?.();
    notice('✨ TADAAA! '+result.name+' · 320 g · '+Math.round(result.kcal)+' kcal.'+
-     (item.imageMissing?' Nincs menthető receptfotó.':'')+
+     (item.imageMissing?' Nincs menthető receptfotó.':imageNote)+
      (synced?' ☁ A Dropbox-szinkron kész.':' Mentve helyben, a felhőszinkronra vár.'));
   }catch(e){
    notice('✓ '+result.name+' · 320 g rögzítve. A Dropbox-szinkron később újrapróbálkozik.');
