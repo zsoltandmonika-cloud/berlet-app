@@ -89,7 +89,7 @@ test("Edge Function is 1 fixed test/day, 3 quota-reserved Google requests, witho
  assert.match(edge,/p_expected_daily_used:expectedDailyUsed/);
  assert.match(edge,/reserveQuota\(admin,reserved\)/);
  assert.match(edge,/if\(!quota.allowed\)/);
- assert.ok(edge.indexOf("await reserveQuota(admin)")<edge.indexOf("await fetchVariant(key,variant)"));
+ assert.ok(edge.indexOf("await reserveQuota(admin,reserved)")<edge.indexOf("await fetchVariant(key,variant)"));
  assert.match(edge,/googleRequests:attempted,quotaReserved:reserved/);
  assert.match(edge,/presentation:"map_free_text_only",ai_processing:"disabled",save:false/);
  assert.doesNotMatch(edge,/console\.log|console\.error|console\.warn/);
