@@ -76,7 +76,7 @@ test("No spoofed provider, AI, source, or map response can be evaluated",()=>{
 });
 test("Edge Function is 1 fixed test/day, 3 quota-reserved Google requests, without secrets in response",()=>{
  assert.match(edge,/Deno\.serve/);
- assert.match(edge,/mode!=="real_test"/);
+ assert.match(edge,/\["real_test","diagnose"\]/);
  assert.match(edge,/2026-11-27T15:00:00\+01:00/);
  assert.match(edge,/const VARIANTS=\[/);
  for(const label of ["all","bus","rail"])assert.match(edge,new RegExp('id:"'+label+'"'));
@@ -121,5 +121,34 @@ test("Stuck Google pilot must stop on delayed auth and display exact HTTP 503 re
  assert.match(client,/A keresés lezárult hibával/);
  assert.match(client,/networkStarted=true/);
  assert.match(client,/if\(!networkStarted\)alreadyRun=false/);
- assert.match(ui,/client\.mjs\?v=503-auth-timeout-fix1/);
+ assert.match(ui,/client\.mjs\?v=secret-compat-diagnostic-v2/);
+});
+
+test("New and legacy Supabase env keys are supported without disclosing secrets",()=>{
+ assert.match(edge,/SUPABASE_SECRET_KEYS/);
+ assert.match(edge,/SUPABASE_PUBLISHABLE_KEYS/);
+ assert.match(edge,/SUPABASE_SERVICE_ROLE_KEY/);
+ assert.match(edge,/SUPABASE_ANON_KEY/);
+ assert.match(edge,/const adminKey=supabaseKey\("admin"\)/);
+ assert.match(edge,/anon=supabaseKey\("public"\)/);
+ assert.match(edge,/error:"supabase_admin_secret_missing"/);
+ assert.match(edge,/error:"google_routes_key_missing"/);
+ assert.doesNotMatch(client,/SUPABASE_SECRET_KEYS|SUPABASE_PUBLISHABLE_KEYS/);
+});
+test("Free diagnostic is authenticated, fixed-fixture only, and cannot reserve quota or call Google",()=>{
+ const start=edge.indexOf('if((raw as Record<string,unknown>).mode==="diagnose"){');
+ const end=edge.indexOf('if(!adminKey||',start);
+ assert.ok(start>edge.indexOf('if(!await authorized(req))'));
+ assert.ok(end>start);
+ const block=edge.slice(start,end);
+ assert.match(block,/paidProviderContacted:false/);
+ assert.match(block,/googleRequests:0,quotaReserved:0/);
+ assert.doesNotMatch(block,/reserveQuota\s*\(|fetchVariant\s*\(|fetch\(GOOGLE/);
+ assert.doesNotMatch(block,/key:adminKey|key:key|secret_value|token_value/);
+ assert.match(ui,/id="diagnose"/);
+ assert.match(client,/mode:"diagnose"/);
+ assert.match(client,/googleRequests!==0/);
+ assert.match(client,/paidProviderContacted!==false/);
+ assert.match(client,/google_key:"Google Routes API-kulcs hiányzik/);
+ assert.match(client,/if\(failures.length\)/);
 });
