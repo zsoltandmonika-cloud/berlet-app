@@ -1,0 +1,38 @@
+name: Nutrition favorites unified reorder v1146
+on:
+  pull_request:
+    paths:
+      - 'healthhub/nutrition/hh-favorites-order-v1146.js'
+      - 'healthhub/nutrition/hh-quick-recipe-wheel-v635.js'
+      - 'healthhub/nutrition/index.html'
+      - 'healthhub/tests/nutrition-favorites-unified-reorder-v1146.test.cjs'
+      - '.github/workflows/healthhub-nutrition-favorites-v1146.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'healthhub/nutrition/hh-favorites-order-v1146.js'
+      - 'healthhub/nutrition/hh-quick-recipe-wheel-v635.js'
+      - 'healthhub/nutrition/index.html'
+      - 'healthhub/tests/nutrition-favorites-unified-reorder-v1146.test.cjs'
+      - '.github/workflows/healthhub-nutrition-favorites-v1146.yml'
+permissions:
+  contents: read
+jobs:
+  favorites:
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Syntax and reorder verification
+        run: |
+          node --check healthhub/nutrition/hh-favorites-order-v1146.js
+          node --check healthhub/nutrition/hh-quick-recipe-wheel-v635.js
+          node --test healthhub/tests/nutrition-favorites-unified-reorder-v1146.test.cjs
+      - name: Existing Nutrition regressions
+        run: |
+          node --test healthhub/tests/nutrition-quick-glass-v1137.test.cjs
+          node --test healthhub/tests/nutrition-manual-intake-v1130.test.cjs
+          node --test healthhub/tests/nutrition-v1133-ai-banana-regression.test.cjs
