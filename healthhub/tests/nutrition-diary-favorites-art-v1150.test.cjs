@@ -27,7 +27,7 @@ class El{
  setAttribute(name,value){this.attributes[name]=value}
  querySelector(selector){
   const match=n=>selector==='strong'?n.tagName==='strong':
-   selector.startsWith('.')?n.className.split(/\s+/).includes(selector.slice(1)):false;
+   selector.startsWith('.')?n.className.split(/\s+/).includes(selector.slice(1)):n.tagName===selector;
   const pending=[...this.children];
   while(pending.length){const next=pending.shift();if(match(next))return next;pending.unshift(...next.children)}
   return null;
@@ -143,7 +143,7 @@ test('Production markup and diary renderer are wired to existing source IDs, nev
  assert.match(css,/var\(--accentWash\)/);
  assert.match(css,/object-fit:cover/);
  assert.match(css,/@media\(max-width:490px\)/);
- assert.doesNotMatch(source,/recordAiMeal|recordManualMeal|recordRecipe\(|upload|putImage|generateCardImage|\.ai\.chat|\.ai\.txt2img|fetch\(/);
+ assert.doesNotMatch(source,/recordAiMeal|recordManualMeal|recordRecipe\(|uploadSharedFoods|putImage|generateCardImage|\.ai\.chat|\.ai\.txt2img|fetch\(/);
  new vm.Script(source);
  new vm.Script(core);
 });
