@@ -56,7 +56,7 @@ test('v804 has own HealthHub UI, origin chooser and no fabricated ETA or GPS acc
  const code=read('guardian-smart-hub-router-v804.js'),css=read('guardian-smart-hub-router-v804.css');
  for(const id of ['hhSmartHubFromV806','hhSmartHubToV806','hhSmartHubTripPlansV804','hhSmartHubTripStatusV804'])
   assert.ok(html.includes(id),id);
- assert.ok(html.includes('guardian-smart-hub-router-v804.js?v=1169-result-count&no960=840'));
+ assert.ok(html.includes('guardian-smart-hub-router-v804.js?v=1170-verified-flow&no960=840'));
  assert.ok(html.includes('guardian-smart-hub-router-v804.css?v=804-router-a'));
  assert.ok(js.includes('HH_SMART_HUB_ROUTER_V804'));
  assert.ok(js.includes("router.setPlace(mode,item)"));
@@ -66,4 +66,16 @@ test('v804 has own HealthHub UI, origin chooser and no fabricated ETA or GPS acc
  assert.ok(!code.includes("geolocation.getCurrentPosition"));
  assert.ok(!code.includes("localStorage.setItem"));
  assert.ok(css.includes('.hh-smart-trip-card-v804'));
+});
+
+test('v1170 static routes never masquerade as booked/timed journeys',()=>{
+ const src=read('guardian-smart-hub-router-v804.js');
+ assert.match(src,/⚠️ Statikus útvonalvázlat/);
+ assert.match(src,/chooseTrip\.disabled=!rating\.timing/);
+ assert.match(src,/Nincs ellenőrzött menetrendi idő/);
+ assert.match(src,/https:\/\/go\.bkk\.hu\//);
+ assert.match(src,/hh-transit-timetable-ready-v1170/);
+ assert.match(src,/prettyClock\(times\.departure\)/);
+ assert.match(src,/prettyClock\(times\.arrival\)/);
+ assert.match(src,/canFindLater/,'allow long-wait published services to be checked');
 });

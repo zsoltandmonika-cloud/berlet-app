@@ -100,7 +100,7 @@ test('v806 UI provides paired inputs, one-tap swap, favorites and guarded waitin
   assert.ok(html.includes(id),'Missing '+id);
  assert.ok(html.includes('guardian-smart-hub-fields-v806.js?v=1168-quiet-gps-errors'));
  assert.ok(html.includes('guardian-smart-hub-network-v806.js?v=806-network-a&no960=840'));
- assert.ok(html.includes('guardian-smart-hub-router-v804.js?v=1169-result-count&no960=840'));
+ assert.ok(html.includes('guardian-smart-hub-router-v804.js?v=1170-verified-flow&no960=840'));
  assert.match(js,/router\.setJourney\(state\.origin,state\.destination\)/);
  assert.match(js,/hh-smart-arrival-favorite-places-v806-/);
  assert.match(html,/id="hhSmartHubPriorityWaitingV806"[^>]*disabled[^>]*>Kevesebb várakozás<\/button>/);
@@ -144,7 +144,7 @@ test('v840 skips Telebusz 960 in ALL route recommendations, even if stale GTFS J
  const html=read('index.html');
  assert.match(routerSrc,/\['960','917','917A'\]\.includes\(String\(leg\.line\.id\)\.trim\(\)\)/);
  assert.match(html,/guardian-smart-hub-network-v806\.js\?v=806-network-a&no960=840/);
- assert.match(html,/guardian-smart-hub-router-v804\.js\?v=1169-result-count&no960=840/);
+ assert.match(html,/guardian-smart-hub-router-v804\.js\?v=1170-verified-flow&no960=840/);
 });
 
 test('v840 Kolosy tér → Bécsi út / Vörösvári út recognizes 17, 19 and 41 tram alternatives to bus 260',()=>{

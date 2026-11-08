@@ -46,14 +46,38 @@
     if(metres>maxMetres)continue;
     const key=p.name.toLocaleLowerCase('hu-HU')+'|'+Math.round(p.lat*10000)+'|'+Math.round(p.lng*10000);
     if(!candidates.has(key))candidates.set(key,{
-     name:p.name.slice(0,95),lat:p.lat,lng:p.lng,metres,lines:[]});
+     name:p.name.slice(0,95),lat:p.lat,lng:p.lng,metres,lines:[],refs:[]});
     const item=candidates.get(key);
     if(metres<item.metres){item.metres=metres;item.lat=p.lat;item.lng=p.lng}
     if(id&&!item.lines.includes(id)&&item.lines.length<5)item.lines.push(id);
+    if(id&&p.id!=null&&!item.refs.some(x=>x.line===id&&x.id===String(p.id))&&item.refs.length<12)
+     item.refs.push({line:id,id:String(p.id)});
    }
   }
   return [...candidates.values()].sort((a,b)=>a.metres-b.metres||
    a.name.localeCompare(b.name,'hu')).slice(0,limit);
+ }
+ // Actual planned GTFS departures only, from the validated local timetable.
+ // Never fabricate departure clocks for a static stop or route pattern.
+ function scheduledStopDepartures(timetable,refs,now=Date.now(),limit=3){
+  if(!timetable||!Array.isArray(timetable.trips)||!Array.isArray(refs)||
+     !Number.isFinite(now)||!Number.isFinite(Date.parse(timetable.generatedAt))||
+     now-Date.parse(timetable.generatedAt)>36*3600000||
+     now-Date.parse(timetable.generatedAt)<-60000)return [];
+  const wanted=new Set(refs.map(x=>String(x.line)+'|'+String(x.id)));
+  const matches=new Map(),start=Math.ceil(now/60000),end=start+12*60;
+  for(const trip of timetable.trips){
+   if(!trip||!Array.isArray(trip.stops)||typeof trip.line!=='string')continue;
+   for(const stop of trip.stops){
+    if(!Array.isArray(stop)||!wanted.has(trip.line+'|'+stop[0])||
+       !Number.isInteger(stop[2])||stop[2]<start||stop[2]>end)continue;
+    const key=trip.line+'|'+String(stop[0])+'|'+stop[2];
+    if(!matches.has(key))matches.set(key,{line:trip.line,id:String(stop[0]),
+     time:stop[2]*60000,tripId:String(trip.tripId||'')});
+   }
+  }
+  return [...matches.values()].sort((a,b)=>a.time-b.time||a.line.localeCompare(b.line,'hu')).slice(
+   0,Math.max(1,Math.min(8,Number.isInteger(limit)?limit:3)));
  }
  function init(){
   const d=w&&w.document;if(!d||!w.fetch)return;
@@ -90,6 +114,34 @@
    const lines=w.HH_SMART_HUB_ROUTER_V804?.networkLines||[];
    const matches=nearestStops(lines,place,4,1400);
    const note=d.createElement('small');note.className='hh-near-note-v1169';
+   const detail=d.createElement('div');detail.className='hh-near-selected-v1170';detail.hidden=true;
+   function showStopDetails(stop){
+    detail.replaceChildren();detail.hidden=false;
+    const name=d.createElement('b');name.textContent='🚏 '+stop.name;
+    detail.append(name);
+    const timetable=w.HH_SMART_HUB_ROUTER_V804?.timetable;
+    const matches=scheduledStopDepartures(timetable,stop.refs,Date.now(),4);
+    if(matches.length){
+     const label=d.createElement('small');label.textContent='Következő tervezett indulások (BKK GTFS):';
+     detail.append(label);
+     for(const planned of matches){
+      const line=d.createElement('span');line.className='hh-near-planned-v1170';
+      line.textContent=planned.line+' · '+new Intl.DateTimeFormat('hu-HU',{
+       timeZone:'Europe/Budapest',hour:'2-digit',minute:'2-digit',hour12:false
+      }).format(new Date(planned.time));
+      detail.append(line);
+     }
+    }else{
+     const missing=d.createElement('small');
+     missing.textContent='Ehhez a megállóhoz most nincs ellenőrzött indulási idő.';
+     detail.append(missing);
+    }
+    const link=d.createElement('a');link.href='https://go.bkk.hu/';
+    link.target='_blank';link.rel='noopener noreferrer';
+    link.textContent='BudapestGO · élő indulások ↗';
+    detail.append(link);
+   }
+
    if(!lines.length){note.textContent='Megállók betöltése…';nearby.append(note);return}
    if(!matches.length){note.textContent='Nincs igazolt megálló 1,4 km-en belül.';nearby.append(note);return}
    for(const stop of matches){
@@ -101,6 +153,9 @@
     const distance=d.createElement('span');distance.className='hh-near-stop-distance-v1169';
     distance.textContent=stop.metres+' m';button.append(name,distance);
     button.addEventListener('click',()=>{
+     for(const row of nearby.querySelectorAll('.hh-near-stop-v1169'))row.setAttribute('aria-pressed','false');
+     button.setAttribute('aria-pressed','true');
+     showStopDetails(stop);
      const map=w.HH_GUARDIAN_V761?.map;
      if(!map)return;
      try{
@@ -116,6 +171,7 @@
     });
     nearby.append(button);
    }
+   nearby.append(detail);
    note.textContent='Távolság légvonalban, nem menetrendi indulás';
    nearby.append(note);
    const target=destination;
@@ -364,6 +420,9 @@
    w.addEventListener('hh-transit-network-ready-v862',()=>{
     if(nearbyOrigin&&!nearby.hidden)showNearby(nearbyOrigin);
    });
+   w.addEventListener('hh-transit-timetable-ready-v1170',()=>{
+    if(nearbyOrigin&&!nearby.hidden)showNearby(nearbyOrigin);
+   });
   }
   go.addEventListener('click',()=>{
    if(origin&&destination){
@@ -406,5 +465,5 @@
   if(w.document.readyState==='loading')w.document.addEventListener('DOMContentLoaded',init);
   else init();
  }
- return {verified,displayName,profileOrigin,nearestStops,init,version:'1169'};
+ return {verified,displayName,profileOrigin,nearestStops,scheduledStopDepartures,init,version:'1170'};
 });

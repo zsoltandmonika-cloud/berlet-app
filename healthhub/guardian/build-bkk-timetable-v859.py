@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """HealthHub v859: compact verified timetable for route-planner pilot.
 Uses the SAME official BKK GTFS archive as build-bkk-routes-v790.py.
-Only timetable stop times for 260, 17, 19, 1, 41. Not live arrivals.
+Targeted planned stop times for 260, 17, 19, 1, 41, 218, 923 and 934. Not live arrivals.
 No user data, Google APIs or API keys.
 """
 from __future__ import annotations
@@ -14,7 +14,7 @@ import csv, io, json, tempfile, os, zipfile
 HERE=Path(__file__).resolve().parent
 OUTPUT=HERE/"bkk-timetable-v859.json"
 SOURCE="BKK Zrt., CC BY 4.0"
-LINES={"260","17","19","1","41"}
+LINES={"260","17","19","1","41","218","923","934"}
 LOCAL=ZoneInfo("Europe/Budapest")
 DAYS=4
 

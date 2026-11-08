@@ -46,3 +46,18 @@ test('best verified result ranks ahead of the preliminary result',()=>{
  const preliminary=sample(),verified=withSchedule(sample());
  assert.equal(router.rankOffers([preliminary,verified],now)[0],verified);
 });
+
+test('v1170 exact matched GTFS journey includes chronologically checked per-leg clocks',()=>{
+ const p=withSchedule(),timing=p.timing;
+ timing.legTimes=[{
+  departure:'2026-10-26T14:57:00+01:00',arrival:'2026-10-26T15:14:00+01:00'
+ }];
+ let checked=router.verifiedTiming(p,now);
+ assert.equal(router.prettyClock(checked.legTimes[0].departure),'14:57');
+ assert.equal(router.prettyClock(checked.legTimes[0].arrival),'15:14');
+ const tampered={...p,timing:{...timing,legTimes:[{
+  departure:'2026-10-26T15:30:00+01:00',arrival:'2026-10-26T16:00:00+01:00'
+ }]}};
+ assert.equal(router.verifiedTiming(tampered,now).legTimes,null,
+  'invalid per-leg times must not be shown as verified');
+});

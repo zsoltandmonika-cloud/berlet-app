@@ -1,4 +1,4 @@
-name: Family Guard · Jelenlegi hely és közeli megállók v1169
+name: Family Guard · Közeli megállók és hiteles BKK-idők v1170
 on:
   push:
     branches: [main]
@@ -7,11 +7,16 @@ on:
       - 'healthhub/guardian/guardian.js'
       - 'healthhub/guardian/guardian-origin-search-v836.js'
       - 'healthhub/guardian/guardian-smart-hub-router-v804.js'
+      - 'healthhub/guardian/guardian-bkk-timetable-v859.js'
+      - 'healthhub/guardian/build-bkk-timetable-v859.py'
+      - 'healthhub/guardian/guardian-trip-truth-v1170.css'
       - 'healthhub/guardian/guardian-origin-search-v836.css'
       - 'healthhub/guardian/guardian-smart-hub-fields-v806.js'
       - 'healthhub/tests/guardian-origin-search-v836.test.cjs'
       - 'healthhub/tests/smart-hub-router-v804.test.cjs'
       - 'healthhub/tests/smart-hub-v806.test.cjs'
+      - 'healthhub/tests/smart-hub-star-ranking-v857.test.cjs'
+      - 'healthhub/tests/guardian-bkk-schedule-coverage-v1170.test.cjs'
       - '.github/workflows/guardian-current-origin-v1165.yml'
   pull_request:
     paths:
@@ -19,11 +24,16 @@ on:
       - 'healthhub/guardian/guardian.js'
       - 'healthhub/guardian/guardian-origin-search-v836.js'
       - 'healthhub/guardian/guardian-smart-hub-router-v804.js'
+      - 'healthhub/guardian/guardian-bkk-timetable-v859.js'
+      - 'healthhub/guardian/build-bkk-timetable-v859.py'
+      - 'healthhub/guardian/guardian-trip-truth-v1170.css'
       - 'healthhub/guardian/guardian-origin-search-v836.css'
       - 'healthhub/guardian/guardian-smart-hub-fields-v806.js'
       - 'healthhub/tests/guardian-origin-search-v836.test.cjs'
       - 'healthhub/tests/smart-hub-router-v804.test.cjs'
       - 'healthhub/tests/smart-hub-v806.test.cjs'
+      - 'healthhub/tests/smart-hub-star-ranking-v857.test.cjs'
+      - 'healthhub/tests/guardian-bkk-schedule-coverage-v1170.test.cjs'
       - '.github/workflows/guardian-current-origin-v1165.yml'
 permissions:
   contents: read
@@ -41,11 +51,15 @@ jobs:
           node --check healthhub/guardian/guardian.js
           node --check healthhub/guardian/guardian-origin-search-v836.js
           node --check healthhub/guardian/guardian-smart-hub-fields-v806.js
+          node --check healthhub/guardian/guardian-smart-hub-router-v804.js
+          node --check healthhub/guardian/guardian-bkk-timetable-v859.js
           node --check healthhub/tests/guardian-origin-search-v836.test.cjs
       - name: Fullscreen GPS CTA, origin validation, existing BKK route regressions
         run: |
           node --test healthhub/tests/guardian-origin-search-v836.test.cjs
           node --test healthhub/tests/smart-hub-v806.test.cjs
           node --test healthhub/tests/smart-hub-router-v804.test.cjs
+          node --test healthhub/tests/smart-hub-star-ranking-v857.test.cjs
+          node --test healthhub/tests/guardian-bkk-schedule-coverage-v1170.test.cjs
           # The focused origin test already verifies map search ↔ destination ↔ router wiring.
           # Legacy v819/v968 suites contain obsolete asset-version assertions unrelated to GPS.

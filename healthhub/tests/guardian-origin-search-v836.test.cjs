@@ -5,7 +5,7 @@ const read=name=>fs.readFileSync(path.join(root,name),'utf8');
 const mod=require('../guardian/guardian-origin-search-v836.js');
 const fields=require('../guardian/guardian-smart-hub-fields-v806.js');
 test('v836 supports a verified origin, not made-up or other-profile addresses',()=>{
- assert.equal(mod.version,'1169');
+ assert.equal(mod.version,'1170');
  const g=fields,valid={name:'Bécsi út 10',lat:47.53,lng:19.037};
  assert.equal(mod.verified(valid,g,'m',false),true);
  assert.equal(mod.verified({...valid,lat:Infinity},g,'m',false),false);
@@ -24,7 +24,7 @@ test('v836 keeps the accepted v834/v835 layout and adds one compact fullscreen-o
     'guardianMapOriginResultsV836','guardianMapOriginStatusV836'])
   assert.equal((block.match(new RegExp('id="'+id+'"','g'))||[]).length,1,id);
  assert.match(html,/guardian-origin-search-v836\.css\?v=1169-nearby-stops-map-first/);
- assert.match(html,/guardian-origin-search-v836\.js\?v=1169-no-empty-results-jump/);
+ assert.match(html,/guardian-origin-search-v836\.js\?v=1170-stop-departures/);
  assert.match(html,/guardian-attribution-dot-v834\.css/);
  assert.match(html,/guardian-zoom-center-v835\.css/);
  assert.match(html,/guardian-keyboard-guard-v832\.js/);
@@ -162,4 +162,34 @@ test('v1169 My Location keeps fullscreen map and offers 4 nearby stops before ex
  assert.match(css,/#guardianMapNearbyStopsV1169/);
  assert.match(css,/#guardianMapNearbyStopsV1169\[hidden\]/);
  assert.match(router,/get resultCount\(\)\{return plans\.length\}/);
+});
+
+test('v1170 uses only exact, validated scheduled BKK stop departures',()=>{
+ const now=Date.parse('2026-11-08T19:00:00Z');
+ const minute=Math.ceil(now/60000);
+ const timetable={generatedAt:new Date(now-60000).toISOString(),trips:[
+  {line:'260',tripId:'gtfs-a',stops:[['A',minute+12,minute+12],['B',minute+20,minute+20]]},
+  {line:'218',tripId:'gtfs-b',stops:[['A',minute+15,minute+15],['C',minute+28,minute+28]]},
+  {line:'923',tripId:'other',stops:[['WRONG',minute+3,minute+3],['C',minute+26,minute+26]]}
+ ]};
+ const refs=[{line:'260',id:'A'},{line:'218',id:'A'}];
+ const result=mod.scheduledStopDepartures(timetable,refs,now);
+ assert.deepEqual(result.map(x=>x.line),['260','218']);
+ assert.deepEqual(result.map(x=>x.time),[(minute+12)*60000,(minute+15)*60000]);
+ assert.equal(mod.scheduledStopDepartures(timetable,[{line:'923',id:'A'}],now).length,0);
+ assert.equal(mod.scheduledStopDepartures({...timetable,generatedAt:new Date(now-37*3600000).toISOString()},refs,now).length,0);
+ assert.equal(mod.scheduledStopDepartures(null,refs,now).length,0);
+});
+test('v1170 nearest stop rows select and disclose planned departures and official live lookup',()=>{
+ const html=read('index.html'),js=read('guardian-origin-search-v836.js');
+ const css=read('guardian-trip-truth-v1170.css'),router=read('guardian-smart-hub-router-v804.js');
+ assert.match(html,/guardian-trip-truth-v1170\.css\?v=1170-real-departures/);
+ assert.match(js,/button\.addEventListener\('click',\(\)=>\{/);
+ assert.match(js,/button\.setAttribute\('aria-pressed','true'\)/);
+ assert.match(js,/showStopDetails\(stop\)/);
+ assert.match(js,/scheduledStopDepartures\(timetable,stop\.refs,Date\.now\(\),4\)/);
+ assert.match(js,/https:\/\/go\.bkk\.hu\//);
+ assert.match(js,/hh-transit-timetable-ready-v1170/);
+ assert.match(router,/hh-transit-timetable-ready-v1170/);
+ assert.match(css,/hh-near-stop-v1169\[aria-pressed="true"\]/);
 });

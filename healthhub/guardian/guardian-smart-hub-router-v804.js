@@ -168,26 +168,36 @@
 function renderTimeline(host,itinerary){
   const d=w.document,list=d.createElement('ol');
   list.className='hh-trip-flow-list-v854';
-  flowNode(list,'start',String(start?.name||'Indulási hely'),'Kiindulópont');
+  const checked=verifiedTiming(itinerary);
+  if(!checked)flowNode(list,'warning','Nincs ellenőrzött menetrendi idő',
+   'Ez statikus útvonalvázlat, nem időzített utazás. Indulási időért használd a BudapestGO-t.');
+  flowNode(list,'start',String(start?.name||'Indulási hely'),
+   checked?'Indulás · '+prettyClock(checked.departure)+' (tervezett)':'Kiindulópont');
   flowNode(list,'walk','Séta az első megállóhoz',
    'Kb. '+itinerary.approach+' m légvonalban · a gyalogos út eltérhet');
   itinerary.legs.forEach((leg,index)=>{
+   const times=checked?.legTimes?.[index]||null;
    if(index>0){
     const prev=itinerary.legs[index-1];
-    const meters=distance(prev.exit,leg.enter);
+    const metres=distance(prev.exit,leg.enter);
     flowNode(list,'walk','Átszállás · gyaloglás a következő megállóhoz',
-     'Kb. '+meters+' m légvonalban · csatlakozás nincs ellenőrizve');
+     'Kb. '+metres+' m légvonalban · '+(times?'menetrendi csatlakozás':'csatlakozás nincs ellenőrizve'));
    }
-   flowNode(list,'stop',leg.enter.name,'Felszállás');
+   flowNode(list,'stop',leg.enter.name,times?
+    'Felszállás · '+prettyClock(times.departure)+' (tervezett)':'Felszállás · időadat nélkül');
    flowNode(list,'ride',leg.line.headsign||'Irány a járat kijelzőjén',
-    leg.stopCount+' megálló · statikus BKK megállósorrend',leg.line.id,leg.line.mode);
-   flowNode(list,'stop',leg.exit.name,'Leszállás');
+    leg.stopCount+' megálló · '+(times?
+     prettyClock(times.departure)+'–'+prettyClock(times.arrival)+' (tervezett)':
+     'statikus BKK megállósorrend'),leg.line.id,leg.line.mode);
+   flowNode(list,'stop',leg.exit.name,times?
+    'Leszállás · '+prettyClock(times.arrival)+' (tervezett)':'Leszállás · időadat nélkül');
   });
   flowNode(list,'walk','Séta a célhoz',
    'Kb. '+itinerary.finish+' m légvonalban · a gyalogos út eltérhet');
-  flowNode(list,'end',String(target?.name||'Úti cél'),'Érkezési hely');
+  flowNode(list,'end',String(target?.name||'Úti cél'),
+   checked?'Érkezés · '+prettyClock(checked.arrival)+' (tervezett)':'Érkezési hely · nincs időadat');
   host.append(list);
-}
+ }
 function renderGuide(){
   const host=$('hhSmartHubGuideV805');
   if(!host||!w.document)return;
@@ -196,9 +206,12 @@ function renderGuide(){
   const heading=$('hhSmartHubGuideTitleV805'),number=$('hhSmartHubGuideProgressV805');
   const detail=$('hhSmartHubGuideStepV805');
   if(heading)heading.textContent='Trip Plan Flow · '+activeGuide.itinerary.legs.map(l=>l.line.id).join(' → ');
-  if(number)number.textContent='Teljes útvonal · '+activeGuide.itinerary.transfer+
-   (activeGuide.itinerary.transfer===1?' átszállás':' átszállás')+
-   ' · '+Math.round(activeGuide.itinerary.walk)+' m gyaloglás (légvonal)';
+  const checked=verifiedTiming(activeGuide.itinerary);
+  if(number)number.textContent=(checked?
+   prettyClock(checked.departure)+' → '+prettyClock(checked.arrival)+
+   ' · '+checked.durationMinutes+' perc (tervezett) · ':
+   'Nincs ellenőrzött indulási idő · ')+activeGuide.itinerary.transfer+
+   ' átszállás · '+Math.round(activeGuide.itinerary.walk)+' m gyaloglás (légvonal)';
   if(detail){detail.replaceChildren();renderTimeline(detail,activeGuide.itinerary)}
 }
  function startGuide(itinerary){
@@ -283,7 +296,13 @@ function renderGuide(){
   // Delays must be computed from matched journeys upstream, never inferred here.
   const waiting=typeof t.waitMinutes==='number'?t.waitMinutes:NaN;
   const walking=typeof t.walkMinutes==='number'?t.walkMinutes:NaN;
-  return {departure,arrival,durationMinutes:Math.round((arrival-departure)/60000),
+  const rawLegClocks=Array.isArray(t.legTimes)&&t.legTimes.length===p.legs.length
+   ?t.legTimes.map(x=>({departure:Date.parse(x?.departure),arrival:Date.parse(x?.arrival)})):null;
+  const legTimes=rawLegClocks&&rawLegClocks.every((x,i)=>Number.isFinite(x.departure)&&
+   Number.isFinite(x.arrival)&&x.departure>=departure&&x.arrival<=arrival&&
+   x.arrival>x.departure&&(i===0||x.departure>=rawLegClocks[i-1].arrival))
+   ?rawLegClocks:null;
+  return {departure,arrival,durationMinutes:Math.round((arrival-departure)/60000),legTimes,
    waitMinutes:Number.isFinite(waiting)&&waiting>=0?waiting:null,
    walkMinutes:t.walkVerified===true&&Number.isFinite(walking)&&walking>=0?walking:null,
    estimatedWalkMinutes:Number.isFinite(walking)&&walking>=0?walking:null,
@@ -381,11 +400,11 @@ function renderGuide(){
 
   const timeMatches=plans.filter(p=>verifiedTiming(p)).length;
   note.textContent=plans.length?
-   plans.length+' BKK útvonaljavaslat · '+(timeChoice.mode!=='now'&&timeMatches===0
-    ?'A választott időpontra nincs igazolt menetrendi találat; a megjelenő útvonalak csak statikus lehetőségek.'
-    :timetable?timeMatches+' útvonalhoz ellenőrzött tervezett időpont, valós idejű késés nélkül.'
-    :'menetrendi időadat még nem elérhető, csak statikus útvonalak.')+
-    ' · gyaloglás légvonalból becsült.':
+   (timeMatches>0?
+    plans.length+' BKK útvonaljavaslat · '+timeMatches+
+     ' menetrendileg ellenőrzött utazás (tervezett idő, nem élő késés).':
+    plans.length+' statikus BKK útvonalvázlat · nincs ellenőrzött indulási idő ezekhez a járatsorokhoz. A valós utazást a BudapestGO-ban ellenőrizd.')+
+   ' A séta légvonalból becsült.':
    (broad?'Nem találtam ellenőrizhető statikus útvonalat a rendelkezésre álló BKK-mintákon. Lehet másik útvonal vagy több átszállás.':
     'A 260-as, 17-es és 19-es járat között nincs statikus összeköttetés. A teljesebb BKK-adatok betöltéséig ez még korlátozott pilot.');
   plans.forEach((p,i)=>{
@@ -395,11 +414,16 @@ function renderGuide(){
    const rating=routeRating(p);
    let currentPlan=p;
    let timeHeader=null,clocks=null,minutes=null,boarding=null,provisional=null;
+   row.dataset.timed=rating.timing?'verified':'static';
+   if(!rating.timing)row.classList.add('hh-trip-untimed-v1170');
    const heading=d.createElement('span');heading.className='hh-trip-stars-v857';
-   heading.textContent='★'.repeat(rating.stars)+'☆'.repeat(5-rating.stars);
-   heading.setAttribute('role','img');
-   heading.setAttribute('aria-label',rating.stars+' csillag az ötből. '+rating.description);
-   heading.title=rating.description;
+   heading.textContent=rating.timing?'★'.repeat(rating.stars)+'☆'.repeat(5-rating.stars):
+    '⚠️ Statikus útvonalvázlat';
+   if(rating.timing)heading.setAttribute('role','img');
+   heading.setAttribute('aria-label',rating.timing?rating.stars+
+    ' csillag az ötből. '+rating.description:
+    'Csak statikus megállósorrend, nem ellenőrzött időzített útvonal');
+   heading.title=rating.timing?rating.description:'Nincs ellenőrzött menetrendi egyezés';
    const transfers=d.createElement('span');transfers.className='hh-trip-transfer-count-v854';
    transfers.textContent=p.transfer+' átszállás';
    head.append(heading,transfers);row.append(head);
@@ -443,7 +467,7 @@ function renderGuide(){
     row.append(boarding);
    }else{
     provisional=d.createElement('small');provisional.className='hh-trip-card-time-v854';
-    provisional.textContent='Nincs igazolt indulási idő ehhez az útvonalhoz · csak statikus útvonal';
+    provisional.textContent='Ehhez a járatsorhoz nincs ellenőrzött indulási és érkezési idő. A BudapestGO-ban nézd meg az aktuális járatokat.';
     row.append(provisional);
    }
    const actions=d.createElement('div');actions.className='hh-smart-trip-actions-v805 hh-trip-actions-v854';
@@ -455,6 +479,13 @@ function renderGuide(){
    const next=d.createElement('button');next.type='button';
    next.className='hh-next-button-v939';
    next.textContent='◷ Következő járat';
+   // A sparse but published service (for example, the 260) can depart more
+   // than 90 minutes from now. Permit the verified 12h search for covered lines.
+   const scheduledLines=new Set(timetable?.trips?.map(t=>t.line)||[]);
+   const canFindLater=!!timetable&&p.legs.every(leg=>scheduledLines.has(String(leg.line.id)))&&
+    typeof w.HH_BKK_TIMETABLE_V859?.nextTiming==='function';
+   next.disabled=!rating.timing&&!canFindLater;
+   if(next.disabled)next.title='A járatsorhoz nincs ellenőrzött menetrendi adat';
    next.setAttribute('aria-expanded','false');
    next.setAttribute('aria-controls','hhNextDeparturesV939-'+i);
    next.setAttribute('aria-label','Ugyanezen az útvonalon a megjelenített járatot követő indulás');
@@ -504,6 +535,9 @@ function renderGuide(){
     if(provisional){provisional.remove();provisional=null}
     const updatedRating=routeRating(currentPlan,now);
     heading.textContent='★'.repeat(updatedRating.stars)+'☆'.repeat(5-updatedRating.stars);
+    row.dataset.timed='verified';row.classList.remove('hh-trip-untimed-v1170');
+    chooseTrip.disabled=false;chooseTrip.textContent='✓ Kiválasztom ezt az útvonalat';
+    next.disabled=false;
     heading.setAttribute('aria-label',updatedRating.stars+' csillag az ötből. '+updatedRating.description);
     heading.title=updatedRating.description;
     const status=d.createElement('span');
@@ -518,9 +552,19 @@ function renderGuide(){
    ticket.href='https://bkk.hu/mobiljegy';ticket.target='_blank';
    ticket.rel='noopener noreferrer';ticket.textContent='🎫 Jegy / bérlet ↗';
    actions.append(flow,next,map,ticket);
+   if(!rating.timing){
+    const live=d.createElement('a');live.href='https://go.bkk.hu/';
+    live.target='_blank';live.rel='noopener noreferrer';
+    live.className='hh-trip-budapestgo-v1170';
+    live.textContent='🚌 BudapestGO · Valódi indulások ↗';
+    actions.append(live);
+   }
    const chooseTrip=d.createElement('button');chooseTrip.type='button';
    chooseTrip.className='hh-active-route-select-v862';
-   chooseTrip.textContent='✓ Kiválasztom ezt az útvonalat';
+   chooseTrip.textContent=rating.timing?'✓ Kiválasztom ezt az útvonalat':
+    'Indulási idő nélkül nem indítható';
+   chooseTrip.disabled=!rating.timing;
+   if(!rating.timing)chooseTrip.title='Előbb ellenőrizd az útvonalat a BudapestGO-ban';
    chooseTrip.setAttribute('aria-label','Ezt a(z) '+p.legs.map(l=>l.line.id).join(' → ')+' útvonalat választom, felszállás nélkül');
    chooseTrip.addEventListener('click',()=>{
     const active=w.HH_GUARDIAN_ACTIVE_TRANSIT_V862;
@@ -555,7 +599,9 @@ function renderGuide(){
     const res=await w.fetch(url,{cache:'no-store'});
     if(!res.ok)continue;
     const checked=module.validate(await res.json());
-    if(checked){timetable=checked;render();return true}
+    if(checked){timetable=checked;render();
+     w.dispatchEvent?.(new w.CustomEvent('hh-transit-timetable-ready-v1170'));
+     return true}
    }catch(_){}
   }
   timetable=null;return false;
@@ -646,5 +692,7 @@ function renderGuide(){
   if(w.document.readyState==='loading')w.document.addEventListener('DOMContentLoaded',init);
   else init();
  }
- return {distance,validate,nearStops,plan,rankCandidates,itinerarySteps,verifiedTiming,routeRating,rankOffers,prettyClock,setPreference,setPlace,setJourney,startGuide,setTimeChoice,get timeChoice(){return {...timeChoice}},get selection(){return {start,target}},get preference(){return priority},get networkLines(){return network||feed},get resultCount(){return plans.length},version:'862'};
+ return {distance,validate,nearStops,plan,rankCandidates,itinerarySteps,verifiedTiming,routeRating,rankOffers,prettyClock,setPreference,setPlace,setJourney,startGuide,setTimeChoice,get timeChoice(){return {...timeChoice}},get selection(){return {start,target}},get preference(){return priority},get networkLines(){return network||feed},get timetable(){
+  return timetable&&Date.now()-Date.parse(timetable.generatedAt)<36*3600000?timetable:null
+ },get resultCount(){return plans.length},version:'862'};
 });

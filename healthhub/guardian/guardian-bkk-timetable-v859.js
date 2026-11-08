@@ -21,7 +21,7 @@
    if(!Array.isArray(row)||row.length!==3||typeof row[0]!=='string'||
     typeof row[1]!=='string'||!row[1]||!Array.isArray(row[2])||
     row[2].length<2||row[2].length>300)continue;
-   if(!['260','17','19','1','41'].includes(row[0]))continue;
+   if(!['260','17','19','1','41','218','923','934'].includes(row[0]))continue;
    let prev=-Infinity,stops=[];
    for(const stop of row[2]){
     if(!Array.isArray(stop)||stop.length!==3||typeof stop[0]!=='string'||
