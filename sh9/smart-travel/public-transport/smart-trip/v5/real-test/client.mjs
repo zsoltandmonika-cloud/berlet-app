@@ -88,13 +88,23 @@ async function run(){
  active=true;alreadyRun=true;$("run").disabled=true;$("run").setAttribute("aria-busy","true");
  const start=performance.now(),controller=new AbortController();
  const timeout=setTimeout(()=>controller.abort(),41000);
+ let authTimer=null,networkStarted=false;
  try{
+  show("status","🔐 Family Guard bejelentkezés ellenőrzése...");
   const a=authClient();
   if(!a)throw Error("A Family Guard hitelesítés nem elérhető.");
-  const {data,error}=await a.client.auth.getSession();
+  // The previous pilot could wait forever at getSession(), before fetch's
+  // AbortController had any effect. Make auth itself strictly time-bounded.
+  const {data,error}=await Promise.race([
+   a.client.auth.getSession(),
+   new Promise((_,reject)=>{authTimer=setTimeout(()=>
+    reject(new Error("A Family Guard munkamenet ellenőrzése 8 másodperc alatt nem válaszolt. A Google-keresés nem indult el.")),8000)})
+  ]);
+  clearTimeout(authTimer);authTimer=null;
   if(error||!data?.session?.user?.id||!data.session.access_token)
    throw Error("Jelentkezz be a Family Guardba ugyanebben a böngészőben.");
   show("status","🌍 Google Routes: 3 valódi keresési profil fut, a BKK/MÁV/Volán jelenlétét ellenőrzöm...");
+  networkStarted=true;
   const response=await fetch(ENDPOINT,{method:"POST",headers:{
    "Content-Type":"application/json",
    "Authorization":"Bearer "+data.session.access_token,
@@ -117,7 +127,9 @@ async function run(){
     pilot_fixed_fixture_only:"A teszteset adatait nem szabad módosítani.",
     quota_guard_unavailable:"A költségvédelmi adatbázis-védelem nem érhető el."
    };
-   throw Error((msg[payload?.error]||"Hálózati/szerverhiba: "+response.status)+
+   const code=payload?.error||"ismeretlen";
+   throw Error((msg[code]||"Hálózati/szerverhiba: "+response.status)+
+    " [HTTP "+response.status+", hibakód: "+code+"]."+
     " Google-kérések: "+(payload?.googleRequests||0)+
     "; kvótafoglalás: "+(payload?.quotaReserved||0)+".");
   }
@@ -127,8 +139,16 @@ async function run(){
    "A három valós keresési kérés meghaladta az időkeretet. A szerveroldali költségvédelmi keret továbbra is érvényes.":
    (e?.message||"A valós teszt nem sikerült.");
   show("status","⚠️ "+msg);
+  show("timing","A keresés lezárult hibával "+
+   ((performance.now()-start)/1000).toFixed(1).replace(".",",")+
+   " mp alatt. Nem kaptunk ellenőrzött Google-útvonalat.");
+  $("timing").hidden=false;
  }finally{
-  clearTimeout(timeout);active=false;$("run").removeAttribute("aria-busy");
+  if(authTimer!==null)clearTimeout(authTimer);
+  clearTimeout(timeout);
+  if(!networkStarted)alreadyRun=false;
+  active=false;$("run").removeAttribute("aria-busy");
+  $("run").disabled=networkStarted;
  }
 }
 $("run").addEventListener("click",()=>{void run()});
