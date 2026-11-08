@@ -2013,6 +2013,7 @@ $("#saveText").onclick=()=>{if(!currentId)return;setText(currentId,$("#textEdito
 window.LENA_NUTRI_STANDARD_CONTEXT_V1155=Object.freeze({
  allRecipes,getRecipe,getReadable,getNutrition,recipeServingText,
  puterAvailable,ensureSignedIn:ensurePuterSignIn,loadNutritionCache,
+ getMonthlyUsage:()=>puter.auth.getMonthlyUsage(),
  chatNutrition:async prompt=>{
   let response;
   try{response=await puter.ai.chat(prompt,{model:STUDIO_TEXT_MODEL,normalize:true,verbosity:'low'})}

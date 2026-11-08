@@ -10,6 +10,28 @@ const api=()=>w.LENA_NUTRI_STANDARD_CONTEXT_V1155;
 const byId=id=>d.getElementById(id);
 let running=false,stopRequested=false;
 const required=['kcal','protein_g','carbs_g','fat_g'];
+// v1157: Before an AI call, check the official remaining monthly allowance.
+// Puter owns the native upgrade dialog; this prevents repeated denied calls,
+// it does not conceal billing information or pretend AI output was created.
+const MIN_AI_REMAINING_MICROCENTS=5000000; // $0.05 safety buffer
+async function guardPuterBudget(){
+ const c=api();
+ if(typeof c?.getMonthlyUsage!=='function')return;
+ let usage;
+ try{usage=await c.getMonthlyUsage()}catch(e){
+  console.warn('Puter usage check unavailable; keeping normal SDK billing enforcement',e);
+  return;
+ }
+ const remaining=usage?.allowanceInfo?.remaining;
+ if(!Number.isFinite(remaining)||remaining>=MIN_AI_REMAINING_MICROCENTS)return;
+ const e=new Error('A Puter AI-keret alacsony ('+Math.max(0,Math.round(remaining/1000000))+' cent). A generálás a számlázási felugrók ismétlődésének megelőzésére megállt. A korábban mentett receptek megmaradnak.');
+ e.code='low_balance_guard';
+ throw e;
+}
+function isCreditFailure(e){
+ const value=String(e?.code||'')+' '+String(e?.message||e||'');
+ return /insufficient[_ -]?funds|low.?balance|low_balance_guard|monthly.?(credit|balance)|not.enough.credit|billing.hard.limit|quota.exhausted/i.test(value);
+}
 const numeric=(v,min,max)=>v!==null&&v!==undefined&&v!==''&&Number.isFinite(Number(v))&&Number(v)>=min&&Number(v)<=max;
 const round=(v,digits=1)=>Math.round(Number(v)*10**digits)/10**digits;
 const servingsMatch=s=>String(s||'').trim().match(/^(\d{1,3})\s*(fő|fo|adag|személy|szemely|darab|db|stangli|szelet|pohár|pohar)$/iu);
@@ -124,6 +146,7 @@ async function generateOne(id,opts={}){
  if(!opts.force&&!needs(id))return {ok:true,skipped:true,record:old};
  await c.ensureSignedIn();
  if(!c.puterAvailable())throw Error('A Puter Nutri Info AI nem érhető el.');
+ await guardPuterBudget();
  const mode=!opts.ingredientsChanged&&hasMacro(old)&&!hasWeight(old)&&(!old.ingredientsSignature||old.ingredientsSignature===signature(id))?'yield':'full';
  const raw=await c.chatNutrition(makePrompt(id,mode));
  const row=normalizeEstimation(raw,id,mode,opts);
@@ -155,7 +178,7 @@ async function batch(){
  const c=api();
  if(!c){status('A recepttár még nem töltődött be.',true);return;}
  running=true;stopRequested=false;refresh();
- let done=0,failed=0,consecutive=0,skipped=0;
+ let done=0,failed=0,consecutive=0,skipped=0,creditStopped=false;
  try{
   status('☁ Puter kapcsolat ellenőrzése és hiányzó Nutri Info előkészítése…');
   await c.ensureSignedIn();
@@ -176,11 +199,16 @@ async function batch(){
     failed++;consecutive++;
     console.warn('Nutri Info batch',r.id,e);
     status('⚠ '+(i+1)+' / '+total+' · '+r.title+': '+String(e?.message||e).slice(0,100),true);
+    if(isCreditFailure(e)){
+     creditStopped=true;
+     status('⚠ A Puter AI-keret elfogyott vagy túl alacsony. A további AI-hívásokat leállítottam, hogy ne ismétlődjön a számlázási figyelmeztetés. '+done+' recept kész; a többi később folytatható.',true);
+     break;
+    }
     if(consecutive>=3){status('⚠ Három egymást követő hiba miatt megállítottam. '+done+' recept mentve. Ellenőrizd a Puter AI keretét, majd folytatható.',true);break;}
    }
    await new Promise(resolve=>setTimeout(resolve,240));
   }
-  if(!stopRequested&&consecutive<3){
+  if(!stopRequested&&!creditStopped&&consecutive<3){
    const s=refresh();
    status('✓ Feldolgozás kész · '+done+' új Nutri Info · '+skipped+' már kész · '+failed+' hiba · '+s.missing+' még hiányzik.'+(s.unstructured?' '+s.unstructured+' recept strukturálásra vár.':''));
   }

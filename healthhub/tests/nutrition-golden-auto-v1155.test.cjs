@@ -100,3 +100,27 @@ test('Legacy manual measured entry explicitly records provenance',()=>{
  assert.match(app,/AI által becsült készétel-tömeg/);
  assert.match(automation,/Puter-felhőmentésének/);
 });
+
+test('Puter low balance guard stops before a denied AI request and leaves cloud data unchanged',async()=>{
+ const s=setup();
+ s.context.getMonthlyUsage=async()=>({allowanceInfo:{remaining:4000000}});
+ await assert.rejects(s.api.generateOne('recipe-1'),/Puter AI-keret alacsony/);
+ assert.equal(s.aiCalls(),0);
+ assert.equal(s.remote.size,0);
+ assert.equal(s.cache.size,0);
+ assert.equal(s.api.stats().missing,1);
+});
+test('Adequate balance allows existing AI generation and verification',async()=>{
+ const s=setup();
+ s.context.getMonthlyUsage=async()=>({allowanceInfo:{remaining:25000000}});
+ const result=await s.api.generateOne('recipe-1');
+ assert.equal(result.ok,true);
+ assert.equal(s.aiCalls(),1);
+ assert.equal(s.api.stats().ready,1);
+});
+test('A credit rejection is fail-fast during bulk operation (no three repeated SDK prompts)',()=>{
+ assert.match(automation,/if\(isCreditFailure\(e\)\)\{/);
+ assert.match(automation,/creditStopped=true/);
+ assert.match(automation,/if\(!stopRequested&&!creditStopped&&consecutive<3\)/);
+ assert.match(app,/getMonthlyUsage:\(\)=>puter\.auth\.getMonthlyUsage\(\)/);
+});
