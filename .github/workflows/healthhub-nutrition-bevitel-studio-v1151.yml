@@ -1,0 +1,39 @@
+name: Nutrition Bevitel · fourth Recept Studio tile v1151
+on:
+  pull_request:
+    paths:
+      - 'healthhub/nutrition/index.html'
+      - 'healthhub/nutrition/hh-bevitel-category-studio-v644.js'
+      - 'healthhub/nutrition/hh-bevitel-recipe-studio-v1151.css'
+      - 'healthhub/tests/nutrition-bevitel-recipe-studio-v1151.test.cjs'
+      - '.github/workflows/healthhub-nutrition-bevitel-studio-v1151.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'healthhub/nutrition/index.html'
+      - 'healthhub/nutrition/hh-bevitel-category-studio-v644.js'
+      - 'healthhub/nutrition/hh-bevitel-recipe-studio-v1151.css'
+      - 'healthhub/tests/nutrition-bevitel-recipe-studio-v1151.test.cjs'
+      - '.github/workflows/healthhub-nutrition-bevitel-studio-v1151.yml'
+permissions:
+  contents: read
+jobs:
+  bevitel:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Syntax and 2×2 photo-card and image-editor contract
+        run: |
+          node --check healthhub/nutrition/hh-bevitel-category-studio-v644.js
+          node --check healthhub/tests/nutrition-bevitel-recipe-studio-v1151.test.cjs
+          node --test healthhub/tests/nutrition-bevitel-recipe-studio-v1151.test.cjs
+      - name: Existing Nutrition diary / scanner / Favorite safety
+        run: |
+          node --test healthhub/tests/nutrition-manual-intake-v1130.test.cjs
+          node --test healthhub/tests/nutrition-diary-favorites-art-v1150.test.cjs
+          node --test healthhub/tests/nutrition-scan-one-tap-favorites-v1149.test.cjs
+          node --test healthhub/nutrition/tests/lena-ai-scan-v753.test.cjs
