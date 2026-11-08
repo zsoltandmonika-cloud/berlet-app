@@ -119,7 +119,10 @@ async function diagnose(){
    !["ready_for_real_test","not_ready"].includes(d.status)||
    d.googleRequests!==0||d.quotaReserved!==0||
    d.paidProviderContacted!==false||
-   !d.checks||!Array.isArray(d.blocking))
+   !d.checks||!Array.isArray(d.blocking)||
+   typeof d.newAttemptAllowed!=="boolean"||
+   !(d.quotaUsedToday===null||(Number.isInteger(d.quotaUsedToday)&&d.quotaUsedToday>=0))||
+   !(d.quotaUsedMonth===null||(Number.isInteger(d.quotaUsedMonth)&&d.quotaUsedMonth>=0)))
     throw Error("A szerver nem hiteles, költségmentes diagnosztikai választ adott.");
   const names={
    google_key:"Google Routes API-kulcs hiányzik a Supabase Secretsből",
@@ -128,14 +131,26 @@ async function diagnose(){
    quota_readable:"A kvótatáblát a szerver nem tudja olvasni"
   };
   const failures=d.blocking.map(k=>names[k]||"Ismeretlen konfigurációs hiba");
+  // The previous HTTP 503 happened BEFORE quota reservation. Successful
+  // diagnosis must clear stale error UI and re-arm ONLY with verified 0 usage.
+  $("timing").hidden=true;
+  $("out").hidden=true;
   if(failures.length){
    show("status","🔴 Diagnózis: "+failures.join("; ")+
-    ". Google-hívás: 0, költség: 0. Fizetős tesztet ne indíts.");
+    ". Google-hívás: 0. A valódi teszt nem indítható.");
+   $("run").disabled=true;
+  }else if(!d.newAttemptAllowed){
+   show("status","🔒 A konfiguráció rendben, de a Google-kvótaszámláló szerint már "+
+    (d.quotaUsedToday===null?"ismeretlen számú":d.quotaUsedToday)+" foglalás van ma. "+
+    "Biztonságból új valós teszt nem indítható. Google-hívás: 0 az ellenőrzés során.");
    $("run").disabled=true;
   }else{
-   show("status","✅ A szerver kulcsai és a költségvédelmi tábla elérhetők. "+
-    "Ez még nem igazolja a Google-kulcs érvényességét; Google-hívás: 0.");
-   $("run").disabled=alreadyRun;
+   alreadyRun=false;
+   $("run").disabled=false;
+   show("status","✅ A szerver működik, a napi Google-kvótában 0 foglalás van. "+
+    "A korábbi 503-as próbálkozás nem fogyasztott kvótát: a valódi teszt gombja "+
+    "újra használható. A Google-kulcs érvényességét még nem vizsgáltuk. "+
+    "Google-hívás: 0 az ellenőrzés során.");
   }
  }catch(e){
   show("status","⚠️ Konfigurációs ellenőrzés: "+
