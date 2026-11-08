@@ -1,0 +1,48 @@
+/* HealthHub Nutrition Diary × Favorites v1150 · scaled Golden Glassy artwork.
+ * Uses the same --accent / --accentWash variables as the active Favorite card.
+ */
+.hh-meal-diary-content .entry > .hh-diary-fav-row-v1150{
+ display:flex;align-items:center;gap:11px;min-width:0
+}
+.hh-diary-fav-frame-v1150{
+ position:relative;display:flex;align-items:center;justify-content:center;
+ width:52px;height:52px;flex:0 0 52px;border-radius:14px;overflow:hidden;isolation:isolate;
+ border:1.5px solid color-mix(in srgb,var(--accent) 86%,white);
+ background:radial-gradient(ellipse at 24% 18%,#ffffff46,transparent 39%),
+  radial-gradient(ellipse at 78% 91%,#f0b77c35,transparent 48%),
+  linear-gradient(145deg,#254c67,#0d1f3e 65%,#443552);
+ box-shadow:0 5px 15px #0007,0 0 11px var(--accentWash),inset 0 1px #ffffff65;
+}
+.hh-diary-fav-frame-v1150:after{
+ content:"";position:absolute;inset:4px;border:1px solid #ffffff38;
+ border-radius:10px;z-index:3;pointer-events:none
+}
+.hh-diary-fav-frame-v1150[data-theme="coffee"]{
+ background:radial-gradient(circle at 50% 60%,#e9be8966,transparent 55%),
+  linear-gradient(145deg,#173650,#704334 70%,#1c182d)
+}
+.hh-diary-fav-frame-v1150[data-theme="fruit"]{
+ background:radial-gradient(circle at 55% 55%,#ffe4a855,transparent 48%),
+  linear-gradient(145deg,#234e57,#284b4a 48%,#432e51)
+}
+.hh-diary-fav-frame-v1150[data-theme="sweet"]{
+ background:radial-gradient(circle at 65% 75%,#ffd4a652,transparent 48%),
+  linear-gradient(145deg,#35405a,#654560 62%,#29223e)
+}
+.hh-diary-fav-emoji-v1150{
+ position:relative;z-index:1;font-size:27px;line-height:1;
+ filter:drop-shadow(0 3px 4px #06142696)
+}
+.hh-diary-fav-photo-v1150{
+ position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+ z-index:2;display:block
+}
+.hh-diary-fav-copy-v1150{display:block;flex:1;min-width:0;overflow-wrap:anywhere}
+.hh-diary-fav-copy-v1150 strong{display:block;line-height:1.32}
+.hh-diary-fav-copy-v1150 small{line-height:1.35}
+@media(max-width:490px){
+ .hh-meal-diary-content .entry > .hh-diary-fav-row-v1150{gap:8px}
+ .hh-diary-fav-frame-v1150{width:44px;height:44px;flex-basis:44px;border-radius:12px}
+ .hh-diary-fav-frame-v1150:after{inset:3px;border-radius:9px}
+ .hh-diary-fav-emoji-v1150{font-size:23px}
+}
