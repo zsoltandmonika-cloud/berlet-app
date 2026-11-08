@@ -90,11 +90,20 @@ async function onChange(event){
 }
 function init(){
  if(!$('ncPlaceListV2'))return;
- person=$('ncPlacePersonV2').value='zsolt';
+ person=w.localStorage?.getItem('hh-profile')==='m'?'monika':'zsolt';
+ $('ncPlacePersonV2').value=person;
  $('ncPlacePersonV2').addEventListener('change',e=>{person=e.target.value==='monika'?'monika':'zsolt';render()});
  $('ncPlaceLocalV2').addEventListener('change',e=>{
-  try{w.localStorage.setItem(ROOT,e.target.checked?'on':'off')}catch(_){}
-  mark(e.target.checked?'Helyi helyriasztás bekapcsolva. A Family Guard alkalmazást tartsd nyitva.':'Helyi helyriasztás kikapcsolva.');
+  const checked=!!e.target.checked;
+  try{w.localStorage.setItem(ROOT,checked?'on':'off')}catch(_){}
+  // An explicit tap may request Android/browser notification permission.
+  // This is only a foreground geofence alert, not closed-app delivery.
+  if(checked&&w.Notification?.permission==='default'&&typeof w.Notification.requestPermission==='function'){
+   void w.Notification.requestPermission().then(status=>{
+    if(status!=='granted')mark('Buddy-popup engedélyezve; az Android rendszerértesítéshez külön böngészőengedély szükséges.',true);
+   }).catch(()=>{});
+  }
+  mark(checked?'Helyi riasztás aktív a nyitott Family Guardban.':'Helyi helyriasztás kikapcsolva.');
   render();
  });
  $('ncPlaceListV2').addEventListener('change',e=>void onChange(e));
