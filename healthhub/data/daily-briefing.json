@@ -1,89 +1,118 @@
 {
   "schemaVersion": 1,
-  "date": "2026-11-07",
-  "generatedAt": "2026-11-07T12:08:05+01:00",
-  "headline": "A reggel fő témái: With Stephen Miller pick, Trump readies for a battle; Paraguay's president impeached and under house arrest after bank collapse",
+  "date": "2026-11-08",
+  "generatedAt": "2026-11-08T12:20:42+01:00",
+  "headline": "A reggel fő témái: What we know so far after Krakow gun attack; Houthis say at least 33 killed in Saudi air strike",
   "sections": [
     {
       "id": "executive",
       "title": "Vezetői összefoglaló",
       "items": [
-        "BBC World: With Stephen Miller pick, Trump readies for a battle",
-        "BBC World: Paraguay's president impeached and under house arrest after bank collapse",
-        "BBC World: Pope in 'pretty good health' as he starts Latin America tour",
-        "BBC World: AI stocks climb after trillions wiped from market values"
+        "BBC World: What we know so far after Krakow gun attack",
+        "BBC World: Houthis say at least 33 killed in Saudi air strike",
+        "BBC World: 'Flat', 'tired', 'cynical': Unusually gloomy Kiwis deliver New Zealand's tightest election in years",
+        "BBC World: Israel's president tasks opposition leader Eisenkot with forming government"
       ]
     },
     {
       "id": "overnight",
       "title": "Éjszakai fejlemények",
       "items": [
-        "BBC World: With Stephen Miller pick, Trump readies for a battle",
-        "BBC World: Paraguay's president impeached and under house arrest after bank collapse",
-        "BBC World: Pope in 'pretty good health' as he starts Latin America tour"
+        "BBC World: What we know so far after Krakow gun attack",
+        "BBC World: Houthis say at least 33 killed in Saudi air strike"
       ]
     },
     {
       "id": "geopolitics",
       "title": "Külpolitika / Geopolitika",
       "items": [
-        "BBC World: With Stephen Miller pick, Trump readies for a battle",
-        "BBC World: Paraguay's president impeached and under house arrest after bank collapse",
-        "BBC World: Pope in 'pretty good health' as he starts Latin America tour"
+        "BBC World: What we know so far after Krakow gun attack",
+        "BBC World: Houthis say at least 33 killed in Saudi air strike",
+        "BBC World: 'Flat', 'tired', 'cynical': Unusually gloomy Kiwis deliver New Zealand's tightest election in years"
       ]
     },
     {
       "id": "hungary",
       "title": "Magyarország",
       "items": [
-        "Index.hu: Külföld - Orbán Anita bejelentette, 2028-ban ismét Magyarország védheti Európa keleti határait - Index.hu",
-        "Kontroll: Magyarország költi az egyik legkevesebbet az EU-ban szociális ellátásokra - Kontroll",
-        "Világgazdaság: Közeledhet a nagy gázfordulat, Kapitány István most lengethette be a jövőt – Magyarország alighanem a román tengerterületekre kacsintgat - Világgazdaság"
+        "Telex: Magyar Péter a krakkói támadásról: Magyarország a lengyel nép mellett áll - Telex",
+        "Helló Magyar: Lesújtó uniós béradatok: Magyarország a harmadik legrosszabb helyen végzett - Helló Magyar",
+        "Dívány: Riasztó uniós adatok: Magyarország a halálozási lista élmezőnyében - Dívány"
       ]
     },
     {
       "id": "economy",
       "title": "Gazdaság / Piacok",
       "items": [
-        "BBC Business: AI stocks climb after trillions wiped from market values",
-        "BBC Business: Why the US midterms sparked an AI stock selloff",
-        "BBC Business: How does it affect me if share prices fall?"
+        "BBC Business: Government 'looking seriously' at banning under-16s from Vinted and eBay",
+        "BBC Business: Labubu hype seemed unstoppable, now the fluffy monster mania is dying"
       ]
     },
     {
       "id": "technology",
       "title": "Technológia / AI",
       "items": [
-        "BBC Technology: Elon Musk appears to signal the end of the road for Cybertruck",
-        "BBC Technology: AI stocks climb after trillions wiped from market values",
-        "BBC Technology: Why the US midterms sparked an AI stock selloff"
+        "BBC Technology: Government 'looking seriously' at banning under-16s from Vinted and eBay",
+        "BBC Technology: Can the Zelda remake capture the magic of the original?"
       ]
     },
     {
       "id": "risks",
       "title": "Mai kockázatok",
       "items": [
-        "Figyelmi pont: Elon Musk appears to signal the end of the road for Cybertruck (BBC Business)."
+        "Figyelmi pont: What we know so far after Krakow gun attack (BBC World).",
+        "Figyelmi pont: Houthis say at least 33 killed in Saudi air strike (BBC World).",
+        "Figyelmi pont: US offers $20m reward for information about Iran's nuclear programme (BBC World)."
       ]
     },
     {
       "id": "watch",
       "title": "Mi számít igazán / Figyelmi szint",
       "items": [
-        "BBC World: With Stephen Miller pick, Trump readies for a battle",
-        "BBC World: Paraguay's president impeached and under house arrest after bank collapse"
+        "BBC World: What we know so far after Krakow gun attack",
+        "BBC World: Houthis say at least 33 killed in Saudi air strike"
       ]
     }
   ],
   "sources": [
     {
-      "title": "With Stephen Miller pick, Trump readies for a battle",
+      "title": "What we know so far after Krakow gun attack",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/crp3gg2z171go?at_medium=RSS&at_campaign=rss",
+      "url": "https://www.bbc.co.uk/news/articles/cmd7q15drwgeo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-08"
+    },
+    {
+      "title": "Houthis say at least 33 killed in Saudi air strike",
+      "publisher": "BBC World",
+      "url": "https://www.bbc.co.uk/news/articles/c65yn1v99ypmo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-08"
+    },
+    {
+      "title": "'Flat', 'tired', 'cynical': Unusually gloomy Kiwis deliver New Zealand's tightest election in years",
+      "publisher": "BBC World",
+      "url": "https://www.bbc.co.uk/news/articles/cxr5yyg2nj9eo?at_medium=RSS&at_campaign=rss",
       "publishedAt": "2026-11-07"
     },
     {
-      "title": "Paraguay's president impeached and under house arrest after bank collapse",
+      "title": "Israel's president tasks opposition leader Eisenkot with forming government",
+      "publisher": "BBC World",
+      "url": "https://www.bbc.co.uk/news/articles/cmy8367lj5xlo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-07"
+    },
+    {
+      "title": "US offers $20m reward for information about Iran's nuclear programme",
+      "publisher": "BBC World",
+      "url": "https://www.bbc.co.uk/news/articles/c6d091ev3p0jo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-07"
+    },
+    {
+      "title": "UK cannot 'cherry pick' EU single market deal, Barnier tells BBC",
+      "publisher": "BBC World",
+      "url": "https://www.bbc.co.uk/news/articles/c9kgjj206nzpo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-07"
+    },
+    {
+      "title": "Paraguay's former president charged after bank collapse",
       "publisher": "BBC World",
       "url": "https://www.bbc.co.uk/news/articles/c68jzzvjgdy9o?at_medium=RSS&at_campaign=rss",
       "publishedAt": "2026-11-07"
@@ -95,118 +124,70 @@
       "publishedAt": "2026-11-07"
     },
     {
-      "title": "AI stocks climb after trillions wiped from market values",
-      "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/c35ynnpzdq51o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-06"
-    },
-    {
-      "title": "New wave of bomb threats hit European airlines",
-      "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cq62yy064vjpo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-06"
-    },
-    {
-      "title": "Spain's rail authorities face European fraud probe after Urda rail disaster",
-      "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/c6x2wwnz5445o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-06"
-    },
-    {
-      "title": "Kenyan doomsday cult leader given life sentence for murdering 191 people",
-      "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cm5yne5984l0o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-06"
-    },
-    {
-      "title": "Two dead after bus crashes in France, officials say",
-      "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cmly00l4p3lwo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-06"
-    },
-    {
-      "title": "Külföld - Orbán Anita bejelentette, 2028-ban ismét Magyarország védheti Európa keleti határait - Index.hu",
-      "publisher": "Index.hu",
-      "url": "https://news.google.com/rss/articles/CBMiogFBVV95cUxPWFVDb0lCc2o2ZUlJWENUQXlKam14Y3ZKTHFydEpPM3J5aWlvaXhYYV9VdXR3QnZYX2JXOFRzN2ttTEwyTWg3Tl9KR2RjS3VJZWNGcUdvdnhYUkNmM2RnLUF5aG02OHhzRHhoS19Db2hYSXZHc0J3dS1SNFlzTDlaeWdaczVQOGtNSFVZUjVQUk8wMHlPOUNOdGZZSmtoRkxtc3c?oc=5",
+      "title": "Magyar Péter a krakkói támadásról: Magyarország a lengyel nép mellett áll - Telex",
+      "publisher": "Telex",
+      "url": "https://news.google.com/rss/articles/CBMirAFBVV95cUxOdFhwemdFZzhlT3YyZzdrSngycEh1M2hzenp6OEhpbW5JWVhUM2lUWDRJa0RMNERDWmVRU2Zqam9ILXV5NWxldG1VakJtc2dtcFNnQWJpQjNwM3Q2WjUwN2pmZnBCX3lxVV8xeTQyTC0tUUk0MjM4SWUxek82SVhBVkRJSUZORXpBWmdLbG1MLUQyajRCTXJRLWFKOFdZeHR1V2k2RDQ3b2swQlNj?oc=5",
       "publishedAt": "2026-11-07"
     },
     {
-      "title": "Magyarország költi az egyik legkevesebbet az EU-ban szociális ellátásokra - Kontroll",
-      "publisher": "Kontroll",
-      "url": "https://news.google.com/rss/articles/CBMiugFBVV95cUxOcmJoOFplVDVlQmxyNjlOM0pfbWstZWI2SndnT2dJQW5PRkE1eTBjSFRNWWdVcm9qQ3RmTTZVbzVBeGNaZ2JMZm1RaFN6SngycmhpdV9BclRaeFRjUVhJVEh6ZUtqMEJ1ZHZXd2RUbXhhMjB2VGpTcWNBS2FRZ2VXdV9vSXZSNXlObDV6a0prOVpMSkJFZm5tTGl0MFRwUUVrUzdXeUR3YkR6Q1QwdkF5WUVmaTFXZHdtdkE?oc=5",
-      "publishedAt": "2026-11-07"
+      "title": "Lesújtó uniós béradatok: Magyarország a harmadik legrosszabb helyen végzett - Helló Magyar",
+      "publisher": "Helló Magyar",
+      "url": "https://news.google.com/rss/articles/CBMieEFVX3lxTE52UDlOSm1PVTQwVVpHVS04Zm9WbHlsZWVkVE53SDFFT2NxNzYtRVJwN2lyZDMwNXkxTzRjamtvSlk4RGNIMkZnVmJmYTY3RlRJa1JsMmtXSzVxMGhpV3VpT2VzZTY2Yld3RnhFdWc2VVlJalZJdTZhTg?oc=5",
+      "publishedAt": "2026-11-08"
     },
     {
-      "title": "Közeledhet a nagy gázfordulat, Kapitány István most lengethette be a jövőt – Magyarország alighanem a román tengerterületekre kacsintgat - Világgazdaság",
-      "publisher": "Világgazdaság",
-      "url": "https://news.google.com/rss/articles/CBMipgFBVV95cUxOQjZDRnNPWUtXdG9pX0ROWjVQX2xQMTdURjJqV1VpZHpMUFJLMEVhQkpJX3A2aktvdXlZWGgyU2FBVW0xS1hYSE96eVlvWld3d1VfT0ViWTI3WHoyYXpVRnN4bTJyV1RnT2o3SWJWQnZYNDJaN3Z3V1dTUkd4azlKUnhaakZiaE4yMHhRYUd0N0hydUo0WmxvQWJ5Ri10VnBwb1ZVR1h3?oc=5",
-      "publishedAt": "2026-11-07"
-    },
-    {
-      "title": "Pusztuljon a gumi, törjön a fékpedál! Magyarország legmenőbb vezetéstechnikai tréningjén jártunk - | hvg.hu",
-      "publisher": "| hvg.hu",
-      "url": "https://news.google.com/rss/articles/CBMipAFBVV95cUxOUHNkMlIxTW5YNkpPYWc1ODU2SDRxd3gyUlN2ODVKSWVoalBYbWN6YldRZkVmMzhxSDFIMm9QNGc2dGFCS3U3QkFKV3AyM0wxcC1GVlROYVFuSGlNRjZJckNrcS1GRmtGakZJMDdZbHhseFB0NUM1V3hNS2o0aENyTHhSYjlVNGdTdXRMTHlhZk9DWU90bnRoSGFNNnpRSGZnWFBrWQ?oc=5",
-      "publishedAt": "2026-11-07"
-    },
-    {
-      "title": "Margaret Island: Eső | Magyarország, szeretlek! zenekara - MédiaKlikk",
-      "publisher": "MédiaKlikk",
-      "url": "https://news.google.com/rss/articles/CBMimwFBVV95cUxNcWp3VElZc0gzc2Rva0pVTmJ1T0pKMXpKbGlGbFBCS3pzWFhDOUlqZV9CSlB6M1BfV042NnJydkZrRG5fWjljN0dKLTJCbkhLN00xVHdCdmh5YkVRa0Rrc2hnckt4dHloQ0tiR0szLVVWYkhHMTNaZzlZYnZsYmNsODE3cTE4QVk5YzlCQWtpWElUd1dQVWpNQ1libw?oc=5",
-      "publishedAt": "2026-11-07"
+      "title": "Riasztó uniós adatok: Magyarország a halálozási lista élmezőnyében - Dívány",
+      "publisher": "Dívány",
+      "url": "https://news.google.com/rss/articles/CBMikAFBVV95cUxOaUhDczA4UXNWSGVRRThrYzNMWTlIUlJLeTNnWnFWWU0yVWtON1R0U3c4UXVxMm5Zc2U4N2QxMEljQV9OVTk5MlBKUnVqWlNvWGZHSW55WXBxa1Y3Q2FoUXFyTl9Zc3FaaGpIcFpqX1ZOQnFVeXBxSUxQWVRkdm52YU9tekVKVHA2UGJFUVhob3k?oc=5",
+      "publishedAt": "2026-11-08"
     },
     {
       "title": "Mindössze 11 ember él Magyarország legkisebb településén, itt a toplista - ORIGO",
       "publisher": "ORIGO",
       "url": "https://news.google.com/rss/articles/CBMigwFBVV95cUxQQUVXOVNDd2pscUt6d0JIWmgwbXB2eXZ3aVhwNlVxZERnMXlBdG5oMElqNVhnNlZvOUFxaWR5M0hLOU1IUm9rVnYtRGd6Nmpld184SVpicElIMDVWT1ZhMEhMc2RmSDZZR2hUMzBUSVRlVm5PQWdaNDgzQll0VzdHYWNUWQ?oc=5",
+      "publishedAt": "2026-11-08"
+    },
+    {
+      "title": "Kiderült a hazai euróbevezetés pontos menetrendje: a vártnál korábban is lecserélhetjük a forintot - Pénzcentrum",
+      "publisher": "Pénzcentrum",
+      "url": "https://news.google.com/rss/articles/CBMi6gFBVV95cUxQMFFnV1ZwS1FnSU96MnlZRmkxTkhvWTlEMG0tMlJlcXhVSVZZVVpLOVY0YWJTTGpOLUdLUklyNy1sY0JzY2NiMWRvYnZTbjVQZUVocmQ3QVIySzJJd19QR0xtSmJZV21mMTZmX0R2eHhpbGJBOHJoVUVNbUZnT3d5cUM0Q1pHVHY2SVZmRC1TODRNWTdpUlVKUUZOQjVnSVdhUzFDalYzel9NdXhzemxVckM4SHRrNkpzVlpBVk5uc2lJck1aaDlSUE9XZWZ0LUhVemNMemlKWWV6eU5kaVYza0FUVWZmb082TUE?oc=5",
+      "publishedAt": "2026-11-08"
+    },
+    {
+      "title": "Két fontos táblázat Magyarország gazdasági helyzetéről – nem ott van a baj, ahol keressük - Összkép -",
+      "publisher": "Összkép -",
+      "url": "https://news.google.com/rss/articles/CBMivwFBVV95cUxNZHM3VWdrdHk1TVh6clBocEN1RlJTVnBkcXh1SHJ4Tl9Iclg4eFBDakw4ekR3THF0NzZkMTdaYWhmYXFVUG1DMXlHSHV3OURTUDE0RVdUcWhpN2NsdXlaam9qM2k2dWdVc0Vjamd2dk5MWTlpZFlxdFFfOWQ5OTNHaHpVQzVKQlBwMUhMekNHZEw5cGg0UTMyR3Njd3R6Q0c1SElKNU14YzZTR2szcnMtUG5tSEpLcmhXQWpIWjFtUQ?oc=5",
       "publishedAt": "2026-11-07"
     },
     {
-      "title": "Magyarország hároméves halasztást kért az egyik EU-s szabályra, ám csak egyet adnának - Economx.hu",
-      "publisher": "Economx.hu",
-      "url": "https://news.google.com/rss/articles/CBMiygFBVV95cUxQSXVjcDFpNEhXY0hhV2ZlcG83RmZvUVR2RlJPdGRDWFVWdnBNWXBFQ0NIWVM3WXg4a2UxNzNKTnEyMVQwRGhDcW95V1JKZ3g4UElyOGFoVnd3cUFFenZVNmk0RGw5UVVMNldDdHZObGdaVHJKWnJJR2J2UlQ2NEg4MzNUaG9MUkZXckxvOE01ZUF0VVFoM2hUSEJxVWFEMUpmSFFDS0F1X3BqWHNXZjRTX3N0WWgwb0NjRWtNSFZLMnNCQzMzb25iQk5n?oc=5",
+      "title": "Új fejezet nyílik az Európai Beruházási Bank és Magyarország együttműködésében - AzÜzlet",
+      "publisher": "AzÜzlet",
+      "url": "https://news.google.com/rss/articles/CBMinwFBVV95cUxNREdhRmQ0SnJQZGVDbV9nSHFBTHZSS1JqalpMUWVhMGpBUVJtblEtakVRZWNwLXRPYzVCR0xxbFk3blQzTE9xUkpOM1ZJOWE2Vk1XVGQ5LTgtYmgwdzJrSERrLXQ0dHE0QllYOEQtcS1XWmJSMHFtcG1MMlVFQlhnQnQ5MC01Z09NT09MXzdxVE9WcG5ZU1RpdXZlR000RnM?oc=5",
       "publishedAt": "2026-11-07"
     },
     {
-      "title": "Budapesten az EPP-delegáció: a médiaszabadság és Magyarország jövője a középpontban - www.pmonline.hu",
-      "publisher": "www.pmonline.hu",
-      "url": "https://news.google.com/rss/articles/CBMirwFBVV95cUxOYm5XVV96TWZueWZqeXZQejZjNVFiY1pWWC1nRENlcDJzSkE4TllzYktSNDZna2xPWVJ2VTRjZjlUQnVTanQxMGJBeUZzUk96VWU3enVmbTg3bnlqcnhVQ0VVUV9UcWtyZlV2YVdmalVHM2Z1ZmFOaEFXYjltR3Noa1IyUzJ1UE1MQ1RCVk1UV0M4Y2twbDNjcy1mUTExdk5Zdm1fQnJuc1pSdlZJeEZB?oc=5",
+      "title": "„Magyarország a lengyel nép mellett áll” – üzent Magyar Péter a gyilkos támadás után - Infostart",
+      "publisher": "Infostart",
+      "url": "https://news.google.com/rss/articles/CBMivAFBVV95cUxOdjU3a2F0TER5SVlwTDFtemluNHdHYmp2STVJeG8zNUNDdHNyM1l6UDZuZjNpRDV1c2psYzhCVTR3WTJ1eDVVcGlNVE9OcTVzZURhQmVPQzVFZkxnZHI4QTFpa1lzWDB4UTIydzJwTkoxWWIzeU01bHJZeFFGWjhaa010czFhODJhTy14UldlZ2JHa3d6SXRuUUN2YXA1QXRtdUZmU2d1NkpWNENfMzlNeGs0R3ZIc0lKMTZqNg?oc=5",
       "publishedAt": "2026-11-07"
     },
     {
-      "title": "Why the US midterms sparked an AI stock selloff",
+      "title": "Government 'looking seriously' at banning under-16s from Vinted and eBay",
       "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/crlykkzwwpydo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-06"
+      "url": "https://www.bbc.co.uk/news/articles/cmzxjvpqrjxro?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-08"
     },
     {
-      "title": "How does it affect me if share prices fall?",
+      "title": "Labubu hype seemed unstoppable, now the fluffy monster mania is dying",
       "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/c33zdz2m1e2o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-06"
+      "url": "https://www.bbc.co.uk/news/articles/cmvg652l927lo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-08"
     },
     {
-      "title": "Why smoky bacon crisps threaten to reignite rows over EU rules",
-      "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/cm1dwwqrr1kvo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-06"
-    },
-    {
-      "title": "Elon Musk appears to signal the end of the road for Cybertruck",
-      "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/cq1j33w7d232o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-06"
-    },
-    {
-      "title": "PM tells firms to publish salaries in job adverts ahead of new law",
-      "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/cmd9343z3zw2o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-06"
-    },
-    {
-      "title": "Global stocks plunge as fears over US AI slowdown spread to Asia and Europe",
+      "title": "Can the Zelda remake capture the magic of the original?",
       "publisher": "BBC Technology",
-      "url": "https://www.bbc.co.uk/news/articles/cmn04705rd8jo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-06"
+      "url": "https://www.bbc.co.uk/news/articles/cm8xznl0n1q4o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-08"
     }
   ]
 }
