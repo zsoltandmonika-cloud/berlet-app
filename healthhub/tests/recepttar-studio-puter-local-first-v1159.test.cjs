@@ -38,7 +38,7 @@ test('Exhausted funds block metered Puter calls and cache preflight',async()=>{
  assert.equal(s.reads(),1);
  assert.equal((await s.api.check()).reason,'low-balance');
  assert.equal(s.reads(),1);
- assert.match(s.api.message(),/Helyben mentve/);
+ assert.match(s.api.message(),/helyben mentve/i);
 });
 test('Usable funds allow sync; unsigned/unknown balances fail closed safely',async()=>{
  const s=boot(25000000);
