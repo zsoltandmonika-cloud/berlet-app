@@ -23,8 +23,8 @@ test('v836 keeps the accepted v834/v835 layout and adds one compact fullscreen-o
     'guardianMapOriginGoV836','guardianMapOriginGpsV1165','guardianMapOriginGpsStatusV1165',
     'guardianMapOriginResultsV836','guardianMapOriginStatusV836'])
   assert.equal((block.match(new RegExp('id="'+id+'"','g'))||[]).length,1,id);
- assert.match(html,/guardian-origin-search-v836\.css\?v=1165-gps-from/);
- assert.match(html,/guardian-origin-search-v836\.js\?v=1165-gps-from/);
+ assert.match(html,/guardian-origin-search-v836\.css\?v=1166-visible-mobile-gps/);
+ assert.match(html,/guardian-origin-search-v836\.js\?v=1166-plan-on-gps/);
  assert.match(html,/guardian-attribution-dot-v834\.css/);
  assert.match(html,/guardian-zoom-center-v835\.css/);
  assert.match(html,/guardian-keyboard-guard-v832\.js/);
@@ -69,7 +69,8 @@ test('v1165 one-tap device GPS appears on origin map, using the existing GPS act
  assert.match(html,/id="guardianMapOriginGpsStatusV1165"[^>]*role="status" aria-live="polite"/);
  assert.match(html,/guardian-smart-hub-fields-v806\.js\?v=1165-origin-gps-status/);
  assert.match(css,/#guardianMapOriginGpsV1165/);
- assert.match(css,/top:calc\(100% \+ 7px\)/,'new button below original search so field stays wide');
+ assert.match(css,/bottom:calc\(100% \+ 9px\)/,'GPS above the origin field, not under mobile navbar');
+ assert.doesNotMatch(css,/top:calc\(100% \+ 7px\)/,'old off-screen placement gone');
  assert.match(css,/#guardianMapOriginGpsStatusV1165\[hidden\]/);
  assert.match(origin,/const original=\$\('hhSmartHubCurrentPositionV860'\)/);
  assert.match(origin,/original\.click\(\)/,'one shared GPS request, no second source');
@@ -83,4 +84,17 @@ test('v1165 one-tap device GPS appears on origin map, using the existing GPS act
  assert.doesNotMatch(origin,/navigator\.geolocation|getCurrentPosition|watchPosition/);
  assert.doesNotMatch(origin,/fetch\([^)]*gps|setItem\(|getOwnLocation/);
  assert.doesNotMatch(css,/\.map-follow|\.map-3d|\.map-family/);
+});
+
+test('v1166 GPS success reveals actual verified BKK route calculation, not only a selected map pin',()=>{
+ const js=read('guardian-origin-search-v836.js'),css=read('guardian-origin-search-v836.css');
+ assert.match(js,/if\(info\.kind==='success'&&origin&&destination\)/,'both endpoints required');
+ assert.match(js,/const plan=\$\('hhSmartHubPlanV806'\)/,'existing planner handoff');
+ assert.match(js,/if\(plan&&!plan\.disabled\)/,'no plan before verified places');
+ assert.match(js,/plan\.click\(\)/,'actually launch original BKK calculation');
+ assert.match(js,/\$\('guardianMapSearchExitV819'\)\?\.click\(\)/,'close immersive map to show computed result');
+ assert.match(js,/hhSmartHubTripPlansV804/,'scroll to real result');
+ assert.match(css,/bottom:calc\(100% \+ 9px\)/);
+ assert.match(css,/#guardianMapOriginGpsStatusV1165/);
+ assert.match(css,/bottom:calc\(100% \+ 54px\)/,'status sits above button');
 });

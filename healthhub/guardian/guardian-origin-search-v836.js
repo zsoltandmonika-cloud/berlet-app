@@ -224,6 +224,20 @@
     gps.textContent=info.kind==='loading'?'📡 Helykeresés…':'📍 Itt vagyok';
     gpsStatus.textContent=String(info.text||'').slice(0,240);
     gpsStatus.dataset.state=info.kind;gpsStatus.hidden=false;
+    // v1166: selecting GPS sets the BKK departure coordinates, but that alone
+    // must NOT leave the user on the map wondering where the route went.
+    // Only proceed when BOTH real, verified endpoints are selected.
+    if(info.kind==='success'&&origin&&destination){
+     const plan=$('hhSmartHubPlanV806');
+     if(plan&&!plan.disabled){
+      $('guardianMapSearchExitV819')?.click();
+      plan.click(); // Existing verified router, NEVER generate a fake journey.
+      w.setTimeout(()=>{
+       const node=$('hhSmartHubTripPlansV804');
+       node?.scrollIntoView?.({behavior:'smooth',block:'start'});
+      },140);
+     }
+    }
    });
   }
   go.addEventListener('click',()=>{
