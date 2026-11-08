@@ -1,0 +1,40 @@
+name: Nutrition · Napi napló szerkesztés + dinamikus tápérték v1161
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'healthhub/nutrition/nutrition-preview-v592.js'
+      - 'healthhub/nutrition/index.html'
+      - 'healthhub/nutrition/hh-diary-edit-v1161.js'
+      - 'healthhub/nutrition/hh-diary-scale-v1161.js'
+      - 'healthhub/nutrition/hh-diary-edit-v1161.css'
+      - 'healthhub/tests/nutrition-diary-edit-v1161.test.cjs'
+      - '.github/workflows/nutrition-diary-edit-v1161.yml'
+  pull_request:
+    paths:
+      - 'healthhub/nutrition/nutrition-preview-v592.js'
+      - 'healthhub/nutrition/index.html'
+      - 'healthhub/nutrition/hh-diary-edit-v1161.js'
+      - 'healthhub/nutrition/hh-diary-scale-v1161.js'
+      - 'healthhub/nutrition/hh-diary-edit-v1161.css'
+      - 'healthhub/tests/nutrition-diary-edit-v1161.test.cjs'
+      - '.github/workflows/nutrition-diary-edit-v1161.yml'
+permissions:
+  contents: read
+jobs:
+  diary-editor:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Daily entries, meal/time, weight scaling, image preservation, profile safety
+        run: node --test healthhub/tests/nutrition-diary-edit-v1161.test.cjs
+      - name: Original nutrition diaries and cookbook regression
+        run: |
+          node --test healthhub/tests/nutrition-cookbook-one-tap-v1160.test.cjs
+          node --test healthhub/tests/nutrition-cookbook-bridge-v1154.test.cjs
+          node --test healthhub/tests/nutrition-diary-favorites-art-v1150.test.cjs
+          node --test healthhub/tests/nutrition-manual-intake-v1130.test.cjs

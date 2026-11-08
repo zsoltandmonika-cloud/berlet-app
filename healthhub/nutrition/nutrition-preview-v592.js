@@ -764,6 +764,7 @@ function savePresetEntry(e){
  }catch(e){$('presetError').textContent=e.message;}
 }
 function editEntry(row){
+ if(root.HH_NUTRITION_DIARY_EDIT_V1161?.open?.(row))return;
  if(row.manualEntry){alert('Ez kézzel rögzített étel. A naplózott adatok megőrzése érdekében ezt a bejegyzést törölheted és a Kézi hozzáadás gombbal újra rögzítheted.');return;}
  if(row.aiVision&&window.HH_FOOD_VISION_V750?.open){window.HH_FOOD_VISION_V750.open(row);return;}
  if(row.cookbookImport){alert('Ez egy Recept Stúdióból átvett 320 g-os tápérték-pillanatkép. A recept módosítása nem írja át a naplót. Szükség esetén töröld ezt a bejegyzést és importáld újra.');return;}
@@ -948,6 +949,59 @@ function events(){
 root.HH_NUTRITION_QUICK_API={
  getProfile:()=>active,
  getData:()=>clone(read(active)),
+ // v1161 · Update one existing diary entry, never generate a duplicate.
+ // Keep the source image and all provenance fields, and queue the existing
+ // conflict-safe per-profile Dropbox sync via update()/write().
+ updateDiaryEntry:payload=>{
+  if(payload?.expectedProfile!==active)throw Error('Profilváltás történt. A napló szerkesztése megszakadt.');
+  const id=String(payload.id||'');
+  if(!id||id.length>149)throw Error('Nincs szerkeszthető naplóbejegyzés.');
+  const original=read(active).entries.find(x=>x.id===id&&!x.deleted);
+  if(!original)throw Error('A bejegyzés már nem található. Frissítsd a naplót.');
+  const name=String(payload.name||'').trim();
+  const meal=normalizeMeal(payload.meal),time=String(payload.time||''),date=String(payload.date||'');
+  const scaler=root.HH_NUTRITION_DIARY_SCALE_V1161;
+  if(name.length<2||name.length>80||!meal)throw Error('A név vagy a napszak nem megfelelő.');
+  if(!isDay(date))throw Error('Érvénytelen nap.');
+  if(!/^(?:[01]\d|2[0-3]):[0-5]\d$/.test(time))throw Error('Érvénytelen időpont.');
+  const inferred=scaler?.infer?.(original);
+  if(!inferred||String(payload.unit)!==inferred.unit)
+   throw Error('A mértékegység nem változtatható át automatikus átváltás nélkül.');
+  const qty=scaler.validation(payload.quantity,inferred.unit,original.cookbookImport?.finishedWeightGrams);
+  const nutrientValues={...original.nutrients};
+  for(const key of metrics){
+   if(!Object.prototype.hasOwnProperty.call(payload.nutrients||{},key))continue;
+   const value=payload.nutrients[key];
+   if(value==null||value===''){nutrientValues[key]=null;continue}
+   const n=Number(value);
+   const max=key==='kcal'?5000:100000;
+   if(!Number.isFinite(n)||n<0||n>max)throw Error('Hibás tápérték: '+key);
+   nutrientValues[key]=Number(n.toFixed(3));
+  }
+  const now=stamp();
+  const updated={...original,name,meal,time,date,quantity:qty,
+   unit:inferred.unit,quantityText:fmt(qty,2)+' '+inferred.unit,
+   nutrients:nutrientValues,updatedAt:now,diaryEditedAt:now};
+  if(inferred.unit==='ml'&&original.volumeMl!=null)updated.volumeMl=qty;
+  if(original.cookbookImport){
+   updated.cookbookImport={...original.cookbookImport,grams:qty};
+  }
+  // The profile is checked again just before committing. Editing the diary
+  // must not rewrite another family member's record.
+  if(active!==payload.expectedProfile)throw Error('A profil megváltozott szerkesztés közben.');
+  update(doc=>{
+   const idx=doc.entries.findIndex(x=>x.id===id&&!x.deleted);
+   if(idx<0)throw Error('A naplóbejegyzés időközben megváltozott.');
+   doc.entries[idx]=updated;
+  });
+  if($('logDate')&&$('logDate').value!==date){
+   $('logDate').value=date;
+   render();
+   refreshActivity(active).catch(()=>{});
+  }
+  return {id,profile:active,name,meal,date,time,quantity:qty,unit:inferred.unit,
+   kcal:updated.nutrients?.kcal,diaryEditedAt:now};
+ },
  syncNow:()=>syncProfile(active),
  getPresetNutrients:key=>clone(presetNutrients(read(active).presets[key])),
  // v1130 · Minimal manual diary input. Unknown nutrition remains NULL, not 0.

@@ -1,0 +1,71 @@
+/* HealthHub Nutrition · Editable diary + live nutrition scaling v1161.
+ * Shared Golden Glassy structure, profile-dependent pink/blue accents.
+ */
+.hh-diary-edit-dialog-v1161{
+ width:min(94vw,560px);
+ max-height:min(93dvh,920px);
+ padding:0;
+ overflow:auto;
+ border:1px solid color-mix(in srgb,var(--accent,#92bde8) 52%,transparent);
+ border-radius:22px;
+ color:#f6faff;
+ background:linear-gradient(155deg,rgba(20,36,60,.98),rgba(15,29,48,.98) 72%,rgba(29,41,60,.98));
+ box-shadow:0 32px 85px #000b,inset 0 1px #ffffff1e;
+ overscroll-behavior:contain;
+}
+.hh-diary-edit-dialog-v1161::backdrop{background:rgba(2,10,22,.8);backdrop-filter:blur(7px)}
+.hh-diary-edit-form-v1161{display:grid;gap:15px;padding:18px 19px 20px}
+.hh-diary-edit-head-v1161{display:flex;justify-content:space-between;gap:10px;align-items:start}
+.hh-diary-edit-head-v1161 small{font-size:10px;letter-spacing:.12em;color:var(--accent,#9dc6f5);font-weight:750}
+.hh-diary-edit-head-v1161 h2{font-size:20px;line-height:1.15;margin:5px 0 0;font-weight:850;color:#fff}
+.hh-diary-edit-dismiss-v1161{
+ flex:0 0 auto;background:#ffffff10;color:#fff;border:1px solid #ffffff3e;
+ border-radius:12px;min-width:40px;min-height:40px;cursor:pointer
+}
+.hh-diary-edit-grid-v1161,
+.hh-diary-edit-nutrients-v1161{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}
+.hh-diary-edit-grid-v1161 label,.hh-diary-edit-nutrients-v1161 label{
+ min-width:0;display:grid;gap:5px;color:#dce7f8;font-size:12px;font-weight:720
+}
+.hh-diary-edit-wide-v1161{grid-column:1/-1}
+.hh-diary-edit-grid-v1161 input,
+.hh-diary-edit-grid-v1161 select,
+.hh-diary-edit-nutrients-v1161 input{
+ color:#fff!important;background:#0b1930!important;
+ border:1px solid #94b6d45a!important;
+ border-radius:12px!important;padding:10px 11px!important;
+ width:100%!important;min-width:0!important;min-height:43px!important;
+ box-sizing:border-box!important;font:650 15px/1.3 system-ui!important;
+}
+.hh-diary-edit-grid-v1161 input:focus,
+.hh-diary-edit-grid-v1161 select:focus,
+.hh-diary-edit-nutrients-v1161 input:focus{outline:2px solid var(--accent,#85bdf2)!important;outline-offset:1px}
+.hh-diary-edit-grid-v1161 select option{color:#fff;background:#14223a}
+.hh-diary-edit-unit-v1161{color:var(--accent,#9bc8f5);font-weight:850}
+.hh-diary-edit-scale-v1161{
+ margin:0;border-radius:13px;padding:11px 12px;
+ background:color-mix(in srgb,var(--accent,#84bdee) 11%,#071d2a);
+ color:#f0fff9;border:1px solid color-mix(in srgb,var(--accent,#84bdee) 25%,transparent);
+ font-size:13px;font-weight:800;line-height:1.5
+}
+.hh-diary-edit-nutrients-v1161{grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
+.hh-diary-edit-nutrients-v1161 label{font-size:11px}
+.hh-diary-edit-nutrients-v1161 input{font-size:14px!important}
+.hh-diary-edit-hint-v1161{margin:0;color:#b7c9dc;font-size:11px;line-height:1.5}
+.hh-diary-edit-error-v1161{margin:0;color:#ffc4c4;border:1px solid #ff9b9b5e;background:#70171e46;padding:10px;border-radius:12px;font-size:12px}
+.hh-diary-edit-actions-v1161{display:flex;gap:10px;justify-content:space-between}
+.hh-diary-edit-actions-v1161 button{
+ min-height:47px;border-radius:13px;padding:11px 14px;
+ border:1px solid #ffffff48;color:#dfe9f9;background:#263147;
+ cursor:pointer;font-weight:800;font-size:13px
+}
+#hhDiaryEditSaveV1161{
+ flex:1;background:linear-gradient(130deg,color-mix(in srgb,var(--accent,#9fc8f6) 75%,#fff),color-mix(in srgb,var(--accent,#9fc8f6) 56%,#18334a))!important;
+ border-color:var(--accent,#9fc8f6)!important;color:#101a2b!important
+}
+@media(max-width:440px){
+ .hh-diary-edit-form-v1161{padding:15px 13px 18px;gap:12px}
+ .hh-diary-edit-head-v1161 h2{font-size:18px}
+ .hh-diary-edit-nutrients-v1161{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(prefers-reduced-motion:reduce){.hh-diary-edit-dialog-v1161::backdrop{backdrop-filter:none}}
