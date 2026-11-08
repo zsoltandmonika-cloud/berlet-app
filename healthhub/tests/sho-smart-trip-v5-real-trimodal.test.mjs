@@ -121,7 +121,7 @@ test("Stuck Google pilot must stop on delayed auth and display exact HTTP 503 re
  assert.match(client,/A keresés lezárult hibával/);
  assert.match(client,/networkStarted=true/);
  assert.match(client,/if\(!networkStarted\)alreadyRun=false/);
- assert.match(ui,/client\.mjs\?v=secret-compat-diagnostic-v2/);
+ assert.match(ui,/client\.mjs\?v=verified-zero-quota-rearm-v3/);
 });
 
 test("New and legacy Supabase env keys are supported without disclosing secrets",()=>{
@@ -152,4 +152,24 @@ test("Free diagnostic is authenticated, fixed-fixture only, and cannot reserve q
  assert.match(client,/paidProviderContacted!==false/);
  assert.match(client,/google_key:"Google Routes API-kulcs hiányzik/);
  assert.match(client,/if\(failures.length\)/);
+});
+
+test("Diagnostic re-arms only from server-confirmed zero quotas, with no Google contacts",()=>{
+ const start=edge.indexOf('if((raw as Record<string,unknown>).mode==="diagnose"){');
+ const end=edge.indexOf('if(!adminKey||',start);
+ assert.ok(start>0&&end>start);
+ const block=edge.slice(start,end);
+ assert.match(block,/quotaUsedToday/);
+ assert.match(block,/quotaUsedMonth/);
+ assert.match(block,/newAttemptAllowed=missing.length===0&&quotaUsedToday===0/);
+ assert.match(block,/quotaUsedMonth<200/);
+ assert.match(block,/ready.quota_readable=quotaUsedToday!==null&&quotaUsedMonth!==null/);
+ assert.match(block,/period_kind","day"/);
+ assert.match(block,/period_kind","month"/);
+ assert.doesNotMatch(block,/reserveQuota\s*\(|fetchVariant\s*\(|fetch\(GOOGLE/);
+ assert.match(client,/typeof d.newAttemptAllowed!=="boolean"/);
+ assert.match(client,/else if\(!d.newAttemptAllowed\)/);
+ assert.match(client,/alreadyRun=false;\s*\$\("run"\)\.disabled=false/);
+ assert.match(client,/\$\("timing"\)\.hidden=true/);
+ assert.match(client,/\$\("out"\)\.hidden=true/);
 });
