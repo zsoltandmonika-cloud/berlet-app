@@ -103,7 +103,7 @@ test('v806 UI provides paired inputs, one-tap swap, favorites and guarded waitin
  assert.ok(html.includes('guardian-smart-hub-router-v804.js?v=967-step-to-next-trip&no960=840'));
  assert.match(js,/router\.setJourney\(state\.origin,state\.destination\)/);
  assert.match(js,/hh-smart-arrival-favorite-places-v806-/);
- assert.match(html,/Kevesebb várakozás · később/);
+ assert.match(html,/id="hhSmartHubPriorityWaitingV806"[^>]*disabled[^>]*>Kevesebb várakozás<\/button>/);
  assert.match(css,/hh-smart-hub-swap-v806/);
  assert.ok(html.includes('hhBkkCatalogV801'));
  assert.ok(html.includes('hhSmartHubGuideV805'));
