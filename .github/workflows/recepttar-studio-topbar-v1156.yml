@@ -4,12 +4,18 @@ on:
     branches: [main]
     paths:
       - 'recepttar-studio/index.html'
+      - 'recepttar-studio/hh-puter-balance-chip-v1158.js'
+      - 'recepttar-studio/hh-puter-balance-chip-v1158.css'
+      - 'healthhub/tests/recepttar-studio-puter-balance-v1158.test.cjs'
       - 'healthhub/tests/sh9-golden-controls-global-v918.test.cjs'
       - 'healthhub/tests/recepttar-studio-topbar-off-v1156.test.cjs'
       - '.github/workflows/recepttar-studio-topbar-v1156.yml'
   pull_request:
     paths:
       - 'recepttar-studio/index.html'
+      - 'recepttar-studio/hh-puter-balance-chip-v1158.js'
+      - 'recepttar-studio/hh-puter-balance-chip-v1158.css'
+      - 'healthhub/tests/recepttar-studio-puter-balance-v1158.test.cjs'
       - 'healthhub/tests/sh9-golden-controls-global-v918.test.cjs'
       - 'healthhub/tests/recepttar-studio-topbar-off-v1156.test.cjs'
       - '.github/workflows/recepttar-studio-topbar-v1156.yml'
@@ -27,6 +33,7 @@ jobs:
       - name: Studio-only top bar exemption and 22-page global navigation
         run: |
           node --test healthhub/tests/recepttar-studio-topbar-off-v1156.test.cjs
+          node --test healthhub/tests/recepttar-studio-puter-balance-v1158.test.cjs
           # The historical global inventory assertion predates later SHO modules.
           # Exercise only the global dock and profile safety contracts relevant here.
           node --test --test-name-pattern='Golden Standard dock appears|native profile switches|v934 unified four-zone glass dock' healthhub/tests/sh9-golden-controls-global-v918.test.cjs

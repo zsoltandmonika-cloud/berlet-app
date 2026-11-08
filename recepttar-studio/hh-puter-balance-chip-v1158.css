@@ -1,0 +1,24 @@
+/* v1158 · The small user-owned credit status is the only visual override.
+ * The Puter SDK's billing/upgrade dialog is deliberately NOT modified. */
+#lenaPuterBalanceV1158[hidden]{display:none!important}
+#lenaPuterBalanceV1158{
+ position:fixed!important;
+ top:calc(5px + env(safe-area-inset-top,0px))!important;
+ left:5px!important;
+ z-index:42!important;
+ box-sizing:border-box!important;
+ width:26px!important;height:26px!important;
+ padding:0!important;margin:0!important;
+ display:grid!important;place-items:center!important;
+ border-radius:50%!important;
+ border:1px solid rgba(232,196,125,.72)!important;
+ background:rgba(42,40,37,.82)!important;
+ color:#fbe3aa!important;
+ box-shadow:0 2px 8px rgba(0,0,0,.32)!important;
+ font:700 13px/1 system-ui!important;
+ cursor:help!important;
+ opacity:.87!important;
+}
+#lenaPuterBalanceV1158:focus-visible{
+ outline:2px solid #f5dda0!important;outline-offset:3px!important;
+}
