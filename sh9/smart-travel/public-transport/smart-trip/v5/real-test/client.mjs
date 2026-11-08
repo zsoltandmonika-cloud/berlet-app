@@ -206,7 +206,7 @@ async function run(){
   if(!response.ok){
    const msg={
     pilot_google_key_or_service_not_configured:"A Google-kulcs vagy a Supabase szolgáltatáskulcs nincs konfigurálva. Nem indult Google-kérés.",
-    pilot_daily_one_run_or_quota_exceeded:"Egy valós teszt engedélyezett naponta, vagy elfogyott a Google-kvóta.",
+    pilot_daily_one_run_or_quota_exceeded:"A mai valós Google-teszt már lefutott. Az új próbát a költségvédelem Google-hívás és új kvótafoglalás nélkül elutasította.",
     unauthorized_profile:"A Family Guard fiók nincs jogosítva Mónika profiljára.",
     origin_denied:"Csak a hivatalos SHO oldalról lehet tesztelni.",
     pilot_fixed_fixture_only:"A teszteset adatait nem szabad módosítani.",
