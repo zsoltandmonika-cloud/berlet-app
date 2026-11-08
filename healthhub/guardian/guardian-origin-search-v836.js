@@ -16,6 +16,21 @@
   if(place.source==='shared'&&!shareAllowed)return false;
   return true;
  }
+ // Verified profile GPS is an explicit named location, not proof of which
+ // physical phone is viewing the map. No new tracking or network request.
+ function profileOrigin(fix,selected,allowed,now=Date.now()){
+  const key=selected==='m'?'monika':selected==='z'?'zsolt':null;
+  if(!allowed||!key||!fix||fix.profile!==key)return null;
+  const age=now-Number(fix.ts);
+  const limit=fix.source==='HH One Native GPS'?75000:20000;
+  if(!Number.isFinite(age)||age< -5000||age>limit||
+     !Number.isFinite(fix.accuracy)||fix.accuracy<0||fix.accuracy>100||
+     !Number.isFinite(fix.lat)||!Number.isFinite(fix.lng)||
+     Math.abs(fix.lat)>90||Math.abs(fix.lng)>180)return null;
+  return {name:(key==='monika'?'Mónika':'Zsolt')+' helye',
+   subtitle:'Friss, megosztott profilhely',
+   lat:fix.lat,lng:fix.lng,source:'selected-profile',profile:selected};
+ }
  function init(){
   const d=w&&w.document;if(!d||!w.fetch)return;
   const card=d.querySelector('.map-card'),panel=$('guardianMapOriginV836');
@@ -102,6 +117,7 @@
    destination=g()?.validPlace(state.destination)?state.destination:null;
    card.classList.toggle('hh-map-has-destination-v836',!!destination);
    setOriginUI(g()?.validPlace(state.origin)?state.origin:null);
+   gpsLabel();
    if(!destination){stop();clearHits();hideKeyboardMode()}
   }
   function fitPair(from,to){
@@ -201,110 +217,83 @@
   input.addEventListener('blur',()=>{
    blurTimer=w.setTimeout(()=>{blurTimer=null;hideKeyboardMode()},300);
   });
-  // v1165 · Reuse the original one-shot GPS action: no second GPS provider,
-  // no background sharing, and the same actual BKK boarding-stop planner.
+  // v1168: one-tap location. Show the named verified profile when available,
+  // otherwise request the physical phone's browser GPS only once. No tech story.
+  const namedProfileOrigin=()=>{
+   const selected=profile(),owner=selected==='m'?'monika':'zsolt';
+   const live=w.HH_GUARDIAN_LIVE_V785;
+   const allowed=!!(live?.authenticated&&(live.familyAuthorized||live.boundProfile===owner));
+   return profileOrigin(w.HH_GUARDIAN_PROFILE_FOLLOW_V837?.latestAuthorizedSelectedFix,
+    selected,allowed);
+  };
+  function gpsLabel(){
+   if(!gps||gps.disabled)return;
+   const here=namedProfileOrigin();
+   gps.textContent=here?'📍 '+here.name:'📍 Jelenlegi helyem';
+   gps.title=here?'Indulás a kiválasztott profil friss helyéről':
+    'A telefon aktuális pozíciója';
+   gps.setAttribute('aria-label',here?
+    here.name+' · megosztott profilhely használata indulásként':
+    'A telefon saját GPS-helyének használata indulásként');
+  }
+  function showRoute(){
+   if(!origin||!destination)return;
+   const plan=$('hhSmartHubPlanV806');
+   if(!plan||plan.disabled)return;
+   $('guardianMapSearchExitV819')?.click();
+   plan.click();
+   w.setTimeout(()=>$('hhSmartHubTripPlansV804')?.scrollIntoView?.({
+    behavior:'smooth',block:'start'
+   }),140);
+  }
+  function gpsNotice(kind,text){
+   if(!gps||!gpsStatus)return;
+   if(kind!=='loading')clearGpsTimeout();
+   gps.disabled=kind==='loading';
+   gps.setAttribute('aria-busy',String(kind==='loading'));
+   gpsStatus.textContent=text;
+   gpsStatus.dataset.state=kind;
+   gpsStatus.hidden=kind!=='error';
+   if(kind==='loading')gps.textContent='📍 Helykeresés…';
+   else gpsLabel();
+  }
   if(gps&&gpsStatus){
+   gpsLabel();
    gps.addEventListener('click',()=>{
-    const original=$('hhSmartHubCurrentPositionV860');
-    if(!original||typeof original.click!=='function'){
-     gpsStatus.textContent='A GPS-kiindulás nem érhető el. Add meg a címet kézzel.';
-     gpsStatus.dataset.state='error';gpsStatus.hidden=false;return;
+    if(gps.disabled)return;
+    const saved=namedProfileOrigin();
+    if(saved){
+     // The button is labelled "Zsolt helye" / "Mónika helye":
+     // one explicit tap authorizes its use as a departure point.
+     stop();clearHits();hideKeyboardMode();clearGpsTimeout();
+     if(select(saved)){
+      gpsNotice('success','');
+      showRoute();
+     }else gpsNotice('error','Nem sikerült beállítani az indulási helyet.');
+     return;
     }
-    if(original.disabled)return;
+    const original=$('hhSmartHubCurrentPositionV860');
+    if(!original||typeof original.click!=='function'||original.disabled){
+     gpsNotice('error','Hely nem érhető el. Válassz címet vagy megállót.');
+     return;
+    }
     stop();clearHits();hideKeyboardMode();
     if(typeof input.blur==='function')input.blur();
-    gps.disabled=true;gps.setAttribute('aria-busy','true');
-    gps.textContent='📡 Helykeresés…';
-    gpsStatus.textContent='A telefon aktuális helyzetét kérem le…';
-    gpsStatus.dataset.state='loading';gpsStatus.hidden=false;
-    clearGpsTimeout();
-    // Mobile browsers sometimes omit even the error callback.
-    // Never leave the GPS UI spinning indefinitely.
+    gpsNotice('loading','Helyzet keresése…');
     gpsTimeout=w.setTimeout(()=>{
      gpsTimeout=null;
-     if(gpsStatus.dataset.state!=='loading')return;
-     w.dispatchEvent(new w.CustomEvent('hh-guardian-origin-gps-status-v1165',{
-      detail:{kind:'error',text:'A böngésző 16 másodperc alatt nem adott GPS-választ. Válassz friss profilhelyet (ha megjelenik), vagy adj meg indulási címet.'}
-     }));
+     if(gpsStatus.dataset.state==='loading')
+      gpsNotice('error','Hely nem érhető el. Válassz címet vagy megállót.');
     },16000);
     original.click();
    });
    w.addEventListener('hh-guardian-origin-gps-status-v1165',event=>{
-    const info=event?.detail||{};
-    if(!['loading','success','error'].includes(info.kind))return;
-    if(info.kind!=='loading')clearGpsTimeout();
-    gps.disabled=info.kind==='loading';
-    gps.setAttribute('aria-busy',String(info.kind==='loading'));
-    gps.textContent=info.kind==='loading'?'📡 Helykeresés…':'📍 Itt vagyok';
-    gpsStatus.textContent=String(info.text||'').slice(0,240);
-    gpsStatus.dataset.state=info.kind;gpsStatus.hidden=false;
-    // v1167: A visible family profile's GPS pin is not proof that it is THIS
-    // handset. Never silently promote it to the "Itt vagyok" origin.
-    // When native ownership is unavailable in Samsung Internet / Edge,
-    // offer a clearly named explicit alternative ONLY after GPS failure.
-    if(info.kind==='error'){
-     const chosen=w.HH_GUARDIAN_PROFILE_FOLLOW_V837?.latestAuthorizedSelectedFix;
-     const selected=profile(),k=selected==='m'?'monika':'zsolt';
-     const auth=w.HH_GUARDIAN_LIVE_V785;
-     const permitted=!!(auth?.authenticated&&(auth.familyAuthorized||auth.boundProfile===k));
-     const fresh=chosen&&chosen.profile===k&&
-      Number.isFinite(chosen.ts)&&Date.now()-chosen.ts>= -5000&&
-      Date.now()-chosen.ts<=(chosen.source==='HH One Native GPS'?75000:20000)&&
-      Number.isFinite(chosen.accuracy)&&chosen.accuracy>=0&&chosen.accuracy<=100&&
-      Number.isFinite(chosen.lat)&&Number.isFinite(chosen.lng);
-     if(fresh&&permitted){
-      const use=d.createElement('button');use.type='button';
-      use.className='hh-origin-profile-gps-v1167';
-      use.textContent='📍 '+(k==='monika'?'Mónika':'Zsolt')+' friss profilhelyét használom';
-      use.setAttribute('aria-label','A kiválasztott családi profil friss helyének használata. Ez nem feltétlenül a most használt telefon GPS-helye.');
-      const note=d.createElement('small');
-      note.textContent='Ez a profil megosztott GPS-helye, nem feltétlenül a telefonod pozíciója.';
-      use.addEventListener('click',()=>{
-       const now=w.HH_GUARDIAN_PROFILE_FOLLOW_V837?.latestAuthorizedSelectedFix;
-       const live=w.HH_GUARDIAN_LIVE_V785;
-       const still=now&&now.profile===k&&profile()===selected&&
-        Number.isFinite(now.ts)&&Date.now()-now.ts>= -5000&&
-        Date.now()-now.ts<=(now.source==='HH One Native GPS'?75000:20000)&&
-        Number.isFinite(now.accuracy)&&now.accuracy>=0&&now.accuracy<=100&&
-        (live?.familyAuthorized||live?.boundProfile===k)&&live?.authenticated;
-       if(!still){
-        gpsStatus.textContent='A profilhely már nem friss. Kérj új helyzetet, vagy válassz címet.';
-        return;
-       }
-       const place={name:(k==='monika'?'Mónika':'Zsolt')+' friss GPS-helye',
-        subtitle:'A kiválasztott profil engedélyezett helyzete',
-        lat:now.lat,lng:now.lng,source:'selected-profile',profile:selected};
-       if(select(place)){
-        gpsStatus.textContent='✓ A kiválasztott profil friss helye beállítva indulási pontként.';
-        gpsStatus.dataset.state='success';
-        const plan=$('hhSmartHubPlanV806');
-        if(plan&&!plan.disabled){
-         $('guardianMapSearchExitV819')?.click();
-         plan.click();
-         w.setTimeout(()=>$('hhSmartHubTripPlansV804')?.scrollIntoView?.({
-          behavior:'smooth',block:'start'
-         }),140);
-        }
-       }
-      });
-      gpsStatus.append(note,use);
-     }
-    }
-    // v1166: selecting GPS sets the BKK departure coordinates, but that alone
-    // must NOT leave the user on the map wondering where the route went.
-    // Only proceed when BOTH real, verified endpoints are selected.
-    if(info.kind==='success'&&origin&&destination){
-     const plan=$('hhSmartHubPlanV806');
-     if(plan&&!plan.disabled){
-      $('guardianMapSearchExitV819')?.click();
-      plan.click(); // Existing verified router, NEVER generate a fake journey.
-      w.setTimeout(()=>{
-       const node=$('hhSmartHubTripPlansV804');
-       node?.scrollIntoView?.({behavior:'smooth',block:'start'});
-      },140);
-     }
-    }
+    const kind=event?.detail?.kind;
+    if(kind==='loading')gpsNotice('loading','Helyzet keresése…');
+    else if(kind==='success'){gpsNotice('success','');showRoute()}
+    else if(kind==='error')gpsNotice('error','Hely nem érhető el. Válassz címet vagy megállót.');
    });
+   w.addEventListener('focus',gpsLabel);
   }
   go.addEventListener('click',()=>{
    if(origin&&destination){
@@ -319,11 +308,12 @@
   w.addEventListener('hh-guardian-map-destination-v819',e=>{
    if(g()?.validPlace(e?.detail)){
     destination=e.detail;card.classList.add('hh-map-has-destination-v836');
+    gpsLabel();
    }
   });
   const reset=()=>{
    clearGpsTimeout();stop();clearHits();destination=null;origin=null;input.value='';
-   if(gps){gps.disabled=false;gps.setAttribute('aria-busy','false');gps.textContent='📍 Itt vagyok'}
+   if(gps){gps.disabled=false;gps.setAttribute('aria-busy','false');gps.textContent='📍 Jelenlegi helyem';gpsLabel()}
    if(gpsStatus){gpsStatus.hidden=true;gpsStatus.textContent=''}
    input.classList.remove('hh-origin-confirmed-v836');
    go.textContent='⌕';go.title='Kiindulási pont keresése';
@@ -345,5 +335,5 @@
   if(w.document.readyState==='loading')w.document.addEventListener('DOMContentLoaded',init);
   else init();
  }
- return {verified,displayName,init,version:'836'};
+ return {verified,displayName,profileOrigin,init,version:'1168'};
 });

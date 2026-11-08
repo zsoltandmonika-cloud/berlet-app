@@ -5,7 +5,7 @@ const read=name=>fs.readFileSync(path.join(root,name),'utf8');
 const mod=require('../guardian/guardian-origin-search-v836.js');
 const fields=require('../guardian/guardian-smart-hub-fields-v806.js');
 test('v836 supports a verified origin, not made-up or other-profile addresses',()=>{
- assert.equal(mod.version,'836');
+ assert.equal(mod.version,'1168');
  const g=fields,valid={name:'Bécsi út 10',lat:47.53,lng:19.037};
  assert.equal(mod.verified(valid,g,'m',false),true);
  assert.equal(mod.verified({...valid,lat:Infinity},g,'m',false),false);
@@ -23,8 +23,8 @@ test('v836 keeps the accepted v834/v835 layout and adds one compact fullscreen-o
     'guardianMapOriginGoV836','guardianMapOriginGpsV1165','guardianMapOriginGpsStatusV1165',
     'guardianMapOriginResultsV836','guardianMapOriginStatusV836'])
   assert.equal((block.match(new RegExp('id="'+id+'"','g'))||[]).length,1,id);
- assert.match(html,/guardian-origin-search-v836\.css\?v=1167-verified-profile-fallback/);
- assert.match(html,/guardian-origin-search-v836\.js\?v=1167-gps-diagnostic-fallback/);
+ assert.match(html,/guardian-origin-search-v836\.css\?v=1168-simple-my-location/);
+ assert.match(html,/guardian-origin-search-v836\.js\?v=1168-one-tap-profile-location/);
  assert.match(html,/guardian-attribution-dot-v834\.css/);
  assert.match(html,/guardian-zoom-center-v835\.css/);
  assert.match(html,/guardian-keyboard-guard-v832\.js/);
@@ -62,60 +62,70 @@ test('v836 verified From search reuses exact same favourite+Photon parsing and S
  assert.match(js,/else search\(\)/,'search remains available before selection');
 });
 
-test('v1165 one-tap device GPS appears on origin map, using the existing GPS action and router',()=>{
+
+test('v1168 keeps the one-tap GPS affordance without disturbing search and BKK planner',()=>{
  const html=read('index.html'),css=read('guardian-origin-search-v836.css');
  const origin=read('guardian-origin-search-v836.js'),fields=read('guardian-smart-hub-fields-v806.js');
- assert.match(html,/id="guardianMapOriginGpsV1165"[^>]*aria-label="Jelenlegi GPS-pozícióm használata kiindulási helyként"/);
+ assert.match(html,/id="guardianMapOriginGpsV1165"[^>]*aria-label=/);
  assert.match(html,/id="guardianMapOriginGpsStatusV1165"[^>]*role="status" aria-live="polite"/);
- assert.match(html,/guardian-smart-hub-fields-v806\.js\?v=1167-local-fix-first/);
+ assert.match(html,/guardian-smart-hub-fields-v806\.js\?v=1168-quiet-gps-errors/);
  assert.match(css,/#guardianMapOriginGpsV1165/);
- assert.match(css,/bottom:calc\(100% \+ 9px\)/,'GPS above the origin field, not under mobile navbar');
- assert.doesNotMatch(css,/top:calc\(100% \+ 7px\)/,'old off-screen placement gone');
+ assert.match(css,/bottom:calc\(100% \+ 9px\)/);
  assert.match(css,/#guardianMapOriginGpsStatusV1165\[hidden\]/);
  assert.match(origin,/const original=\$\('hhSmartHubCurrentPositionV860'\)/);
- assert.match(origin,/original\.click\(\)/,'one shared GPS request, no second source');
+ assert.match(origin,/original\.click\(\)/);
  assert.match(origin,/hh-guardian-origin-gps-status-v1165/);
- assert.match(origin,/gps\.disabled=info\.kind==='loading'/);
+ assert.match(origin,/gps\.disabled=kind==='loading'/);
  assert.match(fields,/function gpsNotice\(kind,text\)/);
- assert.match(fields,/w\.dispatchEvent\(new w\.CustomEvent\('hh-guardian-origin-gps-status-v1165'/);
  assert.match(fields,/selectPlace\(place,'origin'\)/);
  assert.match(fields,/currentPositionPlace\(position\)/);
  assert.match(fields,/getCurrentPosition\(position=>/);
  assert.doesNotMatch(origin,/navigator\.geolocation|getCurrentPosition|watchPosition/);
  assert.doesNotMatch(origin,/fetch\([^)]*gps|setItem\(|getOwnLocation/);
- assert.doesNotMatch(css,/\.map-follow|\.map-3d|\.map-family/);
 });
-
-test('v1166 GPS success reveals actual verified BKK route calculation, not only a selected map pin',()=>{
+test('v1168 profile location is precise, fresh, explicitly named, permission-gated',()=>{
+ const now=1762632000000;
+ const z={profile:'zsolt',lat:47.528,lng:19.031,ts:now-2500,
+          accuracy:20,source:'HH One Native GPS'};
+ const selected=mod.profileOrigin(z,'z',true,now);
+ assert.equal(selected.name,'Zsolt helye');
+ assert.equal(selected.source,'selected-profile');
+ assert.equal(selected.lat,z.lat);
+ assert.equal(mod.profileOrigin(z,'m',true,now),null,'never confuse owners');
+ assert.equal(mod.profileOrigin(z,'z',false,now),null,'permission gate');
+ assert.equal(mod.profileOrigin({...z,accuracy:140},'z',true,now),null);
+ assert.equal(mod.profileOrigin({...z,ts:now-76000},'z',true,now),null);
+ assert.equal(mod.profileOrigin({...z,lat:Infinity},'z',true,now),null);
+ assert.equal(mod.profileOrigin({...z,source:'Family Live',ts:now-21000},'z',true,now),null);
+ assert.equal(mod.profileOrigin({...z,source:'Family Live',ts:now-5000},'z',true,now)?.name,'Zsolt helye');
+ const m={...z,profile:'monika'};
+ assert.equal(mod.profileOrigin(m,'m',true,now)?.name,'Mónika helye');
+});
+test('v1168 one tap uses verified named profile first, never a second confirmation dialog',()=>{
  const js=read('guardian-origin-search-v836.js'),css=read('guardian-origin-search-v836.css');
- assert.match(js,/if\(info\.kind==='success'&&origin&&destination\)/,'both endpoints required');
- assert.match(js,/const plan=\$\('hhSmartHubPlanV806'\)/,'existing planner handoff');
- assert.match(js,/if\(plan&&!plan\.disabled\)/,'no plan before verified places');
- assert.match(js,/plan\.click\(\)/,'actually launch original BKK calculation');
- assert.match(js,/\$\('guardianMapSearchExitV819'\)\?\.click\(\)/,'close immersive map to show computed result');
- assert.match(js,/hhSmartHubTripPlansV804/,'scroll to real result');
- assert.match(css,/bottom:calc\(100% \+ 9px\)/);
- assert.match(css,/#guardianMapOriginGpsStatusV1165/);
- assert.match(css,/bottom:calc\(100% \+ 54px\)/,'status sits above button');
+ assert.match(js,/const saved=namedProfileOrigin\(\)/);
+ assert.match(js,/if\(saved\)\{/);
+ assert.match(js,/if\(select\(saved\)\)\{/);
+ assert.match(js,/showRoute\(\)/);
+ assert.match(js,/gps\.textContent=here\?'📍 '\+here\.name:'📍 Jelenlegi helyem'/);
+ assert.match(js,/latestAuthorizedSelectedFix/);
+ assert.match(js,/const allowed=!!\(live\?\.authenticated&&\(live\.familyAuthorized\|\|live\.boundProfile===owner\)\)/);
+ assert.doesNotMatch(js,/\.hh-origin-profile-gps-v1167|gpsStatus\.append\(note,use\)|use\.addEventListener/);
+ assert.doesNotMatch(css,/\.hh-origin-profile-gps-v1167/);
+ assert.match(js,/const plan=\$\('hhSmartHubPlanV806'\)/);
+ assert.match(js,/if\(!plan\|\|plan\.disabled\)return/);
+ assert.match(js,/plan\.click\(\)/);
+ assert.match(js,/guardianMapSearchExitV819/);
+ assert.match(js,/hhSmartHubTripPlansV804/);
 });
-
-test('v1167 non-response GPS displays actionable error and never spins forever',()=>{
- const js=read('guardian-origin-search-v836.js');
+test('v1168 failed mobile GPS yields short user-readable message and exits loading',()=>{
+ const js=read('guardian-origin-search-v836.js'),fields=read('guardian-smart-hub-fields-v806.js');
  assert.match(js,/gpsTimeout=w\.setTimeout\(\(\)=>\{/);
  assert.match(js,/16000\)/);
- assert.match(js,/detail:\{kind:'error',text:/);
- assert.match(js,/if\(info\.kind!=='loading'\)clearGpsTimeout\(\)/);
+ assert.match(js,/clearGpsTimeout\(\)/);
+ assert.match(js,/gpsStatus\.hidden=kind!=='error'/);
+ assert.match(js,/Hely nem érhető el\. Válassz címet vagy megállót\./);
  assert.match(js,/pagehide',\(\)=>\{clearGpsTimeout\(\)/);
-});
-test('v1167 family profile location is an explicit, NEVER automatic current-phone substitute',()=>{
- const js=read('guardian-origin-search-v836.js'),css=read('guardian-origin-search-v836.css');
- assert.match(js,/if\(info\.kind==='error'\)\{/);
- assert.match(js,/latestAuthorizedSelectedFix/);
- assert.match(js,/A kiválasztott családi profil friss helyének használata\. Ez nem feltétlenül a most használt telefon GPS-helye\./);
- assert.match(js,/Ez a profil megosztott GPS-helye, nem feltétlenül a telefonod pozíciója/);
- assert.match(js,/use\.addEventListener\('click',\(\)=>\{/,'the user must explicitly accept the remote profile location');
- assert.match(js,/if\(!still\)\{/,'freshness and permission rechecked at tap');
- assert.match(js,/if\(select\(place\)\)\{/);
- assert.match(css,/\.hh-origin-profile-gps-v1167/);
- assert.doesNotMatch(js,/getCurrentPosition\(/,'map overlay adds no extra browser GPS requests');
+ assert.doesNotMatch(js,/GPS-hiba|A böngésző 16 másodperc|nem feltétlenül a telefonod/);
+ assert.doesNotMatch(fields,/GPS-hiba 1|GPS-hiba 3/);
 });

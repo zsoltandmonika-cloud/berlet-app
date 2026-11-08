@@ -135,22 +135,20 @@
  }
 }
 
-/* v1167 · Explicit second choice only when verified profile location exists.
- * Never call a shared family profile location "this device". */
-#guardianMapOriginGpsStatusV1165 .hh-origin-profile-gps-v1167{
- display:block!important;width:100%!important;box-sizing:border-box!important;
- margin-top:8px!important;padding:10px 10px!important;
- min-height:42px!important;
- border:1px solid rgba(255,255,255,.53)!important;border-radius:12px!important;
- background:var(--hh-origin-tint)!important;color:#fff!important;
- font:800 12px/1.3 system-ui!important;text-align:center!important;
- cursor:pointer!important
+
+/* v1168 · A one-tap, Google Maps-like choice. No technical dialogs.
+ * Status is a discreet, single-line notice ONLY when browser GPS fails. */
+#guardianMapOriginGpsStatusV1165{
+ left:50%!important;right:auto!important;
+ transform:translateX(-50%)!important;
+ width:max-content!important;max-width:min(88vw,340px)!important;
+ padding:7px 11px!important;text-align:center!important;
+ font:650 11px/1.35 system-ui,sans-serif!important;
+ border-radius:12px!important;
 }
-#guardianMapOriginGpsStatusV1165 small{
- display:block!important;margin-top:6px!important;
- font-size:11px!important;line-height:1.35!important;color:#fff!important;
- opacity:.86!important
-}
-#guardianMapOriginGpsStatusV1165 .hh-origin-profile-gps-v1167:focus-visible{
- outline:2px solid #fff!important;outline-offset:2px!important
+#guardianMapOriginGpsStatusV1165[hidden]{display:none!important}
+.map-card.hh-map-full-v819.hh-map-has-destination-v836 #guardianMapOriginGpsV1165{
+ min-width:165px!important;max-width:calc(100vw - 24px)!important;
+ width:auto!important;min-height:41px!important;
+ padding:0 14px!important;font-size:13px!important;
 }
