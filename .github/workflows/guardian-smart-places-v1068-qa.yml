@@ -4,6 +4,7 @@ on:
     paths:
       - 'healthhub/guardian/index.html'
       - 'healthhub/guardian/guardian-smart-places-v1068.js'
+      - 'healthhub/guardian/guardian-place-alert-rules-v2.js'
       - 'healthhub/guardian/guardian-smart-places-v1068.css'
       - 'healthhub/guardian/guardian-profile-follow-v837.js'
       - 'sh9/smart-travel/public-transport/smart-trip/index.html'
@@ -30,6 +31,7 @@ jobs:
           node-version: '22'
       - name: Syntax and focused Smart Places regression
         run: |
+          node --check healthhub/guardian/guardian-place-alert-rules-v2.js
           node --check healthhub/guardian/guardian-smart-places-v1068.js
           node --check healthhub/guardian/guardian-profile-follow-v837.js
           node --check sh9/smart-travel/public-transport/smart-trip/smart-trip-ai-v1022.js
