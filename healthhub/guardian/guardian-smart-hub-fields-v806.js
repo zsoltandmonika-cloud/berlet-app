@@ -134,6 +134,18 @@
   return {name:'Jelenlegi pozícióm',subtitle:'',lat:c.latitude,lng:c.longitude,
     source:'device-gps',accuracyMeters:Math.round(c.accuracy)};
  }
+ // v1167: Only a verified, same-tab BROWSER GPS sample can be used as
+ // "Itt vagyok" without asking the phone again. A Family Live/native
+ // profile marker may belong to another phone and is NEVER silently reused.
+ function verifiedOwnFixPlace(pos,now=Date.now()){
+  const c=pos?.coords,ts=Number(pos?.timestamp);
+  if(!c||!Number.isFinite(ts)||now-ts< -5000||now-ts>20000||
+     !Number.isFinite(c.latitude)||!Number.isFinite(c.longitude)||
+     Math.abs(c.latitude)>90||Math.abs(c.longitude)>180||
+     !Number.isFinite(c.accuracy)||c.accuracy<0||c.accuracy>100)return null;
+  return {name:'Jelenlegi pozícióm',subtitle:'Saját böngészős GPS',
+   lat:c.latitude,lng:c.longitude,source:'device-gps',accuracyMeters:Math.round(c.accuracy)};
+ }
  function init(){
   const d=w&&w.document;
   if(!d||!w.fetch)return;
@@ -337,6 +349,15 @@
   }
   function locateOrigin(){
    if(geoBusy)return;
+   // Reuse this phone's authenticated own fix before any new browser GPS.
+   const fresh=verifiedOwnFixPlace(w.HH_GUARDIAN_V761?.latestOwnBrowserFix);
+   if(fresh){
+    stopRequest();clearResults();
+    if(selectPlace(fresh,'origin'))
+     gpsNotice('success','Saját, friss böngészős GPS átvéve (±'+fresh.accuracyMeters+' m).');
+    else gpsNotice('error','A saját GPS-pozíciót nem sikerült beállítani.');
+    return;
+   }
    const geolocation=w.navigator&&w.navigator.geolocation;
    if(!geolocation||typeof geolocation.getCurrentPosition!=='function'){
     gpsNotice('error','A jelenlegi pozíció nem érhető el ebben a böngészőben. Adj meg egy indulási címet.');
@@ -346,7 +367,7 @@
    const token=requestId,expectedProfile=storedProfile;
    geoBusy=true;locateButton.disabled=true;
    locateButton.setAttribute('aria-busy','true');
-   gpsNotice('loading','Jelenlegi pozíció lekérése… Engedélyezd a helyhozzáférést, ha a telefon kéri.');
+   gpsNotice('loading','Friss helyzet keresése… A Family Guard saját GPS-adata most nem elérhető, ezért egyszeri böngészős mérést kérünk.');
    const finish=()=>{
     geoBusy=false;locateButton.disabled=false;
     locateButton.setAttribute('aria-busy','false');
@@ -370,10 +391,15 @@
      finish();
      if(!validToken)return;
      const code=error&&error.code;
+     const after=verifiedOwnFixPlace(w.HH_GUARDIAN_V761?.latestOwnBrowserFix);
+     if(after&&selectPlace(after,'origin')){
+      gpsNotice('success','A külön helylekérés nem sikerült, de a saját böngészős GPS friss (±'+after.accuracyMeters+' m).');
+      return;
+     }
      gpsNotice('error',code===1
-      ?'A helymeghatározás nincs engedélyezve. Engedélyezd a telefon és a böngésző/HH One beállításaiban, vagy írj be címet.'
-      :code===3?'A helymeghatározás időtúllépéssel megszakadt. Próbáld újra szabad ég alatt.'
-      :'Nem sikerült meghatározni a jelenlegi pozíciót. Próbáld újra, vagy írj be címet.');
+      ?'A böngésző elutasította a helylekérést (GPS-hiba 1). A Family Guard térképi helye nem feltétlenül ezen a telefonon keletkezett.'
+      :code===3?'A böngésző 12 másodperc alatt nem adott pozíciót (GPS-hiba 3). A GPS-követés ettől még működhet; próbáld újra szabad ég alatt.'
+      :'A böngésző nem adott friss helyzetet (GPS-hiba '+String(code||'?')+'). A mentett indulási hely továbbra is választható.');
     },{enableHighAccuracy:true,maximumAge:15000,timeout:12000});
    }catch(_){
     finish();gpsNotice('error','A helymeghatározás nem indítható ezen az eszközön. Használd a címkeresőt.');
@@ -513,5 +539,5 @@
   else init();
  }
  return {queryText,searchUrl,normalizeResults,validPlace,swapState,slotLabel,
-  blankSlots,normalizedSlots,profileId,listFavoritePlaces,favoriteSuggestions,displayPlace,enrichSharedWithFavorite,currentPositionPlace,init,version:'860'};
+  blankSlots,normalizedSlots,profileId,listFavoritePlaces,favoriteSuggestions,displayPlace,enrichSharedWithFavorite,currentPositionPlace,verifiedOwnFixPlace,init,version:'1167'};
 });

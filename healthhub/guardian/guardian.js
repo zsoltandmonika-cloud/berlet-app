@@ -585,5 +585,5 @@ theme();renderButtons();initMap();
 w.addEventListener?.('hh-guardian-active-transit-updated-v862',()=>{
   if(marker)paintOwnTransit(lastOwnTransitFix&&Date.now()-lastOwnTransitFix.timestamp<=20000?lastOwnTransitFix:null);
  });
-w.HH_GUARDIAN_V761=Object.freeze({version:'761',startFollowing,pauseCameraForMapSearch,getLocationSettings:locationSettings,applyLocationSettings,setRemoteMarkerPreferred,get map(){return map},get active(){return active},get lastGpsFixAt(){return active&&hasFix?lastBrowserFixAt:0},get pointCount(){return path.length}});
+w.HH_GUARDIAN_V761=Object.freeze({version:'761',startFollowing,pauseCameraForMapSearch,getLocationSettings:locationSettings,applyLocationSettings,setRemoteMarkerPreferred,get map(){return map},get active(){return active},get lastGpsFixAt(){return active&&hasFix?lastBrowserFixAt:0},get latestOwnBrowserFix(){return active&&hasFix&&lastOwnTransitFix&&Date.now()-lastOwnTransitFix.timestamp<=20000?lastOwnTransitFix:null},get pointCount(){return path.length}});
 })(window,document);

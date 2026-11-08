@@ -134,3 +134,23 @@
   font-size:12px!important
  }
 }
+
+/* v1167 · Explicit second choice only when verified profile location exists.
+ * Never call a shared family profile location "this device". */
+#guardianMapOriginGpsStatusV1165 .hh-origin-profile-gps-v1167{
+ display:block!important;width:100%!important;box-sizing:border-box!important;
+ margin-top:8px!important;padding:10px 10px!important;
+ min-height:42px!important;
+ border:1px solid rgba(255,255,255,.53)!important;border-radius:12px!important;
+ background:var(--hh-origin-tint)!important;color:#fff!important;
+ font:800 12px/1.3 system-ui!important;text-align:center!important;
+ cursor:pointer!important
+}
+#guardianMapOriginGpsStatusV1165 small{
+ display:block!important;margin-top:6px!important;
+ font-size:11px!important;line-height:1.35!important;color:#fff!important;
+ opacity:.86!important
+}
+#guardianMapOriginGpsStatusV1165 .hh-origin-profile-gps-v1167:focus-visible{
+ outline:2px solid #fff!important;outline-offset:2px!important
+}

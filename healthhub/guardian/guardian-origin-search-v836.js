@@ -27,12 +27,15 @@
   const helper=()=>w.HH_GUARDIAN_MAP_SEARCH_V819;
   const permitted=()=>!!(w.HH_GUARDIAN_LIVE_V785?.authenticated&&w.HH_GUARDIAN_LIVE_V785?.familyAuthorized);
   const profile=()=>g()?.profileId(w.localStorage);
-  let destination=null,origin=null,results=[],seq=0,pending=null,timer=null,lastRequest=0,blurTimer=null;
+  let destination=null,origin=null,results=[],seq=0,pending=null,timer=null,lastRequest=0,blurTimer=null,gpsTimeout=null;
   let editing=false,keyboard=false,frame=false,originFocused=false;
   const tell=s=>{status.textContent=s};
   function stop(){
    seq++;if(timer!==null){w.clearTimeout(timer);timer=null}
    if(pending){try{pending.abort()}catch(_){ }pending=null}
+  }
+  function clearGpsTimeout(){
+   if(gpsTimeout!==null){w.clearTimeout(gpsTimeout);gpsTimeout=null}
   }
   function clearHits(){
    hits.replaceChildren();hits.hidden=true;results=[];
@@ -214,16 +217,79 @@
     gps.textContent='📡 Helykeresés…';
     gpsStatus.textContent='A telefon aktuális helyzetét kérem le…';
     gpsStatus.dataset.state='loading';gpsStatus.hidden=false;
+    clearGpsTimeout();
+    // Mobile browsers sometimes omit even the error callback.
+    // Never leave the GPS UI spinning indefinitely.
+    gpsTimeout=w.setTimeout(()=>{
+     gpsTimeout=null;
+     if(gpsStatus.dataset.state!=='loading')return;
+     w.dispatchEvent(new w.CustomEvent('hh-guardian-origin-gps-status-v1165',{
+      detail:{kind:'error',text:'A böngésző 16 másodperc alatt nem adott GPS-választ. Válassz friss profilhelyet (ha megjelenik), vagy adj meg indulási címet.'}
+     }));
+    },16000);
     original.click();
    });
    w.addEventListener('hh-guardian-origin-gps-status-v1165',event=>{
     const info=event?.detail||{};
     if(!['loading','success','error'].includes(info.kind))return;
+    if(info.kind!=='loading')clearGpsTimeout();
     gps.disabled=info.kind==='loading';
     gps.setAttribute('aria-busy',String(info.kind==='loading'));
     gps.textContent=info.kind==='loading'?'📡 Helykeresés…':'📍 Itt vagyok';
     gpsStatus.textContent=String(info.text||'').slice(0,240);
     gpsStatus.dataset.state=info.kind;gpsStatus.hidden=false;
+    // v1167: A visible family profile's GPS pin is not proof that it is THIS
+    // handset. Never silently promote it to the "Itt vagyok" origin.
+    // When native ownership is unavailable in Samsung Internet / Edge,
+    // offer a clearly named explicit alternative ONLY after GPS failure.
+    if(info.kind==='error'){
+     const chosen=w.HH_GUARDIAN_PROFILE_FOLLOW_V837?.latestAuthorizedSelectedFix;
+     const selected=profile(),k=selected==='m'?'monika':'zsolt';
+     const auth=w.HH_GUARDIAN_LIVE_V785;
+     const permitted=!!(auth?.authenticated&&(auth.familyAuthorized||auth.boundProfile===k));
+     const fresh=chosen&&chosen.profile===k&&
+      Number.isFinite(chosen.ts)&&Date.now()-chosen.ts>= -5000&&
+      Date.now()-chosen.ts<=(chosen.source==='HH One Native GPS'?75000:20000)&&
+      Number.isFinite(chosen.accuracy)&&chosen.accuracy>=0&&chosen.accuracy<=100&&
+      Number.isFinite(chosen.lat)&&Number.isFinite(chosen.lng);
+     if(fresh&&permitted){
+      const use=d.createElement('button');use.type='button';
+      use.className='hh-origin-profile-gps-v1167';
+      use.textContent='📍 '+(k==='monika'?'Mónika':'Zsolt')+' friss profilhelyét használom';
+      use.setAttribute('aria-label','A kiválasztott családi profil friss helyének használata. Ez nem feltétlenül a most használt telefon GPS-helye.');
+      const note=d.createElement('small');
+      note.textContent='Ez a profil megosztott GPS-helye, nem feltétlenül a telefonod pozíciója.';
+      use.addEventListener('click',()=>{
+       const now=w.HH_GUARDIAN_PROFILE_FOLLOW_V837?.latestAuthorizedSelectedFix;
+       const live=w.HH_GUARDIAN_LIVE_V785;
+       const still=now&&now.profile===k&&profile()===selected&&
+        Number.isFinite(now.ts)&&Date.now()-now.ts>= -5000&&
+        Date.now()-now.ts<=(now.source==='HH One Native GPS'?75000:20000)&&
+        Number.isFinite(now.accuracy)&&now.accuracy>=0&&now.accuracy<=100&&
+        (live?.familyAuthorized||live?.boundProfile===k)&&live?.authenticated;
+       if(!still){
+        gpsStatus.textContent='A profilhely már nem friss. Kérj új helyzetet, vagy válassz címet.';
+        return;
+       }
+       const place={name:(k==='monika'?'Mónika':'Zsolt')+' friss GPS-helye',
+        subtitle:'A kiválasztott profil engedélyezett helyzete',
+        lat:now.lat,lng:now.lng,source:'selected-profile',profile:selected};
+       if(select(place)){
+        gpsStatus.textContent='✓ A kiválasztott profil friss helye beállítva indulási pontként.';
+        gpsStatus.dataset.state='success';
+        const plan=$('hhSmartHubPlanV806');
+        if(plan&&!plan.disabled){
+         $('guardianMapSearchExitV819')?.click();
+         plan.click();
+         w.setTimeout(()=>$('hhSmartHubTripPlansV804')?.scrollIntoView?.({
+          behavior:'smooth',block:'start'
+         }),140);
+        }
+       }
+      });
+      gpsStatus.append(note,use);
+     }
+    }
     // v1166: selecting GPS sets the BKK departure coordinates, but that alone
     // must NOT leave the user on the map wondering where the route went.
     // Only proceed when BOTH real, verified endpoints are selected.
@@ -256,7 +322,7 @@
    }
   });
   const reset=()=>{
-   stop();clearHits();destination=null;origin=null;input.value='';
+   clearGpsTimeout();stop();clearHits();destination=null;origin=null;input.value='';
    if(gps){gps.disabled=false;gps.setAttribute('aria-busy','false');gps.textContent='📍 Itt vagyok'}
    if(gpsStatus){gpsStatus.hidden=true;gpsStatus.textContent=''}
    input.classList.remove('hh-origin-confirmed-v836');
@@ -268,7 +334,7 @@
   w.addEventListener('storage',e=>{if(e.key==='hh-profile')reset()});
   const switcher=$('guardianProfileSwitch');
   if(switcher)switcher.addEventListener('click',()=>w.setTimeout(reset,0));
-  w.addEventListener('pagehide',()=>{stop();hideKeyboardMode()});
+  w.addEventListener('pagehide',()=>{clearGpsTimeout();stop();hideKeyboardMode()});
   w.addEventListener('resize',positionSoon,{passive:true});
   if(w.visualViewport?.addEventListener){
    w.visualViewport.addEventListener('resize',positionSoon,{passive:true});

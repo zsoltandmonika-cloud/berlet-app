@@ -98,7 +98,7 @@ test('v806 UI provides paired inputs, one-tap swap, favorites and guarded waitin
   'hhSmartHubPlanV806','hhSmartHubFavoritesV806','hhSmartHubFavoriteRowsV806',
   'hhSmartHubPriorityWaitingV806'])
   assert.ok(html.includes(id),'Missing '+id);
- assert.ok(html.includes('guardian-smart-hub-fields-v806.js?v=1165-origin-gps-status'));
+ assert.ok(html.includes('guardian-smart-hub-fields-v806.js?v=1167-local-fix-first'));
  assert.ok(html.includes('guardian-smart-hub-network-v806.js?v=806-network-a&no960=840'));
  assert.ok(html.includes('guardian-smart-hub-router-v804.js?v=967-step-to-next-trip&no960=840'));
  assert.match(js,/router\.setJourney\(state\.origin,state\.destination\)/);
@@ -199,4 +199,29 @@ test('v840 Kolosy tér → Bécsi út / Vörösvári út recognizes 17, 19 and 4
   exit:verified[0].stops.at(-1),stopCount:6
  },[verified[0],fake]),[{line:verified[0],enter:verified[0].stops[0],
    exit:verified[0].stops.at(-1),stopCount:6}]);
+});
+
+test('v1167 Itt vagyok trusts only an actual fresh LOCAL browser fix, not profile data',()=>{
+ const now=1762624800000;
+ const pos={timestamp:now-4000,coords:{latitude:47.53,longitude:19.037,accuracy:18}};
+ const own=fields.verifiedOwnFixPlace(pos,now);
+ assert.equal(own.lat,47.53);assert.equal(own.lng,19.037);
+ assert.equal(own.name,'Jelenlegi pozícióm');
+ assert.equal(own.source,'device-gps');
+ assert.equal(own.accuracyMeters,18);
+ assert.equal(fields.verifiedOwnFixPlace({...pos,timestamp:now-21000},now),null);
+ assert.equal(fields.verifiedOwnFixPlace({...pos,coords:{...pos.coords,accuracy:101}},now),null);
+ assert.equal(fields.verifiedOwnFixPlace({...pos,timestamp:now+6000},now),null);
+ assert.equal(fields.verifiedOwnFixPlace({profile:'zsolt',lat:47.53,lng:19.037,accuracy:18,ts:now},now),null,
+  'a remote native or shared family profile fix must never be implicitly promoted to THIS phone');
+ assert.equal(fields.verifiedOwnFixPlace(null,now),null);
+});
+test('v1167 Guardian existing browser GPS owns the local fix getter; no additional background GPS',()=>{
+ const source=read('guardian.js'),logic=read('guardian-smart-hub-fields-v806.js');
+ assert.match(source,/get latestOwnBrowserFix\(\)\{return active&&hasFix&&lastOwnTransitFix/);
+ assert.match(logic,/HH_GUARDIAN_V761\?\.latestOwnBrowserFix/);
+ assert.match(logic,/if\(fresh\)\{/);
+ assert.match(logic,/gpsNotice\('success','Saját, friss böngészős GPS átvéve/);
+ assert.match(logic,/getCurrentPosition\(position=>/,'one-shot fallback is retained');
+ assert.doesNotMatch(logic,/latestOwnFix/,'remote profile/native fix is never auto-used for current device');
 });
