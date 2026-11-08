@@ -60,7 +60,15 @@ test('v806 Photon suggestion selection uses source coordinates and no invented G
  const code=read('guardian-smart-hub-fields-v806.js');
  assert.match(code,/button.addEventListener\('click',\(\)=>selectPlace\(item,active\)\)/);
  assert.match(code,/syncRoutes\(\)/);
- assert.doesNotMatch(code,/geolocation\.getCurrentPosition|lang.*'hu'/);
+ // Photon suggestions and explicit on-demand GPS are separate validated sources.
+ assert.match(code,/geolocation\.getCurrentPosition/);
+ const now=Date.now(),fix={coords:{latitude:47.53,longitude:19.037,accuracy:18},timestamp:now};
+ const location=fields.currentPositionPlace(fix,now);
+ assert.equal(location.name,'Jelenlegi pozícióm');
+ assert.equal(location.lat,47.53);assert.equal(location.lng,19.037);
+ assert.equal(location.accuracyMeters,18);
+ assert.equal(fields.currentPositionPlace({...fix,timestamp:now-90000},now),null);
+ assert.equal(fields.currentPositionPlace({...fix,coords:{...fix.coords,accuracy:400}},now),null);
 });
 
 test('v806 loads source-backed directed BKK graph and finds at least one connection',()=>{
@@ -90,9 +98,9 @@ test('v806 UI provides paired inputs, one-tap swap, favorites and guarded waitin
   'hhSmartHubPlanV806','hhSmartHubFavoritesV806','hhSmartHubFavoriteRowsV806',
   'hhSmartHubPriorityWaitingV806'])
   assert.ok(html.includes(id),'Missing '+id);
- assert.ok(html.includes('guardian-smart-hub-fields-v806.js?v=825-script-parser-repair'));
- assert.ok(html.includes('guardian-smart-hub-network-v806.js?v=806-network-a'));
- assert.ok(html.includes('guardian-smart-hub-router-v804.js?v=806-network-a'));
+ assert.ok(html.includes('guardian-smart-hub-fields-v806.js?v=1165-origin-gps-status'));
+ assert.ok(html.includes('guardian-smart-hub-network-v806.js?v=806-network-a&no960=840'));
+ assert.ok(html.includes('guardian-smart-hub-router-v804.js?v=967-step-to-next-trip&no960=840'));
  assert.match(js,/router\.setJourney\(state\.origin,state\.destination\)/);
  assert.match(js,/hh-smart-arrival-favorite-places-v806-/);
  assert.match(html,/Kevesebb várakozás · később/);
@@ -136,7 +144,7 @@ test('v840 skips Telebusz 960 in ALL route recommendations, even if stale GTFS J
  const html=read('index.html');
  assert.match(routerSrc,/\['960','917','917A'\]\.includes\(String\(leg\.line\.id\)\.trim\(\)\)/);
  assert.match(html,/guardian-smart-hub-network-v806\.js\?v=806-network-a&no960=840/);
- assert.match(html,/guardian-smart-hub-router-v804\.js\?v=806-network-a&no960=840/);
+ assert.match(html,/guardian-smart-hub-router-v804\.js\?v=967-step-to-next-trip&no960=840/);
 });
 
 test('v840 Kolosy tér → Bécsi út / Vörösvári út recognizes 17, 19 and 41 tram alternatives to bus 260',()=>{

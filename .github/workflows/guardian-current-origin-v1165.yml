@@ -8,6 +8,7 @@ on:
       - 'healthhub/guardian/guardian-origin-search-v836.css'
       - 'healthhub/guardian/guardian-smart-hub-fields-v806.js'
       - 'healthhub/tests/guardian-origin-search-v836.test.cjs'
+      - 'healthhub/tests/smart-hub-v806.test.cjs'
       - '.github/workflows/guardian-current-origin-v1165.yml'
   pull_request:
     paths:
@@ -16,6 +17,7 @@ on:
       - 'healthhub/guardian/guardian-origin-search-v836.css'
       - 'healthhub/guardian/guardian-smart-hub-fields-v806.js'
       - 'healthhub/tests/guardian-origin-search-v836.test.cjs'
+      - 'healthhub/tests/smart-hub-v806.test.cjs'
       - '.github/workflows/guardian-current-origin-v1165.yml'
 permissions:
   contents: read
