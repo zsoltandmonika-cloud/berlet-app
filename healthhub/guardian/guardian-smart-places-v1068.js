@@ -50,10 +50,15 @@
  function places(profile){
   const slots=pool()?.getSlots?.()||[];
   return slots.flatMap((s,i)=>{
-   const config=decode(s?.place?.subtitle);
    const p=s?.place;
-   return config&&config.profile===profile&&p&&Number.isFinite(p.lat)&&Number.isFinite(p.lng)&&
-    Math.abs(p.lat)<=90&&Math.abs(p.lng)<=180&&String(s.label||'').trim()?
+   if(!p||!Number.isFinite(p.lat)||!Number.isFinite(p.lng)||Math.abs(p.lat)>90||Math.abs(p.lng)>180)return [];
+   const rule=w.SHO_BUDDY_PLACE_RULES_V2?.forPlace?.(i,profile,p.lat,p.lng);
+   const legacy=decode(p.subtitle);
+   const config=rule?{
+    profile,radius:rule.radius_m,arrival:rule.arrival_sound,departure:rule.departure_sound,
+    arrivalEnabled:rule.arrival_enabled,departureEnabled:rule.departure_enabled
+   }:legacy&&legacy.profile===profile?{...legacy,arrivalEnabled:true,departureEnabled:true}:null;
+   return config&&String(s.label||'').trim()?
     [{index:i,name:String(s.label).slice(0,40),lat:p.lat,lng:p.lng,...config}]:[];
   });
  }
@@ -105,7 +110,9 @@
   }catch(_){}
  }
  function notify(place,type){
-  if(!enabled||d.hidden)return;
+  if(!enabled||d.hidden||
+     type==='arrival'&&place.arrivalEnabled===false||
+     type==='departure'&&place.departureEnabled===false)return;
   const text=own(place.profile)+(type==='arrival'?' megérkezett ide: ':' elindult innen: ')+place.name;
   // v1: use the approved SHO green/amber Buddy popup and local Notification Center bridge.
   // Keep the existing Smart Places toast as a safe fallback.
@@ -244,7 +251,11 @@
   if(newSignature===slotSignature)return;
   slotSignature=newSignature;previous.clear();if(last)bubble(last);
  });
- w.addEventListener?.('storage',e=>{if(e.key==='hh-family-favorite-places-v972'&&last){previous.clear();bubble(last)}});
+ w.addEventListener?.('storage',e=>{
+  if(e.key==='hh-family-favorite-places-v972'&&last){previous.clear();bubble(last)}
+  if(e.key===KEY){enabled=e.newValue==='on';enable.checked=enabled}
+ });
+ w.addEventListener?.('sho:buddy-place-rules-changed',()=>{previous.clear();if(last)bubble(last)});
  let lastForegroundRead=0;
  function foregroundSync(){
   if(d.hidden||Date.now()-lastForegroundRead<5*60*1000)return;
