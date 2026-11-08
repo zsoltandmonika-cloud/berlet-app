@@ -110,8 +110,8 @@
   }catch(_){}
  }
  function notify(place,type){
-  if(!enabled||d.hidden||
-     type==='arrival'&&place.arrivalEnabled===false||
+  if(!enabled||d.hidden)return;
+  if(type==='arrival'&&place.arrivalEnabled===false||
      type==='departure'&&place.departureEnabled===false)return;
   const text=own(place.profile)+(type==='arrival'?' megérkezett ide: ':' elindult innen: ')+place.name;
   // v1: use the approved SHO green/amber Buddy popup and local Notification Center bridge.
