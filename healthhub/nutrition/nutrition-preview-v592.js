@@ -972,8 +972,9 @@ root.HH_NUTRITION_QUICK_API={
   // Old "1 adag" / "2 db" rows need an explicit reference mass, not a
   // fabricated 1/2 gram baseline.
   const reference=scaler.validation(payload.originalWeight,inferred.unit,original.cookbookImport?.finishedWeightGrams);
-  if(inferred.amount!=null&&Math.abs(inferred.amount-reference)>0.0001)
-   throw Error('A kiinduló súly megváltozott. Nyisd meg újra a szerkesztőt.');
+  const correctedBaseline=inferred.amount!=null&&Math.abs(inferred.amount-reference)>0.0001;
+  if(correctedBaseline&&!(inferred.unit==='g'&&payload.baselineCorrected===true))
+   throw Error('A kiinduló súly eltér a rögzítettől; nyisd meg újra a súlyszerkesztőt.');
   const nutrientValues={...original.nutrients};
   for(const key of metrics){
    if(!Object.prototype.hasOwnProperty.call(payload.nutrients||{},key))continue;
@@ -988,8 +989,8 @@ root.HH_NUTRITION_QUICK_API={
   const updated={...original,name,meal,time,date,quantity:qty,
    unit:inferred.unit,quantityText:fmt(qty,2)+' '+inferred.unit,
    nutrients:nutrientValues,updatedAt:now,diaryEditedAt:now,
-   ...(inferred.amount==null?{diaryOriginalWeightGrams:reference}:{}),
-   diaryWeightSource:inferred.amount==null?'user-confirmed':(original.diaryWeightSource||'recorded')};
+   ...(inferred.amount==null||correctedBaseline?{diaryOriginalWeightGrams:reference}:{}),
+   diaryWeightSource:inferred.amount==null?'user-confirmed':correctedBaseline?'user-corrected':(original.diaryWeightSource||'recorded')};
   if(inferred.unit==='ml'&&original.volumeMl!=null)updated.volumeMl=qty;
   if(original.cookbookImport){
    updated.cookbookImport={...original.cookbookImport,grams:qty};

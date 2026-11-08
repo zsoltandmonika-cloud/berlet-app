@@ -23,7 +23,7 @@ dialog.innerHTML=[
  '<label>Napszak / étkezés<select id="hhDiaryEditMealV1161"></select></label>',
  '<label>Időpont<input id="hhDiaryEditTimeV1161" type="time" required></label>',
  '<label>Nap<input id="hhDiaryEditDateV1161" type="date" required></label>',
- '<label id="hhDiaryEditBaselineWrapV1162" class="hh-diary-edit-wide-v1161" hidden>Kiinduló súly (g)<input id="hhDiaryEditBaselineV1162" type="number" inputmode="decimal" min="0.01" max="50000" step="any" placeholder="Pl. 320"></label>',
+ '<label id="hhDiaryEditBaselineWrapV1162" class="hh-diary-edit-wide-v1161" hidden>Kiinduló súly (g) <small>Előre kitöltve · átírható</small><input id="hhDiaryEditBaselineV1162" type="number" inputmode="decimal" min="0.01" max="50000" step="any" placeholder="Pl. 320"></label>',
  '<label id="hhDiaryEditWeightLabelV1162" class="hh-diary-edit-weight-label-v1162">Súly (g)<input id="hhDiaryEditAmountV1161" type="number" inputmode="decimal" min="0.01" max="50000" step="any" placeholder="Pl. 200" required></label>',
  '</div>',
  '<p class="hh-diary-edit-scale-v1161" id="hhDiaryEditScaleV1161" aria-live="polite">A súly (g) változtatásakor az összes tápérték automatikusan átskálázódik.</p>',
@@ -62,7 +62,7 @@ function fail(message){error.hidden=false;error.textContent=String(message||'A m
 function clearError(){error.hidden=true;error.textContent='';}
 function referenceWeight(){
  if(!state)throw Error('Nincs szerkeszthető naplóbejegyzés.');
- if(state.originalAmount!=null)return state.originalAmount;
+ if(state.unit==='ml'&&state.originalAmount!=null)return state.originalAmount;
  const value=parsed(baseline.value);
  if(value==null)throw Error('A régi naplóban csak adagszám szerepel. Add meg az eredeti étel súlyát grammban.');
  return math.validation(value,state.unit,state.entry.cookbookImport?.finishedWeightGrams);
@@ -84,12 +84,12 @@ function liveScale(){
  const ratio=q/original;
  const oldKcal=state.originalNutrients.kcal;
  const kcalAnchor=state.anchors.kcal;
- const calcKcal=kcalAnchor?.value==null?null:round(kcalAnchor.value*q/(kcalAnchor.amount||original));
+ const calcKcal=kcalAnchor?.value==null?null:round(kcalAnchor.value*q/(kcalAnchor.manual?kcalAnchor.amount:original));
  ratioInfo.textContent='⚖️ '+fmt(original)+' '+state.unit+' → '+fmt(q)+' '+state.unit+
   ' · '+fmt(ratio*100)+'%'+(oldKcal==null||calcKcal==null?' · Kalóriaadat nincs':' · 🔥 '+fmt(calcKcal)+' kcal');
  for(const key of NUTRI_KEYS){
   const anchor=state.anchors[key];
-  fields[key].value=anchor?.value==null?'':String(round(anchor.value*q/(anchor.amount||original)));
+  fields[key].value=anchor?.value==null?'':String(round(anchor.value*q/(anchor.manual?anchor.amount:original)));
  }
 }
 function open(entry){
@@ -100,33 +100,47 @@ function open(entry){
  state={
   entry:JSON.parse(JSON.stringify(entry)),id:entry.id,
   profile:api().getProfile(),originalAmount:quantity.amount,
-  originalNutrients:{...(entry.nutrients||{})},unit:quantity.unit,anchors:{}
+  originalNutrients:{...(entry.nutrients||{})},unit:quantity.unit,anchors:{},lastBaseline:null
  };
  for(const key of NUTRI_KEYS){
   const raw=entry.nutrients?.[key];
-  state.anchors[key]={value:raw==null?null:Number(raw),amount:quantity.amount};
+  state.anchors[key]={value:raw==null?null:Number(raw),amount:quantity.amount,manual:false};
  }
  el('hhDiaryEditNameV1161').value=String(entry.name||'');
  el('hhDiaryEditDateV1161').value=entry.date||'';
  el('hhDiaryEditTimeV1161').value=entry.time||'';
  meal.value=MEALS.includes(entry.meal)?entry.meal:'Egyéb';
  const needsWeight=quantity.amount==null;
- baselineWrap.hidden=!needsWeight;
- baseline.value='';
+ baselineWrap.hidden=quantity.unit!=='g'&&!needsWeight;
+ if(baselineWrap.firstChild&&quantity.unit==='ml')baselineWrap.firstChild.textContent='Kiinduló mennyiség (ml) ';
+ // v1164: Known gram weights retain their measured value (usually 320 g).
+ // Legacy foods without a stored weight receive editable suggested 320 g.
+ const suggestedWeight=quantity.unit==='g'?(quantity.amount??320):null;
+ baseline.value=suggestedWeight==null?'':String(suggestedWeight);
+ state.lastBaseline=suggestedWeight;
  if(weightLabel.firstChild)weightLabel.firstChild.textContent=quantity.unit==='ml'?'Mennyiség (ml)':'Súly (g)';
- amount.value=needsWeight?'':String(quantity.amount);
+ amount.value=needsWeight?(suggestedWeight==null?'':String(suggestedWeight)):String(quantity.amount);
  clearError();
- if(needsWeight){
-  ratioInfo.textContent='⚖️ A régi bejegyzésben nincs grammban mért súly. Előbb add meg a kiinduló súlyt (g), majd az elfogyasztott súlyt (g).';
+ if(needsWeight&&suggestedWeight==null){
+  ratioInfo.textContent='⚖️ Ennél a bejegyzésnél nincs ismert súly. Add meg a tényleges kiinduló és elfogyasztott mennyiséget.';
   for(const key of NUTRI_KEYS)fields[key].value=state.anchors[key].value==null?'':String(state.anchors[key].value);
- }else liveScale();
+ }else{
+  liveScale();
+  if(needsWeight){
+   ratioInfo.textContent='⚖️ 320 g előre kitöltött javaslat. Ellenőrizd a kiinduló súlyt, szükség esetén írd át, majd módosítsd az elfogyasztott súlyt.';
+  }
+ }
  dialog.showModal();amount.focus({preventScroll:true});
  return true;
 }
 amount.addEventListener('input',liveScale);
 baseline.addEventListener('input',()=>{
- if(state?.originalAmount!=null)return;
- if(amount.value.trim()===''&&baseline.value.trim()!=='')amount.value=baseline.value;
+ if(!state)return;
+ const next=parsed(baseline.value);
+ // The consumed weight is independent: correcting the original recipe
+ // weight must NOT silently overwrite what the person actually ate.
+ if(amount.value.trim()===''&&next!=null)amount.value=String(next);
+ state.lastBaseline=next;
  liveScale();
 });
 for(const [key,input] of Object.entries(fields)){
@@ -139,7 +153,7 @@ for(const [key,input] of Object.entries(fields)){
    fail('Érvénytelen '+LABELS[key]+' érték.');return;
   }
   // A manual correction becomes the anchor for *future* weight edits.
-  state.anchors[key]={value,amount:atAmount};
+  state.anchors[key]={value,amount:atAmount,manual:true};
   clearError();
   if(state.anchors.kcal?.value!=null)ratioInfo.textContent='✏️ Kézi javítás rögzítve · '+fmt(state.anchors.kcal.value)+' kcal';
  });
@@ -164,6 +178,7 @@ form.addEventListener('submit',event=>{
   const result=api().updateDiaryEntry({
    expectedProfile:state.profile,id:state.id,name,
    quantity:q,unit:state.unit,originalWeight:original,
+   baselineCorrected:state.unit==='g'&&state.originalAmount!=null&&Math.abs(state.originalAmount-original)>0.0001,
    meal:meal.value,date:el('hhDiaryEditDateV1161').value,
    time:el('hhDiaryEditTimeV1161').value,
    nutrients

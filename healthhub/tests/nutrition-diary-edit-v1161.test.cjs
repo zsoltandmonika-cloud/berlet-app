@@ -178,23 +178,19 @@ test('v1162 UI shows only Súly (g), NEVER Adag / súly or a default 1 g',()=>{
  u.open();
  assert.match(u.dialog.markup,/Súly \(g\)/);
  assert.doesNotMatch(u.dialog.markup,/Adag \/ súly/);
- assert.equal(u.ids.get('hhDiaryEditBaselineWrapV1162').hidden,true);
+ assert.equal(u.ids.get('hhDiaryEditBaselineWrapV1162').hidden,false);
+ assert.equal(Number(u.ids.get('hhDiaryEditBaselineV1162').value),320);
  assert.equal(Number(u.ids.get('hhDiaryEditAmountV1161').value),320);
 });
-test('v1162 legacy 1 adag requires actual original weight before scaling',()=>{
+test('v1164 legacy 1 adag gets editable 320 g reference without misreading 1 as grams',()=>{
  const rec=baseRecord({quantity:undefined,unit:undefined,quantityText:'1 előre beállított adag',cookbookImport:undefined});
  const u=setupEditor(rec);u.open();
  const weight=u.ids.get('hhDiaryEditAmountV1161');
  const baseline=u.ids.get('hhDiaryEditBaselineV1162');
  assert.equal(u.ids.get('hhDiaryEditBaselineWrapV1162').hidden,false);
- assert.equal(weight.value,'');
- assert.equal(baseline.value,'');
- assert.match(u.ids.get('hhDiaryEditScaleV1161').textContent,/kiinduló súlyt/i);
- u.ids.get('hhDiaryEditFormV1161').events.submit({preventDefault(){}});
- assert.equal(u.writes.length,0);
- assert.match(u.ids.get('hhDiaryEditErrorV1161').textContent,/eredeti étel súlyát/i);
- baseline.value='320';baseline.events.input();
- assert.equal(weight.value,'320','copy physical baseline, not 1 adag');
+ assert.equal(weight.value,'320');
+ assert.equal(baseline.value,'320');
+ assert.match(u.ids.get('hhDiaryEditScaleV1161').textContent,/javaslat/i);
  weight.value='120';weight.events.input();
  assert.equal(Number(u.field('kcal').value),150);
  assert.equal(Number(u.field('protein').value),9);
@@ -203,12 +199,45 @@ test('v1162 legacy 1 adag requires actual original weight before scaling',()=>{
  assert.equal(u.writes[0].quantity,120);
  assert.equal(u.writes[0].unit,'g');
  assert.equal(u.writes[0].originalWeight,320);
+ assert.equal(u.writes[0].baselineCorrected,false);
  assert.equal(u.writes[0].nutrients.kcal,150);
+});
+test('v1164 known 320 g baseline can be corrected independently to 400 g',()=>{
+ const u=setupEditor();u.open();
+ const baseline=u.ids.get('hhDiaryEditBaselineV1162');
+ const weight=u.ids.get('hhDiaryEditAmountV1161');
+ assert.equal(baseline.value,'320');
+ baseline.value='400';baseline.events.input();
+ assert.equal(weight.value,'320','reference correction must not overwrite consumed grams');
+ assert.equal(Number(u.field('kcal').value),320,'400 kcal is now reference for 400 g');
+ weight.value='200';weight.events.input();
+ assert.equal(Number(u.field('kcal').value),200);
+ assert.equal(Number(u.field('protein').value),12);
+ u.ids.get('hhDiaryEditFormV1161').events.submit({preventDefault(){}});
+ assert.equal(u.writes.length,1);
+ assert.equal(u.writes[0].originalWeight,400);
+ assert.equal(u.writes[0].baselineCorrected,true);
+ assert.equal(u.writes[0].quantity,200);
+ assert.equal(u.writes[0].nutrients.kcal,200);
+});
+test('v1164 existing 200 g reference stays 200 g and unknown drinks do not default to 320 ml',()=>{
+ const measured=setupEditor(baseRecord({quantity:200,unit:'g',quantityText:'200 g'}));
+ measured.open();
+ assert.equal(measured.ids.get('hhDiaryEditBaselineV1162').value,'200');
+ assert.equal(measured.ids.get('hhDiaryEditAmountV1161').value,'200');
+ const noDrinkWeight=setupEditor(baseRecord({kind:'drink',quantity:undefined,unit:undefined,quantityText:'1 csésze',cookbookImport:undefined}));
+ noDrinkWeight.open();
+ assert.equal(noDrinkWeight.ids.get('hhDiaryEditBaselineV1162').value,'');
+ assert.equal(noDrinkWeight.ids.get('hhDiaryEditAmountV1161').value,'');
+ noDrinkWeight.ids.get('hhDiaryEditFormV1161').events.submit({preventDefault(){}});
+ assert.equal(noDrinkWeight.writes.length,0);
 });
 test('v1162 source update requires physical baseline and preserves real data',()=>{
  assert.match(nutritionCore,/const reference=scaler\.validation\(payload\.originalWeight/);
+ assert.match(nutritionCore,/correctedBaseline/);
+ assert.match(nutritionCore,/payload\.baselineCorrected===true/);
  assert.match(nutritionCore,/diaryOriginalWeightGrams:reference/);
  assert.match(nutritionCore,/diaryWeightSource:inferred\.amount==null\?'user-confirmed'/);
  assert.match(index,/hh-diary-scale-v1161\.js\?v=1162-weight-only/);
- assert.match(index,/hh-diary-edit-v1161\.js\?v=1162-weight-only/);
+ assert.match(index,/hh-diary-edit-v1161\.js\?v=1164-editable-320/);
 });
