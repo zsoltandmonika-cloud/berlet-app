@@ -72,3 +72,21 @@ self.addEventListener('notificationclick',event=>{
   else await self.clients.openWindow(safeTarget);
  })());
 });
+
+/* Smart Buddy foreground system notifications: no new push payload kind or GPS background task.
+ * The verified browser geofence calls registration.showNotification only with permission. */
+self.addEventListener('notificationclick',event=>{
+ if(event.notification?.data?.kind!=='sho-buddy-place-foreground-v2')return;
+ event.notification.close();
+ event.waitUntil((async()=>{
+  const target=new URL('notification-center/',ROOT).href;
+  const matches=await self.clients.matchAll({type:'window',includeUncontrolled:true});
+  const open=matches.find(client=>{
+   try{return new URL(client.url).origin===self.location.origin&&
+    (new URL(client.url).pathname.startsWith('/berlet-app/sh9/')||
+     new URL(client.url).pathname.startsWith('/berlet-app/healthhub/guardian/'))}catch(_){return false}
+  });
+  if(open){await open.focus();if(typeof open.navigate==='function')await open.navigate(target)}
+  else await self.clients.openWindow(target);
+ })());
+});
