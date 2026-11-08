@@ -1,0 +1,34 @@
+name: Léna Recept Stúdió · Golden Standard Nutri Info v1155
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'recepttar-studio/app.js'
+      - 'recepttar-studio/index.html'
+      - 'recepttar-studio/hh-nutri-golden-standard-v1155.js'
+      - 'recepttar-studio/hh-nutri-golden-standard-v1155.css'
+      - 'healthhub/tests/nutrition-golden-auto-v1155.test.cjs'
+      - '.github/workflows/nutrition-golden-auto-v1155.yml'
+  pull_request:
+    paths:
+      - 'recepttar-studio/app.js'
+      - 'recepttar-studio/index.html'
+      - 'recepttar-studio/hh-nutri-golden-standard-v1155.js'
+      - 'recepttar-studio/hh-nutri-golden-standard-v1155.css'
+      - 'healthhub/tests/nutrition-golden-auto-v1155.test.cjs'
+      - '.github/workflows/nutrition-golden-auto-v1155.yml'
+permissions:
+  contents: read
+jobs:
+  golden-nutri:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Golden Nutri auto, backfill, measured weights, cloud persistence
+        run: node --test healthhub/tests/nutrition-golden-auto-v1155.test.cjs
+      - name: Cookbook 320 gram Nutrition bridge regression
+        run: node --test healthhub/tests/nutrition-cookbook-bridge-v1154.test.cjs

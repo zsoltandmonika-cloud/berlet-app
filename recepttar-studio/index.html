@@ -12,6 +12,7 @@
 <link rel="shortcut icon" href="favicon.svg?v=1">
 <link rel="apple-touch-icon" href="icon-192.png?v=1">
 <link rel="stylesheet" href="styles.css?v=42">
+<link rel="stylesheet" href="hh-nutri-golden-standard-v1155.css?v=1155-golden-nutri">
 <style>
 .hh-nutri-weight-v1154{margin-top:14px;padding:12px;border-radius:15px;background:linear-gradient(130deg,rgba(23,69,82,.55),rgba(18,30,46,.66));border:1px solid rgba(118,227,211,.35);display:grid;gap:8px}
 .hh-nutri-weight-v1154 label{font-size:13px;font-weight:800;color:#e6fff8}
@@ -64,6 +65,19 @@
       <span class="health-banner-badge">AI becslés</span>
       <span class="health-banner-arrow">›</span>
     </button>
+  </section>
+  <section class="nutri-golden-batch-v1155" aria-label="Golden Standard Nutri Info automatizálás">
+    <div class="nutri-golden-head-v1155">
+      <b>🥗 Golden Standard · Nutri Info</b>
+      <small>Automatikus az új receptkártyákhoz</small>
+    </div>
+    <p class="nutri-golden-info-v1155">Hiányzó receptek: kalória · fehérje · szénhidrát · zsír · rost, valamint a készétel teljes súlyának AI-becslése. A becsült súly később mérleggel felülírható.</p>
+    <div class="nutri-golden-actions-v1155">
+      <button id="nutriBulkStartV1155" type="button">✨ Hiányzó Nutri Info pótlása minden recepthez</button>
+      <button id="nutriBulkStopV1155" type="button" hidden>⏸ Megállítás</button>
+      <span id="nutriBulkCountsV1155">Receptek ellenőrzése…</span>
+    </div>
+    <div id="nutriBulkStatusV1155" role="status" aria-live="polite">A pótlás csak a gomb megnyomásakor indul; minden recept után felhőmentés és ellenőrzés történik. A Puter AI-fiók kerete számíthat.</div>
   </section>
   <div class="count-row">
     <span><b id="count">0</b> recept</span>
@@ -669,6 +683,7 @@
       <img id="studioPhotoPreview" class="studio-photo-preview" alt="Ételfotó előnézet" hidden>
     </section>
 
+    <div id="nutriAutoStatusV1155" role="status">🥗 Golden Standard: véglegesítéskor automatikusan elkészül a Nutri Info és a készétel tömegének jelölt AI-becslése. A tényleges készétel-tömeg később mérleggel felülírható.</div>
     <label class="sync-choice">
       <input id="studioCentralSync" type="checkbox" checked disabled>
       <span><b>☁ Automatikus felhőmentés bekapcsolva</b><small>A recept, a címlapfotó és a képes kártya automatikusan a Puter-felhőbe szinkronizálódik. Sikertelen mentés esetén figyelmeztetés jelenik meg.</small></span>
@@ -695,8 +710,9 @@
 <script src="../recepttar/readable-data.js?v=35"></script>
 <script src="stangli-2026.js?v=1"></script>
 <script src="../healthhub/nutrition/hh-cookbook-portion-math-v1154.js?v=1154"></script>
-<script src="app.js?v=1154-cooked-weight"></script>
+<script src="app.js?v=1154-cooked-weight&amp;nutri=1155"></script>
 <script src="hh-nutrition-export-v1154.js?v=1154-single-tap"></script>
+<script src="hh-nutri-golden-standard-v1155.js?v=1155-cloud-backfill"></script>
 
 <script defer src="/berlet-app/sh9/shared/sh9-golden-controls-v1.js?v=934-unified-glass-dock"></script>
 <script defer src="/berlet-app/sh9/shared/sh9-golden-bottom-nav-v924.js?v=924-unified"></script>
