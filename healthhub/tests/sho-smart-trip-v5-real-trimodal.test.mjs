@@ -112,3 +112,14 @@ test("Browser is opt-in, no map, no GPT, no key, no persistence or changes to le
  assert.match(client,/new AbortController\(/);
  assert.doesNotMatch(client,/sendToChatGPT|saveTrip|\.from\("hh_my_trip_packs"/);
 });
+
+test("Stuck Google pilot must stop on delayed auth and display exact HTTP 503 reason",()=>{
+ assert.match(client,/Promise\.race\(\[/);
+ assert.match(client,/8000/);
+ assert.match(client,/41[0]{3}/);
+ assert.match(client,/hibakód:/);
+ assert.match(client,/A keresés lezárult hibával/);
+ assert.match(client,/networkStarted=true/);
+ assert.match(client,/if\(!networkStarted\)alreadyRun=false/);
+ assert.match(ui,/client\.mjs\?v=503-auth-timeout-fix1/);
+});
