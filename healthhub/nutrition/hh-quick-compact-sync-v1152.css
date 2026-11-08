@@ -1,0 +1,106 @@
+/* Nutrition v1152 · Gyors bevitel tiles exactly track the v1151 Bevitel card
+ * heights. Layout-only override: keep the existing four controls, profile colors,
+ * action handlers and Golden Glassy artwork unchanged.
+ */
+#hhNutritionQuickPanelV1137{
+ margin:8px 0 15px;
+ padding:3px;
+ border-radius:18px;
+}
+#hhNutritionQuickGridV1137{
+ grid-template-columns:repeat(2,minmax(0,1fr));
+ gap:10px;
+}
+#hhNutritionQuickGridV1137 > button.hh-nutrition-quick-tile-v1137{
+ box-sizing:border-box;
+ width:100%;
+ height:var(--hh-kpi-card-height,103px);
+ min-height:0;
+ aspect-ratio:auto;
+ flex-direction:row;
+ align-items:center;
+ justify-content:flex-start;
+ gap:9px;
+ padding:8px 29px 8px 9px;
+ border-radius:17px;
+ text-align:left;
+}
+#hhNutritionQuickGridV1137 .hh-nutrition-quick-icon-v1137,
+#hhNutritionQuickGridV1137 #hhManualLaunch1130 .hh-nutrition-quick-icon-v1137{
+ width:34px;
+ height:34px;
+ flex:0 0 34px;
+ margin:0;
+ border-radius:11px;
+}
+#hhNutritionQuickGridV1137 .hh-nutrition-quick-icon-v1137 svg,
+#hhNutritionQuickGridV1137 #hhManualLaunch1130 .hh-nutrition-quick-icon-v1137 svg{
+ width:22px;
+ height:22px;
+ stroke-width:2.2;
+}
+#hhNutritionQuickGridV1137 .hh-nutrition-quick-copy-v1137{
+ width:auto;
+ flex:1 1 auto;
+ min-width:0;
+ gap:3px;
+ align-items:flex-start;
+ text-align:left;
+}
+#hhNutritionQuickGridV1137 .hh-nutrition-quick-copy-v1137 strong{
+ font-size:clamp(12px,1.65vw,16px);
+ line-height:1.2;
+ overflow-wrap:anywhere;
+}
+#hhNutritionQuickGridV1137 .hh-nutrition-quick-copy-v1137 small{
+ font-size:clamp(9px,1.12vw,11px);
+ line-height:1.2;
+}
+#hhNutritionQuickGridV1137 .hh-nutrition-quick-chevron-v1137{
+ right:8px;
+ bottom:9px;
+ font-size:18px;
+}
+@media(max-width:540px){
+ #hhNutritionQuickPanelV1137{padding:3px;border-radius:16px}
+ #hhNutritionQuickGridV1137{gap:9px}
+ #hhNutritionQuickGridV1137 > button.hh-nutrition-quick-tile-v1137{
+  height:var(--hh-kpi-card-height,103px);
+  min-height:0;
+  aspect-ratio:auto;
+  padding:6px 23px 6px 7px;
+  gap:7px;
+  border-radius:15px;
+ }
+ #hhNutritionQuickGridV1137 .hh-nutrition-quick-icon-v1137,
+ #hhNutritionQuickGridV1137 #hhManualLaunch1130 .hh-nutrition-quick-icon-v1137{
+  width:29px;height:29px;flex-basis:29px;border-radius:9px;
+ }
+ #hhNutritionQuickGridV1137 .hh-nutrition-quick-icon-v1137 svg,
+ #hhNutritionQuickGridV1137 #hhManualLaunch1130 .hh-nutrition-quick-icon-v1137 svg{
+  width:19px;height:19px;
+ }
+ #hhNutritionQuickGridV1137 .hh-nutrition-quick-copy-v1137 strong{
+  font-size:clamp(11px,3.3vw,14px);
+ }
+ #hhNutritionQuickGridV1137 .hh-nutrition-quick-copy-v1137 small{font-size:9px}
+ #hhNutritionQuickGridV1137 .hh-nutrition-quick-chevron-v1137{
+  right:5px;bottom:7px;font-size:16px;
+ }
+}
+@media(max-width:360px){
+ #hhNutritionQuickGridV1137 > button.hh-nutrition-quick-tile-v1137{
+  height:var(--hh-kpi-card-height,103px);
+  min-height:0;
+  aspect-ratio:auto;
+  gap:5px;
+  padding-left:6px;
+  padding-right:18px;
+ }
+ #hhNutritionQuickGridV1137 .hh-nutrition-quick-icon-v1137,
+ #hhNutritionQuickGridV1137 #hhManualLaunch1130 .hh-nutrition-quick-icon-v1137{
+  width:26px;height:26px;flex-basis:26px;
+ }
+ #hhNutritionQuickGridV1137 .hh-nutrition-quick-copy-v1137 strong{font-size:11px}
+ #hhNutritionQuickGridV1137 .hh-nutrition-quick-copy-v1137 small{font-size:8.5px}
+}
