@@ -5,6 +5,8 @@ on:
       - 'supabase/functions/hh-smart-trip-real-pilot-v1/**'
       - 'sh9/smart-travel/public-transport/smart-trip/v5/real-test/**'
       - 'healthhub/tests/sho-smart-trip-v5-real-trimodal.test.mjs'
+      - 'healthhub/tests/sho-smart-trip-v5-quota-role-migration.test.mjs'
+      - 'supabase/migrations/20261108015100_fix_smart_trip_google_quota_secret_key_role.sql'
       - 'healthhub/tests/sho-smart-trip-v5-real-retry-state.test.mjs'
       - '.github/workflows/sho-smart-trip-v5-real-trimodal.yml'
   push:
@@ -13,6 +15,8 @@ on:
       - 'supabase/functions/hh-smart-trip-real-pilot-v1/**'
       - 'sh9/smart-travel/public-transport/smart-trip/v5/real-test/**'
       - 'healthhub/tests/sho-smart-trip-v5-real-trimodal.test.mjs'
+      - 'healthhub/tests/sho-smart-trip-v5-quota-role-migration.test.mjs'
+      - 'supabase/migrations/20261108015100_fix_smart_trip_google_quota_secret_key_role.sql'
       - 'healthhub/tests/sho-smart-trip-v5-real-retry-state.test.mjs'
       - '.github/workflows/sho-smart-trip-v5-real-trimodal.yml'
 permissions:
@@ -34,6 +38,7 @@ jobs:
         run: |
           node --test healthhub/tests/sho-smart-trip-v5-real-trimodal.test.mjs
           node --test healthhub/tests/sho-smart-trip-v5-real-retry-state.test.mjs
+          node --test healthhub/tests/sho-smart-trip-v5-quota-role-migration.test.mjs
       - uses: denoland/setup-deno@v2
         with:
           deno-version: v2.x
