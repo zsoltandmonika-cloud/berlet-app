@@ -10,6 +10,7 @@
 <link rel="stylesheet" href="../shared/sh9-golden-controls-v1.css?v=934-unified-glass-dock">
 <link rel="stylesheet" href="../shared/sh9-golden-bottom-nav-v924.css?v=925-notification-center">
 <link rel="stylesheet" href="./notification-center-v1.css?v=4-golden-links">
+<link rel="stylesheet" href="./notification-place-alerts-v2.css?v=2">
 </head>
 <body>
 <main class="nc-shell">
@@ -86,11 +87,24 @@
     </div>
     <p class="nc-push-note">A háttérben az Android rendszerhangja használható. A személyes egészségügyi értesítések nincsenek bekötve.</p>
    </section>
-   <section class="nc-sound-panel" aria-label="Smart Buddy Place Alerts">
-    <div class="nc-sound-heading"><span class="nc-sound-icon" aria-hidden="true">🐿️</span><div><strong>📍 Smart Buddy · Place Alerts</strong>
-    <p>🟢 Érkezés: Happy Buddy · 🟠 Távozás: Neutral Buddy. A Family Guard kategóriában külön kapcsolhatók az értesítések.</p></div></div>
-    <div class="nc-push-actions"><a class="nc-button" href="../../healthhub/guardian/" style="text-decoration:none;display:inline-flex;align-items:center;justify-content:center">Kedvenc helyek és riasztások kezelése</a></div>
-    <p class="nc-push-note">A helyekhez tartozó hangok és a 100–300 m érzékelési sugár a Family Guard Smart Places szerkesztőjében állítható. A jelenlegi GPS-érzékelés aktív böngészőablakot igényel.</p>
+   <section class="nc-place-panel" id="ncPlaceAlertsV2" aria-label="Smart Buddy kedvenc helyek értesítései">
+    <div class="nc-place-header">
+     <div><strong>🐿️ Smart Buddy · Place Alerts</strong>
+      <p>Kedvenc helyek · 🟢 Happy Arrival · 🟠 Neutral Departure</p></div>
+     <label><span class="sr-only">Figyelt személy</span><select id="ncPlacePersonV2" aria-label="Figyelt személy">
+       <option value="zsolt">Zsolt</option><option value="monika">Mónika</option>
+     </select></label>
+    </div>
+    <div class="nc-place-meta"><span id="ncPlaceCountV2">Helyek betöltése…</span>
+     <button id="ncPlaceRefreshV2" type="button">⟳ Szinkron</button></div>
+    <label class="nc-place-local"><span><b>🔔 Helyriasztás ezen a készüléken</b>
+     <small>Aktív Family Guard mellett · hang és Buddy-popup</small></span>
+     <input id="ncPlaceLocalV2" type="checkbox" aria-label="Helyriasztás engedélyezése ezen a készüléken"></label>
+    <p class="nc-place-status" id="ncPlaceStatusV2" role="status" aria-live="polite">Kedvenc helyek ellenőrzése…</p>
+    <div class="nc-place-list" id="ncPlaceListV2"></div>
+    <p class="nc-place-bottom"><a href="../../healthhub/guardian/">＋ Új kedvenc hely mentése a Family Guardban</a></p>
+    <p class="nc-place-bottom">Android: a fenti <b>Háttérértesítések</b> panelben engedélyezhető és tesztelhető a Web Push. 
+     A Place Alerts automatikus érkezés/távozás küldése bezárt alkalmazás mellett még nem aktív; ehhez szerveroldali helyérzékelés szükséges.</p>
    </section>
    <div class="nc-categories" id="ncCategories"></div>
    <div class="nc-test-panel">
@@ -112,6 +126,11 @@
 <script defer src="./notification-core-v1.js?v=6-buddy-place-alerts"></script>
 <script defer src="./notification-sound-v2.js?v=2"></script>
 <script defer src="./notification-center-v1.js?v=4-golden-links"></script>
+<script defer src="../../healthhub/central-vault/config.js?v=785-family-live-publishable"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.2/dist/umd/supabase.min.js"></script>
+<script defer src="../../healthhub/guardian/guardian-family-favorites-v972.js?v=972-buddy-alerts-list"></script>
+<script defer src="../../healthhub/guardian/guardian-place-alert-rules-v2.js?v=2-cloud-alerts"></script>
+<script defer src="./notification-place-alerts-v2.js?v=2-favorites"></script>
 <script defer src="./notification-push-v3.js?v=3"></script>
 <script defer src="../shared/sh9-golden-controls-v1.js?v=934-unified-glass-dock"></script>
 <script defer src="../shared/sh9-golden-bottom-nav-v924.js?v=929-sport-schedule"></script>
