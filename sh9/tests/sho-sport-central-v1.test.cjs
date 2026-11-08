@@ -54,7 +54,7 @@ test('SHO 4×3 grid and existing routes unchanged, Sport icon activated',()=>{
 test('SHO Sport preserves the V4 Hero and the original read-only MeccsRadar embed',()=>{
  assert.doesNotMatch(landing,/supabase|\.from\(|\.insert\(|\.update\(|localStorage|hh-profile/i);
  assert.doesNotMatch(landing,/fake|mock|demo.*match|Math\.random/);
- assert.match(landing,/src="\.\/SHO_Sport_hero_1672x941\.webp\?v=4"/);
+ assert.match(landing,/src="\.\/SHO_Sport_hero_1672x941\.webp\?v=5"/);
  assert.doesNotMatch(landing,/Vissza a SHO kezdőlapra|Sport, egy helyen|Mérkőzések · Eredmények|MecsRadar · Teljes alkalmazás|Változatlan funkciók/);
  assert.match(landing,/\.sport-hero-art\{[^}]*aspect-ratio:1672 \/ 941;object-fit:contain/);
  assert.match(landing,/\.sport-menu\{[^}]*left:0;right:0;bottom:0;[^}]*border-radius:0;background:rgba\(7,25,52,\.21\)/);
