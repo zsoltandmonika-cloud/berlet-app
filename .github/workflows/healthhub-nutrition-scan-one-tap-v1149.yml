@@ -1,0 +1,49 @@
+name: Nutrition Léna AI Scan · one-tap Favorites v1149
+on:
+  pull_request:
+    paths:
+      - 'healthhub/nutrition/hh-lena-ai-scan-page-v753.js'
+      - 'healthhub/nutrition/hh-lena-ai-scan-page-v753.css'
+      - 'healthhub/nutrition/hh-scan-favorite-save-v1149.js'
+      - 'healthhub/nutrition/index.html'
+      - 'healthhub/tests/nutrition-scan-one-tap-favorites-v1149.test.cjs'
+      - 'healthhub/nutrition/tests/lena-ai-scan-v753.test.cjs'
+      - 'healthhub/tests/nutrition-favorites-ai-scan-v1148.test.cjs'
+      - '.github/workflows/healthhub-nutrition-scan-one-tap-v1149.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'healthhub/nutrition/hh-lena-ai-scan-page-v753.js'
+      - 'healthhub/nutrition/hh-lena-ai-scan-page-v753.css'
+      - 'healthhub/nutrition/hh-scan-favorite-save-v1149.js'
+      - 'healthhub/nutrition/index.html'
+      - 'healthhub/tests/nutrition-scan-one-tap-favorites-v1149.test.cjs'
+      - 'healthhub/nutrition/tests/lena-ai-scan-v753.test.cjs'
+      - 'healthhub/tests/nutrition-favorites-ai-scan-v1148.test.cjs'
+      - '.github/workflows/healthhub-nutrition-scan-one-tap-v1149.yml'
+permissions:
+  contents: read
+jobs:
+  one-tap:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Syntax and one-click safety
+        run: |
+          node --check healthhub/nutrition/hh-lena-ai-scan-page-v753.js
+          node --check healthhub/nutrition/hh-scan-favorite-save-v1149.js
+          node --test healthhub/tests/nutrition-scan-one-tap-favorites-v1149.test.cjs
+      - name: Legacy AI Scan photo, barcode, and Favorites handoff
+        run: |
+          node --test healthhub/nutrition/tests/lena-ai-scan-v753.test.cjs
+          node --test healthhub/nutrition/tests/food-vision-v750.test.cjs
+          node --test healthhub/tests/nutrition-favorites-ai-scan-v1148.test.cjs
+      - name: Existing Favorites, Quick Intake and manual diary safety
+        run: |
+          node --test healthhub/tests/nutrition-favorites-unified-reorder-v1146.test.cjs
+          node --test healthhub/tests/nutrition-quick-intake-favorites-v1147.test.cjs
+          node --test healthhub/tests/nutrition-manual-intake-v1130.test.cjs

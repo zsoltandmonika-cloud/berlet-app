@@ -4,8 +4,8 @@ const dir=path.resolve(__dirname,'..'),read=p=>fs.readFileSync(path.join(dir,p),
 const html=read('index.html'),script=read('hh-lena-ai-scan-page-v753.js'),css=read('hh-lena-ai-scan-page-v753.css'),journal=read('nutrition-preview-v592.js');
 new vm.Script(script);
 assert.match(html,/id="hhLenaScanPage753"/);
-assert.match(html,/hh-lena-ai-scan-page-v753\.js\?v=1148-favorites-handoff/);
-assert.match(html,/hh-lena-ai-scan-page-v753\.css\?v=1148-favorite-apply/);
+assert.match(html,/hh-lena-ai-scan-page-v753\.js\?v=1149-onetap-favorites/);
+assert.match(html,/hh-lena-ai-scan-page-v753\.css\?v=1149-one-tap-favorites/);
 assert.match(html,/id="hhScanVideo753"/);
 assert.doesNotMatch(html,/class="hhScanTop753"/);
 assert.doesNotMatch(html,/AI FOOD STUDIO/);

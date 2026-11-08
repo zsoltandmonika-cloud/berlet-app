@@ -62,8 +62,8 @@ test('Existing single Scan remains source of truth; Favorite mode gates unintend
   'hhScanSharedSection753','hhScanTabFood753','hhScanTabBarcode753','hhScanBack753'])
   assert.match(html,new RegExp('id="'+id+'"'));
  assert.match(html,/hh-scan-to-favorite-v1148\.js\?v=1148-scan-favorite-draft/);
- assert.match(html,/hh-lena-ai-scan-page-v753\.js\?v=1148-favorites-handoff/);
- assert.match(html,/hh-lena-ai-scan-page-v753\.css\?v=1148-favorite-apply/);
+ assert.match(html,/hh-lena-ai-scan-page-v753\.js\?v=1149-onetap-favorites/);
+ assert.match(html,/hh-lena-ai-scan-page-v753\.css\?v=1149-one-tap-favorites/);
  assert.match(scan,/function openForFavorite\(targetProfile,callback\)/);
  assert.match(scan,/function applyToFavorite\(\)/);
  assert.match(scan,/function favoriteScanControls\(\)/);
@@ -84,7 +84,7 @@ test('Scan navigation back, profile switch and no-implicit-charge protections',(
  assert.match(scan,/context\.callback\(null\)/);
  assert.match(scan,/context\.profile===api\(\)\?\.getProfile\(\)\?result:null/);
  assert.match(scan,/profile!==favoriteReturn\.profile\|\|profile!==api\(\)\?\.getProfile\(\)/);
- assert.match(scan,/if\(busy\|\|favoriteTransferBusy\)return/);
+ assert.match(scan,/if\(busy\|\|favoriteTransferBusy\|\|favoriteQuickSaving\)return/);
  assert.match(scan,/if\(!page\|\|w\.location\.hash!==PAGE\)throw Error/);
  assert.match(scan,/favoriteReturn=null/);
  assert.match(scan,/w\.history\.replaceState/);
