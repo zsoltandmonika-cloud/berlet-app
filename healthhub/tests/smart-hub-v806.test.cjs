@@ -144,7 +144,7 @@ test('v840 skips Telebusz 960 in ALL route recommendations, even if stale GTFS J
  const html=read('index.html');
  assert.match(routerSrc,/\['960','917','917A'\]\.includes\(String\(leg\.line\.id\)\.trim\(\)\)/);
  assert.match(html,/guardian-smart-hub-network-v806\.js\?v=806-network-a&no960=840/);
- assert.match(html,/guardian-smart-hub-router-v804\.js\?v=967-step-to-next-trip&no960=840/);
+ assert.match(html,/guardian-smart-hub-router-v804\.js\?v=1169-result-count&no960=840/);
 });
 
 test('v840 Kolosy tér → Bécsi út / Vörösvári út recognizes 17, 19 and 41 tram alternatives to bus 260',()=>{
