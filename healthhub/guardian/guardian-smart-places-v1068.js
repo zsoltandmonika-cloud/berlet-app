@@ -124,7 +124,7 @@
   }
   tone(type==='arrival'?place.arrival:place.departure);
   // Only when already granted by explicit user gesture. Never request permission silently.
-  try{if(w.Notification?.permission==='granted')new w.Notification('SH9 Smart Places',{body:text,tag:'sh9-place-'+place.profile+'-'+place.index})}catch(_){}
+  try{if(!buddyShown&&w.Notification?.permission==='granted')new w.Notification('SH9 Smart Places',{body:text,tag:'sh9-place-'+place.profile+'-'+place.index})}catch(_){}
  }
  function evaluate(fix){
   if(!fresh(fix))return; // neither leave nor arrive on stale/noisy GPS.
