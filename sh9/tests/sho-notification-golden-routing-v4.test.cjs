@@ -99,6 +99,6 @@ test('UI uses canonical resolver and does not break single-card delete action',(
  assert.match(ui,/data-delete-notification-id/);
  assert.match(ui,/api\.markRead\(p,entry\.id\)/);
  assert.match(ui,/openModule:'Modul megnyitása'/);
- assert.match(html,/notification-core-v1\.js\?v=5-sport-schedule/);
+ assert.match(html,/notification-core-v1\.js\?v=6-buddy-place-alerts/);
  assert.match(css,/\.nc-item-route/);
 });
