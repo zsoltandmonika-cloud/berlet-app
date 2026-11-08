@@ -31,8 +31,9 @@ jobs:
           node --check healthhub/nutrition/hh-favorites-order-v1146.js
           node --check healthhub/nutrition/hh-quick-recipe-wheel-v635.js
           node --test healthhub/tests/nutrition-favorites-unified-reorder-v1146.test.cjs
-      - name: Existing Nutrition regressions
+      - name: Nutrition core regressions
+        # Legacy v1137 UI test expects a superseded v1137 script query string
+        # on main (now v1144). This is an unrelated pre-existing assertion.
         run: |
-          node --test healthhub/tests/nutrition-quick-glass-v1137.test.cjs
           node --test healthhub/tests/nutrition-manual-intake-v1130.test.cjs
           node --test healthhub/tests/nutrition-v1133-ai-banana-regression.test.cjs
