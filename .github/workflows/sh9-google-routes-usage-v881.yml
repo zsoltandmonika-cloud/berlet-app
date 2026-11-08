@@ -1,0 +1,38 @@
+name: SH9 Usage Google Routes monthly monitoring v881
+on:
+  pull_request:
+    paths:
+      - 'healthhub/usage-control/google-routes-usage-v881.js'
+      - 'healthhub/usage-control/index.html'
+      - 'healthhub/tests/sh9-google-routes-usage-v881.test.cjs'
+      - 'supabase/functions/hh-smart-trip-usage-v881/**'
+      - '.github/workflows/sh9-google-routes-usage-v881.yml'
+  push:
+    branches: [main, feature/sho-usage-report-google-routes-v881]
+    paths:
+      - 'healthhub/usage-control/google-routes-usage-v881.js'
+      - 'healthhub/usage-control/index.html'
+      - 'healthhub/tests/sh9-google-routes-usage-v881.test.cjs'
+      - 'supabase/functions/hh-smart-trip-usage-v881/**'
+      - '.github/workflows/sh9-google-routes-usage-v881.yml'
+permissions:
+  contents: read
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate new client and existing usage report
+        run: |
+          node --check healthhub/usage-control/google-routes-usage-v881.js
+          node --test healthhub/tests/sh9-google-routes-usage-v881.test.cjs
+          node --test healthhub/tests/sh9-usage-control-v870.test.cjs
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - name: Validate private Supabase report endpoint
+        run: deno check supabase/functions/hh-smart-trip-usage-v881/index.ts
