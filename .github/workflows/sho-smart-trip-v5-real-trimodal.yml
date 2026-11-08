@@ -6,6 +6,8 @@ on:
       - 'sh9/smart-travel/public-transport/smart-trip/v5/real-test/**'
       - 'healthhub/tests/sho-smart-trip-v5-real-trimodal.test.mjs'
       - 'healthhub/tests/sho-smart-trip-v5-quota-role-migration.test.mjs'
+      - 'healthhub/tests/sho-smart-trip-v5-pilot-no-charge.test.mjs'
+      - 'supabase/migrations/20261108014000_smart_trip_pilot_quota_expectation_no_charge.sql'
       - 'supabase/migrations/20261108015100_fix_smart_trip_google_quota_secret_key_role.sql'
       - 'healthhub/tests/sho-smart-trip-v5-real-retry-state.test.mjs'
       - '.github/workflows/sho-smart-trip-v5-real-trimodal.yml'
@@ -16,6 +18,8 @@ on:
       - 'sh9/smart-travel/public-transport/smart-trip/v5/real-test/**'
       - 'healthhub/tests/sho-smart-trip-v5-real-trimodal.test.mjs'
       - 'healthhub/tests/sho-smart-trip-v5-quota-role-migration.test.mjs'
+      - 'healthhub/tests/sho-smart-trip-v5-pilot-no-charge.test.mjs'
+      - 'supabase/migrations/20261108014000_smart_trip_pilot_quota_expectation_no_charge.sql'
       - 'supabase/migrations/20261108015100_fix_smart_trip_google_quota_secret_key_role.sql'
       - 'healthhub/tests/sho-smart-trip-v5-real-retry-state.test.mjs'
       - '.github/workflows/sho-smart-trip-v5-real-trimodal.yml'
@@ -39,6 +43,7 @@ jobs:
           node --test healthhub/tests/sho-smart-trip-v5-real-trimodal.test.mjs
           node --test healthhub/tests/sho-smart-trip-v5-real-retry-state.test.mjs
           node --test healthhub/tests/sho-smart-trip-v5-quota-role-migration.test.mjs
+          node --test healthhub/tests/sho-smart-trip-v5-pilot-no-charge.test.mjs
       - uses: denoland/setup-deno@v2
         with:
           deno-version: v2.x
