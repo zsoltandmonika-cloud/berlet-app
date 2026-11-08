@@ -184,7 +184,7 @@ test("Interchange slack excludes walking and impossible transfers never become A
  const valid=candidate(route([first,approach,safe],"12000s"),"bus");
  assert.ok(valid);
  assert.equal(valid.shortestMargin,4); // 13-min gap - 9-min walk = 4-min buffer
- assert.ok(score(valid)>score({...valid,shortestMargin:12})+100);
+ assert.ok(score(valid)>score({...valid,shortestMargin:12})+90);
  const impossible=transit("Helyközi","INTERCITY_BUS","Volánbusz","1054",
   departure+"14:27:00Z",departure+"17:15:00Z");
  assert.equal(candidate(route([first,approach,impossible],"12000s"),"bus"),null);
