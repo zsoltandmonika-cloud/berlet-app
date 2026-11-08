@@ -84,7 +84,7 @@ test('Scan navigation back, profile switch and no-implicit-charge protections',(
  assert.match(scan,/context\.callback\(null\)/);
  assert.match(scan,/context\.profile===api\(\)\?\.getProfile\(\)\?result:null/);
  assert.match(scan,/profile!==favoriteReturn\.profile\|\|profile!==api\(\)\?\.getProfile\(\)/);
- assert.match(scan,/if\(busy\|\|favoriteTransferBusy\)return/);
+ assert.match(scan,/if\(busy\|\|favoriteTransferBusy\|\|favoriteQuickSaving\)return/);
  assert.match(scan,/if\(!page\|\|w\.location\.hash!==PAGE\)throw Error/);
  assert.match(scan,/favoriteReturn=null/);
  assert.match(scan,/w\.history\.replaceState/);
