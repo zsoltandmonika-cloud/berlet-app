@@ -1,0 +1,35 @@
+name: Léna Recept Stúdió · Upper SHO Dock Off v1156
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'recepttar-studio/index.html'
+      - 'healthhub/tests/sh9-golden-controls-global-v918.test.cjs'
+      - 'healthhub/tests/recepttar-studio-topbar-off-v1156.test.cjs'
+      - '.github/workflows/recepttar-studio-topbar-v1156.yml'
+  pull_request:
+    paths:
+      - 'recepttar-studio/index.html'
+      - 'healthhub/tests/sh9-golden-controls-global-v918.test.cjs'
+      - 'healthhub/tests/recepttar-studio-topbar-off-v1156.test.cjs'
+      - '.github/workflows/recepttar-studio-topbar-v1156.yml'
+permissions:
+  contents: read
+jobs:
+  studio-navigation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Studio-only top bar exemption and 22-page global navigation
+        run: |
+          node --test healthhub/tests/recepttar-studio-topbar-off-v1156.test.cjs
+          node --test healthhub/tests/sh9-golden-controls-global-v918.test.cjs
+          node --test healthhub/tests/sh9-golden-bottom-nav-v924.test.cjs
+      - name: Cookbook import and automatic Golden Nutri regression
+        run: |
+          node --test healthhub/tests/nutrition-cookbook-bridge-v1154.test.cjs
+          node --test healthhub/tests/nutrition-golden-auto-v1155.test.cjs

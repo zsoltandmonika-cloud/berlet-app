@@ -32,6 +32,15 @@ test('Golden Standard dock appears on every navigable category tree page and lea
  for(const file of pages){
   const html=read(file);
   const health=file==='healthhub/index.html';
+  // v1156: Recept Stúdió intentionally keeps its own sticky header and the
+  // shared bottom navigation, not the floating upper SHO glass bar.
+  if(file==='recepttar-studio/index.html'){
+   assert.doesNotMatch(html,/sh9-golden-controls-v1\.(?:css|js)/,file+' no obstructing upper dock');
+   assert.match(html,/sh9-golden-bottom-nav-v924\.css\?v=924-unified/);
+   assert.match(html,/sh9-golden-bottom-nav-v924\.js\?v=924-unified/);
+   assert.match(html,/<header class="app-header">/);
+   continue;
+  }
   if(file==='sh9/index.html'){ assert.match(html,/class="sho-unified-dock"/);continue; }
   const count=health?2:1; // Fallback is a reconstructed document.
   const version=file==='healthhub/index.html'?'1043-records-meds-dock-plan-b':lift5Pages.has(file)?'935-selective-dock-lift5':'934-unified-glass-dock';
