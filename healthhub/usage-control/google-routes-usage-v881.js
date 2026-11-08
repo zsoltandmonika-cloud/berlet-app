@@ -81,12 +81,33 @@
       data.day?"A mai Google-teszt foglalásai":"Másik hónap · nem aktuális nap"),
     kpi("Havi kvótafoglalás",format(data.month.reservations)+" / "+
       data.month.limit,"Saját Supabase-korlát · nem Google Billing"),
-    kpi("Essentials forgatókönyv",format(scenario(data.month.reservations,"Essentials").hypotheticalUSD)+
-      " USD","10 000/hó díjmentes · 5 USD / további 1000"),
-    kpi("Google számlázott összeg","NINCS MÉRÉS",
-      "Csak Google Cloud Billing SKU alapján igazolható")
+    kpi("Havi keret kihasználtsága",
+      format(Math.round(data.month.reservations*10000/data.month.limit)/100)+"%",
+      "75% figyelés · 90% kritikus"),
+    kpi("Hátralévő havi keret",
+      format(Math.max(0,data.month.limit-data.month.reservations)),
+      "Jelenlegi Supabase-védelmi keret")
    );
    holder.append(grid);
+   // Explicit usage-vs-monthly-limit visual meter, no estimated billed cost.
+   const used=data.month.reservations,limit=data.month.limit,pct=100*used/limit;
+   const progress=create("div","","google-routes-track");
+   progress.setAttribute("role","progressbar");
+   progress.setAttribute("aria-label","Google Routes havi Supabase-kvóta");
+   progress.setAttribute("aria-valuemin","0");
+   progress.setAttribute("aria-valuemax",String(limit));
+   progress.setAttribute("aria-valuenow",String(Math.min(used,limit)));
+   const fill=create("div","","");
+   fill.className=pct>=90?"danger":pct>=75?"warn":"";
+   fill.style.width=Math.min(100,pct)+"%";
+   progress.append(fill);
+   holder.append(progress);
+   const state=create("p","","small");
+   state.textContent="Havi felhasználás: "+format(used)+" / "+format(limit)+
+    " kérésfoglalás · "+format(Math.round(pct*100)/100)+"% · "+
+    "Maradék: "+format(Math.max(0,limit-used))+
+    (pct>=90?" · KRITIKUS":pct>=75?" · FIGYELÉS":" · Rendben");
+   holder.append(state);
    const estimates=create("div","","small");
    const pro=scenario(data.month.reservations,"Pro");
    estimates.textContent="Pro alternatíva: "+format(pro.hypotheticalUSD)+
