@@ -1,0 +1,40 @@
+name: Recept Stúdió · Puter Low Balance Local-First v1159
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'recepttar-studio/app.js'
+      - 'recepttar-studio/index.html'
+      - 'recepttar-studio/hh-puter-credit-gate-v1159.js'
+      - 'recepttar-studio/hh-puter-balance-chip-v1158.js'
+      - 'recepttar-studio/hh-nutri-golden-standard-v1155.js'
+      - 'healthhub/tests/recepttar-studio-puter-local-first-v1159.test.cjs'
+      - '.github/workflows/recepttar-studio-local-first-v1159.yml'
+  pull_request:
+    paths:
+      - 'recepttar-studio/app.js'
+      - 'recepttar-studio/index.html'
+      - 'recepttar-studio/hh-puter-credit-gate-v1159.js'
+      - 'recepttar-studio/hh-puter-balance-chip-v1158.js'
+      - 'recepttar-studio/hh-nutri-golden-standard-v1155.js'
+      - 'healthhub/tests/recepttar-studio-puter-local-first-v1159.test.cjs'
+      - '.github/workflows/recepttar-studio-local-first-v1159.yml'
+permissions:
+  contents: read
+jobs:
+  low-balance-local-first:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Low balance guard, offline local editing and queued cloud writes
+        run: node --test healthhub/tests/recepttar-studio-puter-local-first-v1159.test.cjs
+      - name: Golden Studio existing contracts
+        run: |
+          node --test healthhub/tests/recepttar-studio-puter-balance-v1158.test.cjs
+          node --test healthhub/tests/recepttar-studio-topbar-off-v1156.test.cjs
+          node --test healthhub/tests/nutrition-golden-auto-v1155.test.cjs
+          node --test healthhub/tests/nutrition-cookbook-bridge-v1154.test.cjs

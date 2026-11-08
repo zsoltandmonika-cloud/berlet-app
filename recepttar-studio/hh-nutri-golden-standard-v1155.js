@@ -15,6 +15,9 @@ const required=['kcal','protein_g','carbs_g','fat_g'];
 // it does not conceal billing information or pretend AI output was created.
 const MIN_AI_REMAINING_MICROCENTS=5000000; // $0.05 safety buffer
 async function guardPuterBudget(){
+ // v1159 local-first gate is authoritative even if monthly usage cannot be read.
+ const gate=w.LENA_PUTER_CREDIT_GATE_V1159;
+ if(gate&&!await gate.permit())throw new Error('A Puter kerete alacsony vagy nem ellenőrizhető; AI-generálás kihagyva, a recept helyben menthető.');
  const c=api();
  if(typeof c?.getMonthlyUsage!=='function')return;
  let usage;

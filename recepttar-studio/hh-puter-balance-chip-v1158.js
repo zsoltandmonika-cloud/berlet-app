@@ -25,6 +25,12 @@
  }
  async function refresh(){
   if(pending)return;
+  const gate=w.LENA_PUTER_CREDIT_GATE_V1159;
+  if(gate){
+   const state=await gate.check();
+   paint(state.remaining);
+   return;
+  }
   const client=w.puter;
   if(!client?.auth?.isSignedIn?.()||typeof client.auth.getMonthlyUsage!=='function'){
    el.hidden=true;return;
