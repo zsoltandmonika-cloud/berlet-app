@@ -1,0 +1,30 @@
+<!doctype html><html lang="hu"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Smart Trip V5 · Adatkezelési tájékoztató</title>
+<style>body{font-family:system-ui;background:#0c1230;color:#f5f6ff;max-width:720px;margin:auto;
+padding:24px;line-height:1.65}a{color:#dfbaff}p,li{color:#d8dff2}</style>
+</head><body><h1>Smart Trip V5 · adatkezelési tájékoztató</h1>
+<p>Ez a tájékoztató kizárólag a családi SHO Smart Trip V5 külön, egyszeri
+Google Routes tesztoldalára vonatkozik, nem a HealthHub minden funkciójára.</p>
+<h2>Mi történik a teszt indításakor?</h2><p>Csak a felhasználó kifejezett
+hozzájárulása és gombnyomása után, a Supabase bejelentkezés és
+profiljogosultság ellenőrzését követően történhet legfeljebb három
+Google Routes API lekérdezés. A Google részére a két hely koordinátáit,
+az indulás időpontját, a tömegközlekedési preferenciákat, a magyar nyelvi
+beállítást továbbítja a szerver. A felhasználó Supabase bejelentkezési
+tokenjét és adatait a Google nem kapja meg.</p>
+<h2>Adatkezelés és tárolás</h2><p>A tesztoldal nem menti el az útvonalakat,
+nem küldi azokat AI-modellnek és nem ír a My Tripsbe. A Supabase közös
+lekérdezési korlátja napi/havi aggregált számlálót tárolhat. A Supabase
+és a Google szolgáltatás saját működési/biztonsági naplókat kezelhet
+a vonatkozó feltételeik szerint. A Google saját adatkezelése nem a SHO
+közvetlen ellenőrzése alatt áll.</p>
+<h2>Felhasználói döntés</h2><p>A jelölőnégyzet és a gomb használata
+önkéntes, a tesztoldal bezárható. A régi Smart Trip, BKK, MÁV és
+Volán keresők a teszttől függetlenek és tovább használhatók.</p>
+<h2>Vonatkozó külső feltételek</h2>
+<p><a href="https://policies.google.com/privacy" rel="noopener noreferrer">Google adatvédelmi irányelvek</a>,
+<a href="https://www.google.com/help/terms_maps/" rel="noopener noreferrer">Google Maps felhasználási feltételek</a>,
+<a href="https://cloud.google.com/terms/maps-platform/eea/maps-service-terms" rel="noopener noreferrer">Google Maps Platform EGT-s feltételek</a>.
+A Google saját feltételei a Google által kezelt adatokra is vonatkozhatnak.</p>
+<p><small>Tájékoztató változata: 2026. november 8.</small></p></body></html>
