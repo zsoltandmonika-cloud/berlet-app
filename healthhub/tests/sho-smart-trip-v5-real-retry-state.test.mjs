@@ -5,7 +5,7 @@ import vm from "node:vm";
 
 const root="sh9/smart-travel/public-transport/smart-trip/v5/real-test/";
 const script=readFileSync(root+"client.mjs","utf8")
- .replace(/^import \{evaluate,lenaSummary\} from "\.\/engine\.mjs";\s*/m,
+ .replace(/^import \{evaluate,lenaSummary\} from "\.\/engine\.mjs(?:\?[^"]+)?";\s*/m,
  'const evaluate=()=>null,lenaSummary=()=>"";\n');
 if(/^\s*import\s/m.test(script))throw Error("The client gained new imports; update browser test.");
 const flush=async()=>{for(let i=0;i<35;i++)await Promise.resolve();};
