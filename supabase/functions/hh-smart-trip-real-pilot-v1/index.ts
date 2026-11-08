@@ -42,7 +42,8 @@ function requestValid(raw:unknown){
 }
 async function authorized(req:Request){
  const bearer=req.headers.get("Authorization")||"";
- if(!/^Bearer [A-Za-z0-9._~+\\/=-]{20,8000}$/.test(bearer))return false;
+ if(!bearer.startsWith("Bearer ")||
+  !/^[A-Za-z0-9._=-]{20,8000}$/.test(bearer.slice(7)))return false;
  const url=getenv("SUPABASE_URL"),anon=getenv("SUPABASE_ANON_KEY");
  if(!url||!anon||url!==SUPABASE_HOST)return false;
  const db=createClient(url,anon,{global:{headers:{Authorization:bearer}},
@@ -53,10 +54,11 @@ async function authorized(req:Request){
    .eq("user_id",data.user.id).eq("profile_key","monika").maybeSingle();
  return !access.error&&access.data?.profile_key==="monika";
 }
-async function reserveQuota(admin:ReturnType<typeof createClient>){
+async function reserveQuota(admin:any){
  const {data,error}=await admin.rpc("hh_smart_trip_google_reserve");
- if(error||!Array.isArray(data)||data.length!==1)return null;
- const x=data[0] as {allowed:boolean,daily_used:number,monthly_used:number};
+ const rows=data as unknown;
+ if(error||!Array.isArray(rows)||rows.length!==1)return null;
+ const x=rows[0] as {allowed:boolean,daily_used:number,monthly_used:number};
  if(typeof x.allowed!=="boolean"||!Number.isInteger(x.daily_used)||
    !Number.isInteger(x.monthly_used)||x.daily_used<0||x.monthly_used<0||
    x.daily_used>20||x.monthly_used>200)return null;
