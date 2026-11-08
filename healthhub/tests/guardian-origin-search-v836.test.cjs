@@ -5,7 +5,7 @@ const read=name=>fs.readFileSync(path.join(root,name),'utf8');
 const mod=require('../guardian/guardian-origin-search-v836.js');
 const fields=require('../guardian/guardian-smart-hub-fields-v806.js');
 test('v836 supports a verified origin, not made-up or other-profile addresses',()=>{
- assert.equal(mod.version,'1168');
+ assert.equal(mod.version,'1169');
  const g=fields,valid={name:'Bécsi út 10',lat:47.53,lng:19.037};
  assert.equal(mod.verified(valid,g,'m',false),true);
  assert.equal(mod.verified({...valid,lat:Infinity},g,'m',false),false);
@@ -23,8 +23,8 @@ test('v836 keeps the accepted v834/v835 layout and adds one compact fullscreen-o
     'guardianMapOriginGoV836','guardianMapOriginGpsV1165','guardianMapOriginGpsStatusV1165',
     'guardianMapOriginResultsV836','guardianMapOriginStatusV836'])
   assert.equal((block.match(new RegExp('id="'+id+'"','g'))||[]).length,1,id);
- assert.match(html,/guardian-origin-search-v836\.css\?v=1168-simple-my-location/);
- assert.match(html,/guardian-origin-search-v836\.js\?v=1168-one-tap-profile-location/);
+ assert.match(html,/guardian-origin-search-v836\.css\?v=1169-nearby-stops-map-first/);
+ assert.match(html,/guardian-origin-search-v836\.js\?v=1169-no-empty-results-jump/);
  assert.match(html,/guardian-attribution-dot-v834\.css/);
  assert.match(html,/guardian-zoom-center-v835\.css/);
  assert.match(html,/guardian-keyboard-guard-v832\.js/);
@@ -105,16 +105,16 @@ test('v1168 one tap uses verified named profile first, never a second confirmati
  const js=read('guardian-origin-search-v836.js'),css=read('guardian-origin-search-v836.css');
  assert.match(js,/const saved=namedProfileOrigin\(\)/);
  assert.match(js,/if\(saved\)\{/);
- assert.match(js,/if\(select\(saved\)\)\{/);
+ assert.match(js,/if\(select\(saved,\{keepMapAtOrigin:true\}\)\)\{/);
  assert.match(js,/showRoute\(\)/);
  assert.match(js,/gps\.textContent=here\?'📍 '\+here\.name:'📍 Jelenlegi helyem'/);
  assert.match(js,/latestAuthorizedSelectedFix/);
  assert.match(js,/const allowed=!!\(live\?\.authenticated&&\(live\.familyAuthorized\|\|live\.boundProfile===owner\)\)/);
  assert.doesNotMatch(js,/\.hh-origin-profile-gps-v1167|gpsStatus\.append\(note,use\)|use\.addEventListener/);
  assert.doesNotMatch(css,/\.hh-origin-profile-gps-v1167/);
- assert.match(js,/const plan=\$\('hhSmartHubPlanV806'\)/);
- assert.match(js,/if\(!plan\|\|plan\.disabled\)return/);
- assert.match(js,/plan\.click\(\)/);
+ assert.match(js,/function showRoute\(\)\{[\s\S]*?if\(origin\)showNearby\(origin\)/);
+ assert.doesNotMatch(js,/function showRoute\(\)\{[\s\S]{0,240}scrollIntoView/);
+ assert.match(js,/resultCount\|\|0/);
  assert.match(js,/guardianMapSearchExitV819/);
  assert.match(js,/hhSmartHubTripPlansV804/);
 });
@@ -128,4 +128,38 @@ test('v1168 failed mobile GPS yields short user-readable message and exits loadi
  assert.match(js,/pagehide',\(\)=>\{clearGpsTimeout\(\)/);
  assert.doesNotMatch(js,/GPS-hiba|A böngésző 16 másodperc|nem feltétlenül a telefonod/);
  assert.doesNotMatch(fields,/GPS-hiba 1|GPS-hiba 3/);
+});
+
+test('v1169 nearest BKK stops are official points sorted by proximity, no 960/phantom routes',()=>{
+ const at={lat:47.52,lng:19.04};
+ const lines=[
+  {id:'260',stops:[{id:'b',name:'Közeli megálló',lat:47.5205,lng:19.04},
+                    {id:'c',name:'Távoli megálló',lat:47.54,lng:19.04}]},
+  {id:'17',stops:[{id:'b2',name:'Közeli megálló',lat:47.5205,lng:19.04},
+                  {id:'x',name:'Még közelebbi',lat:47.5201,lng:19.04}]},
+  {id:'960',stops:[{id:'z',name:'Kizárt Telebusz',lat:47.52001,lng:19.04}]}];
+ const hits=mod.nearestStops(lines,at,4,1400);
+ assert.equal(hits[0].name,'Még közelebbi');
+ assert.equal(hits[1].name,'Közeli megálló');
+ assert.deepEqual([...hits[1].lines].sort(),['17','260']);
+ assert.equal(hits.some(h=>h.name==='Távoli megálló'),false);
+ assert.equal(hits.some(h=>h.name==='Kizárt Telebusz'),false);
+ assert.equal(mod.nearestStops([],at).length,0);
+ assert.equal(mod.nearestStops(lines,{lat:NaN,lng:19.04}).length,0);
+ assert.ok(hits.every(h=>h.metres>=0&&Number.isFinite(h.metres)));
+});
+test('v1169 My Location keeps fullscreen map and offers 4 nearby stops before explicit routing',()=>{
+ const js=read('guardian-origin-search-v836.js'),css=read('guardian-origin-search-v836.css');
+ const router=read('guardian-smart-hub-router-v804.js');
+ assert.match(js,/nearby.id='guardianMapNearbyStopsV1169'/);
+ assert.match(js,/const matches=nearestStops\(lines,place,4,1400\)/);
+ assert.match(js,/🚏 Közeli BKK-megállók/);
+ assert.match(js,/Távolság légvonalban, nem menetrendi indulás/);
+ assert.match(js,/map\.flyTo\(\{center:\[stop\.lng,stop\.lat\]/);
+ assert.match(js,/function showRoute\(\)\{[\s\S]*?if\(origin\)showNearby\(origin\)/);
+ assert.match(js,/if\(\(w\.HH_SMART_HUB_ROUTER_V804\?\.resultCount\|\|0\)===0\)\{showNearby\(origin\);return\}/);
+ assert.match(js,/hh-transit-network-ready-v862/);
+ assert.match(css,/#guardianMapNearbyStopsV1169/);
+ assert.match(css,/#guardianMapNearbyStopsV1169\[hidden\]/);
+ assert.match(router,/get resultCount\(\)\{return plans\.length\}/);
 });

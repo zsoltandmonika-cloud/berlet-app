@@ -31,6 +31,30 @@
    subtitle:'Friss, megosztott profilhely',
    lat:fix.lat,lng:fix.lng,source:'selected-profile',profile:selected};
  }
+ // v1169 · Actual BKK GTFS stop points, closest first. Distances are
+ // straight line; no promise about an operating vehicle or pedestrian path.
+ function nearestStops(lines,at,limit=4,maxMetres=1400){
+  if(!Array.isArray(lines)||!at||!Number.isFinite(at.lat)||!Number.isFinite(at.lng))return [];
+  const candidates=new Map(),rad=Math.PI/180;
+  for(const line of lines){
+   const id=String(line?.id||'');
+   if(!Array.isArray(line?.stops)||['960','917','917A'].includes(id))continue;
+   for(const p of line.stops){
+    if(typeof p?.name!=='string'||!Number.isFinite(p.lat)||!Number.isFinite(p.lng))continue;
+    const metres=Math.round(6371000*Math.hypot(
+     (p.lat-at.lat)*rad,(p.lng-at.lng)*rad*Math.cos((p.lat+at.lat)*rad/2)));
+    if(metres>maxMetres)continue;
+    const key=p.name.toLocaleLowerCase('hu-HU')+'|'+Math.round(p.lat*10000)+'|'+Math.round(p.lng*10000);
+    if(!candidates.has(key))candidates.set(key,{
+     name:p.name.slice(0,95),lat:p.lat,lng:p.lng,metres,lines:[]});
+    const item=candidates.get(key);
+    if(metres<item.metres){item.metres=metres;item.lat=p.lat;item.lng=p.lng}
+    if(id&&!item.lines.includes(id)&&item.lines.length<5)item.lines.push(id);
+   }
+  }
+  return [...candidates.values()].sort((a,b)=>a.metres-b.metres||
+   a.name.localeCompare(b.name,'hu')).slice(0,limit);
+ }
  function init(){
   const d=w&&w.document;if(!d||!w.fetch)return;
   const card=d.querySelector('.map-card'),panel=$('guardianMapOriginV836');
@@ -44,6 +68,8 @@
   const profile=()=>g()?.profileId(w.localStorage);
   let destination=null,origin=null,results=[],seq=0,pending=null,timer=null,lastRequest=0,blurTimer=null,gpsTimeout=null;
   let editing=false,keyboard=false,frame=false,originFocused=false;
+  const nearby=d.createElement('div');nearby.id='guardianMapNearbyStopsV1169';nearby.hidden=true;
+  panel.append(nearby);let nearbyOrigin=null,stopPin=null;
   const tell=s=>{status.textContent=s};
   function stop(){
    seq++;if(timer!==null){w.clearTimeout(timer);timer=null}
@@ -51,6 +77,52 @@
   }
   function clearGpsTimeout(){
    if(gpsTimeout!==null){w.clearTimeout(gpsTimeout);gpsTimeout=null}
+  }
+  function clearNearby(){
+   nearbyOrigin=null;nearby.hidden=true;nearby.replaceChildren();
+   if(stopPin){try{stopPin.remove()}catch(_){}stopPin=null}
+  }
+  function showNearby(place){
+   if(!place)return;
+   nearbyOrigin=place;nearby.replaceChildren();nearby.hidden=false;
+   const heading=d.createElement('b');heading.className='hh-near-title-v1169';
+   heading.textContent='🚏 Közeli BKK-megállók';nearby.append(heading);
+   const lines=w.HH_SMART_HUB_ROUTER_V804?.networkLines||[];
+   const matches=nearestStops(lines,place,4,1400);
+   const note=d.createElement('small');note.className='hh-near-note-v1169';
+   if(!lines.length){note.textContent='Megállók betöltése…';nearby.append(note);return}
+   if(!matches.length){note.textContent='Nincs igazolt megálló 1,4 km-en belül.';nearby.append(note);return}
+   for(const stop of matches){
+    const button=d.createElement('button');button.type='button';button.className='hh-near-stop-v1169';
+    const name=d.createElement('span');name.className='hh-near-stop-name-v1169';
+    const bold=d.createElement('b');bold.textContent=stop.name;
+    const linesText=d.createElement('small');linesText.textContent=stop.lines.join(' · ');
+    name.append(bold,linesText);
+    const distance=d.createElement('span');distance.className='hh-near-stop-distance-v1169';
+    distance.textContent=stop.metres+' m';button.append(name,distance);
+    button.addEventListener('click',()=>{
+     const map=w.HH_GUARDIAN_V761?.map;
+     if(!map)return;
+     try{
+      map.flyTo({center:[stop.lng,stop.lat],zoom:Math.max(15.6,map.getZoom()),duration:650});
+      if(typeof w.maplibregl?.Marker==='function'){
+       if(stopPin)stopPin.remove();
+       const pin=d.createElement('span');pin.className='hh-near-stop-pin-v1169';
+       pin.textContent='🚏';pin.title=stop.name;
+       stopPin=new w.maplibregl.Marker({element:pin,anchor:'bottom'})
+        .setLngLat([stop.lng,stop.lat]).addTo(map);
+      }
+     }catch(_){}
+    });
+    nearby.append(button);
+   }
+   note.textContent='Távolság légvonalban, nem menetrendi indulás';
+   nearby.append(note);
+   const target=destination;
+   if(target&&w.HH_SMART_HUB_ROUTER_V804?.distance?.(place,target)<150){
+    const info=d.createElement('small');info.className='hh-near-note-v1169';
+    info.textContent='Az úti cél már a közeledben van.';nearby.append(info);
+   }
   }
   function clearHits(){
    hits.replaceChildren();hits.hidden=true;results=[];
@@ -129,7 +201,7 @@
     padding:{top:165,right:60,bottom:160,left:46},maxZoom:15.8,duration:700
    })}catch(_){}
   }
-  function select(place){
+  function select(place,options={}){
    if(!verified(place,g(),profile(),permitted()))return false;
    // v806 is the sole owner of the actual From/To state and route planning.
    const event=new w.CustomEvent('hh-guardian-map-origin-v836',{detail:place,cancelable:true});
@@ -138,7 +210,7 @@
    stop();clearHits();editing=false;
    setOriginUI(place);input.blur();hideKeyboardMode();
    tell('Kiindulási pont: '+place.name+'. A Smart Travel ellenőrzi az útvonalakat.');
-   w.setTimeout(()=>fitPair(place,destination),125);
+   if(!options.keepMapAtOrigin)w.setTimeout(()=>fitPair(place,destination),125);
    return true;
   }
   function showResults(items){
@@ -237,14 +309,9 @@
     'A telefon saját GPS-helyének használata indulásként');
   }
   function showRoute(){
-   if(!origin||!destination)return;
-   const plan=$('hhSmartHubPlanV806');
-   if(!plan||plan.disabled)return;
-   $('guardianMapSearchExitV819')?.click();
-   plan.click();
-   w.setTimeout(()=>$('hhSmartHubTripPlansV804')?.scrollIntoView?.({
-    behavior:'smooth',block:'start'
-   }),140);
+   // Map-first UX. Selecting My Location shows actual nearby stops instead
+   // of automatically scrolling to an empty static journey result section.
+   if(origin)showNearby(origin);
   }
   function gpsNotice(kind,text){
    if(!gps||!gpsStatus)return;
@@ -266,7 +333,7 @@
      // The button is labelled "Zsolt helye" / "Mónika helye":
      // one explicit tap authorizes its use as a departure point.
      stop();clearHits();hideKeyboardMode();clearGpsTimeout();
-     if(select(saved)){
+     if(select(saved,{keepMapAtOrigin:true})){
       gpsNotice('success','');
       showRoute();
      }else gpsNotice('error','Nem sikerült beállítani az indulási helyet.');
@@ -294,9 +361,13 @@
     else if(kind==='error')gpsNotice('error','Hely nem érhető el. Válassz címet vagy megállót.');
    });
    w.addEventListener('focus',gpsLabel);
+   w.addEventListener('hh-transit-network-ready-v862',()=>{
+    if(nearbyOrigin&&!nearby.hidden)showNearby(nearbyOrigin);
+   });
   }
   go.addEventListener('click',()=>{
    if(origin&&destination){
+    if((w.HH_SMART_HUB_ROUTER_V804?.resultCount||0)===0){showNearby(origin);return}
     // Reveal existing source-verified BKK plans, never fabricate a route here.
     $('guardianMapSearchExitV819')?.click();
     w.setTimeout(()=>$('hhSmartHubTripPlansV804')?.scrollIntoView?.({
@@ -312,7 +383,7 @@
    }
   });
   const reset=()=>{
-   clearGpsTimeout();stop();clearHits();destination=null;origin=null;input.value='';
+   clearNearby();clearGpsTimeout();stop();clearHits();destination=null;origin=null;input.value='';
    if(gps){gps.disabled=false;gps.setAttribute('aria-busy','false');gps.textContent='📍 Jelenlegi helyem';gpsLabel()}
    if(gpsStatus){gpsStatus.hidden=true;gpsStatus.textContent=''}
    input.classList.remove('hh-origin-confirmed-v836');
@@ -324,7 +395,7 @@
   w.addEventListener('storage',e=>{if(e.key==='hh-profile')reset()});
   const switcher=$('guardianProfileSwitch');
   if(switcher)switcher.addEventListener('click',()=>w.setTimeout(reset,0));
-  w.addEventListener('pagehide',()=>{clearGpsTimeout();stop();hideKeyboardMode()});
+  w.addEventListener('pagehide',()=>{clearNearby();clearGpsTimeout();stop();hideKeyboardMode()});
   w.addEventListener('resize',positionSoon,{passive:true});
   if(w.visualViewport?.addEventListener){
    w.visualViewport.addEventListener('resize',positionSoon,{passive:true});
@@ -335,5 +406,5 @@
   if(w.document.readyState==='loading')w.document.addEventListener('DOMContentLoaded',init);
   else init();
  }
- return {verified,displayName,profileOrigin,init,version:'1168'};
+ return {verified,displayName,profileOrigin,nearestStops,init,version:'1169'};
 });

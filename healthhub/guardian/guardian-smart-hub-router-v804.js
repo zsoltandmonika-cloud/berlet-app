@@ -646,5 +646,5 @@ function renderGuide(){
   if(w.document.readyState==='loading')w.document.addEventListener('DOMContentLoaded',init);
   else init();
  }
- return {distance,validate,nearStops,plan,rankCandidates,itinerarySteps,verifiedTiming,routeRating,rankOffers,prettyClock,setPreference,setPlace,setJourney,startGuide,setTimeChoice,get timeChoice(){return {...timeChoice}},get selection(){return {start,target}},get preference(){return priority},get networkLines(){return network||feed},version:'862'};
+ return {distance,validate,nearStops,plan,rankCandidates,itinerarySteps,verifiedTiming,routeRating,rankOffers,prettyClock,setPreference,setPlace,setJourney,startGuide,setTimeChoice,get timeChoice(){return {...timeChoice}},get selection(){return {start,target}},get preference(){return priority},get networkLines(){return network||feed},get resultCount(){return plans.length},version:'862'};
 });
