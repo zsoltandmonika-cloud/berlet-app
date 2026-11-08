@@ -4,6 +4,9 @@ on:
     paths:
       - 'healthhub/nutrition/hh-favorites-order-v1146.js'
       - 'healthhub/nutrition/hh-quick-recipe-wheel-v635.js'
+      - 'healthhub/nutrition/hh-favorites-search-v1172.js'
+      - 'healthhub/nutrition/hh-favorites-search-v1172.css'
+      - 'healthhub/tests/nutrition-favorites-predictive-search-v1172.test.cjs'
       - 'healthhub/nutrition/index.html'
       - 'healthhub/tests/nutrition-favorites-unified-reorder-v1146.test.cjs'
       - '.github/workflows/healthhub-nutrition-favorites-v1146.yml'
@@ -30,7 +33,8 @@ jobs:
         run: |
           node --check healthhub/nutrition/hh-favorites-order-v1146.js
           node --check healthhub/nutrition/hh-quick-recipe-wheel-v635.js
-          node --test healthhub/tests/nutrition-favorites-unified-reorder-v1146.test.cjs
+          node --check healthhub/nutrition/hh-favorites-search-v1172.js
+          node --test healthhub/tests/nutrition-favorites-unified-reorder-v1146.test.cjs healthhub/tests/nutrition-favorites-predictive-search-v1172.test.cjs
       - name: Nutrition core regressions
         # Older v1137 and AI-banana snapshot tests still expect the now-superseded
         # v1137 script query string on main (current manual-intake is v1144).

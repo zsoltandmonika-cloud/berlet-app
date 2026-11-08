@@ -220,6 +220,16 @@ function showWheel(wantedId=''){
  selectUI();
  requestAnimationFrame(()=>centerCard(selection,false));
 }
+// Search navigation: only select and center an existing card, never record a meal.
+window.HH_NUTRITION_FAVORITES_WHEEL_NAV_V1172=Object.freeze({
+ select(id){
+  if(!dlg.open||shell.dataset.mode!=='wheel'||busy)return false;
+  const next=recipes.findIndex(q=>q.id===String(id||''));
+  if(next<0)return false;
+  selection=next;selectUI();centerCard(next,true);
+  return true;
+ }
+});
 function showDialog(){
  // Read the household library when opening, including edits from the other phone.
  if(window.HH_SHARED_FOOD_LIBRARY_V1118?.load)
