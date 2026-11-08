@@ -28,7 +28,7 @@ function infer(entry){
   }
  }
  const volume=positive(entry?.volumeMl);
- if(volume!=null&&kind==='drink')return {amount:volume,unit:'ml',source:'volume'};
+ if(volume!=null)return {amount:volume,unit:'ml',source:'volume'};
  const label=String(entry?.quantityText||'');
  const match=label.match(/(\d+(?:[.,]\d+)?)\s*(kg|dkg|g|liter|dl|ml)\b/i);
  if(match){
