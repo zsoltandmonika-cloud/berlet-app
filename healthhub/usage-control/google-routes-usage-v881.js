@@ -126,9 +126,11 @@
    const note=create("p","","small");
    note.textContent="Forrás: Supabase elsődleges kvóta-adat, mérve: "+
     new Date(data.measuredAt).toLocaleString("hu-HU")+
-    " · A foglalás eltérhet a Google felé ténylegesen elküldött és számlázott kéréstől. "+
-    "A 2026.11.08-i auditban 3 valódi kérés mellett egy elutasított teszt is foglalást okozott; ezt javítottuk. "+
-    "Nem indult Google-keresés ezen a riportoldalon.";
+    " · Google számlázott díj / SKU: NINCS MÉRÉS. "+
+    "A foglalás eltérhet a tényleges Google-kérésektől."+
+    (data.period==="2026-11"?
+     " · 2026.11.08-án 3 valódi API-kérés mellett 1 hibás extra kvótafoglalás keletkezett; javítva.":"")+
+    " · Nem indult Google-keresés ezen a riportoldalon.";
    holder.append(note);
    const link=create("a","Google Maps Platform · hivatalos díjszabás","github-live-link");
    link.href="https://developers.google.com/maps/billing-and-pricing/pricing";
