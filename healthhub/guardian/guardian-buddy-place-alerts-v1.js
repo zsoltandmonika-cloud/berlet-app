@@ -26,6 +26,28 @@
   popup.append(face,copy,close);d.body.appendChild(popup);
   return popup;
  }
+ function osNotice(place,type){
+  if(w.Notification?.permission!=='granted')return;
+  const subject=human(place.profile),arrived=type==='arrival';
+  const title='Smart Buddy · '+(arrived?'Érkezés':'Távozás');
+  // Protect exact location from lockscreen previews; full place name stays in the in-app popup.
+  const body=subject+(arrived?' megérkezett egy kedvenc helyre.':' elindult egy kedvenc helyről.');
+  const tag='sho-buddy-place-'+place.profile+'-'+place.index+'-'+type;
+  const options={body,tag,renotify:false,requireInteraction:false,
+   icon:'/berlet-app/sh9/assets/sho-fancy-install-192-v1.png',
+   data:{kind:'sho-buddy-place-foreground-v2'}};
+  const fallback=()=>{try{new w.Notification(title,options)}catch(_){}};
+  try{
+   const worker=w.navigator?.serviceWorker;
+   if(typeof worker?.getRegistration!=='function'){fallback();return}
+   void worker.getRegistration('/berlet-app/sh9/').then(reg=>{
+    if(reg?.active&&typeof reg.showNotification==='function'){
+     return reg.showNotification(title,options).catch(()=>{fallback()});
+    }
+    fallback();
+   }).catch(()=>{fallback()});
+  }catch(_){fallback()}
+ }
  function show(place,type,message){
   if(d.hidden||!allowed.has(type)||!place||!['monika','zsolt'].includes(place.profile)||
      !Number.isInteger(place.index)||place.index<0||place.index>=40)return false;
@@ -53,6 +75,7 @@
       targetUrl:'/berlet-app/healthhub/guardian/'});
    }
   }catch(_){}
+  osNotice(place,type);
   return true;
  }
  w.SHO_SMART_BUDDY_PLACE_ALERT_V1=Object.freeze({show,version:'1'});
