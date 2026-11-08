@@ -392,8 +392,20 @@ function openForFavorite(targetProfile,callback){
   targetProfile!==api()?.getProfile()||favoriteReturn||
   (page&&!page.hidden)||busy)return false;
  favoriteReturn={profile:targetProfile,callback};
- try{open();favoriteScanControls();return true}
- catch(error){favoriteReturn=null;console.warn('AI Scan open for Favorites failed:',String(error?.message||error).slice(0,120));return false}
+ try{
+  open();
+  if(!page||w.location.hash!==PAGE)throw Error('A Léna AI Scan oldal nem érhető el.');
+  favoriteScanControls();
+  return true;
+ }catch(error){
+  favoriteReturn=null;
+  if(page&&w.location.hash===PAGE){
+   w.history.replaceState({},'',w.location.pathname+w.location.search);
+   route();
+  }
+  console.warn('AI Scan open for Favorites failed:',String(error?.message||error).slice(0,120));
+  return false;
+ }
 }
 
 function save(){
