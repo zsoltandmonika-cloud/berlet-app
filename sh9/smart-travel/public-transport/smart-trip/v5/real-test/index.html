@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="hu"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#090f2d">
+<meta name="description" content="SHO Smart Trip AI valós, hárompreferenciás Google-alapú tömegközlekedési teszt.">
+<title>Smart Trip AI · Valós háromrendszeres teszt</title>
+<style>
+:root{color-scheme:dark;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;
+--text:#f7efff;--muted:#cad4ec;--glass:#152247d9;--stroke:#a89de766;
+--accent:#f7a5e7}*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(ellipse at 3% 3%,#44307c88,transparent 70%),
+radial-gradient(ellipse at 100% 90%,#0c487770,transparent 65%),#080e23;color:var(--text);
+padding:17px;line-height:1.5}
+main{max-width:870px;margin:auto;padding-bottom:40px}
+header,.panel{background:linear-gradient(135deg,#252452da,#0b2142d9);
+border:1px solid var(--stroke);border-radius:22px;padding:19px;margin-bottom:16px;
+box-shadow:0 16px 38px #0005}
+h1{font-size:clamp(22px,5vw,31px);margin:4px 0}h2{font-size:19px;margin:0 0 11px}
+p{color:var(--muted);margin:8px 0}small{color:#b2bed8}
+.title{color:var(--accent);font-size:12px;letter-spacing:.16em;font-weight:900}
+.row{display:flex;gap:10px;flex-wrap:wrap}.pill{font-size:12px;border:1px solid #c4b6fc77;
+border-radius:999px;padding:5px 10px;background:#140d387c}
+.warn{color:#ffd29d}.good{color:#b5ffda}.bad{color:#ffb5b5}
+.case{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-top:16px}
+.case>div{padding:11px;background:#0e1734b6;border:1px solid #adb8f846;border-radius:14px}
+label{display:block;font-size:13px;font-weight:760}select{color:white;background:#101c46;
+border:1px solid #b69bed89;padding:12px;border-radius:11px;min-height:45px;width:100%;
+margin:6px 0 10px}
+button{background:linear-gradient(110deg,#ee70d2,#9865f0);color:#fff;border:0;
+padding:14px 19px;border-radius:15px;font-weight:800;cursor:pointer;min-height:49px;
+font-size:15px}button:disabled{opacity:.55;cursor:wait}
+.agreement{display:flex;align-items:flex-start;gap:11px;margin:13px 0;color:#dae1f3}
+.agreement input{width:19px;height:19px;flex:none;accent-color:#e16dc8;margin:3px 0}
+#status,#timing{padding:9px 11px;border:1px solid #bcb6f953;background:#080e2c97;
+border-radius:11px;overflow-wrap:anywhere}
+.coverage{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.coverage>article,.route{border:1px solid #beadf759;border-radius:14px;background:#0b193aa9;padding:13px}
+.coverage strong{display:block}.route{margin-top:10px}
+.route.best{border-color:#eb90e8;box-shadow:inset 0 0 0 1px #eb90e840}
+.route h3{margin:0 0 7px;font-size:17px}.meta{font-size:12px;color:#d9d3fb}
+.stops{margin:9px 0 0;padding-left:19px;font-size:13px}.stops li{margin-bottom:7px}
+.story{padding:15px 16px;border:1px solid #e1a6e96c;border-radius:14px;
+background:linear-gradient(140deg,#512a6580,#172855cc);font-size:15px}
+.note{font-size:12px;color:#f0d2a0}
+[hidden]{display:none!important}
+@media(max-width:610px){.case{grid-template-columns:1fr}.coverage{grid-template-columns:1fr}
+header,.panel{padding:15px}}
+</style></head>
+<body><main>
+<header>
+<div class="title">SHO · SMART TRIP AI · REAL TEST</div>
+<h1>✨ Léna + Google · háromrendszeres útvonalteszt</h1>
+<p>Valódi Google Routes-lekérdezés, buszos, vasúti és vegyes preferenciával.
+A BKK, MÁV és Volán jelenlétét külön ellenőrizzük a Google által visszaadott alternatívákban.</p>
+<div class="row">
+<span class="pill">🩷 Mónika profil</span>
+<span class="pill">3 valós Google API-kérés</span>
+<span class="pill">Nincs térkép</span>
+<span class="pill">Nincs AI API-hívás</span>
+<span class="pill">Nincs My Trips mentés</span>
+</div>
+</header>
+<section class="panel"><h2>🧭 Rögzített valós teszteset</h2>
+<div class="case">
+<div><small>Honnan</small><strong>Mónika munkahelye, Budapest</strong>
+<p>47.52693, 19.03802</p></div>
+<div><small>Hová</small><strong>Mónika anyukája, Kazincbarcika</strong>
+<p>48.25657, 20.62831</p></div>
+<div><small>Indulás</small><strong>2026. november 27., péntek · 15:00</strong><p>Budapesti idő szerint</p></div>
+<div><small>Távolsági sorrend</small><strong>1. közvetlen Volán · 2. Sajó Expressz · 3. egyéb vonat</strong><p>Csak visszaadott, azonosítható jelöltek</p></div>
+</div>
+<p class="note">További szabályok: kevés gyaloglás és várakozás, kevés átszállás,
+biztonságos csatlakozás; Kazincbarcikán rövid célhoz vezető séta; 960-as kizárva;
+egyetlen A terv. A BKK helyi szakaszaira nem vonatkozik a távolsági sorrend.</p>
+<label for="priority">Mi legyen a legfontosabb?</label>
+<select id="priority"><option value="balanced">✨ Léna ajánlása · kiegyensúlyozott</option>
+<option value="wait">⏱ Legkevesebb várakozás</option>
+<option value="walk">🚶 Legkevesebb gyaloglás</option>
+<option value="transfers">⇄ Legkevesebb átszállás</option>
+<option value="duration">⚡ Legrövidebb idő</option>
+</select>
+<label class="agreement"><input id="agree" type="checkbox"><span>Engedélyezem a
+<b>legfeljebb 3, esetleg díjköteles</b> Google Routes-lekérdezést e két hely
+koordinátáival és a megadott időponttal. Tudomásul veszem, hogy a találatokat
+csak itt, térkép nélkül jelenítjük meg; nem mentjük és nem küldjük LLM-nek.</span></label>
+<button id="run" type="button">🚀 Valódi háromrendszeres teszt indítása</button>
+<p id="status" role="status" aria-live="polite">A teszt nem indult el. Semmilyen API-kérés nem fut automatikusan.</p>
+<p id="timing" hidden></p>
+</section>
+<section class="panel" id="out" hidden>
+<h2>📊 Valós lefedettségi ellenőrzés</h2>
+<div class="coverage" id="coverage"></div>
+<p class="note">A fenti jelzések a Google-válaszokban felismert közlekedési
+szolgáltatókat mutatják. A három szolgáltató saját, hivatalos rendszerében
+történő független menetrendi ellenőrzés még nincs automatizálva.</p>
+<div id="variants"></div>
+<h2>✨ Léna A terve</h2>
+<p class="story" id="story"></p>
+<div id="candidates"></div>
+<p class="note">Adatforrás: Google Maps · útvonalak és járatinformációk.
+A személyes értékelés szabályalapú, nem GPT-válasz. Google-alternatíva nem
+garantálja a közvetlen Volán vagy a Sajó Expressz teljes körű felkutatását.
+Indulás előtt a hivatalos menetrendet ellenőrizni kell.</p>
+</section>
+<footer><small>Önálló, csak tesztelési célú, térkép nélküli felület.
+A meglévő BKK, MÁV, Volán és Smart Trip keresők változatlanok maradnak.</small></footer>
+</main>
+<script src="../../../../../../healthhub/central-vault/config.js?v=972-family-publishable"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.2/dist/umd/supabase.min.js"></script>
+<script type="module" src="./client.mjs"></script>
+</body></html>
