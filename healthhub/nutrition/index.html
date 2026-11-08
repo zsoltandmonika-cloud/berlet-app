@@ -141,6 +141,7 @@ dialog{width:min(540px,calc(100% - 20px));max-height:min(91%,860px);border:1px s
 <link rel="stylesheet" href="./hh-hydration-button-glass-v1138.css?v=1138-aqua-buttons-only">
 <link rel="stylesheet" href="./hh-bevitel-premium-v643.css?v=723-food-meals-top">
 <link rel="stylesheet" href="./hh-bevitel-recipe-studio-v1151.css?v=1151-2x2-fourth-tile">
+<link rel="stylesheet" href="./hh-quick-compact-sync-v1152.css?v=1152-match-bevitel-card-height">
 <link rel="stylesheet" href="./hh-food-vision-v750.css?v=752-golden-stepper">
 <link rel="stylesheet" href="./hh-lena-ai-scan-page-v753.css?v=1149-one-tap-favorites">
 <link rel="stylesheet" href="./hh-bevitel-category-studio-v644.css?v=650-bristol-photo-edit">
@@ -195,8 +196,8 @@ body[data-sh9-golden-three="on"] #nutritionGoldenHeroHost > #sh9LauncherProfileV
  <div id="balanceRing" hidden></div>
 </section>
 <div class="row" id="hhNutritionQuickHeadingV1144" style="scroll-margin-top:12px"><h2>☕ Gyors bevitel</h2></div>
-<!-- Nutrition v1137 · profile-pastel, premium square quick glass grid.
-     Original #hhManualLaunch1130 / #hhQuickLaunch IDs retain all verified handlers. -->
+<!-- Nutrition v1152 · compact profile-pastel 2×2 cards synchronized with Bevitel.
+     Original button IDs and all verified handlers remain unchanged. -->
 <section id="hhNutritionQuickPanelV1137" aria-label="Gyors ételbevitel és Kedvencek">
  <div id="hhNutritionQuickGridV1137">
 <button type="button" id="hhManualLaunch1130" class="hh-nutrition-quick-tile-v1137" aria-haspopup="dialog" aria-controls="hhQuickDialog" aria-label="Gyors bevitel: új kedvenc hozzáadása">
@@ -1100,17 +1101,21 @@ document.addEventListener('DOMContentLoaded',function(){
 })();
 </script>
 <script>
-/* v717 · Three Bevitel photo cards use the precise measured height of the
-   Fehérje/Szénhidrát/Zsír KPI cards directly underneath. */
+/* v1152 · The same measured KPI height drives both 2×2 card groups.
+   Keep the existing Bevitel sizing unchanged; sync only the Quick Intake grid. */
 (function(){
  'use strict';
- var anchor=null,tiles=null,observer=null;
+ var anchor=null,tiles=null,quickTiles=null,observer=null;
  function resize(){
   anchor=anchor||document.querySelector('.grid .kpi');
   tiles=tiles||document.querySelector('.hh-bevitel-grid');
+  quickTiles=quickTiles||document.getElementById('hhNutritionQuickGridV1137');
   if(!anchor||!tiles)return;
   var height=Math.round(anchor.getBoundingClientRect().height);
-  if(height>50&&height<350)tiles.style.setProperty('--hh-kpi-card-height',height+'px');
+  if(height>50&&height<350){
+   tiles.style.setProperty('--hh-kpi-card-height',height+'px');
+   if(quickTiles)quickTiles.style.setProperty('--hh-kpi-card-height',height+'px');
+  }
  }
  function start(){
   resize();
