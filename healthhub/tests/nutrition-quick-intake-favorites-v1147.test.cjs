@@ -16,7 +16,7 @@ test('Quick Intake has direct Favorites create screen semantics and preserved in
  assert.match(tile,/aria-controls="hhQuickDialog"/);
  assert.match(tile,/aria-label="Gyors bevitel: új kedvenc hozzáadása"/);
  assert.match(html,/<strong>Gyors bevitel<\/strong><small>＋ Új kedvenc · mentés<\/small>/);
- assert.match(html,/hh-quick-recipe-wheel-v635\.js\?v=1147-favorite-create-launch/);
+ assert.match(html,/hh-quick-recipe-wheel-v635\.js\?v=114(?:7-favorite-create-launch|8-favorite-scan-bridge)/);
  assert.match(html,/hh-manual-intake-v1130\.js\?v=1147-quick-to-favorite/);
  assert.match(html,/id="hhQuickLaunch"/);
  assert.match(html,/id="hhQuickOwnFoodsV1137"/);
