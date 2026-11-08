@@ -19,6 +19,21 @@ const VARIANTS=[
  {id:"rail",modes:["TRAIN","RAIL","SUBWAY","LIGHT_RAIL"],preference:"LESS_WALKING"}
 ] as const;
 const getenv=(key:string)=>Deno.env.get(key)||"";
+/* New Supabase projects use SUPABASE_SECRET_KEYS / SUPABASE_PUBLISHABLE_KEYS
+ * JSON dictionaries; legacy JWT keys may not be set. Values never leave Edge.
+ * Prefer the new default keys, with backwards-compatible legacy fallback.
+ */
+function supabaseKey(kind:"admin"|"public"){
+ const raw=getenv(kind==="admin"?"SUPABASE_SECRET_KEYS":"SUPABASE_PUBLISHABLE_KEYS");
+ if(raw){
+  try{
+   const keys=JSON.parse(raw) as Record<string,unknown>;
+   if(typeof keys.default==="string"&&keys.default.length>20)return keys.default;
+  }catch{}
+ }
+ return getenv(kind==="admin"?"SUPABASE_SERVICE_ROLE_KEY":"SUPABASE_ANON_KEY");
+}
+
 const headers=(req:Request)=>({
  "Content-Type":"application/json; charset=utf-8","Cache-Control":"no-store",
  "X-Content-Type-Options":"nosniff",
@@ -32,7 +47,7 @@ function requestValid(raw:unknown){
  if(!raw||typeof raw!=="object"||Array.isArray(raw))return false;
  const q=raw as Record<string,unknown>;
  if(Object.keys(q).sort().join(",")!=="departureTime,destination,mode,origin,profile")return false;
- if(q.mode!=="real_test"||q.profile!=="m"||
+ if(!["real_test","diagnose"].includes(String(q.mode))||q.profile!=="m"||
    q.departureTime!=="2026-11-27T15:00:00+01:00")return false;
  const a=q.origin as Record<string,unknown>|null,b=q.destination as Record<string,unknown>|null;
  if(!a||!b||Object.keys(a).sort().join(",")!=="lat,lng"||
@@ -44,7 +59,7 @@ async function authorized(req:Request){
  const bearer=req.headers.get("Authorization")||"";
  if(!bearer.startsWith("Bearer ")||
   !/^[A-Za-z0-9._=-]{20,8000}$/.test(bearer.slice(7)))return false;
- const url=getenv("SUPABASE_URL"),anon=getenv("SUPABASE_ANON_KEY");
+ const url=getenv("SUPABASE_URL"),anon=supabaseKey("public");
  if(!url||!anon||url!==SUPABASE_HOST)return false;
  const db=createClient(url,anon,{global:{headers:{Authorization:bearer}},
   auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false}});
@@ -103,9 +118,34 @@ Deno.serve(async(req:Request)=>{
  catch{return json(req,400,{error:"invalid_json"})}
  if(!requestValid(raw))return json(req,400,{error:"pilot_fixed_fixture_only"});
  if(!await authorized(req))return json(req,403,{error:"unauthorized_profile"});
- const adminKey=getenv("SUPABASE_SERVICE_ROLE_KEY"),key=getenv(KEY_NAME);
- if(!adminKey||key.length<25)return json(req,503,{
-  error:"pilot_google_key_or_service_not_configured",googleRequests:0});
+ const adminKey=supabaseKey("admin"),key=getenv(KEY_NAME);
+ // Authenticated read-only diagnostic. Zero Google calls, no quota reservation,
+ // no secret values or lengths in the response.
+ if((raw as Record<string,unknown>).mode==="diagnose"){
+  const ready={google_key:key.length>=25,admin_key:adminKey.length>20,
+   public_key:supabaseKey("public").length>20,quota_readable:false};
+  if(ready.admin_key){
+   try{
+    const db=createClient(getenv("SUPABASE_URL"),adminKey,{
+     auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false}
+    });
+    const day=new Date().toISOString().slice(0,10);
+    const {error}=await db.from("hh_smart_trip_google_quota")
+      .select("used").eq("period_kind","day").eq("period_start",day).limit(1);
+    ready.quota_readable=!error;
+   }catch{}
+  }
+  const missing=Object.entries(ready).filter(([,ok])=>!ok)
+    .map(([name])=>name);
+  return json(req,200,{schema:"sho.smart-trip.diagnostic/1",
+   status:missing.length?"not_ready":"ready_for_real_test",
+   checks:ready,blocking:missing,googleRequests:0,quotaReserved:0,
+   source:"local_server_config",paidProviderContacted:false});
+ }
+ if(!adminKey||adminKey.length<20)return json(req,503,{
+  error:"supabase_admin_secret_missing",googleRequests:0,quotaReserved:0});
+ if(key.length<25)return json(req,503,{
+  error:"google_routes_key_missing",googleRequests:0,quotaReserved:0});
  const admin=createClient(getenv("SUPABASE_URL"),adminKey,{
   auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false}
  });
