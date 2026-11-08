@@ -37,7 +37,7 @@
   return null;
  }
  function showImage(frame,src,profile,key){
-  if(!src||frame.dataset.artKey!==key||active()!==profile||frame.isConnected===false)return;
+  if(!src||frame.dataset.artKey!==key||active()!==profile)return;
   const img=doc.createElement('img');img.alt='';img.loading='lazy';img.decoding='async';
   img.className='hh-diary-fav-photo-v1150';img.src=src;
   img.onerror=()=>{img.remove();if(frame.dataset.artKey===key)delete frame.dataset.artKey};
@@ -60,7 +60,10 @@
   frame.dataset.artKey=key;
   // Lazy images are decoded by the browser; Dropbox image-vault shares its
   // blob cache across Favorites, Diary and all existing Nutrition consumers.
-  store.load(scope,ref).then(url=>showImage(frame,url,profile,key)).catch(()=>{
+  store.load(scope,ref).then(url=>{
+   if(frame.isConnected===false)return;
+   showImage(frame,url,profile,key);
+  }).catch(()=>{
    if(frame.dataset.artKey===key)delete frame.dataset.artKey;
   });
  }
