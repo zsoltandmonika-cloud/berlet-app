@@ -134,11 +134,14 @@ test('Production markup and diary renderer are wired to existing source IDs, nev
  assert.match(core,/HH_NUTRITION_DIARY_FAVORITE_ART_V1150\?\.attach\?\.\(left,e,active,d\)/);
  assert.match(core,/quickRecipeId:recipe\.id/);
  assert.match(core,/foodId:recipe\.id/);
- assert.match(html,/hh-diary-favorites-art-v1150\.css\?v=1150-profile-mini-frame/);
+ assert.match(html,/hh-diary-favorites-art-v1150\.css\?v=1163-photo-plus15/);
  assert.match(html,/hh-diary-favorites-art-v1150\.js\?v=1150-profile-photo-lookup/);
  assert.match(html,/nutrition-preview-v592\.js\?v=1150-diary-favorites-mini-art/);
  assert.ok(html.indexOf('hh-diary-favorites-art-v1150.js')<html.indexOf('nutrition-preview-v592.js'));
- assert.match(css,/width:52px;height:52px/);
+ assert.match(css,/width:59\.8px;height:59\.8px;flex:0 0 59\.8px/);
+ assert.match(css,/width:50\.6px;height:50\.6px;flex-basis:50\.6px/);
+ assert.equal(59.8/52,1.15);
+ assert.equal(50.6/44,1.15);
  assert.match(css,/var\(--accent\)/);
  assert.match(css,/var\(--accentWash\)/);
  assert.match(css,/object-fit:cover/);
