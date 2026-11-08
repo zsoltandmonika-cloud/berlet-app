@@ -119,6 +119,15 @@ legend{color:#b4cddd}
 .gh-compare-cell{border:1px solid #274e70;border-radius:12px;background:#0b1b31;padding:12px}
 .gh-compare-cell strong{display:block;margin-top:5px;font-size:19px;color:#c5f3ff;font-variant-numeric:tabular-nums}
 @media(max-width:600px){.gh-compare-grid{grid-template-columns:1fr}.gh-compare-cell{padding:10px}.gh-compare-cell strong{font-size:18px}}
+.google-routes-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;margin:12px 0}
+.google-routes-kpi{border:1px solid #324970;background:linear-gradient(150deg,#12223d,#10192d);border-radius:12px;padding:11px;min-width:0}
+.google-routes-kpi strong{display:block;font-size:21px;font-weight:850;margin:6px 0;color:#ecf8ff;overflow-wrap:anywhere}
+.google-routes-track{height:11px;border-radius:100px;background:#253750;overflow:hidden;border:1px solid #466081;margin:11px 0}
+.google-routes-track>div{height:100%;background:linear-gradient(90deg,#3b9ef3,#26dcb5);transition:width .25s ease}
+.google-routes-track>div.warn{background:linear-gradient(90deg,#f8bd65,#f29132)}
+.google-routes-track>div.danger{background:linear-gradient(90deg,#f29173,#f45293)}
+@media(max-width:960px){.google-routes-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:460px){.google-routes-kpis{grid-template-columns:1fr}.google-routes-kpi strong{font-size:20px}}
 </style>
 <link rel="stylesheet" href="/berlet-app/sh9/shared/sh9-golden-controls-v1.css?v=934-unified-glass-dock">
 <link rel="stylesheet" href="/berlet-app/sh9/shared/sh9-golden-bottom-nav-v924.css?v=924-unified">
@@ -151,6 +160,16 @@ legend{color:#b4cddd}
  </div>
  <div id="puterUsageSummaryV880" aria-live="polite"></div>
  <p class="small">A Puter-fiók havi keretfelhasználása <strong>nem számlázott USD-költség</strong>. Az AI-fogyasztás apponként korlátozott: más webalkalmazások (például Recepttár vagy Táplálkozás) API-bontása itt nem látszik automatikusan. Az eredmények csak ezen a böngészőn tárolódnak, kulcs vagy személyes tartalom nélkül.</p>
+</section>
+<section class="card" id="googleRoutesUsageV881" aria-label="Google Routes Smart Trip havi API kvótamonitor">
+ <div class="github-live-header">
+  <div><h2>G Google Routes · Smart Trip AI · havi keretfigyelő</h2>
+   <p class="small" style="margin:4px 0">Aktuális Supabase API-kvótafoglalások vs. belső havi és napi korlát, hitelesített lekérdezéssel.</p></div>
+  <button type="button" id="googleRoutesUsageReadV881" class="btn primary">◉ Google Routes fogyasztás lekérése</button>
+ </div>
+ <p id="googleRoutesUsageStatusV881" class="small" role="status">Még nincs lekért Google Routes használati statisztika. A lekérés csak gombnyomásra indul, Google API-költség nélkül.</p>
+ <div id="googleRoutesUsageRowsV881" aria-live="polite"></div>
+ <div class="notice">A <strong>200/hó</strong> a saját Smart Trip Supabase-biztonsági korlátunk, nem a Google havi ingyenes kerete. A kvótafoglalás nem feltétlenül számlázott Google-kérés. A valódi Google Billing-díj/SKU itt még ismeretlen, külön Google Cloud Billing-forrás szükséges. Az <strong>5 USD-s figyelmeztetés nem hard limit</strong>.</div>
 </section>
 <section class="kpis" id="kpis" aria-label="Kulcsmutatók"></section>
 <section aria-label="Szolgáltatások">
@@ -246,7 +265,7 @@ const $=id=>document.getElementById(id);
 const mk=(tag,cls,content)=>{const e=document.createElement(tag);if(cls)e.className=cls;if(content!==undefined)e.textContent=String(content);return e};
 const N=x=>typeof x==='number'&&Number.isFinite(x);
 const fmt=n=>N(n)?new Intl.NumberFormat('hu-HU',{maximumFractionDigits:2}).format(n):'—';
-let manual=[],observed=[],billingRows=[];
+let manual=[],observed=[],billingRows=[],googleRoutesRows=[];
 try{const m=JSON.parse(localStorage.getItem(STORE)||'[]');if(Array.isArray(m))manual=m.filter(valid).slice(-300)}catch(e){}
 try{const m=JSON.parse(localStorage.getItem(OBSERVED)||'[]');if(Array.isArray(m))observed=m.filter(r=>valid(r)&&(
  r.source==='Dropbox /users/get_space_usage'||
@@ -258,7 +277,7 @@ const month=$('month');month.value=new Date().toISOString().slice(0,7);
 $('recorded').value=new Date().toISOString().slice(0,10);
 const provider=$('provider');
 PROVIDERS.forEach(p=>{const o=mk('option','',p.name);o.value=p.id;provider.append(o)});
-function monthRows(){return BASE.concat(manual,observed,billingRows).filter(r=>(r.period||r.at.slice(0,7))===month.value)}
+function monthRows(){return BASE.concat(manual,observed,billingRows,googleRoutesRows).filter(r=>(r.period||r.at.slice(0,7))===month.value)}
 function latest(rows){const map=new Map();rows.forEach(r=>{const key=r.provider+'|'+r.metric+'|'+r.unit;const old=map.get(key);if(!old||Date.parse(r.at)>Date.parse(old.at)||(r.at===old.at&&!r.id?.includes('baseline')))map.set(key,r)});return [...map.values()]}
 function state(r){if(!r||!N(r.used)||!N(r.limit))return{key:'none',text:'Nincs teljes mérés',pct:null};const pct=100*r.used/r.limit;return {pct,key:pct>=90?'danger':pct>=75?'warn':'good',text:pct>=90?'Kritikus':pct>=75?'Figyelés':'Rendben'}}
 function kpi(label,num,detail,icon){const e=mk('div','card kpi');const t=mk('div','row');t.append(mk('span','ico',icon),mk('span','label',label));e.append(t,mk('div','num',num),mk('div','detail',detail));return e}
@@ -399,6 +418,15 @@ document.addEventListener('sh9:puter-usage-measured',event=>{
  month.value=rows[0].period||rows[0].at.slice(0,7);
  render();
 });
+document.addEventListener('sh9:google-routes-usage-measured',event=>{
+ const b=event.detail;
+ if(!b||b.schema!=='sh9.smart-trip.usage-measured/1'||
+  b.period!==month.value||!Array.isArray(b.rows))return;
+ googleRoutesRows=b.rows.filter(r=>valid(r)&&r.provider==='google'&&r.verified===true&&
+  r.source==='Supabase quota reservations · nem Google Billing'&&
+  r.metric==='Smart Trip Routes kvótafoglalás'&&r.unit==='API-kérés / hó').slice(0,1);
+ render();
+});
 document.addEventListener('sh9:github-billing-measured',event=>{
  const b=event.detail;
  if(!b||b.schema!=='sh9.github.billing/1'||b.currency!=='USD'||b.period!==month.value)return;
@@ -415,6 +443,7 @@ month.addEventListener('change',render);$('driverUnit').addEventListener('change
 <script src="../central-vault/daily-health-sync.js?v=876-billing-inline-vault"></script>
 <script src="./github-live-v872.js?v=872-public-actions"></script>
 <script src="./puter-usage-v880.js?v=880-puter-account-usage"></script>
+<script src="./google-routes-usage-v881.js?v=881-google-routes-quota-v1"></script>
 <script src="./github-billing-v873.js?v=876-inline-vault"></script>
 <script src="./github-before-after-v878.js?v=878-measured-comparison"></script>
 
