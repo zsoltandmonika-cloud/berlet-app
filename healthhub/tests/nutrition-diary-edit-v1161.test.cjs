@@ -84,8 +84,8 @@ test('All types of existing diary rows have a truthful default amount/unit',()=>
  assert.equal(m.infer({quantity:250,unit:'ml'}).amount,250);
  assert.equal(m.infer({volumeMl:320}).unit,'ml');
  assert.equal(m.infer({quantityText:'Fotóból becsült · 350 g'}).amount,350);
- assert.equal(m.infer({quantityText:'2 adag'}).amount,2);
- assert.equal(m.infer({quantityText:'1 előre beállított adag'}).unit,'adag');
+ assert.equal(m.infer({quantityText:'2 adag'}).amount,null);
+ assert.equal(m.infer({quantityText:'1 előre beállított adag'}).unit,'g');
  assert.throws(()=>m.scale({kcal:100},0,200));
  assert.equal(m.scale({fiber:null,kcal:0},100,250).fiber,null);
 });
@@ -162,4 +162,53 @@ test('Existing canonical Nutrition update preserves image/snapshot and Dropbox p
  assert.match(index,/hh-diary-edit-v1161\.css/);
  assert.ok(index.indexOf('hh-diary-scale-v1161.js')<index.indexOf('nutrition-preview-v592.js'));
  assert.ok(index.indexOf('nutrition-preview-v592.js')<index.indexOf('hh-diary-edit-v1161.js'));
+});
+
+test('v1162 never interprets servings or pieces as grams; dkg and kg normalize to grams',()=>{
+ const m=loadScaler();
+ assert.equal(m.infer({kind:'food',quantity:2,unit:'adag',quantityText:'2 adag'}).amount,null);
+ assert.equal(m.infer({kind:'food',quantity:2,unit:'db',quantityText:'2 darab'}).amount,null);
+ assert.equal(m.infer({kind:'food',quantity:2,unit:'dkg',quantityText:'2 dkg'}).amount,20);
+ assert.equal(m.infer({kind:'food',quantity:0.5,unit:'kg',quantityText:'0,5 kg'}).amount,500);
+ assert.equal(m.infer({kind:'food',quantity:1,unit:'g',quantityText:'1 g'}).amount,1);
+ assert.equal(m.infer({kind:'drink',quantity:1,unit:'pohár (250 ml)'}).amount,250);
+});
+test('v1162 UI shows only Súly (g), NEVER Adag / súly or a default 1 g',()=>{
+ const u=setupEditor();
+ u.open();
+ assert.match(u.dialog.markup,/Súly \(g\)/);
+ assert.doesNotMatch(u.dialog.markup,/Adag \/ súly/);
+ assert.equal(u.ids.get('hhDiaryEditBaselineWrapV1162').hidden,true);
+ assert.equal(Number(u.ids.get('hhDiaryEditAmountV1161').value),320);
+});
+test('v1162 legacy 1 adag requires actual original weight before scaling',()=>{
+ const rec=baseRecord({quantity:undefined,unit:undefined,quantityText:'1 előre beállított adag',cookbookImport:undefined});
+ const u=setupEditor(rec);u.open();
+ const weight=u.ids.get('hhDiaryEditAmountV1161');
+ const baseline=u.ids.get('hhDiaryEditBaselineV1162');
+ assert.equal(u.ids.get('hhDiaryEditBaselineWrapV1162').hidden,false);
+ assert.equal(weight.value,'');
+ assert.equal(baseline.value,'');
+ assert.match(u.ids.get('hhDiaryEditScaleV1161').textContent,/kiinduló súlyt/i);
+ u.ids.get('hhDiaryEditFormV1161').events.submit({preventDefault(){}});
+ assert.equal(u.writes.length,0);
+ assert.match(u.ids.get('hhDiaryEditErrorV1161').textContent,/eredeti étel súlyát/i);
+ baseline.value='320';baseline.events.input();
+ assert.equal(weight.value,'320','copy physical baseline, not 1 adag');
+ weight.value='120';weight.events.input();
+ assert.equal(Number(u.field('kcal').value),150);
+ assert.equal(Number(u.field('protein').value),9);
+ u.ids.get('hhDiaryEditFormV1161').events.submit({preventDefault(){}});
+ assert.equal(u.writes.length,1);
+ assert.equal(u.writes[0].quantity,120);
+ assert.equal(u.writes[0].unit,'g');
+ assert.equal(u.writes[0].originalWeight,320);
+ assert.equal(u.writes[0].nutrients.kcal,150);
+});
+test('v1162 source update requires physical baseline and preserves real data',()=>{
+ assert.match(nutritionCore,/const reference=scaler\.validation\(payload\.originalWeight/);
+ assert.match(nutritionCore,/diaryOriginalWeightGrams:reference/);
+ assert.match(nutritionCore,/diaryWeightSource:inferred\.amount==null\?'user-confirmed'/);
+ assert.match(index,/hh-diary-scale-v1161\.js\?v=1162-weight-only/);
+ assert.match(index,/hh-diary-edit-v1161\.js\?v=1162-weight-only/);
 });

@@ -69,3 +69,22 @@
  .hh-diary-edit-nutrients-v1161{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
 @media(prefers-reduced-motion:reduce){.hh-diary-edit-dialog-v1161::backdrop{backdrop-filter:none}}
+
+/* v1162: exclusive physical mass editor, never servings/counters. */
+.hh-diary-edit-grid-v1161 #hhDiaryEditBaselineWrapV1162[hidden]{display:none!important}
+.hh-diary-edit-grid-v1161 #hhDiaryEditBaselineWrapV1162{
+ grid-column:1/-1;
+ padding:10px;border:1px dashed rgba(246,211,130,.58);border-radius:13px;
+ background:rgba(65,46,29,.38)
+}
+.hh-diary-edit-grid-v1161 .hh-diary-edit-weight-label-v1162{
+ grid-column:1/-1;
+ font-size:14px;font-weight:900;
+ color:var(--accent,#9bc8f5)
+}
+.hh-diary-edit-grid-v1161 .hh-diary-edit-weight-label-v1162 input{
+ font-size:23px!important;
+ font-weight:900!important;
+ min-height:59px!important;
+ border-color:var(--accent,#9bc8f5)!important;
+}

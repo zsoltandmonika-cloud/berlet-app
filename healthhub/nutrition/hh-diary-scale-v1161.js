@@ -11,25 +11,33 @@ function positive(value){
  return Number.isFinite(num)&&num>0&&num<=MAX_PORTION?num:null;
 }
 function infer(entry){
+ // The editor works ONLY with physical weight/volume. Never mistake
+ // "1 adag", "2 darab" or a recipe count for 1/2 grams.
+ const kind=entry?.kind==='drink'?'drink':'food';
  const own=positive(entry?.quantity);
+ const raw=String(entry?.unit||'').trim().toLocaleLowerCase('hu');
+ const grams=raw==='g'||raw==='gram'||raw==='gramm'?1:raw==='dkg'?10:raw==='kg'?1000:0;
+ const ml=raw==='ml'?1:raw==='dl'?100:raw==='l'||raw==='liter'?1000:0;
  if(own!=null){
-  const unit=String(entry.unit||'g').trim().slice(0,40)||'g';
-  return {amount:own,unit,source:'stored'};
+  if(grams)return {amount:own*grams,unit:'g',source:'stored-weight'};
+  if(ml)return {amount:own*ml,unit:'ml',source:'stored-volume'};
+  const named=raw.match(/\((\d+(?:[.,]\d+)?)\s*ml\)/i);
+  if(named&&kind==='drink'){
+   const size=positive(named[1].replace(',','.'));
+   if(size)return {amount:own*size,unit:'ml',source:'stored-vessel'};
+  }
  }
  const volume=positive(entry?.volumeMl);
- if(volume!=null)return {amount:volume,unit:'ml',source:'volume'};
- const text=String(entry?.quantityText||'');
- const match=text.match(/(\d+(?:[.,]\d+)?)\s*(g|ml|dkg|kg)\b/i);
+ if(volume!=null&&kind==='drink')return {amount:volume,unit:'ml',source:'volume'};
+ const label=String(entry?.quantityText||'');
+ const match=label.match(/(\d+(?:[.,]\d+)?)\s*(kg|dkg|g|liter|dl|ml)\b/i);
  if(match){
-  const val=positive(match[1].replace(',','.'));
-  if(val!=null)return {amount:val,unit:match[2].toLowerCase(),source:'label'};
+  const n=positive(match[1].replace(',','.')),unit=match[2].toLocaleLowerCase('hu');
+  const multiplier=unit==='kg'?1000:unit==='dkg'?10:unit==='dl'?100:unit==='liter'?1000:1;
+  if(n!=null&&n*multiplier<=MAX_PORTION)
+   return {amount:n*multiplier,unit:['liter','dl','ml'].includes(unit)?'ml':'g',source:'label'};
  }
- const servings=text.match(/(\d+(?:[.,]\d+)?)\s*(?:adag|porció|db)\b/i);
- if(servings){
-  const count=positive(servings[1].replace(',','.'));
-  if(count!=null)return {amount:count,unit:'adag',source:'serving'};
- }
- return {amount:1,unit:'adag',source:'fallback'};
+ return {amount:null,unit:kind==='drink'?'ml':'g',source:'unknown-weight'};
 }
 function scale(nutrients,originalAmount,newAmount){
  const from=positive(originalAmount),to=positive(newAmount);

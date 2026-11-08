@@ -23,11 +23,12 @@ dialog.innerHTML=[
  '<label>Napszak / étkezés<select id="hhDiaryEditMealV1161"></select></label>',
  '<label>Időpont<input id="hhDiaryEditTimeV1161" type="time" required></label>',
  '<label>Nap<input id="hhDiaryEditDateV1161" type="date" required></label>',
- '<label>Adag / súly <span id="hhDiaryEditUnitV1161" class="hh-diary-edit-unit-v1161"></span><input id="hhDiaryEditAmountV1161" type="number" inputmode="decimal" min="0.01" max="50000" step="any" required></label>',
+ '<label id="hhDiaryEditBaselineWrapV1162" class="hh-diary-edit-wide-v1161" hidden>Kiinduló súly (g)<input id="hhDiaryEditBaselineV1162" type="number" inputmode="decimal" min="0.01" max="50000" step="any" placeholder="Pl. 320"></label>',
+ '<label id="hhDiaryEditWeightLabelV1162" class="hh-diary-edit-weight-label-v1162">Súly (g)<input id="hhDiaryEditAmountV1161" type="number" inputmode="decimal" min="0.01" max="50000" step="any" placeholder="Pl. 200" required></label>',
  '</div>',
- '<p class="hh-diary-edit-scale-v1161" id="hhDiaryEditScaleV1161" aria-live="polite">Az adag módosításával a tápértékek automatikusan követik.</p>',
+ '<p class="hh-diary-edit-scale-v1161" id="hhDiaryEditScaleV1161" aria-live="polite">A súly (g) változtatásakor az összes tápérték automatikusan átskálázódik.</p>',
  '<div class="hh-diary-edit-nutrients-v1161" id="hhDiaryEditNutrientsV1161"></div>',
- '<p class="hh-diary-edit-hint-v1161">📐 Az eredeti adag tápértékeihez arányosan számolunk. A számok kézzel is javíthatók. A hiányzó értékeket nem találjuk ki. Az eredeti recept és receptkép megmarad.</p>',
+ '<p class="hh-diary-edit-hint-v1161">📐 A súly (g) módosításakor minden tápérték arányosan változik. A számok kézzel is javíthatók. A hiányzó értékeket nem találjuk ki. Az eredeti recept és receptkép megmarad.</p>',
  '<p class="hh-diary-edit-error-v1161" id="hhDiaryEditErrorV1161" role="alert" hidden></p>',
  '<div class="hh-diary-edit-actions-v1161"><button type="button" id="hhDiaryEditCancelV1161">Mégse</button><button type="submit" id="hhDiaryEditSaveV1161">✓ Módosítás mentése</button></div>',
  '</form>'
@@ -36,6 +37,9 @@ d.body.append(dialog);
 const el=id=>d.getElementById(id);
 const form=el('hhDiaryEditFormV1161');
 const amount=el('hhDiaryEditAmountV1161');
+const baseline=el('hhDiaryEditBaselineV1162');
+const baselineWrap=el('hhDiaryEditBaselineWrapV1162');
+const weightLabel=el('hhDiaryEditWeightLabelV1162');
 const meal=el('hhDiaryEditMealV1161');
 MEALS.forEach(name=>{
  const option=d.createElement('option');option.value=name;option.textContent=name;meal.append(option);
@@ -56,10 +60,19 @@ const fmt=x=>Number(x).toLocaleString('hu-HU',{maximumFractionDigits:2});
 const parsed=v=>String(v).trim()===''?null:Number(String(v).replace(',','.'));
 function fail(message){error.hidden=false;error.textContent=String(message||'A módosítás nem menthető.');}
 function clearError(){error.hidden=true;error.textContent='';}
+function referenceWeight(){
+ if(!state)throw Error('Nincs szerkeszthető naplóbejegyzés.');
+ if(state.originalAmount!=null)return state.originalAmount;
+ const value=parsed(baseline.value);
+ if(value==null)throw Error('A régi naplóban csak adagszám szerepel. Add meg az eredeti étel súlyát grammban.');
+ return math.validation(value,state.unit,state.entry.cookbookImport?.finishedWeightGrams);
+}
 function validAmount(){
  if(!state)throw Error('Nincs szerkeszthető naplóbejegyzés.');
+ // Never scale from "1 adag"; require the real starting weight in grams.
+ referenceWeight();
  const q=parsed(amount.value);
- if(q==null)throw Error('Add meg a mennyiséget.');
+ if(q==null)throw Error(state.unit==='ml'?'Add meg a tényleges mennyiséget ml-ben.':'Add meg az elfogyasztott súlyt grammban.');
  return math.validation(q,state.unit,state.entry.cookbookImport?.finishedWeightGrams);
 }
 function liveScale(){
@@ -67,14 +80,16 @@ function liveScale(){
  clearError();
  let q;
  try{q=validAmount()}catch(e){fail(e.message);return}
- const ratio=q/state.originalAmount;
+ const original=referenceWeight();
+ const ratio=q/original;
  const oldKcal=state.originalNutrients.kcal;
- const calcKcal=state.anchors.kcal?.value==null?null:round(state.anchors.kcal.value*q/state.anchors.kcal.amount);
- ratioInfo.textContent='⚖️ '+fmt(state.originalAmount)+' '+state.unit+' → '+fmt(q)+' '+state.unit+
+ const kcalAnchor=state.anchors.kcal;
+ const calcKcal=kcalAnchor?.value==null?null:round(kcalAnchor.value*q/(kcalAnchor.amount||original));
+ ratioInfo.textContent='⚖️ '+fmt(original)+' '+state.unit+' → '+fmt(q)+' '+state.unit+
   ' · '+fmt(ratio*100)+'%'+(oldKcal==null||calcKcal==null?' · Kalóriaadat nincs':' · 🔥 '+fmt(calcKcal)+' kcal');
  for(const key of NUTRI_KEYS){
   const anchor=state.anchors[key];
-  fields[key].value=anchor?.value==null?'':String(round(anchor.value*q/anchor.amount));
+  fields[key].value=anchor?.value==null?'':String(round(anchor.value*q/(anchor.amount||original)));
  }
 }
 function open(entry){
@@ -95,13 +110,25 @@ function open(entry){
  el('hhDiaryEditDateV1161').value=entry.date||'';
  el('hhDiaryEditTimeV1161').value=entry.time||'';
  meal.value=MEALS.includes(entry.meal)?entry.meal:'Egyéb';
- el('hhDiaryEditUnitV1161').textContent='('+quantity.unit+')';
- amount.value=String(quantity.amount);
- clearError();liveScale();
+ const needsWeight=quantity.amount==null;
+ baselineWrap.hidden=!needsWeight;
+ baseline.value='';
+ if(weightLabel.firstChild)weightLabel.firstChild.textContent=quantity.unit==='ml'?'Mennyiség (ml)':'Súly (g)';
+ amount.value=needsWeight?'':String(quantity.amount);
+ clearError();
+ if(needsWeight){
+  ratioInfo.textContent='⚖️ A régi bejegyzésben nincs grammban mért súly. Előbb add meg a kiinduló súlyt (g), majd az elfogyasztott súlyt (g).';
+  for(const key of NUTRI_KEYS)fields[key].value=state.anchors[key].value==null?'':String(state.anchors[key].value);
+ }else liveScale();
  dialog.showModal();amount.focus({preventScroll:true});
  return true;
 }
 amount.addEventListener('input',liveScale);
+baseline.addEventListener('input',()=>{
+ if(state?.originalAmount!=null)return;
+ if(amount.value.trim()===''&&baseline.value.trim()!=='')amount.value=baseline.value;
+ liveScale();
+});
 for(const [key,input] of Object.entries(fields)){
  input.addEventListener('input',()=>{
   if(!state)return;
@@ -125,7 +152,7 @@ form.addEventListener('submit',event=>{
  event.preventDefault();if(!state)return;
  clearError();
  try{
-  const q=validAmount(),nutrients=math.scale(state.originalNutrients,state.originalAmount,q);
+  const q=validAmount(),original=referenceWeight(),nutrients=math.scale(state.originalNutrients,original,q);
   for(const key of NUTRI_KEYS){
    const val=parsed(fields[key].value);
    if(val!=null&&(!Number.isFinite(val)||val<0||val>Number(fields[key].max)))
@@ -136,7 +163,7 @@ form.addEventListener('submit',event=>{
   if(name.length<2)throw Error('Add meg az étel nevét.');
   const result=api().updateDiaryEntry({
    expectedProfile:state.profile,id:state.id,name,
-   quantity:q,unit:state.unit,
+   quantity:q,unit:state.unit,originalWeight:original,
    meal:meal.value,date:el('hhDiaryEditDateV1161').value,
    time:el('hhDiaryEditTimeV1161').value,
    nutrients
