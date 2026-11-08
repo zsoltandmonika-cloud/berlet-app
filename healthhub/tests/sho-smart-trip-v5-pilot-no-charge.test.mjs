@@ -1,0 +1,40 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import {readFileSync} from "node:fs";
+const get=path=>readFileSync(path,"utf8");
+const sql=get("supabase/migrations/20261108014000_smart_trip_pilot_quota_expectation_no_charge.sql");
+const edge=get("supabase/functions/hh-smart-trip-real-pilot-v1/index.ts");
+test("Pilot quota is service_role ONLY and never exposes anonymous RPC",()=>{
+ assert.match(sql,/CREATE OR REPLACE FUNCTION public\.hh_smart_trip_google_reserve_pilot\(/);
+ assert.match(sql,/p_expected_daily_used integer/);
+ assert.match(sql,/SECURITY DEFINER SET search_path = ''/);
+ assert.match(sql,/REVOKE ALL ON FUNCTION public\.hh_smart_trip_google_reserve_pilot\(integer\)/);
+ assert.match(sql,/FROM PUBLIC, anon, authenticated;/);
+ assert.match(sql,/GRANT EXECUTE ON FUNCTION public\.hh_smart_trip_google_reserve_pilot\(integer\)/);
+ assert.match(sql,/TO service_role;/);
+ assert.doesNotMatch(sql,/GRANT EXECUTE .*TO (?:authenticated|anon|PUBLIC)/);
+});
+test("Atomic quota stage check comes BEFORE counter increment",()=>{
+ const check=sql.indexOf("IF dc <> p_expected_daily_used OR dc >= 20 OR mc >= 200 THEN");
+ const write=sql.indexOf("SET used=used+1");
+ assert.ok(check>=0&&write>check);
+ assert.match(sql,/pg_catalog\.pg_advisory_xact_lock\(846207,5200\)/);
+ assert.match(sql,/FOR UPDATE/);
+ assert.match(sql,/p_expected_daily_used NOT BETWEEN 0 AND 2/);
+ assert.match(sql,/RETURN QUERY SELECT false,dc,mc/);
+ assert.match(sql,/RETURN QUERY SELECT true,dc\+1,mc\+1/);
+ assert.doesNotMatch(sql,/DROP TABLE|DISABLE ROW LEVEL SECURITY/);
+});
+test("The pilot must call atomic stage guard before Google and not charge denied attempts",()=>{
+ assert.match(edge,/admin\.rpc\("hh_smart_trip_google_reserve_pilot"/);
+ assert.match(edge,/p_expected_daily_used:expectedDailyUsed/);
+ const lookup=edge.indexOf("const quota=await reserveQuota(admin,reserved)");
+ const deny=edge.indexOf("if(!quota.allowed)");
+ const reserved=edge.indexOf("reserved++;",deny);
+ const google=edge.indexOf("await fetchVariant(key,variant)");
+ assert.ok(lookup>0&&deny>lookup&&reserved>deny&&google>reserved);
+ const denyBlock=edge.slice(deny,reserved);
+ assert.match(denyBlock,/quotaReserved:reserved/);
+ assert.doesNotMatch(denyBlock,/reserved\+\+|fetchVariant\(/);
+ assert.match(edge,/quotaUsedToday:quota\.daily_used/);
+});
