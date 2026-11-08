@@ -45,7 +45,7 @@ test("Fewer transfer/walking/waiting preferences change score with justified pen
  const coach=candidate(route([walk,a,walk,b]),"bus");
  assert.equal(coach.directVolan,true);
  assert.equal(coach.walkMeters,440);
- assert.equal(coach.shortestMargin,16);
+ assert.equal(coach.shortestMargin,12);
  assert.equal(coach.transfers,1);
  const train=candidate(route([walk,a,walk,c]),"rail");
  assert.ok(train.sajo);
@@ -53,7 +53,7 @@ test("Fewer transfer/walking/waiting preferences change score with justified pen
  const short=transit("Kazincbarcika","INTERCITY_BUS","Volánbusz","1054",
   d+"14:26:00Z",d+"17:45:00Z");
  const tight=candidate(route([walk,a,walk,short]),"bus");
- assert.equal(tight.shortestMargin,4);
+ assert.equal(tight.shortestMargin,0);
  assert.ok(score(tight,"balanced")>score(coach,"balanced")+80);
  const longwalk=candidate(route([{...walk,distanceMeters:2000},a,{...walk,distanceMeters:3000},b]),"bus");
  assert.ok(score(longwalk,"walk")>score(coach,"walk"));
@@ -121,7 +121,7 @@ test("Stuck Google pilot must stop on delayed auth and display exact HTTP 503 re
  assert.match(client,/A keresés lezárult hibával/);
  assert.match(client,/networkStarted=true/);
  assert.match(client,/if\(!networkStarted\)alreadyRun=false/);
- assert.match(ui,/client\.mjs\?v=verified-zero-quota-rearm-v3/);
+ assert.match(ui,/client\.mjs\?v=quality-v1/);
 });
 
 test("New and legacy Supabase env keys are supported without disclosing secrets",()=>{
@@ -172,4 +172,56 @@ test("Diagnostic re-arms only from server-confirmed zero quotas, with no Google 
  assert.match(client,/alreadyRun=false;\s*\$\("run"\)\.disabled=false/);
  assert.match(client,/\$\("timing"\)\.hidden=true/);
  assert.match(client,/\$\("out"\)\.hidden=true/);
+});
+
+test("Interchange slack excludes walking and impossible transfers never become A candidates",()=>{
+ const departure="2026-11-27T";
+ const first=transit("Városi","TRAM","BKK","17",
+  departure+"14:00:00Z",departure+"14:20:00Z");
+ const safe=transit("Helyközi","INTERCITY_BUS","Volánbusz","1054",
+  departure+"14:33:00Z",departure+"17:15:00Z");
+ const approach={travelMode:"WALK",distanceMeters:550,staticDuration:"540s"};
+ const valid=candidate(route([first,approach,safe],"12000s"),"bus");
+ assert.ok(valid);
+ assert.equal(valid.shortestMargin,4); // 13-min gap - 9-min walk = 4-min buffer
+ assert.ok(score(valid)>score({...valid,shortestMargin:12})+100);
+ const impossible=transit("Helyközi","INTERCITY_BUS","Volánbusz","1054",
+  departure+"14:27:00Z",departure+"17:15:00Z");
+ assert.equal(candidate(route([first,approach,impossible],"12000s"),"bus"),null);
+ const backwards=transit("Helyközi","INTERCITY_BUS","Volánbusz","1054",
+  departure+"14:18:00Z",departure+"17:15:00Z");
+ assert.equal(candidate(route([first,backwards],"12000s"),"bus"),null);
+ assert.equal(candidate(route([first,{...approach,staticDuration:undefined},safe],"12000s"),"bus"),null);
+});
+
+test("Invalid transit chronology and misleading overall travel times are rejected",()=>{
+ const first=transit("Városi","TRAM","BKK","17",d+"14:00:00Z",d+"14:22:00Z");
+ const missing=transit("Helyközi","INTERCITY_BUS","Volánbusz","1054",
+  "",d+"16:20:00Z");
+ const reversed=transit("Helyközi","INTERCITY_BUS","Volánbusz","1054",
+  d+"17:00:00Z",d+"16:20:00Z");
+ assert.equal(candidate(route([first,missing],"13000s"),"bus"),null);
+ assert.equal(candidate(route([first,reversed],"13000s"),"bus"),null);
+ assert.equal(candidate(route([first,a], "10s"),"all"),null);
+});
+
+test("Last-mile walk is visible and longer destination walks are penalized",()=>{
+ const short=candidate(route([walk,a,walk,b,{...walk,distanceMeters:120}]),"all");
+ const long=candidate(route([walk,a,walk,b,{...walk,distanceMeters:1900}]),"all");
+ assert.ok(short&&long);
+ assert.equal(short.finalWalkMeters,120);
+ assert.equal(long.finalWalkMeters,1900);
+ assert.ok(score(long,"balanced")>score(short,"balanced")+45);
+ assert.match(lenaSummary({best:long}),/célállomásnál még 1900 méter séta/);
+});
+test("Actual Google-provider presence must not be described as one independently checked combined route",()=>{
+ assert.match(client,/nem feltétlenül ugyanazon az útvonalon/);
+ assert.match(client,/Előzetes A-jelölt/);
+ assert.match(ui,/Léna előzetes A-jelöltje/);
+ assert.match(client,/Gyaloglás utáni átszállási tartalék/);
+ assert.match(client,/Utolsó séta a célhoz/);
+ const e=evaluate(payload);
+ assert.equal(e.independentVerified,false);
+ assert.ok(e.providerReports.every(x=>x.seen));
+ assert.ok(e.candidates.every(x=>x.providers.length<=2));
 });
