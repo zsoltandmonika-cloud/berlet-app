@@ -2,7 +2,7 @@
  * Only 3 server-side provider preferences; no Google API key in browser.
  * No map, no Google-content-to-AI forwarding, no My Trips write.
  */
-import {evaluate,lenaSummary} from "./engine.mjs";
+import {evaluate,lenaSummary} from "./engine.mjs?v=quality-v1";
 const $=id=>document.getElementById(id);
 const PROJECT_ORIGIN="https://vhsrupphzcjkdrusonzh.supabase.co";
 const ENDPOINT=PROJECT_ORIGIN+"/functions/v1/hh-smart-trip-real-pilot-v1";
