@@ -117,3 +117,9 @@ body.hhScanOpen753>.shell{display:none!important}
 
 /* v1120 optional auto AI cover control */
 .hhScanShared753 #hhScanSharedAutoImage753{accent-color:var(--sc)}
+
+/* v1148 · explicit scan-to-Favorites transfer, without saving or logging. */
+#hhScanApplyFavoriteV1148{width:100%;min-height:54px;border-radius:14px;margin:12px 0 9px;border:1px solid var(--sc);background:linear-gradient(125deg,#185e86,#2b6d81);color:#fff;font-weight:850;font-size:14px;box-shadow:0 6px 22px var(--scWash);cursor:pointer}
+.hhScanPage753[data-profile="monika"] #hhScanApplyFavoriteV1148{background:linear-gradient(120deg,#a1498d,#6755a8)}
+#hhScanApplyFavoriteV1148:disabled{opacity:.52;cursor:not-allowed}
+.hhScanPage753 #hhScanApplyFavoriteV1148[hidden],.hhScanPage753 #hhScanSharedSection753[hidden],.hhScanPage753 #hhScanSave753[hidden]{display:none!important}

@@ -4,8 +4,8 @@ const dir=path.resolve(__dirname,'..'),read=p=>fs.readFileSync(path.join(dir,p),
 const html=read('index.html'),script=read('hh-lena-ai-scan-page-v753.js'),css=read('hh-lena-ai-scan-page-v753.css'),journal=read('nutrition-preview-v592.js');
 new vm.Script(script);
 assert.match(html,/id="hhLenaScanPage753"/);
-assert.match(html,/hh-lena-ai-scan-page-v753\.js\?v=1120-card-image/);
-assert.match(html,/hh-lena-ai-scan-page-v753\.css\?v=1120-card-image/);
+assert.match(html,/hh-lena-ai-scan-page-v753\.js\?v=1148-favorites-handoff/);
+assert.match(html,/hh-lena-ai-scan-page-v753\.css\?v=1148-favorite-apply/);
 assert.match(html,/id="hhScanVideo753"/);
 assert.doesNotMatch(html,/class="hhScanTop753"/);
 assert.doesNotMatch(html,/AI FOOD STUDIO/);
@@ -89,6 +89,8 @@ class Element{
  setAttribute(n,v){this[n]=v}
  removeAttribute(n){delete this[n]}
  pause(){} play(){return Promise.resolve()}
+ replaceChildren(...children){this.children=children}
+ append(...children){this.children=(this.children||[]).concat(children)}
 }
 for(const id of ids)registry.set(id,new Element(id));
 const page=registry.get('hhLenaScanPage753'),tile=registry.get('hhBevitelAI'),events={};
@@ -96,7 +98,8 @@ const w={location:{hash:'',pathname:'/berlet-app/healthhub/nutrition/',search:''
  history:{pushState(s,n,url){w.location.hash=url},replaceState(){w.location.hash=''},back(){w.location.hash=''}},
  addEventListener(n,fn){events[n]=fn},scrollTo(x,y){w.lastTop=[x,y]},navigator:{},HH_NUTRITION_QUICK_API:{getProfile:()=> 'zsolt',recordAiMeal:()=>({})},
  HH_FOOD_VISION_V750:{availableModels:async()=>[],parse:x=>x,totals:()=>({})}};
-const document={readyState:'complete',getElementById:id=>registry.get(id)||null,body:{classList:{toggle(){},add(){},remove(){}}}};
+const document={readyState:'complete',getElementById:id=>registry.get(id)||null,
+ createElement:tag=>new Element(tag),body:{classList:{toggle(){},add(){},remove(){}}}};
 vm.runInNewContext(script,{window:w,document,Date,Math,Number,JSON,String,Array,Set,Promise});
 assert.equal(typeof tile.handlers.click[0].fn,'function');
 const e={prevented:false,stopped:false,preventDefault(){this.prevented=true},stopImmediatePropagation(){this.stopped=true}};

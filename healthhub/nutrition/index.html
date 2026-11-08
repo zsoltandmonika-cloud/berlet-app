@@ -140,7 +140,7 @@ dialog{width:min(540px,calc(100% - 20px));max-height:min(91%,860px);border:1px s
 <link rel="stylesheet" href="./hh-hydration-button-glass-v1138.css?v=1138-aqua-buttons-only">
 <link rel="stylesheet" href="./hh-bevitel-premium-v643.css?v=723-food-meals-top">
 <link rel="stylesheet" href="./hh-food-vision-v750.css?v=752-golden-stepper">
-<link rel="stylesheet" href="./hh-lena-ai-scan-page-v753.css?v=1120-card-image">
+<link rel="stylesheet" href="./hh-lena-ai-scan-page-v753.css?v=1148-favorite-apply">
 <link rel="stylesheet" href="./hh-bevitel-category-studio-v644.css?v=650-bristol-photo-edit">
 <link rel="stylesheet" href="./hh-bristol-wheel-v649.css?v=650-editable-photos">
 <link rel="stylesheet" href="./hh-urine-color-wheel-v650.css?v=650-apple-juice">
@@ -351,7 +351,7 @@ body[data-sh9-golden-three="on"] #nutritionGoldenHeroHost > #sh9LauncherProfileV
     <div class="hh-quick-field"><label for="hhQuickEditTheme">Kártya fénye</label><select id="hhQuickEditTheme"><option value="coffee">Kávé · arany</option><option value="fruit">Gyümölcs · türkiz</option><option value="meal">Étel · kék</option><option value="sweet">Desszert · rózsaszín</option></select></div>
     <div class="hh-quick-field"><label for="hhQuickEditOrder">Wheel sorrend</label><input id="hhQuickEditOrder" type="number" min="0" max="9999" step="1" value="10" required></div>
     <div class="hh-quick-field" style="justify-content:end"><label for="hhQuickEditArchived"><input id="hhQuickEditArchived" type="checkbox" style="width:auto;min-height:0;margin-right:6px">Archiválva (nem látszik a wheelben)</label></div>
-    <div class="hh-quick-form-actions"><button type="button" id="hhQuickRemovePhoto">Kép eltávolítása</button><button type="button" id="hhQuickImagePortalOpen" class="hh-quick-image-portal-open">✨ Léna képgeneráló</button><button type="submit" class="primary">✓ Recept mentése</button></div>
+    <div class="hh-quick-form-actions"><button type="button" id="hhQuickRemovePhoto">Kép eltávolítása</button><button type="button" id="hhQuickAIScanV1148" class="hh-quick-image-portal-open" title="Meglévő Léna AI Scan · fotó és vonalkód">📷 Léna AI Scan</button><button type="button" id="hhQuickImagePortalOpen" class="hh-quick-image-portal-open">✨ Léna képgeneráló</button><button type="submit" class="primary">✓ Recept mentése</button></div>
    </form>
    <div class="hh-quick-edit-sync"><span aria-hidden="true">☁️</span><span id="hhQuickCloudEditStatus" data-state="pending" role="status" aria-live="polite">Mentés után automatikus Dropbox-szinkron</span></div>
    <p class="hh-quick-status" id="hhQuickEditStatus" aria-live="polite"></p>
@@ -421,13 +421,14 @@ window.hhOpenBevitelEditor=function(scope){
 <script defer src="../hh-observation-rag-v728.js?v=728-shared-scale"></script>
 <script defer src="./nutrition-preview-v592.js?v=1145-one-tap-food-delete"></script>
 <script defer src="./hh-favorites-order-v1146.js?v=1146-unified-favorites"></script>
-<script defer src="./hh-quick-recipe-wheel-v635.js?v=1147-favorite-create-launch"></script>
+<script defer src="./hh-scan-to-favorite-v1148.js?v=1148-scan-favorite-draft"></script>
+<script defer src="./hh-quick-recipe-wheel-v635.js?v=1148-favorite-scan-bridge"></script>
 <script defer src="./hh-manual-intake-v1130.js?v=1147-quick-to-favorite"></script>
 <script defer src="./hh-nutrition-quick-glass-v1137.js?v=1137-quick-buttons-tada"></script>
 <script defer src="./hh-bevitel-premium-v643.js?v=1130-personal-food-image"></script>
 <script defer src="./hh-food-vision-v750.js?v=752-golden-review"></script>
 <script defer src="./hh-shared-food-library-v1118.js?v=1135-multi-image-fallback"></script>
-<script defer src="./hh-lena-ai-scan-page-v753.js?v=1120-card-image"></script>
+<script defer src="./hh-lena-ai-scan-page-v753.js?v=1148-favorites-handoff"></script>
 <script defer src="./hh-bristol-wheel-v649.js?v=650-bristol-photo-edit"></script>
 <script defer src="./hh-urine-color-wheel-v650.js?v=650-shaded-juice-glasses"></script>
 <script>
@@ -1152,6 +1153,7 @@ document.addEventListener('DOMContentLoaded',function(){
     <button type="button" id="hhScanSharedSave753">☁️ Mentés a közös gyűjteménybe</button>
     <p id="hhScanSharedStatus753" role="status" aria-live="polite"></p>
    </section>
+   <button type="button" id="hhScanApplyFavoriteV1148" hidden>⭐ Adatok átvétele a Kedvencekhez · mentés nélkül</button>
    <button type="button" id="hhScanSave753">✓ Külön mentés a napi naplóba</button>
    <div class="hhScanSaved753"><strong>✨ TADAAA! Elmentve.</strong><p id="hhScanSavedStamp753"></p><button type="button" id="hhScanAgain753">＋ Új étel felismerése</button></div>
   </section>
