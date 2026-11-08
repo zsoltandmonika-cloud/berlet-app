@@ -1,0 +1,43 @@
+name: Nutrition Diary Favorites artwork v1150
+on:
+  pull_request:
+    paths:
+      - 'healthhub/nutrition/nutrition-preview-v592.js'
+      - 'healthhub/nutrition/hh-diary-favorites-art-v1150.js'
+      - 'healthhub/nutrition/hh-diary-favorites-art-v1150.css'
+      - 'healthhub/nutrition/index.html'
+      - 'healthhub/tests/nutrition-diary-favorites-art-v1150.test.cjs'
+      - 'healthhub/tests/nutrition-manual-intake-v1130.test.cjs'
+      - '.github/workflows/healthhub-nutrition-diary-art-v1150.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'healthhub/nutrition/nutrition-preview-v592.js'
+      - 'healthhub/nutrition/hh-diary-favorites-art-v1150.js'
+      - 'healthhub/nutrition/hh-diary-favorites-art-v1150.css'
+      - 'healthhub/nutrition/index.html'
+      - 'healthhub/tests/nutrition-diary-favorites-art-v1150.test.cjs'
+      - 'healthhub/tests/nutrition-manual-intake-v1130.test.cjs'
+      - '.github/workflows/healthhub-nutrition-diary-art-v1150.yml'
+permissions:
+  contents: read
+jobs:
+  diary-art:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Syntax and thumbnail source regression
+        run: |
+          node --check healthhub/nutrition/nutrition-preview-v592.js
+          node --check healthhub/nutrition/hh-diary-favorites-art-v1150.js
+          node --test healthhub/tests/nutrition-diary-favorites-art-v1150.test.cjs
+      - name: Existing Nutrition diary and favorites regressions
+        run: |
+          node --test healthhub/tests/nutrition-manual-intake-v1130.test.cjs
+          node --test healthhub/tests/nutrition-favorites-unified-reorder-v1146.test.cjs
+          node --test healthhub/tests/nutrition-quick-intake-favorites-v1147.test.cjs
+          node --test healthhub/tests/nutrition-scan-one-tap-favorites-v1149.test.cjs
