@@ -131,7 +131,17 @@ function advance(){
  if(step==='categories'){
   if(picked.category===COOKBOOK_ID){
    dialog.close();
-   window.location.assign(new URL('../../recepttar/',window.location.href).href);
+   // v1154 · Food > Cookbook opens single-tap 320 g Nutrition import mode.
+   // The standalone Recept Stúdió tile remains a normal recipe editor.
+   const profile=window.HH_NUTRITION_QUICK_API?.getProfile?.()||'';
+   if(!['monika','zsolt'].includes(profile)){
+    note.textContent='Előbb válaszd ki a HealthHub profilját.';return;
+   }
+   const target=new URL('../../recepttar-studio/',window.location.href);
+   target.searchParams.set('hhNutritionImport','1');
+   target.searchParams.set('profile',profile);
+   if(selectedMeal)target.searchParams.set('meal',selectedMeal);
+   window.location.assign(target.href);
    return;
   }
   category=picked.category;step='foods';render();return;

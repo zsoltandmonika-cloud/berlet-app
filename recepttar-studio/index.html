@@ -12,6 +12,14 @@
 <link rel="shortcut icon" href="favicon.svg?v=1">
 <link rel="apple-touch-icon" href="icon-192.png?v=1">
 <link rel="stylesheet" href="styles.css?v=42">
+<style>
+.hh-nutri-weight-v1154{margin-top:14px;padding:12px;border-radius:15px;background:linear-gradient(130deg,rgba(23,69,82,.55),rgba(18,30,46,.66));border:1px solid rgba(118,227,211,.35);display:grid;gap:8px}
+.hh-nutri-weight-v1154 label{font-size:13px;font-weight:800;color:#e6fff8}
+.hh-nutri-weight-entry-v1154{display:flex;gap:9px;align-items:center}
+.hh-nutri-weight-entry-v1154 input{min-width:0;width:100%;background:#0b2337;color:#f8ffff;border:1px solid #82d5c2a1;border-radius:11px;font-size:17px;min-height:42px;padding:8px 11px}
+.hh-nutri-weight-entry-v1154 button{flex:0 0 auto;min-height:42px}
+.hh-nutri-weight-v1154 small{font-size:11px;line-height:1.45;color:#c3e0d9}
+</style>
 <link rel="stylesheet" href="/berlet-app/sh9/shared/sh9-golden-controls-v1.css?v=934-unified-glass-dock">
 <link rel="stylesheet" href="/berlet-app/sh9/shared/sh9-golden-bottom-nav-v924.css?v=924-unified">
 </head>
@@ -171,6 +179,14 @@
           <div class="nutri-footer">
             <span>Adagonként · becsült érték</span>
             <button id="nutriRefreshRecipe" type="button" class="outline-btn compact-btn">↻ Frissítés</button>
+          </div>
+          <div class="hh-nutri-weight-v1154">
+            <label for="nutriFinishedWeightV1154">⚖️ Az egész elkészült étel tömege (g)</label>
+            <div class="hh-nutri-weight-entry-v1154">
+              <input id="nutriFinishedWeightV1154" type="number" min="50" max="50000" step="1" inputmode="numeric" placeholder="pl. 1600" aria-describedby="nutriWeightStatusV1154">
+              <button type="button" id="nutriSaveWeightV1154" class="outline-btn compact-btn">☁ Mentés</button>
+            </div>
+            <small id="nutriWeightStatusV1154" role="status">Egyszer add meg a teljes készétel-tömeget, utána egy kattintás a HealthHub naplóba.</small>
           </div>
         </div>
       </section>
@@ -678,7 +694,9 @@
 <script src="../recepttar/data.js?v=25"></script>
 <script src="../recepttar/readable-data.js?v=35"></script>
 <script src="stangli-2026.js?v=1"></script>
-<script src="app.js?v=46"></script>
+<script src="../healthhub/nutrition/hh-cookbook-portion-math-v1154.js?v=1154"></script>
+<script src="app.js?v=1154-cooked-weight"></script>
+<script src="hh-nutrition-export-v1154.js?v=1154-single-tap"></script>
 
 <script defer src="/berlet-app/sh9/shared/sh9-golden-controls-v1.js?v=934-unified-glass-dock"></script>
 <script defer src="/berlet-app/sh9/shared/sh9-golden-bottom-nav-v924.js?v=924-unified"></script>

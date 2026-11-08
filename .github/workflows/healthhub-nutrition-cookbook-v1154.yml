@@ -1,0 +1,46 @@
+name: Nutrition · Léna Recept Stúdió 320 g one-tap diary v1154
+on:
+  pull_request:
+    paths:
+      - 'healthhub/nutrition/index.html'
+      - 'healthhub/nutrition/nutrition-preview-v592.js'
+      - 'healthhub/nutrition/hh-bevitel-premium-v643.js'
+      - 'healthhub/nutrition/hh-diary-favorites-art-v1150.js'
+      - 'healthhub/nutrition/hh-cookbook-*.js'
+      - 'recepttar-studio/index.html'
+      - 'recepttar-studio/app.js'
+      - 'recepttar-studio/hh-nutrition-export-v1154.js'
+      - 'healthhub/tests/nutrition-cookbook-bridge-v1154.test.cjs'
+      - '.github/workflows/healthhub-nutrition-cookbook-v1154.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'healthhub/nutrition/index.html'
+      - 'healthhub/nutrition/nutrition-preview-v592.js'
+      - 'healthhub/nutrition/hh-bevitel-premium-v643.js'
+      - 'healthhub/nutrition/hh-diary-favorites-art-v1150.js'
+      - 'healthhub/nutrition/hh-cookbook-*.js'
+      - 'recepttar-studio/index.html'
+      - 'recepttar-studio/app.js'
+      - 'recepttar-studio/hh-nutrition-export-v1154.js'
+      - 'healthhub/tests/nutrition-cookbook-bridge-v1154.test.cjs'
+      - '.github/workflows/healthhub-nutrition-cookbook-v1154.yml'
+permissions:
+  contents: read
+jobs:
+  cookbook-portion:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: One-tap cookbook 320g maths, source isolation and photo persistence
+        run: node --test healthhub/tests/nutrition-cookbook-bridge-v1154.test.cjs
+      - name: Existing Nutrition diary, image and Bevitel regressions
+        run: |
+          node --test healthhub/tests/nutrition-manual-intake-v1130.test.cjs
+          node --test healthhub/tests/nutrition-diary-favorites-art-v1150.test.cjs
+          node --test healthhub/tests/nutrition-bevitel-recipe-studio-v1151.test.cjs
+          node --test healthhub/tests/nutrition-quick-compact-sync-v1152.test.cjs

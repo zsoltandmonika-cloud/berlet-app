@@ -14,6 +14,13 @@
  const isPhoto=(value)=>typeof value==='string'&&value.length<1300000&&regex.test(value);
  function resolve(entry,data,sharedItems=[]){
   if(!entry||typeof entry!=='object')return null;
+  // v1154: Keep the imported cookbook photo with its immutable diary snapshot.
+  // Unlike a Favorite, this image belongs to this exact imported portion.
+  if(entry.cookbookImport?.recipeId){
+   return {id:entry.id,kind:'cookbook',scope:'personal',
+    imageRef:entry.cookbookImport.imageRef||null,image:'',
+    icon:entry.icon||'🥘',theme:'meal'};
+  }
   const id=typeof entry.quickRecipeId==='string'?entry.quickRecipeId:
    (typeof entry.foodId==='string'?entry.foodId:'');
   if(id.startsWith(SHARED)){

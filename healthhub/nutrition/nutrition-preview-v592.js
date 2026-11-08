@@ -766,6 +766,7 @@ function savePresetEntry(e){
 function editEntry(row){
  if(row.manualEntry){alert('Ez kézzel rögzített étel. A naplózott adatok megőrzése érdekében ezt a bejegyzést törölheted és a Kézi hozzáadás gombbal újra rögzítheted.');return;}
  if(row.aiVision&&window.HH_FOOD_VISION_V750?.open){window.HH_FOOD_VISION_V750.open(row);return;}
+ if(row.cookbookImport){alert('Ez egy Recept Stúdióból átvett 320 g-os tápérték-pillanatkép. A recept módosítása nem írja át a naplót. Szükség esetén töröld ezt a bejegyzést és importáld újra.');return;}
  if(row.quickRecipeId){alert('Ez egy mentéskori recept-pillanatkép. A Quick Recipe Studio a jövőbeni bevitelt módosítja; a naplózott példány a napi naplóban megőrzött. Hibás bevitelt törölhetsz, majd újra rögzíthetsz.');return;}
  if(row.components){openPreset(row.foodId.endsWith('afternoon')?'afternoon':'morning',row);return;}
  openEntry(row.kind,row);
@@ -1045,6 +1046,50 @@ root.HH_NUTRITION_QUICK_API={
   update(doc=>{const idx=doc.entries.findIndex(x=>x.id===id);
    if(idx>=0)doc.entries[idx]=rec;else doc.entries.push(rec)});
   success();return {id,name,kcal:nutrients.kcal,profile:active,date:rec.date};
+ },
+ /* v1154 · Single-tap Léna cookbook: fixed snapshot, profile isolation,
+  * immutable import token, existing profile-scoped Dropbox journal only. */
+ recordCookbookPortion:payload=>{
+  if(payload?.expectedProfile!==active)throw Error('Profilváltás történt. A naplózás megszakadt.');
+  const token=String(payload.token||''),sourceId=String(payload.recipeId||'').trim();
+  const name=String(payload.name||'').trim().slice(0,80);
+  const grams=Number(payload.grams),finishedWeightGrams=Number(payload.finishedWeightGrams);
+  if(!/^[a-z0-9_-]{10,100}$/i.test(token)||!sourceId||sourceId.length>120||name.length<2)
+   throw Error('Érvénytelen receptátadás.');
+  if(!Number.isInteger(grams)||grams<1||grams>3000||
+     !Number.isInteger(finishedWeightGrams)||finishedWeightGrams<grams||finishedWeightGrams>50000)
+   throw Error('Érvénytelen készétel- vagy porciótömeg.');
+  const imageRef=payload.imageRef||null;
+  if(imageRef&&!root.HH_NUTRITION_IMAGE_V641?.refValid?.(active,imageRef))
+   throw Error('A receptképet nem lehet ehhez a profilhoz kapcsolni.');
+  const nut=Object.fromEntries(metrics.map(k=>[k,null]));
+  for(const key of ['kcal','protein','carbs','fat']){
+   const raw=payload.nutrients?.[key];
+   if(raw===null||raw===undefined||raw===''||!Number.isFinite(Number(raw))||Number(raw)<0)
+    throw Error('Hiányos tápérték: '+key);
+   nut[key]=Number(Number(raw).toFixed(2));
+  }
+  if(nut.kcal<=0||nut.kcal>5000)throw Error('Az energiaérték nem érvényes.');
+  if(payload.nutrients?.fiber!=null){
+   const fiber=Number(payload.nutrients.fiber);
+   if(!Number.isFinite(fiber)||fiber<0||fiber>1000)throw Error('Hibás rostérték.');
+   nut.fiber=Number(fiber.toFixed(2));
+  }
+  const recId='cookbook:'+token,existing=read(active).entries.find(x=>x.id===recId&&!x.deleted);
+  if(existing)return{id:existing.id,name:existing.name,kcal:existing.nutrients?.kcal,profile:active,date:existing.date,duplicate:true};
+  const now=stamp(),time=localTime(),meal=normalizeMeal(payload.meal)||mealForTime(time);
+  const rec={
+   id:recId,createdAt:now,updatedAt:now,date:localDate(),time,meal,kind:'food',
+   foodId:'cookbook:'+sourceId,name,icon:'🥘',quantity:grams,unit:'g',
+   quantityText:fmt(grams)+' g',nutrients:nut,source:'estimated',
+   cookbookImport:{token,recipeId:sourceId,finishedWeightGrams,grams,imageRef},
+  };
+  if($('logDate'))$('logDate').value=rec.date;
+  update(d=>{if(!d.entries.some(x=>x.id===recId))d.entries.push(rec);});
+  const saved=read(active).entries.find(x=>x.id===recId&&!x.deleted);
+  if(!saved)throw Error('A recept nem került be a naplóba.');
+  success();
+  return{id:saved.id,name:saved.name,kcal:saved.nutrients.kcal,profile:active,date:saved.date,duplicate:false};
  },
  recordRecipe:(recipe,mealOverride=null)=>{
   if(!recipe||typeof recipe.name!=='string'||!recipe.nutrients)throw Error('Hiányzó receptadat');

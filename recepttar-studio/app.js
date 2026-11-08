@@ -154,6 +154,31 @@ async function saveNutrition(v){
    try{await puter.kv.set(NUTRI_KEY_PREFIX+v.id,v)}catch(e){console.warn("Nutri Info felhőmentés hiba",e)}
  }
 }
+
+/* v1154 · Finished-dish weight, needed for reliable per-gram import to HealthHub. */
+async function saveFinishedWeightV1154(){
+ const id=currentId,n=id?getNutrition(id):null;
+ const status=$("#nutriWeightStatusV1154"),input=$("#nutriFinishedWeightV1154");
+ if(!n||!input){if(status)status.textContent="Először készíts Nutri Info becslést.";return}
+ const grams=Number(input.value);
+ if(!Number.isInteger(grams)||grams<50||grams>50000){
+  if(status)status.textContent="50–50 000 g közötti teljes készétel-tömeget adj meg.";return;
+ }
+ if(status)status.textContent="☁ Készétel-tömeg mentése…";
+ try{
+  await ensurePuterSignIn();
+  const next={...n,finishedWeightGrams:grams,updatedAt:new Date().toISOString()};
+  await puter.kv.set(NUTRI_KEY_PREFIX+id,next);
+  const check=await puter.kv.get(NUTRI_KEY_PREFIX+id);
+  if(Number(check?.finishedWeightGrams)!==grams)throw Error("A felhőadat visszaellenőrzése nem sikerült.");
+  localStorage.setItem(nutriLocalKey(id),JSON.stringify(next));nutritionCache[id]=next;
+  if(currentId===id)renderNutriCard(id);
+  if(status)status.textContent="✓ "+grams+" g · Puter felhőbe mentve. Innentől 320 g egy kattintás.";
+  toast("✓ Készétel-tömeg elmentve a recepthez.");
+ }catch(e){
+  if(status)status.textContent="⚠ Nem sikerült a felhőmentés: "+String(e?.message||e).slice(0,120);
+ }
+}
 function formatNutriG(v){return nutriNum(v,1).toLocaleString("hu-HU",{maximumFractionDigits:1})+" g"}
 function recipeServingText(id,d){
  const r=getRecipe(id),studio=r?.studioData;
@@ -181,6 +206,10 @@ function renderNutriCard(id){
  const n=getNutrition(id),empty=$("#nutriEmpty"),values=$("#nutriValues");
  $("#nutriServings").textContent=n?.servings||recipeServingText(id,d);
  empty.hidden=!!n;values.hidden=!n;
+ const weightInput=$("#nutriFinishedWeightV1154");
+ if(weightInput)weightInput.value=n?.finishedWeightGrams||"";
+ const weightStatus=$("#nutriWeightStatusV1154");
+ if(weightStatus)weightStatus.textContent=n?.finishedWeightGrams?"☁ Elmentett készétel-tömeg":"Egyszer add meg az egész elkészült étel tömegét, hogy a HealthHub 320 g-ot számolhasson.";
  if(!n)return;
  const p=n.perServing||{};
  $("#nutriKcal").textContent=Math.round(p.kcal||0);
@@ -225,6 +254,9 @@ async function estimateNutrition(id){
  try{
   let resp;try{resp=await puter.ai.chat(req,{model:STUDIO_TEXT_MODEL,normalize:true,verbosity:"low"})}catch(e){resp=await puter.ai.chat(req,{normalize:true})}
   const v=normalizeNutrition(parseRecipeJson(puterText(resp)),id,r.title);v.servings=servings;
+   const old=getNutrition(id);
+   if(old?.servings===servings&&Number.isInteger(Number(old.finishedWeightGrams))&&Number(old.finishedWeightGrams)>=50)
+    v.finishedWeightGrams=Number(old.finishedWeightGrams);
   await saveNutrition(v);if(currentId===id)renderNutriCard(id);renderHealthResult(id);toast("🥗 Nutri Info elkészült.");return v
  }catch(e){console.error(e);alert("A Nutri Info számítása most nem sikerült: "+(e.message||e));return null}
  finally{busy(false)}
@@ -286,6 +318,33 @@ function allRecipes(){
  const map=new Map();baseRecipes.map(effective).forEach(r=>map.set(r.id,r));sharedRecipes.map(effective).forEach(r=>map.set(r.id,r));customRecipes.map(effective).forEach(r=>map.set(r.id,r));return Array.from(map.values())
 }
 function getRecipe(id){return allRecipes().find(x=>x.id===id)||null}
+
+/* v1154: read-only recipe access for HealthHub single-tap import mode.
+ * Real art comes from the saved studio hero when present, then the existing
+ * original recipe card. PDFs are not treated as pictures.
+ */
+async function nutritionImportPhotoV1154(id){
+ const r=getRecipe(id);if(!r||r.deleted)return null;
+ let photo=null;
+ const row=await dbGet(id).catch(()=>null);
+ if(row?.heroBlob&&/^image\//.test(row.heroBlob.type||''))photo=row.heroBlob;
+ if(!photo&&r.heroPath&&puterCloudReady()&&puter.auth.isSignedIn()){
+  try{photo=await puter.fs.read(r.heroPath)}catch(e){console.warn('Recipe hero unavailable',e)}
+ }
+ if(!photo){
+  try{photo=await recipeCardSourceBlob(r)}catch(e){console.warn('Recipe card art unavailable',e)}
+ }
+ if(!photo||!/^image\/(?:jpeg|png|webp|svg\+xml)$/i.test(photo.type||''))return null;
+ return photo;
+}
+window.LENA_RECIPE_NUTRITION_EXPORT_V1154=Object.freeze({
+ recipe:id=>{const r=getRecipe(id);return r&&!r.deleted?
+  {id:r.id,title:r.title,category:r.category,mime:r.mime}:null},
+ nutrition:id=>getNutrition(id),
+ photo:nutritionImportPhotoV1154,
+ showRecipe:id=>{if(getRecipe(id)){openRecipe(id,true);setMode('readable')}}
+});
+
 
 function cleanCategoryName(v){return String(v||"").trim().replace(/\s+/g," ")}
 function categoryConfigLocal(){
@@ -455,7 +514,7 @@ function initCategoryStripScroll(){
 function visibleRecipes(){const q=norm($("#search").value);return allRecipes().filter(r=>!r.deleted&&(activeCategory==="Mind"||r.category===activeCategory)&&(!favoritesOnly||isFav(r.id))&&(!q||norm(r.title+" "+r.category).includes(q))).sort((a,b)=>a.title.localeCompare(b.title,"hu"))}
 function renderHome(){
  renderChips();const list=visibleRecipes();$("#count").textContent=list.length;$("#grid").innerHTML="";$("#favFilter").textContent=(favoritesOnly?"★ ":"☆ ")+"Kedvencek";
- list.forEach(r=>{const a=document.createElement("article");a.className="card";const media=document.createElement("div");media.className="card-media";
+ list.forEach(r=>{const a=document.createElement("article");a.className="card";a.dataset.recipeId=r.id;const media=document.createElement("div");media.className="card-media";
  if(r.mime==="application/pdf"){const d=document.createElement("div");d.className="pdf-tile";d.textContent="📄";media.appendChild(d)}else{const im=document.createElement("img");im.loading="lazy";im.src=r.file;im.alt=r.title;media.appendChild(im)}
  media.onclick=()=>openRecipe(r.id,true);const body=document.createElement("div");body.className="card-body";body.innerHTML='<h2 class="card-title"></h2><div class="card-sub"><span class="cat"></span><div class="card-actions"><button class="fav"></button><button class="open">⛶</button></div></div>';
  body.querySelector(".card-title").textContent=r.title;body.querySelector(".cat").textContent="📂 "+r.category+(r.pending?" · ⚠️ szinkronra vár":r.localCustom||r.central?" · ☁ felhő":" · alaprecept");const fav=body.querySelector(".fav");fav.textContent=isFav(r.id)?"★":"☆";fav.onclick=()=>{setFav(r.id,!isFav(r.id));renderHome()};body.querySelector(".open").onclick=()=>openRecipe(r.id,true);a.append(media,body);$("#grid").appendChild(a)})
@@ -1876,7 +1935,7 @@ async function clearStructuredOverride(){
 }
 
 initCategoryStripScroll();
-$("#healthBannerBtn").onclick=openHealth;$("#closeHealth").onclick=()=>$("#healthDialog").close();$("#healthRecipeSelect").onchange=e=>renderHealthResult(e.target.value);$("#healthAnalyzeBtn").onclick=()=>{const id=$("#healthRecipeSelect").value;if(id)estimateNutrition(id)};$("#nutriAnalyzeRecipe").onclick=()=>currentId&&estimateNutrition(currentId);$("#nutriRefreshRecipe").onclick=()=>currentId&&estimateNutrition(currentId);
+$("#healthBannerBtn").onclick=openHealth;$("#closeHealth").onclick=()=>$("#healthDialog").close();$("#healthRecipeSelect").onchange=e=>renderHealthResult(e.target.value);$("#healthAnalyzeBtn").onclick=()=>{const id=$("#healthRecipeSelect").value;if(id)estimateNutrition(id)};$("#nutriAnalyzeRecipe").onclick=()=>currentId&&estimateNutrition(currentId);$("#nutriSaveWeightV1154").onclick=saveFinishedWeightV1154;$("#nutriRefreshRecipe").onclick=()=>currentId&&estimateNutrition(currentId);
 $("#whatCookBtn").onclick=openWhatCook;
 $("#bannerHomeStock").onclick=openStudioStock;
 $("#bannerTime").onclick=()=>openWhatCookWith("Kb. 30 percünk van, 4 főre szeretnénk valamit. ");
