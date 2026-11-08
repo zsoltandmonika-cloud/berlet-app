@@ -105,6 +105,14 @@ async function fetchVariant(key:string,v:typeof VARIANTS[number]){
  }catch{return {variant:v.id,status:"provider_network_error",routes:[]}}
  finally{clearTimeout(timer)}
 }
+// Record existence flags at cold start only. NEVER log key content, names of
+// users, authorization headers, coordinates or exact key lengths.
+console.info("SHO_SMART_TRIP_REAL_PILOT_CONFIG_V2",JSON.stringify({
+ googleConfigured:getenv(KEY_NAME).length>=25,
+ adminConfigured:supabaseKey("admin").length>20,
+ publicConfigured:supabaseKey("public").length>20,
+ newerSecretFormat:!!getenv("SUPABASE_SECRET_KEYS")
+}));
 Deno.serve(async(req:Request)=>{
  if(req.method==="OPTIONS")return new Response(null,{status:204,headers:headers(req)});
  if(req.method!=="POST")return json(req,405,{error:"method_not_allowed"});
