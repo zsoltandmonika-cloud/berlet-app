@@ -20,6 +20,7 @@
   const d=w&&w.document;if(!d||!w.fetch)return;
   const card=d.querySelector('.map-card'),panel=$('guardianMapOriginV836');
   const input=$('guardianMapOriginInputV836'),go=$('guardianMapOriginGoV836');
+  const gps=$('guardianMapOriginGpsV1165'),gpsStatus=$('guardianMapOriginGpsStatusV1165');
   const hits=$('guardianMapOriginResultsV836'),status=$('guardianMapOriginStatusV836');
   if(!card||!panel||!input||!go||!hits||!status)return;
   const g=()=>w.HH_SMART_HUB_FIELDS_V806;
@@ -122,6 +123,7 @@
    return true;
   }
   function showResults(items){
+   if(gpsStatus)gpsStatus.hidden=true;
    clearHits();
    results=merge(items,[]);
    for(const place of results){
@@ -196,6 +198,34 @@
   input.addEventListener('blur',()=>{
    blurTimer=w.setTimeout(()=>{blurTimer=null;hideKeyboardMode()},300);
   });
+  // v1165 · Reuse the original one-shot GPS action: no second GPS provider,
+  // no background sharing, and the same actual BKK boarding-stop planner.
+  if(gps&&gpsStatus){
+   gps.addEventListener('click',()=>{
+    const original=$('hhSmartHubCurrentPositionV860');
+    if(!original||typeof original.click!=='function'){
+     gpsStatus.textContent='A GPS-kiindulás nem érhető el. Add meg a címet kézzel.';
+     gpsStatus.dataset.state='error';gpsStatus.hidden=false;return;
+    }
+    if(original.disabled)return;
+    stop();clearHits();hideKeyboardMode();
+    if(typeof input.blur==='function')input.blur();
+    gps.disabled=true;gps.setAttribute('aria-busy','true');
+    gps.textContent='📡 Helykeresés…';
+    gpsStatus.textContent='A telefon aktuális helyzetét kérem le…';
+    gpsStatus.dataset.state='loading';gpsStatus.hidden=false;
+    original.click();
+   });
+   w.addEventListener('hh-guardian-origin-gps-status-v1165',event=>{
+    const info=event?.detail||{};
+    if(!['loading','success','error'].includes(info.kind))return;
+    gps.disabled=info.kind==='loading';
+    gps.setAttribute('aria-busy',String(info.kind==='loading'));
+    gps.textContent=info.kind==='loading'?'📡 Helykeresés…':'📍 Itt vagyok';
+    gpsStatus.textContent=String(info.text||'').slice(0,240);
+    gpsStatus.dataset.state=info.kind;gpsStatus.hidden=false;
+   });
+  }
   go.addEventListener('click',()=>{
    if(origin&&destination){
     // Reveal existing source-verified BKK plans, never fabricate a route here.
@@ -213,6 +243,8 @@
   });
   const reset=()=>{
    stop();clearHits();destination=null;origin=null;input.value='';
+   if(gps){gps.disabled=false;gps.setAttribute('aria-busy','false');gps.textContent='📍 Itt vagyok'}
+   if(gpsStatus){gpsStatus.hidden=true;gpsStatus.textContent=''}
    input.classList.remove('hh-origin-confirmed-v836');
    go.textContent='⌕';go.title='Kiindulási pont keresése';
    go.setAttribute('aria-label',go.title);

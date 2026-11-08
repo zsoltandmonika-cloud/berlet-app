@@ -20,10 +20,11 @@ test('v836 keeps the accepted v834/v835 layout and adds one compact fullscreen-o
  const js=read('guardian-origin-search-v836.js'),route=read('guardian-smart-hub-fields-v806.js');
  const block=html.slice(html.indexOf('<section class="map-card"'),html.indexOf('</section>',html.indexOf('<section class="map-card"')));
  for(const id of ['guardianMapOriginV836','guardianMapOriginInputV836',
-    'guardianMapOriginGoV836','guardianMapOriginResultsV836','guardianMapOriginStatusV836'])
+    'guardianMapOriginGoV836','guardianMapOriginGpsV1165','guardianMapOriginGpsStatusV1165',
+    'guardianMapOriginResultsV836','guardianMapOriginStatusV836'])
   assert.equal((block.match(new RegExp('id="'+id+'"','g'))||[]).length,1,id);
- assert.match(html,/guardian-origin-search-v836\.css\?v=836-map-from-row/);
- assert.match(html,/guardian-origin-search-v836\.js\?v=836-map-from-search/);
+ assert.match(html,/guardian-origin-search-v836\.css\?v=1165-gps-from/);
+ assert.match(html,/guardian-origin-search-v836\.js\?v=1165-gps-from/);
  assert.match(html,/guardian-attribution-dot-v834\.css/);
  assert.match(html,/guardian-zoom-center-v835\.css/);
  assert.match(html,/guardian-keyboard-guard-v832\.js/);
@@ -59,4 +60,27 @@ test('v836 verified From search reuses exact same favourite+Photon parsing and S
  assert.match(js,/guardianMapSearchExitV819/,'route action exits immersive map');
  assert.match(js,/hhSmartHubTripPlansV804/,'route action opens existing real BKK plans');
  assert.match(js,/else search\(\)/,'search remains available before selection');
+});
+
+test('v1165 one-tap device GPS appears on origin map, using the existing GPS action and router',()=>{
+ const html=read('index.html'),css=read('guardian-origin-search-v836.css');
+ const origin=read('guardian-origin-search-v836.js'),fields=read('guardian-smart-hub-fields-v806.js');
+ assert.match(html,/id="guardianMapOriginGpsV1165"[^>]*aria-label="Jelenlegi GPS-pozícióm használata kiindulási helyként"/);
+ assert.match(html,/id="guardianMapOriginGpsStatusV1165"[^>]*role="status" aria-live="polite"/);
+ assert.match(html,/guardian-smart-hub-fields-v806\.js\?v=1165-origin-gps-status/);
+ assert.match(css,/#guardianMapOriginGpsV1165/);
+ assert.match(css,/top:calc\(100% \+ 7px\)/,'new button below original search so field stays wide');
+ assert.match(css,/#guardianMapOriginGpsStatusV1165\[hidden\]/);
+ assert.match(origin,/const original=\$\('hhSmartHubCurrentPositionV860'\)/);
+ assert.match(origin,/original\.click\(\)/,'one shared GPS request, no second source');
+ assert.match(origin,/hh-guardian-origin-gps-status-v1165/);
+ assert.match(origin,/gps\.disabled=info\.kind==='loading'/);
+ assert.match(fields,/function gpsNotice\(kind,text\)/);
+ assert.match(fields,/w\.dispatchEvent\(new w\.CustomEvent\('hh-guardian-origin-gps-status-v1165'/);
+ assert.match(fields,/selectPlace\(place,'origin'\)/);
+ assert.match(fields,/currentPositionPlace\(position\)/);
+ assert.match(fields,/getCurrentPosition\(position=>/);
+ assert.doesNotMatch(origin,/navigator\.geolocation|getCurrentPosition|watchPosition/);
+ assert.doesNotMatch(origin,/fetch\([^)]*gps|setItem\(|getOwnLocation/);
+ assert.doesNotMatch(css,/\.map-follow|\.map-3d|\.map-family/);
 });

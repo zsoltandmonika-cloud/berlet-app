@@ -327,18 +327,26 @@
     if(e.key==='Enter'){e.preventDefault();search(kind)}
    });
   }
+  // v1165 · Report only UX state to the fullscreen map selector.
+  // No GPS coordinates are copied, stored or shared by this event.
+  function gpsNotice(kind,text){
+   message(text);
+   w.dispatchEvent(new w.CustomEvent('hh-guardian-origin-gps-status-v1165',{
+    detail:{kind,text:String(text||'').slice(0,240)}
+   }));
+  }
   function locateOrigin(){
    if(geoBusy)return;
    const geolocation=w.navigator&&w.navigator.geolocation;
    if(!geolocation||typeof geolocation.getCurrentPosition!=='function'){
-    message('A jelenlegi pozíció nem érhető el ebben a böngészőben. Adj meg egy indulási címet.');
+    gpsNotice('error','A jelenlegi pozíció nem érhető el ebben a böngészőben. Adj meg egy indulási címet.');
     return;
    }
    stopRequest();clearResults();
    const token=requestId,expectedProfile=storedProfile;
    geoBusy=true;locateButton.disabled=true;
    locateButton.setAttribute('aria-busy','true');
-   message('Jelenlegi pozíció lekérése… Engedélyezd a helyhozzáférést, ha a telefon kéri.');
+   gpsNotice('loading','Jelenlegi pozíció lekérése… Engedélyezd a helyhozzáférést, ha a telefon kéri.');
    const finish=()=>{
     geoBusy=false;locateButton.disabled=false;
     locateButton.setAttribute('aria-busy','false');
@@ -350,25 +358,25 @@
      if(!validToken)return;
      const place=currentPositionPlace(position);
      if(!place){
-      message('A GPS-pozíció nem elég friss vagy pontos (300 m feletti bizonytalanság). Próbáld szabad ég alatt, vagy adj meg címet.');
+      gpsNotice('error','A GPS-pozíció nem elég friss vagy pontos (300 m feletti bizonytalanság). Próbáld szabad ég alatt, vagy adj meg címet.');
       return;
      }
      if(selectPlace(place,'origin')){
       const suffix=state.destination?' Az útvonalakat újraterveztem.':' Válaszd ki az úti célt.';
-      message('Jelenlegi pozíció rögzítve indulási helyként (±'+place.accuracyMeters+' m).'+suffix);
+      gpsNotice('success','Jelenlegi pozíció rögzítve indulási helyként (±'+place.accuracyMeters+' m).'+suffix);
      }
     },error=>{
      const validToken=token===requestId&&expectedProfile===storedProfile;
      finish();
      if(!validToken)return;
      const code=error&&error.code;
-     message(code===1
+     gpsNotice('error',code===1
       ?'A helymeghatározás nincs engedélyezve. Engedélyezd a telefon és a böngésző/HH One beállításaiban, vagy írj be címet.'
       :code===3?'A helymeghatározás időtúllépéssel megszakadt. Próbáld újra szabad ég alatt.'
       :'Nem sikerült meghatározni a jelenlegi pozíciót. Próbáld újra, vagy írj be címet.');
     },{enableHighAccuracy:true,maximumAge:15000,timeout:12000});
    }catch(_){
-    finish();message('A helymeghatározás nem indítható ezen az eszközön. Használd a címkeresőt.');
+    finish();gpsNotice('error','A helymeghatározás nem indítható ezen az eszközön. Használd a címkeresőt.');
    }
   }
   locateButton.addEventListener('click',locateOrigin);

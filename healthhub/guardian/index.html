@@ -234,7 +234,7 @@ html:not([data-sh9-transit="on"]) body .shell>main>#hhTransitPanel.hh-transit-pa
 <link rel="stylesheet" href="./guardian-attribution-dot-v834.css?v=834-transparent-dot">
 <link rel="stylesheet" href="./guardian-keyboard-guard-v832.css?v=832-keyboard-safe">
 <link rel="stylesheet" href="./guardian-zoom-center-v835.css?v=835-mobile-center">
-<link rel="stylesheet" href="./guardian-origin-search-v836.css?v=836-map-from-row">
+<link rel="stylesheet" href="./guardian-origin-search-v836.css?v=1165-gps-from">
 <link rel="stylesheet" href="./guardian-profile-follow-v837.css?v=837-selected-profile-pin">
 <link rel="stylesheet" href="./guardian-profile-foreground-v838.css?v=838-gps-portraits-top">
 <link rel="stylesheet" href="./guardian-speed-glass-v850.css?v=851-attached-name-dropdown">
@@ -537,6 +537,8 @@ if(hhPackDefault||hhPackPreview.get("devicePack")==="v1053"||
    <input id="guardianMapOriginInputV836" type="search" inputmode="search" enterkeyhint="search" autocomplete="off" maxlength="120"
     placeholder="Honnan indulunk?" aria-label="Kiindulási pont címe vagy mentett helye" aria-controls="guardianMapOriginResultsV836" aria-expanded="false">
    <button type="button" id="guardianMapOriginGoV836" aria-label="Kiindulási pont keresése" title="Keresés">⌕</button>
+   <button type="button" id="guardianMapOriginGpsV1165" class="hh-origin-gps-v1165" aria-label="Jelenlegi GPS-pozícióm használata kiindulási helyként" aria-busy="false" title="Az aktuális helyem használata">📍 Itt vagyok</button>
+   <div id="guardianMapOriginGpsStatusV1165" class="hh-origin-gps-status-v1165" role="status" aria-live="polite" hidden></div>
    <div id="guardianMapOriginResultsV836" role="group" aria-label="Kiindulási pont találatok" hidden></div>
    <p id="guardianMapOriginStatusV836" role="status" aria-live="polite">Válassz kiindulási pontot.</p>
   </div>
@@ -976,12 +978,12 @@ if(hhPackDefault||hhPackPreview.get("devicePack")==="v1053"||
 <script defer src="./guardian-bkk-watchlist-v814.js?v=960-editor-anchors-before-favorites"></script>
 <script defer src="./guardian-family-favorites-v972.js?v=972-shared-40-cloud-cache"></script>
 <script defer src="./guardian-smart-places-v1068.js?v=1068-family-sync-geofence&ui=1069-label-edit"></script>
-<script defer src="./guardian-smart-hub-fields-v806.js?v=972-40-common-places&pin=829&ui=1069-label-edit"></script>
+<script defer src="./guardian-smart-hub-fields-v806.js?v=1165-origin-gps-status&pin=829&ui=1069-label-edit"></script>
 <script defer src="./guardian-bkk-keyboard-dock-v964.js?v=1034-no-auto-search-on-entry"></script>
 <script defer src="./guardian-map-search-v819.js?v=864-one-tap-full-minimize&ui=1069-label-edit"></script>
 <script defer src="./guardian-map-dock-fill-v828.js?v=1050-sh9-visible-dock-viewport"></script>
 <script defer src="./guardian-keyboard-guard-v832.js?v=832-keyboard-safe"></script>
-<script defer src="./guardian-origin-search-v836.js?v=836-map-from-search"></script>
+<script defer src="./guardian-origin-search-v836.js?v=1165-gps-from"></script>
 <script defer src="./guardian-smart-hub-network-v806.js?v=806-network-a&no960=840"></script>
 <script defer src="./guardian-bkk-timetable-v859.js?v=967-next-after-visible"></script>
 <script defer src="./guardian-smart-hub-router-v804.js?v=967-step-to-next-trip&no960=840"></script>
