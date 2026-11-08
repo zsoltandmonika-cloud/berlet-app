@@ -69,8 +69,12 @@ async function authorized(req:Request){
    .eq("user_id",data.user.id).eq("profile_key","monika").maybeSingle();
  return !access.error&&access.data?.profile_key==="monika";
 }
-async function reserveQuota(admin:any){
- const {data,error}=await admin.rpc("hh_smart_trip_google_reserve");
+async function reserveQuota(admin:any,expectedDailyUsed:number){
+ // The pilot RPC is atomic: a repeated daily request is denied BEFORE
+ // touching the global quota. The legacy RPC remains unchanged.
+ const {data,error}=await admin.rpc("hh_smart_trip_google_reserve_pilot",{
+  p_expected_daily_used:expectedDailyUsed
+ });
  const rows=data as unknown;
  if(error||!Array.isArray(rows)||rows.length!==1)return null;
  const x=rows[0] as {allowed:boolean,daily_used:number,monthly_used:number};
@@ -178,16 +182,21 @@ Deno.serve(async(req:Request)=>{
  const results=[] as unknown[];
  let reserved=0,attempted=0;
  for(const variant of VARIANTS){
-  const quota=await reserveQuota(admin).catch(()=>null);
+  // expected daily counters 0,1,2 keep all retries bounded to ONE run/day.
+  // Critically: the atomic RPC returns false without ANY extra reservation.
+  const quota=await reserveQuota(admin,reserved).catch(()=>null);
   if(!quota)return json(req,503,{error:"quota_guard_unavailable",googleRequests:attempted,
    quotaReserved:reserved,variants:results});
-  reserved++;
-  // Exactly one complete run/day: first reserve must be daily #1;
-  // later variants must be #2 and #3. No general-purpose paid API.
-  if(!quota.allowed||quota.daily_used!==reserved||quota.monthly_used>200){
+  if(!quota.allowed){
    return json(req,429,{error:"pilot_daily_one_run_or_quota_exceeded",
-    googleRequests:attempted,quotaReserved:reserved,variants:results});
+    googleRequests:attempted,quotaReserved:reserved,quotaUsedToday:quota.daily_used,
+    variants:results});
   }
+  // On the impossible shape mismatch, fail closed and do not contact Google.
+  if(quota.daily_used!==reserved+1||quota.monthly_used>200)
+   return json(req,503,{error:"quota_guard_invalid_response",
+    googleRequests:attempted,quotaReserved:reserved+1,variants:results});
+  reserved++;
   const res=await fetchVariant(key,variant);
   attempted++;
   results.push(res);
