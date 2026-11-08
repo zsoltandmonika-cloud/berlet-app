@@ -82,6 +82,74 @@ function output(data,priority,elapsed){
   " A tényleges menetrendi szolgáltatói ellenőrzés külön feladat.":
   "⚠️ A Google-válaszban nincs ellenőrizhető útvonal, ezért nem mutatok kitalált eredményt.");
 }
+// Config diagnosis uses the SAME signed-in user and fixed fixture as the real
+// run, but mode=diagnose is read-only: no quota RPC reserve and no Google fetch.
+async function diagnose(){
+ if(active)return;
+ active=true;$("diagnose").disabled=true;$("diagnose").setAttribute("aria-busy","true");
+ let authTimer=null,controller=null,timeout=null;
+ try{
+  show("status","🔐 Bejelentkezés és szerverkonfiguráció ellenőrzése, Google-költség nélkül...");
+  const a=authClient();
+  if(!a)throw Error("A Family Guard kapcsolata nem elérhető.");
+  const {data,error}=await Promise.race([
+   a.client.auth.getSession(),
+   new Promise((_,reject)=>{authTimer=setTimeout(()=>
+    reject(new Error("A Family Guard bejelentkezése 8 másodperc alatt nem válaszolt.")),8000)})
+  ]);
+  if(error||!data?.session?.access_token||!data?.session?.user?.id)
+   throw Error("Jelentkezz be a Family Guardba ugyanebben a böngészőben.");
+  controller=new AbortController();
+  timeout=setTimeout(()=>controller.abort(),11000);
+  const resp=await fetch(ENDPOINT,{method:"POST",headers:{
+   "Content-Type":"application/json",
+   Authorization:"Bearer "+data.session.access_token,
+   apikey:a.key
+  },credentials:"omit",cache:"no-store",redirect:"error",signal:controller.signal,
+   body:JSON.stringify({mode:"diagnose",profile:"m",
+    origin:{lat:47.52693,lng:19.03802},
+    destination:{lat:48.25657,lng:20.62831},
+    departureTime:"2026-11-27T15:00:00+01:00"})});
+  const raw=await resp.text();
+  if(raw.length>3500)throw Error("Érvénytelen méretű diagnosztikai válasz.");
+  let d=null;try{d=JSON.parse(raw)}catch{}
+  if(!resp.ok)throw Error("A diagnosztikai szerver HTTP "+resp.status+
+    " hibát adott ("+(d?.error||"ismeretlen")+").");
+  if(d?.schema!=="sho.smart-trip.diagnostic/1"||
+   !["ready_for_real_test","not_ready"].includes(d.status)||
+   d.googleRequests!==0||d.quotaReserved!==0||
+   d.paidProviderContacted!==false||
+   !d.checks||!Array.isArray(d.blocking))
+    throw Error("A szerver nem hiteles, költségmentes diagnosztikai választ adott.");
+  const names={
+   google_key:"Google Routes API-kulcs hiányzik a Supabase Secretsből",
+   admin_key:"Supabase admin/secret kulcs nincs elérhetővé téve",
+   public_key:"Supabase publikus kulcs nem elérhető",
+   quota_readable:"A kvótatáblát a szerver nem tudja olvasni"
+  };
+  const failures=d.blocking.map(k=>names[k]||"Ismeretlen konfigurációs hiba");
+  if(failures.length){
+   show("status","🔴 Diagnózis: "+failures.join("; ")+
+    ". Google-hívás: 0, költség: 0. Fizetős tesztet ne indíts.");
+   $("run").disabled=true;
+  }else{
+   show("status","✅ A szerver kulcsai és a költségvédelmi tábla elérhetők. "+
+    "Ez még nem igazolja a Google-kulcs érvényességét; Google-hívás: 0.");
+   $("run").disabled=alreadyRun;
+  }
+ }catch(e){
+  show("status","⚠️ Konfigurációs ellenőrzés: "+
+   (e?.name==="AbortError"?"A szerver 11 másodperc alatt nem válaszolt.":
+    (e?.message||"Ismeretlen hiba.")));
+ }finally{
+  if(authTimer!==null)clearTimeout(authTimer);
+  if(timeout!==null)clearTimeout(timeout);
+  active=false;$("diagnose").disabled=false;
+  $("diagnose").removeAttribute("aria-busy");
+ }
+}
+$("diagnose")?.addEventListener("click",()=>{void diagnose()});
+
 async function run(){
  if(active||alreadyRun)return;
  if(!$("agree").checked){show("status","⚠️ A valós Google-kérésekhez jelöld be a költség- és adatkezelési hozzájárulást.");return}

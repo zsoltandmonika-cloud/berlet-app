@@ -90,8 +90,12 @@ egyetlen A terv. A BKK helyi szakaszaira nem vonatkozik a távolsági sorrend.</
 koordinátáival és a megadott időponttal. Tudomásul veszem, hogy a találatokat
 csak itt, térkép nélkül jelenítjük meg; nem mentjük és nem küldjük LLM-nek.</span></label>
 <p class="legal"><small>A próba feltételei: <a href="./terms.html">Felhasználási feltételek</a> és <a href="./privacy.html">Adatkezelési tájékoztató</a>. A bejelentkezési token kizárólag a Supabase-nek, a két koordináta a Google Routes-nak kerül átadásra.</small></p>
+<div class="row">
+<button id="diagnose" type="button" style="background:#1b3569;border:1px solid #a6cdf3">
+🔍 Szerverkapcsolat ellenőrzése · 0 Google-kérés</button>
 <button id="run" type="button">🚀 Valódi háromrendszeres teszt indítása</button>
-<p id="status" role="status" aria-live="polite">A teszt nem indult el. Semmilyen API-kérés nem fut automatikusan.</p>
+</div>
+<p id="status" role="status" aria-live="polite">A Google-keresés nem indult el. Előbb a 🔍 ellenőrzéssel tesztelheted a szerverkonfigurációt, ez ingyenes.</p>
 <p id="timing" hidden></p>
 </section>
 <section class="panel" id="out" hidden>
@@ -115,5 +119,5 @@ A meglévő BKK, MÁV, Volán és Smart Trip keresők változatlanok maradnak.</
 </main>
 <script src="../../../../../../healthhub/central-vault/config.js?v=972-family-publishable"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.2/dist/umd/supabase.min.js"></script>
-<script type="module" src="./client.mjs?v=503-auth-timeout-fix1"></script>
+<script type="module" src="./client.mjs?v=secret-compat-diagnostic-v2"></script>
 </body></html>
