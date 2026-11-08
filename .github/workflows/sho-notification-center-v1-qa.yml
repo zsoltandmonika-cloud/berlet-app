@@ -6,6 +6,7 @@ on:
       - 'sh9/shared/sh9-golden-bottom-nav-v924.*'
       - 'sh9/sho-preview/sho-wiring-v2.js'
       - 'sh9/tests/sho-notification-center-v1.test.cjs'
+      - 'sh9/tests/sho-buddy-place-alerts-v1.test.cjs'
       - 'sh9/tests/sho-notification-chime-v2.test.cjs'
       - 'sh9/tests/sho-notification-golden-routing-v4.test.cjs'
       - 'sh9/tests/sho-global-notification-bell-v5.test.cjs'
@@ -27,6 +28,7 @@ jobs:
           node-version: '22'
       - name: Check notification JS syntax
         run: |
+          node --check healthhub/guardian/guardian-buddy-place-alerts-v1.js
           node --check sh9/notification-center/notification-core-v1.js
           node --check sh9/notification-center/notification-center-v1.js
           node --check sh9/notification-center/notification-sound-v2.js
@@ -36,4 +38,4 @@ jobs:
           node --check sh9/sho-preview/sho-wiring-v2.js
       - name: Notification core, Golden Standard and launcher regression
         run: |
-          node --test sh9/tests/sho-notification-center-v1.test.cjs sh9/tests/sho-notification-chime-v2.test.cjs sh9/tests/sho-notification-golden-routing-v4.test.cjs sh9/tests/sho-global-notification-bell-v5.test.cjs sh9/tests/sho-sport-radar-notification-bridge-v1.test.cjs sh9/tests/sho-sport-radar-feed-v1.test.cjs
+          node --test sh9/tests/sho-buddy-place-alerts-v1.test.cjs sh9/tests/sho-notification-center-v1.test.cjs sh9/tests/sho-notification-chime-v2.test.cjs sh9/tests/sho-notification-golden-routing-v4.test.cjs sh9/tests/sho-global-notification-bell-v5.test.cjs sh9/tests/sho-sport-radar-notification-bridge-v1.test.cjs sh9/tests/sho-sport-radar-feed-v1.test.cjs

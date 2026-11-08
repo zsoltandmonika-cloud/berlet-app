@@ -40,7 +40,8 @@ const builtin=[
   {key:'document_expiry',group:{hu:'Dokumentumok',en:'Documents'},name:{hu:'Dokumentum lejárata',en:'Document expiry'}}
  ]},
  {id:'familyguard',name:{hu:'Family Guard',en:'Family Guard'},icon:'shield-check',events:[
-  {key:'arrival',group:{hu:'Helyzetek',en:'Locations'},name:{hu:'Megérkezés',en:'Arrival'}},
+  {key:'arrival',group:{hu:'Helyzetek',en:'Locations'},name:{hu:'Megérkezés · Place Alert',en:'Arrival · Place Alert'}},
+  {key:'departure',group:{hu:'Helyzetek',en:'Locations'},name:{hu:'Távozás · Place Alert',en:'Departure · Place Alert'}},
   {key:'battery_low',group:{hu:'Eszközök',en:'Devices'},name:{hu:'Alacsony akkumulátor',en:'Low battery'}}
  ]}
 ];
