@@ -55,9 +55,10 @@ test('Existing dynamic Bevitel KPI card height is reused for every Quick tile',(
  };
  const doc={readyState:'complete',querySelector:selector=>elements[selector]||null,
   getElementById:id=>elements[id]||null,addEventListener:(name,fn)=>events[name]=fn};
- const win={ResizeObserver:class{constructor(cb){events.resizeObserver=cb}observe(target){
-  assert.equal(target,kpi)}},addEventListener:(name,fn)=>events[name]=fn};
- vm.runInNewContext(section,{document:doc,window:win});
+ const ResizeObserver=class{constructor(cb){events.resizeObserver=cb}observe(target){
+  assert.equal(target,kpi)}};
+ const win={ResizeObserver,addEventListener:(name,fn)=>events[name]=fn};
+ vm.runInNewContext(section,{document:doc,window:win,ResizeObserver});
  assert.deepEqual(vars.bevitel,[['--hh-kpi-card-height','76px']]);
  assert.deepEqual(vars.quick,[['--hh-kpi-card-height','76px']]);
  events.resizeObserver();
