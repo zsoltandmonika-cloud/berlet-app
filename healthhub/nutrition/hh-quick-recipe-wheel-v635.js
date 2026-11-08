@@ -11,6 +11,7 @@ if(!api||!dlg||!shell||!rail||!library)return;
 const reduced=window.matchMedia('(prefers-reduced-motion: reduce)');
 const keySound='hh-quick-wheel-sound-v1';
 let recipes=[],selection=0,activeId='',editing=null,photoData='',photoRemoved=false,editSaving=false,orderSaving=false,busy=false,scrollTimer=null,scrollUser=false,lastTick=-1,audioCtx=null,lastRecord=0;
+let quickIntakeDraftId=''; // Dedicated opener; no automatic diary write.
 const $f=id=>$(id),fmt=n=>Number(n||0).toLocaleString('hu-HU',{maximumFractionDigits:1});
 const safeNum=(v,maximum)=>{const n=Number(v);return Number.isFinite(n)&&n>=0&&n<=maximum?n:null};
 const str=(v,max=100)=>String(v==null?'':v).trim().slice(0,max);
@@ -231,7 +232,20 @@ shell.dataset.mode='wheel';$('hhQuickSuccess').dataset.open='false';
  if(!dlg.open)dlg.showModal();
  showWheel(activeId);
 }
-function hideDialog(){if(dlg.open)dlg.close();shell.dataset.mode='wheel';$('hhQuickSuccess').dataset.open='false'}
+function hideDialog(){if(dlg.open)dlg.close();quickIntakeDraftId='';shell.dataset.mode='wheel';$('hhQuickSuccess').dataset.open='false'}
+function openNewFavoriteFromQuickIntake(){
+ if(editSaving||orderSaving||busy)return;
+ // Reuse the exact existing Favorites Studio create flow, no parallel form.
+ showDialog();
+ showEditor(null,true);
+ quickIntakeDraftId=editing?.id||'';
+ $('hhQuickStudioHeading').textContent='＋ Új kedvenc · Gyors bevitel';
+ $('hhQuickEditStatus').textContent='A mentés automatikusan a Kedvencekbe teszi. A Napi naplóba a mentés utáni Kész gombbal rögzítheted.';
+}
+window.HH_NUTRITION_FAVORITES_STUDIO_V1147=Object.freeze({
+ openNewFavorite:openNewFavoriteFromQuickIntake
+});
+
 function recordSelected(){
  if(busy||!recipes.length)return;
  const now=Date.now();if(now-lastRecord<950)return;
@@ -431,6 +445,23 @@ async function saveEdit(e){
  e.preventDefault();if(!editing||editSaving)return;
  if(editing.shared)return saveSharedEdit(e);
  const name=str($('hhQuickEditName').value,80),desc=str($('hhQuickEditDescription').value,160);
+ const quickCreate=quickIntakeDraftId===editing.id;
+ // Quick Intake creates a Favorite, not a diary entry. If the same named
+ // active card exists, select it instead of generating a silent duplicate.
+ if(quickCreate&&name.length>=2){
+  const normalized=value=>str(value,80).toLocaleLowerCase('hu-HU').replace(/\s+/g,' ');
+  const original=activeRecipes().find(q=>q.id!==editing.id&&
+   normalized(q.name)===normalized(name));
+  if(original){
+   quickIntakeDraftId='';
+   activeId=original.id;
+   shell.dataset.mode='wheel';
+   showWheel(original.id);
+   $('hhQuickSelectedNote').textContent='Már szerepel a Kedvencekben · a Kész gombbal naplózható.';
+   return;
+  }
+ }
+
  const ingredients=str($('hhQuickEditIngredients').value,2000),cat=str($('hhQuickEditCategory').value,45);
  const nutrients={},caps={kcal:5000,protein:500,carbs:1000,fat:500};
  for(const [key,cap] of Object.entries(caps)){
@@ -468,11 +499,17 @@ async function saveEdit(e){
   }
   if(api.getProfile()!==profile)throw Error('Időközben profilváltás történt, mentés megszakítva.');
   api.saveRecipe(q);
+  const addedViaQuick=quickCreate;
+  quickIntakeDraftId='';
   activeId=q.id;editing=q;photoData=q.image||'';photoRemoved=false;
   $('hhQuickEditStatus').textContent='✓ Recept mentve és felhőszinkronra jelölve.'+imageWarning;
   tick(true);
   if(imageWarning){shell.dataset.mode='edit';setTimeout(migrateLegacyPhotos,4000);}
-  else if(!q.archived){shell.dataset.mode='wheel';showWheel(q.id)}
+  else if(!q.archived){
+   shell.dataset.mode='wheel';showWheel(q.id);
+   if(addedViaQuick)$('hhQuickSelectedNote').textContent=
+    '✓ Kedvencekbe mentve · a Kész gombbal felviheted a Napi naplóba.';
+  }
   else showEditor(q.id);
  }catch(err){$('hhQuickEditStatus').textContent='Mentési hiba: '+(err?.message||'ismeretlen hiba')}
  finally{editSaving=false;submit.disabled=false}

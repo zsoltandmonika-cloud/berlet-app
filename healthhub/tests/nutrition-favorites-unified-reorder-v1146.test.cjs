@@ -86,5 +86,5 @@ test('Nutrition editor is wired to unified ordering, serializes saves and preser
  const helper=html.indexOf('hh-favorites-order-v1146.js');
  const wheelScript=html.indexOf('hh-quick-recipe-wheel-v635.js');
  assert.ok(helper>0&&wheelScript>helper);
- assert.match(html,/hh-quick-recipe-wheel-v635\.js\?v=1146-unified-reorder-scroll/);
+ assert.match(html,/hh-quick-recipe-wheel-v635\.js\?v=114(?:6-unified-reorder-scroll|7-favorite-create-launch)/);
 });

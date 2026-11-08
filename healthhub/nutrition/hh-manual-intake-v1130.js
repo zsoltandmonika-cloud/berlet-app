@@ -78,7 +78,7 @@ function predict(){
   tell('⭐ Mentett adag értékei betöltve. Más adagnál kérj új becslést.');
  }
 }
-function open(){
+function openLegacyManual(){
  if(!api()?.recordManualMeal)return w.alert('A kézi bevitel még nem töltődött be. Frissítsd az oldalt.');
  session=api().getProfile();matched=null;aiEstimated=false;busy=false;clearImage();
  $('hhManualForm1130').reset();$('hhManualQty1130').value='250';
@@ -90,6 +90,20 @@ function open(){
  $('hhManualDialog1130').showModal();$('hhManualName1130').focus();
  w.HH_SHARED_FOOD_LIBRARY_V1118?.load?.().then(()=>{if($('hhManualDialog1130').open) suggestions()}).catch(()=>{});
 }
+function open(){
+ // Quick Intake now opens the existing Favorites Studio add screen.
+ // No separate checkboxes, duplicate form, or automatic diary write.
+ const studio=w.HH_NUTRITION_FAVORITES_STUDIO_V1147;
+ if(typeof studio?.openNewFavorite==='function'){
+  studio.openNewFavorite();return;
+ }
+ // Fail visibly instead of opening a different form with unchecked favorites.
+ const toast=$('hhManualToast1135');
+ if(toast){toast.textContent='⚠ A Kedvencek hozzáadása még nem töltődött be. Frissítsd az oldalt.';
+  toast.dataset.state='error';toast.hidden=false;}
+ else w.alert('A Kedvencek szerkesztője nem érhető el. Frissítsd az oldalt.');
+}
+
 function speechResult(result){
  let phrase=text(result),remaining=phrase;
  const part=remaining.match(/(\d+(?:[.,]\d+)?)\s*(gramm|gr|g|dkg|deka|dekagramm|ml|milliliter)\b/i);
