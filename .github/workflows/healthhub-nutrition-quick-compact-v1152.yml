@@ -1,0 +1,35 @@
+name: Nutrition Quick Intake · sync card sizing v1152
+on:
+  pull_request:
+    paths:
+      - 'healthhub/nutrition/index.html'
+      - 'healthhub/nutrition/hh-quick-compact-sync-v1152.css'
+      - 'healthhub/tests/nutrition-quick-compact-sync-v1152.test.cjs'
+      - '.github/workflows/healthhub-nutrition-quick-compact-v1152.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'healthhub/nutrition/index.html'
+      - 'healthhub/nutrition/hh-quick-compact-sync-v1152.css'
+      - 'healthhub/tests/nutrition-quick-compact-sync-v1152.test.cjs'
+      - '.github/workflows/healthhub-nutrition-quick-compact-v1152.yml'
+permissions:
+  contents: read
+jobs:
+  compact-tiles:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Quick 2x2 synchronized dimensions and action contract
+        run: |
+          node --test healthhub/tests/nutrition-quick-compact-sync-v1152.test.cjs
+      - name: Previously verified Nutrition UI and safety contracts
+        run: |
+          node --test healthhub/tests/nutrition-manual-intake-v1130.test.cjs
+          node --test healthhub/tests/nutrition-quick-intake-favorites-v1147.test.cjs
+          node --test healthhub/tests/nutrition-bevitel-recipe-studio-v1151.test.cjs
+          node --test healthhub/tests/nutrition-diary-favorites-art-v1150.test.cjs
