@@ -53,15 +53,43 @@ function candidate(route,variant){
  const measured=walks.every(s=>Number.isFinite(s.distanceMeters)&&s.distanceMeters>=0);
  const walkMeters=measured?walks.reduce((sum,s)=>sum+s.distanceMeters,0):null;
  if(walkMeters!==null&&walkMeters>30000)return null;
- let gaps=[];let validTime=true;
+ // Google transit gap includes the WALK between two vehicles. Only the
+ // remaining time is a usable connection buffer, not the whole stop-to-stop gap.
+ // Unknown or negative connection time cannot be sold as a safe interchange.
+ const ridesWithIndices=steps.map((step,index)=>({step,index}))
+  .filter(x=>x.step?.travelMode==="TRANSIT");
+ if(ridesWithIndices.length!==rides.length)return null;
+ const times=rides.map(r=>[Date.parse(r.departure),Date.parse(r.arrival)]);
+ if(times.some(([start,end])=>!Number.isFinite(start)||!Number.isFinite(end)||
+  end<=start))return null;
+ const rideSpan=(times[times.length-1][1]-times[0][0])/60000;
+ if(rideSpan>dur+2)return null;
+ const gaps=[];
  for(let i=1;i<rides.length;i++){
-  const end=Date.parse(rides[i-1].arrival),start=Date.parse(rides[i].departure);
-  if(!Number.isFinite(end)||!Number.isFinite(start)||start<end){validTime=false;break}
-  gaps.push(Math.round((start-end)/60000));
+  const previousEnd=times[i-1][1],nextStart=times[i][0];
+  if(nextStart<previousEnd)return null;
+  const between=steps.slice(ridesWithIndices[i-1].index+1,
+   ridesWithIndices[i].index);
+  let transferWalk=0;
+  for(const step of between){
+   if(step?.travelMode!=="WALK")continue;
+   const minutes=duration(step.staticDuration);
+   if(minutes===null)return null; // Unknown walking time = unsafe interchange.
+   transferWalk+=minutes;
+  }
+  const buffer=(nextStart-previousEnd)/60000-transferWalk;
+  if(buffer<-0.5)return null; // Impossible transfer according to supplied steps.
+  gaps.push(Math.max(0,Math.round(buffer)));
  }
- if(!validTime)gaps=[];
  const wait=gaps.length?gaps.reduce((a,b)=>a+b,0):0;
  const shortest=gaps.length?Math.min(...gaps):null;
+ // The final walking section matters especially for an arrival close to home.
+ const lastTransitIndex=ridesWithIndices[ridesWithIndices.length-1].index;
+ const finalSteps=steps.slice(lastTransitIndex+1).filter(x=>x?.travelMode==="WALK");
+ const finalWalkMeters=finalSteps.length&&finalSteps.every(x=>
+  Number.isFinite(x.distanceMeters)&&x.distanceMeters>=0)?
+  Math.round(finalSteps.reduce((total,x)=>total+x.distanceMeters,0)):
+  finalSteps.length===0?0:null;
  const providers=[...new Set(rides.map(x=>x.kind))];
  const hasVolan=providers.includes("Volán"),hasMav=providers.includes("MÁV");
  const coach=hasVolan&&!rides.some(x=>/rail|train|metro|subway/.test(fold(x.vehicle)));
@@ -72,16 +100,20 @@ function candidate(route,variant){
  const key=rides.map(r=>[r.kind,r.line,r.from,r.to,r.departure,r.arrival].join("|")).join("||");
  if(!key)return null;
  return {key,variant,durationMinutes:Math.round(dur),walkMeters,
-  transfers,waitMinutes:gaps.length?wait:transfers===0?0:null,
+  finalWalkMeters,transfers,waitMinutes:wait,
   shortestMargin:shortest,boarding:huTime(dep),alighting:huTime(arr),
   rides,providers,directVolan,sajo};
 }
 function score(c,priority="balanced"){
  let points=c.durationMinutes*0.72+c.transfers*30+
-  (c.walkMeters===null?20:c.walkMeters/70)+
-  (c.waitMinutes===null?20:c.waitMinutes*0.4);
- if(c.shortestMargin!==null&&c.shortestMargin<10)points+=70;
- if(c.shortestMargin!==null&&c.shortestMargin<6)points+=75;
+  (c.walkMeters===null?65:c.walkMeters/70)+
+  (c.waitMinutes===null?40:c.waitMinutes*0.6);
+ // No risky interchange should win merely by being faster. Walking between
+ // platforms has already been deducted from this actual buffer.
+ if(c.shortestMargin!==null&&c.shortestMargin<10)points+=80;
+ if(c.shortestMargin!==null&&c.shortestMargin<6)points+=95;
+ if(c.finalWalkMeters!==null&&c.finalWalkMeters>300)
+  points+=(c.finalWalkMeters-300)/30;
  if(c.directVolan)points-=32;
  else if(c.sajo)points-=18;
  if(priority==="walk")points+=(c.walkMeters===null?50:c.walkMeters/25);
@@ -126,18 +158,22 @@ function lenaSummary(result,priority="balanced"){
  const c=result?.best;
  if(!c)return "Nem kaptunk olyan valódi Google-útvonalat, amely az ellenőrzéseken átment. Nem állítok elő kitalált A tervet.";
  const parts=c.rides.map(r=>r.line+" ("+r.kind+")").join(" → ");
- let s="Mónika, az elérhető Google-alternatívák közül ezt jelölném A tervnek: "+
+ let s="Mónika, a Google által visszaadott lehetőségek közül ez az előzetes A-jelöltem: "+
   parts+". A teljes Google-útvonal becsült ideje "+c.durationMinutes+
   " perc, "+c.transfers+" átszállással.";
- if(c.walkMeters!==null)s+=" Gyaloglás: "+Math.round(c.walkMeters)+" méter.";
+ if(c.walkMeters!==null)s+=" Teljes gyaloglás: "+Math.round(c.walkMeters)+" méter.";
  else s+=" A gyaloglási távolság nem minden szakaszon igazolt.";
- if(c.shortestMargin!==null)s+=" Legszűkebb menetrendi átszállási ablak: "+c.shortestMargin+" perc.";
+ if(c.finalWalkMeters!==null&&c.finalWalkMeters>300)
+  s+=" Figyelem: a célállomásnál még "+c.finalWalkMeters+
+   " méter séta szerepel, ami eltérhet a kívánt rövid kazincbarcikai sétától.";
+ if(c.shortestMargin!==null)s+=" Legszűkebb, gyaloglás levonása utáni csatlakozási tartalék: "+c.shortestMargin+" perc.";
  if(c.shortestMargin!==null&&c.shortestMargin<10)s+=" Ez szoros csatlakozás, indulás előtt külön ellenőrizd!";
  if(c.directVolan)s+=" A közvetlen helyközi Volán-jelölt előnyt kapott.";
  else if(c.sajo)s+=" A Sajó Expresszre utaló vasúti járat előnyt kapott.";
  s+=" A fő szempont: "+({walk:"kevés gyaloglás",wait:"kevés várakozás",
   transfers:"kevés átszállás",duration:"rövidebb idő"}[priority]||"kiegyensúlyozott utazás")+".";
- s+=" Ez Google-adatokból készült szabályalapú, nem GPT-válasz; a BKK/MÁV/Volán menetrendje még nincs függetlenül visszaigazolva.";
+ s+=" Ez előzetes, Google-találatokon alapuló rangsorolás, nem GPT-válasz."+
+ " A közlekedési szolgáltatók saját menetrendje még nincs függetlenül visszaigazolva, ezért ez nem végleges A terv.";
  return s;
 }
 export {evaluate,score,candidate,classify,lenaSummary};
