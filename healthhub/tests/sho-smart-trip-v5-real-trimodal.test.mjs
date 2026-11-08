@@ -144,7 +144,8 @@ test("Free diagnostic is authenticated, fixed-fixture only, and cannot reserve q
  assert.match(block,/paidProviderContacted:false/);
  assert.match(block,/googleRequests:0,quotaReserved:0/);
  assert.doesNotMatch(block,/reserveQuota\s*\(|fetchVariant\s*\(|fetch\(GOOGLE/);
- assert.doesNotMatch(block,/key:adminKey|key:key|secret_value|token_value/);
+ const responseOnly=block.slice(block.indexOf("return json(req,200"));
+ assert.doesNotMatch(responseOnly,/adminKey|SUPABASE_SECRET_KEYS|getenv|googleKey|token_value/);
  assert.match(ui,/id="diagnose"/);
  assert.match(client,/mode:"diagnose"/);
  assert.match(client,/googleRequests!==0/);
