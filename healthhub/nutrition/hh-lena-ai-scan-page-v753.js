@@ -9,6 +9,7 @@ const PAGE='#lena-ai-scan',MEALS=['Reggeli','Tízórai','Ebéd','Uzsonna','Vacso
 let page=null,mode='food',stage='capture',stream=null,photo=null,photoUrl='',draft=null,editing=null,profile='',busy=false,requestId=0,fromTile=false;
 let puterPromise=null,zxingPromise=null,model='',barcode='',unit='g',audio=null;
 let sharedId=null,sharedBusy=false,sharedEnhance=false;
+let favoriteReturn=null,favoriteTransferBusy=false;
 const mk=(tag,cls,text)=>{const e=d.createElement(tag);if(cls)e.className=cls;if(text!==undefined)e.textContent=text;return e};
 const fmt=n=>n==null||!Number.isFinite(n)?'—':Number(n).toLocaleString('hu-HU',{maximumFractionDigits:1});
 const stamp=()=>new Date().toLocaleString('hu-HU',{dateStyle:'medium',timeStyle:'short'});
@@ -32,11 +33,20 @@ function valid(data){
  data.items.every(x=>x.name?.trim()&&Number.isFinite(x.grams)&&x.grams>=1&&x.grams<=3000&&
   ['kcal','protein','carbs','fat'].every(k=>x.per[k]!==null&&Number.isFinite(x.per[k])&&x.per[k]>=0&&x.per[k]<=(k==='kcal'?950:100)));
 }
+function favoriteScanControls(){
+ if(!page)return;
+ const active=!!favoriteReturn,button=$('hhScanApplyFavoriteV1148');
+ if(button){button.hidden=!active;button.disabled=!active||busy||favoriteTransferBusy||stage!=='result'||!valid(draft);}
+ $('hhScanSharedSection753').hidden=active;
+ $('hhScanSave753').hidden=active;
+ $('hhScanBack753').textContent=active?'‹ Kedvencek':'‹ Nutrition';
+}
 function stageTo(next){
  stage=next;page.dataset.stage=next;
  $('hhScanProcessing753').hidden=next!=='scanning';
  $('hhScanButton753').disabled=busy;
  $('hhScanSave753').disabled=busy||!valid(draft);
+ favoriteScanControls();
 }
 function cameraOff(){
  if(stream){for(const t of stream.getTracks())t.stop();stream=null}
@@ -179,6 +189,7 @@ function refresh(){
  $('hhScanKcal753').textContent=fmt(sums.kcal);$('hhScanWeight753').textContent=fmt(total)+' '+unit;
  for(const key of ['protein','carbs','fat'])$('hhScan_'+key+'753').textContent=fmt(sums[key])+' g';
  $('hhScanSave753').disabled=busy||!valid(draft);
+ favoriteScanControls();
 }
 function suggestTags(name){return /penn[eé]/i.test(name)?'Pennék':/tészta/i.test(name)?'Tésztaételek':''}
 function sharedSelectedTags(){
@@ -335,6 +346,56 @@ async function saveShared(){
  }catch(e){sharedStatus('⚠ A közös mentés nem sikerült: '+String(e.message||e),true)}
  finally{sharedBusy=false;$('hhScanSharedSave753').disabled=false}
 }
+function finishFavoriteScan(result=null){
+ const context=favoriteReturn;
+ if(!context)return false;
+ favoriteReturn=null;
+ fromTile=false;
+ // The scanner is a SPA route. Return without a stale hash or another
+ // navigation entry; the original Favorites editor draft remains in memory.
+ w.history.replaceState({},'',w.location.pathname+w.location.search);
+ route();
+ try{context.callback(context.profile===api()?.getProfile()?result:null)}
+ catch(error){console.warn('Nutrition AI Scan favorite handoff:',String(error?.message||error).slice(0,120))}
+ return true;
+}
+async function applyToFavorite(){
+ if(!favoriteReturn||favoriteTransferBusy||busy||stage!=='result')return;
+ if(profile!==favoriteReturn.profile||profile!==api()?.getProfile())
+  return status('Profilváltás történt. A beolvasást nem adom át másik profilhoz.',true);
+ const name=$('hhScanName753').value.trim();
+ if(!valid({...draft,name}))
+  return status('Ellenőrizd az étel nevét és minden tápértékét az átvétel előtt.',true);
+ const bridge=w.HH_NUTRITION_SCAN_FAVORITE_V1148;
+ if(typeof bridge?.mapDraft!=='function'||typeof vision()?.totals!=='function')
+  return status('A Kedvencek adatátadója nem töltődött be. Frissítsd az oldalt.',true);
+ favoriteTransferBusy=true;
+ const apply=$('hhScanApplyFavoriteV1148');apply.disabled=true;
+ try{
+  const data=bridge.mapDraft({
+   name,meal:$('hhScanMeal753').value,items:draft.items,
+   notes:draft.notes||'',unit
+  },items=>vision().totals(items));
+  // Reuse the scanned photo; no second AI request or automatic image generation.
+  if(photo){
+   try{data.imageData=(await sharedPhoto(false)).dataURL}
+   catch(error){status('A fotó nem adható át, a felismert ételadatok megmaradnak.',true)}
+  }
+  if(profile!==favoriteReturn?.profile||profile!==api()?.getProfile())
+   throw Error('Profilváltás történt, adatátadás megszakítva.');
+  finishFavoriteScan(data);
+ }catch(error){status('⚠ '+String(error?.message||error).slice(0,175),true)}
+ finally{favoriteTransferBusy=false;if(favoriteReturn)favoriteScanControls()}
+}
+function openForFavorite(targetProfile,callback){
+ if(typeof callback!=='function'||!['zsolt','monika'].includes(targetProfile)||
+  targetProfile!==api()?.getProfile()||favoriteReturn||
+  (page&&!page.hidden)||busy)return false;
+ favoriteReturn={profile:targetProfile,callback};
+ try{open();favoriteScanControls();return true}
+ catch(error){favoriteReturn=null;console.warn('AI Scan open for Favorites failed:',String(error?.message||error).slice(0,120));return false}
+}
+
 function save(){
  if(busy||profile!==api()?.getProfile())return status('A profil megváltozott. Indíts új felismerést.',true);
  if(draft)draft.name=$('hhScanName753').value.trim();
@@ -383,9 +444,16 @@ function route(){
  if(!page)return;
  const active=w.location.hash===PAGE;
  page.hidden=!active;d.body.classList.toggle('hhScanOpen753',active);
- if(active){syncProfile();cameraOn();if(!editing)revealCaptureControls();
+ if(active){syncProfile();favoriteScanControls();cameraOn();if(!editing)revealCaptureControls();
   if(w.HH_SHARED_FOOD_LIBRARY_V1118?.load)w.HH_SHARED_FOOD_LIBRARY_V1118.load(true).then(renderSharedPresets).catch(()=>{});
- }else{requestId++;busy=false;cameraOff();clearPhoto()}
+ }else{
+  requestId++;busy=false;cameraOff();clearPhoto();
+  // Browser Back while scanning means cancel, never an implicit save.
+  if(favoriteReturn){
+   const context=favoriteReturn;favoriteReturn=null;fromTile=false;
+   try{context.callback(null)}catch(_){}
+  }
+ }
 }
 function open(row=null){
  if(!page)init();if(!page)return;
@@ -401,7 +469,8 @@ function open(row=null){
  }else{$('hhScanMeal753').value=mealByClock();reset('food');revealCaptureControls()}
 }
 function close(){
- if(busy)return;
+ if(busy||favoriteTransferBusy)return;
+ if(favoriteReturn){finishFavoriteScan(null);return}
  if(fromTile&&w.location.hash===PAGE){fromTile=false;w.history.back()}
  else{w.history.replaceState({},'',w.location.pathname+w.location.search);route()}
 }
@@ -418,6 +487,7 @@ function init(){
  $('hhScanManualGo753').onclick=()=>{if(!busy){mode='barcode';void scan()}};
  $('hhScanManual753').onkeydown=e=>{if(e.key==='Enter'&&!busy){e.preventDefault();void scan()}};
  $('hhScanSave753').onclick=save;
+ $('hhScanApplyFavoriteV1148').onclick=()=>{void applyToFavorite()};
  $('hhScanSharedSave753').onclick=()=>{void saveShared()};
  $('hhScanSharedEnhance753').onclick=()=>{void toggleSharedEnhance()};
  $('hhScanSharedTags753').addEventListener('input',renderSharedPresets);
@@ -434,6 +504,6 @@ function init(){
  w.addEventListener('healthhub:profile-changed',()=>{if(!page.hidden)syncProfile()});
  route();
 }
-w.HH_LENA_AI_SCAN_V753={version:'753',gtin,nutrients,product,lookup,open,init};
+w.HH_LENA_AI_SCAN_V753={version:'753',gtin,nutrients,product,lookup,open,openForFavorite,init};
 if(d.readyState==='loading')d.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })(window,document);
