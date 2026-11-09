@@ -78,6 +78,21 @@ test('manual legacy removal is reversible metadata and protects both selected ID
  assert.doesNotMatch(legacy,/localStorage\.clear\(|indexedDB\.deleteDatabase\(/);
  assert.match(legacy,/window\.hhAdminScrollActiveV748\?\.\(\)/);
 });
+test('Admin pairing opens from top-level stable dialog, with no recurring registry repaint',()=>{
+ const admin=read('hh-admin-mobile-focus-v748.js');
+ assert.match(admin,/hhCentralPairOpenV3/);
+ assert.match(admin,/Zsolt telefon párosítása · 1 érintés/);
+ assert.match(admin,/function openPairModal\(/);
+ assert.match(admin,/d\.body\.appendChild\(modal\)/);
+ assert.match(admin,/const input=inner\.querySelector\('#hhFcCodeV1'\)/);
+ assert.match(admin,/if\(input&&\(input===d\.activeElement\|\|input\.value\)\)return/);
+ assert.doesNotMatch(legacy,/setInterval\(function\(\)\{if\(ov\.classList\.contains\('on'\)/);
+ assert.doesNotMatch(legacy,/central\.render\(\)/);
+ assert.doesNotMatch(legacy,/central\.begin\(\)/);
+ assert.match(legacy,/Intentionally no 60s automatic Dropbox registry refresh/);
+ assert.match(html,/pairdialog=1/);
+ assert.match(html,/manual=1/);
+});
 test('native WebView accepts Android approximate-location consent without auto-exfiltration',()=>{
  assert.match(webview,/permissions\[Manifest\.permission\.ACCESS_COARSE_LOCATION\] == true/);
  assert.match(webview,/Manifest\.permission\.ACCESS_COARSE_LOCATION\) ==/);
