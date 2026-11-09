@@ -148,3 +148,26 @@ test('native phone pairing is opt-in for both owners; Dropbox sync and ID remain
  assert.match(main,/Központi párosítókód másolása/);
  assert.match(html,/family-device-central-v1\.js\?v=3-monika-pairing/);
 });
+
+test('Admin verified phone status overrides old Dropbox mismatch banners without touching medical data',()=>{
+ const admin=read('hh-admin-mobile-focus-v748.js');
+ const registry=read('device-registry-v401.js');
+ const version=read('sh9-version-center-v1.js');
+ const rag=read('hh-one-rag-v500.js');
+ const orchestrator=read('live-v305.js');
+ const hc=read('live-v306.js');
+ assert.match(admin,/Mindkét telefon párosítva/);
+ assert.match(admin,/régi kijelölése nem párosítási hiba/);
+ assert.match(registry,/hhRegCentralStatus401/);
+ assert.match(registry,/Központi hitelesítés ellenőrzésre vár/);
+ assert.match(registry,/Régi Dropbox-kapcsolatok és diagnosztika/);
+ assert.ok(registry.indexOf('Régi Dropbox-kapcsolatok és diagnosztika')<registry.indexOf('if(error)html'),'legacy warnings must be collapsed under diagnostic details');
+ assert.match(version,/const verified=paired.find/);
+ assert.match(version,/Dropbox-os távoli parancsok · diagnosztika/);
+ assert.match(rag,/Hitelesített állapot ellenőrzésre vár/);
+ assert.match(orchestrator,/Dropbox-távoli parancshoz hiányzó kijelölés/);
+ assert.match(hc,/Nincs ehhez a profilhoz Dropbox\/Health Connect szinkronjelentés/);
+ for(const src of [admin,registry,version,rag,orchestrator,hc]){
+  assert.doesNotMatch(src,/localStorage\.clear\(|indexedDB\.deleteDatabase\(/);
+ }
+});
