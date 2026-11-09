@@ -23,6 +23,7 @@ import android.view.WindowInsets
 import android.view.WindowInsetsController
 import android.view.WindowManager
 import android.webkit.WebChromeClient
+import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
 import android.webkit.WebSettings
 import android.webkit.WebView
@@ -77,6 +78,7 @@ class Sh9WebActivity : ComponentActivity() {
     private var pendingDropboxState: String? = null
     private var googleAuthDispatchRetries = 0
     private var dropboxAuthDispatchRetries = 0
+    private var mainPageRecoveryShown = false
 
     private fun launchDropboxOAuth(url: Uri) {
         val state = url.getQueryParameter("state") ?: ""
@@ -457,6 +459,33 @@ class Sh9WebActivity : ComponentActivity() {
             ): Boolean = showFileChooser(webView, filePathCallback, fileChooserParams)
         }
         view.webViewClient = object : WebViewClient() {
+            override fun onReceivedError(
+                view: WebView?, request: WebResourceRequest?, error: WebResourceError?
+            ) {
+                super.onReceivedError(view, request, error)
+                // A first-party top-level network failure is not an authentication error.
+                // Offer a single, user-controlled retry or external-browser escape.
+                // Never silently navigate away, reset app storage or bypass TLS.
+                val code = error?.errorCode
+                val networkFailure = code == ERROR_HOST_LOOKUP ||
+                    code == ERROR_CONNECT || code == ERROR_TIMEOUT ||
+                    code == ERROR_FAILED_SSL_HANDSHAKE
+                if (request?.isForMainFrame == true && networkFailure &&
+                    trustedPage(request.url) && !mainPageRecoveryShown) {
+                    mainPageRecoveryShown = true
+                    android.app.AlertDialog.Builder(this@Sh9WebActivity)
+                        .setTitle("SHO · Beépített böngésző")
+                        .setMessage("A SHO oldal betöltése megszakadt. Újrapróbálás vagy megnyitás a rendszerböngészőben. A HH ONE adatai változatlanok.")
+                        .setPositiveButton("↻ Újrapróbálás") { _, _ -> view?.reload() }
+                        .setNeutralButton("🌐 Külső böngésző") { _, _ ->
+                            try { startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(HOME))) }
+                            catch (_: ActivityNotFoundException) {}
+                        }
+                        .setNegativeButton("Mégse", null)
+                        .show()
+                }
+            }
+
             override fun onPageFinished(view: WebView, url: String) {
                 super.onPageFinished(view, url)
                 if (pendingGoogleCode != null) dispatchGoogleCode(view)
