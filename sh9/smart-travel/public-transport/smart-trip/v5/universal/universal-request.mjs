@@ -36,7 +36,7 @@ export function budapestInstant(day,time){
  return {status:"ok",iso:new Date(matches[0]).toISOString()};
 }
 function normalLabel(text){
- if(typeof text!=="string")return null;
+ if(typeof text!=="string"||CTL.test(text))return null;
  const clean=text.normalize("NFC").replace(/\s+/g," ").trim();
  if(clean.length<2||clean.length>200||CTL.test(clean)||
   /^https?:\/\//i.test(clean)||/^javascript:/i.test(clean))return null;
@@ -55,6 +55,10 @@ export function normalizeLocation(raw){
   const label=normalLabel(raw);
   if(!label)return null;
   const coords=coordinatesFromText(label);
+  // Numeric coordinate-like input with an impossible latitude/longitude is
+  // not a street address and must not be silently forwarded to a provider.
+  const pair=label.split(/\s*[,;]\s*/);
+  if(!coords&&pair.length===2&&pair.every(x=>NUM.test(x)))return null;
   return Object.freeze(coords?{kind:"coordinates",label,lat:coords.lat,lng:coords.lng}:
    {kind:"address",label});
  }
