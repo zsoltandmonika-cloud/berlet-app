@@ -53,6 +53,16 @@ test('matched Dropbox reauthorization enables read-only verification before any 
  assert.equal(app.local.getItem('hh-dropbox-readonly-reconcile-v1'),null);
  assert.equal(app.win.HH_DROPBOX_VAULT.readOnlyVerification(),false);
 });
+test('read-only mode permits only explicitly confirmed device-registry metadata and backups',async()=>{
+ const app=makeApp({callback:true});await tick();
+ assert.equal(app.win.HH_DROPBOX_VAULT.readOnlyVerification(),true);
+ await assert.rejects(app.win.HH_DROPBOX_VAULT.uploadJson('/HealthHub/profiles/monika-health-connect.json',{}),/ellenőrző mód/);
+ await assert.rejects(app.win.HH_DROPBOX_VAULT.uploadJson('/HealthHub/profiles/monika-vault.json',{}),/ellenőrző mód/);
+ await assert.rejects(app.win.HH_DROPBOX_VAULT.uploadJson('/HealthHub/orchestrator/commands/unsafe.json',{}),/ellenőrző mód/);
+ await app.win.HH_DROPBOX_VAULT.uploadJson('/HealthHub/orchestrator/device-registry-v401.json',{schema:'healthhub.device_registry/1'});
+ await app.win.HH_DROPBOX_VAULT.uploadJson('/HealthHub/orchestrator/device-registry-backup-2026-11-09T22-04-42-381Z-abcdef.json',{previous:{}});
+ assert.equal(app.win.HH_DROPBOX_VAULT.readOnlyVerification(),true);
+});
 test('read-only reconciliation must also suppress background Health Connect imports',()=>{
  const importer=fs.readFileSync(path.join(root,'live-v165.js'),'utf8');
  assert.match(importer,/HH_DROPBOX_VAULT\?\.readOnlyVerification\?\.\(\)/);
