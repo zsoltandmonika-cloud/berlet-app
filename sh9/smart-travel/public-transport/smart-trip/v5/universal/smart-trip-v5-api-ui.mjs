@@ -112,7 +112,11 @@ async function execute(mode){
  }
  if(mode==="search"&&!ready){status("Először futtasd a költségmentes kapcsolatellenőrzést.");return;}
  const snapshot=context;
- busy=true;ready=false;clearResults();clearLena();setButtons();
+ busy=true;
+ if(mode==="diagnose")ready=false;
+ if(mode==="search")clearResults();
+ // Léna independent GTFS and Google remain separate; neither clears the other.
+ setButtons();
  const controller=new AbortController();current=controller;
  const start=performance.now();
  const timer=setTimeout(()=>controller.abort(),29000);
@@ -156,15 +160,16 @@ async function execute(mode){
    status(ready?"✅ API-kapcsolat ellenőrizve. A külön Google-keresőgombbal "+
     "új Google Routes API-kérés indítható. A fejlesztői mód nem korlátozza a napi darabszámot.":
     "🔒 A Google-keresés most nem indítható: ellenőrizd a bejelentkezést, "+
-    "a szerverengedélyeket és a tesztidőablakot.");
+    "és a szerverengedélyeket.");
   }else{
    renderRoutes(result);
-   status("✅ A Google Routes API válasza megérkezett. Nincs automatikus AI-feldolgozás vagy mentés.");
+   status("✅ Google Routes-válasz megérkezett. Új kereséshez ismét ezt a gombot használhatod. "+
+    "Léna külön, független menetrendet értékel; nincs automatikus My Trips mentés.");
   }
  }catch(e){
   if(context===snapshot&&$("st22V5ApiDialog").open)
    status("⚠️ "+(controller.signal.aborted?
-    "A teljes kérés megszakadt a 29 mp-es időkorlátnál. A kvóta már fogyhatott.":
+    "A teljes kérés megszakadt a 29 mp-es időkorlátnál. A Google API-hívás költsége ettől még jelentkezhetett.":
     e?.message||"A keresés sikertelen."));
  }finally{
   if(authTimer)clearTimeout(authTimer);
@@ -178,7 +183,7 @@ async function runIndependentLena(){
  if(busy||lenaBusy||!context)return;
  const snapshot=context,dialog=$("st22V5ApiDialog");
  const root=$("st22V5LenaResult");
- lenaBusy=true;clearResults();clearLena();setButtons();
+ lenaBusy=true;clearLena();setButtons();
  $("st22V5LenaStatus").textContent=
   "✨ Léna: független menetrendi ellenőrzés, 0 Google-hívás, 0 LLM-hívás…";
  try{
@@ -314,9 +319,13 @@ function open(payload){
  text("p","Honnan: "+spot(q.origin,result.selected.origin),details);
  text("p","Hová: "+spot(q.destination,result.selected.destination),details);
  text("p",(q.mode==="arrive"?"Érkezés":"Indulás")+": "+q.date+" "+q.time+
-  " (Budapest) · szervernek: "+q.when,details);
+  " (Budapest)",details);
  text("p","Profil: "+(q.profile==="m"?"Mónika":"Zsolt")+
-  " · szempont: "+q.priority,details);
+  " · szempont: "+({
+   balanced:"✨ Léna ajánlása",wait:"kevés várakozás",
+   transfers:"kevés átszállás",walk:"kevés gyaloglás",
+   duration:"rövid menetidő"
+  }[q.priority]||"kiegyensúlyozott"),details);
  status("Az adatok átvéve a Smart Trip prediktív keresőjéből. "+
   "Pipáld ki a hozzájárulást, majd ellenőrizd a szervert (ingyenes). "+
   "A Google-hívás külön gombnyomással indul.");
