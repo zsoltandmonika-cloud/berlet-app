@@ -1778,7 +1778,7 @@ class MainActivity : ComponentActivity() {
             "A feltöltést és a Dropbox-visszaolvasást külön ellenőrzöm…"
         val startedAt = System.currentTimeMillis()
         val workId = try {
-            OrchestratorScheduler.runNow(this)
+            OrchestratorScheduler.checkRegistration(this)
         } catch (e: Exception) {
             registryCheckResult?.text = "⚠ Nem indítható az Android Orchestrator: " +
                 e.javaClass.simpleName
