@@ -119,19 +119,22 @@ test("server code makes no provider call when disabled, missing profile, or no q
  assert.match(src,/HH_SMART_TRIP_UNIVERSAL_ENABLED/);
  assert.match(src,/HH_SMART_TRIP_UNIVERSAL_BILLING_VERIFIED/);
  assert.match(src,/HH_SMART_TRIP_UNIVERSAL_EEA_REVIEW_APPROVED/);
+ assert.match(src,/2026-11-12T00:00:00Z/);
+ assert.match(src,/pilotWindowActive/);
+ assert.match(src,/Date\.now\(\)<PILOT_UNTIL/);
  assert.match(src,/auth\.getUser/);
  assert.match(src,/hh_profile_access/);
  assert.match(src,/hh_smart_trip_google_reserve_pilot/);
  assert.match(src,/p_expected_daily_used:0/);
  assert.match(src,/req\.signal\.aborted/);
  assert.match(src,/if\(!quota\.ok\)return/);
- assert.ok(src.indexOf("if(!(status.enabled&&status.billingReviewed&&status.eeaReviewed))")<
+ assert.ok(src.indexOf("if(!status.approved)")<
   src.indexOf("await reserveOne(admin as unknown as QuotaRpcClient)"));
  assert.ok(src.indexOf("await reserveOne(admin as unknown as QuotaRpcClient)")<
   src.indexOf("await providerRequest("));
  const before=src.slice(0,src.indexOf("if(validated.mode==="+'"diagnose"'+")"));
  assert.doesNotMatch(before,/await providerRequest/);
- const diagnoseBlock=src.slice(src.indexOf('if(validated.mode==="diagnose")'),src.indexOf('if(!(status.enabled'));
+ const diagnoseBlock=src.slice(src.indexOf('if(validated.mode==="diagnose")'),src.indexOf('if(!status.approved'));
  assert.doesNotMatch(diagnoseBlock,/await providerRequest|await reserveOne/);
  assert.doesNotMatch(src,/console\.log|console\.warn|console\.error|localStorage|sessionStorage/);
  assert.equal(ROUTES_URL,"https://routes.googleapis.com/directions/v2:computeRoutes");
