@@ -1,0 +1,30 @@
+name: SHO Smart Trip V5 Parallel Orchestrator QA
+on:
+  push:
+    branches: [feature/sho-smart-trip-v5-parallel-orchestrator-20261109]
+    paths:
+      - 'sh9/smart-travel/public-transport/smart-trip/v5/parallel/**'
+      - 'healthhub/tests/sho-smart-trip-v5-parallel.test.mjs'
+      - '.github/workflows/sho-smart-trip-v5-parallel-qa.yml'
+  pull_request:
+    paths:
+      - 'sh9/smart-travel/public-transport/smart-trip/v5/parallel/**'
+      - 'healthhub/tests/sho-smart-trip-v5-parallel.test.mjs'
+      - '.github/workflows/sho-smart-trip-v5-parallel-qa.yml'
+permissions:
+  contents: read
+jobs:
+  offline-safety-and-deadlines:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Syntax
+        run: |
+          node --check sh9/smart-travel/public-transport/smart-trip/v5/parallel/parallel-orchestrator.mjs
+          node --check sh9/smart-travel/public-transport/smart-trip/v5/parallel/client.mjs
+      - name: Parallel timing, partial results, abort, and isolation tests
+        run: node --test healthhub/tests/sho-smart-trip-v5-parallel.test.mjs
