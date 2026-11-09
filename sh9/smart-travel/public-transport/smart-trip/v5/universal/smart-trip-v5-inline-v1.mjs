@@ -112,7 +112,8 @@ function render(data,refsSnapshot){
 }
 async function run(query,token,controller){
  const nodes=refs(),started=performance.now();
- let sessionClock=null,abortClock=null;
+ let sessionClock=null;
+ const abortClock=setTimeout(()=>controller.abort(),29000);
  try{
   const {db,key}=credentials();
   const session=await Promise.race([
@@ -153,7 +154,7 @@ async function run(query,token,controller){
    String(e?.message||"A keresés sikertelen."));
  }finally{
   if(sessionClock)clearTimeout(sessionClock);
-  if(abortClock)clearTimeout(abortClock);
+  clearTimeout(abortClock);
   if(active===controller){active=null;nodes.search.disabled=false;}
  }
 }
