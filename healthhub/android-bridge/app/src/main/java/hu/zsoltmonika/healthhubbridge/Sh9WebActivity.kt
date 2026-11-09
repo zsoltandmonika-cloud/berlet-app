@@ -362,7 +362,11 @@ class Sh9WebActivity : ComponentActivity() {
         pendingGeoOrigin = null
         pendingGeoCallback = null
         if (origin != null && callback != null) {
-            callback.invoke(origin, permissions[Manifest.permission.ACCESS_FINE_LOCATION] == true, false)
+            // Android 12+ may grant approximate (coarse) rather than precise location.
+            // Respect that explicit choice instead of reporting a false permission denial.
+            val allowed = permissions[Manifest.permission.ACCESS_FINE_LOCATION] == true ||
+                permissions[Manifest.permission.ACCESS_COARSE_LOCATION] == true
+            callback.invoke(origin, allowed, false)
         }
     }
 
@@ -374,6 +378,8 @@ class Sh9WebActivity : ComponentActivity() {
             return
         }
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) ==
+            PackageManager.PERMISSION_GRANTED ||
+            ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) ==
             PackageManager.PERMISSION_GRANTED) {
             callback.invoke(origin, true, false)
             return
