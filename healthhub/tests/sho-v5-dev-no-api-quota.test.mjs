@@ -34,12 +34,14 @@ test("DEV: visible test UI clearly states cost, user confirmation and no quotas"
  assert.match(html,/nincs SHO-s napi vagy havi API-kvótakorlát/);
  assert.match(html,/Google Routes API keresés/);
  assert.doesNotMatch(html,/max\. 1 kérés|legfeljebb 1 Google Routes-hívás naponta|2026\. november 12-én/);
- assert.match(html,/v=4-dev-without-quota/);
+ assert.match(html,/v=5-dev-repeat-search-ux/);
  assert.match(browser,/development_usage_accounting_unavailable/);
  assert.doesNotMatch(browser,/daily_one_run_or_quota_exceeded/);
  assert.match(browser,/st22V5ApiConsent/);
  assert.match(browser,/st22V5ApiDiagnose/);
  assert.match(browser,/st22V5ApiSearch/);
+ assert.match(browser,/if\(mode==="search"\)clearResults\(\)/);
+ assert.doesNotMatch(browser,/busy=true;ready=false;clearResults\(\);clearLena\(\)/);
 });
 test("Production launch still needs explicit new release and quota review",()=>{
  assert.match(server,/production:false/);
