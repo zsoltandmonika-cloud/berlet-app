@@ -81,7 +81,14 @@ function panel(force){
  if(error)html+='<p class="hhRegWarn401" role="alert">'+clean(error)+'</p>';
  if(note)html+='<p class="hhRegNote401" role="status">'+clean(note)+'</p>';
  if(!registry)html+='<p class="hhRegNote401">A regiszter még nem töltődött be; addig távoli parancs nem indul.</p>';
- if(registry&&cloud()&&nativeCount===0)html+='<p class="hhRegWarn401">Ebben a webes Dropbox-fiókban nem látható Android-eszközjelentés. Ha a natív HH ONE visszaolvasása sikerült, ellenőrizd a két Dropbox-fiók 8 karakteres azonosítóvégét. A natív telefonazonosítót ne töröld.</p>';
+ if(registry&&cloud()&&nativeCount===0){
+   html+='<p class="hhRegWarn401">Ebben a webes Dropbox-fiókban nincs Android-jelentés. Ha a natív HH ONE igazolt jelentést, a két Dropbox-fiók valószínűleg eltér. Eszközadatot nem törlünk.</p>';
+   html+='<div class="hhRegReconcile401"><label for="hhRegExpectedAccount401">Működő családi Dropbox-fiók azonosítójának utolsó 8 karaktere</label>'+
+     '<input id="hhRegExpectedAccount401" type="text" maxlength="8" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="8 karakter" />'+
+     '<button type="button" data-hh-reg-action="account-switch">🔐 Biztonságos Dropbox-egyeztetés</button>'+
+     '<small>A meglévő webes kapcsolat csak ellenőrzött egyezés után cserélődik. Mónika eszköze és az egészségügyi adatok nem törlődnek.</small></div>';
+  }
+  if(cloud()&&api().repairNote&&api().repairNote())html+='<p class="hhRegWarn401" role="alert">'+clean(api().repairNote())+'</p>';
  ['zsolt','monika'].forEach(function(p){
   var name=p==='zsolt'?'Zsolt':'Mónika',items=candidates(p);
   var primary=registry&&registry.activePhones[p];
@@ -142,7 +149,8 @@ function style(){
  var x=document.createElement('style');x.id=STYLE;x.textContent=
  '#'+PANEL+'{position:relative;isolation:isolate;z-index:66;pointer-events:auto;background:#fff;border:1px solid #dce8ee;border-radius:17px;padding:12px;margin:10px 0;color:#173f62;font:inherit}'+
  '#'+PANEL+' button{border:1px solid #c9dce9;border-radius:10px;padding:8px 10px;background:#f3f9fc;color:#173f62;font-size:11px;font-weight:800;cursor:pointer;touch-action:manipulation;min-height:38px}'+
- '.hhRegHead401{display:flex;justify-content:space-between;gap:8px;align-items:start}.hhRegHead401 h3{font-size:15px;margin:0 0 4px}.hhRegHead401 small,.hhRegRow401 small{font-size:10px;color:#648094;line-height:1.5;display:block}.hhRegHead401 span{font-size:9px;white-space:nowrap}.hhRegGroup401{background:#f5f9fc;padding:9px;border-radius:13px;margin-top:10px}.hhRegGroup401 h4{font-size:13px;margin:0 0 8px}.hhRegRow401{background:#fff;border:1px solid #e3edf2;padding:10px;border-radius:11px;margin-top:6px;overflow-wrap:anywhere}.hhRegRow401 b{font-size:11px}.hhRegId401{color:#698399;font-size:9px}.hhRegBtns401,.hhRegBottom401{display:flex;flex-wrap:wrap;gap:7px;margin-top:7px}.hhRegMinor401{margin:12px 2px}.hhRegMinor401 summary{font-size:11px;cursor:pointer}.hhRegMinor401 p,.hhRegNote401{color:#627f91;background:#f5f9fc;padding:9px;border-radius:9px;font-size:10px;line-height:1.55}.hhRegWarn401{color:#a13333;background:#ffeceb;padding:9px;border-radius:9px;font-size:11px}';
+ '.hhRegReconcile401{display:flex;flex-direction:column;align-items:stretch;gap:7px;padding:10px;border:1px solid #bddef3;border-radius:12px;background:#eef7fd;margin:10px 0}.hhRegReconcile401 label{font-size:11px;font-weight:750}.hhRegReconcile401 input{font:inherit;font-size:14px;min-height:38px;padding:8px;border:1px solid #bcd1e0;border-radius:8px;color:#173f62;background:white}.hhRegReconcile401 small{font-size:10px;line-height:1.4;color:#527188}'+
+  '.hhRegHead401{display:flex;justify-content:space-between;gap:8px;align-items:start}.hhRegHead401 h3{font-size:15px;margin:0 0 4px}.hhRegHead401 small,.hhRegRow401 small{font-size:10px;color:#648094;line-height:1.5;display:block}.hhRegHead401 span{font-size:9px;white-space:nowrap}.hhRegGroup401{background:#f5f9fc;padding:9px;border-radius:13px;margin-top:10px}.hhRegGroup401 h4{font-size:13px;margin:0 0 8px}.hhRegRow401{background:#fff;border:1px solid #e3edf2;padding:10px;border-radius:11px;margin-top:6px;overflow-wrap:anywhere}.hhRegRow401 b{font-size:11px}.hhRegId401{color:#698399;font-size:9px}.hhRegBtns401,.hhRegBottom401{display:flex;flex-wrap:wrap;gap:7px;margin-top:7px}.hhRegMinor401{margin:12px 2px}.hhRegMinor401 summary{font-size:11px;cursor:pointer}.hhRegMinor401 p,.hhRegNote401{color:#627f91;background:#f5f9fc;padding:9px;border-radius:9px;font-size:10px;line-height:1.55}.hhRegWarn401{color:#a13333;background:#ffeceb;padding:9px;border-radius:9px;font-size:11px}';
  document.head.appendChild(x);
 }
 async function refresh(force){
@@ -235,6 +243,15 @@ function attach(){
   var b=e.target.closest&&e.target.closest('button[data-hh-reg-action]');
   if(!b||!b.closest('#'+PANEL))return;
   var action=b.getAttribute('data-hh-reg-action'),id=b.getAttribute('data-id');
+  if(action==='account-switch'){
+   var input=document.getElementById('hhRegExpectedAccount401');
+   var expected=String(input&&input.value||'').trim();
+   if(!/^[A-Za-z0-9_-]{8}$/.test(expected)){error='Pontosan 8 karakteres fiókazonosító szükséges.';panel(true);return}
+   if(!api()||typeof api().switchToAccount!=='function'){error='A biztonságos Dropbox-egyeztetés nem érhető el. Frissítsd a HealthHub oldalát.';panel(true);return}
+   error='';
+   api().switchToAccount(expected).catch(function(e){error=String(e.message||e);panel(true)});
+   return;
+  }
   if(action==='refresh')refresh(true);else if(action==='sync')sync(id);
   else saveChange(action,id);
  });
