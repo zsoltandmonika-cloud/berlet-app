@@ -66,7 +66,13 @@ function adminClient(){
   auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false}
  });
 }
-async function reserveOne(admin:ReturnType<typeof createClient>){
+// The legacy pilot RPC has no generated TypeScript DB schema in this repository.
+ // Keep only its narrow runtime-validated result type at the boundary.
+type QuotaRpcClient={
+ rpc:(name:string,args:{p_expected_daily_used:number})=>
+  Promise<{data:unknown,error:unknown}>
+};
+async function reserveOne(admin:QuotaRpcClient){
  // Existing RPC atomically checks the already-used daily/monthly quotas.
  // p_expected_daily_used=0 makes this gateway strictly one successful
  // reservation per UTC day, shared with the older 3-variant test.
@@ -152,7 +158,7 @@ Deno.serve(async(req:Request)=>{
  if(req.signal.aborted)return json(req,499,{error:"client_disconnected",
   googleRequests:0,quotaReserved:0});
  // All authorization + policy checks finish BEFORE atomic quota reservation.
- const quota=await reserveOne(admin).catch(()=>({ok:false}));
+ const quota=await reserveOne(admin as unknown as QuotaRpcClient).catch(()=>({ok:false}));
  if(!quota.ok)return json(req,429,{error:"daily_one_run_or_quota_exceeded",
   googleRequests:0,quotaReserved:0});
  if(req.signal.aborted)return json(req,499,{error:"client_disconnected",
