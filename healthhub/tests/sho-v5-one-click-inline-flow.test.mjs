@@ -28,7 +28,7 @@ test("Google calls occur only from explicit Smart Trip submit, not typing or pre
  assert.match(ui,/if\(active\)return \{status:"started"\}/);
  assert.match(ui,/nodes\.search\.disabled=true/);
  assert.match(ui,/void run\(prepared\.query,token,controller\)/);
- assert.match(ui,/provider\?\.addEventListener\("change",showCost\)/);
+ assert.match(ui,/provider\?\.addEventListener\("change",\(\)=>/);
  assert.match(ui,/el\.addEventListener\("input",cancel\)/);
  assert.doesNotMatch(ui,/showModal|setInterval|mode:"diagnose"|\.insert\(|\.upsert\(/);
  assert.match(ui,/29000/);
@@ -47,9 +47,9 @@ test("authenticated, access-controlled, metered backend remains intact",()=>{
 test("Google response is displayed from a separate source, walking summarized and no model connection",()=>{
  const visual=readFileSync(root+"v5/universal/smart-trip-v5-premium-render-v1.mjs","utf8");
  assert.match(visual,/summarizeGoogleWalks\(route\)/);
- assert.match(ui,/walkSectionLabel\(part\.phase\)/);
- assert.match(ui,/summary\.totalWalkMeters/);
- assert.match(ui,/summary\.transfers/);
+ assert.match(visual,/walkSectionLabel\(part\.phase\)/);
+ assert.match(visual,/summary\.totalWalkMeters/);
+ assert.match(visual,/summary\.transfers/);
  assert.match(visual,/Google Maps/);
  assert.match(visual,/My Trips mentés nincs/);
  assert.doesNotMatch(ui,/api\.openai\.com|OPENAI_API_KEY|SUPABASE_SERVICE_ROLE_KEY/);
