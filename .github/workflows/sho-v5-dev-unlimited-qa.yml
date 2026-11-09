@@ -1,0 +1,41 @@
+name: SHO V5 DEV Unlimited API With Usage Accounting QA
+on:
+  push:
+    branches: [release/sho-v5-dev-no-app-quota-20261109]
+    paths:
+      - 'supabase/functions/hh-smart-trip-universal-v1/**'
+      - 'supabase/migrations/20261109153000_sho_v5_development_usage_counter_without_quota.sql'
+      - 'sh9/smart-travel/public-transport/smart-trip/index.html'
+      - 'sh9/smart-travel/public-transport/smart-trip/v5/universal/smart-trip-v5-api-ui.mjs'
+      - 'healthhub/tests/sho-v5-dev-no-api-quota.test.mjs'
+      - 'healthhub/tests/sho-v5-lena-independent-bkk.test.mjs'
+      - '.github/workflows/sho-v5-dev-unlimited-qa.yml'
+  pull_request:
+    paths:
+      - 'supabase/functions/hh-smart-trip-universal-v1/**'
+      - 'supabase/migrations/20261109153000_sho_v5_development_usage_counter_without_quota.sql'
+      - 'sh9/smart-travel/public-transport/smart-trip/index.html'
+      - 'sh9/smart-travel/public-transport/smart-trip/v5/universal/smart-trip-v5-api-ui.mjs'
+      - 'healthhub/tests/sho-v5-dev-no-api-quota.test.mjs'
+      - 'healthhub/tests/sho-v5-lena-independent-bkk.test.mjs'
+permissions:
+  contents: read
+jobs:
+  dev-quota:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Verify syntax
+        run: |
+          node --check sh9/smart-travel/public-transport/smart-trip/v5/universal/smart-trip-v5-api-ui.mjs
+          node --check supabase/functions/hh-smart-trip-universal-v1/core.mjs
+      - name: Verify DEV quota access and previous V5 intake
+        run: |
+          node --test healthhub/tests/sho-v5-dev-no-api-quota.test.mjs
+          node --test healthhub/tests/sho-smart-trip-v5-main-intake.test.mjs
+          node --test healthhub/tests/sho-v5-lena-independent-bkk.test.mjs
+          node --test healthhub/tests/sho-v5-lena-independent-mav.test.mjs
