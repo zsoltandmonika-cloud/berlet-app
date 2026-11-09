@@ -552,12 +552,13 @@ class MainActivity : ComponentActivity() {
         }
         root.addView(registryCheckResult)
 
-        root.addView(nativeDropboxAccountLabel = TextView(this).apply {
+        nativeDropboxAccountLabel = TextView(this).apply {
             text = nativeDropboxAccountText()
             textSize = 13f
             setTextColor(0xFF315F98.toInt())
             setPadding(4, 8, 4, 4)
-        })
+        }
+        nativeDropboxAccountLabel?.let { root.addView(it) }
         root.addView(Button(this).apply {
             text = "🔐 Dropbox-fiók ellenőrzése / váltása"
             setOnClickListener { requestMatchedDropboxLogin() }
