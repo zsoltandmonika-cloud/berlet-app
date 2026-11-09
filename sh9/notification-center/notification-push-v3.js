@@ -94,7 +94,19 @@ async function invoke(action,details={}){
  const {data:{user},error:userError}=await api.auth.getUser();
  if(userError||!user)throw Error('login');
  const {data,error}=await api.functions.invoke('sho-webpush-v3',{body:{action,profile:profile(),...details}});
- if(error||!data||data.error)throw Error(data?.error||'gateway');
+ if(error){
+  // FunctionsHttpError keeps the error code in a Response. Never expose raw
+  // server payloads, push endpoints or authentication keys in the UI.
+  let reason=typeof data?.error==='string'?data.error:'gateway';
+  try{
+   if(error.context&&typeof error.context.clone==='function'){
+    const body=await error.context.clone().json();
+    if(typeof body?.error==='string'&&/^[a-z_]{3,60}$/.test(body.error))reason=body.error;
+   }
+  }catch(_){}
+  throw Error(reason);
+ }
+ if(!data||data.error)throw Error(typeof data?.error==='string'?data.error:'gateway');
  return data;
 }
 function unbase64url(value){
@@ -128,31 +140,66 @@ async function refresh(){
   status(remote.subscribed===true?wds.on:wds.off);
  }catch(err){
   const e=String(err?.message||'');
-  status(e==='login'?wds.login:wds.server);
+  status(e==='login'?wds.login:registrationIssue('server',err));
   toggle(false);
  }
+}
+function registrationIssue(phase,err){
+ const english=en(),code=String(err?.message||''),name=String(err?.name||'');
+ const map={
+  login:['Sign in to Family Guard in this browser, then retry.','Jelentkezz be a Family Guardba ugyanebben a böngészőben, majd próbáld újra.'],
+  profile_access_denied:['You do not have access to the selected profile.','A kiválasztott profilhoz nincs hozzáférés. Ellenőrizd a Family Guard profilját.'],
+  subscription_owned_by_other_user:['Push is already associated with another signed-in account.','A böngésző push-előfizetése másik bejelentkezéshez tartozik.'],
+  invalid_endpoint:['SHO does not yet support the push endpoint returned by this browser.','A Samsung Internet által adott push-kiszolgálót a SHO még nem támogatja.'],
+  invalid_subscription_keys:['The browser did not supply valid push encryption keys.','A böngésző nem adott érvényes push-titkosítási kulcsokat.'],
+  unsupported:['The required push feature is missing. Update Samsung Internet.','A szükséges push-funkció hiányzik. Frissítsd a Samsung Internetet.']
+ };
+ if(map[code])return map[code][english?0:1];
+ if(phase==='permission'||name==='NotAllowedError'||name==='SecurityError')
+  return english?'Android or Samsung Internet blocked notifications. Check both app and site permissions.':'Az Android vagy a Samsung Internet tiltja az értesítéseket. Ellenőrizd az alkalmazás- és webhelyengedélyeket.';
+ if(phase==='worker')
+  return english?'SHO background service could not start. Refresh and try again.':'Nem indult a SHO háttérszolgáltatása. Frissítsd az oldalt, majd próbáld újra.';
+ if(phase==='subscribe')
+  return english?'Samsung Internet could not create a push subscription. Update the browser, then retry.':'A Samsung Internet nem tudott push-előfizetést létrehozni. Frissítsd a böngészőt, majd próbáld újra.';
+ if(phase==='server')
+  return english?'SHO could not save the subscription. Verify your Family Guard login.':'A SHO nem tudta menteni az előfizetést. Ellenőrizd a Family Guard bejelentkezését.';
+ return english?'Registration failed. Existing subscriptions remain unchanged.':'A regisztráció sikertelen. A meglévő előfizetések változatlanok.';
 }
 async function enable(){
  if(busy||!publicKey||!supports())return;
  const target=profile(),wds=words();
  if(w.Notification.permission==='denied'){status(wds.denied);return}
  busy=true;toggle(false);status(wds.loading);
+ let stage='permission',completed=false,granted=false;
  try{
-  // Permission is requested ONLY from an explicit button click.
-  const permission=await w.Notification.requestPermission();
+  // Samsung Internet may reject a second permission prompt even if granted.
+  // New permission is requested ONLY by the actual enable-button click.
+  const permission=w.Notification.permission==='granted'?'granted':await w.Notification.requestPermission();
   if(permission!=='granted'){status(wds.blocked);return}
+  granted=true;
   if(profile()!==target)throw Error('profile_changed');
+  stage='worker';
   const registration=await navigator.serviceWorker.register(SW,{scope:SCOPE});
+  if(!registration?.pushManager)throw Error('unsupported');
+  stage='subscribe';
   const existing=await registration.pushManager.getSubscription();
   const subscription=existing||await registration.pushManager.subscribe({
    userVisibleOnly:true,applicationServerKey:unbase64url(publicKey)
   });
-  const asJson=subscription.toJSON();
-  await invoke('subscribe',{endpoint:subscription.endpoint,keys:asJson.keys});
+  if(!subscription?.endpoint||typeof subscription.toJSON!=='function')throw Error('unsupported');
+  const keys=subscription.toJSON()?.keys;
+  if(!keys?.p256dh||!keys?.auth)throw Error('invalid_subscription_keys');
+  stage='server';
+  await invoke('subscribe',{endpoint:subscription.endpoint,keys});
   if(profile()!==target)return;
-  status(wds.registered);
- }catch(_){status(wds.error)}
- finally{busy=false;void refresh()}
+  completed=true;status(wds.registered);
+ }catch(err){status(registrationIssue(stage,err))}
+ finally{
+  busy=false;
+  // Never erase a failure instantly with the old unconditional refresh().
+  if(completed)void refresh();
+  else toggle(granted&&!!publicKey,false);
+ }
 }
 async function disable(){
  if(busy||!supports())return;

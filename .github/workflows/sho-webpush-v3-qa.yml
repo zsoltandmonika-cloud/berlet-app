@@ -5,6 +5,8 @@ on:
       - 'sh9/sw.js'
       - 'sh9/notification-center/**'
       - 'sh9/tests/sho-webpush-v3.test.cjs'
+      - 'sh9/tests/sho-push-samsung-diagnostics-v4.test.cjs'
+      - 'sh9/tests/sho-samsung-push-diagnostics-v4.test.cjs'
       - 'supabase/functions/sho-webpush-v3/**'
       - 'supabase/migrations/*sho_web_push_v3*'
       - '.github/workflows/sho-webpush-v3-qa.yml'
@@ -27,7 +29,7 @@ jobs:
           node --check sh9/notification-center/notification-core-v1.js
       - name: Regression tests
         run: |
-          node --test sh9/tests/sho-webpush-v3.test.cjs sh9/tests/sho-notification-center-v1.test.cjs sh9/tests/sho-notification-chime-v2.test.cjs
+          node --test sh9/tests/sho-push-samsung-diagnostics-v4.test.cjs sh9/tests/sho-samsung-push-diagnostics-v4.test.cjs sh9/tests/sho-webpush-v3.test.cjs sh9/tests/sho-notification-center-v1.test.cjs sh9/tests/sho-notification-chime-v2.test.cjs
       - uses: denoland/setup-deno@v2
         with:
           deno-version: v2.x
