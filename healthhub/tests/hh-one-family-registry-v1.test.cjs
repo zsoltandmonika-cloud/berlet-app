@@ -98,5 +98,5 @@ test('native phone pairing is Zsolt-only opt-in; Dropbox sync and ID remain inta
  assert.match(worker,/FamilyDeviceCentral\.heartbeat\(prefs, owner, id/);
  assert.ok(worker.indexOf('FamilyDeviceCentral.heartbeat')<worker.indexOf('if (!DropboxVaultClient.hasRefreshToken'));
  assert.match(main,/Központi párosítókód másolása/);
- assert.match(html,/family-device-central-v1\.js\?v=1-family-registry-pilot/);
+ assert.match(html,/family-device-central-v1\.js\?v=2-visible-pair-rights/);
 });
