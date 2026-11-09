@@ -26,7 +26,7 @@ const errors={
  unauthorized_profile:"Nincs jogosultság ehhez a családi profilhoz, vagy lejárt a bejelentkezés.",
  origin_denied:"A kiszolgáló nem engedélyezi ezt az oldalt.",
  universal_gateway_disabled:"Az API tesztidőablaka lejárt, vagy a Gateway ki van kapcsolva.",
- daily_one_run_or_quota_exceeded:"A mai egyszeri API-próbát már felhasználtuk. Új Google-hívás nem indult.",
+ development_usage_accounting_unavailable:"Az API-felhasználás elszámolása nem érhető el. Nem indult Google-hívás.",
  server_configuration_missing:"A szerveres Google- vagy Supabase-kulcs hiányzik.",
  google_http_error:"A Google Routes API visszautasította a kérést. A kvótafoglalás megtörténhetett.",
  google_network_or_timeout:"A Google Routes API időtúllépést vagy hálózati hibát jelzett.",
@@ -122,7 +122,7 @@ async function execute(mode){
  let authTimer;
  try{
   status(mode==="diagnose"?"🔍 Kapcsolatellenőrzés: 0 fizetős Google API-hívás...":
-   "🔎 Valódi Google Routes-keresés: maximum 1 kvótafoglalás...");
+   "🔎 Valódi Google Routes-kérés: számlázható lehet, felhasználás naplózása...");
   const credentials=authenticatedClient();
   const session=await Promise.race([
    credentials.client.auth.getSession(),
@@ -154,7 +154,7 @@ async function execute(mode){
     throw Error("Hibás diagnosztikai válasz.");
    ready=result.ready===true;
    status(ready?"✅ API-kapcsolat ellenőrizve. A külön Google-keresőgombbal "+
-    "egyetlen valódi, kvótázott hívás indítható.":
+    "új Google Routes API-kérés indítható. A fejlesztői mód nem korlátozza a napi darabszámot.":
     "🔒 A Google-keresés most nem indítható: ellenőrizd a bejelentkezést, "+
     "a szerverengedélyeket és a tesztidőablakot.");
   }else{
