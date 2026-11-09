@@ -439,6 +439,13 @@ async function refresh(force){
       connected:connected(),error:'',feedback:state.feedback||''};
     return;
    }
+   // An unpaired or logged-out central view is UNKNOWN, not proof of a
+   // broken phone. Keep legacy Dropbox account status separate from identity.
+   state={color:'amber',
+    message:'Közös telefonregiszter: hitelesített állapot ellenőrzésre vár',
+    source:'central',centralRows:[],devices:[],registry:null,
+    connected:connected(),error:'',feedback:state.feedback||''};
+   return;
   }
   if(!connected()){
    state={color:'red',message:'Dropbox Vault nincs csatlakoztatva',devices:[],registry:null,connected:false,error:''};
