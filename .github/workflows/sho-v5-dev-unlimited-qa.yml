@@ -8,6 +8,7 @@ on:
       - 'sh9/smart-travel/public-transport/smart-trip/index.html'
       - 'sh9/smart-travel/public-transport/smart-trip/v5/universal/smart-trip-v5-api-ui.mjs'
       - 'healthhub/tests/sho-v5-dev-no-api-quota.test.mjs'
+      - 'healthhub/tests/sho-v5-lena-independent-bkk.test.mjs'
       - '.github/workflows/sho-v5-dev-unlimited-qa.yml'
   pull_request:
     paths:
@@ -16,6 +17,7 @@ on:
       - 'sh9/smart-travel/public-transport/smart-trip/index.html'
       - 'sh9/smart-travel/public-transport/smart-trip/v5/universal/smart-trip-v5-api-ui.mjs'
       - 'healthhub/tests/sho-v5-dev-no-api-quota.test.mjs'
+      - 'healthhub/tests/sho-v5-lena-independent-bkk.test.mjs'
 permissions:
   contents: read
 jobs:
