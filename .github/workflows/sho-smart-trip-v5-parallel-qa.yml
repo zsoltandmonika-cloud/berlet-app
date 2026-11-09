@@ -12,6 +12,8 @@ on:
     paths:
       - 'sh9/smart-travel/public-transport/smart-trip/v5/parallel/**'
       - 'healthhub/tests/sho-smart-trip-v5-parallel.test.mjs'
+      - 'healthhub/tests/sho-smart-trip-v5-local-sources.test.mjs'
+      - 'sh9/super-search/matrix-v4/**'
       - '.github/workflows/sho-smart-trip-v5-parallel-qa.yml'
 permissions:
   contents: read
