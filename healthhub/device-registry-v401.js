@@ -80,6 +80,7 @@ function panel(force){
  var nativeCount=devices.filter(function(d){return d&&d.deviceType==='android'}).length;
  var central=window.HH_FAMILY_DEVICE_CENTRAL_V1;
   if(central)central.begin();
+  var centralReady=!!(central&&central.devices&&central.devices().length);
   var html=(central?central.render():'')+'<div class="hhRegHead401"><div><h3>📱 Családi eszközregiszter · v401</h3><small>Biztonságos housekeeping · fizikai telefononként egy kijelölt eszköz</small><small>'+accountNotice+' · Android-jelentések: '+nativeCount+'</small></div><span>'+(cloud()?'☁️ Dropbox':'⚪ Offline')+'</span></div>';
  if(error)html+='<p class="hhRegWarn401" role="alert">'+clean(error)+'</p>';
  if(note)html+='<p class="hhRegNote401" role="status">'+clean(note)+'</p>';
@@ -92,6 +93,7 @@ function panel(force){
      '<small>A meglévő webes kapcsolat csak ellenőrzött egyezés után cserélődik. Mónika eszköze és az egészségügyi adatok nem törlődnek.</small></div>';
   }
   if(cloud()&&api().repairNote&&api().repairNote())html+='<p class="hhRegWarn401" role="alert">'+clean(api().repairNote())+'</p>';
+ if(centralReady)html+='<details class="hhRegLegacyDetails"><summary>📁 Régi Dropbox-kapcsolatok · kézi takarítás és visszaállítás</summary>';
  ['zsolt','monika'].forEach(function(p){
   var name=p==='zsolt'?'Zsolt':'Mónika',items=candidates(p);
   var primary=registry&&registry.activePhones[p];
@@ -146,6 +148,7 @@ function panel(force){
  html+='<div class="hhRegBottom401"><button type="button" data-hh-reg-action="refresh">↻ Állapot frissítése</button>'+
  (registry&&registry.history.length?'<button type="button" data-hh-reg-action="undo">↩ Utolsó változás visszavonása</button>':'')+'</div>'+
  '<p class="hhRegNote401">A kézi eltávolítás archiválás, nem felhőfájl-törlés. Minden művelet előtt biztonsági mentés készül. A kijelölés és az archiválás csak külön Dropbox-metaadat; nem töröl eszköz- vagy egészségügyi adatot. Nincs automatikus duplikátum-összevonás. Először nyisd meg a HealthHub Connectet a céltelefonon, és a friss utolsó jelentkezés alapján azonosítsd. A PENDING nem jelent kész szinkront, és a DONE sem bizonyít friss Samsung Health-adatot.</p>';
+ if(centralReady)html+='</details>';
  if(el.innerHTML===html)return;
   var typedSuffix=el.querySelector('#hhRegExpectedAccount401')?.value||'';
  // Preserve visual position and expanded sections on background refresh.
@@ -165,7 +168,8 @@ function style(){
  var x=document.createElement('style');x.id=STYLE;x.textContent=
  '#'+PANEL+'{position:relative;isolation:isolate;z-index:66;pointer-events:auto;background:#fff;border:1px solid #dce8ee;border-radius:17px;padding:12px;margin:10px 0;color:#173f62;font:inherit}'+
  '#'+PANEL+' button{border:1px solid #c9dce9;border-radius:10px;padding:8px 10px;background:#f3f9fc;color:#173f62;font-size:11px;font-weight:800;cursor:pointer;touch-action:manipulation;min-height:38px}'+
- '.hhFcPanel{border:1px solid #bed8ee;border-radius:14px;padding:12px;background:linear-gradient(135deg,#eff8ff,#e9f2fa);margin-bottom:12px;color:#183b65}.hhFcPanel h4{margin:0 0 5px;font-size:14px}.hhFcPanel small{font-size:10px;display:block;color:#547391;line-height:1.5}.hhFcPanel p{font-size:11px;line-height:1.5}.hhFcPanel button{margin-top:6px}.hhFcLine{padding:9px;margin:7px 0;border-radius:9px;background:#fff;font-size:11px}.hhFcPair summary{font-weight:700;cursor:pointer;font-size:11px}.hhFcPair input{width:100%;box-sizing:border-box;border:1px solid #bad0e2;padding:10px;border-radius:9px;min-height:44px;background:#fff}.hhFcPair label{font-size:11px;display:block;margin:8px 0}.hhFcError{color:#a02b42!important}.hhFcNote{color:#1d6b50!important}.hhRegArchived{margin:8px 0}.hhRegMinor401 p button{margin:4px 0 4px 8px}'+
+ '.hhRegLegacyDetails{margin-top:10px;padding:8px;border:1px dashed #abc9df;border-radius:12px;background:#f5f9fc}.hhRegLegacyDetails>summary{cursor:pointer;font-size:12px;font-weight:700;color:#285379}.hhRegLegacyDetails[open]>summary{margin-bottom:9px}'+
+  '.hhFcPanel{border:1px solid #bed8ee;border-radius:14px;padding:12px;background:linear-gradient(135deg,#eff8ff,#e9f2fa);margin-bottom:12px;color:#183b65}.hhFcPanel h4{margin:0 0 5px;font-size:14px}.hhFcPanel small{font-size:10px;display:block;color:#547391;line-height:1.5}.hhFcPanel p{font-size:11px;line-height:1.5}.hhFcPanel button{margin-top:6px}.hhFcLine{padding:9px;margin:7px 0;border-radius:9px;background:#fff;font-size:11px}.hhFcPair summary{font-weight:700;cursor:pointer;font-size:11px}.hhFcPair input{width:100%;box-sizing:border-box;border:1px solid #bad0e2;padding:10px;border-radius:9px;min-height:44px;background:#fff}.hhFcPair label{font-size:11px;display:block;margin:8px 0}.hhFcError{color:#a02b42!important}.hhFcNote{color:#1d6b50!important}.hhRegArchived{margin:8px 0}.hhRegMinor401 p button{margin:4px 0 4px 8px}'+
   '.hhRegReconcile401{display:flex;flex-direction:column;align-items:stretch;gap:7px;padding:10px;border:1px solid #bddef3;border-radius:12px;background:#eef7fd;margin:10px 0}.hhRegReconcile401 label{font-size:11px;font-weight:750}.hhRegReconcile401 input{font:inherit;font-size:14px;min-height:38px;padding:8px;border:1px solid #bcd1e0;border-radius:8px;color:#173f62;background:white}.hhRegReconcile401 small{font-size:10px;line-height:1.4;color:#527188}'+
   '.hhRegHead401{display:flex;justify-content:space-between;gap:8px;align-items:start}.hhRegHead401 h3{font-size:15px;margin:0 0 4px}.hhRegHead401 small,.hhRegRow401 small{font-size:10px;color:#648094;line-height:1.5;display:block}.hhRegHead401 span{font-size:9px;white-space:nowrap}.hhRegGroup401{background:#f5f9fc;padding:9px;border-radius:13px;margin-top:10px}.hhRegGroup401 h4{font-size:13px;margin:0 0 8px}.hhRegRow401{background:#fff;border:1px solid #e3edf2;padding:10px;border-radius:11px;margin-top:6px;overflow-wrap:anywhere}.hhRegRow401 b{font-size:11px}.hhRegId401{color:#698399;font-size:9px}.hhRegBtns401,.hhRegBottom401{display:flex;flex-wrap:wrap;gap:7px;margin-top:7px}.hhRegMinor401{margin:12px 2px}.hhRegMinor401 summary{font-size:11px;cursor:pointer}.hhRegMinor401 p,.hhRegNote401{color:#627f91;background:#f5f9fc;padding:9px;border-radius:9px;font-size:10px;line-height:1.55}.hhRegWarn401{color:#a13333;background:#ffeceb;padding:9px;border-radius:9px;font-size:11px}';
  document.head.appendChild(x);
