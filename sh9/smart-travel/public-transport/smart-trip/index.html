@@ -138,13 +138,14 @@ color:#fff;border-radius:12px;min-height:44px;padding:10px 15px;font:700 13px sy
   <section id="st22V5ApiRoutes" class="v5-detail" aria-label="Google Routes API-eredmények" hidden></section>
   <section id="st22V5LenaPanel" class="v5-detail" aria-label="Léna független menetrendi A-terv előértékelése">
    <h3>✨ Léna A terve · független menetrend</h3>
-   <p>Első biztonságos bekötés: ellenőrzött BKK Zrt. GTFS-adatból, önálló kereséssel
-   választunk egy A tervet. A Google Routes válasza <strong>nem kerül át</strong>
-   ide vagy külső AI-hoz. Ez egyelőre szabályalapú értékelő, nem LLM-elemzés.
-   A BKK-próba jelenleg a 17, 19, 41 és 260 járatokat fedi le;
-   távolsági MÁV/Volán- és teljes ajtótól ajtóig terv még nincs bekötve.</p>
+   <p>Első biztonságos bekötés: független BKK Zrt. GTFS, valamint ezen az eszközön
+   már meglévő, ellenőrzött privát MÁV-menetrend alapján választunk A tervet.
+   A Google Routes válasza <strong>nem kerül át</strong> ide vagy külső AI-hoz.
+   Ez egyelőre szabályalapú értékelő, nem LLM-elemzés. A BKK-próba a
+   17, 19, 41 és 260 járatokat fedi le. Volán és teljes ajtótól ajtóig
+   kombinált terv még nincs bekötve.</p>
    <div class="v5-actions">
-    <button id="st22V5LenaEvaluate" type="button" class="secondary">✨ Léna · ellenőrzött BKK A terv (ingyenes)</button>
+    <button id="st22V5LenaEvaluate" type="button" class="secondary">✨ Léna · független BKK/MÁV A terv (ingyenes)</button>
    </div>
    <p id="st22V5LenaStatus" role="status" aria-live="polite"></p>
    <div id="st22V5LenaResult" hidden></div>
@@ -221,7 +222,7 @@ color:#fff;border-radius:12px;min-height:44px;padding:10px 15px;font:700 13px sy
 <script src="./smart-trip-lena-native-v1104.js?v=1104-explicit-closed-pilot"></script>
 <script type="module" src="./smart-trip-bkk-v1107.mjs?v=1108-all-bkk-stops"></script>
 <script src="./smart-trip-ai-v1022.js?v=1117-v5-main-api-intake"></script>
-<script type="module" src="./v5/universal/smart-trip-v5-api-ui.mjs?v=2-lena-independent-bkk-evaluator"></script>
+<script type="module" src="./v5/universal/smart-trip-v5-api-ui.mjs?v=3-lena-independent-bkk-mav"></script>
 <script src="./smart-trip-keyboard-dock-v1088.js?v=1088-real-predictive-portal"></script>
 <script src="./smart-trip-fullscreen-map-v1032.js?v=1032-lazy-maplibre"></script>
 
