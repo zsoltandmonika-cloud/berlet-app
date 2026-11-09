@@ -10,7 +10,7 @@ export function summarizeGoogleWalks(route) {
  if(!route||!Array.isArray(route.steps)||route.steps.length>45||
   !Number.isFinite(route.durationSeconds)||route.durationSeconds<=0)return null;
  const items=[];
- let totalWalkMeters=0,walkSections=0,transitCount=0;
+ let totalWalkMeters=0,transitCount=0;
  for(const step of route.steps){
   if(step?.kind==="walk"&&Number.isSafeInteger(step.meters)&&
    step.meters>=0&&step.meters<=30000){
@@ -20,7 +20,6 @@ export function summarizeGoogleWalks(route) {
     items[items.length-1].stepCount++;
    }else{
     items.push({kind:"walk",meters:step.meters,stepCount:1});
-    walkSections++;
    }
   }else if(step?.kind==="transit"&&
    typeof step.from==="string"&&step.from&&
@@ -31,15 +30,19 @@ export function summarizeGoogleWalks(route) {
   }else return null; // Never silently drop a Google step.
  }
  if(transitCount<1||totalWalkMeters>1_000_000)return null;
- const marked=items.map((entry,i)=>{
-  if(entry.kind!=="walk")return entry;
+ const marked=items.flatMap((entry,i)=>{
+  if(entry.kind!=="walk")return [entry];
+  // Zero-metre directions are provider navigation artefacts, not a
+  // meaningful pedestrian section. Hide only these zero-length rows;
+  // preserve all real walking metres and every transit leg.
   const hasPreviousRide=items.slice(0,i).some(x=>x.kind==="transit");
   const hasNextRide=items.slice(i+1).some(x=>x.kind==="transit");
   const phase=!hasPreviousRide&&hasNextRide?"before_first_ride":
    hasPreviousRide&&hasNextRide?"transfer":
    hasPreviousRide&&!hasNextRide?"after_last_ride":"other";
-  return {...entry,phase};
+  return entry.meters===0?[]:[{...entry,phase}];
  });
+ const walkSections=marked.filter(x=>x.kind==="walk").length;
  return {items:marked,totalWalkMeters,walkSections,
   transitCount,transfers:Math.max(0,transitCount-1)};
 }
