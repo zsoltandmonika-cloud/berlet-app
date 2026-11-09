@@ -21,6 +21,25 @@ const device=(id,owner,age=50000,state='done')=>({
 });
 const both=[device('android-z','zsolt'),device('android-m','monika')];
 const classify=api.classify;
+const central=api.classifyCentral;
+assert.equal(typeof central,'function');
+const centralRow=(profile,id,age=30000,verified=true)=>({
+ profile_key:profile,device_id:id,build:'0.15.17',state:'online',
+ last_seen_at:time(age),verified_at:verified?time(age):null
+});
+const cZ=centralRow('zsolt','android-12345678-1234-1234-1234-123456789abc');
+const cM=centralRow('monika','android-87654321-4321-4321-4321-cba987654321');
+assert.equal(central([cZ]).color,'amber','verified Zsolt is not a two-phone green');
+assert.match(central([cZ]).message,/Zsolt: központilag igazolt/);
+assert.match(central([cZ]).message,/Mónika: párosításra vár/);
+assert.equal(central([cZ,cM]).color,'green','both distinct fresh central heartbeats can be green');
+assert.equal(central([cZ,{...cM,last_seen_at:time(3600000)}]).color,'amber');
+assert.equal(central([{...cZ,verified_at:null}]),null,'unverified device cannot count');
+assert.equal(central([{...cZ,device_id:'web-stale-id'}]),null,'browser cannot masquerade as phone');
+assert.match(source,/state.source==='central'/);
+assert.match(source,/d.deviceId===row.device_id/,'native errors require exact verified ID');
+assert.doesNotMatch(source,/uploadJson\(/,'RAG status does not mutate old Dropbox records');
+
 assert.equal(classify(registry,both,true).color,'green','two recently seen verified phones');
 assert.equal(classify(registry,both,false).color,'red','disconnected vault must not show green');
 assert.equal(classify(registry,[both[0]],true).color,'amber','missing Mónika phone');
