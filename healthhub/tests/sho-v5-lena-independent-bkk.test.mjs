@@ -70,7 +70,7 @@ test("independent BKK and MÁV evaluators stay separate from one-click Google V5
  const controller=readFileSync(root+"smart-trip-ai-v1022.js","utf8");
  const bkk=readFileSync(root+"smart-trip-bkk-v1107.mjs","utf8");
  const mav=readFileSync(root+"v5/universal/lena-independent-mav-v1.mjs","utf8");
- assert.match(html,/v=1-direct-one-click/);
+ assert.match(html,/v=2-brands-ticket-timeline/);
  assert.doesNotMatch(html,/id="st22V5LenaEvaluate"|id="st22V5LenaResult"/);
  assert.match(bkk,/SH9_BKK_SEARCH_V1107/);
  assert.match(controller,/method==='bkk_gtfs'/);
