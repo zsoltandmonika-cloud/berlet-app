@@ -10,19 +10,19 @@ const worker=read('android-bridge/app/src/main/java/hu/zsoltmonika/healthhubbrid
 const native=read('android-bridge/app/src/main/java/hu/zsoltmonika/healthhubbridge/FamilyDeviceCentral.kt');
 const webview=read('android-bridge/app/src/main/java/hu/zsoltmonika/healthhubbridge/Sh9WebActivity.kt');
 const html=read('index.html');
-function harness(authorized=true){
- const calls=[],events=[],input={value:''};
- const status={authenticated:authorized,authorizedProfiles:authorized?['zsolt','monika']:[]};
+function harness(authorized=true,permittedProfiles=['zsolt','monika'],devices=[]){
+ const calls=[],events=[],input={value:''},monikaInput={value:''};
+ const status={authenticated:authorized,authorizedProfiles:authorized?permittedProfiles:[]};
  const vault={getStatus:()=>status,openLogin:()=>events.push('login'),request:async(url,options)=>{
   calls.push({url,options});
-  if(url.includes('hh_family_devices_v1'))return[];
-  if(url.includes('hh_profile_access'))return[{profile_key:'zsolt'}];
+  if(url.includes('hh_family_devices_v1'))return devices;
+  if(url.includes('hh_profile_access'))return permittedProfiles.map(profile_key=>({profile_key}));
   return null;
  }};
  const w={HH_DAILY_HEALTH_SYNC_V319:vault,addEventListener:()=>{},dispatchEvent:e=>events.push(e.type),crypto:webcrypto};
- const d={getElementById:id=>id==='hhFcCodeV1'?input:null};
+ const d={getElementById:id=>id==='hhFcCodeV1'?input:id==='hhFcCodeV1-monika'?monikaInput:null};
  vm.runInNewContext(central,{window:w,document:d,Event,TextEncoder,crypto:webcrypto,Date,Promise,Uint8Array,Array});
- return {api:w.HH_FAMILY_DEVICE_CENTRAL_V1,calls,events,input,status};
+ return {api:w.HH_FAMILY_DEVICE_CENTRAL_V1,calls,events,input,monikaInput,status};
 }
 test('central devices start empty, never pretend Dropbox snapshots are verified Android heartbeat',async()=>{
  const h=harness();
@@ -43,7 +43,37 @@ test('pairing is exact-device, SHA-256 challenge, never stores plaintext secret'
  assert.equal(h.calls[2].options.data.device_id,id);
  assert.equal(h.calls[2].options.data.proof_hash,createHash('sha256').update(secret).digest('hex'));
  assert.doesNotMatch(JSON.stringify(h.calls[2]),/a{40,}/);
- assert.match(h.api.render(),/párosítás jóváhagyva/);
+ assert.match(h.api.render(),/párosítása jóváhagyva/);
+});
+test('Mónika pairing uses her own input, profile and one-time proof',async()=>{
+ const h=harness(),id='android-fedcba98-1234-5678-abcd-123456789abc',secret='b'.repeat(64);
+ await h.api.refresh();
+ assert.match(h.api.render(),/Mónika telefon párosítása/);
+ assert.match(h.api.render(),/hhFcCodeV1-monika/);
+ h.monikaInput.value=id+':'+secret;
+ await h.api.click('central-pair-monika');
+ const requests=h.calls.filter(x=>x.url.includes('pair_requests'));
+ assert.equal(requests.length,1);
+ assert.equal(requests[0].options.data.profile_key,'monika');
+ assert.equal(requests[0].options.data.device_id,id);
+ assert.equal(requests[0].options.data.proof_hash,createHash('sha256').update(secret).digest('hex'));
+ assert.equal(h.monikaInput.value,'');
+ assert.doesNotMatch(JSON.stringify(requests[0]),/b{40,}/);
+ assert.match(h.api.render(),/Mónika párosítása jóváhagyva/);
+});
+test('Zsolt remains paired while Mónika can be paired without cross-profile permission',async()=>{
+ const existing=[{profile_key:'zsolt',device_id:'android-11111111-2222-3333-4444-555555555555',build:'0.15.17',last_seen_at:new Date().toISOString()}];
+ const h=harness(true,['zsolt','monika'],existing);
+ await h.api.refresh();
+ const html=h.api.render();
+ assert.doesNotMatch(html,/data-profile="zsolt"/);
+ assert.match(html,/data-profile="monika"/);
+ const restricted=harness(true,['zsolt']);
+ await restricted.api.refresh();
+ restricted.monikaInput.value='android-fedcba98-1234-5678-abcd-123456789abc:'+('b'.repeat(64));
+ await restricted.api.click('central-pair-monika');
+ assert.equal(restricted.calls.filter(x=>x.url.includes('pair_requests')).length,0);
+ assert.match(restricted.api.render(),/Mónika-profil jogosultság/);
 });
 test('bad or unauthenticated pairing never writes a central request',async()=>{
  const a=harness(),b=harness(false);
@@ -66,6 +96,7 @@ test('pairing entry stays visible before Google login and during access verifica
  await h.api.refresh();
  assert.match(h.api.render(),/Párosítás jóváhagyása/);
  assert.equal(h.calls.filter(x=>x.url.includes('hh_profile_access')).length,1);
+ assert.match(h.api.render(),/Mónika telefon párosítása/);
 });
 test('manual legacy removal is reversible metadata and protects both selected IDs',()=>{
  assert.match(legacy,/Eltávolítás a listából/);
@@ -81,10 +112,10 @@ test('manual legacy removal is reversible metadata and protects both selected ID
 test('Admin pairing opens from top-level stable dialog, with no recurring registry repaint',()=>{
  const admin=read('hh-admin-mobile-focus-v748.js');
  assert.match(admin,/hhCentralPairOpenV3/);
- assert.match(admin,/Zsolt telefon párosítása · 1 érintés/);
+ assert.match(admin,/Családi telefon párosítása · 1 érintés/);
  assert.match(admin,/function openPairModal\(/);
  assert.match(admin,/d\.body\.appendChild\(modal\)/);
- assert.match(admin,/const input=inner\.querySelector\('#hhFcCodeV1'\)/);
+ assert.match(admin,/const inputs=inner\.querySelectorAll\('#hhFcCodeV1,#hhFcCodeV1-monika'\)/);
  assert.match(admin,/if\(input&&\(input===d\.activeElement\|\|input\.value\)\)return/);
  assert.doesNotMatch(legacy,/setInterval\(function\(\)\{if\(ov\.classList\.contains\('on'\)/);
  assert.doesNotMatch(legacy,/central\.render\(\)/);
@@ -103,8 +134,10 @@ test('native WebView accepts Android approximate-location consent without auto-e
  assert.match(webview,/\.setNeutralButton\("🌐 Külső böngésző"\)/);
  assert.match(webview,/\.setPositiveButton\("↻ Újrapróbálás"\)/);
 });
-test('native phone pairing is Zsolt-only opt-in; Dropbox sync and ID remain intact',()=>{
- assert.match(native,/owner != "zsolt"/);
+test('native phone pairing is opt-in for both owners; Dropbox sync and ID remain intact',()=>{
+ assert.equal((native.match(/owner !in listOf\("zsolt", "monika"\)/g)||[]).length,2);
+ assert.match(main,/deviceOwnerProfile\(\) == "monika"/);
+ assert.match(worker,/owner == "monika"/);
  assert.match(native,/SecureRandom\(\)\.nextBytes/);
  assert.match(native,/family_registry_device_secret_v1/);
  assert.match(native,/pairing_not_approved/);
@@ -113,5 +146,5 @@ test('native phone pairing is Zsolt-only opt-in; Dropbox sync and ID remain inta
  assert.match(worker,/FamilyDeviceCentral\.heartbeat\(prefs, owner, id/);
  assert.ok(worker.indexOf('FamilyDeviceCentral.heartbeat')<worker.indexOf('if (!DropboxVaultClient.hasRefreshToken'));
  assert.match(main,/Központi párosítókód másolása/);
- assert.match(html,/family-device-central-v1\.js\?v=2-visible-pair-rights/);
+ assert.match(html,/family-device-central-v1\.js\?v=3-monika-pairing/);
 });
