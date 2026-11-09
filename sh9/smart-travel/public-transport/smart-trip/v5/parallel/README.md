@@ -34,3 +34,22 @@ finalize,onProgress,signal})`. The full deadline also limits the async finalizer
 5. Run true end-to-end tests including auth, routes, AI, render and **save acknowledgment** under 30 seconds in complex journeys. Failure at the deadline must display a clearly marked available result, not a fabricated route.
 
 No claim of passing the full 30-second SLA until those instrumented real-flow tests pass.
+
+## 2026-11-09: real read-only domestic source bridge
+Pilot page: `/sh9/smart-travel/public-transport/smart-trip/v5/parallel/local-test.html`.
+
+The live local pilot reuses the **existing Matrix V4** validated service adapters:
+- Official SHA-256 checked BKK 17/19/41/260 snapshot via `smart-trip-bkk-v1107.mjs`, no live bus/tram GPS.
+- MÁV and Volán **only** from preexisting, same-origin local IndexedDB datasets through the existing two isolated Web Workers, no dataset upload, DB creation, or cloud writes.
+- Each provider searches one **explicit** operator-specific stop pair. The V4 Matrix engine verifies that full pair with operator provenance and its own strict timetable rules.
+- All three read-only lanes are dispatched simultaneously by the V5 deadline coordinator. The total budget includes the local rules load and the pilot display.
+- One nominated **primary provider** can produce a verified *stop-to-stop* candidate. The other two report only diagnostics; **different stop-pairs are never compared as interchangeable routes or spliced together into a door-to-door itinerary**.
+- A 29.8 s abort guard and the V5 max 30 s budget stop slow providers. The user can cancel.
+- No Google Routes requests, no LLM, no remote private GTFS transfer, no authenticated save, and no changes to the original production routes/UI.
+
+A missing local MÁV/Volán GTFS dataset, stale BKK snapshot, uncovered stop name, invalid date or unverified transfer produces an honest no-route state. A successful *test* does **not** yet prove the 30 s SLA for real multi-operator end-to-end travel with AI and cloud save.
+
+Automated regression:
+`node --test healthhub/tests/sho-smart-trip-v5-local-sources.test.mjs`
+
+**Next integration gate**: legally usable verified walking connections/canonical interchanges, full eligible BKK/MÁV/Volán feed coverage and normalized door-to-door route composition, then opt-in Google Routes + permissible AI summary, with My Trips save acknowledgment within the 30 s overall SLA. No real-money Google invocation is automatically enabled.
