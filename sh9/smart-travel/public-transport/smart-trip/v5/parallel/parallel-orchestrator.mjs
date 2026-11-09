@@ -9,18 +9,14 @@ const clock=()=>globalThis.performance?.now?.()??Date.now();
 const clampNumber=n=>Number.isFinite(n)&&n>=0;
 const notify=(fn,event)=>{try{fn(event)}catch{/* UI callbacks must not stop a search */}};
 
-export function validCandidate(c,source){
- return !!c&&typeof c==="object"&&!Array.isArray(c)&&
-  c.source===source&&typeof c.id==="string"&&c.id.length>0&&c.id.length<=120&&
-  c.provenance==="synthetic"||false;
-}
 // Source and metric validation is centralized, with no trust escalation:
 // a Google result can never be presented as independently operator-verified.
 export function normalizedCandidate(c,source){
  if(!c||typeof c!=="object"||Array.isArray(c)||
   c.source!==source||typeof c.id!=="string"||!c.id.trim()||c.id.length>120||
   !["synthetic","google","operator"].includes(c.provenance)||
-  (source==="google"&&c.provenance!=="google"&&c.provenance!=="synthetic")||
+  ((source==="google"&&c.provenance==="operator")||
+   (source!=="google"&&c.provenance==="google"))||
   !Number.isFinite(c.travelMinutes)||c.travelMinutes<=0||c.travelMinutes>1440||
   !clampNumber(c.walkMeters)||c.walkMeters>20000||
   !Number.isInteger(c.transfers)||c.transfers<0||c.transfers>12||
