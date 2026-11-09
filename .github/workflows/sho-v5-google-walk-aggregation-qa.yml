@@ -1,0 +1,42 @@
+name: SHO V5 Google walking aggregation QA
+on:
+  push:
+    branches: [fix/sho-v5-consecutive-walk-steps-20261109]
+    paths:
+      - 'sh9/smart-travel/public-transport/smart-trip/v5/universal/google-walk-summary-v1.mjs'
+      - 'sh9/smart-travel/public-transport/smart-trip/v5/universal/smart-trip-v5-api-ui.mjs'
+      - 'sh9/smart-travel/public-transport/smart-trip/index.html'
+      - 'healthhub/tests/sho-v5-google-walk-summary.test.mjs'
+      - 'healthhub/tests/sho-v5-lena-independent-bkk.test.mjs'
+      - 'healthhub/tests/sho-v5-dev-no-api-quota.test.mjs'
+      - '.github/workflows/sho-v5-google-walk-aggregation-qa.yml'
+  pull_request:
+    paths:
+      - 'sh9/smart-travel/public-transport/smart-trip/v5/universal/google-walk-summary-v1.mjs'
+      - 'sh9/smart-travel/public-transport/smart-trip/v5/universal/smart-trip-v5-api-ui.mjs'
+      - 'sh9/smart-travel/public-transport/smart-trip/index.html'
+      - 'healthhub/tests/sho-v5-google-walk-summary.test.mjs'
+      - 'healthhub/tests/sho-v5-lena-independent-bkk.test.mjs'
+      - 'healthhub/tests/sho-v5-dev-no-api-quota.test.mjs'
+      - '.github/workflows/sho-v5-google-walk-aggregation-qa.yml'
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Static syntax
+        run: |
+          node --check sh9/smart-travel/public-transport/smart-trip/v5/universal/google-walk-summary-v1.mjs
+          node --check sh9/smart-travel/public-transport/smart-trip/v5/universal/smart-trip-v5-api-ui.mjs
+      - name: Google walking grouping, V5 intake and Léna isolation
+        run: |
+          node --test healthhub/tests/sho-v5-google-walk-summary.test.mjs
+          node --test healthhub/tests/sho-v5-dev-no-api-quota.test.mjs
+          node --test healthhub/tests/sho-v5-lena-independent-bkk.test.mjs
+          node --test healthhub/tests/sho-smart-trip-v5-main-intake.test.mjs
