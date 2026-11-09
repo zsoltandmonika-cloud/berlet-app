@@ -14,7 +14,7 @@ function storage(initial={}) {
  return {getItem:k=>m.has(k)?m.get(k):null,setItem:(k,v)=>m.set(k,String(v)),removeItem:k=>m.delete(k),dump:()=>Object.fromEntries(m)};
 }
 function makeApp({callback=false,accountId='dbid-new-QbVL0JOo',expected='QbVL0JOo'}={}) {
- const state='hhbridge_123456789012345678901234';
+ const state='web_123456789012345678901234';
  const pk={verifier:'test-pkce',state,expectedSuffix:expected,createdAt:Date.now()};
  const local=storage({'hh-dropbox-token-v2':JSON.stringify(oldToken),...(callback?{'hh-dropbox-pkce-v2':JSON.stringify(pk)}:{})});
  const session=storage();
