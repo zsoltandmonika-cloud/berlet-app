@@ -84,6 +84,7 @@ class MainActivity : ComponentActivity() {
     private var registryCheckButton: Button? = null
     private var registryCheckResult: TextView? = null
     private var nativeDropboxAccountLabel: TextView? = null
+    private var nativeDropboxRepairLabel: TextView? = null
     private var pendingScheduleEnable = false
     private var resilientSummary: TextView? = null
     private lateinit var otaSummary: TextView
@@ -559,6 +560,14 @@ class MainActivity : ComponentActivity() {
             setPadding(4, 8, 4, 4)
         }
         nativeDropboxAccountLabel?.let { root.addView(it) }
+        nativeDropboxRepairLabel = TextView(this).apply {
+            text = prefs.getString("dropbox_last_repair_status_v1", "ℹ A régi Dropbox-engedély fiókazonosítója nem ellenőrizhető új jóváhagyás nélkül.")
+            textSize = 13f
+            setTextColor(0xFF315F98.toInt())
+            setPadding(4, 6, 4, 10)
+            setTextIsSelectable(true)
+        }
+        nativeDropboxRepairLabel?.let { root.addView(it) }
         root.addView(Button(this).apply {
             text = "🔐 Dropbox-fiók ellenőrzése / váltása"
             setOnClickListener { requestMatchedDropboxLogin() }
@@ -1786,6 +1795,12 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    private fun showDropboxRepairStatus(message: String) {
+        // Diagnostic text only. Never store OAuth codes, passwords, or access tokens here.
+        prefs.edit().putString("dropbox_last_repair_status_v1", message).apply()
+        nativeDropboxRepairLabel?.text = message
+    }
+
     private fun requestMatchedDropboxLogin() {
         val owner = deviceOwnerProfile()
         if (owner == null) {
@@ -2020,6 +2035,8 @@ class MainActivity : ComponentActivity() {
             editor.remove("dropbox_expected_account_suffix_v1")
         }
         editor.apply()
+        showDropboxRepairStatus("⏳ Dropbox-fiók jóváhagyása elindult. Várt fiókvég: " +
+            (expectedSuffix ?: "nincs megadva") + ". Ha nem érkezik visszaigazolás, a korábbi kapcsolat érintetlen.")
 
         val builder = Uri.parse("https://www.dropbox.com/oauth2/authorize").buildUpon()
             .appendQueryParameter("client_id", DROPBOX_APP_KEY)
@@ -2041,21 +2058,27 @@ class MainActivity : ComponentActivity() {
         if (error != null) {
             prefs.edit().remove("dropbox_expected_account_suffix_v1").apply()
             status.text = "Dropbox engedélyezés sikertelen: $error. A meglévő natív kapcsolat megmaradt."
+            showDropboxRepairStatus("⛔ Dropbox jóváhagyás megszakadt: $error. Régi kapcsolat megmaradt.")
             return
         }
-        val code = uri.getQueryParameter("code") ?: return
+        val code = uri.getQueryParameter("code") ?: run {
+            showDropboxRepairStatus("⛔ A Dropbox visszairányítás nem tartalmazott engedélyezési kódot. Régi kapcsolat megmaradt.")
+            return
+        }
         val state = uri.getQueryParameter("state")
         val expected = prefs.getString("dropbox_oauth_state", null)
         val verifier = prefs.getString("dropbox_pkce_verifier", null)
         val profile = prefs.getString("dropbox_pending_profile", null) ?: selectedProfile()
         if (state.isNullOrBlank() || state != expected || verifier.isNullOrBlank()) {
             status.text = "Dropbox OAuth állapotellenőrzés sikertelen."
+            showDropboxRepairStatus("⛔ Dropbox visszairányítás sikertelen (állapotellenőrzés). A korábbi kapcsolat megmaradt.")
             return
         }
 
         scope.launch {
             try {
                 status.text = "Dropbox kapcsolat befejezése…"
+                showDropboxRepairStatus("🔄 Dropbox jóváhagyás visszaérkezett. Az új fiók azonosítójának ellenőrzése folyamatban…")
                 val tokenJson = withContext(Dispatchers.IO) {
                     exchangeCode(code, verifier)
                 }
@@ -2078,6 +2101,7 @@ class MainActivity : ComponentActivity() {
                     status.text = "⛔ Másik Dropbox-fiók lett kiválasztva. Kapott fiókvég: " +
                         (actualSuffix ?: "nem ellenőrizhető") +
                         ", várt: " + expectedSuffix + ". A korábbi Dropbox-kapcsolat megmaradt."
+                    showDropboxRepairStatus(status.text.toString())
                     return@launch
                 }
                 val owner = bindOwnerIfNeeded(profile)
@@ -2096,6 +2120,7 @@ class MainActivity : ComponentActivity() {
                 nativeDropboxAccountLabel?.text = nativeDropboxAccountText()
                 status.text = "✅ Natív Dropbox-fiók csatlakoztatva: " +
                     (actualSuffix ?: "azonosító ismeretlen") + ". A telefon tulajdonosa változatlan."
+                showDropboxRepairStatus(status.text.toString())
                 DailyContentScheduler.runNow(this@MainActivity)
                 OrchestratorScheduler.schedule(this@MainActivity)
                 OrchestratorScheduler.runNow(this@MainActivity)
@@ -2103,6 +2128,7 @@ class MainActivity : ComponentActivity() {
                 ResilientHealthSync.schedule(this@MainActivity)
             } catch (e: Exception) {
                 status.text = "Dropbox kapcsolat hiba: ${e.message ?: e.javaClass.simpleName}"
+                showDropboxRepairStatus("⛔ " + status.text.toString() + ". A korábbi kapcsolatot nem töröltük.")
             }
         }
     }

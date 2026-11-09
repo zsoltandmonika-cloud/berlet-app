@@ -75,7 +75,7 @@ test('Premium Glass correction is scoped to the Admin and deployed with cache bu
  assert.match(css,/\.hhRegOld504/);
  assert.match(css,/html\[data-hh-inline-admin="yes"\]/);
  assert.match(home,/hh-one-rag-v500\.js\?v=504-glass-top-left(?:&remote=1041)?&repair=503&device=504(?:&fix=755)?/);
- assert.match(home,/device-registry-v401\.js\?v=401-reversible-housekeeping&admin=748&ui=749&device=504(?:&fix=755)?(?:&account=815)?/);
+ assert.match(home,/device-registry-v401\.js\?v=401-reversible-housekeeping&admin=748&ui=749&device=504(?:&fix=755)?(?:&account=(?:815|816))?/);
  assert.match(home,/hh-admin-device-contrast-v749\.css\?v=749-contrast&device=504/);
  assert.match(digital,/hh-one-rag-v500\.js\?v=504-glass-top-left(?:&remote=1041)?&repair=503&device=504(?:&fix=755)?/);
 });

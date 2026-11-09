@@ -11,9 +11,9 @@ android {
         applicationId = "hu.zsoltmonika.healthhubbridge"
         minSdk = 26
         targetSdk = 35
-        versionCode = 42
-        versionName = "0.15.15"
-        // v0.15.15/build42: safe Dropbox account match & explicit native relink for phone-registry diagnosis.
+        versionCode = 43
+        versionName = "0.15.16"
+        // v0.15.16/build43: persistent OAuth return diagnosis, no credential/data reset; Zsolt-only staged OTA.
         // Signed OTA promotion is separately approved and certificate-gated.
         // Actual signed publication remains separately approved and certificate-gated.
         // No signed OTA is published by merging: release requires manual approval.
