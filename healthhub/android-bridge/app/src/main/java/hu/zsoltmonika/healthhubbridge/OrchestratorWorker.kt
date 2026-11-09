@@ -214,10 +214,10 @@ class OrchestratorWorker(
     override suspend fun doWork(): Result {
         val prefs = applicationContext.getSharedPreferences(SyncScheduler.PREFS, Context.MODE_PRIVATE)
         // New central phone presence must not depend on Dropbox auth or its account ID.
-        // It remains disabled until explicit Zsolt-owner pairing.
+        // It remains disabled until explicit pairing by the phone's owner.
         val id = deviceId(prefs)
         val owner = ownerProfile(prefs)
-        if (FamilyDeviceCentral.prepared(prefs) && owner == "zsolt") {
+        if (FamilyDeviceCentral.prepared(prefs) && (owner == "zsolt" || owner == "monika")) {
             try {
                 FamilyDeviceCentral.heartbeat(prefs, owner, id, BuildConfig.VERSION_NAME)
             } catch (_: Exception) {
