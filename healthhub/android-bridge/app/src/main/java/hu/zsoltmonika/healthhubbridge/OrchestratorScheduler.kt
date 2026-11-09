@@ -9,6 +9,7 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import java.util.concurrent.TimeUnit
+import java.util.UUID
 
 object OrchestratorScheduler {
     private const val PERIODIC = "healthhub-orchestrator-command-watch"
@@ -32,7 +33,7 @@ object OrchestratorScheduler {
         )
     }
 
-    fun runNow(context: Context) {
+    fun runNow(context: Context): UUID {
         val constraints = Constraints.Builder()
             .setRequiredNetworkType(NetworkType.CONNECTED)
             .build()
@@ -45,5 +46,6 @@ object OrchestratorScheduler {
             ExistingWorkPolicy.REPLACE,
             req
         )
+        return req.id
     }
 }
