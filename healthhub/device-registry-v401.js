@@ -68,16 +68,19 @@ function elIsInteracting(){
 }
 function panel(force){
  // Avoid replacing the card and buttons while Admin is being scrolled.
- if(!force&&window.hhAdminScrollActiveV748?.()&&document.getElementById(PANEL))return;
+ if(document.getElementById(PANEL)&&window.hhAdminScrollActiveV748?.())return;
  var ov=document.getElementById('haOv'),body=document.getElementById('haBody');
  if(!ov||!body||!ov.classList.contains('on'))return;
- if(!force&&(Date.now()<interactionUntil||elIsInteracting()))return;
+ if((!force&&(Date.now()<interactionUntil||elIsInteracting()))||
+    (elIsInteracting()&&document.activeElement?.matches?.('input,textarea,select')))return;
  var el=document.getElementById(PANEL);
  if(!el){el=document.createElement('section');el.id=PANEL;var anchor=document.getElementById('hhSyncOrchestrator305');if(anchor)anchor.insertAdjacentElement('beforebegin',el);else body.prepend(el)}
  var suffix=cloud()&&typeof api().accountHint==='function'?api().accountHint():null;
  var accountNotice=suffix?'Webes Dropbox fiókazonosító vége: '+clean(suffix):'Webes Dropbox azonosító nem elérhető';
  var nativeCount=devices.filter(function(d){return d&&d.deviceType==='android'}).length;
- var html='<div class="hhRegHead401"><div><h3>📱 Családi eszközregiszter · v401</h3><small>Biztonságos housekeeping · fizikai telefononként egy kijelölt eszköz</small><small>'+accountNotice+' · Android-jelentések: '+nativeCount+'</small></div><span>'+(cloud()?'☁️ Dropbox':'⚪ Offline')+'</span></div>';
+ var central=window.HH_FAMILY_DEVICE_CENTRAL_V1;
+  if(central)central.begin();
+  var html=(central?central.render():'')+'<div class="hhRegHead401"><div><h3>📱 Családi eszközregiszter · v401</h3><small>Biztonságos housekeeping · fizikai telefononként egy kijelölt eszköz</small><small>'+accountNotice+' · Android-jelentések: '+nativeCount+'</small></div><span>'+(cloud()?'☁️ Dropbox':'⚪ Offline')+'</span></div>';
  if(error)html+='<p class="hhRegWarn401" role="alert">'+clean(error)+'</p>';
  if(note)html+='<p class="hhRegNote401" role="status">'+clean(note)+'</p>';
  if(!registry)html+='<p class="hhRegNote401">A regiszter még nem töltődött be; addig távoli parancs nem indul.</p>';
@@ -97,7 +100,8 @@ function panel(force){
   var freshSelected=selected&&online(selected);
   var recentOther=items.filter(function(d){return !chosen(d)&&!excluded.includes(d.deviceId)&&online(d)})
    .sort(function(a,b){return Date.parse(b.lastSeenAt||0)-Date.parse(a.lastSeenAt||0)});
-  var oldOthers=items.filter(function(d){return !chosen(d)&&!recentOther.includes(d)});
+  var oldOthers=items.filter(function(d){return !chosen(d)&&!recentOther.includes(d)&&!excluded.includes(d.deviceId)});
+   var oldArchived=items.filter(function(d){return excluded.includes(d.deviceId)});
   var state=freshSelected?'✅ kijelölt fő telefon frissen jelentkezett':
    primary?'⚠️ kijelölt fő telefonja nem adott friss jelentést':'⚠️ nincs kijelölt fő telefon';
   html+='<div class="hhRegGroup401"><h4>'+name+' · '+state+'</h4>';
@@ -117,7 +121,8 @@ function panel(force){
    html+='<details class="hhRegOld504"><summary>Korábbi regisztrációk ('+oldOthers.length+') · kibontás</summary>'+
        oldOthers.map(function(d){return row(d,p)}).join('')+'</details>';
   }
-  if(!items.length){
+  if(oldArchived.length)html+='<details class="hhRegOld504"><summary>📦 Archivált telefonbejegyzések ('+oldArchived.length+')</summary>'+oldArchived.map(function(d){return row(d,p)}).join('')+'</details>';
+   if(!items.length){
    html+='<p class="hhRegNoNative401">'+(primary?
       'A korábban kijelölt telefonhoz most nincs ellenőrizhető Android-bejegyzés. ':
       'Még nem érkezett ellenőrizhető Android-jelentés ehhez a profilhoz. ')+
@@ -129,17 +134,26 @@ function panel(force){
   html+='</div>';
  });
  var web=devices.filter(function(d){return d.deviceType!=='android'}),others=devices.filter(function(d){return d.deviceType==='android'&&!isPhone(d)});
- html+='<details class="hhRegMinor401"><summary>💻 Webes kliensek ('+web.length+') és ismeretlen Android ('+others.length+')</summary>'+
+ var legacy=web.concat(others),hidden=registry&&registry.archived||[];
+  var normalLegacy=legacy.filter(function(d){return !hidden.includes(d.deviceId)});
+  var archivedLegacy=legacy.filter(function(d){return hidden.includes(d.deviceId)});
+  html+='<details class="hhRegMinor401"><summary>💻 Webes kapcsolatok ('+normalLegacy.length+') és archiváltak ('+archivedLegacy.length+')</summary>'+
   '<p>A webes kliensek nem minősülnek fizikai HealthHub Connect telefonnak. Csak megtekinthetők, távoli Android sync célpontként nem választhatók.</p>'+
-  web.concat(others).map(function(d){return '<p>'+label(d)+' · '+clean(stamp(d.lastSeenAt))+'</p>'}).join('')+'</details>';
+  normalLegacy.map(function(d){return '<p>'+label(d)+' · '+clean(stamp(d.lastSeenAt))+
+   ' <button data-hh-reg-action="archive" data-id="'+clean(d.deviceId)+'">✕ Eltávolítás a listából</button></p>'}).join('')+
+  (archivedLegacy.length?'<details class="hhRegArchived"><summary>📦 Archivált webes bejegyzések ('+archivedLegacy.length+')</summary>'+
+   archivedLegacy.map(function(d){return '<p>'+label(d)+' <button data-hh-reg-action="restore" data-id="'+clean(d.deviceId)+'">↩ Visszaállítás</button></p>'}).join('')+'</details>':'')+'</details>';
  html+='<div class="hhRegBottom401"><button type="button" data-hh-reg-action="refresh">↻ Állapot frissítése</button>'+
  (registry&&registry.history.length?'<button type="button" data-hh-reg-action="undo">↩ Utolsó változás visszavonása</button>':'')+'</div>'+
- '<p class="hhRegNote401">A kijelölés és az archiválás csak külön Dropbox-metaadat; nem töröl eszköz- vagy egészségügyi adatot. Nincs automatikus duplikátum-összevonás. Először nyisd meg a HealthHub Connectet a céltelefonon, és a friss utolsó jelentkezés alapján azonosítsd. A PENDING nem jelent kész szinkront, és a DONE sem bizonyít friss Samsung Health-adatot.</p>';
+ '<p class="hhRegNote401">A kézi eltávolítás archiválás, nem felhőfájl-törlés. Minden művelet előtt biztonsági mentés készül. A kijelölés és az archiválás csak külön Dropbox-metaadat; nem töröl eszköz- vagy egészségügyi adatot. Nincs automatikus duplikátum-összevonás. Először nyisd meg a HealthHub Connectet a céltelefonon, és a friss utolsó jelentkezés alapján azonosítsd. A PENDING nem jelent kész szinkront, és a DONE sem bizonyít friss Samsung Health-adatot.</p>';
  if(el.innerHTML===html)return;
+  var typedSuffix=el.querySelector('#hhRegExpectedAccount401')?.value||'';
  // Preserve visual position and expanded sections on background refresh.
  var openDetails=Array.from(el.querySelectorAll('details')).map(function(d,i){return d.open?i:-1}).filter(function(i){return i>=0});
  var top=body.scrollTop,left=body.scrollLeft;
  el.innerHTML=html;
+  if(typedSuffix&&el.querySelector('#hhRegExpectedAccount401'))
+   el.querySelector('#hhRegExpectedAccount401').value=typedSuffix;
  var details=el.querySelectorAll('details');
  openDetails.forEach(function(i){if(details[i])details[i].open=true});
  if(body.scrollTop!==top||body.scrollLeft!==left)body.scrollTo({top:top,left:left,behavior:'instant'});
@@ -149,7 +163,8 @@ function style(){
  var x=document.createElement('style');x.id=STYLE;x.textContent=
  '#'+PANEL+'{position:relative;isolation:isolate;z-index:66;pointer-events:auto;background:#fff;border:1px solid #dce8ee;border-radius:17px;padding:12px;margin:10px 0;color:#173f62;font:inherit}'+
  '#'+PANEL+' button{border:1px solid #c9dce9;border-radius:10px;padding:8px 10px;background:#f3f9fc;color:#173f62;font-size:11px;font-weight:800;cursor:pointer;touch-action:manipulation;min-height:38px}'+
- '.hhRegReconcile401{display:flex;flex-direction:column;align-items:stretch;gap:7px;padding:10px;border:1px solid #bddef3;border-radius:12px;background:#eef7fd;margin:10px 0}.hhRegReconcile401 label{font-size:11px;font-weight:750}.hhRegReconcile401 input{font:inherit;font-size:14px;min-height:38px;padding:8px;border:1px solid #bcd1e0;border-radius:8px;color:#173f62;background:white}.hhRegReconcile401 small{font-size:10px;line-height:1.4;color:#527188}'+
+ '.hhFcPanel{border:1px solid #bed8ee;border-radius:14px;padding:12px;background:linear-gradient(135deg,#eff8ff,#e9f2fa);margin-bottom:12px;color:#183b65}.hhFcPanel h4{margin:0 0 5px;font-size:14px}.hhFcPanel small{font-size:10px;display:block;color:#547391;line-height:1.5}.hhFcPanel p{font-size:11px;line-height:1.5}.hhFcPanel button{margin-top:6px}.hhFcLine{padding:9px;margin:7px 0;border-radius:9px;background:#fff;font-size:11px}.hhFcPair summary{font-weight:700;cursor:pointer;font-size:11px}.hhFcPair input{width:100%;box-sizing:border-box;border:1px solid #bad0e2;padding:10px;border-radius:9px;min-height:44px;background:#fff}.hhFcPair label{font-size:11px;display:block;margin:8px 0}.hhFcError{color:#a02b42!important}.hhFcNote{color:#1d6b50!important}.hhRegArchived{margin:8px 0}.hhRegMinor401 p button{margin:4px 0 4px 8px}'+
+  '.hhRegReconcile401{display:flex;flex-direction:column;align-items:stretch;gap:7px;padding:10px;border:1px solid #bddef3;border-radius:12px;background:#eef7fd;margin:10px 0}.hhRegReconcile401 label{font-size:11px;font-weight:750}.hhRegReconcile401 input{font:inherit;font-size:14px;min-height:38px;padding:8px;border:1px solid #bcd1e0;border-radius:8px;color:#173f62;background:white}.hhRegReconcile401 small{font-size:10px;line-height:1.4;color:#527188}'+
   '.hhRegHead401{display:flex;justify-content:space-between;gap:8px;align-items:start}.hhRegHead401 h3{font-size:15px;margin:0 0 4px}.hhRegHead401 small,.hhRegRow401 small{font-size:10px;color:#648094;line-height:1.5;display:block}.hhRegHead401 span{font-size:9px;white-space:nowrap}.hhRegGroup401{background:#f5f9fc;padding:9px;border-radius:13px;margin-top:10px}.hhRegGroup401 h4{font-size:13px;margin:0 0 8px}.hhRegRow401{background:#fff;border:1px solid #e3edf2;padding:10px;border-radius:11px;margin-top:6px;overflow-wrap:anywhere}.hhRegRow401 b{font-size:11px}.hhRegId401{color:#698399;font-size:9px}.hhRegBtns401,.hhRegBottom401{display:flex;flex-wrap:wrap;gap:7px;margin-top:7px}.hhRegMinor401{margin:12px 2px}.hhRegMinor401 summary{font-size:11px;cursor:pointer}.hhRegMinor401 p,.hhRegNote401{color:#627f91;background:#f5f9fc;padding:9px;border-radius:9px;font-size:10px;line-height:1.55}.hhRegWarn401{color:#a13333;background:#ffeceb;padding:9px;border-radius:9px;font-size:11px}';
  document.head.appendChild(x);
 }
@@ -170,7 +185,8 @@ async function saveChange(action,dev){
   var current=await read();
   var present=await window.hhOrchestratorDevices305();
   var d=present.find(function(x){return dev&&x.deviceId===dev});
-  if(action!=='undo'&&(!d||!isPhone(d)))throw Error('A telefon nem azonosítható. Frissítsd az eszközlistát.');
+  if(action!=='undo'&&(!d||!idOK(d.deviceId)||(action==='choose'&&!isPhone(d))))
+    throw Error('A bejegyzés nem azonosítható. Frissítsd az eszközlistát.');
   var next=normalize(current),pre={activePhones:Object.assign({},current.activePhones),archived:current.archived.slice()};
   if(action==='choose'){
    if(next.activePhones[d.activeProfile]===d.deviceId&&!next.archived.includes(d.deviceId))return;
@@ -186,7 +202,7 @@ async function saveChange(action,dev){
   }else if(action==='archive'){
    if(Object.values(next.activePhones).includes(d.deviceId))throw Error('A kijelölt fő telefon nem archiválható. Előbb válassz másikat.');
    if(next.archived.includes(d.deviceId))return;
-   if(!confirm('Archiválod a régi regisztrációt? Nem törlünk fájlokat.\n'+d.deviceId))return;
+   if(!confirm('Eltávolítod a régi kapcsolatot az aktív listából? Biztonsági mentés készül, nem törlünk fájlokat.\n'+d.deviceId))return;
    next.archived.push(d.deviceId);
   }else if(action==='restore'){
    if(!next.archived.includes(d.deviceId))return;
@@ -243,7 +259,12 @@ function attach(){
   var b=e.target.closest&&e.target.closest('button[data-hh-reg-action]');
   if(!b||!b.closest('#'+PANEL))return;
   var action=b.getAttribute('data-hh-reg-action'),id=b.getAttribute('data-id');
-  if(action==='account-switch'){
+  if(action.startsWith('central-')){
+    var center=window.HH_FAMILY_DEVICE_CENTRAL_V1;
+    if(center)void center.click(action);
+    return;
+   }
+   if(action==='account-switch'){
    var input=document.getElementById('hhRegExpectedAccount401');
    var expected=String(input&&input.value||'').trim();
    if(!/^[A-Za-z0-9_-]{8}$/.test(expected)){error='Pontosan 8 karakteres fiókazonosító szükséges.';panel(true);return}
@@ -255,7 +276,8 @@ function attach(){
   if(action==='refresh')refresh(true);else if(action==='sync')sync(id);
   else saveChange(action,id);
  });
- observer=new MutationObserver(function(){if(ov.classList.contains('on'))refresh()});
+ window.addEventListener('healthhub:central-device-registry-changed',function(){panel(true)});
+  observer=new MutationObserver(function(){if(ov.classList.contains('on'))refresh()});
  observer.observe(ov,{attributes:true,attributeFilter:['class']});
  new MutationObserver(function(){if(ov.classList.contains('on')&&!document.getElementById(PANEL))panel(true)}).observe(body,{childList:true});
  timer=setInterval(function(){if(ov.classList.contains('on')&&document.visibilityState==='visible'&&Date.now()>interactionUntil)refresh()},60000);
