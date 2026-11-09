@@ -21,6 +21,20 @@ function readToken(){try{return JSON.parse(localStorage.getItem(TOKEN_KEY)||'nul
 function saveToken(t){localStorage.setItem(TOKEN_KEY,JSON.stringify(t))}
 function clearToken(){localStorage.removeItem(TOKEN_KEY);localStorage.removeItem(PKCE_KEY)}
 function connected(){var t=readToken();return !!(t&&t.refresh_token)}
+// A verified cross-account switch starts in read-only mode. The existing
+// Health Connect/Activity/Sleep viewers may download their canonical sources,
+// but local Vault merges and Vault uploads require a separate explicit opt-in.
+var RECONCILE_KEY='hh-dropbox-readonly-reconcile-v1';
+function reconcileGuard(){
+ try{
+  var guard=JSON.parse(localStorage.getItem(RECONCILE_KEY)||'null'),token=readToken();
+  return guard&&guard.expectedSuffix&&token&&
+   String(token.account_id||'').slice(-8)===guard.expectedSuffix?guard:null;
+ }catch(e){return null}
+}
+function requireVaultWriteAllowed(){
+ if(reconcileGuard())throw Error('Dropbox-fiók ellenőrző mód: adatfeltöltés és Vault-egyesítés szünetel.');
+}
 
 function validAccountSuffix(s){return typeof s==='string'&&/^[A-Za-z0-9_-]{8}$/.test(s)}
 async function connect(expectedSuffix){
@@ -72,11 +86,16 @@ async function handleCallback(codeOverride,stateOverride){
   return;
  }
  localStorage.removeItem('hh-dropbox-account-repair-note-v1');
+ // Matched account reauthorization must not silently merge/overwrite local
+ // profile records on this phone during the first canonical-source check.
+ if(pk.expectedSuffix)localStorage.setItem(RECONCILE_KEY,JSON.stringify({
+  expectedSuffix:pk.expectedSuffix,verifiedAt:new Date().toISOString()
+ }));
  saveToken({access_token:j.access_token,refresh_token:j.refresh_token,expires_at:Date.now()+((Number(j.expires_in)||14400)-60)*1000,scope:j.scope||'',account_id:j.account_id||''});
  localStorage.removeItem(PKCE_KEY);
  history.replaceState({},'',REDIRECT);
  toast('Dropbox Health Vault csatlakoztatva');
- setTimeout(function(){decorate();window.hhDropboxAutoSync&&window.hhDropboxAutoSync(pkey(),'oauth')},80);
+ setTimeout(function(){decorate();if(!reconcileGuard()&&window.hhDropboxAutoSync)window.hhDropboxAutoSync(pkey(),'oauth')},80);
 }
 async function accessToken(){
  var t=readToken();if(!t||!t.refresh_token)throw new Error('A Dropbox nincs csatlakoztatva.');
@@ -88,6 +107,7 @@ async function accessToken(){
 }
 
 async function uploadJsonPath(path,data){
+ requireVaultWriteAllowed();
  var token=await accessToken(),body=JSON.stringify(data,null,2)+'\n';
  var r=await fetch('https://content.dropboxapi.com/2/files/upload',{method:'POST',headers:{Authorization:'Bearer '+token,'Content-Type':'application/octet-stream','Dropbox-API-Arg':JSON.stringify({path:path,mode:'overwrite',autorename:false,mute:true})},body:body});
  var j=await r.json();if(!r.ok)throw new Error(j.error_summary||'Dropbox feltöltési hiba');return j;
@@ -157,7 +177,8 @@ async function snapshot(profile){
 function vaultPath(profile){return '/HealthHub/profiles/'+profile+'-vault.json'}
 function legacyVaultPath(profile){return '/'+profile+'-data.json'}
 async function uploadProfile(profile,silent){
- profile=profile==='monika'?'monika':'zsolt';
+ requireVaultWriteAllowed();
+ profile=profile='monika'?'monika':'zsolt';
  var data=await snapshot(profile);await ensureFolderPath('/HealthHub');await ensureFolderPath('/HealthHub/profiles');var token=await accessToken(),body=JSON.stringify(data);
  var r=await fetch('https://content.dropboxapi.com/2/files/upload',{method:'POST',headers:{Authorization:'Bearer '+token,'Content-Type':'application/octet-stream','Dropbox-API-Arg':JSON.stringify({path:vaultPath(profile),mode:'overwrite',autorename:false,mute:true})},body:body});
  var j=await r.json();if(!r.ok)throw new Error((j.error_summary)||'Dropbox feltöltési hiba');
@@ -204,6 +225,7 @@ async function mergeVault(data){
  decorate();
 }
 async function pullCurrent(){
+ requireVaultWriteAllowed();
  var profile=pkey(),data=await download(profile);await mergeVault(data);toast(pname(profile)+' Health Vault letöltve és egyesítve');
 }
 async function remoteMeta(profile){
@@ -217,7 +239,7 @@ async function remoteMeta(profile){
 }
 var syncBusy=false,lastCheckedProfile='',lastCheckedAt=0;
 async function autoSync(profile,reason){
- profile=profile||pkey();if(!connected()||syncBusy)return false;
+ profile=profile||pkey();if(!connected()||syncBusy||reconcileGuard())return false;
  var now=Date.now();if(profile===lastCheckedProfile&&now-lastCheckedAt<15000)return false;
  lastCheckedProfile=profile;lastCheckedAt=now;syncBusy=true;
  try{
@@ -234,6 +256,15 @@ async function autoSync(profile,reason){
  }finally{syncBusy=false;decorate()}
 }
 window.hhDropboxConnect=function(){connect().catch(function(e){console.error(e);toast(e.message||'Dropbox csatlakozási hiba')})};
+window.hhDropboxApproveReconcile=function(){
+ if(!reconcileGuard())return;
+ localStorage.removeItem(RECONCILE_KEY);
+ toast('✅ A Dropbox-fiók ellenőrizve. A szinkron ismét engedélyezhető.');
+ decorate();
+ // The user explicitly chose to resume local merging. Automatic app imports
+ // and device-owner pairing are not changed by this browser-only action.
+ window.hhDropboxAutoSync&&window.hhDropboxAutoSync(pkey(),'manual-approval');
+};
 window.hhDropboxSwitchToAccount=function(expected){
  if(!validAccountSuffix(expected))return Promise.reject(Error('Pontosan 8 karakteres Dropbox-fiókazonosító szükséges.'));
  return connect(expected);
@@ -259,8 +290,10 @@ function decorate(){
  var profile=pkey(),on=connected(),card=document.createElement('div');card.id='hhDropboxVaultCard';card.className='hhDbxCard';
  var push=localStorage.getItem('hh-dropbox-last-push-'+profile),pull=localStorage.getItem('hh-dropbox-last-pull-'+profile),sync=localStorage.getItem('hh-dropbox-last-sync-'+profile);
  var repairNote=localStorage.getItem('hh-dropbox-account-repair-note-v1');
+ var guard=reconcileGuard();
  card.innerHTML='<div class="hhDbxTop"><div class="hhDbxIcon">◆</div><div class="hhDbxText"><b>Dropbox Health Vault</b><small>Dedikált App Folder · '+esc(pname(profile))+' profil</small></div><span class="hhDbxStatus '+(on?'':'off')+'">'+(on?'Csatlakoztatva':'Nincs kapcsolat')+'</span></div>'+
  (repairNote?'<div class="hhDbxMeta" role="alert" style="color:#a13333;font-weight:700">'+esc(repairNote)+'</div>':'')+
+ (guard?'<div class="hhDbxMeta" role="status" style="background:#e7f5f7;padding:10px;border-radius:9px;color:#194d5f;font-size:11px"><b>🔒 Ellenőrző mód · '+esc(guard.expectedSuffix)+'</b><p>Az Activity/Sleep felhőolvasás működik. A webes Vault-egyesítés és -feltöltés szünetel, amíg a mért adatokat ellenőrzöd.</p><button class="hhDbxBtn alt" onclick="hhDropboxApproveReconcile()">✅ Az adatok ellenőrizve · Vault szinkron engedélyezése</button></div>':'')+
   (on?'<div class="hhDbxActions"><button class="hhDbxBtn" onclick="hhDropboxPush()">Feltöltés</button><button class="hhDbxBtn alt" onclick="hhDropboxPull()">Letöltés + egyesítés</button><button class="hhDbxBtn alt" onclick="hhDropboxDisconnect()">Leválasztás</button></div><div class="hhDbxMeta">Utolsó feltöltés: '+esc(fmt(push))+' · Utolsó letöltés: '+esc(fmt(pull))+'<br>Fájl: '+esc(vaultPath(profile))+'</div>':'<div class="hhDbxActions"><button class="hhDbxBtn" onclick="hhDropboxConnect()">Dropbox csatlakoztatása</button></div><div class="hhDbxMeta">Egyszeri Dropbox engedélyezés szükséges. A HealthHub csak a saját App Folder mappáját használja.</div>');
  var admin=document.getElementById('hhAdminMenuCard');if(admin&&admin.parentNode===root)admin.insertAdjacentElement('afterend',card);else root.insertBefore(card,root.firstChild);
 }
