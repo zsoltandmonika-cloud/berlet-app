@@ -275,7 +275,7 @@
  }
  const METHOD_KEY='sh9-smart-trip-search-method-v1076-';
  const LEGACY_METHOD_KEY='sh9-smart-trip-search-method-v1075-';
- const allowedMethods=new Set(['chatgpt','google','native','lena_native','bkk_gtfs']);
+ const allowedMethods=new Set(['chatgpt','google','native','lena_native','bkk_gtfs','google_api_v5']);
  function searchMethod(){
   return allowedMethods.has(methodSelect?.value)?methodSelect.value:'chatgpt';
  }
@@ -405,10 +405,24 @@
   if(fold(query.from)===fold(query.to)){unavailable('Az indulási és érkezési hely nem lehet azonos.');return}
   if(!/^\d{4}-\d{2}-\d{2}$/.test(query.date)||!/^([01]\d|2[0-3]):[0-5]\d$/.test(query.time)){
    unavailable('Kérlek, válassz érvényes dátumot és időpontot.');return}
+  const method=searchMethod();
+  // V5 uses these same predictive fields and the user's actual selected GPS
+  // coordinates (when available) plus Budapest-local mode/date/time.
+  // Separate mode ONLY. No background/prefetch/automatic paid Google calls.
+  if(method==='google_api_v5'){
+   const response=w.SH9_SMART_TRIP_V5_API?.open?.({
+    query,places:selectedPlaces(),profile:profile(),priority:priority.value
+   });
+   if(response?.status==='ready'){
+    if(results)results.hidden=true;
+    return;
+   }
+   unavailable(response?.message||'A V5 Google API tesztablak nem érhető el. Frissítsd az oldalt.');
+   return;
+  }
   unavailable('Ellenőrzöm az elérhető, hiteles menetrendi adatokat…');
   const instant=whenInstant(query);
   if(!instant){unavailable('A választott időpont nem értelmezhető a budapesti időzónában.');return}
-  const method=searchMethod();
   if(method==='chatgpt'){chatgptHandoff(query);return}
   if(method==='google'){googleHandoff(query);return}
   if(method==='bkk_gtfs'){
