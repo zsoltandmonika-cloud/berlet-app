@@ -15,7 +15,7 @@ import java.security.SecureRandom
  * already authenticated Health Vault web session.
  */
 internal object FamilyDeviceCentral {
-    private const val URL = "https://vhsrupphzcjkdrusonzh.supabase.co/functions/v1/hh-family-device-heartbeat-v1"
+    private const val ENDPOINT = "https://vhsrupphzcjkdrusonzh.supabase.co/functions/v1/hh-family-device-heartbeat-v1"
     private const val SECRET = "family_registry_device_secret_v1"
     private const val ENROLLED = "family_registry_enrollment_started_v1"
     const val RESULT = "family_registry_last_result_v1"
@@ -46,7 +46,7 @@ internal object FamilyDeviceCentral {
         val secret = prefs.getString(SECRET, null) ?: return "not_enrolled"
         if (!Regex("^[a-f0-9]{64}$").matches(secret)) return "invalid_local_secret"
         return withContext(Dispatchers.IO) {
-            val connection = URL(URL).openConnection() as HttpURLConnection
+            val connection = URL(ENDPOINT).openConnection() as HttpURLConnection
             try {
                 connection.requestMethod = "POST"
                 connection.doOutput = true
