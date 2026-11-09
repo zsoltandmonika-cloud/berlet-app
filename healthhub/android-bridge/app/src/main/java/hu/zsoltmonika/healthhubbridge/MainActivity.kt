@@ -31,6 +31,7 @@ import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withTimeoutOrNull
+import kotlinx.coroutines.flow.first
 import hu.zsoltmonika.healthhubbridge.dw.AppDetailLedger
 import hu.zsoltmonika.healthhubbridge.dw.PilotState
 import hu.zsoltmonika.healthhubbridge.dw.UsageAccess
@@ -1787,16 +1788,12 @@ class MainActivity : ComponentActivity() {
         }
         scope.launch {
             try {
-                val wm = WorkManager.getInstance(this@MainActivity)
+                // WorkManager Flow avoids blocking Guava ListenableFuture .get()
+                // and reports the exact, explicitly started one-time work.
                 val work = withTimeoutOrNull(55_000L) {
-                    var state: WorkInfo? = null
-                    while (state?.state?.isFinished != true) {
-                        state = withContext(Dispatchers.IO) {
-                            wm.getWorkInfoById(workId).get()
-                        }
-                        if (state?.state?.isFinished != true) delay(750L)
-                    }
-                    state
+                    WorkManager.getInstance(this@MainActivity)
+                        .getWorkInfoByIdFlow(workId)
+                        .first { info -> info?.state?.isFinished == true }
                 }
                 if (work?.state != WorkInfo.State.SUCCEEDED) {
                     val errorAt = prefs.getLong("last_orchestrator_error_ms", 0L)
