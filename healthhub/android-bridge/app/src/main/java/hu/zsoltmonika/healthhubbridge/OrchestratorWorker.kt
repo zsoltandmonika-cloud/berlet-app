@@ -213,11 +213,19 @@ class OrchestratorWorker(
 
     override suspend fun doWork(): Result {
         val prefs = applicationContext.getSharedPreferences(SyncScheduler.PREFS, Context.MODE_PRIVATE)
-        DropboxVaultClient.ensureCredentialVersion(prefs)
-        if (!DropboxVaultClient.hasRefreshToken(prefs)) return Result.success()
-
+        // New central phone presence must not depend on Dropbox auth or its account ID.
+        // It remains disabled until explicit Zsolt-owner pairing.
         val id = deviceId(prefs)
         val owner = ownerProfile(prefs)
+        if (FamilyDeviceCentral.prepared(prefs) && owner == "zsolt") {
+            try {
+                FamilyDeviceCentral.heartbeat(prefs, owner, id, BuildConfig.VERSION_NAME)
+            } catch (_: Exception) {
+                prefs.edit().putString(FamilyDeviceCentral.RESULT, "temporarily_unavailable").apply()
+            }
+        }
+        DropboxVaultClient.ensureCredentialVersion(prefs)
+        if (!DropboxVaultClient.hasRefreshToken(prefs)) return Result.success()
 
         return try {
             ensureFolders(prefs)
