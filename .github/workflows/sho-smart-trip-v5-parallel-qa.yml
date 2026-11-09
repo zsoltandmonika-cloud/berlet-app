@@ -4,15 +4,19 @@ on:
     branches: [feature/sho-smart-trip-v5-parallel-orchestrator-20261109]
     paths:
       - 'sh9/smart-travel/public-transport/smart-trip/v5/parallel/**'
+      - 'sh9/smart-travel/public-transport/smart-trip/v5/universal/**'
       - 'healthhub/tests/sho-smart-trip-v5-parallel.test.mjs'
       - 'healthhub/tests/sho-smart-trip-v5-local-sources.test.mjs'
+      - 'healthhub/tests/sho-smart-trip-v5-universal-address.test.mjs'
       - 'sh9/super-search/matrix-v4/**'
       - '.github/workflows/sho-smart-trip-v5-parallel-qa.yml'
   pull_request:
     paths:
       - 'sh9/smart-travel/public-transport/smart-trip/v5/parallel/**'
+      - 'sh9/smart-travel/public-transport/smart-trip/v5/universal/**'
       - 'healthhub/tests/sho-smart-trip-v5-parallel.test.mjs'
       - 'healthhub/tests/sho-smart-trip-v5-local-sources.test.mjs'
+      - 'healthhub/tests/sho-smart-trip-v5-universal-address.test.mjs'
       - 'sh9/super-search/matrix-v4/**'
       - '.github/workflows/sho-smart-trip-v5-parallel-qa.yml'
 permissions:
@@ -34,7 +38,12 @@ jobs:
         run: |
           node --check sh9/smart-travel/public-transport/smart-trip/v5/parallel/local-source-bridge.mjs
           node --check sh9/smart-travel/public-transport/smart-trip/v5/parallel/local-test-client.mjs
+      - name: Universal address intake syntax
+        run: |
+          node --check sh9/smart-travel/public-transport/smart-trip/v5/universal/universal-request.mjs
+          node --check sh9/smart-travel/public-transport/smart-trip/v5/universal/universal-client.mjs
       - name: Parallel deadlines and read-only real source bridge tests
         run: |
           node --test healthhub/tests/sho-smart-trip-v5-parallel.test.mjs
           node --test healthhub/tests/sho-smart-trip-v5-local-sources.test.mjs
+          node --test healthhub/tests/sho-smart-trip-v5-universal-address.test.mjs
