@@ -5,6 +5,8 @@ on:
     paths:
       - 'sh9/smart-travel/public-transport/smart-trip/v5/parallel/**'
       - 'healthhub/tests/sho-smart-trip-v5-parallel.test.mjs'
+      - 'healthhub/tests/sho-smart-trip-v5-local-sources.test.mjs'
+      - 'sh9/super-search/matrix-v4/**'
       - '.github/workflows/sho-smart-trip-v5-parallel-qa.yml'
   pull_request:
     paths:
@@ -26,5 +28,11 @@ jobs:
         run: |
           node --check sh9/smart-travel/public-transport/smart-trip/v5/parallel/parallel-orchestrator.mjs
           node --check sh9/smart-travel/public-transport/smart-trip/v5/parallel/client.mjs
-      - name: Parallel timing, partial results, abort, and isolation tests
-        run: node --test healthhub/tests/sho-smart-trip-v5-parallel.test.mjs
+      - name: Live local bridge syntax
+        run: |
+          node --check sh9/smart-travel/public-transport/smart-trip/v5/parallel/local-source-bridge.mjs
+          node --check sh9/smart-travel/public-transport/smart-trip/v5/parallel/local-test-client.mjs
+      - name: Parallel deadlines and read-only real source bridge tests
+        run: |
+          node --test healthhub/tests/sho-smart-trip-v5-parallel.test.mjs
+          node --test healthhub/tests/sho-smart-trip-v5-local-sources.test.mjs
