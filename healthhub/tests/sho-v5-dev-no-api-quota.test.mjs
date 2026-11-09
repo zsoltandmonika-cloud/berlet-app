@@ -34,7 +34,7 @@ test("DEV: visible test UI clearly states cost, user confirmation and no quotas"
  assert.match(html,/Nincs SHO-s napi kvóta/);
  assert.match(html,/V5 Google Routes API/);
  assert.doesNotMatch(html,/max\. 1 kérés|legfeljebb 1 Google Routes-hívás naponta|2026\. november 12-én/);
- assert.match(html,/v=1-direct-one-click/);
+ assert.match(html,/v=2-brands-ticket-timeline/);
  assert.match(browser,/development_usage_accounting_unavailable/);
  assert.doesNotMatch(browser,/daily_one_run_or_quota_exceeded/);
  assert.doesNotMatch(html,/st22V5ApiConsent|st22V5ApiDiagnose|st22V5ApiSearch/);
@@ -48,5 +48,5 @@ test("Production launch still needs explicit new release and quota review",()=>{
  assert.match(server,/Go-live must replace this/);
  assert.match(sql,/Existing hh_smart_trip_google_reserve\(\) and _pilot\(\) remain unchanged/);
  assert.doesNotMatch(browser,/api\.openai\.com|evaluateIndependentBkk|evaluateIndependentMav/);
- assert.match(browser,/summarizeGoogleWalks/);
+ assert.match(browser,/renderPremiumRoutes/);
 });
