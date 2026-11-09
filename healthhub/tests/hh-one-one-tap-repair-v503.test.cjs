@@ -97,8 +97,8 @@ test('the entire service issue card is clickable and opens Admin exact target',(
 test('same repair router loads in main and digital HH One without duplicate badges',()=>{
  assert.match(html,/hh-one-repair-routing-v503\.js\?v=503/);
  assert.match(digital,/hh-one-repair-routing-v503\.js\?v=503/);
- assert.match(html,/hh-one-rag-v500\.js\?v=504-glass-top-left&repair=503/);
- assert.match(digital,/hh-one-rag-v500\.js\?v=504-glass-top-left&repair=503/);
+ assert.match(html,/hh-one-rag-v500\.js\?v=504-glass-top-left(?:&remote=1041)?&repair=503/);
+ assert.match(digital,/hh-one-rag-v500\.js\?v=504-glass-top-left(?:&remote=1041)?&repair=503/);
  assert.match(rag,/if\(initialized\)return/);
  assert.match(rag,/hhOneRag500/);
  assert.match(rag,/Nem automatikus javítás|Nem automatikus|NEM igazolja/i);
