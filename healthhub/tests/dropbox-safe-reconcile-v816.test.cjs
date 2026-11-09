@@ -91,3 +91,12 @@ test('admin and native repair refuse silent profile changes or remote deletion',
  assert.match(main,/A korábbi Dropbox-kapcsolat megmaradt/);
  assert.doesNotMatch(source,/localStorage\.clear\(|indexedDB\.deleteDatabase\(/);
 });
+
+test('Admin account reconciliation remains available when the legacy Dropbox device registry is missing',()=>{
+ assert.match(registry,/if\(cloud\(\)\)\{\s+if\(nativeCount===0\)/);
+ assert.doesNotMatch(registry,/if\(registry&&cloud\(\)&&nativeCount===0\)/);
+ assert.match(registry,/A Dropbox-fiók ellenőrzése a régi eszközregiszter betöltése nélkül is elérhető/);
+ assert.match(registry,/data-hh-reg-action="account-switch"/);
+ assert.match(registry,/switchToAccount\(expected\)/);
+ assert.doesNotMatch(registry,/localStorage\.clear\(|indexedDB\.deleteDatabase\(/);
+});
