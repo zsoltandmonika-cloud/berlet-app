@@ -27,6 +27,10 @@ import androidx.health.connect.client.HealthConnectClient
 import androidx.health.connect.client.HealthConnectFeatures
 import androidx.health.connect.client.PermissionController
 import androidx.health.connect.client.permission.HealthPermission
+import androidx.work.WorkInfo
+import androidx.work.WorkManager
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.withTimeoutOrNull
 import hu.zsoltmonika.healthhubbridge.dw.AppDetailLedger
 import hu.zsoltmonika.healthhubbridge.dw.PilotState
 import hu.zsoltmonika.healthhubbridge.dw.UsageAccess
@@ -72,6 +76,9 @@ class MainActivity : ComponentActivity() {
     // One manual export at a time. Repeated SYNC NOW taps must not overlap
     // Dropbox writes or create competing 30-day Health Connect reads.
     private var manualSyncInProgress = false
+    private var registryCheckInProgress = false
+    private var registryCheckButton: Button? = null
+    private var registryCheckResult: TextView? = null
     private var pendingScheduleEnable = false
     private var resilientSummary: TextView? = null
     private lateinit var otaSummary: TextView
@@ -524,6 +531,21 @@ class MainActivity : ComponentActivity() {
             text = "🔄 SYNC MOST · kézi adatlekérés"
             setOnClickListener { syncNow() }
         })
+        // Separate native device reporting from Health Connect's SYNC NOW.
+        registryCheckButton = Button(this).apply {
+            text = "📱 Eszközregisztráció ellenőrzése"
+            setOnClickListener { checkNativeDeviceRegistration() }
+        }
+        root.addView(registryCheckButton)
+        registryCheckResult = TextView(this).apply {
+            text = "A natív Android-jelentést ellenőrzi a Dropboxban. " +
+                "Nem változtatja meg a telefont vagy a tulajdonosprofilt."
+            textSize = 13f
+            setTextColor(0xFF315F98.toInt())
+            setPadding(4, 6, 4, 14)
+            setTextIsSelectable(true)
+        }
+        root.addView(registryCheckResult)
 
         root.addView(TextView(this).apply {
             text = "📱 Digital Wellbeing · központi családi mérések"
@@ -1732,6 +1754,105 @@ class MainActivity : ComponentActivity() {
                 status.text = "✓ Beolvasva. Pulzusrekord: ${c.getInt("heartRateRecords")}, aktivitásnap: ${c.getInt("activityDays")}, alvás: ${c.getInt("sleepSessions")}."
             } catch (e: Exception) {
                 status.text = "Hiba: ${e.message ?: e.javaClass.simpleName}"
+            }
+        }
+    }
+
+    private fun checkNativeDeviceRegistration() {
+        if (registryCheckInProgress) return
+        val owner = deviceOwnerProfile()
+        if (owner == null) {
+            registryCheckResult?.text = "⚠ Nincs rögzítve a telefon tulajdonosa. " +
+                "Ellenőrizd, hogy ez Mónika vagy Zsolt fizikai telefonja."
+            return
+        }
+        if (!DropboxVaultClient.hasRefreshToken(prefs)) {
+            registryCheckResult?.text = "⚠ A natív HH ONE Dropbox-kapcsolata nincs engedélyezve. " +
+                "A webes HealthHub bejelentkezése ettől különbözhet."
+            return
+        }
+        registryCheckInProgress = true
+        registryCheckButton?.isEnabled = false
+        registryCheckResult?.text = "⏳ Android-eszközjelentés indítása. " +
+            "A feltöltést és a Dropbox-visszaolvasást külön ellenőrzöm…"
+        val startedAt = System.currentTimeMillis()
+        val workId = try {
+            OrchestratorScheduler.runNow(this)
+        } catch (e: Exception) {
+            registryCheckResult?.text = "⚠ Nem indítható az Android Orchestrator: " +
+                e.javaClass.simpleName
+            registryCheckInProgress = false
+            registryCheckButton?.isEnabled = true
+            return
+        }
+        scope.launch {
+            try {
+                val wm = WorkManager.getInstance(this@MainActivity)
+                val work = withTimeoutOrNull(55_000L) {
+                    var state: WorkInfo? = null
+                    while (state?.state?.isFinished != true) {
+                        state = withContext(Dispatchers.IO) {
+                            wm.getWorkInfoById(workId).get()
+                        }
+                        if (state?.state?.isFinished != true) delay(750L)
+                    }
+                    state
+                }
+                if (work?.state != WorkInfo.State.SUCCEEDED) {
+                    val errorAt = prefs.getLong("last_orchestrator_error_ms", 0L)
+                    val reason = if (errorAt >= startedAt)
+                        prefs.getString("last_orchestrator_error", "ismeretlen") else null
+                    registryCheckResult?.text = "⚠ Nincs visszaigazolt Android-eszközjelentés. " +
+                        (if (work == null)
+                            "A háttérfeladat nem fejeződött be az ellenőrzési ablakban."
+                        else "Az Android Orchestrator nem fejezte be sikeresen.") +
+                        (if (reason != null) " Hibatípus: " + reason + "." else "") +
+                        " A már működő Health Connect-adatok változatlanok."
+                    return@launch
+                }
+                // Read the existing persistent ID used by OrchestratorWorker.
+                // Never generate or reset an ID in this diagnostic action.
+                val deviceId = prefs.getString("orchestrator_device_id_v1", null)
+                if (deviceId.isNullOrBlank() ||
+                    !Regex("^android-[a-fA-F0-9-]{36}$").matches(deviceId)
+                ) {
+                    registryCheckResult?.text = "⚠ A natív Android-eszközazonosító " +
+                        "nem olvasható. Nem hoztam létre új regisztrációt."
+                    return@launch
+                }
+                val path = "/HealthHub/orchestrator/devices/" + deviceId + ".json"
+                var verdict = DeviceRegistrationReceipt.Verdict(
+                    false, "A Dropbox-visszaolvasás még nem sikerült."
+                )
+                for (attempt in 1..3) {
+                    val receipt = withContext(Dispatchers.IO) {
+                        DropboxVaultClient.downloadTextOrNull(prefs, path)
+                    }
+                    verdict = DeviceRegistrationReceipt.inspect(
+                        receipt, deviceId, owner, startedAt, System.currentTimeMillis()
+                    )
+                    if (verdict.verified) break
+                    if (attempt < 3) delay(950L)
+                }
+                if (verdict.verified) {
+                    registryCheckResult?.text = "✅ " + profileName(owner) +
+                        " · Android-jelentés igazolva. Eszköz-ID vége: …" +
+                        deviceId.takeLast(10) + ". Frissítés: " +
+                        verdict.lastSeenAt + ". A natív Dropboxból visszaolvasva. " +
+                        "Most a HealthHub Admin → Családi eszközregiszterben nyomd meg az Állapot frissítése gombot. " +
+                        "Ha ott továbbra sincs telefon, a webes és a natív Dropbox-fiókot kell összevetni."
+                } else {
+                    registryCheckResult?.text = "⚠ " + verdict.message +
+                        " Nem változtattam meg a korábbi eszköz-hozzárendelést."
+                }
+            } catch (e: Exception) {
+                if (e is kotlinx.coroutines.CancellationException) throw e
+                registryCheckResult?.text = "⚠ Az eszközregisztráció Dropbox-ellenőrzése " +
+                    "nem sikerült (" + e.javaClass.simpleName + "). " +
+                    "A korábbi telefonazonosító és egészségügyi adatok változatlanok."
+            } finally {
+                registryCheckInProgress = false
+                registryCheckButton?.isEnabled = true
             }
         }
     }
