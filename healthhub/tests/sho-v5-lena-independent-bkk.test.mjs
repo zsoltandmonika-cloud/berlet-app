@@ -63,22 +63,20 @@ test("Léna never upgrades mismatched, overlapping, implausible or stale routes"
  assert.equal(evaluateIndependentBkk(feed(direct()),{...req,date:"2026-11-26"}).status,"no_independent_route");
  assert.equal(evaluateIndependentBkk(feed(direct()),{...req,when:"2026-11-27T15:20:00Z"}).status,"no_independent_route");
 });
-test("the V5 path separates the Google paid API UI from a no-cost verified GTFS selector",()=>{
+test("independent BKK and MÁV evaluators stay separate from one-click Google V5",()=>{
  const root="sh9/smart-travel/public-transport/smart-trip/";
  const html=readFileSync(root+"index.html","utf8");
- const js=readFileSync(root+"v5/universal/smart-trip-v5-api-ui.mjs","utf8");
+ const js=readFileSync(root+"v5/universal/smart-trip-v5-inline-v1.mjs","utf8");
  const controller=readFileSync(root+"smart-trip-ai-v1022.js","utf8");
- assert.match(html,/id="st22V5LenaEvaluate"/);
- assert.match(html,/id="st22V5LenaResult"/);
- assert.match(html,/smart-trip-v5-api-ui\.mjs\?v=(?:3-lena-independent-bkk-mav|4-dev-without-quota|5-dev-repeat-search-ux|6-collapsed-walk-steps)/);
- assert.match(js,/evaluateIndependentBkk/);
- assert.match(js,/SH9_BKK_SEARCH_V1107/);
- assert.match(js,/engine\.save\(pick\.item,q\.profile\)/);
- assert.match(js,/no-Google|Google-hívás/);
+ const bkk=readFileSync(root+"smart-trip-bkk-v1107.mjs","utf8");
+ const mav=readFileSync(root+"v5/universal/lena-independent-mav-v1.mjs","utf8");
+ assert.match(html,/v=1-direct-one-click/);
+ assert.doesNotMatch(html,/id="st22V5LenaEvaluate"|id="st22V5LenaResult"/);
+ assert.match(bkk,/SH9_BKK_SEARCH_V1107/);
+ assert.match(controller,/method==='bkk_gtfs'/);
  assert.match(controller,/method==='google_api_v5'/);
- assert.match(js,/mode==="diagnose"/);
- const independent=js.slice(js.indexOf("async function runIndependentLena()"),
-  js.indexOf("function open(payload)"));
- assert.doesNotMatch(independent,/renderRoutes\s*\(|\.routes\b|fetch\s*\(|OPENAI_API_KEY|api\.openai\.com/);
- assert.doesNotMatch(js,/\.insert\s*\(|\.upsert\s*\(|localStorage\.setItem/);
+ assert.match(js,/body:JSON\.stringify\(\{mode:"search",consent:true,query\}\)/);
+ assert.doesNotMatch(js,/evaluateIndependentBkk|evaluateIndependentMav|engine\.save|SH9_BKK_SEARCH_V1107/);
+ assert.doesNotMatch(js,/api\.openai\.com|\.insert\s*\(|\.upsert\s*\(|localStorage\.setItem/);
+ assert.doesNotMatch(mav,/Google Routes|api\.openai\.com/);
 });
