@@ -121,17 +121,18 @@ color:#fff;border-radius:12px;min-height:44px;padding:10px 15px;font:700 13px sy
   <p>A meglévő Smart Trip keresőben kiválasztott helyek és az indulási/érkezési
   időpont automatikusan ide kerülnek. Az API pontos budapesti időt kap.</p>
   <section class="v5-detail" id="st22V5ApiSummary" aria-label="Ellenőrzött keresési adatok"></section>
-  <p class="v5-legal">🧪 Korlátozott próba: legfeljebb 1 Google Routes-hívás naponta.
-  A hívás esetleg díjköteles. Az eredmény térkép nélkül, Google Maps-forrásjelzéssel
-  jelenik meg; nem kerül Lénához és nem mentődik a My Tripsbe.
-  A próbaengedély 2026. november 12-én 01:00-kor lejár.</p>
+  <p class="v5-legal">🧪 Fejlesztői tesztmód: <strong>nincs SHO-s napi vagy havi API-kvótakorlát</strong>.
+  Minden Google Routes-kérés külön jóváhagyott gombnyomással indul és díjköteles lehet.
+  A kérések számlálása megmarad; a Google Cloud tényleges kvótái és számlázása továbbra is érvényesek.
+  Az eredmény térkép nélkül, Google Maps-forrásjelzéssel jelenik meg, nem kerül külső AI-hoz.
+  Az élesítés előtt visszaállítjuk a jóváhagyott költségvédelmet.</p>
   <label class="v5-consent"><input id="st22V5ApiConsent" type="checkbox">
    <span>Hozzájárulok, hogy a megadott indulási és célkoordinátát vagy címet,
    valamint az utazási időpontot a Google Routes feldolgozza.
    A fizetős API-hívás kizárólag külön gombnyomással indul.</span></label>
   <div class="v5-actions">
    <button id="st22V5ApiDiagnose" type="button" class="secondary">🔍 Kapcsolatellenőrzés · 0 Google-kérés</button>
-   <button id="st22V5ApiSearch" type="button" disabled>🚀 Google API keresés · max. 1 kérés</button>
+   <button id="st22V5ApiSearch" type="button" disabled>🚀 Google Routes API keresés</button>
   </div>
   <p>Teljes API-próba stopper: <span id="st22V5ApiClock">0,00 mp</span></p>
   <p id="st22V5ApiStatus" class="v5-state" role="status" aria-live="polite"></p>
@@ -222,7 +223,7 @@ color:#fff;border-radius:12px;min-height:44px;padding:10px 15px;font:700 13px sy
 <script src="./smart-trip-lena-native-v1104.js?v=1104-explicit-closed-pilot"></script>
 <script type="module" src="./smart-trip-bkk-v1107.mjs?v=1108-all-bkk-stops"></script>
 <script src="./smart-trip-ai-v1022.js?v=1117-v5-main-api-intake"></script>
-<script type="module" src="./v5/universal/smart-trip-v5-api-ui.mjs?v=3-lena-independent-bkk-mav"></script>
+<script type="module" src="./v5/universal/smart-trip-v5-api-ui.mjs?v=4-dev-without-quota"></script>
 <script src="./smart-trip-keyboard-dock-v1088.js?v=1088-real-predictive-portal"></script>
 <script src="./smart-trip-fullscreen-map-v1032.js?v=1032-lazy-maplibre"></script>
 
