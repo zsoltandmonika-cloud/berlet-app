@@ -22,12 +22,14 @@ function saveToken(t){localStorage.setItem(TOKEN_KEY,JSON.stringify(t))}
 function clearToken(){localStorage.removeItem(TOKEN_KEY);localStorage.removeItem(PKCE_KEY)}
 function connected(){var t=readToken();return !!(t&&t.refresh_token)}
 
-async function connect(){
+function validAccountSuffix(s){return typeof s==='string'&&/^[A-Za-z0-9_-]{8}$/.test(s)}
+async function connect(expectedSuffix){
+ if(expectedSuffix&&!validAccountSuffix(expectedSuffix))throw Error('Érvénytelen fiókazonosító-vég. Pontosan 8 karakter kell.');
  var verifier=randomToken(64),challenge=await sha256b64(verifier);
  var nativeOAuth=false;
  try{nativeOAuth=sessionStorage.getItem('hh-one-native-oauth-v1063')==='1'}catch(_){}
  var state=(nativeOAuth?'hhweb_':'')+randomToken(24);
- localStorage.setItem(PKCE_KEY,JSON.stringify({verifier:verifier,state:state,createdAt:Date.now()}));
+ localStorage.setItem(PKCE_KEY,JSON.stringify({verifier:verifier,state:state,createdAt:Date.now(),expectedSuffix:expectedSuffix||null}));
  var u=new URL('https://www.dropbox.com/oauth2/authorize');
  u.searchParams.set('client_id',APP_KEY);
  u.searchParams.set('response_type','code');
@@ -37,6 +39,7 @@ async function connect(){
  u.searchParams.set('token_access_type','offline');
  u.searchParams.set('scope','files.metadata.read files.metadata.write files.content.read files.content.write');
  u.searchParams.set('state',state);
+ if(expectedSuffix)u.searchParams.set('force_reapprove','true');
  location.href=u.toString();
 }
 async function handleCallback(codeOverride,stateOverride){
@@ -57,6 +60,18 @@ async function handleCallback(codeOverride,stateOverride){
  var body=new URLSearchParams({code:code,grant_type:'authorization_code',redirect_uri:REDIRECT,code_verifier:pk.verifier,client_id:APP_KEY});
  var r=await fetch('https://api.dropboxapi.com/oauth2/token',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:body});
  var j=await r.json();if(!r.ok)throw new Error(j.error_description||j.error||'Dropbox token hiba');
+ // Keep the existing web token unless the newly approved account matches the requested family account.
+ if(pk.expectedSuffix&&(!j.account_id||String(j.account_id).slice(-8)!==pk.expectedSuffix)){
+  var got=j.account_id?String(j.account_id).slice(-8):'ismeretlen';
+  var mismatch='⛔ Dropbox-fiók eltérés: kapott '+got+', várt '+pk.expectedSuffix+'. A korábbi webes kapcsolat megmaradt.';
+  localStorage.setItem('hh-dropbox-account-repair-note-v1',mismatch);
+  localStorage.removeItem(PKCE_KEY);
+  history.replaceState({},'',REDIRECT);
+  toast(mismatch);
+  setTimeout(decorate,80);
+  return;
+ }
+ localStorage.removeItem('hh-dropbox-account-repair-note-v1');
  saveToken({access_token:j.access_token,refresh_token:j.refresh_token,expires_at:Date.now()+((Number(j.expires_in)||14400)-60)*1000,scope:j.scope||'',account_id:j.account_id||''});
  localStorage.removeItem(PKCE_KEY);
  history.replaceState({},'',REDIRECT);
@@ -219,6 +234,10 @@ async function autoSync(profile,reason){
  }finally{syncBusy=false;decorate()}
 }
 window.hhDropboxConnect=function(){connect().catch(function(e){console.error(e);toast(e.message||'Dropbox csatlakozási hiba')})};
+window.hhDropboxSwitchToAccount=function(expected){
+ if(!validAccountSuffix(expected))return Promise.reject(Error('Pontosan 8 karakteres Dropbox-fiókazonosító szükséges.'));
+ return connect(expected);
+};
 window.hhDropboxPush=function(){uploadCurrent(false).catch(function(e){console.error(e);toast(e.message||'Dropbox feltöltési hiba')})};
 window.hhDropboxPull=function(){pullCurrent().catch(function(e){console.error(e);toast(e.message||'Dropbox letöltési hiba')})};
 window.hhDropboxDisconnect=function(){clearToken();toast('Dropbox kapcsolat törölve ezen az eszközön');decorate()};
@@ -239,8 +258,10 @@ function decorate(){
  var old=document.getElementById('hhDropboxVaultCard');if(old)old.remove();
  var profile=pkey(),on=connected(),card=document.createElement('div');card.id='hhDropboxVaultCard';card.className='hhDbxCard';
  var push=localStorage.getItem('hh-dropbox-last-push-'+profile),pull=localStorage.getItem('hh-dropbox-last-pull-'+profile),sync=localStorage.getItem('hh-dropbox-last-sync-'+profile);
+ var repairNote=localStorage.getItem('hh-dropbox-account-repair-note-v1');
  card.innerHTML='<div class="hhDbxTop"><div class="hhDbxIcon">◆</div><div class="hhDbxText"><b>Dropbox Health Vault</b><small>Dedikált App Folder · '+esc(pname(profile))+' profil</small></div><span class="hhDbxStatus '+(on?'':'off')+'">'+(on?'Csatlakoztatva':'Nincs kapcsolat')+'</span></div>'+
- (on?'<div class="hhDbxActions"><button class="hhDbxBtn" onclick="hhDropboxPush()">Feltöltés</button><button class="hhDbxBtn alt" onclick="hhDropboxPull()">Letöltés + egyesítés</button><button class="hhDbxBtn alt" onclick="hhDropboxDisconnect()">Leválasztás</button></div><div class="hhDbxMeta">Utolsó feltöltés: '+esc(fmt(push))+' · Utolsó letöltés: '+esc(fmt(pull))+'<br>Fájl: '+esc(vaultPath(profile))+'</div>':'<div class="hhDbxActions"><button class="hhDbxBtn" onclick="hhDropboxConnect()">Dropbox csatlakoztatása</button></div><div class="hhDbxMeta">Egyszeri Dropbox engedélyezés szükséges. A HealthHub csak a saját App Folder mappáját használja.</div>');
+ (repairNote?'<div class="hhDbxMeta" role="alert" style="color:#a13333;font-weight:700">'+esc(repairNote)+'</div>':'')+
+  (on?'<div class="hhDbxActions"><button class="hhDbxBtn" onclick="hhDropboxPush()">Feltöltés</button><button class="hhDbxBtn alt" onclick="hhDropboxPull()">Letöltés + egyesítés</button><button class="hhDbxBtn alt" onclick="hhDropboxDisconnect()">Leválasztás</button></div><div class="hhDbxMeta">Utolsó feltöltés: '+esc(fmt(push))+' · Utolsó letöltés: '+esc(fmt(pull))+'<br>Fájl: '+esc(vaultPath(profile))+'</div>':'<div class="hhDbxActions"><button class="hhDbxBtn" onclick="hhDropboxConnect()">Dropbox csatlakoztatása</button></div><div class="hhDbxMeta">Egyszeri Dropbox engedélyezés szükséges. A HealthHub csak a saját App Folder mappáját használja.</div>');
  var admin=document.getElementById('hhAdminMenuCard');if(admin&&admin.parentNode===root)admin.insertAdjacentElement('afterend',card);else root.insertBefore(card,root.firstChild);
 }
 var prev=window.renderHealthSection;if(typeof prev==='function')window.renderHealthSection=async function(){var x=await prev.apply(this,arguments);style();decorate();return x};
@@ -268,5 +289,5 @@ async function completeNativeOAuth(code,state){
  await handleCallback(code,state);
  return connected();
 }
-window.HH_DROPBOX_VAULT={completeNativeOAuth:completeNativeOAuth,connected:connected,push:window.hhDropboxPush,pull:window.hhDropboxPull,autoSync:window.hhDropboxAutoSync,accessToken:accessToken,uploadJson:uploadJsonPath,downloadJson:downloadJsonPath,accountHint:function(){var t=readToken();return t&&t.account_id?String(t.account_id).slice(-8):null},appKey:APP_KEY,redirect:REDIRECT};
+window.HH_DROPBOX_VAULT={completeNativeOAuth:completeNativeOAuth,connected:connected,switchToAccount:window.hhDropboxSwitchToAccount,push:window.hhDropboxPush,pull:window.hhDropboxPull,autoSync:window.hhDropboxAutoSync,accessToken:accessToken,uploadJson:uploadJsonPath,downloadJson:downloadJsonPath,accountHint:function(){var t=readToken();return t&&t.account_id?String(t.account_id).slice(-8):null},appKey:APP_KEY,redirect:REDIRECT};
 })();
