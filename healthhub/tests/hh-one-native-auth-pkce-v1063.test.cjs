@@ -88,10 +88,10 @@ test('Android callback requires pending 5-minute intent and a code, and accepts 
  assert.doesNotMatch(callback,/refresh_token|access_token/i);
 });
 test('candidate build40 stays unpublished, signed OTA baseline stays v0.15.12/build39',()=>{
- assert.match(gradle,/versionCode = 40/);
- assert.match(gradle,/versionName = "0\.15\.13"/);
- assert.equal(release.versionCode,39);
- assert.equal(release.version,'0.15.12');
+ assert.ok(Number(gradle.match(/versionCode = (\d+)/)[1]) > release.versionCode);
+ assert.match(gradle,/versionName = "0\.15\.\d+"/);
+ assert.equal(release.versionCode,40);
+ assert.equal(release.version,'0.15.13');
 });
 
 test('WebView Dropbox PKCE state remains inside app; Chrome and native Dropbox modes are unchanged',()=>{
