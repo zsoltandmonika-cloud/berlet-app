@@ -1,4 +1,4 @@
-name: SHO V5 Lena Independent BKK A-Plan QA
+name: SHO V5 Lena Independent BKK/MAV A-Plan QA
 on:
   push:
     branches: [feature/sho-v5-lena-independent-evaluator-20261109]
@@ -6,6 +6,7 @@ on:
       - 'sh9/smart-travel/public-transport/smart-trip/v5/universal/**'
       - 'sh9/smart-travel/public-transport/smart-trip/index.html'
       - 'healthhub/tests/sho-v5-lena-independent-bkk.test.mjs'
+      - 'healthhub/tests/sho-v5-lena-independent-mav.test.mjs'
       - '.github/workflows/sho-v5-lena-independent-bkk-qa.yml'
   pull_request:
     paths:
@@ -27,8 +28,11 @@ jobs:
       - name: Parse UI and independent A-plan modules
         run: |
           node --check sh9/smart-travel/public-transport/smart-trip/v5/universal/lena-independent-bkk-v1.mjs
+          node --check sh9/smart-travel/public-transport/smart-trip/v5/universal/lena-independent-mav-v1.mjs
           node --check sh9/smart-travel/public-transport/smart-trip/v5/universal/smart-trip-v5-api-ui.mjs
-      - name: Independent BKK provenance and safety tests
-        run: node --test healthhub/tests/sho-v5-lena-independent-bkk.test.mjs
+      - name: Independent BKK/MAV provenance and safety tests
+        run: |
+          node --test healthhub/tests/sho-v5-lena-independent-bkk.test.mjs
+          node --test healthhub/tests/sho-v5-lena-independent-mav.test.mjs
       - name: Existing V5 intake integration tests
         run: node --test healthhub/tests/sho-smart-trip-v5-main-intake.test.mjs
