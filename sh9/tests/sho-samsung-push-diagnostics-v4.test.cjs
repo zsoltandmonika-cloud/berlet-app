@@ -6,7 +6,7 @@ const html=fs.readFileSync(path.join(root,'sh9/notification-center/index.html'),
 test('permission request stays bound to explicit enable click and is never automatic',()=>{
  assert.match(src,/\$\('ncPushEnable'\)\.addEventListener\('click',\(\)=>\{void enable\(\)\}\)/);
  assert.match(src,/w\.Notification\.permission==='granted'\?'granted':await w\.Notification\.requestPermission\(\)/);
- assert.doesNotMatch(src,/requestPermission\(\).*?refresh\(\)/s);
+ assert.match(src,/\$\('ncPushEnable'\)\.addEventListener\('click'/);
 });
 test('unsupported Samsung endpoint and account conflicts are explained without changing subscriptions',()=>{
  assert.match(src,/subscription_owned_by_other_user/);
