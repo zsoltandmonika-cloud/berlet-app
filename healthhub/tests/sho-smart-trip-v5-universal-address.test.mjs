@@ -109,7 +109,7 @@ test("isolated UI never calls paid Maps, a Google geocoder, GPT, or My Trips",()
   assert.doesNotMatch(source,/\.insert\s*\(|\.upsert\s*\(|localStorage\.setItem|sessionStorage\.setItem/);
  }
  assert.doesNotMatch(client,/fetch\s*\(|XMLHttpRequest|sendBeacon/);
- assert.match(html,/Ez az általános címbevitel tesztje/);
+ assert.match(html,/Ez az általános címbevitel és a kikapcsolt Gateway tesztje/);
  assert.match(html,/nem kész automatikus/);
  assert.match(client,/getCurrentPosition/);
  assert.match(html,/target="_blank"/);
