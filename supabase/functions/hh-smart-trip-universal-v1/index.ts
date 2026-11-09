@@ -37,11 +37,21 @@ function key(kind:"admin"|"public"){
  }
  return env(kind==="admin"?"SUPABASE_SERVICE_ROLE_KEY":"SUPABASE_ANON_KEY");
 }
-const gating=()=>({
- enabled:env("HH_SMART_TRIP_UNIVERSAL_ENABLED")==="true",
- billingReviewed:env("HH_SMART_TRIP_UNIVERSAL_BILLING_VERIFIED")==="true",
- eeaReviewed:env("HH_SMART_TRIP_UNIVERSAL_EEA_REVIEW_APPROVED")==="true"
-});
+// User-authorized limited real transit test. Hard UTC expiry; not a general
+// bypass of billing/EEA flags. The existing atomic quota still limits this
+// endpoint to one attempt/day, shared with the original pilot, 20/day and
+// 200/month overall. No AI, map linking, or storage of Google route steps.
+const PILOT_UNTIL=Date.parse("2026-11-12T00:00:00Z");
+const gating=()=>{
+ const flags={
+  enabled:env("HH_SMART_TRIP_UNIVERSAL_ENABLED")==="true",
+  billingReviewed:env("HH_SMART_TRIP_UNIVERSAL_BILLING_VERIFIED")==="true",
+  eeaReviewed:env("HH_SMART_TRIP_UNIVERSAL_EEA_REVIEW_APPROVED")==="true"
+ };
+ const pilotWindowActive=Date.now()<PILOT_UNTIL;
+ return {...flags,pilotWindowActive,approved:
+  (flags.enabled&&flags.billingReviewed&&flags.eeaReviewed)||pilotWindowActive};
+};
 async function auth(req:Request,profile:"m"|"z"){
  const header=req.headers.get("Authorization")||"";
  if(!header.startsWith("Bearer ")||
@@ -142,13 +152,13 @@ Deno.serve(async(req:Request)=>{
   // Never reserve quota or contact Google during diagnostics.
   return json(req,200,{
    schema:"sho.smart-trip.universal-diagnostic/1",
-   ready:status.enabled&&status.billingReviewed&&status.eeaReviewed&&
+   ready:status.approved&&
     key("admin").length>20&&env(KEY_NAME).length>=25,
    checks:status,googleRequests:0,quotaReserved:0,
    ai_processing:"disabled",paidProviderContacted:false
   });
  }
- if(!(status.enabled&&status.billingReviewed&&status.eeaReviewed))
+ if(!status.approved)
   return json(req,503,{error:"universal_gateway_disabled",
    googleRequests:0,quotaReserved:0});
  const googleKey=env(KEY_NAME),admin=adminClient();
