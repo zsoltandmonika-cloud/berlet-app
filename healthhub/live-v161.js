@@ -289,5 +289,5 @@ async function completeNativeOAuth(code,state){
  await handleCallback(code,state);
  return connected();
 }
-window.HH_DROPBOX_VAULT={completeNativeOAuth:completeNativeOAuth,connected:connected,switchToAccount:window.hhDropboxSwitchToAccount,push:window.hhDropboxPush,pull:window.hhDropboxPull,autoSync:window.hhDropboxAutoSync,accessToken:accessToken,uploadJson:uploadJsonPath,downloadJson:downloadJsonPath,accountHint:function(){var t=readToken();return t&&t.account_id?String(t.account_id).slice(-8):null},appKey:APP_KEY,redirect:REDIRECT};
+window.HH_DROPBOX_VAULT={completeNativeOAuth:completeNativeOAuth,connected:connected,switchToAccount:window.hhDropboxSwitchToAccount,repairNote:function(){return localStorage.getItem('hh-dropbox-account-repair-note-v1')||''},push:window.hhDropboxPush,pull:window.hhDropboxPull,autoSync:window.hhDropboxAutoSync,accessToken:accessToken,uploadJson:uploadJsonPath,downloadJson:downloadJsonPath,accountHint:function(){var t=readToken();return t&&t.account_id?String(t.account_id).slice(-8):null},appKey:APP_KEY,redirect:REDIRECT};
 })();
