@@ -94,7 +94,7 @@ test('pairing entry stays visible before Google login and during access verifica
  h.status.authenticated=true;
  assert.match(h.api.render(),/Jogosultság ellenőrzése/);
  await h.api.refresh();
- assert.match(h.api.render(),/Párosítás jóváhagyása/);
+ assert.match(h.api.render(),/Zsolt párosítás jóváhagyása/);
  assert.equal(h.calls.filter(x=>x.url.includes('hh_profile_access')).length,1);
  assert.match(h.api.render(),/Mónika telefon párosítása/);
 });
@@ -116,7 +116,7 @@ test('Admin pairing opens from top-level stable dialog, with no recurring regist
  assert.match(admin,/function openPairModal\(/);
  assert.match(admin,/d\.body\.appendChild\(modal\)/);
  assert.match(admin,/const inputs=inner\.querySelectorAll\('#hhFcCodeV1,#hhFcCodeV1-monika'\)/);
- assert.match(admin,/if\(input&&\(input===d\.activeElement\|\|input\.value\)\)return/);
+ assert.match(admin,/Array\.from\(inputs\)\.some\(input=>input===d\.activeElement\|\|input\.value\)/);
  assert.doesNotMatch(legacy,/setInterval\(function\(\)\{if\(ov\.classList\.contains\('on'\)/);
  assert.doesNotMatch(legacy,/central\.render\(\)/);
  assert.doesNotMatch(legacy,/central\.begin\(\)/);
