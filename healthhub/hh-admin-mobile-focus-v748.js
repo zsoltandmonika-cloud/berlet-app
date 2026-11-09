@@ -177,9 +177,11 @@ function renderPairModal(){
  // Do not erase a code that is being typed/pasted during an asynchronous refresh.
  if(input&&(input===d.activeElement||input.value))return;
  const html=central.render();
- if(inner.innerHTML===html)return;
+ if(inner.dataset.pairUiHtmlV3===html)return;
  const opened=inner.querySelector('.hhFcPair')?.open;
- inner.innerHTML=html;
+ inner.replaceChildren();
+ inner.insertAdjacentHTML('afterbegin',html);
+ inner.dataset.pairUiHtmlV3=html;
  const details=inner.querySelector('.hhFcPair');
  if(details)details.open=opened!==false;
 }
