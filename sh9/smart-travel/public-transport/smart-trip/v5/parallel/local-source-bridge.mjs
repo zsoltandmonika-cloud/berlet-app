@@ -4,11 +4,11 @@
  * No Google Maps, GPT, My Trips, Supabase or private timetable export.
  */
 import {createMatrixSearch,parseRules} from
- "../../../../super-search/matrix-v4/matrix-search-engine-v4.mjs";
+ "../../../../../super-search/matrix-v4/matrix-search-engine-v4.mjs";
 import {createWorkerProvider} from
- "../../../../super-search/matrix-v4/matrix-worker-provider-v4.mjs";
+ "../../../../../super-search/matrix-v4/matrix-worker-provider-v4.mjs";
 import {createBkkAdapter} from
- "../../../../super-search/matrix-v4/matrix-existing-sources-v4.mjs";
+ "../../../../../super-search/matrix-v4/matrix-existing-sources-v4.mjs";
 
 const PROVIDERS=Object.freeze(["bkk","mav","volan"]);
 const clean=s=>typeof s==="string"?s.trim().slice(0,160):"";
