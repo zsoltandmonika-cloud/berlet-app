@@ -82,7 +82,7 @@ function panel(force){
  if(note)html+='<p class="hhRegNote401" role="status">'+clean(note)+'</p>';
  if(!registry)html+='<p class="hhRegNote401">A regiszter még nem töltődött be; addig távoli parancs nem indul.</p>';
  if(registry&&cloud()&&nativeCount===0){
-   html+='<p class="hhRegWarn401">Ebben a webes Dropbox-fiókban nincs Android-jelentés. Ha a natív HH ONE igazolt jelentést, a két Dropbox-fiók valószínűleg eltér. Eszközadatot nem törlünk.</p>';
+   html+='<p class="hhRegWarn401">Ebben a webes Dropbox-fiókban nincs Android-jelentés. Ha a natív HH ONE igazolt jelentést, a két Dropbox-fiók valószínűleg eltér. A natív telefonazonosítót ne töröld. Eszközadatot nem törlünk.</p>';
    html+='<div class="hhRegReconcile401"><label for="hhRegExpectedAccount401">Működő családi Dropbox-fiók azonosítójának utolsó 8 karaktere</label>'+
      '<input id="hhRegExpectedAccount401" type="text" maxlength="8" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="8 karakter" />'+
      '<button type="button" data-hh-reg-action="account-switch">🔐 Biztonságos Dropbox-egyeztetés</button>'+
