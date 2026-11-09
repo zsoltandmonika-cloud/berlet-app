@@ -68,6 +68,10 @@ test('native WebView accepts Android approximate-location consent without auto-e
  assert.match(webview,/Manifest\.permission\.ACCESS_COARSE_LOCATION\) ==/);
  assert.match(webview,/origin != "https:\/\/" \+ HOST/);
  assert.match(webview,/GeolocationPermissions\.Callback/);
+ assert.match(webview,/override fun onReceivedError\(/);
+ assert.match(webview,/mainPageRecoveryShown/);
+ assert.match(webview,/\.setNeutralButton\("🌐 Külső böngésző"\)/);
+ assert.match(webview,/\.setPositiveButton\("↻ Újrapróbálás"\)/);
 });
 test('native phone pairing is Zsolt-only opt-in; Dropbox sync and ID remain intact',()=>{
  assert.match(native,/owner != "zsolt"/);
