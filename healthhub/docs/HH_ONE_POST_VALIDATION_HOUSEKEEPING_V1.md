@@ -66,6 +66,29 @@ A **NO-GO** állapot nem hiba; biztonsági védelem.
    előző, visszaolvasott Dropbox-mentés visszaállítása. Rosszabbodó
    szinkronnál további műveletek leállítása.
 
+## 3/B. Teljes SHO nagytakarítás: felülvizsgálati területek
+
+A fentiek az **eszközazonosság biztonsági kapui**. Ha ezek zöldek,
+az alábbi rendszerterületek is külön felülvizsgálandók; a készenléti
+kapu **nem** tekinthető bizonyítéknak arra, hogy minden modul hibátlan.
+
+| Réteg | Vizsgálat | Első körben megengedett művelet |
+|---|---|---|
+| Family Guard | Élő/utolsó ismert jel, helyforrás és időbélyeg, profilváltás | Téves címkék és cache-eredet feltárása, QA |
+| HH ONE / RAG | Hamis hibakódok, jogosultságok, OTA-állapot, natív/webes ID-eltérés | Csak forrásjavítás és regressziós teszt |
+| Dropbox | Párhuzamos fiókok, régi és új registry, árva `devices/status/commands` rekordok | Fiókonkénti mentés, olvasott leltár, kézi archív jelölés |
+| Supabase | Családi profil-szétválasztás, RLS, régi adathivatkozások | Csak read-only audit és jogosultsági ellenőrzés |
+| SHO web | Elavult modul-/JS-importok, duplikált observer/polling, többszörös render | Importtérkép és célzott automatizált teszt |
+| Android / OTA | APK-k, buildkód, aláírás, rollouthoz tartozó profilok | Verziókonzisztencia-ellenőrzés, nincs távoli telepítés |
+| Cache / UX | Beragadt régi helyadat, helyi session, tárolt ikon/pirula-állapot | Célzott cache-verziócsere; nincs általános adattörlés |
+| GitHub / CI | Régi preview ágak, sikertelen tesztek, kihasználatlan workflow-k | Bizonyítékalapú lista; branch és release marad |
+| Értesítések | Dupla/stale állapotüzenetek, kattintási célok | Megjelenítési logika javítása; nincs riasztás elnémítva |
+
+Az egyes területek csak **kockázat, függőség, megtakarítás és rollback**
+szerint priorizált, elkülönített kis PR-okban változhatnak. A gyors
+HH ONE és SHO felületet nem bontjuk meg egyetlen nagy, tesztelhetetlen
+átírással. A készülékazonosítókon túl minden változás külön jóváhagyás.
+
 ## 4. Futtatható készenléti teszt
 
 A GitHub Actions `HH ONE · Post-validation Housekeeping Readiness`
