@@ -38,6 +38,9 @@ function readSharedCloud(profile,force){
 }
 window.HH_HEALTH_CONNECT_SOURCE_V1015={read:readSharedCloud,version:'1015'};
 async function processIncoming(profile,force){
+ // Matched Dropbox account changes start read-only. Activity/Sleep can read
+ // fresh canonical JSON, but no background import may modify local records.
+ if(window.HH_DROPBOX_VAULT?.readOnlyVerification?.())return false;
  if(busy||typeof window.hhImportHealthConnectRaw!=='function'||!connected())return false;
  busy=true;
  try{
