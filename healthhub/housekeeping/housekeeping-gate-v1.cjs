@@ -30,10 +30,13 @@ function evaluate(snapshot,now=Date.now()){
  const verified={};
  for(const p of PROFILES){
   const rows=central.filter(d=>d&&d.profile_key===p&&d.verified_at&&NATIVE.test(d.device_id||''));
-  if(rows.length!==1){fail('central-'+p,p+': pontosan egy hitelesített fizikai telefon szükséges.');continue}
-  const d=rows[0];verified[p]=d.device_id;
-  if(d.state!=='online'||!recent(d.last_seen_at,now,MAX_AGE.central))
-   fail('heartbeat-'+p,p+': nincs 20 percen belüli igazolt natív heartbeat.');
+  if(rows.length!==1)fail('central-'+p,p+': pontosan egy hitelesített fizikai telefon szükséges.');
+  const d=rows.length===1?rows[0]:null;
+  if(d){
+   verified[p]=d.device_id;
+   if(d.state!=='online'||!recent(d.last_seen_at,now,MAX_AGE.central))
+    fail('heartbeat-'+p,p+': nincs 20 percen belüli igazolt natív heartbeat.');
+  }
   const loc=gps[p]||{};
   if(loc.source!=='HH One Native GPS'||loc.validated!==true||
      !(typeof loc.accuracy_m==='number'&&loc.accuracy_m>=0&&loc.accuracy_m<=100)||
