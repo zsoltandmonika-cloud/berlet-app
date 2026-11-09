@@ -21,6 +21,9 @@ import android.widget.LinearLayout
 import android.widget.Spinner
 import android.widget.ScrollView
 import android.widget.TextView
+import android.widget.EditText
+import android.text.InputFilter
+import android.text.InputType
 import androidx.activity.ComponentActivity
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.health.connect.client.HealthConnectClient
@@ -80,6 +83,7 @@ class MainActivity : ComponentActivity() {
     private var registryCheckInProgress = false
     private var registryCheckButton: Button? = null
     private var registryCheckResult: TextView? = null
+    private var nativeDropboxAccountLabel: TextView? = null
     private var pendingScheduleEnable = false
     private var resilientSummary: TextView? = null
     private lateinit var otaSummary: TextView
@@ -547,6 +551,18 @@ class MainActivity : ComponentActivity() {
             setTextIsSelectable(true)
         }
         root.addView(registryCheckResult)
+
+        nativeDropboxAccountLabel = TextView(this).apply {
+            text = nativeDropboxAccountText()
+            textSize = 13f
+            setTextColor(0xFF315F98.toInt())
+            setPadding(4, 8, 4, 4)
+        }
+        nativeDropboxAccountLabel?.let { root.addView(it) }
+        root.addView(Button(this).apply {
+            text = "🔐 Dropbox-fiók ellenőrzése / váltása"
+            setOnClickListener { requestMatchedDropboxLogin() }
+        })
 
         root.addView(TextView(this).apply {
             text = "📱 Digital Wellbeing · központi családi mérések"
@@ -1759,6 +1775,54 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    private fun nativeDropboxAccountText(): String {
+        val active = DropboxVaultClient.hasRefreshToken(prefs)
+        val suffix = prefs.getString("dropbox_account_suffix_v1", null)
+        return when {
+            !active -> "Natív Dropbox: nincs csatlakoztatva."
+            suffix != null && DropboxAccountMatch.validExpected(suffix) ->
+                "Natív Dropbox fiókazonosító vége: " + suffix
+            else -> "Natív Dropbox: csatlakoztatva, azonosító nem elérhető (régi engedély)."
+        }
+    }
+
+    private fun requestMatchedDropboxLogin() {
+        val owner = deviceOwnerProfile()
+        if (owner == null) {
+            registryCheckResult?.text = "Előbb rögzítsd a fizikai telefon tulajdonosát."
+            return
+        }
+        if (manualSyncInProgress || registryCheckInProgress) {
+            registryCheckResult?.text = "Egy másik ellenőrzés még folyamatban van."
+            return
+        }
+        val value = EditText(this).apply {
+            hint = "Webes Dropbox fiókazonosító vége (8 karakter)"
+            setSingleLine(true)
+            inputType = InputType.TYPE_CLASS_TEXT
+            filters = arrayOf(InputFilter.LengthFilter(8))
+            setPadding(22, 14, 22, 14)
+        }
+        android.app.AlertDialog.Builder(this)
+            .setTitle("Dropbox-fiók egyeztetése")
+            .setMessage("A HealthHub webes forrásellenőrzésében látható 8 karakteres fiókazonosító-véget add meg. " +
+                "A meglévő natív Dropbox-kapcsolat csak sikeres, azonos fiókos belépés után változik. " +
+                "A telefonazonosító és a tulajdonosprofil megmarad.")
+            .setView(value)
+            .setPositiveButton("Dropbox-belépés") { _, _ ->
+                val expected = value.text.toString().trim()
+                if (!DropboxAccountMatch.validExpected(expected)) {
+                    registryCheckResult?.text = "⚠ Pontosan 8 karakteres Dropbox-fiókazonosító-vég szükséges."
+                } else {
+                    registryCheckResult?.text = "A Dropbox-belépés megnyílik. Ellenőrizd a választott Dropbox-fiókot. " +
+                        "Ha megszakítod, a korábbi kapcsolat megmarad."
+                    startDropboxAuth(owner, expected)
+                }
+            }
+            .setNegativeButton("Mégsem", null)
+            .show()
+    }
+
     private fun checkNativeDeviceRegistration() {
         if (registryCheckInProgress) return
         val owner = deviceOwnerProfile()
@@ -1942,17 +2006,22 @@ class MainActivity : ComponentActivity() {
         startActivity(Intent(Intent.ACTION_VIEW, back))
     }
 
-    private fun startDropboxAuth(profile: String) {
+    private fun startDropboxAuth(profile: String, expectedSuffix: String? = null) {
         val verifier = randomUrlSafe(64)
         val challenge = sha256UrlSafe(verifier)
         val state = "hhbridge_" + randomUrlSafe(24)
-        prefs.edit()
+        val editor = prefs.edit()
             .putString("dropbox_pkce_verifier", verifier)
             .putString("dropbox_oauth_state", state)
             .putString("dropbox_pending_profile", profile)
-            .apply()
+        if (expectedSuffix != null && DropboxAccountMatch.validExpected(expectedSuffix)) {
+            editor.putString("dropbox_expected_account_suffix_v1", expectedSuffix)
+        } else {
+            editor.remove("dropbox_expected_account_suffix_v1")
+        }
+        editor.apply()
 
-        val url = Uri.parse("https://www.dropbox.com/oauth2/authorize").buildUpon()
+        val builder = Uri.parse("https://www.dropbox.com/oauth2/authorize").buildUpon()
             .appendQueryParameter("client_id", DROPBOX_APP_KEY)
             .appendQueryParameter("response_type", "code")
             .appendQueryParameter("redirect_uri", DROPBOX_REDIRECT)
@@ -1961,14 +2030,17 @@ class MainActivity : ComponentActivity() {
             .appendQueryParameter("token_access_type", "offline")
             .appendQueryParameter("scope", "files.metadata.write files.content.read files.content.write")
             .appendQueryParameter("state", state)
-            .build()
-        startActivity(Intent(Intent.ACTION_VIEW, url))
+        // Prevent Dropbox silently re-approving the previous web session.
+        // The user must still select and explicitly approve the desired account.
+        if (expectedSuffix != null) builder.appendQueryParameter("force_reapprove", "true")
+        startActivity(Intent(Intent.ACTION_VIEW, builder.build()))
     }
 
     private fun handleDropboxCallback(uri: Uri) {
         val error = uri.getQueryParameter("error")
         if (error != null) {
-            status.text = "Dropbox engedélyezés sikertelen: $error"
+            prefs.edit().remove("dropbox_expected_account_suffix_v1").apply()
+            status.text = "Dropbox engedélyezés sikertelen: $error. A meglévő natív kapcsolat megmaradt."
             return
         }
         val code = uri.getQueryParameter("code") ?: return
@@ -1991,15 +2063,39 @@ class MainActivity : ComponentActivity() {
                 val access = tokenJson.optString("access_token")
                 val expires = tokenJson.optLong("expires_in", 14400L)
                 if (refresh.isBlank()) error("Dropbox refresh token hiányzik")
-                prefs.edit()
+                val accountId = tokenJson.optString("account_id")
+                val actualSuffix = DropboxAccountMatch.suffix(accountId)
+                val expectedSuffix = prefs.getString("dropbox_expected_account_suffix_v1", null)
+                if (expectedSuffix != null &&
+                    !DropboxAccountMatch.matches(expectedSuffix, accountId)
+                ) {
+                    prefs.edit()
+                        .remove("dropbox_pkce_verifier")
+                        .remove("dropbox_oauth_state")
+                        .remove("dropbox_pending_profile")
+                        .remove("dropbox_expected_account_suffix_v1")
+                        .apply()
+                    status.text = "⛔ Másik Dropbox-fiók lett kiválasztva. Kapott fiókvég: " +
+                        (actualSuffix ?: "nem ellenőrizhető") +
+                        ", várt: " + expectedSuffix + ". A korábbi Dropbox-kapcsolat megmaradt."
+                    return@launch
+                }
+                val owner = bindOwnerIfNeeded(profile)
+                if (profile != owner) error("Ez ${profileName(owner)} telefonja; a másik profil szinkronja letiltva.")
+                val tokenEditor = prefs.edit()
                     .putString("dropbox_refresh_token", refresh)
                     .putString("dropbox_access_token", access)
                     .putLong("dropbox_access_expires", System.currentTimeMillis() + (expires - 60L) * 1000L)
                     .remove("dropbox_pkce_verifier")
                     .remove("dropbox_oauth_state")
-                    .apply()
-                val owner = bindOwnerIfNeeded(profile)
-                if (profile != owner) error("Ez ${profileName(owner)} telefonja; a másik profil szinkronja letiltva.")
+                    .remove("dropbox_pending_profile")
+                    .remove("dropbox_expected_account_suffix_v1")
+                if (actualSuffix != null) tokenEditor.putString("dropbox_account_suffix_v1", actualSuffix)
+                else tokenEditor.remove("dropbox_account_suffix_v1")
+                tokenEditor.apply()
+                nativeDropboxAccountLabel?.text = nativeDropboxAccountText()
+                status.text = "✅ Natív Dropbox-fiók csatlakoztatva: " +
+                    (actualSuffix ?: "azonosító ismeretlen") + ". A telefon tulajdonosa változatlan."
                 DailyContentScheduler.runNow(this@MainActivity)
                 OrchestratorScheduler.schedule(this@MainActivity)
                 OrchestratorScheduler.runNow(this@MainActivity)

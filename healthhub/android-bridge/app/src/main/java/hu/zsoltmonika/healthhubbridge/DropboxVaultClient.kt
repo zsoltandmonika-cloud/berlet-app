@@ -39,6 +39,8 @@ object DropboxVaultClient {
             .remove("dropbox_pkce_verifier")
             .remove("dropbox_oauth_state")
             .remove("dropbox_pending_profile")
+            .remove("dropbox_account_suffix_v1")
+            .remove("dropbox_expected_account_suffix_v1")
             .putString(CLIENT_MARKER, APP_KEY)
             .apply()
     }

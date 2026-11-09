@@ -11,9 +11,9 @@ android {
         applicationId = "hu.zsoltmonika.healthhubbridge"
         minSdk = 26
         targetSdk = 35
-        versionCode = 41
-        versionName = "0.15.14"
-        // v0.15.14/build41: explicit native device-registry verification with Dropbox readback.
+        versionCode = 42
+        versionName = "0.15.15"
+        // v0.15.15/build42: safe Dropbox account match & explicit native relink for phone-registry diagnosis.
         // Signed OTA promotion is separately approved and certificate-gated.
         // Actual signed publication remains separately approved and certificate-gated.
         // No signed OTA is published by merging: release requires manual approval.

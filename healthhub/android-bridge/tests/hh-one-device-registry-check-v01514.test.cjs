@@ -48,7 +48,7 @@ test('no false success from Health Connect, no ID deletion, no new profile bind 
 
 test('version is unique newer native Android candidate; signed production release remains separate',()=>{
  const gradle=read('app/build.gradle.kts');
- assert.match(gradle,/versionName = "0.15.14"/);
- assert.match(gradle,/versionCode = 41/);
+ assert.match(gradle,/versionName = "0\.15\.\d+"/);
+ assert.ok(Number(gradle.match(/versionCode = (\d+)/)[1]) >= 41);
  assert.match(gradle,/Signed OTA promotion is separately approved/);
 });

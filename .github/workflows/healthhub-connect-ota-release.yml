@@ -6,12 +6,13 @@ on:
   workflow_dispatch:
     inputs:
       rollout:
-        description: "Engedélyezett profilok: pilot=Zsolt; all=Zsolt és Mónika"
+        description: "Engedélyezett profilok: pilot=Zsolt; monika=csak Mónika; all=mindkettő"
         required: true
         default: "pilot"
         type: choice
         options:
           - pilot
+          - monika
           - all
 
 permissions:
@@ -150,7 +151,7 @@ jobs:
           else
             gh release create "$TAG" "$APK" \
               --title "HealthHub Connect v$VERSION · signed OTA" \
-              --notes "HealthHub signed, checksum-verified APK. Android confirmation required. Initial rollout: Zsolt."
+              --notes "HealthHub signed, checksum-verified APK. Android confirmation required. Rollout controlled by signed OTA manifest."
           fi
           ASSET_SHA="$(sha256sum "$APK" | cut -d' ' -f1)"
           echo "ASSET_SHA256=$ASSET_SHA" >> "$GITHUB_ENV"
@@ -167,7 +168,7 @@ jobs:
           python3 - <<'PY'
           import json, os, pathlib
           version = os.environ['VERSION']
-          profiles = ['zsolt', 'monika'] if os.environ['ROLLOUT'] == 'all' else ['zsolt']
+          profiles = {'pilot':['zsolt'], 'monika':['monika'], 'all':['zsolt','monika']}[os.environ['ROLLOUT']]
           tag = os.environ['TAG']
           out = {
               'schema': 'healthhub.connect.ota/1',
