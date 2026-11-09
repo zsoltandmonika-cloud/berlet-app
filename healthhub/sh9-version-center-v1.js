@@ -35,6 +35,8 @@ function style(){
  #${ID} button{cursor:pointer;touch-action:manipulation;min-height:38px;padding:8px 11px;border-radius:10px;border:1px solid #97bfe1!important;background:#194a6b!important;color:#f2f8ff!important;font:700 11px system-ui}
  #${ID} button:disabled{opacity:.5;cursor:default}
  #${ID} button:focus-visible{outline:3px solid #f3bbe9;outline-offset:2px}
+ #${ID} .sh9vmLegacy{margin:10px 0;padding:10px;border:1px dashed #809fb7;border-radius:10px}
+ #${ID} .sh9vmLegacy>summary{cursor:pointer;font-size:11px;color:#b6d7ee;font-weight:750}
  @media(max-width:600px){#${ID} .sh9vmGrid{grid-template-columns:minmax(0,1fr)}}
  `;
  d.head.appendChild(s);
@@ -77,19 +79,25 @@ function draw(){
  const box=d.getElementById(ID);if(!box||!box.isConnected)return;
  const status=d.getElementById(ID+'Status'),grid=d.getElementById(ID+'Grid');
  if(!status||!grid)return;
+ const centralVerified=(w.HH_FAMILY_DEVICE_CENTRAL_V1?.devices?.()||[]).filter(x=>x&&x.verified_at&&x.device_id&&['zsolt','monika'].includes(x.profile_key));
  status.textContent=loading?'Élő jelentések lekérése…':
   state&&state.feedback?state.feedback:
+  centralVerified.length===2?'✅ Mindkét HH One központilag párosítva. A Dropbox távoli szinkron külön ellenőrizhető.':
   state&&state.error?'⚠ '+state.error:
   state?'Legutóbbi központi lekérés: '+date(state.readAt):
   'A verzióközpont a Dropbox-kapcsolat ellenőrzésére vár.';
  if(!state)return;
  const result=state.model;
- const gridKey=JSON.stringify({model:result,error:state.error,verified:state.registryVerified});
+ const paired=(w.HH_FAMILY_DEVICE_CENTRAL_V1?.devices?.()||[]).filter(x=>x&&x.verified_at&&x.device_id&&['zsolt','monika'].includes(x.profile_key));
+ const gridKey=JSON.stringify({model:result,error:state.error,verified:state.registryVerified,paired});
  if(gridKey===lastGridKey)return; // Keep cards, focus and scroll stable during background polling.
  lastGridKey=gridKey;
  grid.replaceChildren();
  if(!state.registryVerified){
-  const cloudActions=el('div','sh9vmButtons',grid);
+  const legacy=el('details','sh9vmLegacy',grid);
+  el('summary','',legacy,'☁️ Dropbox-távoli szinkron · külön ellenőrzés');
+  el('p','sh9vmSub',legacy,'A központi telefonpárosítás ettől független. A távoli parancsokhoz külön Dropbox-kijelölés kell.');
+  const cloudActions=el('div','sh9vmButtons',legacy);
   repair('cloud','hhUnifiedCloudVaultCard',cloudActions,'☁️ Dropbox kapcsolat javítása');
  }
  const general=el('article','sh9vmCard',grid);el('h4','',general,'🌐 Központi kiadások');
@@ -98,9 +106,36 @@ function draw(){
  line(general,'SH9 önálló régi APK','Nem követhető · nincs saját eszközjelentés','sh9vmWarn');
  line(general,'Webszinkron','Az aktuális nyilvános kiadás, nem az eszköz betöltött verziója');
  for(const device of result.devices){
+  const verified=paired.find(x=>x.profile_key===device.owner);
   const card=el('article','sh9vmCard',grid);
-  el('h4','',card,label(device.owner)+' · '+(device.registered?device.name:
-    state.registryVerified?'Nincs ellenőrzött fő telefon':'Telefonkijelölés nem ellenőrizhető'));
+  el('h4','',card,label(device.owner)+' · '+(verified?'HH One · hitelesített telefon':device.registered?device.name:
+    'Központi állapot ellenőrzésre vár'));
+  if(verified){
+   const age=Date.now()-Date.parse(verified.last_seen_at||'');
+   const fresh=verified.state==='online'&&Number.isFinite(age)&&age>=0&&age<=20*60000;
+   line(card,'Központi párosítás','✅ Hitelesítve','sh9vmOk');
+   line(card,'Telepített HH One',verified.build||'Ismeretlen');
+   line(card,'Utolsó központi jelzés',verified.last_seen_at?new Date(verified.last_seen_at).toLocaleString('hu-HU'):'Nincs adat');
+   line(card,'Kapcsolat',fresh?'✅ Online':'🟠 Párosítva, de friss kapcsolat nem igazolt',fresh?'sh9vmOk':'sh9vmWarn');
+   const legacy=el('details','sh9vmLegacy',card);
+   el('summary','',legacy,'☁️ Dropbox-os távoli parancsok · diagnosztika');
+   line(legacy,'Régi telefonkijelölés',device.registered?'Elérhető':'Nem ellenőrizhető; a párosítás ettől érvényes');
+   if(device.registered){
+    line(legacy,'Utolsó Dropbox-jelentés',date(device.lastSeenAt));
+    line(legacy,'Utolsó parancs',device.command);
+    const actions=el('div','sh9vmButtons',legacy);
+    if(device.canRequestCheck){
+     const check=el('button','',actions,'📦 OTA CHECK · '+(device.owner==='zsolt'?'Zsolt':'Mónika'));
+     check.type='button';check.disabled=loading||interacting;
+     check.title='Csak ellenőrzés, telepítés nélkül';
+     check.addEventListener('click',()=>void dispatch(device.owner));
+    }
+   }else {
+    const actions=el('div','sh9vmButtons',legacy);
+    repair('cloud','hhUnifiedCloudVaultCard',actions,'☁️ Dropbox kapcsolat megnyitása');
+   }
+   continue;
+  }
   if(!device.registered){
    line(card,'Státusz',state.registryVerified?'Nincs egyező ellenőrzött Android-jelentés':
      'A Dropbox-regiszter nem olvasható. A korábbi kijelölés ettől még megmaradhat.','sh9vmWarn');
@@ -197,5 +232,6 @@ if(d.readyState==='loading')d.addEventListener('DOMContentLoaded',tick,{once:tru
 w.setInterval(tick,2200);
 w.addEventListener('focus',tick);
 w.addEventListener('healthhub:device-registry-updated',()=>void refreshNow(true));
+w.addEventListener('healthhub:central-device-registry-changed',()=>draw());
 w.SH9_VERSION_CENTER_V1={refresh:()=>refreshNow(true),getSnapshot:()=>state&&state.model};
 })(window,document);

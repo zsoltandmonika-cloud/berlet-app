@@ -331,8 +331,8 @@ function renderAdmin(){
  var missing=phoneRegistryCache&&phoneRegistryCache.activePhones?
    ['zsolt','monika'].filter(function(p){return !phoneRegistryCache.activePhones[p]}):[];
   var warning=phoneRegistryCache?missing.length?
-   '⚠ Nincs kijelölt fő telefon: '+missing.map(function(p){return p==='zsolt'?'Zsolt':'Mónika'}).join(' és '):
-   '':'📱 A telefonkijelölés még nem ellenőrizhető. Nyisd meg az Eszközregisztert.';
+   '☁️ Dropbox-távoli parancshoz hiányzó kijelölés: '+missing.map(function(p){return p==='zsolt'?'Zsolt':'Mónika'}).join(' és '):
+   '':'☁️ A régi Dropbox-os távoli parancsok kijelölése még nem ellenőrizhető. A központi telefonpárosítás ettől független.';
   var html='<section id="'+ADMIN_ID+'" class="hhOrch305"><div class="hhOrchHead305"><div><h3>🌐 Central Sync Orchestrator · v305</h3><small>Dropbox command plane · csak a kijelölt fizikai telefonokra</small></div><span class="hhOrchBadge305 '+(connected()?'':'off')+'">'+(connected()?'CONNECTED':'OFFLINE')+'</span></div>'+
  '<div class="hhOrchControls305"><select id="hhOrchScope305"><option value="health">Health + Activity</option><option value="full">FULL (régi · nem minden modult frissít)</option><option value="daily">Daily Cloud</option><option value="ota">📦 APP UPDATE CHECK (nem telepítés)</option><option value="diagnostics">🩺 TECHNIKAI DIAG (HH One 0.14.1+)</option></select><button class="primary" id="hhOrchAll305">↻ KIJELÖLT TELEFONOK</button><button id="hhOrchZ305">Zsolt</button><button id="hhOrchM305">Mónika</button><button id="hhOrchRefresh305">↻ STATUS</button></div>'+
  '<div class="hhOrchRegistryWarning809"'+(warning?'':' hidden')+'><span>'+esc(warning)+'</span><button type="button" data-hh-orch-registry="1">📱 Eszközregiszter · kijelölés</button></div>'+

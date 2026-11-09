@@ -67,8 +67,8 @@ function classifyCentral(rows){
  var z=get('zsolt'),m=get('monika');
  var fresh=function(d){return !!(d&&d.state==='online'&&isoAge(d.last_seen_at)<=ttl)};
  var okZ=fresh(z),okM=fresh(m);
- var txtZ=okZ?'Zsolt: központilag igazolt':z?'Zsolt: nincs friss jelentés':'Zsolt: párosításra vár';
- var txtM=okM?'Mónika: központilag igazolt':m?'Mónika: nincs friss jelentés':'Mónika: párosításra vár';
+ var txtZ=okZ?'Zsolt: központilag igazolt':z?'Zsolt: nincs friss jelentés':'Zsolt: nincs hitelesített központi jelentés';
+ var txtM=okM?'Mónika: központilag igazolt':m?'Mónika: nincs friss jelentés':'Mónika: nincs hitelesített központi jelentés';
  return {color:okZ&&okM?'green':'amber',message:txtZ+' · '+txtM,verified:valid};
 }
 function elt(t,cls,parent){var e=document.createElement(t);if(cls)e.className=cls;if(parent)parent.appendChild(e);return e}
@@ -166,12 +166,12 @@ function renderCentralPanel(area){
   var name=p==='zsolt'?'💙 Zsolt':'🩷 Mónika',row=state.centralRows.find(function(x){return x.profile_key===p});
   var box=elt('div','hhLine',area);
   if(!row){
-   txt('strong',name+' · Párosításra vár',box);
+   txt('strong',name+' · Hitelesített állapot ellenőrzésre vár',box);
    txt('small','Nincs még hitelesített központi telefonjelentés. Ez önmagában nem telefonhiba.',box);
    return;
   }
   var fresh=row.state==='online'&&isoAge(row.last_seen_at)<=ttl;
-  txt('strong',name+' · '+(fresh?'✅ Hitelesítve':'🟠 Nem friss jelentés'),box);
+  txt('strong',name+' · '+(fresh?'✅ Hitelesítve':'🟠 Párosítva · nincs friss jelentés'),box);
   txt('small','Natív azonosító: …'+safeText(row.device_id).slice(-12)+' · HH ONE '+safeText(row.build||'?'),box);
   txt('small','Utolsó hitelesített jelentés: '+dt(row.last_seen_at),box);
   // A genuine warning is shown only if the exact central phone ID also
