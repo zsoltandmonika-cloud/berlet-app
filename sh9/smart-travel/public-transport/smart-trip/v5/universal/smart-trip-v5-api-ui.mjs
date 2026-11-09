@@ -6,10 +6,12 @@
  * one billable-search button. Google data is NEVER given to AI or My Trips.
  */
 import {buildV5Intake} from "./smart-trip-v5-intake.mjs";
+import {evaluateIndependentBkk} from "./lena-independent-bkk-v1.mjs";
+import {evaluateIndependentMav} from "./lena-independent-mav-v1.mjs";
 const HOST="https://vhsrupphzcjkdrusonzh.supabase.co";
 const ENDPOINT=HOST+"/functions/v1/hh-smart-trip-universal-v1";
 const $=id=>document.getElementById(id);
-let sb=null,context=null,busy=false,ready=false,current=null;
+let sb=null,context=null,busy=false,lenaBusy=false,ready=false,current=null;
 const errors={
  invalid_input:"Hiányos vagy érvénytelen keresési adatok.",
  invalid_address:"Mindkét hely szükséges. Válassz pontos címjavaslatot vagy írj teljes címet.",
@@ -46,14 +48,20 @@ function setButtons(){
  $("st22V5ApiDiagnose").disabled=busy;
  $("st22V5ApiSearch").disabled=busy||!ready;
  $("st22V5ApiConsent").disabled=busy;
+ $("st22V5LenaEvaluate").disabled=busy||lenaBusy;
 }
 function clearResults(){
  $("st22V5ApiRoutes").hidden=true;
  $("st22V5ApiRoutes").replaceChildren();
 }
+function clearLena(){
+ $("st22V5LenaResult").hidden=true;
+ $("st22V5LenaResult").replaceChildren();
+ $("st22V5LenaStatus").textContent="";
+}
 function cleanup(){
  current?.abort();current=null;context=null;ready=false;
- clearResults();setButtons();
+ clearResults();clearLena();setButtons();
 }
 function authenticatedClient(){
  const cfg=globalThis.HH_CENTRAL_VAULT;
@@ -98,13 +106,13 @@ function renderRoutes(data){
  root.hidden=false;
 }
 async function execute(mode){
- if(busy||!context)return;
+ if(busy||lenaBusy||!context)return;
  if(!$("st22V5ApiConsent").checked){
   status("Az API-diagnózis és az útvonalkeresés előtt jelöld be az adatok átadását.");return;
  }
  if(mode==="search"&&!ready){status("Először futtasd a költségmentes kapcsolatellenőrzést.");return;}
  const snapshot=context;
- busy=true;ready=false;clearResults();setButtons();
+ busy=true;ready=false;clearResults();clearLena();setButtons();
  const controller=new AbortController();current=controller;
  const start=performance.now();
  const timer=setTimeout(()=>controller.abort(),29000);
@@ -166,11 +174,134 @@ async function execute(mode){
   busy=false;setButtons();
  }
 }
+async function runIndependentLena(){
+ if(busy||lenaBusy||!context)return;
+ const snapshot=context,dialog=$("st22V5ApiDialog");
+ const root=$("st22V5LenaResult");
+ lenaBusy=true;clearResults();clearLena();setButtons();
+ $("st22V5LenaStatus").textContent=
+  "✨ Léna: független menetrendi ellenőrzés, 0 Google-hívás, 0 LLM-hívás…";
+ try{
+  const q=snapshot.query;
+  const input={from:q.origin.label,to:q.destination.label,
+   mode:q.mode,date:q.date,time:q.time};
+  const request={...input,when:q.when,profile:q.profile,priority:q.priority};
+  let ranked=null,provider=null,engine=null;
+  // BKK candidate discovery is independent of Google. Skip the BKK search
+  // quota if the supplied full names are not official routable pilot stops.
+  engine=globalThis.SH9_BKK_SEARCH_V1107;
+  if(engine?.load&&engine?.search&&engine?.suggestions){
+   try{
+    await engine.load();
+    if(context!==snapshot||!dialog.open)return;
+    const norm=s=>String(s||"").normalize("NFD")
+     .replace(/[\u0300-\u036f]/g,"").toLocaleLowerCase("hu-HU")
+     .replace(/\s+/g," ").trim();
+    const covered=name=>engine.suggestions(name).some(x=>
+     x.routable===true&&norm(x.name)===norm(name));
+    if(covered(input.from)&&covered(input.to)){
+     const response=await engine.search(input,q.when);
+     if(response?.status==="ok"){
+      const evaluated=evaluateIndependentBkk(response,request);
+      if(evaluated.status==="ok"){ranked=evaluated;provider="bkk";}
+     }
+    }
+   }catch{} // On invalid BKK feed, try independently verified local MÁV.
+  }
+  if(!ranked){
+   // Private MÁV GTFS remains on this DEVICE, never uploaded to a model or
+   // to Supabase. The controller already validates its source and rights.
+   const controller=globalThis.SH9_SMART_TRIP_AI_V1022;
+   const rail=globalThis.SH9_MAV_GTFS_CORE_V1;
+   if(controller?.loadRailData&&rail?.validate&&rail?.route){
+    let raw=null;
+    try{raw=await Promise.race([
+     controller.loadRailData(),
+     new Promise(resolve=>setTimeout(()=>resolve(null),7000))
+    ])}catch{}
+    if(context!==snapshot||!dialog.open)return;
+    if(raw&&rail.validate(raw,{allowPrivate:true})&&raw.rightsConfirmed===false&&
+     raw.localOnly===true&&/m[aá]v|vas[uú]t|rail/i.test(raw.source||"")){
+     let data=null;
+     try{data=rail.route(raw,{...input,when:q.when},
+      {limit:30,maxTransfers:1,localOnly:true,ranking:"recommended"})}catch{}
+     if(data?.status==="ok"){
+      const evaluated=evaluateIndependentMav(data,raw,request);
+      if(evaluated.status==="ok"){ranked=evaluated;provider="mav";}
+     }
+    }
+   }
+  }
+  if(context!==snapshot||!dialog.open)return;
+  if(!ranked){
+   $("st22V5LenaStatus").textContent=
+    "ⓘ Erre a cím- és időpontpárra nincs függetlenül ellenőrzött "+
+    "BKK vagy helyi MÁV útvonal. Az országos Volán/MÁV és a teljes "+
+    "ajtótól ajtóig integráció még hiányzik. Google-útvonalat nem "+
+    "adunk át Lénának, és nem találunk ki járatot.";
+   return;
+  }
+  const pick=ranked.aPlan;
+  const label=provider==="bkk"?"BKK Zrt. CC BY 4.0":"Privát MÁV GTFS";
+  text("h3","✨ Léna A terve · "+label,root);
+  const lines=pick.item.legs.map(x=>provider==="bkk"?x.line:x.service).join(" → ");
+  text("p",(provider==="bkk"?"🚋 ":"🚆 ")+lines+
+   " · "+fmt(pick.departure)+" → "+fmt(pick.arrival)+
+   " · "+pick.minutes+" perc",root);
+  text("p","Átszállások: "+pick.transfers+
+   (pick.transfers?" · menetrendi csatlakozás: "+pick.transferMinutes+" perc":""),root);
+  ranked.warnings.forEach(w=>text("p","ⓘ "+w,root));
+  text("small","Léna helyi szabályalapú értékelő · nem LLM, nem Google Routes-adat. "+
+   ranked.alternativesEvaluated+" önálló menetrendi találatot hasonlított össze.",root);
+  if(provider==="bkk"){
+   const save=text("button","💾 Ezt a BKK A tervet mentem a My Tripsbe",root);
+   save.type="button";save.className="secondary";
+   save.addEventListener("click",async()=>{
+    let nowProfile="z";
+    try{nowProfile=globalThis.localStorage?.getItem("hh-profile")==="m"?"m":"z"}
+    catch{nowProfile="unknown"}
+    if(context!==snapshot||!dialog.open||lenaBusy||nowProfile!==q.profile){
+     $("st22V5LenaStatus").textContent=
+      "A profil vagy a keresés megváltozott. Új ellenőrzés szükséges.";
+     return;
+    }
+    save.disabled=true;
+    save.textContent="🔐 Ellenőrzés és felhőmentés…";
+    let saved;
+    try{saved=await engine.save(pick.item,q.profile)}
+    catch{saved={status:"save_failed"}}
+    if(context!==snapshot||!dialog.open)return;
+    if(saved?.status==="saved"){
+     save.textContent="✓ Mentve";
+     $("st22V5LenaStatus").textContent=
+      "✅ Az ellenőrzött BKK A terv igazoltan mentve a My Tripsbe.";
+    }else{
+     save.textContent="💾 Mentés újrapróbálása";
+     save.disabled=false;
+     $("st22V5LenaStatus").textContent=
+      "⚠️ A My Trips mentés nem igazolt: "+String(saved?.status||"ismeretlen hiba");
+    }
+   });
+  }
+  root.hidden=false;
+  $("st22V5LenaStatus").textContent=
+   "✅ Egy független menetrendi A terv kiválasztva. "+
+   (ranked.provisional?"A csatlakozás / gyaloglás külön ellenőrizendő.":
+    "Közvetlen menetrendi kapcsolat.")+
+   " Nincs Google → AI adatátadás.";
+ }catch(e){
+  if(context===snapshot&&dialog.open)
+   $("st22V5LenaStatus").textContent=
+    "⚠️ "+String(e?.message||"A független adatforrás nem működik.");
+ }finally{
+  lenaBusy=false;setButtons();
+ }
+}
 function open(payload){
  const result=buildV5Intake(payload);
  if(result.status!=="ok")return {status:result.status,
   message:errors[result.status]||"Érvénytelen V5 cím-/időpontadat."};
- if(busy)return {status:"busy",message:"Már fut egy V5 kérés."};
+ if(busy||lenaBusy)return {status:"busy",message:"Már fut egy V5 kérés."};
  const dialog=$("st22V5ApiDialog");
  if(!dialog?.showModal)return {status:"unavailable",message:"A V5 eredményablak nem érhető el."};
  cleanup();
@@ -201,6 +332,7 @@ function init(){
  $("st22V5ApiDialog").addEventListener("close",cleanup);
  $("st22V5ApiDiagnose").addEventListener("click",()=>{void execute("diagnose")});
  $("st22V5ApiSearch").addEventListener("click",()=>{void execute("search")});
+ $("st22V5LenaEvaluate").addEventListener("click",()=>{void runIndependentLena()});
  $("st22V5ApiConsent").addEventListener("change",()=>{
   if(!$("st22V5ApiConsent").checked)ready=false;
   setButtons();
