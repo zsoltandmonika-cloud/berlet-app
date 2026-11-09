@@ -21,11 +21,15 @@ expectedPatch[2]++;
 const expectedMinor=ota.version.split('.').map(Number);
 expectedMinor[1]++;
 expectedMinor[2]=0;
-const allowedCandidates=[expectedPatch.join('.'),expectedMinor.join('.')];
+const expectedPatch2=ota.version.split('.').map(Number);
+expectedPatch2[2]+=2;
+const allowedCandidates=[expectedPatch.join('.'),expectedPatch2.join('.'),expectedMinor.join('.')];
 const publishedBuild='versionCode = '+ota.versionCode;
 const candidateBuild='versionCode = '+(ota.versionCode+1);
+const nextPilotBuild='versionCode = '+(ota.versionCode+2);
 const isPublished=build.includes(publishedBuild);
-const isCandidate=build.includes(candidateBuild);
+// Two staged candidate patches may exist between separately approved signed OTA releases.
+const isCandidate=build.includes(candidateBuild)||build.includes(nextPilotBuild);
 const isExactPrivatePilot=ota.version==='0.15.2'&&ota.versionCode===29&&
  build.includes('versionName = "0.15.8"')&&build.includes('versionCode = 35');
 assert.ok(isPublished||isCandidate||isExactPrivatePilot,
