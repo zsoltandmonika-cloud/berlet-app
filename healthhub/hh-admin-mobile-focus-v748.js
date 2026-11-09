@@ -87,28 +87,33 @@ function help(s){const n=q(ID+'Help');if(n)n.textContent=s}
 function registryNotice(){
  const banner=q('hhAdminRegistryFastV809'),label=q('hhAdminRegistryTextV809');
  if(!banner||!label)return;
- // Central registry is authoritative after a real native heartbeat has been verified.
- const central=w.HH_FAMILY_DEVICE_CENTRAL_V1?.devices?.()||[];
- if(central.length){
-  const verified=new Set(central.filter(x=>{
+ const pair=q('hhCentralPairOpenV3');
+ const centralApi=w.HH_FAMILY_DEVICE_CENTRAL_V1;
+ const central=centralApi?.devices?.()||[];
+ const paired=new Set(central.filter(x=>x&&x.verified_at&&x.device_id).map(x=>x.profile_key));
+ if(pair)pair.textContent=paired.has('zsolt')&&paired.has('monika')?
+  '✅ Mindkét telefon párosítva · központi állapot':
+  '🔐 Központi telefonállapot és párosítás';
+ if(centralApi){
+  if(!central.length){
+   banner.hidden=false;
+   label.textContent='🔐 A központi telefonállapot ellenőrzésre vár. A Dropbox régi kijelölése nem párosítási hiba.';
+   return;
+  }
+  const fresh=new Set(central.filter(x=>{
    const age=Date.now()-Date.parse(x.last_seen_at||'');
-   return x.state==='online'&&age>=0&&age<=20*60000;
+   return x.verified_at&&x.state==='online'&&age>=0&&age<=20*60000;
   }).map(x=>x.profile_key));
-  const missingCentral=['zsolt','monika'].filter(p=>!verified.has(p));
-  banner.hidden=missingCentral.length===0;
-  label.textContent=missingCentral.length?
-   '☁️ Közös regiszter: '+missingCentral.map(p=>p==='zsolt'?'Zsolt':'Mónika').join(' és ')+
-   ' még nem adott friss igazolt telefonjelentést. A Dropbox-hiba önmagában nem telefonhiba.':
-   '✅ Mindkét telefon frissen igazolt a közös regiszterben.';
+  const missingFresh=['zsolt','monika'].filter(p=>!fresh.has(p));
+  banner.hidden=missingFresh.length===0;
+  label.textContent=missingFresh.length?
+   '🟠 Központi kapcsolat: '+missingFresh.map(p=>p==='zsolt'?'Zsolt':'Mónika').join(' és ')+
+   ' nem adott friss igazolt jelentést. Ez nem automatikusan újrapárosítási igény.':
+   '✅ Mindkét telefon központilag hitelesítve és online.';
   return;
  }
- const api=w.hhDeviceRegistry401,reg=api&&typeof api.registry==='function'?api.registry():null;
- const known=!!(reg&&reg.schema==='healthhub.device_registry/1'&&reg.activePhones);
- const missing=known?['zsolt','monika'].filter(p=>!reg.activePhones[p]):[];
- banner.hidden=known&&!missing.length;
- label.textContent=known&&missing.length
-  ?'⚠ Nincs kijelölt telefon: '+missing.map(p=>p==='zsolt'?'Zsolt':'Mónika').join(' és ')+'. Itt választhatod ki a tényleges készüléket.'
-  :'📱 Eszközregiszter ellenőrzése · a tényleges Android-készülék kiválasztása';
+ banner.hidden=false;
+ label.textContent='A hitelesített központi eszközregiszter még nem töltődött be. A Dropbox-alapú kijelölés külön ellenőrizhető.';
 }
 function apply(){
  d.documentElement.dataset.hhAdminFocus=selected;
