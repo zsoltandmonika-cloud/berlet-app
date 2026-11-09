@@ -1,0 +1,51 @@
+name: HH ONE · Central Family Registry + Stable Admin QA
+on:
+  pull_request:
+    paths:
+      - "healthhub/family-device-central-v1.js"
+      - "healthhub/device-registry-v401.js"
+      - "healthhub/index.html"
+      - "healthhub/android-bridge/**"
+      - "healthhub/tests/hh-one-family-registry-v1.test.cjs"
+      - ".github/workflows/hh-one-family-registry-v1-qa.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  registry-web:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: JavaScript syntax and non-destructive registry tests
+        run: |
+          node --check healthhub/family-device-central-v1.js
+          node --check healthhub/device-registry-v401.js
+          node --test healthhub/tests/hh-one-family-registry-v1.test.cjs
+          node --test healthhub/tests/hh-one-device-status-v504.test.cjs
+          node --test healthhub/tests/dropbox-safe-reconcile-v816.test.cjs
+  native-debug-compile:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    defaults:
+      run:
+        working-directory: healthhub/android-bridge
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+      - name: Install Android SDK
+        run: |
+          SDKMANAGER="$(find "$ANDROID_HOME/cmdline-tools" -type f -name sdkmanager | head -1)"
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" "platforms;android-36" "build-tools;35.0.0"
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.13"
+      - name: Compile and test DEBUG only, never signed OTA
+        run: gradle :app:testDebugUnitTest :app:assembleDebug --no-daemon
