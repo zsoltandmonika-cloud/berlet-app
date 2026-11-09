@@ -96,7 +96,7 @@ function draw(){
   el('summary','',legacy,'☁️ Dropbox-távoli szinkron · külön ellenőrzés');
   el('p','sh9vmSub',legacy,'A központi telefonpárosítás ettől független. A távoli parancsokhoz külön Dropbox-kijelölés kell.');
   const cloudActions=el('div','sh9vmButtons',legacy);
-  repair('cloud','hhUnifiedCloudVaultCard',cloudActions,'☁️ Dropbox kapcsolat ellenőrzése');
+  repair('cloud','hhUnifiedCloudVaultCard',cloudActions,'☁️ Dropbox kapcsolat javítása');
  }
  const general=el('article','sh9vmCard',grid);el('h4','',general,'🌐 Központi kiadások');
  line(general,'SH9 webes kiadás',result.webRelease?result.webRelease.version:'Nincs hiteles verziójelző');
