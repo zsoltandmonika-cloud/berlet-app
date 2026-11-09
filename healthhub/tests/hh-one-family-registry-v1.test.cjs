@@ -121,7 +121,7 @@ test('Admin pairing opens from top-level stable dialog, with no recurring regist
  assert.doesNotMatch(legacy,/central\.render\(\)/);
  assert.doesNotMatch(legacy,/central\.begin\(\)/);
  assert.match(legacy,/Intentionally no 60s automatic Dropbox registry refresh/);
- assert.match(html,/pairdialog=1/);
+ assert.match(html,/pairdialog=2/);
  assert.match(html,/manual=1/);
 });
 test('native WebView accepts Android approximate-location consent without auto-exfiltration',()=>{
