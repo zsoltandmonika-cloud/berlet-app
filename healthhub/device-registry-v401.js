@@ -99,8 +99,12 @@ function panel(force){
  if(error)html+='<p class="hhRegWarn401" role="alert">'+clean(error)+'</p>';
  if(note)html+='<p class="hhRegNote401" role="status">'+clean(note)+'</p>';
  if(!registry)html+='<p class="hhRegNote401">A regiszter még nem töltődött be; addig távoli parancs nem indul.</p>';
- if(registry&&cloud()&&nativeCount===0){
-   html+='<p class="hhRegWarn401">Ebben a webes Dropbox-fiókban nincs Android-jelentés. Ha a natív HH ONE igazolt jelentést, a két Dropbox-fiók valószínűleg eltér. A natív telefonazonosítót ne töröld. Eszközadatot nem törlünk.</p>';
+ // Browser account reconciliation is independent of the legacy v401
+ // command registry and the number of Dropbox Android reports. Mónika can
+ // have a valid central pairing while the old Dropbox registry is unreadable.
+ if(cloud()){
+   if(nativeCount===0)html+='<p class="hhRegWarn401">Ebben a webes Dropbox-fiókban nincs Android-jelentés. Ez nem bizonyítja, hogy a központi telefonpárosítás hibás. A natív telefonazonosítót nem töröljük.</p>';
+   if(!registry)html+='<p class="hhRegNote401">A Dropbox-fiók ellenőrzése a régi eszközregiszter betöltése nélkül is elérhető. Ez nem indít távoli szinkront.</p>';
    html+='<div class="hhRegReconcile401"><label for="hhRegExpectedAccount401">Működő családi Dropbox-fiók azonosítójának utolsó 8 karaktere</label>'+
      '<input id="hhRegExpectedAccount401" type="text" maxlength="8" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="8 karakter" />'+
      '<button type="button" data-hh-reg-action="account-switch">🔐 Biztonságos Dropbox-egyeztetés</button>'+
