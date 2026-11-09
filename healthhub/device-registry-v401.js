@@ -104,7 +104,7 @@ function panel(force){
    html+='<div class="hhRegReconcile401"><label for="hhRegExpectedAccount401">Működő családi Dropbox-fiók azonosítójának utolsó 8 karaktere</label>'+
      '<input id="hhRegExpectedAccount401" type="text" maxlength="8" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="8 karakter" />'+
      '<button type="button" data-hh-reg-action="account-switch">🔐 Biztonságos Dropbox-egyeztetés</button>'+
-     '<small>A meglévő webes kapcsolat csak ellenőrzött egyezés után cserélődik. Mónika eszköze és az egészségügyi adatok nem törlődnek.</small></div>';
+     '<small>A fiók csak ellenőrzött egyezés után változik. Elsőre kizárólag adatforrás-ellenőrzés: a webes Vault-egyesítés és -feltöltés külön jóváhagyásig szünetel. A natív HH One nem változik.</small></div>';
   }
   if(cloud()&&api().repairNote&&api().repairNote())html+='<p class="hhRegWarn401" role="alert">'+clean(api().repairNote())+'</p>';
  // Legacy diagnostics are collapsed by default and cannot invalidate a verified pair.

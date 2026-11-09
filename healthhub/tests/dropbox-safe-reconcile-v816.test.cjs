@@ -43,6 +43,22 @@ test('verified new account is the only condition that replaces the previous web 
  assert.equal(app.local.getItem('hh-dropbox-account-repair-note-v1'),null);
  assert.equal(app.redirects,1);
 });
+test('matched Dropbox reauthorization enables read-only verification before any local merge',async()=>{
+ const app=makeApp({callback:true});await tick();
+ assert.equal(app.win.HH_DROPBOX_VAULT.readOnlyVerification(),true);
+ assert.equal(JSON.parse(app.local.getItem('hh-dropbox-readonly-reconcile-v1')).expectedSuffix,'QbVL0JOo');
+ await assert.rejects(app.win.HH_DROPBOX_VAULT.uploadJson('/HealthHub/test.json',{ok:true}),/ellenőrző mód/);
+ assert.equal(await app.win.HH_DROPBOX_VAULT.autoSync('monika','startup'),false);
+ app.win.hhDropboxApproveReconcile();
+ assert.equal(app.local.getItem('hh-dropbox-readonly-reconcile-v1'),null);
+ assert.equal(app.win.HH_DROPBOX_VAULT.readOnlyVerification(),false);
+});
+test('read-only reconciliation must also suppress background Health Connect imports',()=>{
+ const importer=fs.readFileSync(path.join(root,'live-v165.js'),'utf8');
+ assert.match(importer,/HH_DROPBOX_VAULT\?\.readOnlyVerification\?\.\(\)/);
+ assert.match(source,/requireVaultWriteAllowed\(\)/);
+});
+
 test('different Dropbox account never overwrites existing refresh token',async()=>{
  const app=makeApp({callback:true,accountId:'dbid-other-cEjkW3UM'});await tick();
  assert.equal(JSON.parse(app.local.getItem('hh-dropbox-token-v2')).refresh_token,'old-refresh');
