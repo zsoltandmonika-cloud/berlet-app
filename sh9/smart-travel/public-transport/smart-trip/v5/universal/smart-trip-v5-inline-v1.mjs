@@ -179,6 +179,10 @@ function open(payload){
  return {status:"started"};
 }
 function init(){
+ const provider=$("st22SearchMethod"),cost=$("st22V5CostNote");
+ const showCost=()=>{if(cost)cost.hidden=provider?.value!=="google_api_v5"};
+ provider?.addEventListener("change",showCost);
+ showCost();
  // Changing the input or provider invalidates any pending request. The
  // provider request may still be billed after a client-side abort.
  for(const id of ["st22From","st22To","st22Date","st22Time",
@@ -187,8 +191,8 @@ function init(){
   el.addEventListener(id==="st22Profile"?"click":"change",cancel);
   if(["st22From","st22To"].includes(id))el.addEventListener("input",cancel);
  }
- // Override the legacy dialog interface. It stays dormant for prior QA
- // compatibility; no intermediate test sheet opens for V5.
+ // The original V5 dialog was removed from the page. One explicit
+ // Smart Trip search click directly initiates one Google API call.
  globalThis.SH9_SMART_TRIP_V5_API=Object.freeze({open,cancel,mode:"inline_one_click"});
 }
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});
