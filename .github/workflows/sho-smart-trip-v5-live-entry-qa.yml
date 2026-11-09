@@ -1,0 +1,31 @@
+name: SHO Smart Trip V5 public test entry QA
+on:
+  push:
+    branches: [release/smart-trip-v5-test-entry-20261109]
+    paths:
+      - 'sh9/smart-travel/public-transport/smart-trip/index.html'
+      - 'sh9/smart-travel/public-transport/smart-trip/v5/universal/**'
+      - 'healthhub/tests/sho-smart-trip-v5-live-entry.test.mjs'
+      - '.github/workflows/sho-smart-trip-v5-live-entry-qa.yml'
+  pull_request:
+    paths:
+      - 'sh9/smart-travel/public-transport/smart-trip/index.html'
+      - 'sh9/smart-travel/public-transport/smart-trip/v5/universal/**'
+      - 'healthhub/tests/sho-smart-trip-v5-live-entry.test.mjs'
+      - '.github/workflows/sho-smart-trip-v5-live-entry-qa.yml'
+permissions:
+  contents: read
+jobs:
+  verify-safe-v5-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Syntax and public V5 test navigation
+        run: |
+          node --check sh9/smart-travel/public-transport/smart-trip/v5/universal/universal-request.mjs
+          node --check sh9/smart-travel/public-transport/smart-trip/v5/universal/universal-client.mjs
+          node --test healthhub/tests/sho-smart-trip-v5-live-entry.test.mjs

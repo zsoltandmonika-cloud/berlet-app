@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="hu"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0a1026">
+<meta name="description" content="SHO Smart Trip AI V5: szabad címbevitel és Google-kompatibilis, különálló teszt.">
+<title>Smart Trip AI V5 · Teszt</title>
+<style>
+:root{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;color-scheme:dark;
+--accent:#a7ccff;--border:#b4bbee5b;--glass:#182c4cbf;--text:#f4f7ff}
+:root.monika{--accent:#f1addb;--border:#eac0ef70;--glass:#302548c5}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;color:var(--text);
+background:radial-gradient(ellipse at 8% 1%,#48307688,transparent 63%),
+radial-gradient(ellipse at 97% 100%,#0e426e81,transparent 60%),#080e25;
+padding:18px}main{max-width:920px;margin:auto;padding-bottom:42px}
+.panel{border:1px solid var(--border);border-radius:22px;margin:0 0 16px;
+background:linear-gradient(135deg,var(--glass),#091a3ed9);padding:20px;
+box-shadow:0 18px 38px #0005;backdrop-filter:blur(12px)}
+.kicker{color:var(--accent);font-size:12px;font-weight:900;letter-spacing:.16em}
+h1{font-size:clamp(24px,5vw,34px);margin:7px 0}h2{font-size:19px;margin:0 0 14px}
+p{color:#d1ddf1;line-height:1.5}.note{background:#46311e78;border:1px solid #ffdd9d69;
+color:#ffe9ca;padding:12px 14px;border-radius:13px}.grid{display:grid;
+grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+label{display:block;font-size:13px;color:#d5def1;font-weight:750;margin:7px 0}
+input,select{display:block;width:100%;min-width:0;border-radius:12px;
+border:1px solid #a4b8e671;background:#081836e0;color:white;
+padding:12px 14px;font:inherit;min-height:48px}
+input:focus-visible,select:focus-visible,button:focus-visible,a:focus-visible{
+outline:3px solid var(--accent);outline-offset:3px}
+.actions{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:16px}
+button,.linkButton{font:inherit;min-height:46px;font-weight:770;border:0;
+border-radius:13px;padding:12px 16px;color:#fff;
+background:linear-gradient(110deg,#3274c5,#755fd0);cursor:pointer;text-decoration:none;
+display:inline-flex;align-items:center;justify-content:center}
+.monika button:not(.secondary),.monika .linkButton{background:linear-gradient(110deg,#d770c5,#8567d2)}
+button.secondary{background:#13294b;border:1px solid #a3b5e07b}
+button:disabled,.linkButton[hidden]{opacity:.5;cursor:default}
+#feedback{border:1px solid var(--border);border-radius:12px;padding:11px 13px;
+background:#0b1939bd;overflow-wrap:anywhere}
+.pill{display:inline-block;border:1px solid var(--border);border-radius:999px;
+padding:5px 9px;margin:0 6px 7px 0;font-size:12px;color:#d5e3fc}
+.result{padding:12px;border-radius:12px;background:#081b3db0;
+border:1px solid var(--border)}.result p{margin:8px 0}
+small{color:#b5c7e4}a{color:#bddbff}[hidden]{display:none!important}
+@media(max-width:650px){.panel{padding:15px}.grid{grid-template-columns:1fr}}
+</style></head><body><main>
+<header class="panel">
+<div class="kicker">SHO · SMART TRIP AI · V5 UNIVERSAL ADDRESS</div>
+<h1>🧭 Bárhonnan, bárhová</h1>
+<p>Szabad címek, helynevek és GPS-koordináták. Előkészítés a Google Routes
+és a SHO keresőmotor számára, a korábbi egyetlen rögzített tesztútvonal nélkül.</p>
+<p class="note"><strong>Ez az általános címbevitel nyilvános tesztje,
+nem kész automatikus útvonaltervező.</strong> A szöveges címeket itt még nem geokódoljuk és nem
+azonosítjuk be. A Google Maps saját felületén valódi útvonalat kereshetsz,
+de annak eredményét a SHO jelenleg nem veszi át.</p>
+<span class="pill">✅ Tetszőleges cím</span><span class="pill">✅ GPS-koordináta</span>
+<span class="pill">✅ Budapesti időzóna</span><span class="pill">🔒 Google API nincs bekötve</span>
+<span class="pill">🧠 0 AI-hívás</span><span class="pill">💾 0 mentés</span>
+</header>
+<section class="panel">
+<h2>Honnan és hová?</h2>
+<div class="grid">
+<div><label for="from">Indulás címe / helye / koordinátája</label>
+<input id="from" autocomplete="street-address" maxlength="200"
+placeholder="Például: Budapest, Bécsi út 100" required></div>
+<div><label for="to">Érkezés címe / helye / koordinátája</label>
+<input id="to" maxlength="200"
+placeholder="Például: Kazincbarcika, Fő tér 1" required></div>
+</div>
+<div class="actions">
+<button id="swap" type="button" class="secondary">⇄ Honnan / hová csere</button>
+<button id="my-location" type="button" class="secondary">📍 Saját helyzetem</button>
+</div>
+<div class="grid" style="margin-top:12px">
+<div><label for="profile">Profil</label><select id="profile">
+<option value="m">🩷 Mónika</option><option value="z">💙 Zsolt</option></select></div>
+<div><label for="mode">Utazás időpontja</label><select id="mode">
+<option value="depart">Indulás ekkor</option><option value="arrive">Érkezés ekkor</option>
+<option value="now">Indulás most</option></select></div>
+<div><label for="day">Dátum</label><input id="day" type="date" required></div>
+<div><label for="time">Idő</label><input id="time" type="time" required></div>
+<div><label for="priority">Elsődleges szempont</label><select id="priority">
+<option value="balanced">✨ Léna ajánlása, kiegyensúlyozott</option>
+<option value="walk">🚶 Kevés gyaloglás</option>
+<option value="wait">⏳ Kevés várakozás</option>
+<option value="transfers">⇄ Kevés átszállás</option>
+<option value="duration">⚡ Rövidebb menetidő</option>
+</select></div>
+</div>
+<div class="actions">
+<button id="prepare" type="button">🔎 Útvonalkérés előkészítése</button>
+<a id="maps" class="linkButton" href="https://www.google.com/maps/" target="_blank"
+rel="noopener noreferrer" hidden>🗺️ Valódi útvonal a Google Mapsben</a>
+</div>
+<p id="feedback" role="status" aria-live="polite">Adj meg két helyet az ellenőrzéshez.</p>
+</section>
+<section class="panel" id="result-panel" hidden>
+<h2>SHO V5 · keresési adatok</h2>
+<div id="preview" class="result"></div>
+<p><small>A dátum és a preferencia elő van készítve a Routes API számára.
+A megnyitott Google Maps link nem garantálja ezek automatikus átvitelét.
+A valós 30 másodperces E2E keresés még fejlesztés alatt áll.</small></p>
+</section>
+<section class="panel" aria-label="V5 teszt mód tájékoztató">
+<h2>🧪 V5 · Első publikus teszt</h2>
+<p>A cím- és időpont-bevitelt, a GPS megadását, a Google Maps kézi megnyitását
+tudod itt kipróbálni. A teljes Google Routes API → Léna → My Trips folyamat
+<strong>még nincs bekapcsolva</strong>, így ez még nem az automatikus 30 másodperces útvonalteszt.</p>
+<a href="../../" class="linkButton" style="background:#13294b;border:1px solid #a3b5e07b">
+← Vissza a Smart Trip AI-hoz</a>
+</section>
+<footer><small>Elkülönített nyilvános teszt. Nem olvas profilcímet, helyi GTFS-adatot vagy
+HealthHub fiókadatot. GPS kizárólag a gombra kattintás és böngészőengedély után.
+A meglévő éles Smart Trip változatlan.</small></footer>
+</main>
+<script type="module" src="./universal-client.mjs"></script>
+</body></html>
