@@ -39,8 +39,15 @@ function reconcileReadOnly(){
   return !!(pk&&pk.expectedSuffix&&Date.now()-Number(pk.createdAt||0)<60*60000);
  }catch(e){return false}
 }
-function requireVaultWriteAllowed(){
- if(reconcileGuard())throw Error('Dropbox-fiók ellenőrző mód: adatfeltöltés és Vault-egyesítés szünetel.');
+function registryMetadataOnly(path){
+ return path==='/HealthHub/orchestrator/device-registry-v401.json' ||
+  /^\/HealthHub\/orchestrator\/device-registry-backup-[0-9TZ-]+-[a-z0-9]{6}\.json$/.test(String(path||''));
+}
+function requireVaultWriteAllowed(path){
+ // Explicit, user-confirmed phone selection and its backup are safe metadata
+ // operations; Health Connect, profile Vault and other writes remain blocked.
+ if(reconcileGuard()&&!registryMetadataOnly(path))
+  throw Error('Dropbox-fiók ellenőrző mód: egészségadat-feltöltés és Vault-egyesítés szünetel.');
 }
 
 function validAccountSuffix(s){return typeof s==='string'&&/^[A-Za-z0-9_-]{8}$/.test(s)}
@@ -114,7 +121,7 @@ async function accessToken(){
 }
 
 async function uploadJsonPath(path,data){
- requireVaultWriteAllowed();
+ requireVaultWriteAllowed(path);
  var token=await accessToken(),body=JSON.stringify(data,null,2)+'\n';
  var r=await fetch('https://content.dropboxapi.com/2/files/upload',{method:'POST',headers:{Authorization:'Bearer '+token,'Content-Type':'application/octet-stream','Dropbox-API-Arg':JSON.stringify({path:path,mode:'overwrite',autorename:false,mute:true})},body:body});
  var j=await r.json();if(!r.ok)throw new Error(j.error_summary||'Dropbox feltöltési hiba');return j;
