@@ -85,9 +85,9 @@ test("malformed, spoofed, or unverifiable data cannot become a candidate",async(
  assert.equal(out.best,null);
  assert.equal(out.finalized,null);
 });
-test("budget is capped at 30s, no real API or AI calls are hidden in pilot",()=>{
+test("budget is capped at 30s, no real API or AI calls are hidden in pilot",async()=>{
  assert.equal(MAX_BUDGET_MS,30000);
- assert.rejects(runParallelSearch({adapters:[
+ await assert.rejects(runParallelSearch({adapters:[
   adapter("bkk",1,[],[])
  ],budgetMs:30001}),/invalid_budget_or_callbacks/);
  const dir="sh9/smart-travel/public-transport/smart-trip/v5/parallel/";
