@@ -156,7 +156,9 @@ function panel(force){
    el.querySelector('#hhRegExpectedAccount401').value=typedSuffix;
  var details=el.querySelectorAll('details');
  openDetails.forEach(function(i){if(details[i])details[i].open=true});
- if(body.scrollTop!==top||body.scrollLeft!==left)body.scrollTo({top:top,left:left,behavior:'instant'});
+ // Passive refreshes must not force scroll coordinates and bounce the Admin panel.
+ if(force&&!window.hhAdminScrollActiveV748?.()&&(body.scrollTop!==top||body.scrollLeft!==left))
+  body.scrollTo({top:top,left:left,behavior:'instant'});
 }
 function style(){
  if(document.getElementById(STYLE))return;
