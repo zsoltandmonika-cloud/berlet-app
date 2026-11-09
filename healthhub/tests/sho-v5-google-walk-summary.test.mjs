@@ -66,6 +66,34 @@ test("malformed content fails closed; no missing steps silently dropped",()=>{
  assert.equal(summarizeGoogleWalks(null),null);
 });
 
+test("40 tiny Google navigation entries collapse to real walking sections",()=>{
+ const many=Array.from({length:40},(_,i)=>walk(i%3===0?0:i%7+1));
+ const out=summarizeGoogleWalks({durationSeconds:14400,steps:[
+  ...many.slice(0,10),transit("H5"),
+  ...many.slice(10,20),transit("M2"),
+  ...many.slice(20,30),transit("1054"),
+  ...many.slice(30,40)
+ ]});
+ // 40 raw WALK entries, 3 transit legs => 4 walks, 2 transfers.
+ assert.equal(out.walkSections,4);
+ assert.equal(out.transfers,2);
+ assert.equal(out.items.length,7);
+ assert.equal(out.totalWalkMeters,
+  many.reduce((sum,s)=>sum+s.meters,0));
+ assert.ok(out.items.filter(x=>x.kind==="walk").every(x=>x.stepCount===10));
+});
+
+test("zero-metre provider steps are removed from display, not counted as walking",()=>{
+ const result=summarizeGoogleWalks({durationSeconds:600,steps:[
+  walk(0),transit("H5"),walk(0),transit("M2"),walk(6),walk(0)
+ ]});
+ assert.ok(result);
+ assert.equal(result.walkSections,1);
+ assert.equal(result.totalWalkMeters,6);
+ assert.deepEqual(result.items.map(x=>x.kind),["transit","transit","walk"]);
+ assert.equal(result.transfers,1);
+});
+
 test("V5 renderer uses compact walking presentation but does not pass Google data to Léna",()=>{
  const root="sh9/smart-travel/public-transport/smart-trip/";
  const html=readFileSync(root+"index.html","utf8");
