@@ -62,14 +62,14 @@ test("V5 API is isolated, routed via existing form and all old methods still rem
  const root="sh9/smart-travel/public-transport/smart-trip/";
  const html=readFileSync(root+"index.html","utf8");
  const controller=readFileSync(root+"smart-trip-ai-v1022.js","utf8");
- const ui=readFileSync(root+"v5/universal/smart-trip-v5-api-ui.mjs","utf8");
+ const ui=readFileSync(root+"v5/universal/smart-trip-v5-inline-v1.mjs","utf8");
  const intake=readFileSync(root+"v5/universal/smart-trip-v5-intake.mjs","utf8");
  assert.match(html,/value="google_api_v5"/);
- assert.match(html,/id="st22V5ApiDialog"/);
- assert.match(html,/id="st22V5ApiConsent"/);
- assert.match(html,/id="st22V5ApiDiagnose"/);
- assert.match(html,/id="st22V5ApiSearch"/);
- assert.match(html,/smart-trip-v5-api-ui\.mjs/);
+ assert.doesNotMatch(html,/id="st22V5ApiDialog"/);
+ assert.doesNotMatch(html,/id="st22V5ApiConsent"/);
+ assert.doesNotMatch(html,/id="st22V5ApiDiagnose"/);
+ assert.doesNotMatch(html,/id="st22V5ApiSearch"/);
+ assert.match(html,/smart-trip-v5-inline-v1\.mjs/);
  for(const method of ["chatgpt","google","native","lena_native","bkk_gtfs"])
   assert.match(controller,new RegExp("'"+method+"'"));
  assert.match(controller,/places:selectedPlaces\(\)/);
@@ -79,8 +79,9 @@ test("V5 API is isolated, routed via existing form and all old methods still rem
  assert.match(ui,/hh-smart-trip-universal-v1/);
  assert.match(ui,/getSession\(\)/);
  assert.match(ui,/consent:true/);
- assert.match(ui,/mode==="diagnose"/);
- assert.match(ui,/mode==="search"/);
+ assert.match(ui,/mode:"search"/);
+ assert.doesNotMatch(ui,/mode:"diagnose"/);
+ assert.match(controller,/response\?\.status==='started'/);
  assert.match(intake,/normalizeUniversalQuery/);
  assert.doesNotMatch(ui,/window\.location\.assign|localStorage\.setItem|\.upsert\s*\(|\.insert\s*\(/);
  assert.doesNotMatch(ui,/routes\.googleapis\.com|OPENAI_API_KEY|SUPABASE_SERVICE_ROLE_KEY/);
