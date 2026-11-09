@@ -7,8 +7,10 @@ const base="sh9/smart-travel/public-transport/smart-trip/";
 const live=readFileSync(base+"index.html","utf8");
 const pilot=readFileSync(base+"v5/universal/index.html","utf8");
 const js=readFileSync(base+"v5/universal/universal-client.mjs","utf8");
-test("visible V5 test entry lives on the real Smart Trip page and keeps existing search",()=>{
- assert.match(live,/<a id="st22V5Test"[\s\S]{0,250}href="\.\/v5\/universal\/"/);
+test("live V5 search is integrated directly; standalone legacy page is not linked",()=>{
+ assert.doesNotMatch(live,/id="st22V5Test"/);
+ assert.match(live,/value="google_api_v5"/);
+ assert.match(live,/smart-trip-v5-inline-v1\.mjs/);
  assert.match(live,/id="st22Form"/);
  assert.match(live,/id="st22Search"/);
  assert.match(live,/id="st22SearchMethod"/);
@@ -16,7 +18,8 @@ test("visible V5 test entry lives on the real Smart Trip page and keeps existing
  assert.match(live,/id="st22TripPackSaved"/);
  assert.match(live,/smart-trip-ai-v1022\.js/);
  assert.match(live,/sh9-golden-bottom-nav-v924\.js/);
- assert.match(live,/st22-v5-test-entry-style/);
+ assert.match(live,/st22-v5-inline-results-style/);
+ assert.doesNotMatch(live,/id="st22V5ApiDialog"/);
 });
 test("test target and its module dependencies are present",()=>{
  for(const name of ["index.html","universal-client.mjs","universal-request.mjs"])
