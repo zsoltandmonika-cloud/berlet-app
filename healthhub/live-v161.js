@@ -36,7 +36,7 @@ function reconcileReadOnly(){
  if(reconcileGuard())return true;
  try{
   var pk=JSON.parse(localStorage.getItem(PKCE_KEY)||'null');
-  return !!(pk&&pk.expectedSuffix);
+  return !!(pk&&pk.expectedSuffix&&Date.now()-Number(pk.createdAt||0)<60*60000);
  }catch(e){return false}
 }
 function requireVaultWriteAllowed(){
@@ -68,7 +68,7 @@ async function handleCallback(codeOverride,stateOverride){
   code=codeOverride||u.searchParams.get('code'),
   state=stateOverride||u.searchParams.get('state'),
   err=codeOverride?null:u.searchParams.get('error');
- if(err){toast('Dropbox engedélyezés sikertelen: '+(u.searchParams.get('error_description')||err));history.replaceState({},'',REDIRECT);return}
+ if(err){localStorage.removeItem(PKCE_KEY);toast('Dropbox engedélyezés sikertelen: '+(u.searchParams.get('error_description')||err));history.replaceState({},'',REDIRECT);return}
  if(!code)return;
  if(state&&state.indexOf('hhbridge_')===0){
   var handoff='healthhubconnect://dropbox?code='+encodeURIComponent(code)+'&state='+encodeURIComponent(state);
