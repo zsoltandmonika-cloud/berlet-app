@@ -413,11 +413,13 @@
    const response=w.SH9_SMART_TRIP_V5_API?.open?.({
     query,places:selectedPlaces(),profile:profile(),priority:priority.value
    });
-   if(response?.status==='ready'){
-    if(results)results.hidden=true;
+   if(response?.status==='started'){
+    // V5 is now a single-click in-page search. Keep results visible; the
+    // independent Léna BKK mode and all existing providers are unchanged.
+    if(results)results.hidden=false;
     return;
    }
-   unavailable(response?.message||'A V5 Google API tesztablak nem érhető el. Frissítsd az oldalt.');
+   unavailable(response?.message||'A V5 Google API kereső nem érhető el. Frissítsd az oldalt.');
    return;
   }
   unavailable('Ellenőrzöm az elérhető, hiteles menetrendi adatokat…');

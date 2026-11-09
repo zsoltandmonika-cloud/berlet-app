@@ -5,7 +5,7 @@ const root="sh9/smart-travel/public-transport/smart-trip/";
 const server=readFileSync("supabase/functions/hh-smart-trip-universal-v1/index.ts","utf8");
 const sql=readFileSync("supabase/migrations/20261109153000_sho_v5_development_usage_counter_without_quota.sql","utf8");
 const html=readFileSync(root+"index.html","utf8");
-const browser=readFileSync(root+"v5/universal/smart-trip-v5-api-ui.mjs","utf8");
+const browser=readFileSync(root+"v5/universal/smart-trip-v5-inline-v1.mjs","utf8");
 
 test("DEV: user explicitly authorizes each API call, never automatic google calls",()=>{
  assert.match(server,/DEV_TEST_ENABLED=true/);
@@ -31,22 +31,22 @@ test("DEV: preserve accounting while disabling ALL application daily/monthly cap
  assert.match(server,/development_usage_accounting_unavailable/);
 });
 test("DEV: visible test UI clearly states cost, user confirmation and no quotas",()=>{
- assert.match(html,/nincs SHO-s napi vagy havi API-kvótakorlát/);
- assert.match(html,/Google Routes API keresés/);
+ assert.match(html,/Nincs SHO-s napi kvóta/);
+ assert.match(html,/V5 Google Routes API/);
  assert.doesNotMatch(html,/max\. 1 kérés|legfeljebb 1 Google Routes-hívás naponta|2026\. november 12-én/);
- assert.match(html,/v=5-dev-repeat-search-ux/);
+ assert.match(html,/v=1-direct-one-click/);
  assert.match(browser,/development_usage_accounting_unavailable/);
  assert.doesNotMatch(browser,/daily_one_run_or_quota_exceeded/);
- assert.match(browser,/st22V5ApiConsent/);
- assert.match(browser,/st22V5ApiDiagnose/);
- assert.match(browser,/st22V5ApiSearch/);
- assert.match(browser,/if\(mode==="search"\)clearResults\(\)/);
- assert.doesNotMatch(browser,/busy=true;ready=false;clearResults\(\);clearLena\(\)/);
+ assert.doesNotMatch(html,/st22V5ApiConsent|st22V5ApiDiagnose|st22V5ApiSearch/);
+ assert.match(browser,/body:JSON\.stringify\(\{mode:"search",consent:true,query\}\)/);
+ assert.doesNotMatch(browser,/mode:"diagnose"|showModal\(/);
+ assert.match(browser,/if\(active\)return \{status:"started"\}/);
+ assert.match(browser,/nodes\.search\.disabled=true/);
 });
 test("Production launch still needs explicit new release and quota review",()=>{
  assert.match(server,/production:false/);
  assert.match(server,/Go-live must replace this/);
  assert.match(sql,/Existing hh_smart_trip_google_reserve\(\) and _pilot\(\) remain unchanged/);
- assert.match(browser,/evaluateIndependentBkk/);
- assert.match(browser,/evaluateIndependentMav/);
+ assert.doesNotMatch(browser,/api\.openai\.com|evaluateIndependentBkk|evaluateIndependentMav/);
+ assert.match(browser,/summarizeGoogleWalks/);
 });

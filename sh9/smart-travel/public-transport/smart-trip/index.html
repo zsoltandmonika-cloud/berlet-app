@@ -17,43 +17,22 @@
 <link rel="stylesheet" href="./smart-trip-bkk-v1107.css?v=1108-predictive">
 <link rel="stylesheet" href="/berlet-app/sh9/shared/sh9-golden-controls-v1.css?v=934-unified-glass-dock">
 <link rel="stylesheet" href="/berlet-app/sh9/shared/sh9-golden-bottom-nav-v924.css?v=924-unified">
-<style id="st22-v5-test-entry-style">
-.st22-v5-test-entry{margin:13px 0 3px;display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;min-height:50px;
- padding:12px 16px;border:1px solid rgba(178,176,255,.57);border-radius:16px;
- background:linear-gradient(110deg,rgba(66,70,142,.32),rgba(19,78,113,.26));
- color:#f5f1ff;text-align:center;text-decoration:none;font:700 14px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif;
- box-shadow:inset 0 1px 0 rgba(255,255,255,.11)}
-.st22-v5-test-entry small{font-size:12px;opacity:.86;line-height:1.3;font-weight:500}
-.st22-v5-test-entry:focus-visible{outline:3px solid #b6e4ff;outline-offset:3px}
-</style>
-<style id="st22-v5-live-api-styles">
-#st22V5ApiDialog{color:#f7f4ff;background:linear-gradient(145deg,#27244c,#0b1d3e);
-border:1px solid #b9b0ed85;border-radius:22px;padding:0;box-shadow:0 28px 90px #000b;
-width:min(92vw,760px);max-height:92dvh;overflow:auto;color-scheme:dark;
-font:14px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
-#st22V5ApiDialog::backdrop{background:rgba(2,8,23,.84);backdrop-filter:blur(7px)}
-#st22V5ApiDialog .v5-inner{padding:22px}
-#st22V5ApiDialog .v5-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
-#st22V5ApiDialog h2{font-size:22px;font-weight:800;margin:0}
-#st22V5ApiDialog h3{font-size:16px;margin:10px 0}
-#st22V5ApiDialog p{margin:9px 0;color:#e3e8f7;overflow-wrap:anywhere}
-#st22V5ApiDialog small{color:#c8cbe1}
-#st22V5ApiDialog .v5-detail,#st22V5ApiDialog .v5-state,#st22V5ApiDialog .v5-legal{
-background:#091831ba;border:1px solid #b1aeec60;border-radius:14px;padding:12px 14px;margin:12px 0}
-#st22V5ApiDialog .v5-legal{background:#3c2b29a8;border-color:#d6ad8688}
-#st22V5ApiDialog .v5-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:12px}
-#st22V5ApiDialog button{border:1px solid #b9b9ef7e;background:linear-gradient(110deg,#a958b4,#6167d1);
-color:#fff;border-radius:12px;min-height:44px;padding:10px 15px;font:700 13px system-ui;cursor:pointer}
-#st22V5ApiDialog button.secondary{background:#17274b}
-#st22V5ApiDialog button:disabled{opacity:.45;cursor:not-allowed}
-#st22V5ApiDialog button:focus-visible,#st22V5ApiDialog input:focus-visible{outline:3px solid #c4e8ff;outline-offset:2px}
-#st22V5ApiDialog .v5-consent{display:flex;gap:11px;align-items:flex-start;margin:14px 0;font-size:13px}
-#st22V5ApiDialog .v5-consent input{width:21px;height:21px;flex:none;margin:2px 0;accent-color:#d778cd}
-#st22V5ApiDialog #st22V5ApiClock{font-size:22px;color:#afeed1;font-weight:800;font-variant-numeric:tabular-nums}
-#st22V5ApiDialog .st22-v5-route{padding:11px 13px;border-radius:13px;border:1px solid #a9b2e35c;margin:8px 0;background:#07152cc7}
-#st22V5ApiDialog .st22-v5-route p{font-size:13px;margin:5px 0}
-#st22V5ApiDialog [hidden]{display:none!important}
-@media(max-width:580px){#st22V5ApiDialog .v5-inner{padding:14px}#st22V5ApiDialog .v5-actions button{flex:1}}
+<style id="st22-v5-inline-results-style">
+#st22V5CostNote{font:500 12px/1.5 system-ui;color:#bdc9e8;margin:5px 5px 13px}
+#st22V5CostNote[hidden]{display:none!important}
+#st22JourneyList .st22-v5-inline-route{
+ display:block;margin:12px 0;border:1px solid rgba(173,166,252,.43);
+ background:linear-gradient(125deg,rgba(42,38,90,.7),rgba(14,35,64,.82));
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.07);
+ border-radius:15px;overflow:hidden;color:#f4f4ff}
+#st22JourneyList .st22-v5-inline-route summary{display:list-item;cursor:pointer;
+ padding:16px;font:700 14px/1.55 system-ui;color:#ecddff;outline-offset:-4px}
+#st22JourneyList .st22-v5-inline-route summary::marker{color:#e5b0ff}
+#st22JourneyList .st22-v5-inline-steps{border-top:1px solid #b8b3e244;padding:8px 15px 12px}
+#st22JourneyList .st22-v5-inline-steps p{margin:9px 0;line-height:1.55;
+ font-size:13px;color:#e5eafd;overflow-wrap:anywhere}
+#st22JourneyList .st22-v5-inline-source{font-size:12px;line-height:1.5;
+ color:#c6cee6;margin:12px 3px}
 </style>
 </head>
 <body>
@@ -89,12 +68,9 @@ color:#fff;border-radius:12px;min-height:44px;padding:10px 15px;font:700 13px sy
    <button class="st22-favorites" id="st22Favorites" type="button">⭐ Kedvenc helyek · családi címek</button>
    <div class="st22-opt"><label for="st22Priority">Mi legyen a legfontosabb?</label><select id="st22Priority"><option value="balanced">✨ Léna ajánlása</option><option value="wait">⏱ Legkevesebb várakozás</option><option value="transfers">⇄ Legkevesebb átszállás</option><option value="walk">🚶 Legkevesebb gyaloglás</option></select></div>
    <div class="st22-opt"><label for="st22SearchMethod">Keresőmotor · alapértelmezett</label><select id="st22SearchMethod" aria-label="Alapértelmezett keresőmotor, profilonként mentve"><option value="chatgpt">✨ Léna · ChatGPT</option><option value="google">🗺️ Google Térkép</option><option value="native">🧠 SH9 saját · kísérleti</option><option value="lena_native">🧪 Léna Native AI · előnézet</option><option value="bkk_gtfs">🚌 Léna BKK · hiteles menetrend (próba)</option><option value="google_api_v5">🌍 V5 Google Routes API · valódi teszt</option></select></div>
+   <p id="st22V5CostNote" hidden>🧪 Fejlesztői V5: az „Útvonal keresése” közvetlen Google Routes API-hívást indít, amely díjköteles lehet. Nincs SHO-s napi kvóta, az API-kéréseket naplózzuk.</p>
    <div class="st22-actions"><button type="submit" class="st22-primary" id="st22Search">⌕ Útvonal keresése</button><button type="button" id="st22Map" class="st22-secondary">Térkép</button></div>
    <div class="st22-tp-tools"><button id="st22TripPackImport" type="button">📥 Útiterv importálása</button><button id="st22TripPackSaved" type="button">💾 Mentett útvonalak</button></div>
-   <a id="st22V5Test" class="st22-v5-test-entry" href="./v5/universal/" aria-label="Smart Trip AI V5 teszt megnyitása külön tesztoldalon">
-    🧪 Smart Trip AI V5 · Teszt
-    <small>Szabad címbevitel, GPS és Google Maps próba · a jelenlegi keresés változatlan</small>
-   </a>
   </form>
   <section class="st22-results" id="st22Results" hidden aria-live="polite" aria-label="Saját útvonaleredmények">
   <div class="st22-results-head"><strong>Útvonaleredmények</strong><span id="st22Source">Menetrendi adat ellenőrzése kereséskor</span></div>
@@ -111,48 +87,6 @@ color:#fff;border-radius:12px;min-height:44px;padding:10px 15px;font:700 13px sy
  <a href="../../../../healthhub/index.html?sh9nav=admin" aria-label="Admin"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="m9 2 1 3h4l1-3 3 2-1 3 3 2v4l-3 1 1 3-3 2-2-3h-3l-2 3-3-2 1-3-3-1V9l3-2-1-3z"/></svg><small>Admin</small></a>
 </nav>
 <div id="st22Notice" class="st22-notice" role="status" hidden>Az értesítéseket a HealthHub főoldalon tudod kezelni.</div>
-<dialog id="st22V5ApiDialog" aria-label="SHO Smart Trip V5 valódi Google Routes API-próba" aria-modal="true">
- <div class="v5-inner">
-  <header class="v5-head">
-   <div><small>SMART TRIP AI · V5 · GOOGLE ROUTES</small>
-    <h2>🌍 Valódi API-próba</h2></div>
-   <button id="st22V5ApiClose" type="button" class="secondary">✕ Bezárás</button>
-  </header>
-  <p>A meglévő Smart Trip keresőben kiválasztott helyek és az indulási/érkezési
-  időpont automatikusan ide kerülnek. Az API pontos budapesti időt kap.</p>
-  <section class="v5-detail" id="st22V5ApiSummary" aria-label="Ellenőrzött keresési adatok"></section>
-  <p class="v5-legal">🧪 Fejlesztői tesztmód: <strong>nincs SHO-s napi vagy havi API-kvótakorlát</strong>.
-  Minden Google Routes-kérés külön jóváhagyott gombnyomással indul és díjköteles lehet.
-  A kérések számlálása megmarad; a Google Cloud tényleges kvótái és számlázása továbbra is érvényesek.
-  Az eredmény térkép nélkül, Google Maps-forrásjelzéssel jelenik meg, nem kerül külső AI-hoz.
-  Az élesítés előtt visszaállítjuk a jóváhagyott költségvédelmet.</p>
-  <label class="v5-consent"><input id="st22V5ApiConsent" type="checkbox">
-   <span>Hozzájárulok, hogy a megadott indulási és célkoordinátát vagy címet,
-   valamint az utazási időpontot a Google Routes feldolgozza.
-   A fizetős API-hívás kizárólag külön gombnyomással indul.</span></label>
-  <div class="v5-actions">
-   <button id="st22V5ApiDiagnose" type="button" class="secondary">🔍 Kapcsolatellenőrzés · 0 Google-kérés</button>
-   <button id="st22V5ApiSearch" type="button" disabled>🚀 Google Routes API keresés</button>
-  </div>
-  <p>Teljes API-próba stopper: <span id="st22V5ApiClock">0,00 mp</span></p>
-  <p id="st22V5ApiStatus" class="v5-state" role="status" aria-live="polite"></p>
-  <section id="st22V5ApiRoutes" class="v5-detail" aria-label="Google Routes API-eredmények" hidden></section>
-  <section id="st22V5LenaPanel" class="v5-detail" aria-label="Léna független menetrendi A-terv előértékelése">
-   <h3>✨ Léna A terve · független menetrend</h3>
-   <p>Első biztonságos bekötés: független BKK Zrt. GTFS, valamint ezen az eszközön
-   már meglévő, ellenőrzött privát MÁV-menetrend alapján választunk A tervet.
-   A Google Routes válasza <strong>nem kerül át</strong> ide vagy külső AI-hoz.
-   Ez egyelőre szabályalapú értékelő, nem LLM-elemzés. A BKK-próba a
-   17, 19, 41 és 260 járatokat fedi le. Volán és teljes ajtótól ajtóig
-   kombinált terv még nincs bekötve.</p>
-   <div class="v5-actions">
-    <button id="st22V5LenaEvaluate" type="button" class="secondary">✨ Léna · független BKK/MÁV A terv (ingyenes)</button>
-   </div>
-   <p id="st22V5LenaStatus" role="status" aria-live="polite"></p>
-   <div id="st22V5LenaResult" hidden></div>
-  </section>
- </div>
-</dialog>
 <dialog id="st22ResultDialog" aria-label="Smart Trip AI · Léna útitervajánlása" aria-modal="true">
  <div class="st22-r-wrap">
   <header class="st22-r-header">
@@ -222,8 +156,8 @@ color:#fff;border-radius:12px;min-height:44px;padding:10px 15px;font:700 13px sy
 <script src="./smart-trip-pack-v1078.js?v=1115-clipboard-import"></script>
 <script src="./smart-trip-lena-native-v1104.js?v=1104-explicit-closed-pilot"></script>
 <script type="module" src="./smart-trip-bkk-v1107.mjs?v=1108-all-bkk-stops"></script>
-<script src="./smart-trip-ai-v1022.js?v=1117-v5-main-api-intake"></script>
-<script type="module" src="./v5/universal/smart-trip-v5-api-ui.mjs?v=5-dev-repeat-search-ux"></script>
+<script src="./smart-trip-ai-v1022.js?v=1118-v5-one-click-inline"></script>
+<script type="module" src="./v5/universal/smart-trip-v5-inline-v1.mjs?v=1-direct-one-click"></script>
 <script src="./smart-trip-keyboard-dock-v1088.js?v=1088-real-predictive-portal"></script>
 <script src="./smart-trip-fullscreen-map-v1032.js?v=1032-lazy-maplibre"></script>
 
