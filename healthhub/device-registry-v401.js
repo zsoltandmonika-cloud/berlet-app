@@ -74,10 +74,14 @@ function panel(force){
  if(!force&&(Date.now()<interactionUntil||elIsInteracting()))return;
  var el=document.getElementById(PANEL);
  if(!el){el=document.createElement('section');el.id=PANEL;var anchor=document.getElementById('hhSyncOrchestrator305');if(anchor)anchor.insertAdjacentElement('beforebegin',el);else body.prepend(el)}
- var html='<div class="hhRegHead401"><div><h3>📱 Családi eszközregiszter · v401</h3><small>Biztonságos housekeeping · fizikai telefononként egy kijelölt eszköz</small></div><span>'+(cloud()?'☁️ Dropbox':'⚪ Offline')+'</span></div>';
+ var suffix=cloud()&&typeof api().accountHint==='function'?api().accountHint():null;
+ var accountNotice=suffix?'Webes Dropbox fiókazonosító vége: '+clean(suffix):'Webes Dropbox azonosító nem elérhető';
+ var nativeCount=devices.filter(function(d){return d&&d.deviceType==='android'}).length;
+ var html='<div class="hhRegHead401"><div><h3>📱 Családi eszközregiszter · v401</h3><small>Biztonságos housekeeping · fizikai telefononként egy kijelölt eszköz</small><small>'+accountNotice+' · Android-jelentések: '+nativeCount+'</small></div><span>'+(cloud()?'☁️ Dropbox':'⚪ Offline')+'</span></div>';
  if(error)html+='<p class="hhRegWarn401" role="alert">'+clean(error)+'</p>';
  if(note)html+='<p class="hhRegNote401" role="status">'+clean(note)+'</p>';
  if(!registry)html+='<p class="hhRegNote401">A regiszter még nem töltődött be; addig távoli parancs nem indul.</p>';
+ if(registry&&cloud()&&nativeCount===0)html+='<p class="hhRegWarn401">Ebben a webes Dropbox-fiókban nem látható Android-eszközjelentés. Ha a natív HH ONE visszaolvasása sikerült, ellenőrizd a két Dropbox-fiók 8 karakteres azonosítóvégét. A natív telefonazonosítót ne töröld.</p>';
  ['zsolt','monika'].forEach(function(p){
   var name=p==='zsolt'?'Zsolt':'Mónika',items=candidates(p);
   var primary=registry&&registry.activePhones[p];
