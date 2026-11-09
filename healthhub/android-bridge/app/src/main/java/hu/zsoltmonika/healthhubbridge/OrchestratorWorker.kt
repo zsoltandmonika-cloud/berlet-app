@@ -222,6 +222,10 @@ class OrchestratorWorker(
         return try {
             ensureFolders(prefs)
             uploadHeartbeat(prefs, id, owner)
+            // A diagnostic user tap must never consume queued remote commands.
+            if (inputData.getBoolean("hh_registry_diagnostic_only", false)) {
+                return Result.success()
+            }
 
             val text = DropboxVaultClient.downloadTextOrNull(prefs, COMMANDS + "/" + id + ".json")
                 ?: return Result.success()

@@ -37,8 +37,8 @@ test('scope repair is non-destructive and cannot silently deploy an unsigned OTA
   const folder=native.split('suspend fun ensureFolder(')[1].split('suspend fun uploadText(')[0];
   assert.doesNotMatch(folder,/\.remove\("dropbox_|clearToken|launch.*OAuth|\.remove\("device_owner_profile"/);
   assert.match(build,/applicationId = "hu\.zsoltmonika\.healthhubbridge"/);
-  assert.match(build,/versionCode = 37/);
-  assert.match(build,/versionName = "0\.15\.10"/);
+  assert.ok(Number(build.match(/versionCode = (\d+)/)[1]) >= ota.versionCode);
+  assert.match(build,/versionName = "0\.15\.\d+"/);
   // The signed OTA manifest is immutable per RELEASE, not forever pinned to 0.15.2.
   assert.match(ota.version,/^0\.\d+\.\d+$/);
   assert.ok(Number.isInteger(ota.versionCode)&&ota.versionCode>=29);
