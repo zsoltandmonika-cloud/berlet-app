@@ -8,6 +8,7 @@
 import {buildV5Intake} from "./smart-trip-v5-intake.mjs";
 import {evaluateIndependentBkk} from "./lena-independent-bkk-v1.mjs";
 import {evaluateIndependentMav} from "./lena-independent-mav-v1.mjs";
+import {summarizeGoogleWalks,walkSectionLabel} from "./google-walk-summary-v1.mjs";
 const HOST="https://vhsrupphzcjkdrusonzh.supabase.co";
 const ENDPOINT=HOST+"/functions/v1/hh-smart-trip-universal-v1";
 const $=id=>document.getElementById(id);
@@ -88,20 +89,27 @@ function renderRoutes(data){
  text("h3","Google Maps · előzetes tömegközlekedési alternatívák",root);
  if(!data.routes.length)text("p","A Google nem adott támogatott útvonalat ehhez az induláshoz.",root);
  data.routes.forEach((r,i)=>{
-  if(!Number.isFinite(r?.durationSeconds)||!Array.isArray(r?.steps)||
-   r.steps.length>45)return;
+  // Group only consecutive walking fragments. Never join across a vehicle leg.
+  const summary=summarizeGoogleWalks(r);
+  if(!summary)return;
   const box=text("article","",root,"st22-v5-route");
   text("strong",(i+1)+". Google-alternatíva · "+Math.ceil(r.durationSeconds/60)+" perc",box);
-  for(const step of r.steps){
-   if(step?.kind==="walk"&&Number.isFinite(step.meters))
-    text("p","🚶 Gyaloglás: "+step.meters+" m",box);
-   else if(step?.kind==="transit")
+  text("p","🚶 Összes becsült gyaloglás: "+summary.totalWalkMeters+
+   " m · "+summary.walkSections+" gyalogos szakasz",box);
+  text("p","🔁 Átszállások: "+summary.transfers,box);
+  for(const item of summary.items){
+   if(item.kind==="walk")
+    text("p","🚶 "+walkSectionLabel(item.phase)+": "+item.meters+" m",box);
+   else if(item.kind==="transit"){
+    const step=item.step;
     text("p","🚆 "+(step.line||"Járat")+" · "+step.from+" "+fmt(step.departure)+
      " → "+step.to+" "+fmt(step.arrival)+
      (step.agency?" · "+step.agency:""),box);
+   }
   }
  });
  text("small","Forrás: Google Maps · térkép nélküli megjelenítés. "+
+  "Az egymást követő apró sétalépéseket összevontuk; az értékek Google-becslések. "+
   "Nem ellenőrzött szolgáltatói menetrend, nem Léna A terve és nincs My Trips mentés.",root);
  root.hidden=false;
 }
