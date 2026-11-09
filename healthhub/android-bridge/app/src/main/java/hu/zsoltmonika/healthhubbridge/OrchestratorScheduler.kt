@@ -10,6 +10,7 @@ import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import java.util.concurrent.TimeUnit
 import java.util.UUID
+import androidx.work.workDataOf
 
 object OrchestratorScheduler {
     private const val PERIODIC = "healthhub-orchestrator-command-watch"
@@ -33,7 +34,7 @@ object OrchestratorScheduler {
         )
     }
 
-    fun runNow(context: Context): UUID {
+    fun runNow(context: Context) {
         val constraints = Constraints.Builder()
             .setRequiredNetworkType(NetworkType.CONNECTED)
             .build()
@@ -43,6 +44,23 @@ object OrchestratorScheduler {
             .build()
         WorkManager.getInstance(context).enqueueUniqueWork(
             NOW,
+            ExistingWorkPolicy.REPLACE,
+            req
+        )
+    }
+
+    /** Device heartbeat only, without processing any remotely queued commands. */
+    fun checkRegistration(context: Context): UUID {
+        val constraints = Constraints.Builder()
+            .setRequiredNetworkType(NetworkType.CONNECTED)
+            .build()
+        val req = OneTimeWorkRequestBuilder<OrchestratorWorker>()
+            .setConstraints(constraints)
+            .setInputData(workDataOf("hh_registry_diagnostic_only" to true))
+            .addTag(TAG)
+            .build()
+        WorkManager.getInstance(context).enqueueUniqueWork(
+            "healthhub-orchestrator-device-registration-check",
             ExistingWorkPolicy.REPLACE,
             req
         )
