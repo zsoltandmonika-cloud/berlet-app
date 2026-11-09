@@ -173,17 +173,19 @@ function renderPairModal(){
   inner.textContent='A központi párosítás modulja nem töltődött be. Frissítsd a HealthHub oldalt.';
   return;
  }
- const input=inner.querySelector('#hhFcCodeV1');
- // Do not erase a code that is being typed/pasted during an asynchronous refresh.
- if(input&&(input===d.activeElement||input.value))return;
+ const inputs=inner.querySelectorAll('#hhFcCodeV1,#hhFcCodeV1-monika');
+ // Do not erase either phone's code during asynchronous refresh.
+ if(Array.from(inputs).some(input=>input===d.activeElement||input.value))return;
  const html=central.render();
  if(inner.dataset.pairUiHtmlV3===html)return;
- const opened=inner.querySelector('.hhFcPair')?.open;
+ const opened=new Map(Array.from(inner.querySelectorAll('.hhFcPair')).map(x=>[x.getAttribute('data-profile'),x.open]));
  inner.replaceChildren();
  inner.insertAdjacentHTML('afterbegin',html);
  inner.dataset.pairUiHtmlV3=html;
- const details=inner.querySelector('.hhFcPair');
- if(details)details.open=opened!==false;
+ for(const details of inner.querySelectorAll('.hhFcPair')){
+  const p=details.getAttribute('data-profile');
+  details.open=opened.has(p)?opened.get(p):true;
+ }
 }
 function closePairModal(){const modal=q(PAIR);if(modal)modal.hidden=true;}
 function openPairModal(){
@@ -191,9 +193,9 @@ function openPairModal(){
  if(!modal){
   modal=el('section');modal.id=PAIR;modal.hidden=true;
   modal.setAttribute('role','dialog');modal.setAttribute('aria-modal','true');
-  modal.setAttribute('aria-label','Zsolt telefon biztonságos párosítása');
+  modal.setAttribute('aria-label','Családi telefonok biztonságos párosítása');
   const shell=el('div','hhPairShellV3'),head=el('div','hhPairHeadV3');
-  head.appendChild(el('strong','', '🔐 Zsolt telefon párosítása'));
+  head.appendChild(el('strong','', '🔐 Családi telefon párosítása'));
   const close=el('button','', '✕ Bezárás');close.type='button';close.addEventListener('click',closePairModal);
   head.appendChild(close);shell.appendChild(head);
   const body=el('div');body.id=PAIR_BODY;shell.appendChild(body);
@@ -228,7 +230,7 @@ function mount(){
    b.addEventListener('click',()=>select(item.id,true));nav.appendChild(b);
   }
   panel.appendChild(nav);
-  const pairButton=el('button','', '🔐 Zsolt telefon párosítása · 1 érintés');
+  const pairButton=el('button','', '🔐 Családi telefon párosítása · 1 érintés');
   pairButton.type='button';pairButton.id='hhCentralPairOpenV3';
   pairButton.addEventListener('click',openPairModal);
   panel.appendChild(pairButton);

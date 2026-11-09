@@ -27,7 +27,7 @@ internal object FamilyDeviceCentral {
 
     /** Called ONLY by explicit owner tap. Never generate a different Android ID. */
     fun prepare(prefs: SharedPreferences, owner: String?, deviceId: String?): String? {
-        if (owner != "zsolt" || deviceId == null || !devicePattern.matches(deviceId)) return null
+        if (owner !in listOf("zsolt", "monika") || deviceId == null || !devicePattern.matches(deviceId)) return null
         var secret = prefs.getString(SECRET, null)
         if (secret.isNullOrBlank()) {
             val bytes = ByteArray(32)
@@ -41,7 +41,7 @@ internal object FamilyDeviceCentral {
 
     suspend fun heartbeat(prefs: SharedPreferences, owner: String?, deviceId: String?,
                           build: String): String {
-        if (owner != "zsolt" || deviceId == null || !devicePattern.matches(deviceId) || !prepared(prefs))
+        if (owner !in listOf("zsolt", "monika") || deviceId == null || !devicePattern.matches(deviceId) || !prepared(prefs))
             return "not_enrolled"
         val secret = prefs.getString(SECRET, null) ?: return "not_enrolled"
         if (!Regex("^[a-f0-9]{64}$").matches(secret)) return "invalid_local_secret"

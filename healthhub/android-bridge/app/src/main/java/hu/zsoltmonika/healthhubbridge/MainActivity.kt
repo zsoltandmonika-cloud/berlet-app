@@ -553,11 +553,12 @@ class MainActivity : ComponentActivity() {
         }
         root.addView(registryCheckResult)
 
-        // Central family registry is independent of Dropbox and opt-in for Zsolt pilot.
+        // Central family registry is independent of Dropbox and opt-in for both owners.
         // The pairing code is never sent to the web UI automatically.
-        if (deviceOwnerProfile() == "zsolt") {
+        if (deviceOwnerProfile() == "zsolt" || deviceOwnerProfile() == "monika") {
+            val ownerName = if (deviceOwnerProfile() == "monika") "Mónika" else "Zsolt"
             val centralNote = TextView(this).apply {
-                text = "☁️ Közös családi eszközregiszter · Zsolt próbaüzem\n" +
+                text = "☁️ Közös családi eszközregiszter · $ownerName telefonja\n" +
                     "Állapot: " + (prefs.getString(FamilyDeviceCentral.RESULT, "még nincs párosítva")
                         ?: "még nincs párosítva")
                 textSize = 13f
@@ -592,7 +593,7 @@ class MainActivity : ComponentActivity() {
                                 prefs.getString("orchestrator_device_id_v1", null), BuildConfig.VERSION_NAME)
                         } catch (_: Exception) { "kapcsolati hiba, a Dropbox nem változott" }
                         centralNote.text = when (result) {
-                            "verified" -> "✅ Zsolt telefonja a közös családi regiszterben igazolt."
+                            "verified" -> "✅ $ownerName telefonja a közös családi regiszterben igazolt."
                             "awaiting_owner_approval" -> "Jóváhagyás szükséges a SHO Admin felületén."
                             else -> "Központi regiszter: $result. A korábbi Dropbox-kapcsolat megmaradt."
                         }
