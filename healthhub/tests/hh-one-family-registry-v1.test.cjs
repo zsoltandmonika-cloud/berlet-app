@@ -16,6 +16,7 @@ function harness(authorized=true){
  const vault={getStatus:()=>status,openLogin:()=>events.push('login'),request:async(url,options)=>{
   calls.push({url,options});
   if(url.includes('hh_family_devices_v1'))return[];
+  if(url.includes('hh_profile_access'))return[{profile_key:'zsolt'}];
   return null;
  }};
  const w={HH_DAILY_HEALTH_SYNC_V319:vault,addEventListener:()=>{},dispatchEvent:e=>events.push(e.type),crypto:webcrypto};
@@ -32,25 +33,39 @@ test('central devices start empty, never pretend Dropbox snapshots are verified 
 });
 test('pairing is exact-device, SHA-256 challenge, never stores plaintext secret',async()=>{
  const h=harness(),id='android-12345678-1234-1234-1234-123456789abc',secret='a'.repeat(64);
+ await h.api.refresh();
  h.input.value=id+':'+secret;
  await h.api.click('central-pair');
- assert.equal(h.calls.length,1);
+ assert.equal(h.calls.length,3);
  assert.equal(h.input.value,'');
- assert.equal(h.calls[0].url,'/rest/v1/hh_family_device_pair_requests_v1');
- assert.equal(h.calls[0].options.data.profile_key,'zsolt');
- assert.equal(h.calls[0].options.data.device_id,id);
- assert.equal(h.calls[0].options.data.proof_hash,createHash('sha256').update(secret).digest('hex'));
- assert.doesNotMatch(JSON.stringify(h.calls[0]),/a{40,}/);
+ assert.equal(h.calls[2].url,'/rest/v1/hh_family_device_pair_requests_v1');
+ assert.equal(h.calls[2].options.data.profile_key,'zsolt');
+ assert.equal(h.calls[2].options.data.device_id,id);
+ assert.equal(h.calls[2].options.data.proof_hash,createHash('sha256').update(secret).digest('hex'));
+ assert.doesNotMatch(JSON.stringify(h.calls[2]),/a{40,}/);
  assert.match(h.api.render(),/párosítás jóváhagyva/);
 });
 test('bad or unauthenticated pairing never writes a central request',async()=>{
  const a=harness(),b=harness(false);
+ await a.api.refresh();
  a.input.value='android-invalid:password';b.input.value='android-invalid:password';
  await a.api.click('central-pair');await b.api.click('central-pair');
- assert.equal(a.calls.length,0);
+ assert.equal(a.calls.filter(x=>x.url.includes('pair_requests')).length,0);
  assert.equal(b.calls.length,0);
  assert.match(a.api.render(),/formátuma érvénytelen/);
  assert.match(b.api.render(),/Health Vault-belépés szükséges/);
+ assert.match(b.api.render(),/Zsolt telefon párosítása/);
+ assert.match(a.api.render(),/Zsolt telefon párosítása/);
+});
+test('pairing entry stays visible before Google login and during access verification',async()=>{
+ const h=harness(false);
+ assert.match(h.api.render(),/Zsolt telefon párosítása/);
+ assert.match(h.api.render(),/Health Vault-belépés/);
+ h.status.authenticated=true;
+ assert.match(h.api.render(),/Jogosultság ellenőrzése/);
+ await h.api.refresh();
+ assert.match(h.api.render(),/Párosítás jóváhagyása/);
+ assert.equal(h.calls.filter(x=>x.url.includes('hh_profile_access')).length,1);
 });
 test('manual legacy removal is reversible metadata and protects both selected IDs',()=>{
  assert.match(legacy,/Eltávolítás a listából/);
@@ -83,5 +98,5 @@ test('native phone pairing is Zsolt-only opt-in; Dropbox sync and ID remain inta
  assert.match(worker,/FamilyDeviceCentral\.heartbeat\(prefs, owner, id/);
  assert.ok(worker.indexOf('FamilyDeviceCentral.heartbeat')<worker.indexOf('if (!DropboxVaultClient.hasRefreshToken'));
  assert.match(main,/Központi párosítókód másolása/);
- assert.match(html,/family-device-central-v1\.js\?v=1-family-registry-pilot/);
+ assert.match(html,/family-device-central-v1\.js\?v=2-visible-pair-rights/);
 });
