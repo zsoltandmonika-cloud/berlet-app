@@ -20,7 +20,11 @@ test('explicit native button is next to existing Health Connect SYNC NOW, and is
 });
 
 test('diagnostic observes the exact Android worker and verifies actual Dropbox readback',()=>{
- assert.match(schedule,/fun runNow\(context: Context\): UUID/);
+ assert.match(schedule,/fun checkRegistration\(context: Context\): UUID/);
+ assert.match(schedule,/hh_registry_diagnostic_only/);
+ assert.match(worker,/if \(inputData.getBoolean\("hh_registry_diagnostic_only", false\)\)/);
+ assert.ok(worker.indexOf('hh_registry_diagnostic_only') < worker.indexOf('COMMANDS + "/" + id + ".json"'));
+ assert.match(main,/OrchestratorScheduler.checkRegistration\(this\)/);
  assert.match(schedule,/return req.id/);
  assert.match(main,/\.getWorkInfoByIdFlow\(workId\)/);
  assert.match(main,/work\?\.state != WorkInfo.State.SUCCEEDED/);
