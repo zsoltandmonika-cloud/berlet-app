@@ -79,9 +79,9 @@ function panel(force){
  var accountNotice=suffix?'Webes Dropbox fiókazonosító vége: '+clean(suffix):'Webes Dropbox azonosító nem elérhető';
  var nativeCount=devices.filter(function(d){return d&&d.deviceType==='android'}).length;
  var central=window.HH_FAMILY_DEVICE_CENTRAL_V1;
-  if(central)central.begin();
+  // Pairing is available in a separate Admin dialog; never mount secret inputs here.
   var centralReady=!!(central&&central.devices&&central.devices().length);
-  var html=(central?central.render():'')+'<div class="hhRegHead401"><div><h3>📱 Családi eszközregiszter · v401</h3><small>Biztonságos housekeeping · fizikai telefononként egy kijelölt eszköz</small><small>'+accountNotice+' · Android-jelentések: '+nativeCount+'</small></div><span>'+(cloud()?'☁️ Dropbox':'⚪ Offline')+'</span></div>';
+  var html='<div class="hhRegHead401"><div><h3>📱 Családi eszközregiszter · v401</h3><small>Biztonságos housekeeping · fizikai telefononként egy kijelölt eszköz</small><small>'+accountNotice+' · Android-jelentések: '+nativeCount+'</small></div><span>'+(cloud()?'☁️ Dropbox':'⚪ Offline')+'</span></div>';
  if(error)html+='<p class="hhRegWarn401" role="alert">'+clean(error)+'</p>';
  if(note)html+='<p class="hhRegNote401" role="status">'+clean(note)+'</p>';
  if(!registry)html+='<p class="hhRegNote401">A regiszter még nem töltődött be; addig távoli parancs nem indul.</p>';
@@ -282,11 +282,15 @@ function attach(){
   if(action==='refresh')refresh(true);else if(action==='sync')sync(id);
   else saveChange(action,id);
  });
- window.addEventListener('healthhub:central-device-registry-changed',function(){panel(true)});
-  observer=new MutationObserver(function(){if(ov.classList.contains('on'))refresh()});
- observer.observe(ov,{attributes:true,attributeFilter:['class']});
- new MutationObserver(function(){if(ov.classList.contains('on')&&!document.getElementById(PANEL))panel(true)}).observe(body,{childList:true});
- timer=setInterval(function(){if(ov.classList.contains('on')&&document.visibilityState==='visible'&&Date.now()>interactionUntil)refresh()},60000);
+ // Central heartbeat changes do not rebuild the legacy Dropbox registry.
+  observer=new MutationObserver(function(mutations){
+   // Read once when the Admin genuinely opens, not on every unrelated class change.
+   if(mutations.some(function(m){return m.oldValue!==null})&&ov.classList.contains('on')&&!registry)refresh();
+  });
+ observer.observe(ov,{attributes:true,attributeOldValue:true,attributeFilter:['class']});
+ // No background child-list observer that re-injects the registry during Admin remounts.
+ // Intentionally no 60s automatic Dropbox registry refresh: explicit tap only.
+  timer=null;
  if(ov.classList.contains('on'))refresh();
 }
 window.hhDeviceRegistry401={

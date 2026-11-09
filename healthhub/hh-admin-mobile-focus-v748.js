@@ -5,6 +5,7 @@
 (function(w,d){
 'use strict';
 const ROOT='healthSubContent',ID='hhAdminQuickV748',STYLE='hhAdminQuickV748Style';
+const PAIR='hhPairModalV3',PAIR_BODY='hhPairModalBodyV3';
 const CATEGORIES=[
  {id:'registry',title:'📱 Eszközregiszter · telefon kijelölése',note:'Zsolt és Mónika fizikai telefonjának kijelölése'},
  {id:'devices',title:'📦 Telefonok, APK és OTA',note:'Telepített verziók, OTA és távoli szinkron'},
@@ -68,6 +69,18 @@ function style(){
  css.push('html[data-hh-inline-admin="yes"] #sh9VersionCenterV1 .sh9vmLine,html[data-hh-inline-admin="yes"] #sh9VersionCenterV1 .sh9vmSub{font-size:12.5px!important;line-height:1.5!important}');
  css.push('html[data-hh-inline-admin="yes"] #sh9VersionCenterV1 button{font-size:13px!important;min-height:44px!important}');
  css.push('@media(max-width:520px){html[data-hh-inline-admin="yes"] #haBody .haGrid{grid-template-columns:1fr!important}#'+ID+' button{font-size:13px;min-height:56px}#'+ROOT+' .hhAdminGroupLabelV745 strong{font-size:15px!important}#'+ROOT+' .hhAdminGroupLabelV745 small{font-size:12px!important}}');
+ 
+ css.push('#'+ID+' #hhCentralPairOpenV3{display:block;width:100%;margin:12px 0 0;min-height:60px;background:linear-gradient(110deg,#562c64,#273d75);border:2px solid #f0b1f4;font:850 15px/1.35 system-ui;color:#fff;text-align:center}');
+ css.push('#'+PAIR+'{position:fixed;inset:0;z-index:2147483600;background:rgba(3,13,32,.93);display:flex;align-items:center;justify-content:center;padding:12px;box-sizing:border-box}');
+ css.push('#'+PAIR+'[hidden]{display:none!important}');
+ css.push('#'+PAIR+' .hhPairShellV3{width:min(520px,100%);max-height:90dvh;overflow:auto;overscroll-behavior:contain;box-sizing:border-box;border-radius:18px;padding:15px;background:linear-gradient(140deg,#122a4b,#213857);border:1px solid #7da0cf;box-shadow:0 15px 45px #010715b3;color:#fff}');
+ css.push('#'+PAIR+' .hhPairHeadV3{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:11px;color:#fff;font-size:16px}');
+ css.push('#'+PAIR+' button{min-height:45px;padding:9px 12px;border:1px solid #89b9df;border-radius:11px;background:#195176;color:#fff;font:750 13px system-ui;cursor:pointer}');
+ css.push('#'+PAIR+' #'+PAIR_BODY+' .hhFcPanel{margin:0;background:linear-gradient(145deg,#edf7ff,#e1edf7);color:#193c60;border:1px solid #8eb8d5;padding:13px;border-radius:13px}');
+ css.push('#'+PAIR+' .hhFcPanel h4{font-size:15px;margin:0 0 8px}#'+PAIR+' .hhFcPanel small{display:block;font-size:11px;color:#55718c}#'+PAIR+' .hhFcLine{background:white;border-radius:9px;padding:9px;margin:8px 0;font-size:12px}');
+ css.push('#'+PAIR+' .hhFcPair{padding:12px;background:#fff;border:1px solid #b6cce1;border-radius:11px;margin-top:10px}#'+PAIR+' .hhFcPair>summary{font-size:14px;font-weight:800;color:#214b72;cursor:pointer}#'+PAIR+' .hhFcPair p{font-size:12px;line-height:1.5}#'+PAIR+' .hhFcPair label{display:block;margin:10px 0 5px;font-size:12px;font-weight:700}');
+ css.push('#'+PAIR+' .hhFcPair input{display:block;width:100%;box-sizing:border-box;min-height:48px;padding:9px;background:#fff;border:1px solid #84a9c7;color:#173650;border-radius:10px;font-size:13px}#'+PAIR+' .hhFcPair button{margin-top:10px}');
+ css.push('#'+PAIR+' .hhFcNote{color:#227354;font-size:12px}#'+PAIR+' .hhFcError{color:#a22d42;font-size:12px}');
  const s=el('style');s.id=STYLE;s.textContent=css.join('\n');d.head.appendChild(s);
 }
 function help(s){const n=q(ID+'Help');if(n)n.textContent=s}
@@ -152,6 +165,51 @@ function openTarget(group,id){
  w.setTimeout(locate,group==='registry'?310:80);
  return true;
 }
+function renderPairModal(){
+ const modal=q(PAIR),inner=q(PAIR_BODY);
+ if(!modal||modal.hidden||!inner)return;
+ const central=w.HH_FAMILY_DEVICE_CENTRAL_V1;
+ if(!central?.render){
+  inner.textContent='A központi párosítás modulja nem töltődött be. Frissítsd a HealthHub oldalt.';
+  return;
+ }
+ const input=inner.querySelector('#hhFcCodeV1');
+ // Do not erase a code that is being typed/pasted during an asynchronous refresh.
+ if(input&&(input===d.activeElement||input.value))return;
+ const html=central.render();
+ if(inner.dataset.pairUiHtmlV3===html)return;
+ const opened=inner.querySelector('.hhFcPair')?.open;
+ inner.replaceChildren();
+ inner.insertAdjacentHTML('afterbegin',html);
+ inner.dataset.pairUiHtmlV3=html;
+ const details=inner.querySelector('.hhFcPair');
+ if(details)details.open=opened!==false;
+}
+function closePairModal(){const modal=q(PAIR);if(modal)modal.hidden=true;}
+function openPairModal(){
+ let modal=q(PAIR);
+ if(!modal){
+  modal=el('section');modal.id=PAIR;modal.hidden=true;
+  modal.setAttribute('role','dialog');modal.setAttribute('aria-modal','true');
+  modal.setAttribute('aria-label','Zsolt telefon biztonságos párosítása');
+  const shell=el('div','hhPairShellV3'),head=el('div','hhPairHeadV3');
+  head.appendChild(el('strong','', '🔐 Zsolt telefon párosítása'));
+  const close=el('button','', '✕ Bezárás');close.type='button';close.addEventListener('click',closePairModal);
+  head.appendChild(close);shell.appendChild(head);
+  const body=el('div');body.id=PAIR_BODY;shell.appendChild(body);
+  modal.appendChild(shell);d.body.appendChild(modal);
+  modal.addEventListener('click',e=>{
+   const b=e.target.closest?.('button[data-hh-reg-action^="central-"]');
+   if(!b||!modal.contains(b))return;
+   const action=b.getAttribute('data-hh-reg-action');
+   if(action==='central-login')closePairModal();
+   void w.HH_FAMILY_DEVICE_CENTRAL_V1?.click?.(action);
+  });
+ }
+ modal.hidden=false;renderPairModal();
+ w.HH_FAMILY_DEVICE_CENTRAL_V1?.begin?.();
+}
+w.addEventListener('healthhub:central-device-registry-changed',renderPairModal);
 function mount(){
  if(!isAdmin())return;
  const root=q(ROOT);if(!root)return;
@@ -170,6 +228,10 @@ function mount(){
    b.addEventListener('click',()=>select(item.id,true));nav.appendChild(b);
   }
   panel.appendChild(nav);
+  const pairButton=el('button','', '🔐 Zsolt telefon párosítása · 1 érintés');
+  pairButton.type='button';pairButton.id='hhCentralPairOpenV3';
+  pairButton.addEventListener('click',openPairModal);
+  panel.appendChild(pairButton);
   // v870: one-tap full-screen Usage Control; no cloud connection or polling.
   const usage=el('button','', '📊 Usage Control · Fogyasztás és limitek');
   usage.type='button';usage.id='hhUsageOpenV870';
@@ -233,5 +295,5 @@ w.addEventListener('focus',tick);
 w.addEventListener('healthhub:device-registry-updated',tick);
 if(d.readyState==='loading')d.addEventListener('DOMContentLoaded',tick,{once:true});else tick();
 w.setInterval(tick,4500);
-w.HH_ADMIN_MOBILE_V748={version:'809',openDevices:()=>select('devices',false),openRegistry:()=>openTarget('registry','hhDeviceRegistry401'),openTarget,category:()=>selected,tick};
+w.HH_ADMIN_MOBILE_V748={version:'809',openPair:openPairModal,openDevices:()=>select('devices',false),openRegistry:()=>openTarget('registry','hhDeviceRegistry401'),openTarget,category:()=>selected,tick};
 })(window,document);
