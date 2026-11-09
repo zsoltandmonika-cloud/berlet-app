@@ -54,6 +54,23 @@ function classify(reg,devices,cloud){
    inProgress?'A kijelölt telefonok egyikén művelet folyamatban':'Ellenőrzést igénylő kapcsolat';
  return {color:'amber',message:msg,primary:matches};
 }
+// Unlike legacy Dropbox entries, these rows originate from authenticated,
+// server-verified native heartbeats, with one separate physical ID per owner.
+function classifyCentral(rows){
+ var valid=Array.isArray(rows)?rows.filter(function(d){
+  return d&&['zsolt','monika'].includes(d.profile_key)&&
+   /^android-[a-f0-9]{8}(-[a-f0-9]{4}){3}-[a-f0-9]{12}$/.test(d.device_id||'')&&
+   d.verified_at&&d.last_seen_at;
+ }):[];
+ if(!valid.length)return null;
+ var get=function(p){return valid.find(function(d){return d.profile_key===p})};
+ var z=get('zsolt'),m=get('monika');
+ var fresh=function(d){return !!(d&&d.state==='online'&&isoAge(d.last_seen_at)<=ttl)};
+ var okZ=fresh(z),okM=fresh(m);
+ var txtZ=okZ?'Zsolt: központilag igazolt':z?'Zsolt: nincs friss jelentés':'Zsolt: párosításra vár';
+ var txtM=okM?'Mónika: központilag igazolt':m?'Mónika: nincs friss jelentés':'Mónika: párosításra vár';
+ return {color:okZ&&okM?'green':'amber',message:txtZ+' · '+txtM,verified:valid};
+}
 function elt(t,cls,parent){var e=document.createElement(t);if(cls)e.className=cls;if(parent)parent.appendChild(e);return e}
 function txt(t,value,parent,cls){var e=elt(t,cls,parent);e.textContent=safeText(value);return e}
 function styles(){
@@ -142,10 +159,46 @@ function issueCard(parent,id,label,details){
  button.addEventListener('click',function(){openRepair(id)});
  return button;
 }
+function renderCentralPanel(area){
+ txt('p','☁️ Hitelesített, közös eszközregiszter. Egy másik Dropbox-fiók hiányzó vagy elavult bejegyzése nem a Samsung telefon hibája.',area);
+ txt('p','Állapot: '+state.message,area,state.color==='red'?'hhWarning':'');
+ ['zsolt','monika'].forEach(function(p){
+  var name=p==='zsolt'?'💙 Zsolt':'🩷 Mónika',row=state.centralRows.find(function(x){return x.profile_key===p});
+  var box=elt('div','hhLine',area);
+  if(!row){
+   txt('strong',name+' · Párosításra vár',box);
+   txt('small','Nincs még hitelesített központi telefonjelentés. Ez önmagában nem telefonhiba.',box);
+   return;
+  }
+  var fresh=row.state==='online'&&isoAge(row.last_seen_at)<=ttl;
+  txt('strong',name+' · '+(fresh?'✅ Hitelesítve':'🟠 Nem friss jelentés'),box);
+  txt('small','Natív azonosító: …'+safeText(row.device_id).slice(-12)+' · HH ONE '+safeText(row.build||'?'),box);
+  txt('small','Utolsó hitelesített jelentés: '+dt(row.last_seen_at),box);
+  // A genuine warning is shown only if the exact central phone ID also
+  // reported a recent issue via its native Dropbox diagnostic feed.
+  var native=state.devices.find(function(d){return d&&d.deviceType==='android'&&
+   d.activeProfile===p&&d.deviceId===row.device_id});
+  if(!native)return;
+  var job=native.status||{};
+  if(['failed','partial','rejected'].includes(job.state)&&isoAge(job.updatedAt)<=86400000)
+   issueCard(box,'OPS-COMMAND-'+p,'⚠ Friss parancshiba az igazolt telefonon','Részletek ellenőrzése az Adminban.');
+  if(native.otaLastError&&isoAge(native.otaLastCheckedAt)<=86400000)
+   issueCard(box,'DEV-ONE-AGENT','⚠ Friss OTA-hiba',safeText(native.otaLastError).slice(0,140));
+  if(native.lastHealthError&&isoAge(native.lastHealthAttemptAt)<=86400000)
+   issueCard(box,'OPS-COMMAND-'+p,'⚠ Friss Health Connect-hiba',safeText(native.lastHealthError).slice(0,140));
+ });
+ txt('p','A központi kapcsolat hitelesítése nem bizonyítja automatikusan az egészségügyi, GPS- vagy akkumulátoradatok szinkronját.',area);
+ var actions=elt('div','hhActions',area);
+ var b=elt('button','',actions);b.type='button';
+ b.textContent=reading?'Ellenőrzés…':'↻ Közös állapot frissítése';b.disabled=reading;
+ b.addEventListener('click',function(){refresh(true)});
+ if(!state.connected)txt('small','A régi Dropbox-kapcsolat külön kezelendő. A központilag igazolt telefonazonosító ettől nem válik hibássá.',area);
+}
 function renderPanel(){
  var area=$id('hhOneBody500');if(!area)return;
  area.replaceChildren();
  txt('p','HH One · Központi eszközkapcsolat és Léna Service Center. A RAG kizárólag a friss kapcsolati jeleket mutatja, NEM igazolja az egészségügyi adatok szinkronját.',area);
+  if(state.source==='central'){renderCentralPanel(area);return}
  txt('p','Állapot: '+state.message,area,state.color==='red'?'hhWarning':'');
  if(state.error)txt('p','Ellenőrzési hiba: '+state.error,area,'hhWarning');
  if(isMain()&&state.color!=='green'){
@@ -366,6 +419,27 @@ async function refresh(force){
  if(reading||(!force&&Date.now()-lastRead<refreshEvery))return;
  reading=true;lastRead=Date.now();
  try{
+  var center=root.HH_FAMILY_DEVICE_CENTRAL_V1;
+  if(center&&typeof center.refresh==='function'){
+   try{await center.refresh()}catch(_){}
+   var nativeProof=classifyCentral(center.devices?.()||[]);
+   if(nativeProof){
+    var matched=[];
+    if(connected()){
+     try{matched=await root.hhOrchestratorDevices305()}catch(_){matched=[]}
+    }
+    var failed=(matched||[]).some(function(d){
+     return nativeProof.verified.some(function(v){return v.profile_key===d.activeProfile&&v.device_id===d.deviceId})&&
+      d.status&&['failed','partial','rejected'].includes(d.status.state)&&
+      isoAge(d.status.updatedAt)<=86400000;
+    });
+    state={color:failed?'amber':nativeProof.color,
+      message:nativeProof.message+(failed?' · friss parancshiba ellenőrizendő':''),
+      source:'central',centralRows:nativeProof.verified,devices:matched||[],registry:null,
+      connected:connected(),error:'',feedback:state.feedback||''};
+    return;
+   }
+  }
   if(!connected()){
    state={color:'red',message:'Dropbox Vault nincs csatlakoztatva',devices:[],registry:null,connected:false,error:''};
   }else{
@@ -469,8 +543,9 @@ function mount(){
  timer=root.setInterval(function(){if(document.visibilityState==='visible'&&$id(PANEL)?.dataset.open!=='1')refresh(false)},refreshEvery);
  document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible')refresh(true)});
  root.addEventListener('healthhub:device-registry-updated',function(){refresh(true)});
+  root.addEventListener('healthhub:central-auth-changed',function(){if(document.visibilityState==='visible')refresh(true)});
 }
-root.HH_ONE_RAG_V500=Object.freeze({classify:classify,refresh:refresh,open:openPanel});
+root.HH_ONE_RAG_V500=Object.freeze({classify:classify,classifyCentral:classifyCentral,refresh:refresh,open:openPanel});
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',mount,{once:true});
 else mount();
 // document.open()/write() can replace the original document while external
