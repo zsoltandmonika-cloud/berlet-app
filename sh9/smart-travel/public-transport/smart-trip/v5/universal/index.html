@@ -48,12 +48,12 @@ small{color:#b5c7e4}a{color:#bddbff}[hidden]{display:none!important}
 <h1>🧭 Bárhonnan, bárhová</h1>
 <p>Szabad címek, helynevek és GPS-koordináták. Előkészítés a Google Routes
 és a SHO keresőmotor számára, a korábbi egyetlen rögzített tesztútvonal nélkül.</p>
-<p class="note"><strong>Ez az általános címbevitel tesztje, nem kész automatikus
-útvonaltervező.</strong> A szöveges címeket itt még nem geokódoljuk és nem
+<p class="note"><strong>Ez az általános címbevitel és a kikapcsolt Gateway tesztje,
+nem kész automatikus útvonaltervező.</strong> A szöveges címeket itt még nem geokódoljuk és nem
 azonosítjuk be. A Google Maps saját felületén valódi útvonalat kereshetsz,
 de annak eredményét a SHO jelenleg nem veszi át.</p>
 <span class="pill">✅ Tetszőleges cím</span><span class="pill">✅ GPS-koordináta</span>
-<span class="pill">✅ Budapesti időzóna</span><span class="pill">🔒 0 fizetős Google API-hívás</span>
+<span class="pill">✅ Budapesti időzóna</span><span class="pill">🔒 Google API alapból tiltva</span>
 <span class="pill">🧠 0 AI-hívás</span><span class="pill">💾 0 mentés</span>
 </header>
 <section class="panel">
@@ -100,9 +100,40 @@ rel="noopener noreferrer" hidden>🗺️ Valódi útvonal a Google Mapsben</a>
 A megnyitott Google Maps link nem garantálja ezek automatikus átvitelét.
 A valós 30 másodperces E2E keresés még fejlesztés alatt áll.</small></p>
 </section>
+<section class="panel" aria-labelledby="gateway-heading">
+<h2 id="gateway-heading">🌍 Google Routes · valódi, általános keresési kapcsolat</h2>
+<p class="note">A Gateway új, elkülönített szerverfunkció. Alapból tiltott:
+külön szerveroldali költség-, kvóta- és EGT-engedélyezés szükséges.
+A diagnosztika költségmentes. Valódi keresés csak kifejezett hozzájárulással
+és a három biztonsági ellenőrzés után indítható.</p>
+<label style="display:flex;gap:10px;align-items:flex-start;margin:13px 0">
+<input type="checkbox" id="gateway-consent" style="width:21px;min-height:21px;flex:none;margin:3px 0">
+<span>Hozzájárulok a beírt címek/koordináták és az utazási időpont szerveres
+ellenőrzéséhez. A valódi keresési gomb legfeljebb <strong>egy,
+esetleg díjköteles Google Routes API-kérést</strong> indíthat,
+amennyiben a szerver engedélyezte. Nem lesz AI-adattovábbítás vagy mentés.</span>
+</label>
+<div class="actions">
+<button id="gateway-diagnose" type="button" class="secondary">🔍 Szerverellenőrzés · 0 Google-kérés</button>
+<button id="gateway-search" type="button" disabled>🚀 Valódi Google Routes keresés · legfeljebb 1 kérés</button>
+</div>
+<p><strong>Teljes időmérés:</strong> <span id="gateway-clock">0,00 mp</span></p>
+<p id="gateway-status" role="status" aria-live="polite" class="result">
+A valós kapcsolat nincs ellenőrizve. Az éles keresés automatikusan nem indul el.</p>
+</section>
+<section id="gateway-results" class="panel" hidden aria-labelledby="google-routes-title">
+<h2 id="google-routes-title">Google Maps · térkép nélküli útvonalválasz</h2>
+<div id="gateway-results-content" class="result"></div>
+<p><small>A megjelenítés a szolgáltató szerinti sorrendet követi.
+A címfeloldás egyértelműségét, a menetrendet és a csatlakozásokat
+a SHO önállóan még nem igazolta. Nem végleges Léna A terv.</small></p>
+</section>
 <footer><small>Önálló pilot. Nem olvas profilcímet, helyi GTFS-adatot vagy
 HealthHub fiókadatot. GPS kizárólag a gombra kattintás és böngészőengedély után.
 A meglévő éles Smart Trip változatlan.</small></footer>
 </main>
+<script src="../../../../../../healthhub/central-vault/config.js?v=972-family-publishable"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.2/dist/umd/supabase.min.js"></script>
 <script type="module" src="./universal-client.mjs"></script>
+<script type="module" src="./gateway-client.mjs"></script>
 </body></html>
