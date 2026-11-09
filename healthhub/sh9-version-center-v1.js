@@ -79,8 +79,10 @@ function draw(){
  const box=d.getElementById(ID);if(!box||!box.isConnected)return;
  const status=d.getElementById(ID+'Status'),grid=d.getElementById(ID+'Grid');
  if(!status||!grid)return;
+ const centralVerified=(w.HH_FAMILY_DEVICE_CENTRAL_V1?.devices?.()||[]).filter(x=>x&&x.verified_at&&x.device_id&&['zsolt','monika'].includes(x.profile_key));
  status.textContent=loading?'Élő jelentések lekérése…':
   state&&state.feedback?state.feedback:
+  centralVerified.length===2?'✅ Mindkét HH One központilag párosítva. A Dropbox távoli szinkron külön ellenőrizhető.':
   state&&state.error?'⚠ '+state.error:
   state?'Legutóbbi központi lekérés: '+date(state.readAt):
   'A verzióközpont a Dropbox-kapcsolat ellenőrzésére vár.';
