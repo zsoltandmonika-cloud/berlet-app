@@ -1,0 +1,37 @@
+name: SHO Smart Trip V5 Main API Predictive Intake QA
+on:
+  push:
+    branches: [release/sho-v5-api-main-search-20261109]
+    paths:
+      - 'sh9/smart-travel/public-transport/smart-trip/index.html'
+      - 'sh9/smart-travel/public-transport/smart-trip/smart-trip-ai-v1022.js'
+      - 'sh9/smart-travel/public-transport/smart-trip/v5/universal/**'
+      - 'healthhub/tests/sho-smart-trip-v5-main-intake.test.mjs'
+      - '.github/workflows/sho-smart-trip-v5-main-api-intake-qa.yml'
+  pull_request:
+    paths:
+      - 'sh9/smart-travel/public-transport/smart-trip/index.html'
+      - 'sh9/smart-travel/public-transport/smart-trip/smart-trip-ai-v1022.js'
+      - 'sh9/smart-travel/public-transport/smart-trip/v5/universal/**'
+      - 'healthhub/tests/sho-smart-trip-v5-main-intake.test.mjs'
+      - '.github/workflows/sho-smart-trip-v5-main-api-intake-qa.yml'
+permissions:
+  contents: read
+jobs:
+  predictive-v5-google-api:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Static JS module syntax
+        run: |
+          node --check sh9/smart-travel/public-transport/smart-trip/smart-trip-ai-v1022.js
+          node --check sh9/smart-travel/public-transport/smart-trip/v5/universal/smart-trip-v5-intake.mjs
+          node --check sh9/smart-travel/public-transport/smart-trip/v5/universal/smart-trip-v5-api-ui.mjs
+      - name: Existing real universal contract + new predictive intake
+        run: |
+          node --test healthhub/tests/sho-smart-trip-v5-main-intake.test.mjs
+          node --test healthhub/tests/sho-smart-trip-v5-live-entry.test.mjs
