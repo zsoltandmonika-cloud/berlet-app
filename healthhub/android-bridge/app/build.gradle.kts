@@ -11,9 +11,10 @@ android {
         applicationId = "hu.zsoltmonika.healthhubbridge"
         minSdk = 26
         targetSdk = 35
-        versionCode = 40
-        versionName = "0.15.13"
-        // v0.15.13/build40: candidate native external-browser PKCE login; signed OTA promotion is separately gated.
+        versionCode = 41
+        versionName = "0.15.14"
+        // v0.15.14/build41: explicit native device-registry verification with Dropbox readback.
+        // Signed OTA promotion is separately approved and certificate-gated.
         // Actual signed publication remains separately approved and certificate-gated.
         // No signed OTA is published by merging: release requires manual approval.
     }
@@ -63,4 +64,5 @@ dependencies {
     // Keep Activity Result lifecycle compatible with transitive Play services fragments.
     implementation("androidx.fragment:fragment:1.7.1")
     testImplementation("junit:junit:4.13.2")
+    testImplementation("org.json:json:20240303")
 }
