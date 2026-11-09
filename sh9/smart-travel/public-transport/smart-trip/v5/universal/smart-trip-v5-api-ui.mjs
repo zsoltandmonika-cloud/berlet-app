@@ -7,6 +7,7 @@
  */
 import {buildV5Intake} from "./smart-trip-v5-intake.mjs";
 import {evaluateIndependentBkk} from "./lena-independent-bkk-v1.mjs";
+import {evaluateIndependentMav} from "./lena-independent-mav-v1.mjs";
 const HOST="https://vhsrupphzcjkdrusonzh.supabase.co";
 const ENDPOINT=HOST+"/functions/v1/hh-smart-trip-universal-v1";
 const $=id=>document.getElementById(id);
@@ -179,77 +180,113 @@ async function runIndependentLena(){
  const root=$("st22V5LenaResult");
  lenaBusy=true;clearResults();clearLena();setButtons();
  $("st22V5LenaStatus").textContent=
-  "✨ Léna: független BKK-menetrendi ellenőrzés, 0 Google-hívás, 0 LLM-hívás…";
+  "✨ Léna: független menetrendi ellenőrzés, 0 Google-hívás, 0 LLM-hívás…";
  try{
-  const engine=globalThis.SH9_BKK_SEARCH_V1107;
-  if(!engine?.search)throw Error(
-   "A független BKK-próbamotor nem érhető el. Frissítsd az oldalt.");
   const q=snapshot.query;
   const input={from:q.origin.label,to:q.destination.label,
    mode:q.mode,date:q.date,time:q.time};
-  const feed=await engine.search(input,q.when);
-  if(context!==snapshot||!dialog.open)return;
-  if(feed?.status!=="ok"){
-   const explanation={
-    unknown_stop:"Ezek a címek nem BKK-megállók. A 4 járatos önálló BKK-kereső még nem ad teljes útitervet.",
-    not_covered_stop:"A BKK megálló ismert, de nem a 17/19/41/260 próbajáratok útvonalán van.",
-    no_verified_route:"A BKK jelenlegi próbamenetrendjében nincs igazolt összeköttetés.",
-    outside_feed:"Az adott dátum kívül esik az ellenőrzött BKK-adatok érvényességén.",
-    feed_unavailable:"A független BKK-menetrendi adat nem ellenőrizhető.",
-    session_limit:"A helyi BKK-próba munkameneti keresési kerete elfogyott."
-   };
-   $("st22V5LenaStatus").textContent="ⓘ "+(explanation[feed?.status]||
-    "Nem áll rendelkezésre megfelelően ellenőrzött BKK-találat.")+
-    " Google-útvonalat nem adunk át Lénának; országos MÁV/Volán integráció még hiányzik.";
-   return;
+  const request={...input,when:q.when,profile:q.profile,priority:q.priority};
+  let ranked=null,provider=null,engine=null;
+  // BKK candidate discovery is independent of Google. Skip the BKK search
+  // quota if the supplied full names are not official routable pilot stops.
+  engine=globalThis.SH9_BKK_SEARCH_V1107;
+  if(engine?.load&&engine?.search&&engine?.suggestions){
+   try{
+    await engine.load();
+    if(context!==snapshot||!dialog.open)return;
+    const norm=s=>String(s||"").normalize("NFD")
+     .replace(/[\u0300-\u036f]/g,"").toLocaleLowerCase("hu-HU")
+     .replace(/\s+/g," ").trim();
+    const covered=name=>engine.suggestions(name).some(x=>
+     x.routable===true&&norm(x.name)===norm(name));
+    if(covered(input.from)&&covered(input.to)){
+     const response=await engine.search(input,q.when);
+     if(response?.status==="ok"){
+      const evaluated=evaluateIndependentBkk(response,request);
+      if(evaluated.status==="ok"){ranked=evaluated;provider="bkk";}
+     }
+    }
+   }catch{} // On invalid BKK feed, try independently verified local MÁV.
   }
-  const ranked=evaluateIndependentBkk(feed,{...input,when:q.when,
-   profile:q.profile,priority:q.priority});
-  if(ranked.status!=="ok"){
+  if(!ranked){
+   // Private MÁV GTFS remains on this DEVICE, never uploaded to a model or
+   // to Supabase. The controller already validates its source and rights.
+   const controller=globalThis.SH9_SMART_TRIP_AI_V1022;
+   const rail=globalThis.SH9_MAV_GTFS_CORE_V1;
+   if(controller?.loadRailData&&rail?.validate&&rail?.route){
+    let raw=null;
+    try{raw=await Promise.race([
+     controller.loadRailData(),
+     new Promise(resolve=>setTimeout(()=>resolve(null),7000))
+    ])}catch{}
+    if(context!==snapshot||!dialog.open)return;
+    if(raw&&rail.validate(raw,{allowPrivate:true})&&raw.rightsConfirmed===false&&
+     raw.localOnly===true&&/m[aá]v|vas[uú]t|rail/i.test(raw.source||"")){
+     let data=null;
+     try{data=rail.route(raw,{...input,when:q.when},
+      {limit:30,maxTransfers:1,localOnly:true,ranking:"recommended"})}catch{}
+     if(data?.status==="ok"){
+      const evaluated=evaluateIndependentMav(data,raw,request);
+      if(evaluated.status==="ok"){ranked=evaluated;provider="mav";}
+     }
+    }
+   }
+  }
+  if(context!==snapshot||!dialog.open)return;
+  if(!ranked){
    $("st22V5LenaStatus").textContent=
-    "ⓘ Léna nem tud biztonságos A tervet adni: "+ranked.status+
-    ". Nem állítunk elő kitalált járatot.";
+    "ⓘ Erre a cím- és időpontpárra nincs függetlenül ellenőrzött "+
+    "BKK vagy helyi MÁV útvonal. Az országos Volán/MÁV és a teljes "+
+    "ajtótól ajtóig integráció még hiányzik. Google-útvonalat nem "+
+    "adunk át Lénának, és nem találunk ki járatot.";
    return;
   }
   const pick=ranked.aPlan;
-  text("h3","✨ Léna A terve · BKK (független menetrend)",root);
-  const line=pick.item.legs.map(x=>x.line).join(" → ");
-  text("p","🚋 "+line+" · "+fmt(pick.departure)+" → "+
-   fmt(pick.arrival)+" · "+pick.minutes+" perc",root);
+  const label=provider==="bkk"?"BKK Zrt. CC BY 4.0":"Privát MÁV GTFS";
+  text("h3","✨ Léna A terve · "+label,root);
+  const lines=pick.item.legs.map(x=>provider==="bkk"?x.line:x.service).join(" → ");
+  text("p",(provider==="bkk"?"🚋 ":"🚆 ")+lines+
+   " · "+fmt(pick.departure)+" → "+fmt(pick.arrival)+
+   " · "+pick.minutes+" perc",root);
   text("p","Átszállások: "+pick.transfers+
    (pick.transfers?" · menetrendi csatlakozás: "+pick.transferMinutes+" perc":""),root);
   ranked.warnings.forEach(w=>text("p","ⓘ "+w,root));
   text("small","Léna helyi szabályalapú értékelő · nem LLM, nem Google Routes-adat. "+
-   ranked.alternativesEvaluated+" valódi BKK-találatot hasonlított össze.",root);
-  const save=text("button","💾 Ezt a BKK A tervet mentem a My Tripsbe",root);
-  save.type="button";save.className="secondary";
-  save.addEventListener("click",async()=>{
-   if(context!==snapshot||!dialog.open||lenaBusy||
-    (globalThis.localStorage?.getItem("hh-profile")==="m"?"m":"z")!==q.profile){
-    $("st22V5LenaStatus").textContent="A profil vagy a keresés megváltozott. Új ellenőrzés szükséges.";
-    return;
-   }
-   save.disabled=true;
-   save.textContent="🔐 Ellenőrzés és felhőmentés…";
-   let saved;
-   try{saved=await engine.save(pick.item,q.profile)}
-   catch{saved={status:"save_failed"}}
-   if(context!==snapshot||!dialog.open)return;
-   if(saved?.status==="saved"){
-    save.textContent="✓ Mentve";
-    $("st22V5LenaStatus").textContent=
-     "✅ A független BKK-útiterv igazoltan mentve a My Tripsbe.";
-   }else{
-    save.textContent="💾 Mentés újrapróbálása";
-    save.disabled=false;
-    $("st22V5LenaStatus").textContent=
-     "⚠️ A My Trips mentés nem igazolt: "+String(saved?.status||"ismeretlen hiba");
-   }
-  });
+   ranked.alternativesEvaluated+" önálló menetrendi találatot hasonlított össze.",root);
+  if(provider==="bkk"){
+   const save=text("button","💾 Ezt a BKK A tervet mentem a My Tripsbe",root);
+   save.type="button";save.className="secondary";
+   save.addEventListener("click",async()=>{
+    let nowProfile="z";
+    try{nowProfile=globalThis.localStorage?.getItem("hh-profile")==="m"?"m":"z"}
+    catch{nowProfile="unknown"}
+    if(context!==snapshot||!dialog.open||lenaBusy||nowProfile!==q.profile){
+     $("st22V5LenaStatus").textContent=
+      "A profil vagy a keresés megváltozott. Új ellenőrzés szükséges.";
+     return;
+    }
+    save.disabled=true;
+    save.textContent="🔐 Ellenőrzés és felhőmentés…";
+    let saved;
+    try{saved=await engine.save(pick.item,q.profile)}
+    catch{saved={status:"save_failed"}}
+    if(context!==snapshot||!dialog.open)return;
+    if(saved?.status==="saved"){
+     save.textContent="✓ Mentve";
+     $("st22V5LenaStatus").textContent=
+      "✅ Az ellenőrzött BKK A terv igazoltan mentve a My Tripsbe.";
+    }else{
+     save.textContent="💾 Mentés újrapróbálása";
+     save.disabled=false;
+     $("st22V5LenaStatus").textContent=
+      "⚠️ A My Trips mentés nem igazolt: "+String(saved?.status||"ismeretlen hiba");
+    }
+   });
+  }
   root.hidden=false;
   $("st22V5LenaStatus").textContent=
-   "✅ Egy ellenőrzött BKK A terv kiválasztva. "+
-   (ranked.provisional?"A gyalogos átszállás külön ellenőrizendő.":
+   "✅ Egy független menetrendi A terv kiválasztva. "+
+   (ranked.provisional?"A csatlakozás / gyaloglás külön ellenőrizendő.":
     "Közvetlen menetrendi kapcsolat.")+
    " Nincs Google → AI adatátadás.";
  }catch(e){
