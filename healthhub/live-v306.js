@@ -39,8 +39,8 @@
     }).join('');
     panel.innerHTML = '<h3>Health Connect</h3><p>Aktív profil: <strong>' + names[p] + '</strong> · Cloud: ' + (connected() ? 'Csatlakoztatva' : 'Nincs kapcsolat') + '</p>' +
       '<div class="hc306-actions"><label>Újraolvasás <select id="hc306days"><option value="1">24 óra</option><option value="7">7 nap</option><option value="30">30 nap</option></select></label><button id="hc306refresh">Állapot frissítése</button></div>' +
-      (error ? '<p role="alert">' + esc(error) + '</p>' : '') + (rows || '<p>Még nincs ehhez a profilhoz regisztrált telefon. Androidon válaszd a Telefon csatlakoztatása gombot.</p>') +
-      (android() ? '<div class="hc306-actions"><button data-native="setup">Telefon csatlakoztatása</button><button data-native="settings">Health Connect megnyitása</button><button data-native="permissions">Jogosultságok kezelése</button><button data-native="background">Háttérhozzáférés</button><button data-native="poll">Kérések végrehajtása ezen a telefonon</button></div>' : '') +
+      (error ? '<p role="alert">' + esc(error) + '</p>' : '') + (rows || '<p>Nincs ehhez a profilhoz Dropbox/Health Connect szinkronjelentés. Ez nem jelenti azt, hogy a HH One telefon nincs központilag párosítva.</p>') +
+      (android() ? '<div class="hc306-actions"><button data-native="setup">HH One / HC beállítások</button><button data-native="settings">Health Connect megnyitása</button><button data-native="permissions">Jogosultságok kezelése</button><button data-native="background">Háttérhozzáférés</button><button data-native="poll">Kérések végrehajtása ezen a telefonon</button></div>' : '') +
       '<p class="hc306-note">A kérés a felhőben vár a telefonra. A háttérellenőrzést az Android ütemezi, legalább 15 perces ciklussal és esetleges további késéssel. A Health Connect megnyitása és az engedélyezés a telefonon érhető el. A böngészőben az adatok helyi gyorsítótárból is megjelenhetnek.</p>';
     panel.querySelector('#hc306days').value = String(selectedDays);
     panel.querySelector('#hc306days').onchange = e => { selectedDays = Number(e.target.value); };
