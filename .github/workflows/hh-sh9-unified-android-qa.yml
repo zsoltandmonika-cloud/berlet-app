@@ -38,7 +38,7 @@ jobs:
           "$SDKMANAGER" "platforms;android-36" "build-tools;35.0.0"
       - name: Signed release candidate and Android permissions safety checks
         run: |
-          node --test tests/hh-one-device-registry-check-v01514.test.cjs tests/sh9-release-gates.test.cjs tests/hh-one-android-location-permission-v0155.test.cjs tests/family-guard-continuity-v0156.test.cjs tests/hh-one-smart-location-v0157.test.cjs
+          node --test tests/hh-one-dropbox-account-match-v01515.test.cjs tests/hh-one-device-registry-check-v01514.test.cjs tests/sh9-release-gates.test.cjs tests/hh-one-android-location-permission-v0155.test.cjs tests/family-guard-continuity-v0156.test.cjs tests/hh-one-smart-location-v0157.test.cjs
           node --check ../guardian/guardian-native-auth-v1063.js
           node --check ../live-v161.js
           node --check ../guardian/guardian-live-v785.js
