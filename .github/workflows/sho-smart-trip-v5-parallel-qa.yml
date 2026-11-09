@@ -8,6 +8,8 @@ on:
       - 'healthhub/tests/sho-smart-trip-v5-parallel.test.mjs'
       - 'healthhub/tests/sho-smart-trip-v5-local-sources.test.mjs'
       - 'healthhub/tests/sho-smart-trip-v5-universal-address.test.mjs'
+      - 'healthhub/tests/sho-smart-trip-v5-universal-gateway.test.mjs'
+      - 'supabase/functions/hh-smart-trip-universal-v1/**'
       - 'sh9/super-search/matrix-v4/**'
       - '.github/workflows/sho-smart-trip-v5-parallel-qa.yml'
   pull_request:
@@ -17,6 +19,8 @@ on:
       - 'healthhub/tests/sho-smart-trip-v5-parallel.test.mjs'
       - 'healthhub/tests/sho-smart-trip-v5-local-sources.test.mjs'
       - 'healthhub/tests/sho-smart-trip-v5-universal-address.test.mjs'
+      - 'healthhub/tests/sho-smart-trip-v5-universal-gateway.test.mjs'
+      - 'supabase/functions/hh-smart-trip-universal-v1/**'
       - 'sh9/super-search/matrix-v4/**'
       - '.github/workflows/sho-smart-trip-v5-parallel-qa.yml'
 permissions:
@@ -42,8 +46,17 @@ jobs:
         run: |
           node --check sh9/smart-travel/public-transport/smart-trip/v5/universal/universal-request.mjs
           node --check sh9/smart-travel/public-transport/smart-trip/v5/universal/universal-client.mjs
+          node --check sh9/smart-travel/public-transport/smart-trip/v5/universal/gateway-client.mjs
+          node --check supabase/functions/hh-smart-trip-universal-v1/core.mjs
+      - name: Supabase Edge gateway typecheck (no deployment)
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - name: Gateway Deno TypeScript validation
+        run: deno check supabase/functions/hh-smart-trip-universal-v1/index.ts
       - name: Parallel deadlines and read-only real source bridge tests
         run: |
           node --test healthhub/tests/sho-smart-trip-v5-parallel.test.mjs
           node --test healthhub/tests/sho-smart-trip-v5-local-sources.test.mjs
           node --test healthhub/tests/sho-smart-trip-v5-universal-address.test.mjs
+          node --test healthhub/tests/sho-smart-trip-v5-universal-gateway.test.mjs
