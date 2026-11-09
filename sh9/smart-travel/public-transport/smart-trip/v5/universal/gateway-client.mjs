@@ -173,4 +173,8 @@ for(const id of ["from","to","day","time","mode","priority","profile"]){
  $(id).addEventListener("input",invalidate);
  $(id).addEventListener("change",invalidate);
 }
+// The free Google Maps handoff must never coexist with displayed Google
+// Routes content under EEA map-free usage restrictions.
+for(const action of ["prepare","swap","my-location"])
+ $(action).addEventListener("click",invalidate);
 $("gateway-consent").addEventListener("change",()=>{if(!$("gateway-consent").checked)invalidate()});
