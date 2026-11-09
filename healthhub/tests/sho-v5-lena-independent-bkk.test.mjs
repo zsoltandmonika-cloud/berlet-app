@@ -70,7 +70,7 @@ test("the V5 path separates the Google paid API UI from a no-cost verified GTFS 
  const controller=readFileSync(root+"smart-trip-ai-v1022.js","utf8");
  assert.match(html,/id="st22V5LenaEvaluate"/);
  assert.match(html,/id="st22V5LenaResult"/);
- assert.match(html,/smart-trip-v5-api-ui\.mjs\?v=(?:3-lena-independent-bkk-mav|4-dev-without-quota)/);
+ assert.match(html,/smart-trip-v5-api-ui\.mjs\?v=(?:3-lena-independent-bkk-mav|4-dev-without-quota|5-dev-repeat-search-ux)/);
  assert.match(js,/evaluateIndependentBkk/);
  assert.match(js,/SH9_BKK_SEARCH_V1107/);
  assert.match(js,/engine\.save\(pick\.item,q\.profile\)/);
