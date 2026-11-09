@@ -7,7 +7,7 @@
  * Google Cloud may bill for each intentional search; server logs usage.
  */
 import {buildV5Intake} from "./smart-trip-v5-intake.mjs";
-import {summarizeGoogleWalks,walkSectionLabel} from "./google-walk-summary-v1.mjs";
+import {renderPremiumRoutes} from "./smart-trip-v5-premium-render-v1.mjs";
 const HOST="https://vhsrupphzcjkdrusonzh.supabase.co";
 const ENDPOINT=HOST+"/functions/v1/hh-smart-trip-universal-v1";
 const ERRORS=Object.freeze({
@@ -64,51 +64,7 @@ function cancel(){
  if(search)search.disabled=false;
 }
 function render(data,refsSnapshot){
- if(data?.schema!=="sho.smart-trip.universal-routes/1"||
-  data?.source!=="google_routes"||data?.attribution!=="Google Maps"||
-  data?.presentation!=="map_free_text_only"||data?.ai_processing!=="disabled"||
-  data?.save!==false||data?.independentlyVerified!==false||
-  data?.googleRequests!==1||!Array.isArray(data.routes)||data.routes.length>4)
-  throw Error("A Google-válasz nem felel meg a Smart Trip szerződésének.");
- const {rows,status,source,container}=refsSnapshot;
- rows.replaceChildren();
- source.textContent="Google Maps · Routes API · előzetes útvonalak";
- if(!data.routes.length){
-  status.textContent="A Google nem talált megfelelő tömegközlekedési útvonalat.";
-  return;
- }
- let shown=0;
- data.routes.forEach((route,i)=>{
-  const summary=summarizeGoogleWalks(route);
-  if(!summary)return;
-  const card=document.createElement("details");
-  card.className="st22-v5-inline-route";
-  card.open=i===0;
-  const headline=document.createElement("summary");
-  headline.textContent=(i+1)+". Google-útvonal · "+
-   Math.ceil(route.durationSeconds/60)+" perc · "+
-   summary.totalWalkMeters+" m séta · "+summary.transfers+" átszállás";
-  card.append(headline);
-  const steps=item("div",card,"","st22-v5-inline-steps");
-  for(const part of summary.items){
-   if(part.kind==="walk"){
-    item("p",steps,"🚶 "+walkSectionLabel(part.phase)+": "+part.meters+" m");
-   }else{
-    const t=part.step;
-    item("p",steps,"🚉 "+(t.line||"Járat")+" · "+t.from+" "+fmt(t.departure)+
-     " → "+t.to+" "+fmt(t.arrival)+(t.agency?" · "+t.agency:""));
-   }
-  }
-  rows.append(card);
-  shown++;
- });
- if(!shown)throw Error("A Google-válasz nem tartalmaz ellenőrizhető utazási szakaszokat.");
- status.textContent="✅ "+shown+" Google-útvonal érkezett. Az első részletesen nyitva van, "+
-  "a többi összecsukva. A gyaloglás összevont, a méterek megmaradtak.";
- item("p",rows,"Forrás: Google Maps · térkép nélküli megjelenítés. "+
-  "Előzetes szolgáltatói útvonal, nem Léna AI ajánlása; My Trips mentés nincs.",
-  "st22-v5-inline-source");
- container.hidden=false;
+ return renderPremiumRoutes(data,refsSnapshot);
 }
 async function run(query,token,controller){
  const nodes=refs(),started=performance.now();
@@ -179,9 +135,23 @@ function open(payload){
  return {status:"started"};
 }
 function init(){
- const provider=$("st22SearchMethod"),cost=$("st22V5CostNote");
- const showCost=()=>{if(cost)cost.hidden=provider?.value!=="google_api_v5"};
- provider?.addEventListener("change",showCost);
+ const provider=$("st22SearchMethod"),cost=$("st22V5CostNote"),map=$("st22Map");
+ const showCost=()=>{
+  const isV5=provider?.value==="google_api_v5";
+  if(cost)cost.hidden=!isV5;
+  // Google Routes steps may not be associated with any map in the EEA.
+  if(map)map.hidden=isV5;
+ };
+ provider?.addEventListener("change",()=>{
+  if(provider.value!=="google_api_v5"){
+   const {rows,container,source}=refs();
+   if(rows?.querySelector(".st22-v5-inline-route")){
+    rows.replaceChildren();container.hidden=true;
+    source.textContent="Menetrendi adat ellenőrzése kereséskor";
+   }
+  }
+  showCost();
+ });
  showCost();
  // Changing the input or provider invalidates any pending request. The
  // provider request may still be billed after a client-side abort.

@@ -1,0 +1,45 @@
+name: SHO V5 Premium Flow and Official Tickets QA
+on:
+  push:
+    branches: [feature/sho-v5-premium-flow-tickets-20261109]
+    paths:
+      - 'sh9/smart-travel/public-transport/smart-trip/**'
+      - 'healthhub/tests/sho-v5-premium-flow-tickets.test.mjs'
+      - 'healthhub/tests/sho-v5-one-click-inline-flow.test.mjs'
+      - 'healthhub/tests/sho-v5-google-walk-summary.test.mjs'
+      - 'healthhub/tests/sho-v5-dev-no-api-quota.test.mjs'
+      - 'healthhub/tests/sho-v5-lena-independent-bkk.test.mjs'
+      - '.github/workflows/sho-v5-premium-flow-tickets-qa.yml'
+  pull_request:
+    paths:
+      - 'sh9/smart-travel/public-transport/smart-trip/**'
+      - 'healthhub/tests/sho-v5-premium-flow-tickets.test.mjs'
+      - 'healthhub/tests/sho-v5-one-click-inline-flow.test.mjs'
+      - 'healthhub/tests/sho-v5-google-walk-summary.test.mjs'
+      - 'healthhub/tests/sho-v5-dev-no-api-quota.test.mjs'
+      - 'healthhub/tests/sho-v5-lena-independent-bkk.test.mjs'
+permissions:
+  contents: read
+jobs:
+  premium-flow:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: JavaScript syntax
+        run: |
+          node --check sh9/smart-travel/public-transport/smart-trip/v5/universal/smart-trip-v5-provider-links-v1.mjs
+          node --check sh9/smart-travel/public-transport/smart-trip/v5/universal/smart-trip-v5-premium-render-v1.mjs
+          node --check sh9/smart-travel/public-transport/smart-trip/v5/universal/smart-trip-v5-inline-v1.mjs
+      - name: Provider ticket links, walking, search, privacy and independent Léna gates
+        run: |
+          node --test healthhub/tests/sho-v5-premium-flow-tickets.test.mjs
+          node --test healthhub/tests/sho-v5-one-click-inline-flow.test.mjs
+          node --test healthhub/tests/sho-v5-google-walk-summary.test.mjs
+          node --test healthhub/tests/sho-smart-trip-v5-live-entry.test.mjs
+          node --test healthhub/tests/sho-smart-trip-v5-main-intake.test.mjs
+          node --test healthhub/tests/sho-v5-dev-no-api-quota.test.mjs
+          node --test healthhub/tests/sho-v5-lena-independent-bkk.test.mjs
