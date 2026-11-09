@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="hu"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#070d24">
+<title>SHO Smart Trip V5 · Parallel Orchestrator · Offline Pilot</title>
+<style>
+:root{color-scheme:dark;font-family:system-ui,-apple-system,Segoe UI,sans-serif}
+*{box-sizing:border-box}body{margin:0;color:#f8f5ff;min-height:100vh;
+background:radial-gradient(ellipse at 5% 3%,#4b2c7777,transparent 65%),
+radial-gradient(ellipse at 90% 95%,#124c6d55,transparent 65%),#080f24;
+padding:18px}main{max-width:920px;margin:auto}
+h1{font-size:clamp(24px,5vw,36px);margin:10px 0}h2{font-size:18px}
+p{color:#cfdaef;line-height:1.55}.panel{padding:22px;
+border:1px solid #baa8ff55;background:linear-gradient(130deg,#22244fdc,#0f2443c9);
+border-radius:24px;margin:0 0 16px;box-shadow:0 16px 35px #0005}
+.top{font-size:12px;font-weight:800;letter-spacing:.16em;color:#f6a0ef}
+.warning{background:#4b261c88;border:1px solid #ffc69f70;border-radius:14px;
+padding:12px;color:#ffe4cc;font-weight:600}.row{display:flex;flex-wrap:wrap;gap:10px}
+.pill{padding:6px 11px;border:1px solid #b9b8f570;border-radius:999px;
+background:#101936bb;font-size:13px}.sources{display:grid;
+grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:17px}
+.source{border-radius:16px;border:1px solid #b1baf065;padding:15px;
+background:#101d3cbf}.source b{display:block;font-size:19px}
+.state{font-size:13px;color:#c8d8ee;margin-top:10px;min-height:35px}
+.time{font-variant-numeric:tabular-nums;font-size:clamp(30px,7vw,48px);
+font-weight:780;color:#b6ffdf;margin:8px 0}
+button{background:linear-gradient(110deg,#f078d6,#7e75f8);color:white;
+font-size:16px;font-weight:780;border:0;padding:14px 21px;border-radius:14px;
+cursor:pointer}button:disabled{opacity:.5;cursor:wait}
+#result{border:1px solid #af9ce780;border-radius:14px;
+padding:12px;background:#101a36;min-height:65px;overflow-wrap:anywhere}
+small{color:#b9c6de}
+@media(max-width:640px){.sources{grid-template-columns:repeat(2,minmax(0,1fr))}
+.panel{padding:16px}}
+</style></head><body><main>
+<header class="panel">
+<div class="top">SHO · SMART TRIP AI · V5 PARALLEL PILOT</div>
+<h1>🚀 30 mp-es párhuzamos keresőmotor</h1>
+<p class="warning">KIZÁRÓLAG SZIMULÁCIÓ. Ez a teszt nem kérdez le
+Google Maps-, BKK-, MÁV- vagy Volán-adatokat, és nem készít valós útitervet.</p>
+<p>A cél: közös stopper, négy párhuzamos keresőág, szolgáltatónkénti időkorlát,
+folyamatos eredményfogadás és a teljes 30 másodperces határidő tesztelése.</p>
+<div class="row">
+<span class="pill">🔒 0 Google API-hívás</span>
+<span class="pill">🧠 0 AI-hívás</span>
+<span class="pill">💾 0 mentés</span>
+<span class="pill">✅ Éles SHO érintetlen</span>
+</div>
+</header>
+<section class="panel">
+<h2>⏱ Közös, végponttól végpontig futó stopper</h2>
+<div class="time" id="timer" aria-live="off">0,00 mp</div>
+<p id="phase" role="status" aria-live="polite">A demo indításra vár.</p>
+<button id="start" type="button">Szimuláció indítása</button>
+<div class="sources">
+<div class="source"><b>🌍 Google</b><div class="state" id="state-google">még nem indult</div></div>
+<div class="source"><b>🚌 BKK</b><div class="state" id="state-bkk">még nem indult</div></div>
+<div class="source"><b>🚆 MÁV</b><div class="state" id="state-mav">még nem indult</div></div>
+<div class="source"><b>🚍 Volán</b><div class="state" id="state-volan">még nem indult</div></div>
+</div>
+</section>
+<section class="panel">
+<h2>🩷 Léna · szimulált eredmény</h2>
+<p id="result" role="status" aria-live="polite">Még nincs eredmény.</p>
+<p><small>A bemutató számai és eredményei fiktívek. A valós adapterek
+és az AI bekötése külön lépés; Google-adatot LLM-nek nem továbbítunk.
+A kész motor legfeljebb 30 000 ms-os közös keretet enged.</small></p>
+</section>
+</main><script type="module" src="./client.mjs"></script></body></html>
