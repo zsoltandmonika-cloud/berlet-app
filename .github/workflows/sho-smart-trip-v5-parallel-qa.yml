@@ -1,0 +1,62 @@
+name: SHO Smart Trip V5 Parallel Orchestrator QA
+on:
+  push:
+    branches: [feature/sho-smart-trip-v5-parallel-orchestrator-20261109]
+    paths:
+      - 'sh9/smart-travel/public-transport/smart-trip/v5/parallel/**'
+      - 'sh9/smart-travel/public-transport/smart-trip/v5/universal/**'
+      - 'healthhub/tests/sho-smart-trip-v5-parallel.test.mjs'
+      - 'healthhub/tests/sho-smart-trip-v5-local-sources.test.mjs'
+      - 'healthhub/tests/sho-smart-trip-v5-universal-address.test.mjs'
+      - 'healthhub/tests/sho-smart-trip-v5-universal-gateway.test.mjs'
+      - 'supabase/functions/hh-smart-trip-universal-v1/**'
+      - 'sh9/super-search/matrix-v4/**'
+      - '.github/workflows/sho-smart-trip-v5-parallel-qa.yml'
+  pull_request:
+    paths:
+      - 'sh9/smart-travel/public-transport/smart-trip/v5/parallel/**'
+      - 'sh9/smart-travel/public-transport/smart-trip/v5/universal/**'
+      - 'healthhub/tests/sho-smart-trip-v5-parallel.test.mjs'
+      - 'healthhub/tests/sho-smart-trip-v5-local-sources.test.mjs'
+      - 'healthhub/tests/sho-smart-trip-v5-universal-address.test.mjs'
+      - 'healthhub/tests/sho-smart-trip-v5-universal-gateway.test.mjs'
+      - 'supabase/functions/hh-smart-trip-universal-v1/**'
+      - 'sh9/super-search/matrix-v4/**'
+      - '.github/workflows/sho-smart-trip-v5-parallel-qa.yml'
+permissions:
+  contents: read
+jobs:
+  offline-safety-and-deadlines:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Syntax
+        run: |
+          node --check sh9/smart-travel/public-transport/smart-trip/v5/parallel/parallel-orchestrator.mjs
+          node --check sh9/smart-travel/public-transport/smart-trip/v5/parallel/client.mjs
+      - name: Live local bridge syntax
+        run: |
+          node --check sh9/smart-travel/public-transport/smart-trip/v5/parallel/local-source-bridge.mjs
+          node --check sh9/smart-travel/public-transport/smart-trip/v5/parallel/local-test-client.mjs
+      - name: Universal address intake syntax
+        run: |
+          node --check sh9/smart-travel/public-transport/smart-trip/v5/universal/universal-request.mjs
+          node --check sh9/smart-travel/public-transport/smart-trip/v5/universal/universal-client.mjs
+          node --check sh9/smart-travel/public-transport/smart-trip/v5/universal/gateway-client.mjs
+          node --check supabase/functions/hh-smart-trip-universal-v1/core.mjs
+      - name: Supabase Edge gateway typecheck (no deployment)
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - name: Gateway Deno TypeScript validation
+        run: deno check supabase/functions/hh-smart-trip-universal-v1/index.ts
+      - name: Parallel deadlines and read-only real source bridge tests
+        run: |
+          node --test healthhub/tests/sho-smart-trip-v5-parallel.test.mjs
+          node --test healthhub/tests/sho-smart-trip-v5-local-sources.test.mjs
+          node --test healthhub/tests/sho-smart-trip-v5-universal-address.test.mjs
+          node --test healthhub/tests/sho-smart-trip-v5-universal-gateway.test.mjs
