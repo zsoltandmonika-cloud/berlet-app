@@ -1,192 +1,211 @@
 {
   "schemaVersion": 1,
-  "date": "2026-11-08",
-  "generatedAt": "2026-11-08T12:20:42+01:00",
-  "headline": "A reggel fő témái: What we know so far after Krakow gun attack; Houthis say at least 33 killed in Saudi air strike",
+  "date": "2026-11-09",
+  "generatedAt": "2026-11-09T13:57:42+01:00",
+  "headline": "A reggel fő témái: Krakow shooting suspect has died in hospital, police say; Inside the French drug gangs recruiting children to kill",
   "sections": [
     {
       "id": "executive",
       "title": "Vezetői összefoglaló",
       "items": [
-        "BBC World: What we know so far after Krakow gun attack",
-        "BBC World: Houthis say at least 33 killed in Saudi air strike",
-        "BBC World: 'Flat', 'tired', 'cynical': Unusually gloomy Kiwis deliver New Zealand's tightest election in years",
-        "BBC World: Israel's president tasks opposition leader Eisenkot with forming government"
+        "BBC World: Krakow shooting suspect has died in hospital, police say",
+        "BBC World: Inside the French drug gangs recruiting children to kill",
+        "BBC World: Trump says he was 'kidding' about Dana White press secretary offer",
+        "BBC World: At least 34 dead after Europe-bound migrant boat sinks off Senegal"
       ]
     },
     {
       "id": "overnight",
       "title": "Éjszakai fejlemények",
       "items": [
-        "BBC World: What we know so far after Krakow gun attack",
-        "BBC World: Houthis say at least 33 killed in Saudi air strike"
+        "BBC World: Krakow shooting suspect has died in hospital, police say",
+        "BBC World: Inside the French drug gangs recruiting children to kill",
+        "BBC World: Trump says he was 'kidding' about Dana White press secretary offer"
       ]
     },
     {
       "id": "geopolitics",
       "title": "Külpolitika / Geopolitika",
       "items": [
-        "BBC World: What we know so far after Krakow gun attack",
-        "BBC World: Houthis say at least 33 killed in Saudi air strike",
-        "BBC World: 'Flat', 'tired', 'cynical': Unusually gloomy Kiwis deliver New Zealand's tightest election in years"
+        "BBC World: Krakow shooting suspect has died in hospital, police say",
+        "BBC World: Inside the French drug gangs recruiting children to kill",
+        "BBC World: Trump says he was 'kidding' about Dana White press secretary offer"
       ]
     },
     {
       "id": "hungary",
       "title": "Magyarország",
       "items": [
-        "Telex: Magyar Péter a krakkói támadásról: Magyarország a lengyel nép mellett áll - Telex",
-        "Helló Magyar: Lesújtó uniós béradatok: Magyarország a harmadik legrosszabb helyen végzett - Helló Magyar",
-        "Dívány: Riasztó uniós adatok: Magyarország a halálozási lista élmezőnyében - Dívány"
+        "Mindmegette.hu: Fordul az időjárás: komoly esőzés közelít Magyarország felé - Mindmegette.hu",
+        "| hvg.hu: EUrologus: Brüsszel szerint Magyarország nem hajtotta végre a migrációs paktumot - | hvg.hu",
+        "Magyarország Kormánya: Bővülnek a DÁP és a Gondosóra applikációk szolgáltatásai - Magyarország Kormánya"
       ]
     },
     {
       "id": "economy",
       "title": "Gazdaság / Piacok",
       "items": [
-        "BBC Business: Government 'looking seriously' at banning under-16s from Vinted and eBay",
-        "BBC Business: Labubu hype seemed unstoppable, now the fluffy monster mania is dying"
+        "BBC Business: Jensen Huang: Why a personal scandal for the face of the AI boom has provoked a national security scare",
+        "BBC Business: What do we know about Nvidia CEO’s affair with a suspected Chinese spy?",
+        "BBC Business: Doing these things now will help you save money at Christmas"
       ]
     },
     {
       "id": "technology",
       "title": "Technológia / AI",
       "items": [
-        "BBC Technology: Government 'looking seriously' at banning under-16s from Vinted and eBay",
-        "BBC Technology: Can the Zelda remake capture the magic of the original?"
+        "BBC Technology: Jensen Huang: Why a personal scandal for the face of the AI boom has provoked a national security scare",
+        "BBC Technology: Government 'looking seriously' at banning under-16s from Vinted and eBay"
       ]
     },
     {
       "id": "risks",
       "title": "Mai kockázatok",
       "items": [
-        "Figyelmi pont: What we know so far after Krakow gun attack (BBC World).",
-        "Figyelmi pont: Houthis say at least 33 killed in Saudi air strike (BBC World).",
-        "Figyelmi pont: US offers $20m reward for information about Iran's nuclear programme (BBC World)."
+        "Figyelmi pont: Krakow shooting suspect has died in hospital, police say (BBC World).",
+        "Figyelmi pont: Inside the French drug gangs recruiting children to kill (BBC World)."
       ]
     },
     {
       "id": "watch",
       "title": "Mi számít igazán / Figyelmi szint",
       "items": [
-        "BBC World: What we know so far after Krakow gun attack",
-        "BBC World: Houthis say at least 33 killed in Saudi air strike"
+        "BBC World: Krakow shooting suspect has died in hospital, police say",
+        "BBC World: Inside the French drug gangs recruiting children to kill"
       ]
     }
   ],
   "sources": [
     {
-      "title": "What we know so far after Krakow gun attack",
+      "title": "Krakow shooting suspect has died in hospital, police say",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cmd7q15drwgeo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-08"
+      "url": "https://www.bbc.co.uk/news/articles/c6y434dw8319o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-09"
     },
     {
-      "title": "Houthis say at least 33 killed in Saudi air strike",
+      "title": "Inside the French drug gangs recruiting children to kill",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/c65yn1v99ypmo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-08"
+      "url": "https://www.bbc.co.uk/news/articles/cq62y01r2313o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-09"
     },
     {
-      "title": "'Flat', 'tired', 'cynical': Unusually gloomy Kiwis deliver New Zealand's tightest election in years",
+      "title": "Trump says he was 'kidding' about Dana White press secretary offer",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cxr5yyg2nj9eo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-07"
+      "url": "https://www.bbc.co.uk/news/articles/ck0j0j87959eo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-09"
     },
     {
-      "title": "Israel's president tasks opposition leader Eisenkot with forming government",
+      "title": "At least 34 dead after Europe-bound migrant boat sinks off Senegal",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cmy8367lj5xlo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-07"
+      "url": "https://www.bbc.co.uk/news/articles/cv2d6dpge65go?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-09"
     },
     {
-      "title": "US offers $20m reward for information about Iran's nuclear programme",
+      "title": "Pope delivers veiled rebuke of Milei's austerity measures",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/c6d091ev3p0jo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-07"
+      "url": "https://www.bbc.co.uk/news/articles/ckj0l082jqzvo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-09"
     },
     {
-      "title": "UK cannot 'cherry pick' EU single market deal, Barnier tells BBC",
+      "title": "Cruise ship pianist rescued from sea after nine hours in Pacific Ocean",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/c9kgjj206nzpo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-07"
+      "url": "https://www.bbc.co.uk/news/articles/ck1wvrrgln13o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-09"
     },
     {
-      "title": "Paraguay's former president charged after bank collapse",
+      "title": "Nine foreigners caught allegedly trying to leave South Africa to fight in Ukraine",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/c68jzzvjgdy9o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-07"
+      "url": "https://www.bbc.co.uk/news/articles/cm93z3lp5lnpo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-09"
     },
     {
-      "title": "Pope in 'pretty good health' as he starts Latin America tour",
+      "title": "Four killed in Gaza after sand embankment collapses onto tents, health ministry says",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/c60e0001ve9wo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-07"
+      "url": "https://www.bbc.co.uk/news/articles/cqd090ee8px5o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-09"
     },
     {
-      "title": "Magyar Péter a krakkói támadásról: Magyarország a lengyel nép mellett áll - Telex",
-      "publisher": "Telex",
-      "url": "https://news.google.com/rss/articles/CBMirAFBVV95cUxOdFhwemdFZzhlT3YyZzdrSngycEh1M2hzenp6OEhpbW5JWVhUM2lUWDRJa0RMNERDWmVRU2Zqam9ILXV5NWxldG1VakJtc2dtcFNnQWJpQjNwM3Q2WjUwN2pmZnBCX3lxVV8xeTQyTC0tUUk0MjM4SWUxek82SVhBVkRJSUZORXpBWmdLbG1MLUQyajRCTXJRLWFKOFdZeHR1V2k2RDQ3b2swQlNj?oc=5",
-      "publishedAt": "2026-11-07"
+      "title": "Fordul az időjárás: komoly esőzés közelít Magyarország felé - Mindmegette.hu",
+      "publisher": "Mindmegette.hu",
+      "url": "https://news.google.com/rss/articles/CBMibkFVX3lxTE5GSnZvXzNtRkJ4RWtYQm5tNEZGNnZCZmRoVUtyOHlsc3lmU0p1RC1VZkswTElyNFVocUhKRXhSWkNqTThpOTd2TzhwYkZMaHhBU05Ea2cxUFNocy1WdktzTV9iYS1DNzVUMTdIY0h3?oc=5",
+      "publishedAt": "2026-11-09"
     },
     {
-      "title": "Lesújtó uniós béradatok: Magyarország a harmadik legrosszabb helyen végzett - Helló Magyar",
-      "publisher": "Helló Magyar",
-      "url": "https://news.google.com/rss/articles/CBMieEFVX3lxTE52UDlOSm1PVTQwVVpHVS04Zm9WbHlsZWVkVE53SDFFT2NxNzYtRVJwN2lyZDMwNXkxTzRjamtvSlk4RGNIMkZnVmJmYTY3RlRJa1JsMmtXSzVxMGhpV3VpT2VzZTY2Yld3RnhFdWc2VVlJalZJdTZhTg?oc=5",
-      "publishedAt": "2026-11-08"
+      "title": "EUrologus: Brüsszel szerint Magyarország nem hajtotta végre a migrációs paktumot - | hvg.hu",
+      "publisher": "| hvg.hu",
+      "url": "https://news.google.com/rss/articles/CBMigAFBVV95cUxNS0JLci1ySGdhcHFCOGZFUGMwQXZXVmp4NGlBSHFiZU9pQjdORE9qTU9iY2Iyd3dJSVBiREN2WVdNQ0xHcUcxNWpmVUF4RzFsU2hTV1JlMHE0anZNd2dyYlBUQjBZX0wtNVRwNU1pZlVDelBMQ05iWXhIQlVXTTlSLQ?oc=5",
+      "publishedAt": "2026-11-09"
     },
     {
-      "title": "Riasztó uniós adatok: Magyarország a halálozási lista élmezőnyében - Dívány",
-      "publisher": "Dívány",
-      "url": "https://news.google.com/rss/articles/CBMikAFBVV95cUxOaUhDczA4UXNWSGVRRThrYzNMWTlIUlJLeTNnWnFWWU0yVWtON1R0U3c4UXVxMm5Zc2U4N2QxMEljQV9OVTk5MlBKUnVqWlNvWGZHSW55WXBxa1Y3Q2FoUXFyTl9Zc3FaaGpIcFpqX1ZOQnFVeXBxSUxQWVRkdm52YU9tekVKVHA2UGJFUVhob3k?oc=5",
-      "publishedAt": "2026-11-08"
+      "title": "Bővülnek a DÁP és a Gondosóra applikációk szolgáltatásai - Magyarország Kormánya",
+      "publisher": "Magyarország Kormánya",
+      "url": "https://news.google.com/rss/articles/CBMiiAFBVV95cUxNbWJxdnZMdVphdmZSUXdNUVRfQW55dXI0M25YNHdiWDFxN1NVM0x4LTNoMXB5THFPNXUwVV96OG5rNDBsSnZXNFFmYnk5UV9lcW9pcnBPWTBQbGhZTTA4bUE5bUxaT2QxZ3BCTE1vZjUwWUZ0N3dyZThScmpQR0RLS2xaUnRabTJl?oc=5",
+      "publishedAt": "2026-11-09"
+    },
+    {
+      "title": "Magyarország Kormánya. . Berlini út előtt újra élőben a Parlamentből! - Facebook",
+      "publisher": "Facebook",
+      "url": "https://news.google.com/rss/articles/CBMizwFBVV95cUxQNE5yOUNFODU1eThvSkgtaGhHYXlkNnFMZmpsUUtmUEpxdHVRRkY3VnBXM2JQbnc1UnJnSHlFVEZ4YUxkdDZJODlURlZPOGo0M21oVW9CNGRuQk1keTBxSGlaX215SHp2RHI4d0ViZTdQSEFOUUt3VGlweFJIanQtd08tQ2RZQ2JGX1dmQWpHaEkxQ2xod1RteFFxZmNqTDRHMU9ocUFMcWRlM0hVNVBhRHRSSzlRN3lRc3lVU3Z5NEpRTXpTUUlYQVdjZFhlbU0?oc=5",
+      "publishedAt": "2026-11-09"
+    },
+    {
+      "title": "Magyarország, szeretlek! 2026.11.08. - MédiaKlikk",
+      "publisher": "MédiaKlikk",
+      "url": "https://news.google.com/rss/articles/CBMiigFBVV95cUxNRTFqVVZBUDVzWU9mZWtvZ3puMkpKOWZONzd1U25TU0FfUFFrWHRjX3BlQVlsWDcxeTU4ZmdYM1Y0Z2kwdWNiaTJhNXIyc1N0THNNRDk5aWZZSzBqbnpqelVaZE03YlhYLWJrTXMtczQ3ZngyTEVxLWw1Yk5ycWpFcVBCbGFEdm9NT0E?oc=5",
+      "publishedAt": "2026-11-09"
+    },
+    {
+      "title": "Sorsdöntő tárgyalások indultak az uniós központban: elkerülheti Magyarország a súlyos megszorításokat? - Pénzcentrum",
+      "publisher": "Pénzcentrum",
+      "url": "https://news.google.com/rss/articles/CBMi7gFBVV95cUxOeHpOQ3loU3RzZFZLcDZkYURqbDkxbTI0MEtpaUZlV2ZxdDVDV0JFSDVvd2RvTkdRSTZXWXBYZGcybkhROTV1WGlab0tRVXd6VDdQVFZLaWRiZGxXTkxrWDJfR0h0T05WLXU3bGU2bVgzM2VEcnB4QjNUdnhlbnpXanNWMW1ZTUtydkx4amZVd3FLeENiNHlhbi1kZFNwSUZycEowUlZib0lrTmxyenpQbEw0SFZfbXMzWWNFcEtoOVhDTHB6Y1I1azJNZ1czUWZmZ2l4dUlJdnZoem9qb0YyMUZ4b01zWlNmS2dUQmh3?oc=5",
+      "publishedAt": "2026-11-09"
+    },
+    {
+      "title": "Magyarország jobban látszik közelről – a Független Helyi Lapok Közösségének ajánlója (2026/45.) - Magyar Újságírók Országos Szövetsége",
+      "publisher": "Magyar Újságírók Országos Szövetsége",
+      "url": "https://news.google.com/rss/articles/CBMiuwFBVV95cUxQa3drV2JnT0hSdWlTQWozSzVSM2NzSXRmRlpNc2JjaU9zcGlTZlpYNUZtdlRWNjhiU3NLRV9CenA0ekdvbzhIbTdxNkE3TmEzdVhJc1BKOHppZ1hIaHg1YlNIXzVzM0owb1NjbmFYdmYtbjFPNGp2c1pyQ0V0d0VWU0c0R2NCVDRfTS1OQ0Y0b1diTjRqYkZKTDREUmphOFZYTFVrLXpfT2RPcXpCcDlYTEFBQXhfMzNNTXJv?oc=5",
+      "publishedAt": "2026-11-09"
     },
     {
       "title": "Mindössze 11 ember él Magyarország legkisebb településén, itt a toplista - ORIGO",
       "publisher": "ORIGO",
       "url": "https://news.google.com/rss/articles/CBMigwFBVV95cUxQQUVXOVNDd2pscUt6d0JIWmgwbXB2eXZ3aVhwNlVxZERnMXlBdG5oMElqNVhnNlZvOUFxaWR5M0hLOU1IUm9rVnYtRGd6Nmpld184SVpicElIMDVWT1ZhMEhMc2RmSDZZR2hUMzBUSVRlVm5PQWdaNDgzQll0VzdHYWNUWQ?oc=5",
-      "publishedAt": "2026-11-08"
+      "publishedAt": "2026-11-09"
     },
     {
-      "title": "Kiderült a hazai euróbevezetés pontos menetrendje: a vártnál korábban is lecserélhetjük a forintot - Pénzcentrum",
-      "publisher": "Pénzcentrum",
-      "url": "https://news.google.com/rss/articles/CBMi6gFBVV95cUxQMFFnV1ZwS1FnSU96MnlZRmkxTkhvWTlEMG0tMlJlcXhVSVZZVVpLOVY0YWJTTGpOLUdLUklyNy1sY0JzY2NiMWRvYnZTbjVQZUVocmQ3QVIySzJJd19QR0xtSmJZV21mMTZmX0R2eHhpbGJBOHJoVUVNbUZnT3d5cUM0Q1pHVHY2SVZmRC1TODRNWTdpUlVKUUZOQjVnSVdhUzFDalYzel9NdXhzemxVckM4SHRrNkpzVlpBVk5uc2lJck1aaDlSUE9XZWZ0LUhVemNMemlKWWV6eU5kaVYza0FUVWZmb082TUE?oc=5",
-      "publishedAt": "2026-11-08"
+      "title": "Jensen Huang: Why a personal scandal for the face of the AI boom has provoked a national security scare",
+      "publisher": "BBC Business",
+      "url": "https://www.bbc.co.uk/news/articles/ckgel338xql3o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-09"
     },
     {
-      "title": "Két fontos táblázat Magyarország gazdasági helyzetéről – nem ott van a baj, ahol keressük - Összkép -",
-      "publisher": "Összkép -",
-      "url": "https://news.google.com/rss/articles/CBMivwFBVV95cUxNZHM3VWdrdHk1TVh6clBocEN1RlJTVnBkcXh1SHJ4Tl9Iclg4eFBDakw4ekR3THF0NzZkMTdaYWhmYXFVUG1DMXlHSHV3OURTUDE0RVdUcWhpN2NsdXlaam9qM2k2dWdVc0Vjamd2dk5MWTlpZFlxdFFfOWQ5OTNHaHpVQzVKQlBwMUhMekNHZEw5cGg0UTMyR3Njd3R6Q0c1SElKNU14YzZTR2szcnMtUG5tSEpLcmhXQWpIWjFtUQ?oc=5",
-      "publishedAt": "2026-11-07"
+      "title": "What do we know about Nvidia CEO’s affair with a suspected Chinese spy?",
+      "publisher": "BBC Business",
+      "url": "https://www.bbc.co.uk/news/videos/cq3989nkzn3ko?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-09"
     },
     {
-      "title": "Új fejezet nyílik az Európai Beruházási Bank és Magyarország együttműködésében - AzÜzlet",
-      "publisher": "AzÜzlet",
-      "url": "https://news.google.com/rss/articles/CBMinwFBVV95cUxNREdhRmQ0SnJQZGVDbV9nSHFBTHZSS1JqalpMUWVhMGpBUVJtblEtakVRZWNwLXRPYzVCR0xxbFk3blQzTE9xUkpOM1ZJOWE2Vk1XVGQ5LTgtYmgwdzJrSERrLXQ0dHE0QllYOEQtcS1XWmJSMHFtcG1MMlVFQlhnQnQ5MC01Z09NT09MXzdxVE9WcG5ZU1RpdXZlR000RnM?oc=5",
-      "publishedAt": "2026-11-07"
+      "title": "Doing these things now will help you save money at Christmas",
+      "publisher": "BBC Business",
+      "url": "https://www.bbc.co.uk/news/articles/ck7vppll151mo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-09"
     },
     {
-      "title": "„Magyarország a lengyel nép mellett áll” – üzent Magyar Péter a gyilkos támadás után - Infostart",
-      "publisher": "Infostart",
-      "url": "https://news.google.com/rss/articles/CBMivAFBVV95cUxOdjU3a2F0TER5SVlwTDFtemluNHdHYmp2STVJeG8zNUNDdHNyM1l6UDZuZjNpRDV1c2psYzhCVTR3WTJ1eDVVcGlNVE9OcTVzZURhQmVPQzVFZkxnZHI4QTFpa1lzWDB4UTIydzJwTkoxWWIzeU01bHJZeFFGWjhaa010czFhODJhTy14UldlZ2JHa3d6SXRuUUN2YXA1QXRtdUZmU2d1NkpWNENfMzlNeGs0R3ZIc0lKMTZqNg?oc=5",
-      "publishedAt": "2026-11-07"
+      "title": "Government's EV targets expected to be reduced this week",
+      "publisher": "BBC Business",
+      "url": "https://www.bbc.co.uk/news/articles/cqkg5g2970epo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-09"
+    },
+    {
+      "title": "Nvidia launches investigation into CEO's affair with suspected Chinese spy",
+      "publisher": "BBC Business",
+      "url": "https://www.bbc.co.uk/news/articles/c3dxw10rjn9no?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-09"
     },
     {
       "title": "Government 'looking seriously' at banning under-16s from Vinted and eBay",
       "publisher": "BBC Business",
       "url": "https://www.bbc.co.uk/news/articles/cmzxjvpqrjxro?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-08"
-    },
-    {
-      "title": "Labubu hype seemed unstoppable, now the fluffy monster mania is dying",
-      "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/cmvg652l927lo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-08"
-    },
-    {
-      "title": "Can the Zelda remake capture the magic of the original?",
-      "publisher": "BBC Technology",
-      "url": "https://www.bbc.co.uk/news/articles/cm8xznl0n1q4o?at_medium=RSS&at_campaign=rss",
       "publishedAt": "2026-11-08"
     }
   ]
