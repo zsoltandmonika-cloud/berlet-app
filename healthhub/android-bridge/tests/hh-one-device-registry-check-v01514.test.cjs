@@ -22,7 +22,7 @@ test('explicit native button is next to existing Health Connect SYNC NOW, and is
 test('diagnostic observes the exact Android worker and verifies actual Dropbox readback',()=>{
  assert.match(schedule,/fun runNow\(context: Context\): UUID/);
  assert.match(schedule,/return req.id/);
- assert.match(main,/wm.getWorkInfoById\(workId\).get\(\)/);
+ assert.match(main,/\.getWorkInfoByIdFlow\(workId\)/);
  assert.match(main,/work\?\.state != WorkInfo.State.SUCCEEDED/);
  assert.match(main,/DropboxVaultClient.downloadTextOrNull\(prefs, path\)/);
  assert.match(main,/DeviceRegistrationReceipt.inspect\(/);
