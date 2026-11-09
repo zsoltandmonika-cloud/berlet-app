@@ -126,8 +126,8 @@ test("server code makes no provider call when disabled, missing profile, or no q
  assert.match(src,/req\.signal\.aborted/);
  assert.match(src,/if\(!quota\.ok\)return/);
  assert.ok(src.indexOf("if(!(status.enabled&&status.billingReviewed&&status.eeaReviewed))")<
-  src.indexOf("await reserveOne(admin)"));
- assert.ok(src.indexOf("await reserveOne(admin)")<
+  src.indexOf("await reserveOne(admin as unknown as QuotaRpcClient)"));
+ assert.ok(src.indexOf("await reserveOne(admin as unknown as QuotaRpcClient)")<
   src.indexOf("await providerRequest("));
  const before=src.slice(0,src.indexOf("if(validated.mode==="+'"diagnose"'+")"));
  assert.doesNotMatch(before,/await providerRequest/);
