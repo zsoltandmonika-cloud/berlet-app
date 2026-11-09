@@ -94,18 +94,18 @@ test("zero-metre provider steps are removed from display, not counted as walking
  assert.equal(result.transfers,1);
 });
 
-test("V5 renderer uses compact walking presentation but does not pass Google data to Léna",()=>{
+test("V5 one-click inline renderer uses compact walks and never sends Google data to Léna",()=>{
  const root="sh9/smart-travel/public-transport/smart-trip/";
  const html=readFileSync(root+"index.html","utf8");
- const js=readFileSync(root+"v5/universal/smart-trip-v5-api-ui.mjs","utf8");
- assert.match(html,/v=6-collapsed-walk-steps/);
- assert.match(js,/summarizeGoogleWalks\(r\)/);
- assert.match(js,/Összes becsült gyaloglás/);
- assert.match(js,/walkSectionLabel\(item\.phase\)/);
- assert.match(js,/Átszállások: /);
- assert.doesNotMatch(js,/🚶 Gyaloglás: "\+step\.meters/);
- assert.match(js,/evaluateIndependentBkk/);
- assert.match(js,/evaluateIndependentMav/);
- const render=js.slice(js.indexOf("function renderRoutes(data)"),js.indexOf("async function execute(mode)"));
+ const js=readFileSync(root+"v5/universal/smart-trip-v5-inline-v1.mjs","utf8");
+ assert.match(html,/v=1-direct-one-click/);
+ assert.match(js,/summarizeGoogleWalks\(route\)/);
+ assert.match(js,/summary\.totalWalkMeters/);
+ assert.match(js,/walkSectionLabel\(part\.phase\)/);
+ assert.match(js,/summary\.transfers/);
+ assert.match(js,/mode:"search",consent:true,query/);
+ assert.doesNotMatch(html,/id="st22V5ApiDialog"/);
+ assert.doesNotMatch(js,/showModal|st22V5ApiConsent/);
+ const render=js.slice(js.indexOf("function render(data,"),js.indexOf("async function run("));
  assert.doesNotMatch(render,/evaluateIndependent|api\.openai\.com|\.insert\(|localStorage\.setItem/);
 });
