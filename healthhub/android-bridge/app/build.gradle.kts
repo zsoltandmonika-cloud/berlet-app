@@ -11,9 +11,9 @@ android {
         applicationId = "hu.zsoltmonika.healthhubbridge"
         minSdk = 26
         targetSdk = 35
-        versionCode = 43
-        versionName = "0.15.16"
-        // v0.15.16/build43: persistent OAuth return diagnosis, no credential/data reset; Zsolt-only staged OTA.
+        versionCode = 44
+        versionName = "0.15.17"
+        // v0.15.17/build44: opt-in verified family registry and approximate-GPS native WebView fix; Zsolt pilot.
         // Signed OTA promotion is separately approved and certificate-gated.
         // Actual signed publication remains separately approved and certificate-gated.
         // No signed OTA is published by merging: release requires manual approval.

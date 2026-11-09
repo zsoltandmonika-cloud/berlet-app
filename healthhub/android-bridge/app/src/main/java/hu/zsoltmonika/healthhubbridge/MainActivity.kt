@@ -553,6 +553,54 @@ class MainActivity : ComponentActivity() {
         }
         root.addView(registryCheckResult)
 
+        // Central family registry is independent of Dropbox and opt-in for Zsolt pilot.
+        // The pairing code is never sent to the web UI automatically.
+        if (deviceOwnerProfile() == "zsolt") {
+            val centralNote = TextView(this).apply {
+                text = "☁️ Közös családi eszközregiszter · Zsolt próbaüzem\n" +
+                    "Állapot: " + (prefs.getString(FamilyDeviceCentral.RESULT, "még nincs párosítva")
+                        ?: "még nincs párosítva")
+                textSize = 13f
+                setTextColor(0xFF315F98.toInt())
+                setPadding(4, 12, 4, 8)
+                setTextIsSelectable(true)
+            }
+            root.addView(centralNote)
+            root.addView(Button(this).apply {
+                text = "🔐 Központi párosítókód másolása"
+                setOnClickListener {
+                    val id = prefs.getString("orchestrator_device_id_v1", null)
+                    val code = FamilyDeviceCentral.prepare(prefs, deviceOwnerProfile(), id)
+                    if (code == null) {
+                        centralNote.text = "Előbb ellenőrizd a natív eszközregisztrációt. Az eszközazonosítót nem módosítjuk."
+                    } else {
+                        val clip = android.content.ClipData.newPlainText("HH One családi párosítókód", code)
+                        val manager = getSystemService(Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
+                        manager.setPrimaryClip(clip)
+                        centralNote.text = "✓ Párosítókód másolva. Nyisd meg: SHO → Admin → Családi eszközregiszter. " +
+                            "Ott illeszd be az egyszer használatos jóváhagyáshoz. A telefonazonosító és a Dropbox változatlan."
+                    }
+                }
+            })
+            root.addView(Button(this).apply {
+                text = "↻ Központi párosítás ellenőrzése"
+                setOnClickListener {
+                    centralNote.text = "Közös regiszter ellenőrzése…"
+                    scope.launch {
+                        val result = try {
+                            FamilyDeviceCentral.heartbeat(prefs, deviceOwnerProfile(),
+                                prefs.getString("orchestrator_device_id_v1", null), BuildConfig.VERSION_NAME)
+                        } catch (_: Exception) { "kapcsolati hiba, a Dropbox nem változott" }
+                        centralNote.text = when (result) {
+                            "verified" -> "✅ Zsolt telefonja a közös családi regiszterben igazolt."
+                            "awaiting_owner_approval" -> "Jóváhagyás szükséges a SHO Admin felületén."
+                            else -> "Központi regiszter: $result. A korábbi Dropbox-kapcsolat megmaradt."
+                        }
+                    }
+                }
+            })
+        }
+
         nativeDropboxAccountLabel = TextView(this).apply {
             text = nativeDropboxAccountText()
             textSize = 13f

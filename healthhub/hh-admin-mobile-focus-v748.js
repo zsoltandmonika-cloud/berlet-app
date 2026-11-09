@@ -74,6 +74,21 @@ function help(s){const n=q(ID+'Help');if(n)n.textContent=s}
 function registryNotice(){
  const banner=q('hhAdminRegistryFastV809'),label=q('hhAdminRegistryTextV809');
  if(!banner||!label)return;
+ // Central registry is authoritative after a real native heartbeat has been verified.
+ const central=w.HH_FAMILY_DEVICE_CENTRAL_V1?.devices?.()||[];
+ if(central.length){
+  const verified=new Set(central.filter(x=>{
+   const age=Date.now()-Date.parse(x.last_seen_at||'');
+   return x.state==='online'&&age>=0&&age<=20*60000;
+  }).map(x=>x.profile_key));
+  const missingCentral=['zsolt','monika'].filter(p=>!verified.has(p));
+  banner.hidden=missingCentral.length===0;
+  label.textContent=missingCentral.length?
+   '☁️ Közös regiszter: '+missingCentral.map(p=>p==='zsolt'?'Zsolt':'Mónika').join(' és ')+
+   ' még nem adott friss igazolt telefonjelentést. A Dropbox-hiba önmagában nem telefonhiba.':
+   '✅ Mindkét telefon frissen igazolt a közös regiszterben.';
+  return;
+ }
  const api=w.hhDeviceRegistry401,reg=api&&typeof api.registry==='function'?api.registry():null;
  const known=!!(reg&&reg.schema==='healthhub.device_registry/1'&&reg.activePhones);
  const missing=known?['zsolt','monika'].filter(p=>!reg.activePhones[p]):[];
