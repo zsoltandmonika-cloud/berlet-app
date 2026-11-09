@@ -165,7 +165,7 @@ function panel(force){
    archivedLegacy.map(function(d){return '<p>'+label(d)+' <button data-hh-reg-action="restore" data-id="'+clean(d.deviceId)+'">↩ Visszaállítás</button></p>'}).join('')+'</details>':'')+'</details>';
  html+='<div class="hhRegBottom401"><button type="button" data-hh-reg-action="refresh">↻ Állapot frissítése</button>'+
  (registry&&registry.history.length?'<button type="button" data-hh-reg-action="undo">↩ Utolsó változás visszavonása</button>':'')+'</div>'+
- '<p class="hhRegNote401">A kézi eltávolítás archiválás, nem felhőfájl-törlés. Minden művelet előtt biztonsági mentés készül. A kijelölés és az archiválás csak külön Dropbox-metaadat; nem töröl eszköz- vagy egészségügyi adatot. Nincs automatikus duplikátum-összevonás. Először nyisd meg a HealthHub Connectet a céltelefonon, és a friss utolsó jelentkezés alapján azonosítsd. A PENDING nem jelent kész szinkront, és a DONE sem bizonyít friss Samsung Health-adatot.</p>';
+ '<p class="hhRegNote401">A kézi eltávolítás archiválás, nem felhőfájl-törlés. Minden művelet előtt biztonsági mentés készül. A kijelölés és az archiválás külön Dropbox-metaadat. Ellenőrző módban is csak kifejezett jóváhagyással, előzetes mentéssel módosulhat. Nem töröl eszköz- vagy egészségügyi adatot. Nincs automatikus duplikátum-összevonás. Először nyisd meg a HealthHub Connectet a céltelefonon, és a friss utolsó jelentkezés alapján azonosítsd. A PENDING nem jelent kész szinkront, és a DONE sem bizonyít friss Samsung Health-adatot.</p>';
  html+='</details>';
  if(el.innerHTML===html)return;
   var typedSuffix=el.querySelector('#hhRegExpectedAccount401')?.value||'';
