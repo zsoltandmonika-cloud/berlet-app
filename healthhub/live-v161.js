@@ -32,6 +32,13 @@ function reconcileGuard(){
    String(token.account_id||'').slice(-8)===guard.expectedSuffix?guard:null;
  }catch(e){return null}
 }
+function reconcileReadOnly(){
+ if(reconcileGuard())return true;
+ try{
+  var pk=JSON.parse(localStorage.getItem(PKCE_KEY)||'null');
+  return !!(pk&&pk.expectedSuffix);
+ }catch(e){return false}
+}
 function requireVaultWriteAllowed(){
  if(reconcileGuard())throw Error('Dropbox-fiók ellenőrző mód: adatfeltöltés és Vault-egyesítés szünetel.');
 }
@@ -178,7 +185,7 @@ function vaultPath(profile){return '/HealthHub/profiles/'+profile+'-vault.json'}
 function legacyVaultPath(profile){return '/'+profile+'-data.json'}
 async function uploadProfile(profile,silent){
  requireVaultWriteAllowed();
- profile=profile='monika'?'monika':'zsolt';
+ profile=profile==='monika'?'monika':'zsolt';
  var data=await snapshot(profile);await ensureFolderPath('/HealthHub');await ensureFolderPath('/HealthHub/profiles');var token=await accessToken(),body=JSON.stringify(data);
  var r=await fetch('https://content.dropboxapi.com/2/files/upload',{method:'POST',headers:{Authorization:'Bearer '+token,'Content-Type':'application/octet-stream','Dropbox-API-Arg':JSON.stringify({path:vaultPath(profile),mode:'overwrite',autorename:false,mute:true})},body:body});
  var j=await r.json();if(!r.ok)throw new Error((j.error_summary)||'Dropbox feltöltési hiba');
@@ -322,5 +329,5 @@ async function completeNativeOAuth(code,state){
  await handleCallback(code,state);
  return connected();
 }
-window.HH_DROPBOX_VAULT={completeNativeOAuth:completeNativeOAuth,connected:connected,switchToAccount:window.hhDropboxSwitchToAccount,repairNote:function(){return localStorage.getItem('hh-dropbox-account-repair-note-v1')||''},push:window.hhDropboxPush,pull:window.hhDropboxPull,autoSync:window.hhDropboxAutoSync,accessToken:accessToken,uploadJson:uploadJsonPath,downloadJson:downloadJsonPath,accountHint:function(){var t=readToken();return t&&t.account_id?String(t.account_id).slice(-8):null},appKey:APP_KEY,redirect:REDIRECT};
+window.HH_DROPBOX_VAULT={completeNativeOAuth:completeNativeOAuth,connected:connected,readOnlyVerification:reconcileReadOnly,switchToAccount:window.hhDropboxSwitchToAccount,repairNote:function(){return localStorage.getItem('hh-dropbox-account-repair-note-v1')||''},push:window.hhDropboxPush,pull:window.hhDropboxPull,autoSync:window.hhDropboxAutoSync,accessToken:accessToken,uploadJson:uploadJsonPath,downloadJson:downloadJsonPath,accountHint:function(){var t=readToken();return t&&t.account_id?String(t.account_id).slice(-8):null},appKey:APP_KEY,redirect:REDIRECT};
 })();
