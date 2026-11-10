@@ -94,8 +94,10 @@ function mergeItems(left,right,kind,aTime,bTime,issues,category){
  return Array.from(m.values())
 }
 function mergeDoc(dst,src,name){
+ if(!FILES.includes(name))fail('Nem engedélyezett fájltípus');
  const p=name.split('-')[0];profileValid(dst,p);profileValid(src,p);
- if(dst.schemaVersion!==src.schemaVersion||!dst.schemaVersion)fail('Eltérő vagy hiányzó adatfájl-séma: '+name);
+ const ds=dst.schemaVersion||dst.schema,ss=src.schemaVersion||src.schema;
+ if(ds!==ss||!ds)fail('Eltérő vagy hiányzó adatfájl-séma: '+name);
  const issues=[];let r=JSON.parse(JSON.stringify(dst)),counts={};
  if(name.endsWith('-health-connect.json')){
   if(!dst.records||!src.records)fail('Health Connect records hiányzik');
