@@ -20,7 +20,7 @@ test('v1072 older registered native GPS wins a kilometre-scale source disagreeme
  assert.equal(noNative.conflict,true);
  const aligned=follow.resolveSources(pos('Family Live',200,45,10.0001),null,'monika',choice.anchor,now);
  assert.equal(aligned.conflict,false);
- assert.equal(aligned.fix.source,'Family Live','matching real position can recover');
+ assert.equal(aligned.fix,null,'browser-only coordinates cannot attest Monika physical phone, even when aligned');
  assert.equal(follow.resolveSources(browser,native,'zsolt',null,now).fix,null);
  assert.equal(follow.preferRemote(follow.snapshot(native,'monika',now),now-1000,now),false,
   'current device browser GPS cannot be overwritten by remote data');
@@ -62,8 +62,9 @@ test('v1072 map never flaps back to disputed coordinates and shows source confli
  assert.match(els.guardianMeState.textContent,/NEM ÉLŐ/);
  browser=pos('Family Live',100,45,10.0001);
  await ctrl.refresh();
- assert.equal(moves.length,2,'verified sources converging allows recovery');
+ assert.equal(moves.length,1,'a matching but unattested browser-only fix must not move Monika camera');
  assert.equal(els.guardianGpsSourceConflictV1072.hidden,true);
+ assert.match(els.guardianMeState.textContent,/NEM ÉLŐ/);
 });
 test('v1072 warning is visible without changing GPS consent or map settings',()=>{
  const html=fs.readFileSync(path.join(__dirname,'../guardian/index.html'),'utf8');

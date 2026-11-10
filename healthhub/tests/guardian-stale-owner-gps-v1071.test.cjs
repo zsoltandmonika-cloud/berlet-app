@@ -32,7 +32,7 @@ test('v1071 viewer device cannot recenter another selected family profile using 
  assert.match(el.guardianStatus.textContent,/Nincs saját telefon hozzárendelve/);
 });
 
-test('v1071 expired verified fix is visibly NOT LIVE and cannot force camera back home',async()=>{
+test('v1173 stale or fresh unverified Monika browser GPS cannot force camera home',async()=>{
  const el={},camera=[],markers=[],events={};
  let db={profile_key:'monika',latitude:47.55,longitude:19.035,
   accuracy_m:10,updated_at:new Date(Date.now()-25*60*1000).toISOString(),source:'Family Live'};
@@ -52,13 +52,13 @@ test('v1071 expired verified fix is visibly NOT LIVE and cannot force camera bac
  vm.runInNewContext(src('guardian-profile-follow-v837.js'),{window:w,Date,Number,Math,Promise,Object});
  const controller=w.HH_GUARDIAN_PROFILE_FOLLOW_V837.start();
  for(let i=0;i<20;i++)await Promise.resolve();
- assert.match(el.guardianMeState.textContent,/utolsó ismert GPS.*NEM ÉLŐ/);
+ assert.match(el.guardianMeState.textContent,/nincs friss, telefonhoz kötött natív GPS-jel.*NEM ÉLŐ/);
  assert.match(el.guardianMapLabel.textContent,/NEM ÉLŐ/);
  assert.equal(camera.length,0,'expired fix must not move camera');
  assert.equal(markers.length,0,'expired fix must not paint live portrait');
  db={...db,updated_at:new Date().toISOString()};
  await controller.refresh();
- assert.match(el.guardianMeState.textContent,/friss profilpozíció/);
- assert.equal(camera.length,1,'fresh verified GPS recovers normal Follow');
- assert.equal(markers.length,1);
+ assert.match(el.guardianMeState.textContent,/nincs friss, telefonhoz kötött natív GPS-jel.*NEM ÉLŐ/);
+ assert.equal(camera.length,0,'even a fresh browser-only Monika fix must not drive the remote camera');
+ assert.equal(markers.length,0,'physical-phone proof is required before showing Monika live');
 });

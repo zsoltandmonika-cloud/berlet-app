@@ -1,0 +1,31 @@
+name: Family Guard owner GPS source v1173 QA
+on:
+  pull_request:
+    paths:
+      - 'healthhub/guardian/guardian-live-v785.js'
+      - 'healthhub/guardian/guardian-profile-follow-v837.js'
+      - 'healthhub/guardian/index.html'
+      - 'healthhub/tests/guardian-gps-owner-v1173.test.cjs'
+      - '.github/workflows/hh-guardian-owner-gps-v1173-qa.yml'
+permissions:
+  contents: read
+jobs:
+  native-owner-only:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Syntax
+        run: |
+          node --check healthhub/guardian/guardian-live-v785.js
+          node --check healthhub/guardian/guardian-profile-follow-v837.js
+          node --check healthhub/tests/guardian-gps-owner-v1173.test.cjs
+      - name: Owner-source and existing GPS regression tests
+        run: |
+          node --test healthhub/tests/guardian-gps-owner-v1173.test.cjs
+          node --test healthhub/tests/guardian-native-relay-v156.test.cjs
+          node --test healthhub/tests/guardian-gps-source-flap-v1072.test.cjs
+          node --test healthhub/tests/guardian-stale-owner-gps-v1071.test.cjs

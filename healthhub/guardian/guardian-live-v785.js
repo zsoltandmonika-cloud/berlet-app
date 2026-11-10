@@ -199,7 +199,9 @@ async function poll(){
  lastPeerReadAt=now;polling=true;
  const token=generation,k=other();
  try{
-  const {data,error}=await readSharedLocation(k);
+  // v1173: Monika's Supabase browser row is not attested to her physical phone.
+  // Never promote a possibly misassigned home fix to a remote live pin.
+  const {data,error}=k==='monika'?{data:null,error:null}:await readSharedLocation(k);
   const relay=w.HH_GUARDIAN_NATIVE_V156;
   const native=relay&&relay.connected()?await relay.read(k):null;
   if(token!==generation||d.hidden||k!==other()||!user)return;
@@ -211,8 +213,8 @@ async function poll(){
    return;
   }
   if(error&&!nativeFix)throw error;
-  let selected=data;
-  if(nativeFix&&peerSnapshot(nativeFix)&&
+  let selected=k==='monika'?(nativeFix&&peerSnapshot(nativeFix)?.live?nativeFix:null):data;
+  if(k!=='monika'&&nativeFix&&peerSnapshot(nativeFix)&&
      (!selected||!peerSnapshot(selected)||
       Date.parse(nativeFix.updated_at)>Date.parse(selected.updated_at)))
    selected=nativeFix;
@@ -229,6 +231,10 @@ async function poll(){
   displayPeer(selected);
  }catch(e){
   lastPeerSpeedKmh=null;
+  if(k==='monika'&&token===generation){
+   removePeer();setPeerState('Mónika · nincs friss, telefonhoz kötött natív GPS-jel · NEM ÉLŐ');
+   return;
+  }
   if(token===generation){
    // Temporary network failure must not silently remove a still valid, consented fix.
    const known=peerAvailable&&peerUpdatedAt&&Date.now()-Date.parse(peerUpdatedAt)<=LAST_KNOWN_MS;
