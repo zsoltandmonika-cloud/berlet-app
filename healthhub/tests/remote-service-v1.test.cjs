@@ -7,13 +7,21 @@ const html=fs.readFileSync(path.join(root,'remote-service/index.html'),'utf8');
 const main=fs.readFileSync(path.join(root,'index.html'),'utf8');
 
 test('standalone service loads no HealthHub, admin, interval, iframe or auto-reload',()=>{
- assert.match(html,/<script defer src=".\/service\.js\?v=1"><\/script>/);
+ assert.match(html,/<script defer src=".\/service\.js\?v=2-account-info-scope"><\/script>/);
  assert.doesNotMatch(html,/<iframe|live-v300|live-v305|hh-unified-admin|bridge-control|refreshContent|setInterval|location\.reload/i);
  assert.doesNotMatch(source,/setInterval\(|setTimeout\(|location\.reload\(|window\.location\.reload\(|innerHTML\s*=|\.replaceChildren\(/);
  assert.match(main,/hh-remote-service-oauth-relay-v1/);
  assert.match(main,/^\s*var next=new URL\('\.\/remote-service\/',location\.href\);/m);
  assert.match(main,/history\.replaceState\(history\.state,'',location\.pathname\+location\.hash\)/);
  new Function(source);
+});
+test('Dropbox OAuth requests account_info.read for get_current_account and does not silently reuse under-scoped tokens',()=>{
+ assert.match(source,/OAUTH_SCOPES='account_info\.read files\.metadata\.read/);
+ assert.match(source,/scope:OAUTH_SCOPES,state/);
+ assert.match(source,/r\.status===403/);
+ assert.match(source,/hiányzik az account_info\.read jogosultság/);
+ assert.match(source,/j\.scope\.split/);
+ assert.match(source,/account_info\.read jogosultságot/);
 });
 test('source account and target device exact match gates are permanent',()=>{
  assert.match(source,/GMAIL='zsoltandmonika@gmail\.com'/);
