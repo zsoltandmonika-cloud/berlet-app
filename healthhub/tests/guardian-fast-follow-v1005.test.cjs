@@ -23,7 +23,7 @@ function harness(){
    setRemoteMarkerPreferred(){}},
   HH_GUARDIAN_LIVE_V785:{authenticated:true,familyAuthorized:true,boundProfile:'monika',
    getClient(){return {}},async readSharedLocation(){reads.db++;return {data:null,error:null}}},
-  HH_GUARDIAN_NATIVE_V156:{connected(){return true},async read(){reads.native++;return {status:'ok',data:state.current}}},
+  HH_GUARDIAN_GPS_ROUTER_V1177:{connected(){return true},forProfile(){return {name:'Mónika GPS',activeReadAccount:'gmail'}},async read(){reads.native++;return {status:'ok',data:state.current}}},
   maplibregl:{Marker:class{
    setLngLat(position){positions.push(position);return this}addTo(){return this}remove(){}
   }},
@@ -76,7 +76,7 @@ test('v1174 Monika native read is independent of Supabase and never waits for ho
   HH_GUARDIAN_LIVE_V785:{authenticated:true,familyAuthorized:true,boundProfile:'monika',
    getClient(){return {}},readSharedLocation(){db++;started.push('db');
     return new Promise(r=>{releaseDb=r})}},
-  HH_GUARDIAN_NATIVE_V156:{connected(){return true},read(){native++;started.push('native');
+  HH_GUARDIAN_GPS_ROUTER_V1177:{connected(){return true},forProfile(){return {name:'Mónika GPS',activeReadAccount:'gmail'}},read(){native++;started.push('native');
     return new Promise(r=>{releaseNative=r})}},
   maplibregl:{Marker:class{setLngLat(pos){markerPositions.push(pos);return this}addTo(){return this}remove(){}}},
   addEventListener(k,cb){event[k]=cb},setTimeout(cb){cb()},setInterval(){return 1}};
