@@ -87,11 +87,11 @@ test('Android callback requires pending 5-minute intent and a code, and accepts 
  const callback=main.slice(main.indexOf('private fun completeNativeOAuth'),main.indexOf('override fun onCreate'));
  assert.doesNotMatch(callback,/refresh_token|access_token/i);
 });
-test('candidate build stays unpublished, signed OTA baseline stays v0.15.19/build46',()=>{
- assert.ok(Number(gradle.match(/versionCode = (\d+)/)[1]) > release.versionCode);
+test('published signed OTA baseline stays v0.15.20/build47',()=>{
+ assert.ok(Number(gradle.match(/versionCode = (\d+)/)[1]) >= release.versionCode);
  assert.match(gradle,/versionName = "0\.15\.\d+"/);
- assert.equal(release.versionCode,46);
- assert.equal(release.version,'0.15.19');
+ assert.equal(release.versionCode,47);
+ assert.equal(release.version,'0.15.20');
 });
 
 test('WebView Dropbox PKCE state remains inside app; Chrome and native Dropbox modes are unchanged',()=>{

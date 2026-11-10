@@ -1,0 +1,27 @@
+name: HH One · Signed 0.15.20 Family Rollout QA
+on:
+  pull_request:
+    paths:
+      - 'healthhub/data/bridge-ota.json'
+      - 'healthhub/tests/ota-monika-rollout-v01520.test.cjs'
+      - 'healthhub/tests/hh-one-guardian-ota-v01519.test.cjs'
+      - 'healthhub/tests/hh-one-ota-auto-stage-v01512.test.cjs'
+      - 'healthhub/tests/hh-one-native-auth-pkce-v1063.test.cjs'
+      - '.github/workflows/hh-one-ota-monika-rollout-01520.yml'
+permissions:
+  contents: read
+jobs:
+  family-rollout-safety:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify unchanged signed artifact, two-owner allowlist, permissions and previous release guards
+        run: |
+          node --test healthhub/tests/ota-monika-rollout-v01520.test.cjs \
+            healthhub/tests/hh-one-guardian-ota-v01519.test.cjs \
+            healthhub/tests/hh-one-ota-auto-stage-v01512.test.cjs \
+            healthhub/tests/hh-one-native-auth-pkce-v1063.test.cjs
