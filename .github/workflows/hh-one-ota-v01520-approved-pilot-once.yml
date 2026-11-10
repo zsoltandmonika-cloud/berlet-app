@@ -28,8 +28,8 @@ jobs:
           import json, pathlib, re
           build = pathlib.Path('healthhub/android-bridge/app/build.gradle.kts').read_text()
           manifest = json.loads(pathlib.Path('healthhub/data/bridge-ota.json').read_text())
-          assert re.search(r'versionCode = 47\\b', build), 'Unexpected Android candidate build'
-          assert re.search(r'versionName = "0\\.15\\.20"', build), 'Unexpected Android version'
+          assert 'versionCode = 47' in build, 'Unexpected Android candidate build'
+          assert 'versionName = "0.15.20"' in build, 'Unexpected Android version'
           assert manifest['version'] == '0.15.19' and manifest['versionCode'] == 46, 'Signed baseline changed'
           assert manifest['applicationId'] == 'hu.zsoltmonika.healthhubbridge', 'Wrong application identity'
           assert manifest['channel'] == 'signed-release', 'Unsigned baseline'
