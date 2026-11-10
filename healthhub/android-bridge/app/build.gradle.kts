@@ -11,9 +11,9 @@ android {
         applicationId = "hu.zsoltmonika.healthhubbridge"
         minSdk = 26
         targetSdk = 35
-        versionCode = 45
-        versionName = "0.15.18"
-        // v0.15.18/build45 candidate: profile-specific central pairing for Mónika and Zsolt.
+        versionCode = 46
+        versionName = "0.15.19"
+        // v0.15.19/build46: central owner-bound GPS/indicator relay fallback and safe registry selection.
         // Signed OTA promotion is separately approved and certificate-gated.
         // Actual signed publication remains separately approved and certificate-gated.
         // No signed OTA is published by merging: release requires manual approval.
