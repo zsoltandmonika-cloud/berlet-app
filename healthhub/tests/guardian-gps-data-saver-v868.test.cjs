@@ -80,10 +80,11 @@ test('GPS Data Saver: source retains authentication, revocation, live freshness 
  assert.match(src,/if\(!api\|\|!user\|\|!access\.includes\(k\)/);
  const follow=read('guardian/guardian-profile-follow-v837.js');
  const trio=read('guardian/guardian-live-trio-v845.js');
- assert.match(follow,/l\.readSharedLocation\(k\)/);
- assert.match(trio,/live\.readSharedLocation\(profile\)/);
+ assert.doesNotMatch(follow,/l\.readSharedLocation\(k\)/);
+ assert.doesNotMatch(trio,/live\.readSharedLocation\(profile\)/);
  assert.match(follow,/Date\.now\(\)-lastAdaptivePoll<9000/);
  assert.match(follow,/FRESH_BROWSER_MS=20000/);
+ assert.match(follow,/HH_GUARDIAN_GPS_ROUTER_V1177/);
 });
 
 test('Steady v879: fresh accurately measured stationary GPS is reused up to 8.5s across panels',async()=>{
