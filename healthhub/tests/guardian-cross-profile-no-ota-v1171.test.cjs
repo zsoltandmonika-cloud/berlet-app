@@ -25,7 +25,7 @@ test('Profile switch is view-only and never calls GPS Stop for an already bound 
   neutral:[0,0],name:()=>store.get('hh-profile')==='m'?'Mónika':'Zsolt',
   stop(temporary){events.push('STOP:'+temporary)},clear(){events.push('clear')},
   tapSound(){},theme(){},renderButtons(){},applyGoldenMapStyle(){},
-  report(){},$:()=>({textContent:''}),follow:false,hasFix:true,lastBrowserFixAt:4};
+  report(){},$:()=>({textContent:''}),follow:false,threeD:true,hasFix:true,lastBrowserFixAt:4};
  vm.runInNewContext(part(guardian,'function switchProfile(){','/* Family Guard v773'),ctx);
  vm.runInNewContext('switchProfile()',ctx);
  assert.equal(store.get('hh-profile'),'m');
