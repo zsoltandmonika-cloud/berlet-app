@@ -146,6 +146,15 @@ function paintOwnTransit(pos){
 }
 function onPosition(pos){
  if(!active)return;
+ // A physical phone keeps reporting ONLY its already-approved owner while
+ // another family member is selected for viewing. Do not paint this phone's
+ // GPS as the selected remote person or move the remote map camera.
+ const physicalOwner=w.HH_GUARDIAN_LIVE_V785?.boundProfile||null;
+ const selectedOwner=name()==='Mónika'?'monika':'zsolt';
+ if(physicalOwner&&physicalOwner!==selectedOwner){
+  w.HH_GUARDIAN_LIVE_V785?.onGpsFix?.(pos);
+  return;
+ }
  // Recheck if auth/device ownership finished loading after watchPosition started.
  const blocked=ownGpsBlockReason();
  if(blocked){stop();report(blocked);return}
@@ -338,6 +347,13 @@ function toggle3D(){
 }
 function enableFollow(){
  const remote=w.HH_GUARDIAN_PROFILE_FOLLOW_V837;
+ // On the other person's profile, Follow targets ONLY their verified remote
+ // marker. Never toggle the local owner's GPS watcher or follow flag off.
+ if(remote?.preventWrongDeviceGps?.()){
+  follow=true;renderButtons();notifySettings();
+  if(!remote.requestFollow())report('A kiválasztott profil friss megosztott GPS-jelére várunk.');
+  return;
+ }
  // Following a verified profile signal moves only the camera, not phone binding.
  if(!active){
   follow=true;renderButtons();notifySettings();
@@ -374,8 +390,13 @@ function tapSound(){
 }
 function switchProfile(){
  const current=name()==='Mónika'?'m':'z',next=current==='m'?'z':'m';
- // A previous owner's route and GPS marker must never be relabelled.
- stop();clear();
+ // A profile tap is a VIEW change, not permission to revoke the phone owner's
+ // GPS. Keep the existing approved physical GPS watch alive while the other
+ // profile is viewed. Only the selected map marker and local trail are reset.
+ const ownPhone=w.HH_GUARDIAN_LIVE_V785?.boundProfile||null;
+ const keepOwnWatch=active&&(ownPhone==='zsolt'||ownPhone==='monika');
+ if(!keepOwnWatch)stop(true);
+ clear();
  if(marker){marker.remove();marker=null}
  follow=true;hasFix=false;lastBrowserFixAt=0;
  try{w.localStorage.setItem('hh-profile',next)}catch(e){report('A profilváltás most nem menthető el.');return}
