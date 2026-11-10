@@ -279,6 +279,12 @@ function startWatch(){
 function ownGpsBlockReason(){
  const live=w.HH_GUARDIAN_LIVE_V785;
  const owner=live?.boundProfile,selected=name()==='Mónika'?'monika':'zsolt';
+ // v1174: a desktop/browser can report its own home coordinates, but it
+ // cannot attest Monika's physical HH Connect phone. Never paint or publish
+ // a Windows/Mac desktop browser fix under her name.
+ const ua=String(w.navigator?.userAgent||'');
+ if(selected==='monika'&&ua&&!/Android/i.test(ua))
+  return 'Mónika családi GPS-e kizárólag a saját HH Connect natív helyadatából követhető ezen a számítógépen.';
  if(owner&&owner!==selected)
   return 'Ez az eszköz a '+(owner==='monika'?'Mónika':'Zsolt')+' profilhoz tartozik. A '+name()+' profilban csak a hitelesített, megosztott GPS követhető.';
  if(live?.authenticated&&!owner)
