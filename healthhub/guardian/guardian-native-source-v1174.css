@@ -21,3 +21,7 @@
   .guardian-native-source-v1174{margin:6px 10px 12px;padding:10px 12px}
   .guardian-native-source-v1174 span{min-width:0;flex-basis:100%}
 }
+
+/* Zsolt GPS uses the established blue profile accent; Mónika GPS stays pink. */
+:root[data-guardian-profile="z"] .guardian-native-source-v1174 strong{color:#a8dbff}
+:root[data-guardian-profile="m"] .guardian-native-source-v1174 strong{color:#ffd1ef}
