@@ -19,7 +19,7 @@ function harness(nativeReply){
    lastGpsFixAt:0,getLocationSettings(){return{follow_map:true}},setRemoteMarkerPreferred(){}},
   // Deliberately not logged into Supabase. Dropbox OAuth is separate.
   HH_GUARDIAN_LIVE_V785:{authenticated:false,familyAuthorized:false,boundProfile:null,getClient(){return null}},
-  HH_GUARDIAN_NATIVE_V156:{connected(){return true},async read(){return nativeReply()}},
+  HH_GUARDIAN_GPS_ROUTER_V1177:{connected(){return true},forProfile(){return {name:'Mónika GPS',activeReadAccount:'gmail'}},async read(){return nativeReply()}},
   maplibregl:{Marker:class{
    setLngLat(p){positions.push(p);return this}addTo(){return this}remove(){removes.push(true)}
   }},
@@ -40,7 +40,7 @@ test('v1174 displays verified Monika office phone fix even without Supabase logi
  assert.ok(h.moves.length>=1);
  assert.equal(h.moves.at(-1).center[0],19.03802);
  assert.equal(h.moves.at(-1).center[1],47.52693);
- assert.match(h.widgets.guardianNativeGpsMessageV1174.textContent,/friss HH Connect natív GPS/);
+ assert.match(h.widgets.guardianNativeGpsMessageV1174.textContent,/HH Connect natív GPS/);
  assert.equal(h.widgets.guardianNativeGpsConnectV1174.hidden,true);
 });
 test('v1174 missing Gmail browser OAuth fails closed and exposes safe connect link',async()=>{
@@ -50,7 +50,7 @@ test('v1174 missing Gmail browser OAuth fails closed and exposes safe connect li
  assert.equal(h.moves.length,0);
  assert.equal(h.positions.length,0);
  assert.equal(h.widgets.guardianNativeGpsConnectV1174.hidden,false);
- assert.match(h.widgets.guardianNativeGpsMessageV1174.textContent,/Gmail Dropbox GPS nem olvasható/);
+ assert.match(h.widgets.guardianNativeGpsMessageV1174.textContent,/Gmail bridge kapcsolat nem olvasható/);
 });
 test('v1174 never paints stale GPS, even with Supabase/browser home source',async()=>{
  const h=harness(()=>({status:'ok',data:{...phoneFix(),updated_at:new Date(Date.now()-90000).toISOString()}}));
