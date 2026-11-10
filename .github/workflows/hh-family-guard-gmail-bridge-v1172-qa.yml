@@ -1,0 +1,26 @@
+name: Family Guard Gmail bridge v1172 QA
+on:
+  pull_request:
+    paths:
+      - 'healthhub/guardian/guardian-native-dropbox-v156.js'
+      - 'healthhub/guardian/index.html'
+      - 'healthhub/tests/guardian-native-relay-v156.test.cjs'
+      - 'healthhub/tests/guardian-profile-battery-v841.test.cjs'
+      - '.github/workflows/hh-family-guard-gmail-bridge-v1172-qa.yml'
+permissions:
+  contents: read
+jobs:
+  monika-primary-bridge:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Syntax and owner-bound GPS/Dropbox tests
+        run: |
+          node --check healthhub/guardian/guardian-native-dropbox-v156.js
+          node --check healthhub/tests/guardian-native-relay-v156.test.cjs
+          node --test healthhub/tests/guardian-native-relay-v156.test.cjs
+          node --test healthhub/tests/guardian-profile-battery-v841.test.cjs
