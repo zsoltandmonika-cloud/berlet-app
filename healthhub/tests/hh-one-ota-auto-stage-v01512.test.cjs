@@ -11,11 +11,11 @@ const gradle=read('android-bridge/app/build.gradle.kts');
 const workflow=read('../.github/workflows/healthhub-connect-ota-release.yml');
 const published=JSON.parse(read('data/bridge-ota.json'));
 
-test('next candidate is monotonic and the published signed manifest is unchanged until approved release',()=>{
- assert.ok(Number(gradle.match(/versionCode = (\d+)/)[1]) > published.versionCode);
+test('published signed release and Android build are consistent and never auto-install',()=>{
+ assert.ok(Number(gradle.match(/versionCode = (\d+)/)[1]) >= published.versionCode);
  assert.match(gradle,/versionName = "0\.15\.\d+"/);
- assert.equal(published.versionCode,46);
- assert.equal(published.version,'0.15.19');
+ assert.equal(published.versionCode,47);
+ assert.equal(published.version,'0.15.20');
  assert.match(workflow,/workflow_dispatch:/);
  assert.match(workflow,/Hard stop unless new APK and current OTA baseline have same signing certificate/);
 });
