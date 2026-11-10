@@ -8,13 +8,13 @@
  'use strict';
  const ROUTES=Object.freeze({
   zsolt:Object.freeze({
-   id:'gps.route1.zsolt.outlook',number:1,profile:'zsolt',
-   name:'GPS Route 1 · Zsolt',targetAccount:'outlook',
+   id:'gps.zsolt',profile:'zsolt',
+   name:'Zsolt GPS',targetAccount:'outlook',
    activeReadAccount:'outlook',mode:'primary',nativePath:'/HealthHub/guardian/native-live/zsolt.json'
   }),
   monika:Object.freeze({
-   id:'gps.route2.monika.outlook',number:2,profile:'monika',
-   name:'GPS Route 2 · Mónika',targetAccount:'outlook',
+   id:'gps.monika',profile:'monika',
+   name:'Mónika GPS',targetAccount:'outlook',
    activeReadAccount:'gmail',mode:'temporary-bridge',
    nativePath:'/HealthHub/guardian/native-live/monika.json'
   })
