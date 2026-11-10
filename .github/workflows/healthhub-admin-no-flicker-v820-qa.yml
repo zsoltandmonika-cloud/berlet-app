@@ -7,6 +7,7 @@ on:
       - 'healthhub/live-v306.js'
       - 'healthhub/hh-admin-mobile-focus-v748.js'
       - 'healthhub/tests/hh-admin-no-flicker-v820.test.cjs'
+      - 'healthhub/tests/hh-admin-action-grid-v822.test.cjs'
       - '.github/workflows/healthhub-admin-no-flicker-v820-qa.yml'
 permissions:
   contents: read
@@ -24,9 +25,11 @@ jobs:
           node --check healthhub/live-v300.js
           node --check healthhub/live-v306.js
           node --check healthhub/hh-admin-mobile-focus-v748.js
+          node --check healthhub/tests/hh-admin-action-grid-v822.test.cjs
           node --check healthhub/tests/hh-admin-no-flicker-v820.test.cjs
       - name: No flicker, stable navigation and existing Admin regression
         run: |
           node --test healthhub/tests/hh-admin-no-flicker-v820.test.cjs \
+            healthhub/tests/hh-admin-action-grid-v822.test.cjs \
             healthhub/tests/hh-admin-mobile-v748.test.cjs \
             healthhub/tests/unified-admin-v745.test.cjs
