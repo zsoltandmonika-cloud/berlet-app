@@ -8,6 +8,9 @@ on:
       - 'healthhub/guardian/index.html'
       - 'healthhub/guardian/guardian-native-source-v1174.css'
       - 'healthhub/tests/guardian-monika-native-independent-v1174.test.cjs'
+      - 'healthhub/tests/guardian-gps-owner-v1173.test.cjs'
+      - 'healthhub/tests/guardian-fast-follow-v1005.test.cjs'
+      - 'healthhub/tests/guardian-gps-source-flap-v1072.test.cjs'
       - '.github/workflows/hh-guardian-monika-native-v1174-qa.yml'
 permissions:
   contents: read
@@ -31,5 +34,6 @@ jobs:
           node --test healthhub/tests/guardian-monika-native-independent-v1174.test.cjs
           node --test healthhub/tests/guardian-gps-owner-v1173.test.cjs
           node --test healthhub/tests/guardian-native-relay-v156.test.cjs
+          node --test healthhub/tests/guardian-fast-follow-v1005.test.cjs
           node --test healthhub/tests/guardian-gps-source-flap-v1072.test.cjs
           node --test healthhub/tests/guardian-stale-owner-gps-v1071.test.cjs
