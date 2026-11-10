@@ -95,6 +95,7 @@ function mergeItems(left,right,kind,aTime,bTime,issues,category){
 }
 function mergeDoc(dst,src,name){
  const p=name.split('-')[0];profileValid(dst,p);profileValid(src,p);
+ if(dst.schemaVersion!==src.schemaVersion||!dst.schemaVersion)fail('Eltérő vagy hiányzó adatfájl-séma: '+name);
  const issues=[];let r=JSON.parse(JSON.stringify(dst)),counts={};
  if(name.endsWith('-health-connect.json')){
   if(!dst.records||!src.records)fail('Health Connect records hiányzik');
@@ -105,6 +106,7 @@ function mergeDoc(dst,src,name){
    r.records[k]=k.startsWith('daily')?m.sort((x,y)=>x.date.localeCompare(y.date)):m;
    counts[k]={outlook:a.length,gmail:b.length,unique:m.length}
   }
+  if(!at||!bt)fail('Hiányzó Health Connect export-időbélyeg');
   r.exportedAt=new Date(Math.max(at,bt)).toISOString();
   r.rangeStart=[dst.rangeStart,src.rangeStart].filter(Boolean).sort()[0]||dst.rangeStart;
   r.rangeEnd=[dst.rangeEnd,src.rangeEnd].filter(Boolean).sort().at(-1)||dst.rangeEnd;
@@ -123,9 +125,8 @@ function mergeDoc(dst,src,name){
   r.collectedAtMs=Math.max(at,bt);
  }else if(name.endsWith('-nutrition.json')){
   // An empty stale source must never replace a populated destination or its settings.
-  const sourceLists=['entries','body','catalog','units','quickRecipes','quickRecipeOrder','presets'];
-  const emptySource=sourceLists.every(k=>Array.isArray(src[k])?src[k].length===0:
-    (!src[k]||typeof src[k]==='object'&&Object.keys(src[k]).length===0));
+  const sourceLists=['entries','body','catalog','units','quickRecipes'];
+  const emptySource=sourceLists.every(k=>Array.isArray(src[k])?src[k].length===0:!src[k]);
   if(emptySource)return {doc:dst,issues,counts:{emptySourcePreservedOutlook:true}};
   const at=Date.parse(dst.updatedAt||0)||0,bt=Date.parse(src.updatedAt||0)||0;
   for(const k of ['entries','quickRecipes']){r[k]=mergeItems(dst[k]||[],src[k]||[],'id',at,bt,issues,k);counts[k]={outlook:(dst[k]||[]).length,gmail:(src[k]||[]).length,unique:r[k].length}}
