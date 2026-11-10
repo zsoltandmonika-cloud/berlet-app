@@ -134,19 +134,21 @@ function mergeDoc(dst,src,name){
  }else fail('Nem engedélyezett fájltípus');
  return {doc:r,issues,counts};
 }
-async function identity(){
+async function identity(expectedEmail){
+ const specified=String(expectedEmail||w.sessionStorage.getItem('hh-migration-expected-target-v1')||'').trim().toLowerCase();
+ if(!specified||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(specified))fail('Add meg és ellenőrizd a cél Dropbox e-mail-címét.');
  const src=await access('source');
  const dest=await stored();if(!dest)fail('Cél Dropbox hitelesítés hiányzik');
  if(dest.accountId===state.sourceId)fail('A két Dropbox OAuth ugyanahhoz a fiókhoz tartozik. Nem szabad migrálni.');
  const info=await api('target','users/get_current_account',{});
- if(String(info.email||'').toLowerCase()!=='zsolt.monika@outlook.com')fail('Nem az Outlook.com családi Dropbox a cél. A művelet leállt.');
+ if(String(info.email||'').toLowerCase()!==specified)fail('Nem a megadott Dropbox-fiók a cél. A művelet leállt.');
  const md=await api('target','files/get_metadata',{path:ROOT});
  if(md['.tag']!=='folder')fail('Outlook Cloud Vault gyökér hiányzik');
  state.identity={email:info.email,suffix:dest.accountId.slice(-8),sourceSuffix:state.sourceId.slice(-8)};
  return state.identity;
 }
-async function preview(){
- const id=await identity(),out=[],blocked=[];
+async function preview(expectedEmail){
+ const id=await identity(expectedEmail),out=[],blocked=[];
  for(const name of FILES){
   const path='/HealthHub/profiles/'+name,target=ROOT+'/profiles/'+name;
   let src,dst,meta;
@@ -158,12 +160,12 @@ async function preview(){
    out.push({name,status:stable(doc)===stable(dst)?'unchanged':'candidate',rev:meta.rev,target,doc,issues,counts});
   }catch(e){blocked.push({name,reason:String(e.message||e)})}
  }
- state.plan={accountId:(await stored()).accountId,sourceId:state.sourceId,files:out,blocked,at:Date.now()};
+ state.plan={accountId:(await stored()).accountId,sourceId:state.sourceId,expectedEmail:String(expectedEmail||'').trim().toLowerCase(),files:out,blocked,at:Date.now()};
  return {identity:id,files:out.map(({name,status,issues,counts})=>({name,status,conflicts:issues?.length||0,counts})),blocked};
 }
 async function commit(confirmed){
  if(confirmed!==true||!state.plan||Date.now()-state.plan.at>5*60000)fail('Hiányzó vagy lejárt, jóváhagyott előnézet');
- await identity();
+ await identity(state.plan.expectedEmail);
  const p=state.plan;if(p.sourceId!==state.sourceId||p.accountId!==(await stored()).accountId)fail('Az OAuth fiók időközben megváltozott');
  if(p.blocked.length)fail('Felülvizsgálandó fájlok vannak. Biztonsági okból nincs részleges írás.');
  let results=[];
