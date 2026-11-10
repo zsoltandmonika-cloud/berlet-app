@@ -48,7 +48,7 @@
   // The browser/Supabase row has no physical Android device attestation.
   // Until the phone cutover is verified, Monika's remote location must come
   // exclusively from a fresh, owner-checked HH One native Dropbox snapshot.
-  const a=profile==='monika'?null:snapshot(browser,profile,now),b=snapshot(native,profile,now);
+  const a=snapshot(browser,profile,now),b=snapshot(native,profile,now);
   const threshold=(x,y)=>Math.max(500,6*(x.accuracy+y.accuracy));
   if(a&&b&&gpsDistance(a,b)>threshold(a,b))
    return {fix:b,conflict:true,anchor:b,distance:gpsDistance(a,b)};
@@ -199,7 +199,7 @@
      typeof row.longitude==='number'&&Number.isFinite(row.longitude)&&Math.abs(row.longitude)<=180&&
      typeof row.accuracy_m==='number'&&Number.isFinite(row.accuracy_m)&&row.accuracy_m>=0&&row.accuracy_m<=100;
    }).sort((a,b)=>Date.parse(b.updated_at)-Date.parse(a.updated_at));
-   if(!candidates.length)return '🟠 '+person+' · '+(profile==='monika'?'nincs friss, telefonhoz kötött natív GPS-jel':'nincs friss hitelesített GPS-jel');
+   if(!candidates.length)return '🟠 '+person+' · '+(profile==='monika'?'nincs friss, telefonhoz kötött natív GPS-jel · NEM ÉLŐ':'nincs friss hitelesített GPS-jel');
    const time=new Date(candidates[0].updated_at).toLocaleTimeString('hu-HU',{hour:'2-digit',minute:'2-digit'});
    return '🕘 '+person+' · utolsó ismert GPS: '+time+' · NEM ÉLŐ';
   }
