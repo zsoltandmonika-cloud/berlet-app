@@ -53,5 +53,7 @@ test('Separate migration token does not touch existing ChatGPT Analytics session
  assert.doesNotMatch(source,/hh-chatgpt-target-v739/);
  assert.match(source,/update:item.rev/);
  assert.match(source,/users\/get_current_account/);
- assert.match(source,/zsolt\.monika@outlook\.com/);
+ assert.match(source,/expectedEmail/);
+ assert.match(source,/Nem a megadott Dropbox-fiók a cél/);
+ assert.doesNotMatch(source,/@outlook\.com/i);
 });
