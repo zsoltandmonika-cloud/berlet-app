@@ -1,0 +1,39 @@
+name: SHO Smart Match browser smoke (desktop + mobile)
+on:
+  pull_request:
+    paths:
+      - "healthhub/guardian/smart-260-connect/**"
+      - ".github/workflows/sho-smart-match-browser-qa.yml"
+  push:
+    branches: ["main"]
+    paths:
+      - "healthhub/guardian/smart-260-connect/**"
+      - ".github/workflows/sho-smart-match-browser-qa.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  interactive-browser-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Google Chrome for real browser testing
+        id: chrome
+        uses: browser-actions/setup-chrome@v2
+        with:
+          chrome-version: stable
+      - name: Install isolated Playwright Chromium driver
+        run: npm --prefix healthhub/guardian/smart-260-connect install --no-audit --no-fund --no-save --no-package-lock playwright-core@1.56.1
+      - name: Test responsive page, BKK loading, saved templates, pinned mode, countdown
+        env:
+          CHROME_PATH: "${{ steps.chrome.outputs.chrome-path }}"
+        run: node healthhub/guardian/smart-260-connect/browser-smoke.cjs
+      - name: Upload mobile and desktop visual evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: smart-match-browser-screenshots
+          path: artifacts/smart-match/*.png
+          if-no-files-found: ignore
+          retention-days: 7
