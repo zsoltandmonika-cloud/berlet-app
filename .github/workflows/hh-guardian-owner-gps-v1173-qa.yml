@@ -27,4 +27,5 @@ jobs:
         run: |
           node --test healthhub/tests/guardian-gps-owner-v1173.test.cjs
           node --test healthhub/tests/guardian-native-relay-v156.test.cjs
-          node --test healthhub/tests/guardian-profile-follow-v837.test.cjs
+          node --test healthhub/tests/guardian-gps-source-conflict-v1072.test.cjs
+          node --test healthhub/tests/guardian-stale-owner-gps-v1071.test.cjs
