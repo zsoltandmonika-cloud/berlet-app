@@ -295,7 +295,7 @@ async function dispatch(profileScope,deviceFilter,overrideScope,adminConfig){
   if(!/^[A-Za-z0-9_-]{8}$/.test(targetAccountSuffix))
    throw new Error('Pontosan 8 karakteres célfiók-azonosítót adj meg. A korábbi párosítókód nem feltétlenül azonos ezzel.');
   var loggedInHint=vault()?.accountHint?.()||'nem látható';
-  if(!window.confirm('Küldjünk magyar nyelvű Dropbox-ellenőrzési értesítést a(z) '+(d.activeProfile==='zsolt'?'Zsolt':'Mónika')+' telefonjára?\\n\\nA telefonon jóváhagyásig semmi nem változik.\\nA webes parancsküldő Dropbox-fiókvége: '+loggedInHint))return {cancelled:true};
+  if(!window.confirm('Küldjünk magyar nyelvű Dropbox-ellenőrzési értesítést a(z) '+(d.activeProfile==='zsolt'?'Zsolt':'Mónika')+' telefonjára?\n\nA telefonon jóváhagyásig semmi nem változik.\nA webes parancsküldő Dropbox-fiókvége: '+loggedInHint))return {cancelled:true};
  }
  var id='cmd-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,8),issued=now();
  await Promise.all(selected.map(async function(d){
