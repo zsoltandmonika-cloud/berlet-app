@@ -18,7 +18,7 @@ label{display:flex;align-items:flex-start;gap:10px;margin:15px 0}input[type=chec
 <body><main>
 <p><a href="./index.html">HealthHub kezdőlap</a></p>
 <div class="box"><h1>🔐 Dropbox migráció · Zsolt és Mónika</h1>
-<p><strong>Cél:</strong> Gmail HealthHub forrás → <strong>zsolt.monika@outlook.com</strong> HealthHub Cloud Vault. A program csak a Health Connect, Digital Wellbeing és táplálkozási JSON adatfájlokat kezeli. A teljes Vault, a GPS, az eszközregiszter és a dokumentumok külön védett adatforrások, nem írja át őket.</p>
+<p><strong>Cél:</strong> Gmail HealthHub forrás → <strong>a lent megadott és Dropbox által igazolt célfiók</strong> HealthHub Cloud Vault. A program csak a Health Connect, Digital Wellbeing és táplálkozási JSON adatfájlokat kezeli. A teljes Vault, a GPS, az eszközregiszter és a dokumentumok külön védett adatforrások, nem írja át őket.</p>
 <p class="warning">A már létrehozott 2026-11-10 biztonsági mentéseket megőrizzük. A két telefon natív Dropbox-kapcsolata ettől még nem áll át.</p></div>
 <div class="box"><h2>1. Kapcsolatok</h2>
 <p>Előfeltétel: ezen a böngészőn a webes HealthHub Dropbox-forrás jelenleg a régi Gmail-fiókhoz tartozzon. A cél fiókot külön, csak ehhez az átálláshoz engedélyezd.</p>
@@ -26,6 +26,8 @@ label{display:flex;align-items:flex-start;gap:10px;margin:15px 0}input[type=chec
 <button id="disconnect" class="secondary">Migrációs célkapcsolat törlése</button>
 <p><small>Ez a jóváhagyás nem változtatja meg a ChatGPT Analytics meglévő kapcsolatát. Az OAuth-engedélyeket csak a böngésző tárolja.</small></p></div>
 <div class="box"><h2>2. Duplikációellenőrzés</h2>
+<p><label for="targetEmail">A cél Dropbox-fiók pontos e-mail-címe</label><input id="targetEmail" type="email" autocomplete="email" required placeholder="név@szolgáltató.hu" style="width:100%;max-width:360px;padding:10px;border-radius:8px;border:1px solid #5b83a7;background:#101f33;color:white"></p>
+<p><small>Az e-mail-címet csak a böngésző munkamenetében tartjuk meg, GitHubba nem kerül. A Dropbox azonosított fiókjával egyeztetjük.</small></p>
 <button id="preview">Olvasás és duplikációmentes előnézet</button>
 <p id="status" role="status" aria-live="polite">Még nem futott ellenőrzés.</p>
 <div id="result"></div></div>
@@ -48,7 +50,10 @@ el('disconnect').addEventListener('click',async()=>{await api.remove();loaded=fa
 el('preview').addEventListener('click',async()=>{
  setBusy(true);loaded=false;el('result').textContent='';note('Fiókok és rekordok ellenőrzése, felülírás nélkül...');
  try{
-  const r=await api.preview();note('✓ Cél: '+r.identity.email+'; Outlook-azonosító vége: '+r.identity.suffix+
+  const expectedEmail=el('targetEmail').value.trim().toLowerCase();
+  if(!expectedEmail)throw Error('A cél Dropbox e-mail-címét add meg.');
+  sessionStorage.setItem('hh-migration-expected-target-v1',expectedEmail);
+  const r=await api.preview(expectedEmail);note('✓ Cél: '+r.identity.email+'; Outlook-azonosító vége: '+r.identity.suffix+
    '\nForrás Dropbox azonosító vége: '+r.identity.sourceSuffix+
    '\nFelülvizsgálandó fájlok: '+r.blocked.length);
   const t=document.createElement('table'),head=document.createElement('tr');
