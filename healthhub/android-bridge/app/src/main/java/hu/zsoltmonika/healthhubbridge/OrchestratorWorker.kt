@@ -80,6 +80,7 @@ class OrchestratorWorker(
                     it.put("gps_repair")
                     it.put("remote_config")
                     it.put("agent_reconcile")
+                    it.put("dropbox_account_review")
                 }
                 if (owner != null && FamilyGuardContinuity.remoteStopAllowed(applicationContext)) {
                     it.put("gps_stop")
@@ -252,7 +253,8 @@ class OrchestratorWorker(
             val allowed = setOf("health", "daily", "ota", "diagnostics",
                 "structured", "profile", "devices", "lena",
                 "gps_stop", "gps_resume_request", "sos_contact_request",
-                "gps_repair", "remote_config", "agent_reconcile")
+                "gps_repair", "remote_config", "agent_reconcile",
+                "dropbox_account_review")
             val issued = runCatching { java.time.Instant.parse(cmd.getString("issuedAt")) }.getOrNull()
             val deadline = runCatching { java.time.Instant.parse(cmd.getString("expiresAt")) }.getOrNull()
             val now = java.time.Instant.now()
@@ -261,7 +263,9 @@ class OrchestratorWorker(
                 issued == null || deadline == null ||
                 issued.isAfter(now.plusSeconds(300)) ||
                 issued.isBefore(now.minusSeconds(24 * 3600)) ||
-                !deadline.isAfter(now) || deadline.isAfter(issued.plusSeconds(24 * 3600 + 5))) {
+                !deadline.isAfter(now) || deadline.isAfter(issued.plusSeconds(24 * 3600 + 5)) ||
+                ("dropbox_account_review" in actionScopes &&
+                    (actionScopes.size != 1 || deadline.isAfter(issued.plusSeconds(3600))))) {
                 prefs.edit().putString(LAST_COMMAND_KEY, commandId).apply()
                 writeStatus(prefs, id, cmd, "rejected", JSONArray(),
                     "Parancs elutasítva: tulajdonos, művelet vagy érvényesség hibás.", null)
@@ -358,6 +362,40 @@ class OrchestratorWorker(
                     } catch (e: Exception) {
                         failed++
                         steps.put(step(scope, "SH9 Remote Admin", "failed", e.javaClass.simpleName))
+                    }
+                }
+            }
+
+            // A Dropbox-váltás távolról NEM hajtható végre: itt kizárólag
+            // egy tulajdonos által megnyitható, lejáró értesítés jön létre.
+            if ("dropbox_account_review" in requestedScopes) {
+                val review = cmd.optJSONObject("accountReview")
+                val suffix = review?.optString("targetSuffix").orEmpty()
+                if (!OneRemoteAdmin.consent(prefs)) {
+                    failed++
+                    steps.put(step("dropbox_account_review", "Dropbox ellenőrzés", "rejected",
+                        "A telefon tulajdonosa nem engedélyezte a Remote Admin funkciót."))
+                } else if (review == null || review.length() != 1 ||
+                    !DropboxAccountMatch.validExpected(suffix)) {
+                    failed++
+                    steps.put(step("dropbox_account_review", "Dropbox ellenőrzés", "rejected",
+                        "Hiányzó vagy hibás célfiók-azonosító."))
+                } else {
+                    try {
+                        if (DropboxAccountReviewNotification.request(
+                                applicationContext, commandId, suffix, expiresAt)) {
+                            skipped++
+                            steps.put(step("dropbox_account_review", "Dropbox ellenőrzés", "queued",
+                                "Magyar nyelvű értesítés elküldve. A döntés a telefon tulajdonosáé."))
+                        } else {
+                            failed++
+                            steps.put(step("dropbox_account_review", "Dropbox ellenőrzés", "failed",
+                                "Az értesítés nem küldhető el; ellenőrizd az Android értesítési engedélyét."))
+                        }
+                    } catch (e: Exception) {
+                        failed++
+                        steps.put(step("dropbox_account_review", "Dropbox ellenőrzés", "failed",
+                            e.javaClass.simpleName))
                     }
                 }
             }

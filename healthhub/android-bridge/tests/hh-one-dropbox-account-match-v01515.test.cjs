@@ -25,12 +25,12 @@ test('web device registry identifies exact web Dropbox account and missing Andro
  assert.match(web,/Webes Dropbox fiókazonosító vége/);
  assert.match(web,/api\(\)\.accountHint\(\)/);
  assert.match(web,/Android-jelentések:/);
- assert.match(web,/A natív telefonazonosítót ne töröld/);
+ assert.match(web,/A natív telefonazonosítót nem töröljük/);
  assert.doesNotMatch(web,/localStorage\.removeItem\('hh-orchestrator-device-id-v1'\)/);
 });
 test('native app identity remains unchanged and release is a newer OTA candidate',()=>{
  const gradle=read('app/build.gradle.kts');
  assert.match(gradle,/applicationId = "hu\.zsoltmonika\.healthhubbridge"/);
- assert.match(gradle,/versionCode = 45/);
- assert.match(gradle,/versionName = "0\.15\.18"/);
+ assert.match(gradle,/versionCode = 47/);
+ assert.match(gradle,/versionName = "0\.15\.20"/);
 });

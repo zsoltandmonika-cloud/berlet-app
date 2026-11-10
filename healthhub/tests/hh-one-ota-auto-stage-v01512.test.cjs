@@ -14,8 +14,8 @@ const published=JSON.parse(read('data/bridge-ota.json'));
 test('next candidate is monotonic and the published signed manifest is unchanged until approved release',()=>{
  assert.ok(Number(gradle.match(/versionCode = (\d+)/)[1]) > published.versionCode);
  assert.match(gradle,/versionName = "0\.15\.\d+"/);
- assert.equal(published.versionCode,44);
- assert.equal(published.version,'0.15.17');
+ assert.equal(published.versionCode,46);
+ assert.equal(published.version,'0.15.19');
  assert.match(workflow,/workflow_dispatch:/);
  assert.match(workflow,/Hard stop unless new APK and current OTA baseline have same signing certificate/);
 });
