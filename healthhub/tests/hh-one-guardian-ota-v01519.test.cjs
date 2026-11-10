@@ -26,7 +26,8 @@ test('Existing GPS and battery consent and ownership remain mandatory',()=>{
  assert.match(relay,/Sh9GpsService\.active/);
  assert.match(relay,/isSelectedPhysicalPhone\(app, profile\)/);
  assert.match(relay,/if \(!batteryEnabled\(app\)\)/);
- assert.doesNotMatch(relay,/putBoolean\(KEY_SHARE, true\).*verifiedForNativeRelay/s);
+ const fallback=relay.slice(relay.indexOf('private suspend fun isSelectedPhysicalPhone('),relay.indexOf('private suspend fun ensureFolder('));
+ assert.doesNotMatch(fallback,/putBoolean\(KEY_SHARE, true\)|enable\(context\)/);
 });
 test('Only an absent/unassigned legacy device may use live central owner proof',()=>{
  assert.match(relay,/GuardianLegacyRegistryDecision\.Result\.UNASSIGNED\s*->\s*FamilyDeviceCentral\.verifiedForNativeRelay/);
