@@ -120,7 +120,13 @@
   }
   window.addEventListener('healthhub:profile-changed', () => { error = ''; refresh(); });
   window.addEventListener('healthhub:device-registry-updated', () => { error = ''; refresh(); });
+  function adminIsBeingUsed() {
+    const panel = document.getElementById(ID);
+    return !!window.hhAdminScrollActiveV748?.() || !!(panel &&
+      panel.contains(document.activeElement) &&
+      document.activeElement?.matches?.('button,input,select,textarea,summary'));
+  }
   window.addEventListener('focus', refresh);
-  setInterval(() => { if (document.visibilityState === 'visible' && document.getElementById('haOv')?.classList.contains('on')) refresh(); }, 15000);
+  setInterval(() => { if (document.visibilityState === 'visible' && document.getElementById('haOv')?.classList.contains('on') && !adminIsBeingUsed()) refresh(); }, 60000);
   attach();
 })();

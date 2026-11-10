@@ -1,0 +1,31 @@
+name: HealthHub · Admin steady v821 QA
+on:
+  pull_request:
+    paths:
+      - 'healthhub/index.html'
+      - 'healthhub/hh-unified-admin-v745.js'
+      - 'healthhub/live-v306.js'
+      - 'healthhub/tests/hh-admin-steady-v821.test.cjs'
+      - '.github/workflows/healthhub-admin-steady-v821-qa.yml'
+permissions:
+  contents: read
+jobs:
+  admin-steady:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: JavaScript syntax
+        run: |
+          node --check healthhub/hh-unified-admin-v745.js
+          node --check healthhub/live-v306.js
+          node --check healthhub/tests/hh-admin-steady-v821.test.cjs
+      - name: Steady Admin and previous no-flicker regressions
+        run: |
+          node --test healthhub/tests/hh-admin-steady-v821.test.cjs \
+            healthhub/tests/hh-admin-no-flicker-v820.test.cjs \
+            healthhub/tests/hh-admin-mobile-v748.test.cjs \
+            healthhub/tests/unified-admin-v745.test.cjs
