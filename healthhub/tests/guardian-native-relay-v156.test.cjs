@@ -11,7 +11,7 @@ const main=read('healthhub/android-bridge/app/src/main/java/hu/zsoltmonika/healt
 function setup(payload,now=Date.now(),authorized=true){
  const state=new Map();let calls=[];
  if(authorized){
-  state.set('hh-dropbox-token-v2',JSON.stringify({refresh_token:'unit-test-refresh-zsolt',access_token:'unit-test-zsolt',expires_at:now+1000000,account_id:'dbid:unit-outlook'}));
+  state.set('hh-dropbox-token-v2',JSON.stringify({refresh_token:'unit-test-refresh-zsolt',access_token:'unit-test-zsolt',expires_at:now+1000000,account_id:'dbid:unit-outlook-cEjkW3UM'}));
   state.set('hh-remote-service-token-v1',JSON.stringify({refresh_token:'unit-test-refresh-monika',access_token:'unit-test-monika',expires_at:now+1000000,account_id:'dbid:unit-gmail'}));
  }
  const window={localStorage:{getItem(k){return state.get(k)||null},setItem(k,v){state.set(k,v)}},
@@ -24,10 +24,10 @@ function setup(payload,now=Date.now(),authorized=true){
   }}}
  };
  vm.runInNewContext(js,{window,URLSearchParams,Date,JSON,Object,Number,Math,Error,String,TextEncoder,Uint8Array,Array});
- return {api:window.HH_GUARDIAN_NATIVE_V156,calls};
+ return {api:window.HH_GUARDIAN_NATIVE_V156,calls,state};
 }
 test('standalone Family Guard loads private, read-only native Dropbox feed',()=>{
- assert.match(html,/guardian-native-dropbox-v156\.js\?v=1172-dual-dropbox-owner-routing/);
+ assert.match(html,/guardian-native-dropbox-v156\.js\?v=1178-outlook-only-no-gmail-bridge/);
  assert.match(live,/HH_GUARDIAN_GPS_ROUTER_V1177/);
  assert.match(live,/const selected=nativeFix&&peerSnapshot\(nativeFix\)\?\.live\?nativeFix:null/);
  assert.match(live,/status==='revoked'/);
@@ -47,19 +47,34 @@ test('valid signed-in private latest snapshot returns only matching owner profil
  assert.equal(r.status,'ok');assert.equal(r.data.profile_key,'monika');
  assert.equal(r.data.latitude,47.5);
  assert.equal(c.calls.length,1);
- assert.equal(c.calls[0].o.headers.Authorization,'Bearer unit-test-monika');
+ assert.equal(c.calls[0].o.headers.Authorization,'Bearer unit-test-zsolt');
  assert.match(c.calls[0].o.headers['Dropbox-API-Arg'],/\/HealthHub\/guardian\/native-live\/monika\.json/);
  const bad=await c.api.read('zsolt');assert.equal(bad.status,'invalid');
 });
-test('Gmail Monika reading does not borrow the Outlook token',async()=>{
+test('Outlook Monika and Zsolt read from the SAME verified Outlook account',async()=>{
  const raw={schema:'healthhub.guardian.native/1',source:'HH One Native GPS',profile:'monika',active:true,
    latitude:47.5,longitude:19,accuracy_m:30,updated_at:new Date().toISOString()};
  const c=setup(raw);
  assert.equal((await c.api.read('zsolt')).status,'invalid');
  assert.equal(c.calls[0].o.headers.Authorization,'Bearer unit-test-zsolt');
  assert.equal((await c.api.read('monika')).status,'ok');
- assert.equal(c.calls[1].o.headers.Authorization,'Bearer unit-test-monika');
+ assert.equal(c.calls[1].o.headers.Authorization,'Bearer unit-test-zsolt');
 });
+test('retired Gmail-only browser cannot impersonate Monika Outlook source',async()=>{
+ const raw={schema:'healthhub.guardian.native/1',source:'HH One Native GPS',profile:'monika',
+  active:true,latitude:47.5,longitude:19.02,accuracy_m:8,updated_at:new Date().toISOString()};
+ const gmailOnly=setup(raw);
+ gmailOnly.state.delete('hh-dropbox-token-v2');
+ assert.equal((await gmailOnly.api.read('monika')).status,'not-connected');
+ assert.equal(gmailOnly.calls.length,0);
+ const wrongWeb=setup(raw);
+ wrongWeb.state.set('hh-dropbox-token-v2',JSON.stringify({
+  refresh_token:'stale-web-gmail-refresh',access_token:'stale-web-gmail-access',
+  expires_at:Date.now()+100000,account_id:'dbid:mock-web-QbVL0JOo'}));
+ assert.equal((await wrongWeb.api.read('monika')).status,'not-connected');
+ assert.equal(wrongWeb.calls.length,0);
+});
+
 test('explicit revocation is authoritative even without coordinate properties',async()=>{
  const c=setup({schema:'healthhub.guardian.native/1',source:'HH One Native GPS',
   profile:'zsolt',active:false,updated_at:new Date().toISOString()});

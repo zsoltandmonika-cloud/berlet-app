@@ -1,7 +1,7 @@
 /* HealthHub Family Guard GPS Route Registry v1177
  * One stable route per profile, one active native reader per route.
- * The final account for both is Outlook. Monika's physical phone still writes
- * to Gmail; that explicit temporary bridge must never read an old Outlook copy.
+ * Both verified native phones now write to the Outlook HealthHub App Folder.
+ * Gmail is retired as a Guardian source; never silently accept its old files.
  * No implicit data-source fallback, GPS capture, device binding or token access.
  */
 (function(w){
@@ -15,7 +15,7 @@
   monika:Object.freeze({
    id:'gps.monika',profile:'monika',
    name:'Mónika GPS',targetAccount:'outlook',
-   activeReadAccount:'gmail',mode:'temporary-bridge',
+   activeReadAccount:'outlook',mode:'primary',
    nativePath:'/HealthHub/guardian/native-live/monika.json'
   })
  });
@@ -26,9 +26,7 @@
  function label(profile){
   const route=forProfile(profile);
   if(!route)return 'Ismeretlen GPS-route';
-  return route.name+' · '+(route.mode==='temporary-bridge'
-   ?'Gmail bridge aktív → Outlook cél'
-   :'Outlook aktív');
+  return route.name+' · Outlook aktív';
  }
  function assertMatchingFix(profile,fix){
   const route=forProfile(profile);

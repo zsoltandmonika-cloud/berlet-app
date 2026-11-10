@@ -4,9 +4,9 @@
  */
 (function(w){
  'use strict';
- const KEY='hh-dropbox-token-v2',GMAIL_KEY='hh-remote-service-token-v1',APP='t68rmhh5f1l8d85';
- // Verify the active Gmail source by its already confirmed Dropbox ID, never an email label.
- const MONIKA_GMAIL_SHA256='eb35bda6b9e5b3328aaa6b0f2f7aeda74e86a31f5c1e33cadb2d4829863c9d64';
+ const KEY='hh-dropbox-token-v2',APP='t68rmhh5f1l8d85';
+ // Explicitly verified Outlook target, not a browser's older Gmail grant.
+ const MONIKA_OUTLOOK_SUFFIX='cEjkW3UM';
  const PREFIX='/HealthHub/guardian/native-live/';
  const SAFE_PROFILES=['zsolt','monika'];
  const SCHEMA='healthhub.guardian.native/1';
@@ -15,32 +15,7 @@
    return raw&&typeof raw.refresh_token==='string'&&raw.refresh_token.length>10?raw:null;
   }catch(_){return null}
  }
- function standaloneStored(){try{const t=JSON.parse(w.localStorage.getItem(GMAIL_KEY)||'null');return t&&typeof t.refresh_token==='string'&&t.refresh_token.length>10?t:null}catch(_){return null}}
- function connected(){return !!(w.HH_DROPBOX_VAULT&&w.HH_DROPBOX_VAULT.connected?.())||!!tokenStored()||!!standaloneStored()}
- async function gmailCredential(){
-  for(const key of [GMAIL_KEY,KEY]){
-   const t=key===GMAIL_KEY?standaloneStored():tokenStored();
-   if(!t||typeof t.account_id!=='string'||!w.crypto?.subtle)continue;
-   const buffer=await w.crypto.subtle.digest('SHA-256',new TextEncoder().encode(t.account_id));
-   const sha=Array.from(new Uint8Array(buffer),b=>b.toString(16).padStart(2,'0')).join('');
-   if(sha===MONIKA_GMAIL_SHA256)return {key,token:t};
-  }
-  return null;
- }
- async function gmailAccess(c){
-  const t=c.token;
-  if(t.access_token&&Number(t.expires_at)>Date.now()+60000)return t.access_token;
-  const req=await w.fetch('https://api.dropboxapi.com/oauth2/token',{
-   method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},
-   body:new URLSearchParams({refresh_token:t.refresh_token,grant_type:'refresh_token',client_id:APP})
-  });
-  if(!req.ok)throw Error('Mónika Gmail Dropbox hozzáférése lejárt');
-  const next=await req.json();if(!next?.access_token)throw Error('Gmail Dropbox token hiányzik');
-  t.access_token=next.access_token;
-  t.expires_at=Date.now()+(Number(next.expires_in)||14400)*1000-60000;
-  w.localStorage.setItem(c.key,JSON.stringify(t));
-  return t.access_token;
- }
+ function connected(){return !!(w.HH_DROPBOX_VAULT&&w.HH_DROPBOX_VAULT.connected?.())||!!tokenStored()}
  async function getToken(){
   if(w.HH_DROPBOX_VAULT&&w.HH_DROPBOX_VAULT.connected?.())return w.HH_DROPBOX_VAULT.accessToken();
   const t=tokenStored();
@@ -67,20 +42,15 @@
   const vault=w.HH_DROPBOX_VAULT;
   try{
    let raw;
+   // Never borrow a Gmail token for Monika. A verified Outlook OAuth on this
+   // browser is a prerequisite for using her new canonical native GPS source.
    if(profile==='monika'){
-    // Primary bridge: Monika's phone still writes to her Gmail Dropbox.
-    // Never accept the copied, older Outlook Monika file as live native GPS.
-    const c=await gmailCredential();
-    if(!c)return {status:'not-connected',data:null,error:'Mónika Gmail Dropbox nem hitelesített ebben a böngészőben'};
-    const token=await gmailAccess(c);
-    const r=await w.fetch('https://content.dropboxapi.com/2/files/download',{
-     method:'POST',headers:{Authorization:'Bearer '+token,
-      'Dropbox-API-Arg':JSON.stringify({path:PREFIX+profile+'.json'})},cache:'no-store'
-    });
-    if(r.status===409)return {status:'missing',data:null};
-    if(!r.ok)throw Error('Mónika Gmail privát helyadat HTTP '+r.status);
-    raw=await r.json();
-   }else if(vault&&vault.connected?.()&&typeof vault.downloadJson==='function'){
+    const t=tokenStored();
+    if(!t||typeof t.account_id!=='string'||!t.account_id.startsWith('dbid:')||
+       t.account_id.slice(-8)!==MONIKA_OUTLOOK_SUFFIX)
+     return {status:'not-connected',data:null,error:'A Family Guard webes Dropboxját Outlookra kell csatlakoztatni'};
+   }
+   if(vault&&vault.connected?.()&&typeof vault.downloadJson==='function'){
     raw=await vault.downloadJson(PREFIX+profile+'.json');
    }else{
     const token=await getToken();

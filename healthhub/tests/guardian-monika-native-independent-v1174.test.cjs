@@ -19,7 +19,7 @@ function harness(nativeReply){
    lastGpsFixAt:0,getLocationSettings(){return{follow_map:true}},setRemoteMarkerPreferred(){}},
   // Deliberately not logged into Supabase. Dropbox OAuth is separate.
   HH_GUARDIAN_LIVE_V785:{authenticated:false,familyAuthorized:false,boundProfile:null,getClient(){return null}},
-  HH_GUARDIAN_GPS_ROUTER_V1177:{connected(){return true},forProfile(){return {name:'Mónika GPS',activeReadAccount:'gmail'}},async read(){return nativeReply()}},
+  HH_GUARDIAN_GPS_ROUTER_V1177:{connected(){return true},forProfile(){return {name:'Mónika GPS',activeReadAccount:'outlook'}},async read(){return nativeReply()}},
   maplibregl:{Marker:class{
    setLngLat(p){positions.push(p);return this}addTo(){return this}remove(){removes.push(true)}
   }},
@@ -43,14 +43,14 @@ test('v1174 displays verified Monika office phone fix even without Supabase logi
  assert.match(h.widgets.guardianNativeGpsMessageV1174.textContent,/HH Connect natív GPS/);
  assert.equal(h.widgets.guardianNativeGpsConnectV1174.hidden,true);
 });
-test('v1174 missing Gmail browser OAuth fails closed and exposes safe connect link',async()=>{
+test('v1178 missing Outlook browser OAuth fails closed and exposes safe connect link',async()=>{
  const h=harness(()=>({status:'not-connected',data:null}));
  await h.tick();
  assert.equal(h.ctrl.ready,false);
  assert.equal(h.moves.length,0);
  assert.equal(h.positions.length,0);
  assert.equal(h.widgets.guardianNativeGpsConnectV1174.hidden,false);
- assert.match(h.widgets.guardianNativeGpsMessageV1174.textContent,/Gmail bridge kapcsolat nem olvasható/);
+ assert.match(h.widgets.guardianNativeGpsMessageV1174.textContent,/Outlook kapcsolat nem olvasható/);
 });
 test('v1174 never paints stale GPS, even with Supabase/browser home source',async()=>{
  const h=harness(()=>({status:'ok',data:{...phoneFix(),updated_at:new Date(Date.now()-90000).toISOString()}}));
@@ -64,7 +64,7 @@ test('v1174 source diagnostics are visible, have a safe OAuth path and do not fa
  const live=read('guardian-live-v785.js'),own=read('guardian.js');
  assert.match(html,/id="guardianNativeGpsSourceV1174"/);
  assert.match(html,/id="guardianNativeGpsConnectV1174"/);
- assert.match(html,/href="\.\.\/remote-service\/"/);
+ assert.match(html,/href="\.\.\/index\.html"/);
  assert.match(html,/guardian-native-source-v1174\.css/);
  assert.match(html,/guardian-profile-follow-v837\.js\?v=[^"\n]*owner=v1174/);
  assert.match(live,/sharingProfile==='monika'&&ua&&!\/Android\/i.test\(ua\)/);

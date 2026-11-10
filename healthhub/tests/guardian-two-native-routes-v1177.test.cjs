@@ -26,7 +26,7 @@ test('only Zsolt GPS and Mónika GPS are official stable routes',()=>{
  assert.equal(z.name,'Zsolt GPS');assert.equal(m.name,'Mónika GPS');
  assert.equal(z.id,'gps.zsolt');assert.equal(m.id,'gps.monika');
  assert.equal(z.targetAccount,'outlook');assert.equal(m.targetAccount,'outlook');
- assert.equal(z.activeReadAccount,'outlook');assert.equal(m.activeReadAccount,'gmail');
+ assert.equal(z.activeReadAccount,'outlook');assert.equal(m.activeReadAccount,'outlook');
  assert.equal(w.HH_GUARDIAN_GPS_ROUTER_V1177.forProfile('route1'),null);
  assert.equal(w.HH_GUARDIAN_GPS_ROUTER_V1177.forProfile('unknown'),null);
 });
@@ -35,7 +35,7 @@ test('profile-bound native output is tagged correctly and no other file is silen
  const [m,z]=await Promise.all([r.read('monika'),r.read('zsolt')]);
  assert.equal(m.status,'ok');assert.equal(z.status,'ok');
  assert.equal(m.route_id,'gps.monika');assert.equal(z.route_id,'gps.zsolt');
- assert.equal(m.data.read_account,'gmail');assert.equal(z.data.read_account,'outlook');
+ assert.equal(m.data.read_account,'outlook');assert.equal(z.data.read_account,'outlook');
  assert.equal(m.data.profile_key,'monika');assert.equal(z.data.profile_key,'zsolt');
 });
 test('crossed profile, forged source, unauthorized route and disconnected reader all fail closed',async()=>{
