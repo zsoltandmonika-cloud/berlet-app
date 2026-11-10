@@ -41,7 +41,7 @@ test('v1072 map never flaps back to disputed coordinates and shows source confli
    setRemoteMarkerPreferred(){}},
   HH_GUARDIAN_LIVE_V785:{authenticated:true,familyAuthorized:true,boundProfile:'zsolt',
    getClient(){return{}},readSharedLocation(){return Promise.resolve({data:browser,error:null})}},
-  HH_GUARDIAN_NATIVE_V156:{connected(){return true},read(){
+  HH_GUARDIAN_GPS_ROUTER_V1177:{connected(){return true},forProfile(){return {name:'Mónika GPS',activeReadAccount:'gmail'}},read(){
    return Promise.resolve(nativeAvailable?{status:'ok',data:native}:{status:'invalid',data:null})}},
   maplibregl:{Marker:class{
    setLngLat(v){marked.push(v);return this}
