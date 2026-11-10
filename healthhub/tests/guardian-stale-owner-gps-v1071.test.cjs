@@ -45,7 +45,7 @@ test('v1173 stale or fresh unverified Monika browser GPS cannot force camera hom
    getLocationSettings(){return {follow_map:true}},setRemoteMarkerPreferred(){}},
   HH_GUARDIAN_LIVE_V785:{authenticated:true,familyAuthorized:true,boundProfile:'monika',
    getClient(){return{}},readSharedLocation(){return Promise.resolve({data:db,error:null})}},
-  HH_GUARDIAN_NATIVE_V156:{connected(){return false}},
+  HH_GUARDIAN_GPS_ROUTER_V1177:{connected(){return false},forProfile(){return {name:'Mónika GPS',activeReadAccount:'gmail'}}},
   HH_GOLDEN_AVATARS_V529:{m:'m',z:'z'},
   maplibregl:{Marker:class{setLngLat(v){markers.push(v);return this}addTo(){return this}remove(){}}},
   addEventListener(k,fn){events[k]=fn},setInterval(){},setTimeout(fn){fn()}};
