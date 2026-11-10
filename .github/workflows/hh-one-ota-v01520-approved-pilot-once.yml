@@ -1,0 +1,47 @@
+name: HH One · Approved 0.15.20 Dropbox Review · Zsolt Pilot
+# The release must be explicitly approved by the owner and never expands the
+# rollout beyond Zsolt. This workflow only dispatches the existing signed OTA
+# pipeline, which verifies signing identity and the prior artifact checksum.
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'healthhub/android-bridge/app/build.gradle.kts'
+      - '.github/workflows/hh-one-ota-v01520-approved-pilot-once.yml'
+
+permissions:
+  contents: read
+  actions: write
+
+jobs:
+  approved-zsolt-pilot:
+    if: ${{ github.event_name == 'push' && contains(github.event.head_commit.message, '[HH-ONE-01520-PILOT-APPROVED]') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify exact candidate and signed production baseline
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json, pathlib, re
+          build = pathlib.Path('healthhub/android-bridge/app/build.gradle.kts').read_text()
+          manifest = json.loads(pathlib.Path('healthhub/data/bridge-ota.json').read_text())
+          assert re.search(r'versionCode = 47\\b', build), 'Unexpected Android candidate build'
+          assert re.search(r'versionName = "0\\.15\\.20"', build), 'Unexpected Android version'
+          assert manifest['version'] == '0.15.19' and manifest['versionCode'] == 46, 'Signed baseline changed'
+          assert manifest['applicationId'] == 'hu.zsoltmonika.healthhubbridge', 'Wrong application identity'
+          assert manifest['channel'] == 'signed-release', 'Unsigned baseline'
+          assert manifest['rolloutProfiles'] == ['zsolt'], 'Pilot must not include Monika'
+          assert re.fullmatch(r'[a-f0-9]{64}', manifest['sha256']), 'Invalid signed checksum'
+          print('PASS: explicitly approved build47, signed build46 and Zsolt-only rollout')
+          PY
+      - name: Dispatch certificate-verified signed OTA for Zsolt ONLY
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh workflow run healthhub-connect-ota-release.yml --ref main --field rollout=pilot
+          echo 'Requested Zsolt-only signed 0.15.20 OTA. Android user consent still required.' >> "$GITHUB_STEP_SUMMARY"
