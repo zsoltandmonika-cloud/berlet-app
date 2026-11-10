@@ -47,7 +47,7 @@ test('v1005 fast moving vehicle uses a subsecond smooth real-GPS glide without n
  const move=h.camera.at(-1);
  assert.ok(move.duration>=350&&move.duration<=900,'moving bus should not trail for 3.4 sec');
  assert.equal(typeof move.easing,'function');
- assert.equal(h.reads.db,prior.db+1,'only existing Supabase read');
+ assert.equal(h.reads.db,prior.db,'Monika unverified Supabase home row is deliberately not queried');
  assert.equal(h.reads.native,prior.native+1,'only existing native relay read');
  assert.deepEqual(Array.from(move.center),[19.035,47.55025]);
  h.frames.shift()(move.duration*.5);
@@ -62,7 +62,7 @@ test('v1005 walking speed preserves original gentle interpolation and marker anc
  assert.ok(h.camera.at(-1).duration>=950,'walking should still be smoothly eased');
  assert.equal(h.camera.at(-1).duration<=3400,true);
 });
-test('v1005 starts permitted Supabase and native reads concurrently, never extra polls',async()=>{
+test('v1174 Monika native read is independent of Supabase and never waits for home row',async()=>{
  let releaseDb,releaseNative,db=0,native=0;
  const event={},started=[],markerPositions=[],cameraMoves=[];
  const mk=()=>({className:'',textContent:'',setAttribute(){},removeAttribute(){},
@@ -82,17 +82,17 @@ test('v1005 starts permitted Supabase and native reads concurrently, never extra
   addEventListener(k,cb){event[k]=cb},setTimeout(cb){cb()},setInterval(){return 1}};
  vm.runInNewContext(source,{window:w,Date,Number,Math,Promise,Object});
  await Promise.resolve();await Promise.resolve();await Promise.resolve();
- assert.equal(db,1);assert.equal(native,1,'native request starts without waiting for Supabase');
- assert.deepEqual(started,['db','native']);
+ assert.equal(db,0,'wrong-home Monika Supabase location must not be requested');assert.equal(native,1,'native request starts without waiting for Supabase');
+ assert.deepEqual(started,['native']);
  releaseNative({status:'ok',data:fix(47.55,Date.now()-300,20)});
  for(let i=0;i<5;i++)await new Promise(setImmediate);
  assert.equal(markerPositions.length,1,'native phone fix is visible before delayed Supabase returns');
  assert.equal(cameraMoves.length,1,'camera centers on verified native phone without delay');
- releaseDb({data:null,error:null});
+ // There is no Monika browser/Supabase read to release after the native GPS arrives.
  for(let i=0;i<5;i++)await new Promise(setImmediate);
  assert.equal(markerPositions.length,1,'no duplicated marker after Supabase responds');
  assert.equal(cameraMoves.length,1,'no duplicate camera animation');
- assert.equal(db,1);assert.equal(native,1);
+ assert.equal(db,0);assert.equal(native,1);
 });
 test('v1005 keeps same data permissions, no new sensors, and busts old app cache',()=>{
  assert.match(source,/function fastTransitMotion/);
