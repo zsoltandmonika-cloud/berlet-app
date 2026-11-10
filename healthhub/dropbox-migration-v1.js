@@ -122,6 +122,11 @@ function mergeDoc(dst,src,name){
   if(dst.appDetailShared&&src.appDetailShared)r.appHours=mergeItems(dst.appHours||[],src.appHours||[],'app',at,bt,issues,'appHours');
   r.collectedAtMs=Math.max(at,bt);
  }else if(name.endsWith('-nutrition.json')){
+  // An empty stale source must never replace a populated destination or its settings.
+  const sourceLists=['entries','body','catalog','units','quickRecipes','quickRecipeOrder','presets'];
+  const emptySource=sourceLists.every(k=>Array.isArray(src[k])?src[k].length===0:
+    (!src[k]||typeof src[k]==='object'&&Object.keys(src[k]).length===0));
+  if(emptySource)return {doc:dst,issues,counts:{emptySourcePreservedOutlook:true}};
   const at=Date.parse(dst.updatedAt||0)||0,bt=Date.parse(src.updatedAt||0)||0;
   for(const k of ['entries','quickRecipes']){r[k]=mergeItems(dst[k]||[],src[k]||[],'id',at,bt,issues,k);counts[k]={outlook:(dst[k]||[]).length,gmail:(src[k]||[]).length,unique:r[k].length}}
   for(const k of ['body','catalog','units','quickRecipeOrder','presets','goal'])
