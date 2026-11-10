@@ -10,16 +10,24 @@ const kotlin=read('healthhub/android-bridge/app/src/main/java/hu/zsoltmonika/hea
 const main=read('healthhub/android-bridge/app/src/main/java/hu/zsoltmonika/healthhubbridge/MainActivity.kt');
 function setup(payload,now=Date.now(),authorized=true){
  const state=new Map();let calls=[];
- if(authorized)state.set('hh-dropbox-token-v2',JSON.stringify({refresh_token:'unit-test-refresh-token-not-real',access_token:'unit-test-access',expires_at:now+1000000}));
+ if(authorized){
+  state.set('hh-dropbox-token-v2',JSON.stringify({refresh_token:'unit-test-refresh-zsolt',access_token:'unit-test-zsolt',expires_at:now+1000000,account_id:'dbid:unit-outlook'}));
+  state.set('hh-remote-service-token-v1',JSON.stringify({refresh_token:'unit-test-refresh-monika',access_token:'unit-test-monika',expires_at:now+1000000,account_id:'dbid:unit-gmail'}));
+ }
  const window={localStorage:{getItem(k){return state.get(k)||null},setItem(k,v){state.set(k,v)}},
   fetch:async(u,o)=>{calls.push({u,o});return {ok:true,status:200,json:async()=>payload}},
-  HH_DROPBOX_VAULT:null
+  HH_DROPBOX_VAULT:null,
+  crypto:{subtle:{async digest(_alg,bytes){
+   const source=new TextDecoder().decode(bytes);
+   const digest=source==='dbid:unit-gmail'?'eb35bda6b9e5b3328aaa6b0f2f7aeda74e86a31f5c1e33cadb2d4829863c9d64':'0'.repeat(64);
+   return Uint8Array.from(digest.match(/../g),hex=>parseInt(hex,16)).buffer;
+  }}}
  };
- vm.runInNewContext(js,{window,URLSearchParams,Date,JSON,Object,Number,Math,Error,String});
+ vm.runInNewContext(js,{window,URLSearchParams,Date,JSON,Object,Number,Math,Error,String,TextEncoder,Uint8Array,Array});
  return {api:window.HH_GUARDIAN_NATIVE_V156,calls};
 }
 test('standalone Family Guard loads private, read-only native Dropbox feed',()=>{
- assert.match(html,/guardian-native-dropbox-v156\.js\?v=156-private-native-relay/);
+ assert.match(html,/guardian-native-dropbox-v156\.js\?v=1172-dual-dropbox-owner-routing/);
  assert.match(live,/HH_GUARDIAN_NATIVE_V156/);
  assert.match(live,/Date\.parse\(nativeFix\.updated_at\)>Date\.parse\(selected\.updated_at\)/);
  assert.match(live,/status==='revoked'/);
@@ -39,8 +47,18 @@ test('valid signed-in private latest snapshot returns only matching owner profil
  assert.equal(r.status,'ok');assert.equal(r.data.profile_key,'monika');
  assert.equal(r.data.latitude,47.5);
  assert.equal(c.calls.length,1);
+ assert.equal(c.calls[0].o.headers.Authorization,'Bearer unit-test-monika');
  assert.match(c.calls[0].o.headers['Dropbox-API-Arg'],/\/HealthHub\/guardian\/native-live\/monika\.json/);
  const bad=await c.api.read('zsolt');assert.equal(bad.status,'invalid');
+});
+test('Gmail Monika reading does not borrow the Outlook token',async()=>{
+ const raw={schema:'healthhub.guardian.native/1',source:'HH One Native GPS',profile:'monika',active:true,
+   latitude:47.5,longitude:19,accuracy_m:30,updated_at:new Date().toISOString()};
+ const c=setup(raw);
+ assert.equal((await c.api.read('zsolt')).status,'invalid');
+ assert.equal(c.calls[0].o.headers.Authorization,'Bearer unit-test-zsolt');
+ assert.equal((await c.api.read('monika')).status,'ok');
+ assert.equal(c.calls[1].o.headers.Authorization,'Bearer unit-test-monika');
 });
 test('explicit revocation is authoritative even without coordinate properties',async()=>{
  const c=setup({schema:'healthhub.guardian.native/1',source:'HH One Native GPS',
