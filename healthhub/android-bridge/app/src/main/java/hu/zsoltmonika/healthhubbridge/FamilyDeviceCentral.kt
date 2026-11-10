@@ -31,7 +31,7 @@ internal object FamilyDeviceCentral {
     suspend fun verifiedForNativeRelay(
         prefs: SharedPreferences, owner: String, deviceId: String, build: String
     ): Boolean {
-        if (owner !in listOf("zsolt", "monika") || !devicePattern.matches(deviceId) ||
+        if ((owner != "zsolt" && owner != "monika") || !devicePattern.matches(deviceId) ||
             !prepared(prefs)) return false
         val now = System.currentTimeMillis()
         val previous = relayProof
