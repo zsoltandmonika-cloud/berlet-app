@@ -28,6 +28,8 @@ jobs:
           node --check healthhub/guardian/smart-260-connect/app.mjs
       - name: Scheduled matching, walking and safe-fail regression tests
         run: node --test healthhub/guardian/smart-260-connect/core.test.mjs
+      - name: Official public BKK GTFS routing diagnostic
+        run: node --test healthhub/guardian/smart-260-connect/real-feed.test.mjs
       - name: Validate isolated Smart Trip AI navigation
         run: |
           grep -q '/berlet-app/healthhub/guardian/smart-260-connect/' sh9/smart-travel/public-transport/smart-trip/index.html
