@@ -13,7 +13,7 @@ const GROUPS=[
  {id:'recovery',label:'🛡️ Biztonság és helyreállítás',subtitle:'Mentések · visszaállítás · privát karton és előzmények',order:40},
  {id:'other',label:'⚙️ További rendszereszközök',subtitle:'Megőrzött beállítások és kiegészítők',order:90}
 ];
-let pending=false,lastRoot=null,watcher=null,overlayRef=null,portalActive=false;
+let pending=false,lastRoot=null,watcher=null,overlayRef=null,portalActive=false,settleTimer=null;
 function stylesheet(){
  if(d.getElementById('hhUnifiedAdminV745Style'))return;
  const s=d.createElement('style');s.id='hhUnifiedAdminV745Style';
@@ -166,7 +166,17 @@ function layout(){
 }
 function queue(){
  if(pending)return;pending=true;
- Promise.resolve().then(()=>{pending=false;layout()});
+ Promise.resolve().then(()=>{
+  pending=false;
+  // Defer rearranging the Admin while the user is scrolling or swiping.
+  // One retry timer is enough; quiet operation matters more than animation.
+  if(w.hhAdminScrollActiveV748?.()){
+   if(settleTimer===null)settleTimer=w.setTimeout(()=>{settleTimer=null;queue()},700);
+   return;
+  }
+  if(settleTimer!==null){w.clearTimeout?.(settleTimer);settleTimer=null}
+  layout();
+ });
 }
 function observe(){
  const root=d.getElementById(ROOT);
