@@ -5,6 +5,10 @@ on:
       - "healthhub/guardian/guardian-profile-follow-v837.js"
       - "healthhub/guardian/guardian.js"
       - "healthhub/guardian/guardian-live-v785.js"
+      - "healthhub/guardian/guardian-gps-routes-v1177.js"
+      - "healthhub/guardian/guardian-gps-router-v1177.js"
+      - "healthhub/guardian/guardian-live-trio-v845.js"
+      - "healthhub/tests/guardian-two-native-routes-v1177.test.cjs"
       - "healthhub/tests/guardian-cross-profile-no-ota-v1171.test.cjs"
       - "healthhub/guardian/index.html"
       - "healthhub/tests/guardian-fast-follow-v1005.test.cjs"
@@ -14,6 +18,10 @@ on:
       - "healthhub/guardian/guardian-profile-follow-v837.js"
       - "healthhub/guardian/guardian.js"
       - "healthhub/guardian/guardian-live-v785.js"
+      - "healthhub/guardian/guardian-gps-routes-v1177.js"
+      - "healthhub/guardian/guardian-gps-router-v1177.js"
+      - "healthhub/guardian/guardian-live-trio-v845.js"
+      - "healthhub/tests/guardian-two-native-routes-v1177.test.cjs"
       - "healthhub/tests/guardian-cross-profile-no-ota-v1171.test.cjs"
       - "healthhub/guardian/index.html"
       - "healthhub/tests/guardian-fast-follow-v1005.test.cjs"
@@ -32,8 +40,16 @@ jobs:
           node --check healthhub/guardian/guardian-profile-follow-v837.js
           node --check healthhub/guardian/guardian.js
           node --check healthhub/guardian/guardian-live-v785.js
+          node --check healthhub/guardian/guardian-gps-routes-v1177.js
+          node --check healthhub/guardian/guardian-gps-router-v1177.js
+          node --check healthhub/guardian/guardian-live-trio-v845.js
       - name: Fast follow and fresh-source regression
         run: |
+          node --test healthhub/tests/guardian-two-native-routes-v1177.test.cjs
+          node --test healthhub/tests/guardian-monika-native-independent-v1174.test.cjs
+          node --test healthhub/tests/guardian-camera-owner-v1176.test.cjs
+          node --test healthhub/tests/guardian-gps-owner-v1173.test.cjs
+          node --test healthhub/tests/guardian-live-trio-v845.test.cjs
           node --test healthhub/tests/guardian-fast-follow-v1005.test.cjs
           node --test healthhub/tests/guardian-gps-source-flap-v1072.test.cjs
           node --test healthhub/tests/guardian-stale-owner-gps-v1071.test.cjs
