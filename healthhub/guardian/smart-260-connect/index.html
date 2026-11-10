@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="hu">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#10162c">
+<meta name="description" content="SHO Biztonság · Mónika személyes 260-as villamoscsatlakozásai">
+<title>SHO · Mónika 260-as hazautazás</title>
+<style>
+:root{color-scheme:dark;--ink:#f6f8ff;--sub:#c1cfe6;--pink:#f3b2dc;--blue:#9ad6fc;--stroke:rgba(197,211,251,.22)}
+*{box-sizing:border-box}
+html{min-height:100%;background:#081226}
+body{margin:0;min-height:100vh;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;font-size:15px;line-height:1.45;color:var(--ink);background:radial-gradient(ellipse at 6% 0%,#46314c 0%,#202642 37%,#091326 90%)}
+main{width:min(100%,760px);margin:0 auto;padding:16px 15px 90px}
+.nav{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:18px}
+a{color:#d5e6ff}.back{text-decoration:none;font-weight:700}
+.micro{display:inline-block;border:1px solid #bd85b2;background:rgba(248,168,220,.13);border-radius:99px;padding:4px 10px;color:#ffe0f2;font-size:12px;font-weight:800}
+h1{margin:6px 0 7px;font-size:clamp(25px,6vw,38px);line-height:1.15;letter-spacing:-.035em}
+h2{margin:20px 0 11px;font-size:18px;letter-spacing:-.01em}
+.sub{color:var(--sub);margin:0 0 19px;font-size:14px}
+.route{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:15px}
+.route span{border:1px solid var(--stroke);border-radius:11px;background:rgba(30,47,77,.72);padding:7px 9px;font-size:12px;font-weight:700}
+.route i{color:#f2bbdb;font-style:normal}
+.glass{background:linear-gradient(120deg,rgba(52,70,109,.78),rgba(26,42,73,.85));border:1px solid var(--stroke);border-radius:20px;padding:15px;margin-bottom:14px;box-shadow:0 9px 27px rgba(0,0,0,.14)}
+.controls{display:flex;flex-wrap:wrap;gap:10px;align-items:end}
+.controls label{display:flex;flex-direction:column;gap:5px;font-size:12px;font-weight:750;color:#d6e4f8}
+input{font:inherit;min-height:43px;border:1px solid #8da4ce;background:#101c36;color:#fff;padding:8px 10px;border-radius:11px}
+input[type=number]{width:90px}
+button{cursor:pointer;min-height:43px;border-radius:12px;border:1px solid #e9a8da;background:linear-gradient(135deg,#f2bbdf,#c58ab9);color:#24152c;font-size:14px;font-weight:850;padding:9px 14px}
+button.secondary{color:#eff8ff;background:rgba(70,97,137,.6);border-color:#758db1}
+button:focus-visible,input:focus-visible,a:focus-visible{outline:3px solid #f4b8dd;outline-offset:2px}
+.actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:12px}
+.help{font-size:12px;color:var(--sub);margin:12px 1px 0}
+#status{font-size:13px;color:#c9daf5;padding:10px 0 14px;min-height:28px}
+.legend{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.legend span{font-size:12px;color:var(--sub)}
+.item{background:linear-gradient(145deg,rgba(43,61,98,.9),rgba(20,32,55,.94));border:1px solid rgba(171,190,232,.32);border-radius:19px;padding:15px;margin:0 0 12px}
+.item:first-child{border-color:#f2abdb;box-shadow:0 0 0 1px rgba(242,171,219,.1)}
+.item-head{display:flex;align-items:start;justify-content:space-between;gap:9px}
+.number{font-variant-numeric:tabular-nums;font-weight:850;font-size:28px;letter-spacing:-.035em}
+.item-title{font-size:12px;color:#c1cfe6;font-weight:700}
+.tag{border-radius:99px;padding:5px 9px;background:rgba(39,123,104,.26);border:1px solid rgba(98,200,161,.65);color:#bff4df;font-weight:800;font-size:12px;white-space:nowrap}
+.steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin-top:12px}
+.step{min-width:0;text-align:center;background:rgba(9,23,45,.68);border-radius:12px;padding:9px 4px}
+.step strong{display:block;font-size:clamp(17px,5vw,22px);font-weight:850;font-variant-numeric:tabular-nums}
+.step small{display:block;color:#b8cae0;font-size:11px}
+.item-foot{margin-top:11px;color:#d0dff2;font-size:12px}
+.empty{padding:18px;text-align:center;border:1px dashed #7990b0;border-radius:14px;color:#d5e2fa}
+footer{margin-top:25px;color:#b8cbe4;font-size:12px;line-height:1.6}
+footer a{color:#d4eaff}
+#pinnedTop{display:none}
+body.pinned main{width:min(100%,900px)}
+body.pinned #editor,body.pinned #standardIntro{display:none}
+body.pinned #pinnedTop{display:flex}
+body.pinned .nav{display:none}
+body.pinned h1{font-size:clamp(29px,8vw,43px)}
+body.pinned .item{padding:18px}
+@media(min-width:700px){.step{padding:14px}.route span{font-size:14px}}
+</style>
+</head>
+<body>
+<main>
+<div class="nav"><a class="back" href="../">‹ Biztonság modul</a><span class="micro">MÓNIKA · 260</span></div>
+<div id="pinnedTop" class="nav"><a class="back" href="?edit=1">‹ Sablon szerkesztése</a><span class="micro">📌 KITŰZÖTT</span></div>
+<h1>🚌 260-as hazautazás</h1>
+<p class="sub" id="standardIntro">Személyes csatlakozási sablon a Bécsi Cornerből. A menetrendi időpontok frissítéskor automatikusan újraszámolódnak.</p>
+<div class="route">
+ <span>Bécsi Corner · Kolosy tér</span><i>→</i>
+ <span>🚋 17 / 19 / 41</span><i>→</i>
+ <span>Bécsi út / Vörösvári út</span><i>→</i>
+ <span>🚌 260 · Harsánylejtő</span>
+</div>
+<section class="glass" id="editor" aria-label="Csatlakozási sablon beállításai">
+ <div class="controls">
+  <label>Utazás napja<input id="day" type="date"></label>
+  <label>Munkahely → villamos, perc<input id="workwalk" type="number" min="2" max="15" step="1" value="5"></label>
+  <label>Várakozás maximum, perc<input id="maxwait" type="number" min="1" max="3" step="1" value="3"></label>
+  <label>Buszoktól<input id="from" type="time" value="16:00" step="3600"></label>
+  <label>Buszokig<input id="until" type="time" value="19:00" step="3600"></label>
+ </div>
+ <div class="actions">
+  <button id="run" type="button">🔄 Csatlakozások számítása</button>
+  <button id="save" class="secondary" type="button">💾 Mentés sablonként</button>
+  <button id="pin" type="button">📌 Kitűzés teljes képernyőre</button>
+ </div>
+ <p class="help">A sablon ebben a böngészőben tárolódik, Mónika profiljához rendelve. Nem változtatja a GPS-t, a telefonbeállításokat vagy a Dropboxot.</p>
+</section>
+<div id="status" role="status" aria-live="polite">A hivatalos BKK GTFS adatainak ellenőrzése…</div>
+<section aria-label="Ajánlott délutáni csatlakozások">
+ <div class="legend"><h2>🚋 Javasolt indulások</h2><span id="coverage">16:00–18:59 · max. 3 perc</span></div>
+ <div id="results"></div>
+ <p class="help" id="notices"></p>
+</section>
+<footer>Forrás: <a href="https://opendata.bkk.hu/data-sources" rel="noopener noreferrer">BKK Zrt., CC BY 4.0</a>.
+Ez hivatalos <strong>statikus menetrendi</strong> előnézet, nem élő késéskövetés. Az átszállás gyalogos útvonala becsült, nem felmért. Ha a menetrendi adat érvénytelen, a rendszer nem mutat kitalált indulásokat.
+Indulás előtt ellenőrizd az aktuális helyzetet a <a href="https://bkk.hu/budapestgo/" rel="noopener noreferrer">BudapestGO-ban</a>.</footer>
+</main>
+<script type="module">
+import {readOfficialSnapshot} from "../../../sh9/smart-travel/lena-native/bkk/bkk-feed-client-v1106.mjs";
+import {plan} from "./core.mjs";
+const $=id=>document.getElementById(id);
+const KEY="sh9-smart-260-monika-template-v1";
+const defaults={schema:"sh9.smart-260-template/1",profile:"monika",officeWalk:5,maxWait:3,startHour:16,endHour:19,pinned:false};
+const timeFormatter=new Intl.DateTimeFormat("hu-HU",{timeZone:"Europe/Budapest",hour:"2-digit",minute:"2-digit",hourCycle:"h23"});
+const f=ms=>timeFormatter.format(new Date(ms));
+const today=()=>{
+ const p=Object.fromEntries(new Intl.DateTimeFormat("en-GB",{timeZone:"Europe/Budapest",year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(new Date()).map(x=>[x.type,x.value]));
+ return [p.year,p.month,p.day].join("-");
+};
+function loadSaved(){
+ try{
+  const o=JSON.parse(localStorage.getItem(KEY));
+  if(!o||o.schema!==defaults.schema||o.profile!=="monika")return {...defaults};
+  const allowed=["officeWalk","maxWait","startHour","endHour","pinned"];
+  const c={...defaults};for(const k of allowed)if(o[k]!==undefined)c[k]=o[k];
+  return c;
+ }catch(_){return {...defaults}}
+}
+const saved=loadSaved();
+$("day").value=today();
+$("workwalk").value=saved.officeWalk;
+$("maxwait").value=saved.maxWait;
+$("from").value=String(saved.startHour).padStart(2,"0")+":00";
+$("until").value=String(saved.endHour).padStart(2,"0")+":00";
+const params=new URLSearchParams(location.search);
+const pinned=params.get("pinned")==="1"&&saved.pinned===true&&params.get("edit")!=="1";
+if(pinned)document.body.classList.add("pinned");
+function readConfig(){
+ return {officeWalk:Number($("workwalk").value),maxWait:Number($("maxwait").value),
+  startHour:Number($("from").value.slice(0,2)),endHour:Number($("until").value.slice(0,2))};
+}
+function saveConfig(pin){
+ const c=readConfig();
+ if(!Number.isInteger(c.officeWalk)||c.officeWalk<2||c.officeWalk>15||
+  !Number.isInteger(c.maxWait)||c.maxWait<1||c.maxWait>3||
+  !Number.isInteger(c.startHour)||c.startHour<0||c.startHour>23||
+  !Number.isInteger(c.endHour)||c.endHour<1||c.endHour>24||
+  c.endHour<=c.startHour)throw Error("Ellenőrizd a megadott gyaloglási és időbeállításokat.");
+ const item={...defaults,...c,pinned:pin||loadSaved().pinned,savedAt:new Date().toISOString()};
+ localStorage.setItem(KEY,JSON.stringify(item));return item;
+}
+function itemNode(row,i){
+ const a=row.recommended,box=document.createElement("article");
+ box.className="item";
+ const top=document.createElement("div");top.className="item-head";
+ const bus=document.createElement("div");
+ const num=document.createElement("div");num.className="number";num.textContent=f(row.busDepMs);
+ const desc=document.createElement("div");desc.className="item-title";desc.textContent="🚌 260 · Harsánylejtő indulás";
+ bus.append(num,desc);
+ const chip=document.createElement("span");chip.className="tag";chip.textContent="✓ "+a.waitMin+" perc várakozás";
+ top.append(bus,chip);box.append(top);
+ const steps=document.createElement("div");steps.className="steps";
+ for(const cell of [
+  {t:f(a.leaveOfficeMs),s:"🏢 Indulás a munkából"},
+  {t:f(a.tramDepMs),s:"🚋 "+a.tramLine+"-es villamos"},
+  {t:f(a.tramArrMs),s:"📍 Bécsi / Vörösvári"}
+ ]){
+  const v=document.createElement("div");v.className="step";
+  const strong=document.createElement("strong");strong.textContent=cell.t;
+  const small=document.createElement("small");small.textContent=cell.s;
+  v.append(strong,small);steps.append(v);
+ }
+ box.append(steps);
+ const detail=document.createElement("div");detail.className="item-foot";
+ detail.textContent="Átszállási séta: kb. "+a.transferWalkMin+" perc ("+a.transferMeters+" m légvonalban) · "+(row.choices>1?row.choices+" megfelelő villamos":"1 megfelelő villamos")+" · nem élő adat";
+ box.append(detail);return box;
+}
+async function compute(){
+ const target=$("results");target.replaceChildren();
+ $("status").textContent="Hiteles BKK-menetrend ellenőrzése…";
+ try{
+  const cfg=readConfig(),date=$("day").value;
+  if(!/^\d{4}-\d\d-\d\d$/.test(date))throw Error("Válassz érvényes dátumot.");
+  const feed=await readOfficialSnapshot();
+  const result=plan(feed.data,date,cfg);
+  const compatible=result.rows.filter(x=>x.recommended!==null);
+  $("coverage").textContent=String(result.startHour).padStart(2,"0")+":00–"+
+   String(result.endHour-1).padStart(2,"0")+":59 · max. "+result.maxWait+" perc";
+  $("status").textContent="BKK GTFS · statikus menetrend · frissítve: "+new Date(feed.manifest.validatedAt).toLocaleString("hu-HU",{timeZone:"Europe/Budapest"})+
+   " · "+compatible.length+" megfelelő csatlakozás";
+  for(const [i,row] of compatible.entries())target.append(itemNode(row,i));
+  if(!compatible.length){const n=document.createElement("p");n.className="empty";n.textContent="Nincs igazolható, legfeljebb "+result.maxWait+" perces csatlakozás ezen a napon. Állíts be másik időt vagy ellenőrizd a BudapestGO-t.";target.append(n);}
+  $("notices").textContent=(result.rows.length-compatible.length)+" további 260-as indulásnál nem igazolható a megadott várakozási feltétel. A csatlakozási séta becslés.";
+ }catch(e){
+  target.replaceChildren();$("notices").textContent="";
+  $("status").textContent="⚠️ "+(e?.message||"A hivatalos menetrend most nem érhető el.")+" Nem jelenítünk meg ellenőrizetlen csatlakozásokat.";
+ }
+}
+$("run").addEventListener("click",compute);
+$("save").addEventListener("click",()=>{
+ try{saveConfig(false);$("status").textContent="✓ Mónika 260-as sablonja ebben a böngészőben elmentve.";compute();}
+ catch(e){$("status").textContent="⚠️ "+e.message;}
+});
+$("pin").addEventListener("click",()=>{
+ try{saveConfig(true);location.assign("?pinned=1");}
+ catch(e){$("status").textContent="⚠️ "+e.message;}
+});
+compute();
+</script>
+</body>
+</html>
