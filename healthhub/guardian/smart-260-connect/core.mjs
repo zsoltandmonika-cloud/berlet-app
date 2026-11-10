@@ -14,7 +14,7 @@ function meters(a,b) {
 }
 function routeList(data,date) {
  const trams=[],buses=[];
- for(const trip of data.trips) {
+ for(const trip of [...data.trips].sort((a,b)=>Number(a[0]==="260")-Number(b[0]==="260"))) {
   const [line,service,headsign,events,mode]=trip;
   if(!active(data.services[service],date))continue;
   if(["17","19","41"].includes(line)&&mode==="tram") {
