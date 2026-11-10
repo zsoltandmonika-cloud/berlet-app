@@ -27,7 +27,7 @@ jobs:
         run: npm --prefix healthhub/guardian/smart-260-connect install --no-audit --no-fund --no-save --no-package-lock playwright-core@1.56.1
       - name: Test responsive page, BKK loading, saved templates, pinned mode, countdown
         env:
-          CHROME_PATH: "\${{ steps.chrome.outputs.chrome-path }}"
+          CHROME_PATH: "${{ steps.chrome.outputs.chrome-path }}"
         run: node healthhub/guardian/smart-260-connect/browser-smoke.cjs
       - name: Upload mobile and desktop visual evidence
         if: always()
