@@ -63,15 +63,17 @@ function options(data,date,cfg=DEFAULT,clock=Date.now()){
   const [line,service,headsign,events,mode]=trip;
   if(!active(data.services[service],date))continue;
   if(line===cfg.targetRoute&&(!cfg.targetHeadsign||clean(headsign).includes(clean(cfg.targetHeadsign)))){
-   for(let i=0;i<events.length;i++){
+   // One GTFS trip can serve multiple platforms with the SAME public stop name.
+   // Keep all boarding choices for matching, but create only ONE bus opportunity.
+   const boardingOptions=[];
+   for(let i=0;i<events.length-1;i++){
     if(!boarding.has(events[i][0]))continue;
     const dep=wallEpoch(date,events[i][2]/60);
     if(dep<min||dep>=max)continue;
-    // Next physical stop exists: never advertise a non-departing terminal record.
-    if(!events[i+1])continue;
-    targets.push({line,mode,headsign,departMs:dep,boardingId:events[i][0],
+    boardingOptions.push({departMs:dep,boardingId:events[i][0],
      nextStop:data.stops[events[i+1][0]]?.[0]||""});
    }
+   if(boardingOptions.length)targets.push({line,mode,headsign,boardingOptions});
   }
   if(feedLines.has(line)){
    for(let i=0;i<events.length-1;i++){
@@ -87,30 +89,37 @@ function options(data,date,cfg=DEFAULT,clock=Date.now()){
    }
   }
  }
- const unique=new Map();
- for(const t of targets){
-  const k=[t.line,t.departMs,t.boardingId,t.headsign].join("|");
-  if(!unique.has(k))unique.set(k,t);
- }
- const rows=[];
- for(const bus of [...unique.values()].sort((a,b)=>a.departMs-b.departMs)){
+ const rows=[],uniqueTrips=new Set();
+ for(const bus of targets){
   const matches=[];
-  for(const tram of feeders){
-   const meters=dist(data.stops[tram.endId],data.stops[bus.boardingId]);
-   if(meters>cfg.maxTransferMeters)continue;
-   // 1.4x aerial separation / 65 m per minute is a conservative walk ESTIMATE.
-   const transferWalkMin=Math.max(cfg.transferWalkMin,Math.ceil(meters*1.4/65));
-   const waitMin=(bus.departMs-tram.arriveMs)/60000-transferWalkMin;
-   if(waitMin<cfg.transferSafetyMin||waitMin>cfg.maxWaitMin)continue;
-   const leaveOfficeMs=tram.departMs-(cfg.originWalkMin+cfg.originSafetyMin)*60000;
-   matches.push({feederLine:tram.line,feederMode:tram.mode,feederHead:tram.headsign,
-    feederDepartMs:tram.departMs,feederArriveMs:tram.arriveMs,leaveOfficeMs,
-    transferWalkMin,transferMeters:meters,waitMin:Math.round(waitMin*10)/10});
+  for(const boardingOption of bus.boardingOptions){
+   for(const tram of feeders){
+    const meters=dist(data.stops[tram.endId],data.stops[boardingOption.boardingId]);
+    if(meters>cfg.maxTransferMeters)continue;
+    // 1.4x aerial separation / 65 m per minute is a conservative walk ESTIMATE.
+    const transferWalkMin=Math.max(cfg.transferWalkMin,Math.ceil(meters*1.4/65));
+    const waitMin=(boardingOption.departMs-tram.arriveMs)/60000-transferWalkMin;
+    if(waitMin<cfg.transferSafetyMin||waitMin>cfg.maxWaitMin)continue;
+    const leaveOfficeMs=tram.departMs-(cfg.originWalkMin+cfg.originSafetyMin)*60000;
+    matches.push({...boardingOption,
+     feederLine:tram.line,feederMode:tram.mode,feederHead:tram.headsign,
+     feederDepartMs:tram.departMs,feederArriveMs:tram.arriveMs,leaveOfficeMs,
+     transferWalkMin,transferMeters:meters,waitMin:Math.round(waitMin*10)/10});
+   }
   }
   matches.sort((a,b)=>Math.abs(a.waitMin-2)-Math.abs(b.waitMin-2)||
-    b.leaveOfficeMs-a.leaveOfficeMs);
-  rows.push({...bus,best:matches[0]||null,matchingCount:matches.length});
+    a.transferMeters-b.transferMeters||b.leaveOfficeMs-a.leaveOfficeMs);
+  // Without a match, use the last same-named platform on this real GTFS trip.
+  const selected=matches[0]||bus.boardingOptions[bus.boardingOptions.length-1];
+  const key=[bus.line,selected.departMs,selected.boardingId,bus.headsign].join("|");
+  if(uniqueTrips.has(key))continue;
+  uniqueTrips.add(key);
+  rows.push({line:bus.line,mode:bus.mode,headsign:bus.headsign,
+   departMs:selected.departMs,boardingId:selected.boardingId,nextStop:selected.nextStop,
+   best:matches[0]||null,matchingCount:matches.length,
+   availablePlatforms:bus.boardingOptions.length});
  }
+ rows.sort((a,b)=>a.departMs-b.departMs);
  return {date,rows,matchingCount:rows.filter(r=>r.best).length,
   totalCount:rows.length,source:"BKK Zrt., CC BY 4.0",live:false,config:cfg};
 }
