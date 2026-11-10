@@ -1,0 +1,29 @@
+name: HealthHub Dropbox Migration v1 Safety
+on:
+  pull_request:
+    paths:
+      - 'healthhub/dropbox-migration-v1.js'
+      - 'healthhub/dropbox-migration.html'
+      - 'healthhub/chatgpt-dropbox-callback-v739.html'
+      - 'healthhub/tests/dropbox-migration-v1.test.cjs'
+      - '.github/workflows/healthhub-dropbox-migration-v1.yml'
+  push:
+    paths:
+      - 'healthhub/dropbox-migration-v1.js'
+      - 'healthhub/dropbox-migration.html'
+      - 'healthhub/chatgpt-dropbox-callback-v739.html'
+      - 'healthhub/tests/dropbox-migration-v1.test.cjs'
+      - '.github/workflows/healthhub-dropbox-migration-v1.yml'
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Syntax check
+        run: node --check healthhub/dropbox-migration-v1.js
+      - name: Migration regressions
+        run: node --test healthhub/tests/dropbox-migration-v1.test.cjs

@@ -12,6 +12,20 @@ a{color:#8cc9ff}h1{font-size:21px}</style></head>
 <script>
 (async function(){
  const status=document.getElementById('status');
+ // Dedicated migration OAuth state. Keep the existing ChatGPT Analytics grant untouched.
+ if(new URL(location.href).searchParams.get('state')?.startsWith('hhmigration_')){
+  try{
+   const script=document.createElement('script');
+   script.src='./dropbox-migration-v1.js?v=1';
+   await new Promise((ok,no)=>{script.onload=ok;script.onerror=()=>no(Error('Migrációs OAuth modul nem érhető el'));document.head.append(script)});
+   const result=await window.HH_DROPBOX_MIGRATION_V1.exchangeCallback(location.href);
+   status.textContent='✓ Az Outlook migrációs Dropbox engedélyezve. Ellenőrző végződés: '+result.suffix+
+    '. Az adatok még nincsenek átírva. Nyisd meg a migrációs ellenőrzést.';
+   const link=document.createElement('a');link.href='./dropbox-migration.html';link.textContent='Vissza a biztonságos Dropbox migrációhoz';
+   status.after(link);
+  }catch(e){status.textContent='⚠ Migrációs engedélyezési hiba: '+String(e.message||e)}
+  return;
+ }
  try{
   const result=await window.HH_CHATGPT_TARGET_AUTH_V739.exchange(location.href);
   status.textContent='✓ A cél Dropbox engedélyezve. Azonosító vége: '+result.accountSuffix+

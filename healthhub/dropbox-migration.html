@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="hu">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="referrer" content="no-referrer">
+<title>HealthHub | Dropbox-adatok biztonságos egyesítése</title>
+<style>
+:root{color-scheme:dark}*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#203b5d,#091422 72%);color:#e9f3ff;font:15px/1.5 system-ui,-apple-system,sans-serif}
+main{max-width:900px;margin:32px auto;padding:20px}.box{border:1px solid #405e7c;background:rgba(16,34,56,.88);border-radius:20px;padding:22px;margin:14px 0;box-shadow:0 10px 22px #0003}
+h1{font-size:25px;margin:0 0 9px}h2{font-size:18px;margin:0 0 10px}p{margin:8px 0}small{color:#b9cadd}strong{color:#fff}a{color:#97d2ff}
+button{border:1px solid #5687b5;background:#23547e;color:white;padding:10px 14px;border-radius:11px;cursor:pointer;font:700 14px system-ui;margin:5px 8px 5px 0}
+button:disabled{cursor:not-allowed;opacity:.43}.secondary{background:#203249}.danger{border-color:#b77c69;background:#4a2c32}
+#status{border-left:4px solid #63a7d9;padding:12px;background:#0f263d;border-radius:8px;white-space:pre-wrap}
+table{width:100%;border-collapse:collapse;font-size:13px}td,th{text-align:left;padding:8px;border-bottom:1px solid #35506b}th{color:#abc5df}
+label{display:flex;align-items:flex-start;gap:10px;margin:15px 0}input[type=checkbox]{width:20px;height:20px;flex:none}
+.warning{color:#ffd4ac}.success{color:#8af0c3}
+</style>
+</head>
+<body><main>
+<p><a href="./index.html">HealthHub kezdőlap</a></p>
+<div class="box"><h1>🔐 Dropbox migráció · Zsolt és Mónika</h1>
+<p><strong>Cél:</strong> Gmail HealthHub forrás → <strong>a lent megadott és Dropbox által igazolt célfiók</strong> HealthHub Cloud Vault. A program csak a Health Connect, Digital Wellbeing és táplálkozási JSON adatfájlokat kezeli. A teljes Vault, a GPS, az eszközregiszter és a dokumentumok külön védett adatforrások, nem írja át őket.</p>
+<p class="warning">A már létrehozott 2026-11-10 biztonsági mentéseket megőrizzük. A két telefon natív Dropbox-kapcsolata ettől még nem áll át.</p></div>
+<div class="box"><h2>1. Kapcsolatok</h2>
+<p>Előfeltétel: ezen a böngészőn a webes HealthHub Dropbox-forrás jelenleg a régi Gmail-fiókhoz tartozzon. A cél fiókot külön, csak ehhez az átálláshoz engedélyezd.</p>
+<button id="authorize">Outlook Dropbox engedélyezése</button>
+<button id="disconnect" class="secondary">Migrációs célkapcsolat törlése</button>
+<p><small>Ez a jóváhagyás nem változtatja meg a ChatGPT Analytics meglévő kapcsolatát. Az OAuth-engedélyeket csak a böngésző tárolja.</small></p></div>
+<div class="box"><h2>2. Duplikációellenőrzés</h2>
+<p><label for="targetEmail">A cél Dropbox-fiók pontos e-mail-címe</label><input id="targetEmail" type="email" autocomplete="email" required placeholder="név@szolgáltató.hu" style="width:100%;max-width:360px;padding:10px;border-radius:8px;border:1px solid #5b83a7;background:#101f33;color:white"></p>
+<p><small>Az e-mail-címet csak a böngésző munkamenetében tartjuk meg, GitHubba nem kerül. A Dropbox azonosított fiókjával egyeztetjük.</small></p>
+<button id="preview">Olvasás és duplikációmentes előnézet</button>
+<p id="status" role="status" aria-live="polite">Még nem futott ellenőrzés.</p>
+<div id="result"></div></div>
+<div class="box"><h2>3. Ellenőrzött visszaírás</h2>
+<label><input type="checkbox" id="agree"><span>Jóváhagyom, hogy a visszaellenőrzött, egyesített JSON-fájlok az Outlook célfájljainak új verziójaként kerüljenek mentésre. Az eredeti Gmail-fájlokat és a külön mentéseket nem szabad törölni. Azonos azonosítójú eltérésnél a későbbi forrásexport változata kerül az aktív fájlba, az eredeti verziók a mentésekben maradnak.</span></label>
+<button id="commit" disabled>Visszaírás az Outlook Dropboxba</button>
+<p><small>Csak az időközben nem módosult fájlokat írja, majd visszaolvassa és ellenőrzi az eredményt. Konfliktus vagy hiányzó adat esetén leáll.</small></p></div>
+<div class="box"><h2>4. Telefonok átirányítása</h2><p>A készülékek átállítását kizárólag a sikeres visszaellenőrzés után végezd. A <b>HealthHub → Eszközregiszter → Biztonságos Dropbox-egyeztetés</b> menüben az Outlook-fiók 8 karakteres ellenőrző végződését használd, és a natív HH Connect alkalmazásban is azt az Outlook-fiókot engedélyezd, amelyet a rendszer ellenőrzött.</p>
+<p id="suffix"></p><p><strong>Tilos:</strong> telefonadat-törlés, új párosítás, régi fájlok eltávolítása a két egymást követő sikeres Outlook szinkron előtt.</p></div>
+</main><script src="./dropbox-migration-v1.js?v=1"></script>
+<script>
+(function(){
+const api=window.HH_DROPBOX_MIGRATION_V1;
+const el=id=>document.getElementById(id),note=s=>el('status').textContent=s;
+let loaded=false,busy=false;
+function setBusy(v){busy=v;el('preview').disabled=v;el('authorize').disabled=v;el('disconnect').disabled=v;el('commit').disabled=v||!loaded||!el('agree').checked}
+el('agree').addEventListener('change',()=>{el('commit').disabled=busy||!loaded||!el('agree').checked});
+el('authorize').addEventListener('click',()=>api.authorize().catch(e=>note('⚠ '+e.message)));
+el('disconnect').addEventListener('click',async()=>{await api.remove();loaded=false;setBusy(false);note('A migrációs OAuth törölve. Más Dropbox-kapcsolat nem változott.')});
+el('preview').addEventListener('click',async()=>{
+ setBusy(true);loaded=false;el('result').textContent='';note('Fiókok és rekordok ellenőrzése, felülírás nélkül...');
+ try{
+  const expectedEmail=el('targetEmail').value.trim().toLowerCase();
+  if(!expectedEmail)throw Error('A cél Dropbox e-mail-címét add meg.');
+  sessionStorage.setItem('hh-migration-expected-target-v1',expectedEmail);
+  const r=await api.preview(expectedEmail);note('✓ Cél: '+r.identity.email+'; Outlook-azonosító vége: '+r.identity.suffix+
+   '\nForrás Dropbox azonosító vége: '+r.identity.sourceSuffix+
+   '\nFelülvizsgálandó fájlok: '+r.blocked.length);
+  const t=document.createElement('table'),head=document.createElement('tr');
+  for(const title of ['Fájl','Állapot','Eltérő azonos rekordok']){const h=document.createElement('th');h.textContent=title;head.append(h)}t.append(head);
+  for(const row of r.files){const tr=document.createElement('tr');for(const value of [row.name,row.status,String(row.conflicts)]){const td=document.createElement('td');td.textContent=value;tr.append(td)}t.append(tr)}
+  el('result').append(t);
+  if(r.blocked.length){const p=document.createElement('p');p.className='warning';p.textContent=r.blocked.map(x=>x.name+': '+x.reason).join(' | ');el('result').append(p)}
+  loaded=r.blocked.length===0;
+  el('suffix').textContent='Cél Dropbox azonosító utolsó 8 karaktere: '+r.identity.suffix;
+ }catch(e){note('⛔ '+e.message)}
+ finally{setBusy(false)}
+});
+el('commit').addEventListener('click',async()=>{
+ if(!loaded||!el('agree').checked||busy)return;
+ if(!confirm('Az ellenőrzött, egyesített fájlok új Outlook-verzióinak feltöltése? A régi állományok megmaradnak.'))return;
+ setBusy(true);note('Outlook fájlok revízióellenőrzése, írás és visszaolvasás...');
+ try{
+  const r=await api.commit(true);note('✅ Visszaolvasással ellenőrzött fájlok: '+r.results.map(x=>x.name).join(', ')+
+   '\nCélazonosító: '+r.targetSuffix+'\n'+r.warning);
+  el('agree').checked=false;loaded=false;el('suffix').textContent='Outlook végződés: '+r.targetSuffix+'. Folytatás: HH web + HH Connect OAuth egyeztetés.';
+ }catch(e){note('⛔ '+e.message+'\nA telefonos átirányítást még ne végezd el. Ellenőrizd a célfájlok aktuális verzióit.')}
+ finally{setBusy(false)}
+});
+api.stored().then(x=>{if(x)note('Cél-engedély létezik. Indítsd az előnézetet.');}).catch(()=>{});
+})();
+</script></body></html>
