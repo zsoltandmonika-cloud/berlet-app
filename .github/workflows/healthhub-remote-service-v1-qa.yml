@@ -1,0 +1,24 @@
+name: HH One · Standalone Remote Service v1
+on:
+  pull_request:
+    paths:
+      - 'healthhub/index.html'
+      - 'healthhub/remote-service/**'
+      - 'healthhub/tests/remote-service-v1.test.cjs'
+      - '.github/workflows/healthhub-remote-service-v1-qa.yml'
+permissions:
+  contents: read
+jobs:
+  standalone-safety:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate no-repaint service, safe Gmail OAuth, exact device and single-scope request
+        run: |
+          node --check healthhub/remote-service/service.js
+          node --check healthhub/tests/remote-service-v1.test.cjs
+          node --test healthhub/tests/remote-service-v1.test.cjs

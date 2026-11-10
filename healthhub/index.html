@@ -2,6 +2,24 @@
 <html lang="hu">
 <head>
 <meta charset="utf-8">
+<script id="hh-remote-service-oauth-relay-v1">
+/* Isolated service OAuth relay. Dropbox redirect is already registered for /healthhub/.
+ * No normal HealthHub, native Android or shared Vault OAuth callback is modified. */
+(function(){
+ try{
+  var q=new URLSearchParams(location.search),state=q.get('state')||'',code=q.get('code')||'',error=q.get('error')||'';
+  if(!/^hhsrv_[A-Za-z0-9_-]{32}$/.test(state))return;
+  if(code&&!/^[A-Za-z0-9._~-]{8,2048}$/.test(code))return;
+  if(!code&&!error)return;
+  var next=new URL('./remote-service/',location.href);
+  next.search='';next.searchParams.set('state',state);
+  if(code)next.searchParams.set('code',code);
+  if(error)next.searchParams.set('error',error.slice(0,120));
+  history.replaceState(history.state,'',location.pathname+location.hash);
+  location.replace(next.toString());
+ }catch(e){}
+})();
+</script>
 <script id="hh-one-native-dropbox-return-v1063">
 /* Only the browser callback for a WebView-owned hhweb_ PKCE state is shown.
    All ordinary Chrome, Dropbox native-hhbridge_ and Health Vault flows stay unchanged. */
