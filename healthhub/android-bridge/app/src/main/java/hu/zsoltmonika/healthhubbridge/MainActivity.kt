@@ -1669,10 +1669,10 @@ class MainActivity : ComponentActivity() {
         }
         AlertDialog.Builder(this)
             .setTitle("📦 Családi Dropbox csatlakoztatása")
-            .setMessage("Ezzel a HealthHub a közös családi Dropboxot fogja használni.\\n\\n" +
-                "1. Nyomd meg a „Folytatom” gombot.\\n" +
-                "2. A Dropbox oldalán válaszd a közös Outlook-fiókot.\\n" +
-                "3. Nyomd meg az „Engedélyezem” gombot.\\n\\n" +
+            .setMessage("Ezzel a HealthHub a közös családi Dropboxot fogja használni.\n\n" +
+                "1. Nyomd meg a „Folytatom” gombot.\n" +
+                "2. A Dropbox oldalán válaszd a közös Outlook-fiókot.\n" +
+                "3. Nyomd meg az „Engedélyezem” gombot.\n\n" +
                 "Ha most nem szeretnéd, válaszd a „Most nem” gombot. " +
                 "A régi kapcsolatod és az adataid megmaradnak.")
             .setNegativeButton("Most nem", null)
