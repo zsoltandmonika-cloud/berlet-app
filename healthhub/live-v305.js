@@ -256,7 +256,7 @@ async function dispatch(profileScope,deviceFilter,overrideScope,adminConfig){
  if(!connected())throw new Error('Dropbox nincs csatlakoztatva.');
  var scope=overrideScope||scopeFromUi(),r=await verifiedPhoneRegistry(),devices=await loadDevices();
  if(!['all','zsolt','monika'].includes(profileScope))throw new Error('Ismeretlen profil.');
- if(!['full','health','daily','ota','diagnostics','gps_stop','gps_resume_request','sos_contact_request'].concat(['gps_repair','remote_config','agent_reconcile']).includes(scope))
+ if(!['full','health','daily','ota','diagnostics','gps_stop','gps_resume_request','sos_contact_request'].concat(['gps_repair','remote_config','agent_reconcile','dropbox_account_review']).includes(scope))
   throw new Error('Ismeretlen vagy nem támogatott Android távoli művelet.');
  var selected=devices.filter(function(d){
   return eligiblePhone(d,r,profileScope)&&(!deviceFilter||d.deviceId===deviceFilter);
@@ -282,15 +282,31 @@ async function dispatch(profileScope,deviceFilter,overrideScope,adminConfig){
    throw new Error('A Remote Config csak az engedélyezett GPS 15/30/60 mp értéket fogadja el.');
  if(scope!=='remote_config'&&adminConfig!=null)
    throw new Error('Ehhez a parancshoz nem tartozhat konfigurációs payload.');
+ var targetAccountSuffix=null;
+ if(scope==='dropbox_account_review'){
+  if(profileScope==='all'||selected.length!==1)
+   throw new Error('A Dropbox ellenőrzést egyszerre csak egy telefonra lehet küldeni. Válaszd Zsoltot vagy Mónikát.');
+  var d=selected[0];
+  if(!Array.isArray(d.capabilities)||!d.capabilities.includes('dropbox_account_review')||Number(d.buildCode)<47)
+   throw new Error('A telefon még nem támogatja a Dropbox-ellenőrzési kérést. Előbb az új, jóváhagyott HH Connect frissítés kell.');
+  var entered=window.prompt('A közös OUTLOOK Dropbox azonosítójának UTOLSÓ 8 karaktere (a célfiók ellenőrzött azonosítója):');
+  if(entered===null)return {cancelled:true};
+  targetAccountSuffix=entered.trim();
+  if(!/^[A-Za-z0-9_-]{8}$/.test(targetAccountSuffix))
+   throw new Error('Pontosan 8 karakteres célfiók-azonosítót adj meg. A korábbi párosítókód nem feltétlenül azonos ezzel.');
+  var loggedInHint=vault()?.accountHint?.()||'nem látható';
+  if(!window.confirm('Küldjünk magyar nyelvű Dropbox-ellenőrzési értesítést a(z) '+(d.activeProfile==='zsolt'?'Zsolt':'Mónika')+' telefonjára?\\n\\nA telefonon jóváhagyásig semmi nem változik.\\nA webes parancsküldő Dropbox-fiókvége: '+loggedInHint))return {cancelled:true};
+ }
  var id='cmd-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,8),issued=now();
  await Promise.all(selected.map(async function(d){
   var cmd={
    schema:'healthhub.orchestrator.command/1',commandId:id,targetDeviceId:d.deviceId,
    issuedAt:issued,expiresAt:new Date(Date.now()+
-      (['gps_stop','gps_resume_request','sos_contact_request'].includes(scope)?40*60*1000:24*3600*1000)).toISOString(),
+      (['gps_stop','gps_resume_request','sos_contact_request','dropbox_account_review'].includes(scope)?40*60*1000:24*3600*1000)).toISOString(),
    requestedBy:deviceId(),profileScope:d.activeProfile,scopes:[scope],state:'pending'
   };
   if(scope==='remote_config')cmd.config={gpsIntervalSeconds:adminConfig.gpsIntervalSeconds};
+  if(scope==='dropbox_account_review')cmd.accountReview={targetSuffix:targetAccountSuffix};
   await upload(commandPath(d.deviceId),cmd);
   await upload(statusPath(d.deviceId),{
    schema:'healthhub.orchestrator.status/1',deviceId:d.deviceId,deviceType:d.deviceType||'device',
@@ -334,7 +350,7 @@ function renderAdmin(){
    '☁️ Dropbox-távoli parancshoz hiányzó kijelölés: '+missing.map(function(p){return p==='zsolt'?'Zsolt':'Mónika'}).join(' és '):
    '':'☁️ A régi Dropbox-os távoli parancsok kijelölése még nem ellenőrizhető. A központi telefonpárosítás ettől független.';
   var html='<section id="'+ADMIN_ID+'" class="hhOrch305"><div class="hhOrchHead305"><div><h3>🌐 Central Sync Orchestrator · v305</h3><small>Dropbox command plane · csak a kijelölt fizikai telefonokra</small></div><span class="hhOrchBadge305 '+(connected()?'':'off')+'">'+(connected()?'CONNECTED':'OFFLINE')+'</span></div>'+
- '<div class="hhOrchControls305"><select id="hhOrchScope305"><option value="health">Health + Activity</option><option value="full">FULL (régi · nem minden modult frissít)</option><option value="daily">Daily Cloud</option><option value="ota">📦 APP UPDATE CHECK (nem telepítés)</option><option value="diagnostics">🩺 TECHNIKAI DIAG (HH One 0.14.1+)</option></select><button class="primary" id="hhOrchAll305">↻ KIJELÖLT TELEFONOK</button><button id="hhOrchZ305">Zsolt</button><button id="hhOrchM305">Mónika</button><button id="hhOrchRefresh305">↻ STATUS</button></div>'+
+ '<div class="hhOrchControls305"><select id="hhOrchScope305"><option value="health">Health + Activity</option><option value="full">FULL (régi · nem minden modult frissít)</option><option value="daily">Daily Cloud</option><option value="ota">📦 APP UPDATE CHECK (nem telepítés)</option><option value="diagnostics">🩺 TECHNIKAI DIAG (HH One 0.14.1+)</option><option value="dropbox_account_review">📦 Dropbox ellenőrzés (telefonos jóváhagyás)</option></select><button class="primary" id="hhOrchAll305">↻ KIJELÖLT TELEFONOK</button><button id="hhOrchZ305">Zsolt</button><button id="hhOrchM305">Mónika</button><button id="hhOrchRefresh305">↻ STATUS</button></div>'+
  '<div class="hhOrchRegistryWarning809"'+(warning?'':' hidden')+'><span>'+esc(warning)+'</span><button type="button" data-hh-orch-registry="1">📱 Eszközregiszter · kijelölés</button></div>'+
   '<div class="hhOrchDevices305">'+(rows||'<div class="hhOrchNote305">Még nincs regisztrált orchestrátor-eszköz. Az első v305 betöltés automatikusan regisztrálja ezt a böngészőt.</div>')+'</div>'+
  '<div class="hhOrchNote305"><b>v401 biztonság:</b> Távoli sync csak a v401 eszközregiszterben kézzel kijelölt Android telefonokra küldhető. A szürke, régi sorok nem kaphatnak parancsot. Az állapot PENDING marad, amíg a telefon ténylegesen nem igazolja vissza a végrehajtást; az Android háttérütemezés késhet.</div></section>';
