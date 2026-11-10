@@ -36,8 +36,13 @@ function style(){
  css.push('#'+ID+' button[data-group="recovery"]{background:#53422e;border-color:#d6bc88}');
  css.push('#'+ID+' button[data-group="other"]{background:#32455e;border-color:#a6b8cf}');
  css.push('#'+ID+' button[aria-pressed="true"]{outline:2px solid #f1e6fa;outline-offset:1px;box-shadow:0 0 0 4px #dc9fea30}');
- css.push('#'+ID+' .hhQuickDirectV748{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}');
- css.push('#'+ID+' .hhQuickDirectV748 button{flex:1;min-height:46px;border-color:#e6b6df;background:#252f50}');
+ // v822: direct actions must not shrink into tall, unreadable slivers.
+ // 2x3 on phones, one column on tiny viewports, and 3 columns on desktops.
+ css.push('#'+ID+' .hhQuickDirectV748{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;align-items:stretch;width:100%;min-width:0;margin-top:12px}');
+ css.push('#'+ID+' .hhQuickDirectV748 button{box-sizing:border-box;display:flex;align-items:center;justify-content:flex-start;width:100%;max-width:100%;min-width:0;min-height:84px;padding:13px 11px;white-space:normal;overflow-wrap:anywhere;hyphens:auto;text-align:left;font-size:13px;line-height:1.35;border:1px solid #9eb5d2;background:linear-gradient(135deg,#1b2f4b,#29344f)}');
+ css.push('#'+ID+' .hhQuickDirectV748 button[hidden]{display:none!important}');
+ css.push('@media(max-width:350px){#'+ID+' .hhQuickDirectV748{grid-template-columns:minmax(0,1fr)}#'+ID+' .hhQuickDirectV748 button{min-height:60px}}');
+ css.push('@media(min-width:720px){#'+ID+' .hhQuickDirectV748{grid-template-columns:repeat(3,minmax(0,1fr))}}');
  css.push('#'+ID+' #hhUsageOpenV870{display:block;width:100%;margin-top:12px;min-height:56px;padding:13px 16px;background:linear-gradient(115deg,#073452,#173656,#34265c);border:1px solid #43abed;box-shadow:inset 0 1px #ffffff22,0 6px 18px #082a4b66;color:#f5fbff;font-weight:850;font-size:14px}');
  css.push('#'+ID+' .hhQuickHelpV748{color:#f3c5ed;margin:9px 0 0!important;font:650 13px/1.5 system-ui!important}');
   css.push('#'+ID+' .hhRegistryActionV809{margin:11px 0;padding:11px;border-radius:12px;border:1px solid #e7a8db;background:#432a4b;color:#fff;display:flex;gap:9px;align-items:center;flex-wrap:wrap}');
