@@ -37,3 +37,11 @@ jobs:
           path: artifacts/smart-match/*.png
           if-no-files-found: ignore
           retention-days: 7
+
+  live-pages-probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify public GitHub Pages entry, Smart Match assets and official GTFS manifest
+        run: node healthhub/guardian/smart-260-connect/pages-probe.cjs
