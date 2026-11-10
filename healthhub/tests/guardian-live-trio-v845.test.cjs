@@ -109,10 +109,10 @@ test('v845 renders one hero Battery tile, GPS and Health, with exact popup rows'
  assert.match(code,/gpsCard\.dataset\.state=g\.state/);
  assert.match(code,/health\.textContent=sleep\?String\(sleep\.score\):'—'/);
  assert.match(code,/batteryCaption\.textContent=owner\+' Mobil'/);
- assert.match(html,/guardian-live-trio-v845\.js\?v=848-score-mobile-label/);
+ assert.match(html,/guardian-live-trio-v845\.js\?v=1038-native-read-diagnostics/);
  assert.match(code,/scoreText\.textContent=sleep\?sleep\.score\+' \/ 100'/);
  assert.doesNotMatch(code,/health\.textContent=sleep\?sleep\.score\+'\/100'/);
- assert.match(html,/guardian-live-trio-v845\.js\?v=848-score-mobile-label/);
+ assert.match(html,/guardian-live-trio-v845\.js\?v=1038-native-read-diagnostics/);
  assert.match(css,/\.hh-health-v845:focus-visible/);
  assert.match(code,/heart\.addEventListener\('click'/);
  assert.match(code,/pop\.addEventListener\('click',close\)/);

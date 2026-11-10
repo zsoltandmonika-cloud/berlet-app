@@ -85,7 +85,7 @@
   let followRequest=false,lastAdaptivePoll=0,nativeAnchor=null;
   // A verified Gmail Dropbox OAuth session is sufficient to read Monika's
   // own natív GPS. Supabase login is not proof of this Android phone.
-  let monikaNativeGranted=false;
+  let authorizedNativeProfile=null;
   let markerCoord=null,moveToken=0,moveFrame=null,lastPaintTs=0,lastReceiveAt=0;
   let lastMotionDuration=820;
   // Camera and portrait move toward the newest REAL position, never beyond it.
@@ -187,32 +187,34 @@
   }
   const selected=()=>selectedProfile(w.localStorage);
   const bound=()=>live()?.boundProfile;
-  const authorized=()=>canRead(live(),selected())||
-   (selected()==='monika'&&monikaNativeGranted);
+  const authorized=()=>authorizedNativeProfile===selected(); // native GPS proof only
   const followOn=()=>guardian()?.getLocationSettings?.().follow_map===true;
   // Profile selection does not identify this browser's physical phone.
   // Zsolt's local/home GPS cannot preempt Monika's remote native camera.
   const remoteOnlyMonikaView=()=>selected()==='monika'&&
    (!/Android/i.test(String(w.navigator?.userAgent||''))||
     live()?.boundProfile!=='monika');
-  const localFixAt=()=>remoteOnlyMonikaView()?0:guardian()?.lastGpsFixAt||0;
+  const localFixAt=()=>0; // Browser location may not preempt a named native route.
   function showNativeSource(profile,source){
    const panel=d.getElementById('guardianNativeGpsSourceV1174');
    const msg=d.getElementById('guardianNativeGpsMessageV1174');
    const connect=d.getElementById('guardianNativeGpsConnectV1174');
    if(!panel||!msg)return;
-   panel.hidden=profile!=='monika';
-   if(profile!=='monika')return;
-   const valid=source?.status==='ok'?snapshot(source.data,'monika'):null;
+   panel.hidden=false;
+   const route=w.HH_GUARDIAN_GPS_ROUTER_V1177?.forProfile?.(profile);
+   const title=d.getElementById('guardianNativeGpsTitleV1177');
+   if(title)title.textContent=(profile==='monika'?'🩷 ':'🔵 ')+(route?.name||'GPS');
+   const account=route?.activeReadAccount==='gmail'?'Gmail bridge':'Outlook';
+   const valid=source?.status==='ok'?snapshot(source.data,profile):null;
    const needsConnection=!source||source.status==='not-connected'||source.status==='error';
-   if(connect)connect.hidden=!needsConnection;
+   if(connect)connect.hidden=!needsConnection||profile!=='monika';
    if(valid){
     const t=new Date(valid.ts).toLocaleTimeString('hu-HU',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
-    msg.textContent='✅ Mónika · friss HH Connect natív GPS · Gmail Dropbox · '+t+' · ±'+Math.round(valid.accuracy)+' m';
+    msg.textContent='✅ '+(route?.name||'GPS')+' · HH Connect natív GPS · '+account+' · '+t+' · ±'+Math.round(valid.accuracy)+' m';
    }else if(needsConnection){
-    msg.textContent='🟠 Mónika · Gmail Dropbox GPS nem olvasható ebben a böngészőben. A Zsolt/otthon pozíció nem Mónikáé.';
+    msg.textContent='🟠 '+(route?.name||'GPS')+' · '+account+' kapcsolat nem olvasható. Más profil pozíciója nem használható.';
    }else{
-    msg.textContent='🟠 Mónika · nincs friss hitelesített natív GPS-jel · NEM ÉLŐ'+(source?.status==='revoked'?' (megosztás leállítva)':'');
+    msg.textContent='🟠 '+(route?.name||'GPS')+' · nincs friss hitelesített natív GPS-jel · NEM ÉLŐ'+(source?.status==='revoked'?' (megosztás leállítva)':'');
    }
   }
   // Display the age of an authenticated old reading; never re-center the
@@ -302,7 +304,7 @@
     (next.visible?' · '+next.rounded+' km/h':''));
   }
   function invalidate(){
-   run++;latest=null;nativeAnchor=null;monikaNativeGranted=false;followRequest=false;lastCenteredAt=0;lastCenteredProfile=null;clearMarker();
+   run++;latest=null;nativeAnchor=null;authorizedNativeProfile=null;followRequest=false;lastCenteredAt=0;lastCenteredProfile=null;clearMarker();
    showConflict(null);
   }
   function current(){
@@ -386,25 +388,14 @@
   async function refresh(){
    if(d.hidden)return;
    if(loading){rerun=true;return;}
-   const k=selected(),l=live();
-   if(k!=='monika'&&!canRead(l,k)){invalidate();return}
-   const client=l?.getClient?.();
-   if(k!=='monika'&&!client){paintSpeed(null);return}
+   const k=selected();
+   // Supabase login remains for other features, never for GPS coordinates.
    loading=true;lastAdaptivePoll=Date.now();const ticket=++run;
    let db=null,native=null,revokeAt=NaN;
    try{
-    // The authorized Supabase fix and consented native Dropbox fix are
-    // independent. Read them concurrently, avoiding their combined latency;
-    // still select ONLY the freshest verified GPS timestamp after both finish.
-    // Same number of requests as before, and no new background polling.
-    const relay=w.HH_GUARDIAN_NATIVE_V156;
-    // Monika's browser/Supabase row currently points home from another device.
-    // It must not be read as her position: Dropbox natív proof is authoritative.
-    const dbRead=k==='monika'?Promise.resolve({data:null,error:null}):Promise.resolve().then(()=>typeof l.readSharedLocation==='function'
-     ?l.readSharedLocation(k)
-     :client.from('hh_guardian_live_locations')
-      .select('profile_key,latitude,longitude,accuracy_m,updated_at,speed_kmh')
-      .eq('profile_key',k).maybeSingle());
+    // Exactly one native GPS route per selected profile. No Supabase GPS query.
+    const relay=w.HH_GUARDIAN_GPS_ROUTER_V1177;
+    const dbRead=Promise.resolve({data:null,error:null});
     const nativeRead=Promise.resolve().then(()=>relay?.connected?.()
      ?relay.read(k):{status:'not-connected',data:null});
     // v1073: Display a verified newer native phone fix without waiting for a
@@ -413,7 +404,7 @@
     Promise.resolve(nativeRead).then(out=>{
      if(ticket!==run||d.hidden||k!==selected()||out?.status!=='ok')return;
      const first=snapshot(out.data,k);
-     if(k==='monika'&&first)monikaNativeGranted=true;
+     if(first)authorizedNativeProfile=k;
      if(!first||!authorized()||!preferRemote(first,localFixAt())||
         (latest?.profile===k&&latest.ts>=first.ts))return;
      nativeAnchor=first;latest=first;
@@ -429,7 +420,7 @@
     }
     if(ticket!==run||d.hidden||k!==selected())return;
     const source=nativeOutcome.status==='fulfilled'?nativeOutcome.value:{status:'error'};
-    if(k==='monika')monikaNativeGranted=!!snapshot(native,k);
+    authorizedNativeProfile=snapshot(native,k)?k:null;
     showNativeSource(k,source);
     if(!authorized()){
      latest=null;clearMarker();showUnavailable(k,k==='monika'?null:db,native);

@@ -26,7 +26,7 @@ test('v1038 diagnostics does not fake location, speed or battery data',()=>{
  assert.match(html,/guardian-live-trio-v845\.js\?v=1038-native-read-diagnostics/);
  assert.match(html,/guardian-profile-battery-v841\.js\?v=1038-fresh-cache-on-dropbox-error/);
  assert.match(source,/diagnostic:connectionDiagnostic\(g,p,Date\.now\(\)\)/);
- assert.match(source,/nativeStatus=result\?\.status\|\|'error'/);
+ assert.match(source,/nativeStatus=result\?\.status\|\|'not-connected'/);
  assert.match(battery,/last\?\.profile===profile&&Date\.now\(\)-last\.ts<=FRESH_MS/);
  assert.match(battery,/if\(next\|\|response\?\.status!=='error'\|\|!oldIsFresh\)paint\(next\)/);
  assert.doesNotMatch(source,/navigator\.geolocation|getCurrentPosition\(/);

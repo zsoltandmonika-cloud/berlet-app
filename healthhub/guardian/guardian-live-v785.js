@@ -201,23 +201,17 @@ async function poll(){
  try{
   // v1173: Monika's Supabase browser row is not attested to her physical phone.
   // Never promote a possibly misassigned home fix to a remote live pin.
-  const {data,error}=k==='monika'?{data:null,error:null}:await readSharedLocation(k);
-  const relay=w.HH_GUARDIAN_NATIVE_V156;
+  // v1177: no Supabase/browser coordinate reads for either profile.
+  const relay=w.HH_GUARDIAN_GPS_ROUTER_V1177;
   const native=relay&&relay.connected()?await relay.read(k):null;
   if(token!==generation||d.hidden||k!==other()||!user)return;
   const nativeFix=native&&native.status==='ok'?native.data:null;
   // Native revocation supersedes older cached browser positions.
-  if(native&&native.status==='revoked'&&
-     (!data||Date.parse(data.updated_at)<=Date.parse(native.updated_at))){
+  if(native&&native.status==='revoked'){
    lastPeerSpeedKmh=null;removePeer();setPeerState('Natív helymegosztás visszavonva.');
    return;
   }
-  if(error&&!nativeFix)throw error;
-  let selected=k==='monika'?(nativeFix&&peerSnapshot(nativeFix)?.live?nativeFix:null):data;
-  if(k!=='monika'&&nativeFix&&peerSnapshot(nativeFix)&&
-     (!selected||!peerSnapshot(selected)||
-      Date.parse(nativeFix.updated_at)>Date.parse(selected.updated_at)))
-   selected=nativeFix;
+  const selected=nativeFix&&peerSnapshot(nativeFix)?.live?nativeFix:null;
   if(!selected){
    lastPeerSpeedKmh=null;removePeer();
    setPeerState(native?.status==='error'?

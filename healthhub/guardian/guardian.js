@@ -202,7 +202,7 @@ function onPosition(pos){
   // before either portrait can paint. The freshest real fix wins.
   const remotePreferred=remote?.onLocalGpsFix?.()??!!remote?.ready;
   setRemoteMarkerPreferred(remotePreferred);
-  if(follow&&!remotePreferred&&!remoteOnlyMonikaView())
+  if(follow&&!remotePreferred&&!remoteOnlyMonikaView()&&!w.HH_GUARDIAN_GPS_ROUTER_V1177)
    map.easeTo({center:coord,zoom:Math.max(map.getZoom(),15),duration:850});
  }
  if(!hasFix){
@@ -351,6 +351,10 @@ function pauseCameraForMapSearch(){
 }
 function startFollowing(){
  follow=true;renderButtons();notifySettings();
+ if(w.HH_GUARDIAN_GPS_ROUTER_V1177){
+  w.HH_GUARDIAN_PROFILE_FOLLOW_V837?.requestFollow?.();
+  return;
+ }
  if(remoteOnlyMonikaView()){
   w.HH_GUARDIAN_PROFILE_FOLLOW_V837?.requestFollow?.();
   return;
@@ -369,6 +373,11 @@ function toggle3D(){
 }
 function enableFollow(){
  const remote=w.HH_GUARDIAN_PROFILE_FOLLOW_V837;
+ if(w.HH_GUARDIAN_GPS_ROUTER_V1177){
+  follow=true;renderButtons();notifySettings();
+  if(!remote?.requestFollow?.())report('A kiválasztott profil natív GPS-jelére várunk.');
+  return;
+ }
  // On the other person's profile, Follow targets ONLY their verified remote
  // marker. Never toggle the local owner's GPS watcher or follow flag off.
  if(remote?.preventWrongDeviceGps?.()){
