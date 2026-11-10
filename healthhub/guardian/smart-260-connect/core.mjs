@@ -117,4 +117,53 @@ function options(data,date,cfg=DEFAULT,clock=Date.now()){
 function nextIndex(rows,now=Date.now()){
  return rows.findIndex(r=>r.best&&r.best.leaveOfficeMs>=now);
 }
-export {DEFAULT,clean,dist,validConfig,indexStops,options,nextIndex};
+
+/* Second saved example: a walk-to-stop template, no fictional tram connection. */
+const HOME=Object.freeze({
+ schema:"sh9.smart-match.template/1",id:"home-citronella-260",profile:"monika",
+ type:"walk",title:"Otthon → Citronella utca",originLabel:"Otthon",
+ destinationLabel:"Óbudai rendelőintézet",originStop:"",
+ targetStop:"Citronella utca",targetRoute:"260",targetHeadsign:"Óbudai rendelőintézet",
+ feederRoutes:[],startHour:6,endHour:21,originWalkMin:6,originSafetyMin:2,
+ maxWaitMin:3,transferWalkMin:0,transferSafetyMin:0,maxTransferMeters:350
+});
+const SAMPLES=Object.freeze([DEFAULT,HOME]);
+function walkOnlyOptions(data,date,cfg=HOME,clock=Date.now()){
+ if(!validate(data,clock))throw Error("A hiteles BKK-menetrend hiányzik vagy lejárt.");
+ if(!/^\d{4}-\d{2}-\d{2}$/.test(date)||date<data.feedStart||date>data.feedEnd)
+  throw Error("Ezen a napon nincs ellenőrzött menetrend.");
+ if(!data.routes.includes(cfg.targetRoute)||!Number.isInteger(cfg.startHour)||
+  !Number.isInteger(cfg.endHour)||cfg.startHour<0||cfg.endHour>24||
+  cfg.endHour<=cfg.startHour||!Number.isInteger(cfg.originWalkMin)||
+  cfg.originWalkMin<0||cfg.originWalkMin>30||!Number.isInteger(cfg.originSafetyMin)||
+  cfg.originSafetyMin<0||cfg.originSafetyMin>10)throw Error("Hibás gyalogos sablon.");
+ const stopMap=indexStops(data),boarding=new Set(stopMap.get(clean(cfg.targetStop))||[]);
+ if(!boarding.size)throw Error("A célmegálló hiányzik a BKK GTFS-ből.");
+ const start=wallEpoch(date,cfg.startHour*60),end=wallEpoch(date,cfg.endHour*60);
+ const found=new Map();
+ for(const [line,service,headsign,events,mode] of data.trips){
+  if(line!==cfg.targetRoute||!active(data.services[service],date)||
+   (cfg.targetHeadsign&&!clean(headsign).includes(clean(cfg.targetHeadsign))))continue;
+  for(let i=0;i<events.length-1;i++){
+   if(!boarding.has(events[i][0]))continue;
+   const dep=wallEpoch(date,events[i][2]/60);
+   if(dep<start||dep>=end)continue;
+   const k=dep+"|"+events[i][0]+"|"+headsign;
+   if(found.has(k))continue;
+   found.set(k,{line,mode,headsign,departMs:dep,boardingId:events[i][0],
+    best:{feederLine:null,feederMode:"walk",
+     leaveOfficeMs:dep-(cfg.originWalkMin+cfg.originSafetyMin)*60000,
+     feederDepartMs:null,feederArriveMs:null,transferWalkMin:cfg.originWalkMin,
+     transferMeters:null,waitMin:cfg.originSafetyMin},
+    matchingCount:1});
+  }
+ }
+ const rows=[...found.values()].sort((a,b)=>a.departMs-b.departMs);
+ return {date,rows,matchingCount:rows.length,totalCount:rows.length,
+  source:"BKK Zrt., CC BY 4.0",live:false,config:cfg};
+}
+function compute(data,date,cfg,clock=Date.now()){
+ return cfg?.type==="walk"?walkOnlyOptions(data,date,cfg,clock):options(data,date,cfg,clock);
+}
+export {DEFAULT,HOME,SAMPLES,clean,dist,validConfig,indexStops,options,
+ walkOnlyOptions,compute,nextIndex};
