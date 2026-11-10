@@ -7,6 +7,7 @@
   const names = {zsolt: 'Zsolt', monika: 'Mónika'};
   const labels = {pending:'Telefonra vár', running:'Beolvasás', uploading:'Feltöltés', retrying:'Újrapróbálásra vár', done:'Felhőben kész', failed:'Sikertelen', rejected:'Elutasítva', expired:'Lejárt'};
   let devices = [], histories = {}, error = '', loading = false, sending = false, selectedDays = 1;
+  let lastRenderedMarkup = null, lastRenderedPanel = null;
   const imported = new Set();
   const fmt = value => value && Number.isFinite(Date.parse(value)) ? new Date(value).toLocaleString('hu-HU') : 'Még nincs visszajelzés';
   const client = () => window.HHBridgeControl.createClient(window.HH_DROPBOX_VAULT);
@@ -37,11 +38,24 @@
         (last?.state === 'done' && last.command.action === 'sync' ? '<p>Helyi nézet: ' + (imported.has(last.command.requestId) ? 'frissítve a felhőből ✓' : 'frissítésre vár') + '</p>' : '') +
         '<details><summary>Kérések és diagnosztika</summary>' + history.map(h => '<p>' + esc(fmt(h.command.issuedAt)) + ' · ' + esc(h.command.action) + ' · ' + esc(labels[h.state] || h.state) + '<br>' + esc(h.result?.message || '') + '</p>').join('') + '</details></article>';
     }).join('');
-    panel.innerHTML = '<h3>Health Connect</h3><p>Aktív profil: <strong>' + names[p] + '</strong> · Cloud: ' + (connected() ? 'Csatlakoztatva' : 'Nincs kapcsolat') + '</p>' +
+    const nextMarkup = '<h3>Health Connect</h3><p>Aktív profil: <strong>' + names[p] + '</strong> · Cloud: ' + (connected() ? 'Csatlakoztatva' : 'Nincs kapcsolat') + '</p>' +
       '<div class="hc306-actions"><label>Újraolvasás <select id="hc306days"><option value="1">24 óra</option><option value="7">7 nap</option><option value="30">30 nap</option></select></label><button id="hc306refresh">Állapot frissítése</button></div>' +
       (error ? '<p role="alert">' + esc(error) + '</p>' : '') + (rows || '<p>Nincs ehhez a profilhoz Dropbox/Health Connect szinkronjelentés. Ez nem jelenti azt, hogy a HH One telefon nincs központilag párosítva.</p>') +
       (android() ? '<div class="hc306-actions"><button data-native="setup">HH One / HC beállítások</button><button data-native="settings">Health Connect megnyitása</button><button data-native="permissions">Jogosultságok kezelése</button><button data-native="background">Háttérhozzáférés</button><button data-native="poll">Kérések végrehajtása ezen a telefonon</button></div>' : '') +
       '<p class="hc306-note">A kérés a felhőben vár a telefonra. A háttérellenőrzést az Android ütemezi, legalább 15 perces ciklussal és esetleges további késéssel. A Health Connect megnyitása és az engedélyezés a telefonon érhető el. A böngészőben az adatok helyi gyorsítótárból is megjelenhetnek.</p>';
+    // Polling never replaces an unchanged panel. Preserve details, focus,
+    // native clicks and scrollbar while the user reads the Admin page.
+    if(panel===lastRenderedPanel&&nextMarkup===lastRenderedMarkup)return;
+    if(panel===lastRenderedPanel&&
+      (window.hhAdminScrollActiveV748?.() ||
+       (panel.contains(document.activeElement)&&
+        document.activeElement?.matches?.('button,input,select,textarea,summary'))))return;
+    const opened=Array.from(panel.querySelectorAll('details')).map((d,i)=>d.open?i:-1).filter(i=>i>=0);
+    panel.innerHTML=nextMarkup;
+    lastRenderedPanel=panel;
+    lastRenderedMarkup=nextMarkup;
+    const details=panel.querySelectorAll('details');
+    opened.forEach(i=>{if(details[i])details[i].open=true});
     panel.querySelector('#hc306days').value = String(selectedDays);
     panel.querySelector('#hc306days').onchange = e => { selectedDays = Number(e.target.value); };
     panel.querySelector('#hc306refresh').onclick = refresh;
