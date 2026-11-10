@@ -1,6 +1,27 @@
 # HealthHub / SHO Dropbox routing audit (2026-11-10)
 
-**State:** BLOCKED FOR CUTOVER. Backup copies and draft migration code exist, but the live phones have not been migrated and the private JSON has not been rewritten.
+**Current state (2026-11-10, evening): Native GPS CUTOVER VERIFIED; Gmail HEALTH DATA RETIREMENT NOT YET SAFE.** The pre-cutover audit below is retained as historical context, not as the current GPS status.
+
+## Post-cutover verified routing
+
+- **Physical HH One devices:** Zsolt and Mónika are both independently uploading fresh, profile-bound native GPS into the Outlook HealthHub App Folder. Mónika's Gmail native GPS stopped updating after the physical phone switched.
+- **Family Guard:** production reader v1178 reads both names from Outlook only, with a fail-closed verified Outlook browser credential check for Mónika. The user confirmed both people appeared on the map. GPS smooth-glide, physical phone owner binding and central pairing were preserved.
+- **Legacy Gmail account-review remote service:** the one-time Gmail OAuth + command sender was retired by v1179. The retired web page can remove only its own standalone browser-local service grant and pending PKCE when opened; it does not revoke server-side Dropbox grants, clear the canonical web vault token, delete Gmail files or change phones.
+- **Non-GPS data:** Gmail's Mónika profile Vault differs materially from the Outlook copy, as does Digital Wellbeing. The latest Gmail Vault snapshot is not proven to be included in the previously saved migration backup. **Do not overwrite, merge by timestamp alone, revoke the only remaining source access, or delete Gmail data without a checked record-level reconciliation and durable copy.**
+- **Other possible Gmail writers:** Gmail-side web device and master/sync files received writes after the phone GPS switchover. These paths are independent of the retired GPS bridge and cannot be declared quiescent from GPS evidence.
+- **Legacy separate Dropbox App Folder:** The old Outlook healthhub-vault folder remains isolated from the canonical HealthHub Cloud Vault/HealthHub. Do not substitute the old App Folder key or remove its historical data as part of this GPS repair.
+
+### Remaining retirement gates
+
+1. Inventory each legacy Gmail folder and confirm latest Outlook source-of-truth for each domain (profile Vault, medications, documents and clinical assets, nutrition, Digital Wellbeing, master/sync/orchestrator).
+2. Reconcile or securely preserve Gmail-only data, including large Vault files that exceed the Dropbox text reader's 5 MiB limit; record count/hash and restore-point evidence, not only file size.
+3. Confirm no new Gmail writes from remaining HealthHub browser sessions or historical automation flows. Correct any still-logged-in web clients separately; native GPS alone does not prove web write shutdown.
+4. Only after those checks, arrange explicit user-approved removal or archival of specific Gmail paths and revoke obsolete Gmail OAuth grants. Preserve the connected Outlook Dropbox and verified physical device registration.
+
+---
+
+### Pre-cutover audit (historical)
+
 
 ## Account versus application
 
