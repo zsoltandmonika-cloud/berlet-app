@@ -9,13 +9,13 @@ const gradle=read('android-bridge/app/build.gradle.kts');
 const register=read('device-registry-v401.js');
 const html=read('index.html');
 const manifest=JSON.parse(read('data/bridge-ota.json'));
-test('0.15.20 build47 succeeds signed 0.15.19 build46 with unchanged package ID',()=>{
+test('signed 0.15.20 build47 preserves package identity and supports both family profiles',()=>{
  assert.match(gradle,/applicationId = "hu\.zsoltmonika\.healthhubbridge"/);
  assert.match(gradle,/versionCode = 47/);
  assert.match(gradle,/versionName = "0\.15\.20"/);
- assert.equal(manifest.version,'0.15.19');
- assert.equal(manifest.versionCode,46);
- assert.deepEqual(manifest.rolloutProfiles,['zsolt']);
+ assert.equal(manifest.version,'0.15.20');
+ assert.equal(manifest.versionCode,47);
+ assert.deepEqual(manifest.rolloutProfiles,['zsolt','monika']);
 });
 test('Existing GPS and battery consent and ownership remain mandatory',()=>{
  assert.match(relay,/getBoolean\(KEY_SHARE, false\)/);
