@@ -546,8 +546,8 @@ if(hhPackDefault||hhPackPreview.get("devicePack")==="v1053"||
    <p id="guardianMapOriginStatusV836" role="status" aria-live="polite">Válassz kiindulási pontot.</p>
   </div>
  </section>
- <section class="guardian-native-source-v1174" id="guardianNativeGpsSourceV1174" hidden aria-label="Mónika natív GPS forrásának állapota">
-  <strong>🩷 Mónika GPS</strong>
+ <section class="guardian-native-source-v1174" id="guardianNativeGpsSourceV1174" hidden aria-label="Kiválasztott natív GPS-route állapota">
+  <strong id="guardianNativeGpsTitleV1177">GPS</strong>
   <span id="guardianNativeGpsMessageV1174" role="status" aria-live="polite">Hitelesített natív forrás ellenőrzése...</span>
   <a href="../remote-service/" id="guardianNativeGpsConnectV1174" hidden>Gmail Dropbox csatlakoztatása</a>
  </section>
@@ -968,13 +968,15 @@ if(hhPackDefault||hhPackPreview.get("devicePack")==="v1053"||
 <script defer src="./guardian-landmarks-v776.js?v=787-private-and-common"></script>
 <script defer src="../central-vault/config.js?v=785-family-live-publishable"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.2/dist/umd/supabase.min.js"></script>
-<script defer src="./guardian.js?v=1171-cross-profile-owner-preservation&service=806&attrib=831&handoff=839&ui=1070-family-admin&gps=1071-owner-lock&native=1174&camera=1176"></script>
+<script defer src="./guardian.js?v=1171-cross-profile-owner-preservation&service=806&attrib=831&handoff=839&ui=1070-family-admin&gps=1071-owner-lock&native=1174&camera=1176&router=1177"></script>
+<script defer src="./guardian-gps-routes-v1177.js?v=1177-named-native-routes"></script>
 <script defer src="./guardian-native-dropbox-v156.js?v=1172-dual-dropbox-owner-routing"></script>
+<script defer src="./guardian-gps-router-v1177.js?v=1177-native-only"></script>
 <script defer src="./guardian-native-auth-v1063.js?v=1063-pkce-external-browser"></script>
-<script defer src="./guardian-live-v785.js?v=1171-view-only-switch-keeps-gps&native=156&autofollow=827&owner=v1174"></script>
-<script defer src="./guardian-profile-follow-v837.js?v=1068-smart-places-hook&handoff=839&speed=851&smoothing=1004-bus-latency-1005&gps=1071-stale-label&gpsSource=1072-conflict-lock&nativeFirst=1073-viewer-sync&owner=v1174&camera=v1176"></script>
+<script defer src="./guardian-live-v785.js?v=1171-view-only-switch-keeps-gps&native=156&autofollow=827&owner=v1174&router=1177"></script>
+<script defer src="./guardian-profile-follow-v837.js?v=1068-smart-places-hook&handoff=839&speed=851&smoothing=1004-bus-latency-1005&gps=1071-stale-label&gpsSource=1072-conflict-lock&nativeFirst=1073-viewer-sync&owner=v1174&camera=v1176&router=v1177"></script>
 <script defer src="./guardian-profile-battery-v841.js?v=1038-fresh-cache-on-dropbox-error"></script>
-<script defer src="./guardian-live-trio-v845.js?v=1038-native-read-diagnostics"></script>
+<script defer src="./guardian-live-trio-v845.js?v=1038-native-read-diagnostics&router=1177"></script>
 <script defer src="./guardian-landmarks-sync-v787.js?v=787-shared-bookmarks"></script>
 <script defer src="./guardian-arrival-studio-v788.js?v=789-buddy-volume"></script>
 <script defer src="./guardian-buddy-stop-core-v815.js?v=815"></script>
