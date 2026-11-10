@@ -185,5 +185,5 @@ async function commit(confirmed){
  state.plan=null;
  return {results,targetSuffix:state.identity.suffix,warning:'A natív telefonok OAuth kapcsolata külön állítandó át. A régi fájlokat még ne töröld.'};
 }
-w.HH_DROPBOX_MIGRATION_V1=Object.freeze({authorize,exchangeCallback,preview,commit,stored,remove});
+w.HH_DROPBOX_MIGRATION_V1=Object.freeze({authorize,exchangeCallback,preview,commit,stored,remove,compareCandidate:mergeDoc});
 })(window);
