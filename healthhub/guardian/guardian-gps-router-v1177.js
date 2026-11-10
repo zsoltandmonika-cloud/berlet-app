@@ -10,7 +10,7 @@
   const r=registry?.forProfile?.(profile);
   return r&&r.profile===profile&&r.nativePath==='/HealthHub/guardian/native-live/'+profile+'.json'&&
    r.id==='gps.'+profile&&
-   r.activeReadAccount===(profile==='monika'?'gmail':'outlook')?r:null;
+   r.activeReadAccount==='outlook'?r:null;
  };
  const connected=()=>!!relay?.connected?.();
  async function read(profile){
