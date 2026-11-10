@@ -14,6 +14,8 @@ const LEGACY_TOKEN='hh-dropbox-token-v2';
 const PKCE='hh-remote-service-pkce-v1';
 const EXPECTED_DEVICE_BUILD=47;
 const EXPIRY_MIN=40;
+// Dropbox /2/users/get_current_account requires account_info.read (not just files.*).
+const OAUTH_SCOPES='account_info.read files.metadata.read files.content.read files.content.write files.metadata.write';
 const $=id=>document.getElementById(id);
 let connected=false,verifiedDevice=null,currentAccount=null,selectedStorage=null,access=null,accessUntil=0,sessionCommandId=null,busy=false;
 function status(id,msg,level='info'){const el=$(id);if(el){el.textContent=msg;el.dataset.level=level;}}
@@ -45,7 +47,10 @@ async function bearer(){
 }
 async function apiAccount(){
  const r=await fetch('https://api.dropboxapi.com/2/users/get_current_account',{method:'POST',headers:{Authorization:'Bearer '+await bearer(),'Content-Type':'application/json'},body:'null'});
- if(!r.ok)throw Error('A Dropbox-fiók hitelesítése nem sikerült ('+r.status+').');
+ if(!r.ok){
+  if(r.status===403)throw Error('A meglévő Dropbox-kapcsolatból hiányzik az account_info.read jogosultság. Nyomd meg a Gmail Dropbox csatlakoztatása gombot az új engedélyezéshez.');
+  throw Error('A Dropbox-fiók azonosítása nem sikerült (HTTP '+r.status+').');
+ }
  return r.json();
 }
 async function apiRead(path,optional=false){
@@ -159,7 +164,7 @@ async function startOAuth(){
  const hash=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(verifier));
  sessionStorage.setItem(PKCE,JSON.stringify({state,verifier,at:Date.now()}));
  const u=new URL('https://www.dropbox.com/oauth2/authorize');
- for(const [key,value] of Object.entries({client_id:APP_KEY,response_type:'code',redirect_uri:REDIRECT,code_challenge:b64url(new Uint8Array(hash)),code_challenge_method:'S256',token_access_type:'offline',scope:'files.metadata.read files.content.read files.content.write files.metadata.write',state,force_reapprove:'true'}))u.searchParams.set(key,value);
+ for(const [key,value] of Object.entries({client_id:APP_KEY,response_type:'code',redirect_uri:REDIRECT,code_challenge:b64url(new Uint8Array(hash)),code_challenge_method:'S256',token_access_type:'offline',scope:OAUTH_SCOPES,state,force_reapprove:'true'}))u.searchParams.set(key,value);
  location.assign(u.toString());
 }
 async function finishOAuth(){
@@ -174,6 +179,8 @@ async function finishOAuth(){
  const resp=await fetch('https://api.dropboxapi.com/oauth2/token',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams({code,grant_type:'authorization_code',redirect_uri:REDIRECT,code_verifier:pk.verifier,client_id:APP_KEY})});
  if(!resp.ok)throw Error('A Dropbox-fiók engedélyezése nem sikerült ('+resp.status+').');
  const j=await resp.json();if(!j.refresh_token||!j.access_token)throw Error('A Dropbox nem adott tartós hozzáférést.');
+ if(typeof j.scope==='string'&&!j.scope.split(/\s+/).includes('account_info.read'))
+  throw Error('A Dropbox nem adta meg a fiókellenőrzéshez szükséges account_info.read jogosultságot. Ellenőrizd a Dropbox Developer Console Permissions beállítását.');
  access=j.access_token;accessUntil=Date.now()+((Number(j.expires_in)||14400)-60)*1000;selectedStorage=OWN_TOKEN;
  const a=await apiAccount();
  if(String(a.email||'').toLowerCase()!==GMAIL){selectedStorage=null;access=null;throw Error('Nem a Gmail-forrásfiókot választottad: '+String(a.email||'ismeretlen')+'. A kapcsolat nem lett eltárolva.');}
