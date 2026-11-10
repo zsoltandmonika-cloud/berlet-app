@@ -27,11 +27,11 @@ test('source account and target device exact match gates are permanent',()=>{
  assert.match(source,/40/);
 });
 function harness({account='zsoltandmonika@gmail.com',profile='monika',allowed=true,buildCode=47,registryDevice=null,stale=false}={}){
- const device='android-015a38cb-9170-4ace-8c55-5b2b9bb41917';
+ const device='android-aaaaaaaa-aaaa-4aaa-aaaa-aaaaaaaaaaaa';
  const files=new Map(),writes=[];
  const root='/HealthHub/orchestrator';
  files.set(root+'/device-registry-v401.json',{
-  schema:'healthhub.device_registry/1',activePhones:{monika:registryDevice||device,zsolt:'android-80e72769-a107-4fa8-bc0d-04aaeb6d4d9e'},archived:[]});
+  schema:'healthhub.device_registry/1',activePhones:{monika:registryDevice||device,zsolt:'android-bbbbbbbb-bbbb-4bbb-bbbb-bbbbbbbbbbbb'},archived:[]});
  files.set(root+'/devices/'+device+'.json',{
   deviceId:device,deviceType:'android',activeProfile:profile,remoteAdminAllowed:allowed,
   build:'0.15.20',buildCode,capabilities:['health','dropbox_account_review'],
