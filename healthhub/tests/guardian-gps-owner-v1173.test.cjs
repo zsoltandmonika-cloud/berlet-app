@@ -41,7 +41,7 @@ test('v1173: both Family Guard viewers fail closed for unverified Monika browser
  assert.match(live,/const \{data,error\}=k==='monika'\?\{data:null,error:null\}:await readSharedLocation\(k\)/);
  assert.match(live,/let selected=k==='monika'\?\(nativeFix&&peerSnapshot\(nativeFix\)\?\.live\?nativeFix:null\):data/);
  assert.match(f,/showUnavailable\(k,k==='monika'\?null:db,native\)/);
- assert.match(html,/guardian-live-v785\.js\?v=[^"\n]*owner=v1173/);
- assert.match(html,/guardian-profile-follow-v837\.js\?v=[^"\n]*owner=v1173/);
+ assert.match(html,/guardian-live-v785\.js\?v=[^"\n]*owner=v1174/);
+ assert.match(html,/guardian-profile-follow-v837\.js\?v=[^"\n]*owner=v1174/);
  assert.doesNotMatch(f,/navigator\.geolocation|watchPosition|\.upsert\(|files\/upload/);
 });
