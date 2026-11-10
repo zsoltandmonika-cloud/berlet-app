@@ -4,86 +4,95 @@
  */
 (function(w){
  'use strict';
- const APP='t68rmhh5f1l8d85';
+ const KEY='hh-dropbox-token-v2',GMAIL_KEY='hh-remote-service-token-v1',APP='t68rmhh5f1l8d85';
+ // Verify the active Gmail source by its already confirmed Dropbox ID, never an email label.
+ const MONIKA_GMAIL_SHA256='eb35bda6b9e5b3328aaa6b0f2f7aeda74e86a31f5c1e33cadb2d4829863c9d64';
  const PREFIX='/HealthHub/guardian/native-live/';
  const SAFE_PROFILES=['zsolt','monika'];
  const SCHEMA='healthhub.guardian.native/1';
- // Only fingerprints of the verified Dropbox account IDs appear in the public source.
- // Gmail/Monika and Outlook/Zsolt have independent, already consented browser tokens.
- const ACCOUNT_SHA256=Object.freeze({
-  monika:'eb35bda6b9e5b3328aaa6b0f2f7aeda74e86a31f5c1e33cadb2d4829863c9d64',
-  zsolt:'5e7490869f879a4ca5a41189d2ce6d6998ed44833da8d10ed9251558a1d2973e'
- });
- const STORES=['hh-remote-service-token-v1','hh-dropbox-token-v2'];
- const refreshInFlight=new Map();
- function stored(key){
-  try{
-   const t=JSON.parse(w.localStorage?.getItem(key)||'null');
-   return typeof t?.refresh_token==='string'&&t.refresh_token.length>10&&
-    typeof t.account_id==='string'&&t.account_id.startsWith('dbid:')?t:null;
+ function tokenStored(){
+  try{const raw=JSON.parse(w.localStorage.getItem(KEY)||'null');
+   return raw&&typeof raw.refresh_token==='string'&&raw.refresh_token.length>10?raw:null;
   }catch(_){return null}
  }
- function digest(s){
-  if(!w.crypto?.subtle)return Promise.reject(Error('Biztonságos böngésző-környezet szükséges'));
-  return w.crypto.subtle.digest('SHA-256',new TextEncoder().encode(s)).then(bytes=>
-   Array.from(new Uint8Array(bytes),v=>v.toString(16).padStart(2,'0')).join(''));
- }
- // Browser storage is origin-scoped: the existing PC credentials can be reused,
- // but must NOT be presumed to exist on a different phone or browser.
- async function credential(profile){
-  if(!SAFE_PROFILES.includes(profile))throw Error('Érvénytelen Family Guard profil');
-  const found=[];
-  for(const key of STORES){
-   const t=stored(key);if(!t)continue;
-   if(await digest(t.account_id)===ACCOUNT_SHA256[profile])found.push({key,token:t});
+ function standaloneStored(){try{const t=JSON.parse(w.localStorage.getItem(GMAIL_KEY)||'null');return t&&typeof t.refresh_token==='string'&&t.refresh_token.length>10?t:null}catch(_){return null}}
+ function connected(){return !!(w.HH_DROPBOX_VAULT&&w.HH_DROPBOX_VAULT.connected?.())||!!tokenStored()||!!standaloneStored()}
+ async function gmailCredential(){
+  for(const key of [GMAIL_KEY,KEY]){
+   const t=key===GMAIL_KEY?standaloneStored():tokenStored();
+   if(!t||typeof t.account_id!=='string'||!w.crypto?.subtle)continue;
+   const buffer=await w.crypto.subtle.digest('SHA-256',new TextEncoder().encode(t.account_id));
+   const sha=Array.from(new Uint8Array(buffer),b=>b.toString(16).padStart(2,'0')).join('');
+   if(sha===MONIKA_GMAIL_SHA256)return {key,token:t};
   }
-  // A verified owner can have a separately authorized token in either store.
-  // Prefer the standalone slot for Gmail and original HealthHub slot for Outlook.
-  found.sort((a,b)=>{
-   const desired=profile==='monika'?STORES[0]:STORES[1];
-   return Number(b.key===desired)-Number(a.key===desired);
-  });
-  return found[0]||null;
+  return null;
  }
- function connected(profile){
-  if(profile&& !SAFE_PROFILES.includes(profile))return false;
-  return STORES.some(key=>!!stored(key)); // exact account is checked before every download
- }
- async function getToken(c){
-  const key=c.key,t=c.token;
+ async function gmailAccess(c){
+  const t=c.token;
   if(t.access_token&&Number(t.expires_at)>Date.now()+60000)return t.access_token;
-  if(refreshInFlight.has(key))return refreshInFlight.get(key);
-  const work=(async()=>{
-   const req=await w.fetch('https://api.dropboxapi.com/oauth2/token',{
-    method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},
-    body:new URLSearchParams({refresh_token:t.refresh_token,grant_type:'refresh_token',client_id:APP})
-   });
-   if(!req.ok)throw Error('A Dropbox hozzáférés megújítása sikertelen');
-   const next=await req.json();
-   if(typeof next?.access_token!=='string')throw Error('Érvénytelen Dropbox token');
-   t.access_token=next.access_token;
-   t.expires_at=Date.now()+(Number(next.expires_in)||14400)*1000-60000;
-   w.localStorage.setItem(key,JSON.stringify(t));
-   return t.access_token;
-  })();
-  refreshInFlight.set(key,work);
-  try{return await work}finally{refreshInFlight.delete(key)}
+  const req=await w.fetch('https://api.dropboxapi.com/oauth2/token',{
+   method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},
+   body:new URLSearchParams({refresh_token:t.refresh_token,grant_type:'refresh_token',client_id:APP})
+  });
+  if(!req.ok)throw Error('Mónika Gmail Dropbox hozzáférése lejárt');
+  const next=await req.json();if(!next?.access_token)throw Error('Gmail Dropbox token hiányzik');
+  t.access_token=next.access_token;
+  t.expires_at=Date.now()+(Number(next.expires_in)||14400)*1000-60000;
+  w.localStorage.setItem(c.key,JSON.stringify(t));
+  return t.access_token;
+ }
+ async function getToken(){
+  if(w.HH_DROPBOX_VAULT&&w.HH_DROPBOX_VAULT.connected?.())return w.HH_DROPBOX_VAULT.accessToken();
+  const t=tokenStored();
+  if(!t)throw Object.assign(new Error('Dropbox családi böngészős hozzáférés hiányzik'),{code:'NO_DROPBOX'});
+  if(t.access_token&&Number(t.expires_at)>Date.now()+60_000)return t.access_token;
+  const req=await w.fetch('https://api.dropboxapi.com/oauth2/token',{
+   method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},
+   body:new URLSearchParams({refresh_token:t.refresh_token,grant_type:'refresh_token',client_id:APP})
+  });
+  if(!req.ok)throw new Error('Dropbox hozzáférés megújítása sikertelen');
+  const response=await req.json();
+  if(!response||typeof response.access_token!=='string')throw new Error('Dropbox érvénytelen hitelesítés');
+  // Same credential format as the existing private HealthHub vault.
+  if(w.localStorage.getItem(KEY)!==null){
+   t.access_token=response.access_token;
+   t.expires_at=Date.now()+(Number(response.expires_in)||14400)*1000-60_000;
+   w.localStorage.setItem(KEY,JSON.stringify(t));
+  }
+  return response.access_token;
  }
  async function download(profile){
   if(!SAFE_PROFILES.includes(profile))throw Error('Érvénytelen Family Guard profil');
+  if(!connected())return {status:'not-connected',data:null};
+  const vault=w.HH_DROPBOX_VAULT;
   try{
-   const c=await credential(profile);
-   if(!c)return {status:'not-connected',data:null,
-    error:'Ehhez a profilhoz nincs külön hitelesített Dropbox-kapcsolat ebben a böngészőben.'};
-   const token=await getToken(c);
-   const r=await w.fetch('https://content.dropboxapi.com/2/files/download',{
-    method:'POST',headers:{Authorization:'Bearer '+token,
-     'Dropbox-API-Arg':JSON.stringify({path:PREFIX+profile+'.json'})},
-    cache:'no-store'
-   });
-   if(r.status===409)return {status:'missing',data:null};
-   if(!r.ok)throw Error('Dropbox privát helyadat HTTP '+r.status);
-   const raw=await r.json();
+   let raw;
+   if(profile==='monika'){
+    // Primary bridge: Monika's phone still writes to her Gmail Dropbox.
+    // Never accept the copied, older Outlook Monika file as live native GPS.
+    const c=await gmailCredential();
+    if(!c)return {status:'not-connected',data:null,error:'Mónika Gmail Dropbox nem hitelesített ebben a böngészőben'};
+    const token=await gmailAccess(c);
+    const r=await w.fetch('https://content.dropboxapi.com/2/files/download',{
+     method:'POST',headers:{Authorization:'Bearer '+token,
+      'Dropbox-API-Arg':JSON.stringify({path:PREFIX+profile+'.json'})},cache:'no-store'
+    });
+    if(r.status===409)return {status:'missing',data:null};
+    if(!r.ok)throw Error('Mónika Gmail privát helyadat HTTP '+r.status);
+    raw=await r.json();
+   }else if(vault&&vault.connected?.()&&typeof vault.downloadJson==='function'){
+    raw=await vault.downloadJson(PREFIX+profile+'.json');
+   }else{
+    const token=await getToken();
+    const r=await w.fetch('https://content.dropboxapi.com/2/files/download',{
+     method:'POST',headers:{Authorization:'Bearer '+token,
+      'Dropbox-API-Arg':JSON.stringify({path:PREFIX+profile+'.json'})},
+     cache:'no-store'
+    });
+    if(r.status===409)return {status:'missing',data:null};
+    if(!r.ok)throw Error('Dropbox privát helyadat HTTP '+r.status);
+    raw=await r.json();
+   }
    if(!raw||raw.schema!==SCHEMA||raw.profile!==profile||raw.source!=='HH One Native GPS')
     return {status:'invalid',data:null};
    if(raw.active===false)return {status:'revoked',data:null,updated_at:raw.updated_at};
