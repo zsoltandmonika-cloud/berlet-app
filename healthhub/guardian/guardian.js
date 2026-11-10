@@ -144,6 +144,12 @@ function paintOwnTransit(pos){
   speed.textContent=Math.round(kmh)+' km/h · GPS';speed.hidden=false;
  }else{speed.textContent='';speed.hidden=true}
 }
+// A viewed family profile is not proof of physical GPS ownership.
+function remoteOnlyMonikaView(){
+ const ua=String(w.navigator?.userAgent||'');
+ return name()==='Mónika'&&(!/Android/i.test(ua)||
+  w.HH_GUARDIAN_LIVE_V785?.boundProfile!=='monika');
+}
 function onPosition(pos){
  if(!active)return;
  // A physical phone keeps reporting ONLY its already-approved owner while
@@ -153,6 +159,12 @@ function onPosition(pos){
  const selectedOwner=name()==='Mónika'?'monika':'zsolt';
  if(physicalOwner&&physicalOwner!==selectedOwner){
   w.HH_GUARDIAN_LIVE_V785?.onGpsFix?.(pos);
+  return;
+ }
+ // A local browser GPS watch cannot repaint or recenter remotely viewed Monika.
+ if(remoteOnlyMonikaView()){
+  if(marker){try{marker.remove()}catch(_){}marker=null}
+  hasFix=false;lastBrowserFixAt=0;
   return;
  }
  // Recheck if auth/device ownership finished loading after watchPosition started.
@@ -190,7 +202,7 @@ function onPosition(pos){
   // before either portrait can paint. The freshest real fix wins.
   const remotePreferred=remote?.onLocalGpsFix?.()??!!remote?.ready;
   setRemoteMarkerPreferred(remotePreferred);
-  if(follow&&!remotePreferred)
+  if(follow&&!remotePreferred&&!remoteOnlyMonikaView())
    map.easeTo({center:coord,zoom:Math.max(map.getZoom(),15),duration:850});
  }
  if(!hasFix){
@@ -339,6 +351,10 @@ function pauseCameraForMapSearch(){
 }
 function startFollowing(){
  follow=true;renderButtons();notifySettings();
+ if(remoteOnlyMonikaView()){
+  w.HH_GUARDIAN_PROFILE_FOLLOW_V837?.requestFollow?.();
+  return;
+ }
  // The existing consented auto-share flow MUST still start this device's own
  // browser GPS; remote coordinates never substitute for a local GPS uploader.
  if(!active){start();return}
@@ -358,6 +374,11 @@ function enableFollow(){
  if(remote?.preventWrongDeviceGps?.()){
   follow=true;renderButtons();notifySettings();
   if(!remote.requestFollow())report('A kiválasztott profil friss megosztott GPS-jelére várunk.');
+  return;
+ }
+ if(remoteOnlyMonikaView()){
+  follow=true;renderButtons();notifySettings();
+  if(!remote?.requestFollow?.())report('Mónika telefonjának natív GPS-jelére várunk.');
   return;
  }
  // Following a verified profile signal moves only the camera, not phone binding.
@@ -612,5 +633,5 @@ theme();renderButtons();initMap();
 w.addEventListener?.('hh-guardian-active-transit-updated-v862',()=>{
   if(marker)paintOwnTransit(lastOwnTransitFix&&Date.now()-lastOwnTransitFix.timestamp<=20000?lastOwnTransitFix:null);
  });
-w.HH_GUARDIAN_V761=Object.freeze({version:'761',startFollowing,pauseCameraForMapSearch,getLocationSettings:locationSettings,applyLocationSettings,setRemoteMarkerPreferred,get map(){return map},get active(){return active},get lastGpsFixAt(){return active&&hasFix?lastBrowserFixAt:0},get latestOwnBrowserFix(){return active&&hasFix&&lastOwnTransitFix&&Date.now()-lastOwnTransitFix.timestamp<=20000?lastOwnTransitFix:null},get pointCount(){return path.length}});
+w.HH_GUARDIAN_V761=Object.freeze({version:'761',startFollowing,pauseCameraForMapSearch,getLocationSettings:locationSettings,applyLocationSettings,setRemoteMarkerPreferred,get map(){return map},get active(){return active},get lastGpsFixAt(){return !remoteOnlyMonikaView()&&active&&hasFix?lastBrowserFixAt:0},get latestOwnBrowserFix(){return active&&hasFix&&lastOwnTransitFix&&Date.now()-lastOwnTransitFix.timestamp<=20000?lastOwnTransitFix:null},get pointCount(){return path.length}});
 })(window,document);

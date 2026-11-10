@@ -1,0 +1,30 @@
+name: Family Guard camera owner lock v1176 QA
+on:
+  pull_request:
+    paths:
+      - 'healthhub/guardian/guardian.js'
+      - 'healthhub/guardian/guardian-profile-follow-v837.js'
+      - 'healthhub/guardian/index.html'
+      - 'healthhub/tests/guardian-camera-owner-v1176.test.cjs'
+      - '.github/workflows/hh-guardian-camera-owner-v1176-qa.yml'
+permissions:
+  contents: read
+jobs:
+  remote-camera-guard:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Syntax and targeted camera ownership regression
+        run: |
+          node --check healthhub/guardian/guardian.js
+          node --check healthhub/guardian/guardian-profile-follow-v837.js
+          node --test healthhub/tests/guardian-camera-owner-v1176.test.cjs
+          node --test healthhub/tests/guardian-monika-native-independent-v1174.test.cjs
+          node --test healthhub/tests/guardian-gps-owner-v1173.test.cjs
+          node --test healthhub/tests/guardian-cross-profile-no-ota-v1171.test.cjs
+          node --test healthhub/tests/guardian-fast-follow-v1005.test.cjs
+          node --test healthhub/tests/guardian-gps-source-flap-v1072.test.cjs

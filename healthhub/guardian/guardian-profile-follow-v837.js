@@ -190,7 +190,12 @@
   const authorized=()=>canRead(live(),selected())||
    (selected()==='monika'&&monikaNativeGranted);
   const followOn=()=>guardian()?.getLocationSettings?.().follow_map===true;
-  const localFixAt=()=>guardian()?.lastGpsFixAt||0;
+  // Profile selection does not identify this browser's physical phone.
+  // Zsolt's local/home GPS cannot preempt Monika's remote native camera.
+  const remoteOnlyMonikaView=()=>selected()==='monika'&&
+   (!/Android/i.test(String(w.navigator?.userAgent||''))||
+    live()?.boundProfile!=='monika');
+  const localFixAt=()=>remoteOnlyMonikaView()?0:guardian()?.lastGpsFixAt||0;
   function showNativeSource(profile,source){
    const panel=d.getElementById('guardianNativeGpsSourceV1174');
    const msg=d.getElementById('guardianNativeGpsMessageV1174');
@@ -472,6 +477,7 @@
    return false;
   }
   function preventWrongDeviceGps(){
+   if(remoteOnlyMonikaView())return true;
    const owner=bound();
    return !!(owner&&owner!==selected());
   }
