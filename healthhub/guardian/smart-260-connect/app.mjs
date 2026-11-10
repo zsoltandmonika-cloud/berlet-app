@@ -2,7 +2,8 @@
  * Browser-local saves, read-only BKK GTFS, no GPS/Dropbox/Supabase mutation.
  */
 import {readOfficialSnapshot} from "../../../sh9/smart-travel/lena-native/bkk/bkk-feed-client-v1106.mjs";
-import {DEFAULT,HOME,SAMPLES,compute,nextIndex,clean} from "./core.mjs";
+import {DEFAULT,HOME,SAMPLES,compute} from "./core.mjs";
+import {wallEpoch} from "../../../sh9/smart-travel/lena-native/bkk/bkk-gtfs-core-v1105.mjs";
 const $=id=>document.getElementById(id);
 const STORAGE="sh9-smart-match-templates-v1-m";
 const state={items:[],current:null,data:null,manifest:null,result:null,
@@ -245,10 +246,8 @@ function updateTimeline(now=Date.now(),redraw=false){
   const target=all[first<0?all.length-1:first];
   if(target){if(first<0)target.after(marker);else target.before(marker)}
  }
- const from=Date.parse(day+"T00:00:00+01:00")+
-  result.config.startHour*3600000;
- const to=Date.parse(day+"T00:00:00+01:00")+
-  result.config.endHour*3600000;
+ const from=wallEpoch(day,result.config.startHour*60);
+ const to=wallEpoch(day,result.config.endHour*60);
  // Day progress is visual only; it does not alter GTFS departure times.
  const progress=isToday?Math.max(0,Math.min(100,(now-from)/(to-from)*100)):isPastDate?100:0;
  $("dayProgress").style.setProperty("--percentage",progress.toFixed(1)+"%");
@@ -274,7 +273,7 @@ function updateTimeline(now=Date.now(),redraw=false){
   state.lastNext=next;
   if(next>=0){
    const el=all[next],viewport=$("timeline");
-   if(el&&viewport)viewport.scrollTo({top:Math.max(0,el.offsetTop-viewport.offsetTop-65),behavior:redraw?"auto":"smooth"});
+   if(el&&viewport)viewport.scrollTo({top:Math.max(0,el.offsetTop-65),behavior:redraw?"auto":"smooth"});
   }
  }
  if(state.reminderEnabled&&row&&isToday){
@@ -296,7 +295,11 @@ function renderResults(item){
  if(!r||!r.rows.length){
   const empty=document.createElement("div");empty.className="empty";
   empty.textContent="Ezen a napon nem található a megadott célmegállóhoz és irányhoz megfelelő menetrendi indulás.";
-  target.append(empty);state.lastNext=null;return;
+  target.append(empty);state.lastNext=null;
+  $("heroTime").textContent="--:--";$("countdown").textContent="--:--";
+  $("heroDetail").textContent="Nincs megfelelő indulás a kiválasztott időablakban.";
+  $("matchSummary").textContent="0 / 0 igazolt indulás. Ellenőrizd az irányt, a megállót és a napot.";
+  return;
  }
  r.rows.forEach((row,i)=>target.append(timelineRow(row,item,i)));
  $("matchSummary").textContent=r.matchingCount+" / "+r.totalCount+
