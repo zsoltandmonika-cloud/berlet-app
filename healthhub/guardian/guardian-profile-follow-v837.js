@@ -83,6 +83,9 @@
    routeBadge=null,routeDetails=null,speedVisible=false,
    run=0,loading=false,rerun=false,lastCenteredAt=0,lastCenteredProfile=null;
   let followRequest=false,lastAdaptivePoll=0,nativeAnchor=null;
+  // A verified Gmail Dropbox OAuth session is sufficient to read Monika's
+  // own natív GPS. Supabase login is not proof of this Android phone.
+  let monikaNativeGranted=false;
   let markerCoord=null,moveToken=0,moveFrame=null,lastPaintTs=0,lastReceiveAt=0;
   let lastMotionDuration=820;
   // Camera and portrait move toward the newest REAL position, never beyond it.
@@ -184,9 +187,29 @@
   }
   const selected=()=>selectedProfile(w.localStorage);
   const bound=()=>live()?.boundProfile;
-  const authorized=()=>canRead(live(),selected());
+  const authorized=()=>canRead(live(),selected())||
+   (selected()==='monika'&&monikaNativeGranted);
   const followOn=()=>guardian()?.getLocationSettings?.().follow_map===true;
   const localFixAt=()=>guardian()?.lastGpsFixAt||0;
+  function showNativeSource(profile,source){
+   const panel=d.getElementById('guardianNativeGpsSourceV1174');
+   const msg=d.getElementById('guardianNativeGpsMessageV1174');
+   const connect=d.getElementById('guardianNativeGpsConnectV1174');
+   if(!panel||!msg)return;
+   panel.hidden=profile!=='monika';
+   if(profile!=='monika')return;
+   const valid=source?.status==='ok'?snapshot(source.data,'monika'):null;
+   const needsConnection=!source||source.status==='not-connected'||source.status==='error';
+   if(connect)connect.hidden=!needsConnection;
+   if(valid){
+    const t=new Date(valid.ts).toLocaleTimeString('hu-HU',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+    msg.textContent='✅ Mónika · friss HH Connect natív GPS · Gmail Dropbox · '+t+' · ±'+Math.round(valid.accuracy)+' m';
+   }else if(needsConnection){
+    msg.textContent='🟠 Mónika · Gmail Dropbox GPS nem olvasható ebben a böngészőben. A Zsolt/otthon pozíció nem Mónikáé.';
+   }else{
+    msg.textContent='🟠 Mónika · nincs friss hitelesített natív GPS-jel · NEM ÉLŐ'+(source?.status==='revoked'?' (megosztás leállítva)':'');
+   }
+  }
   // Display the age of an authenticated old reading; never re-center the
   // camera, show a stale portrait or describe it as a live position.
   function unavailableLabel(profile,db,native){
@@ -274,7 +297,7 @@
     (next.visible?' · '+next.rounded+' km/h':''));
   }
   function invalidate(){
-   run++;latest=null;nativeAnchor=null;followRequest=false;lastCenteredAt=0;lastCenteredProfile=null;clearMarker();
+   run++;latest=null;nativeAnchor=null;monikaNativeGranted=false;followRequest=false;lastCenteredAt=0;lastCenteredProfile=null;clearMarker();
    showConflict(null);
   }
   function current(){
@@ -359,9 +382,9 @@
    if(d.hidden)return;
    if(loading){rerun=true;return;}
    const k=selected(),l=live();
-   if(!canRead(l,k)){invalidate();return}
+   if(k!=='monika'&&!canRead(l,k)){invalidate();return}
    const client=l?.getClient?.();
-   if(!client){paintSpeed(null);return}
+   if(k!=='monika'&&!client){paintSpeed(null);return}
    loading=true;lastAdaptivePoll=Date.now();const ticket=++run;
    let db=null,native=null,revokeAt=NaN;
    try{
@@ -370,20 +393,23 @@
     // still select ONLY the freshest verified GPS timestamp after both finish.
     // Same number of requests as before, and no new background polling.
     const relay=w.HH_GUARDIAN_NATIVE_V156;
-    const dbRead=Promise.resolve().then(()=>typeof l.readSharedLocation==='function'
+    // Monika's browser/Supabase row currently points home from another device.
+    // It must not be read as her position: Dropbox natív proof is authoritative.
+    const dbRead=k==='monika'?Promise.resolve({data:null,error:null}):Promise.resolve().then(()=>typeof l.readSharedLocation==='function'
      ?l.readSharedLocation(k)
      :client.from('hh_guardian_live_locations')
       .select('profile_key,latitude,longitude,accuracy_m,updated_at,speed_kmh')
       .eq('profile_key',k).maybeSingle());
     const nativeRead=Promise.resolve().then(()=>relay?.connected?.()
-     ?relay.read(k):null);
+     ?relay.read(k):{status:'not-connected',data:null});
     // v1073: Display a verified newer native phone fix without waiting for a
     // slower Supabase response. Retain the full two-source conflict resolution
     // once both reads complete; never add another GPS or network request.
     Promise.resolve(nativeRead).then(out=>{
-     if(ticket!==run||d.hidden||k!==selected()||!authorized()||out?.status!=='ok')return;
+     if(ticket!==run||d.hidden||k!==selected()||out?.status!=='ok')return;
      const first=snapshot(out.data,k);
-     if(!first||!preferRemote(first,localFixAt())||
+     if(k==='monika'&&first)monikaNativeGranted=true;
+     if(!first||!authorized()||!preferRemote(first,localFixAt())||
         (latest?.profile===k&&latest.ts>=first.ts))return;
      nativeAnchor=first;latest=first;
      showFix(first);
@@ -396,7 +422,14 @@
      if(n?.status==='ok')native=n.data;
      if(n?.status==='revoked')revokeAt=Date.parse(n.updated_at);
     }
-    if(ticket!==run||d.hidden||k!==selected()||!authorized())return;
+    if(ticket!==run||d.hidden||k!==selected())return;
+    const source=nativeOutcome.status==='fulfilled'?nativeOutcome.value:{status:'error'};
+    if(k==='monika')monikaNativeGranted=!!snapshot(native,k);
+    showNativeSource(k,source);
+    if(!authorized()){
+     latest=null;clearMarker();showUnavailable(k,k==='monika'?null:db,native);
+     return;
+    }
     // A native explicit revocation supersedes older cached server fixes.
     if(Number.isFinite(revokeAt)&&(!db||Date.parse(db.updated_at)<=revokeAt))db=null;
     const choice=resolveSources(db,native,k,nativeAnchor);
