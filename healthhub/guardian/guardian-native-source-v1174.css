@@ -1,0 +1,23 @@
+/* Family Guard v1174: native GPS channel status belongs outside the moving map.
+   Never overlays the view, covers map controls or fakes a position. */
+.guardian-native-source-v1174{
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+  margin:8px auto 12px;padding:10px 14px;max-width:1080px;
+  border-radius:12px;border:1px solid rgba(100,160,205,.35);
+  background:rgba(10,25,47,.94);color:#e7f2ff;
+  font-size:13px;line-height:1.4;
+}
+.guardian-native-source-v1174[hidden]{display:none!important}
+.guardian-native-source-v1174 strong{white-space:nowrap;color:#ffd1ef}
+.guardian-native-source-v1174 span{flex:1;min-width:220px}
+.guardian-native-source-v1174 a{
+  color:#fff;background:rgba(164,69,145,.44);
+  border:1px solid rgba(255,196,232,.5);border-radius:9px;
+  padding:7px 10px;text-decoration:none;font-weight:700
+}
+.guardian-native-source-v1174 a[hidden]{display:none!important}
+.guardian-native-source-v1174 a:focus-visible{outline:2px solid #fff;outline-offset:3px}
+@media(max-width:540px){
+  .guardian-native-source-v1174{margin:6px 10px 12px;padding:10px 12px}
+  .guardian-native-source-v1174 span{min-width:0;flex-basis:100%}
+}

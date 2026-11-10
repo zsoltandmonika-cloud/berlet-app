@@ -53,8 +53,8 @@ test('v1072 map never flaps back to disputed coordinates and shows source confli
  for(let i=0;i<20;i++)await Promise.resolve();
  assert.equal(moves.length,1,'native source is followed once');
  assert.equal(moves[0].center[0],10);
- assert.equal(els.guardianGpsSourceConflictV1072.hidden,false);
- assert.match(els.guardianGpsSourceConflictV1072.textContent,/GPS-források/);
+ assert.equal(els.guardianGpsSourceConflictV1072.hidden,true,'unverified Monika browser record is not queried for source comparison');
+ assert.equal(els.guardianGpsSourceConflictV1072.textContent,'','no misleading browser/native conflict when only native is trusted');
  nativeAvailable=false;
  await ctrl.refresh();
  assert.equal(moves.length,1,'browser conflicting position must never move camera');

@@ -305,6 +305,9 @@ function onProfileChanged(){
  if(!sharing)resumeOwnPhoneAutoFollow();
 }
 function onGpsFix(pos){
+ // The desktop browser is not Monika's registered Android device.
+ const ua=String(w.navigator?.userAgent||'');
+ if(sharingProfile==='monika'&&ua&&!/Android/i.test(ua))return;
  if(!api||!sharing||!user||d.hidden||sharingProfile!==bound()||!access.includes(sharingProfile))return;
  const c=pos&&pos.coords||{},lat=Number(c.latitude),lon=Number(c.longitude),accuracy=Number(c.accuracy);
  const ts=Number(pos.timestamp)||Date.now();
@@ -445,6 +448,10 @@ async function refreshAuth(){
 }
 function startSharing(){
  const p=self();
+ const ua=String(w.navigator?.userAgent||'');
+ if(p==='monika'&&ua&&!/Android/i.test(ua)){
+  msg('Mónika natív GPS-e a HH Connect telefonról érkezik; számítógépről nem osztható meg Mónika nevében.');return;
+ }
  if(sharing||d.hidden)return;
  if(!user){msg('Előbb jelentkezz be a Google-fiókoddal.');return}
  if(!access.includes(p)){msg('Ez a Google-fiók nem jogosult a '+label(p)+' profilhoz.');return}
