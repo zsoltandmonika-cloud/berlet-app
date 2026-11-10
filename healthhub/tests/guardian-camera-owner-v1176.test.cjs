@@ -51,7 +51,7 @@ test('v1176: remote Monika native office fix overrides even fresh local home GPS
   HH_GOLDEN_AVATARS_V529:{m:'m',z:'z'},
   HH_GUARDIAN_V761:{map:{getZoom(){return 15},easeTo(c){hits.push(c.center)}},lastGpsFixAt:date-100,getLocationSettings(){return{follow_map:true}},setRemoteMarkerPreferred(){}},
   HH_GUARDIAN_LIVE_V785:{authenticated:true,familyAuthorized:true,boundProfile:'zsolt',getClient(){return{}}},
-  HH_GUARDIAN_NATIVE_V156:{connected(){return true},async read(){return{status:'ok',data:{profile_key:'monika',latitude:47.52693,longitude:19.03802,accuracy_m:40,updated_at:new Date().toISOString(),source:'HH One Native GPS'}}}},
+  HH_GUARDIAN_GPS_ROUTER_V1177:{connected(){return true},forProfile(){return {name:'Mónika GPS',activeReadAccount:'gmail'}},async read(){return{status:'ok',data:{profile_key:'monika',latitude:47.52693,longitude:19.03802,accuracy_m:40,updated_at:new Date().toISOString(),source:'HH One Native GPS'}}}},
   maplibregl:{Marker:class{setLngLat(){return this}addTo(){return this}remove(){}}},
   setInterval(){},setTimeout(fn){fn()},addEventListener(){}
  };
@@ -68,6 +68,6 @@ test('v1176: scripts are cache-busted without changing phone app or Dropbox cred
  assert.match(html,/guardian\.js\?v=[^"\n]*camera=1176/);
  assert.match(html,/guardian-profile-follow-v837\.js\?v=[^"\n]*camera=v1176/);
  assert.match(own,/if\(remoteOnlyMonikaView\(\)\)/);
- assert.match(follow,/const localFixAt=\(\)=>remoteOnlyMonikaView\(\)\?0:/);
+ assert.match(follow,/const localFixAt=\(\)=>0/);
  assert.doesNotMatch(follow,/navigator\.geolocation|watchPosition|getCurrentPosition|\.upsert\(/);
 });
