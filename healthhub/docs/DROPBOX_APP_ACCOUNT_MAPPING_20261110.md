@@ -34,3 +34,11 @@ This is a public technical note. No clinical values, credentials, account emails
 - Therefore **do not change the native App key to the separate `healthhub-vault` app** as a quick fix. The source app's account switch and a full copy between accounts are distinct operations. A wrong App key would write into another isolated app-folder namespace.
 
 Next required proof: Dropbox Developer Console Settings (without secrets) for both the deployed runtime App key and `healthhub-vault`, verify app permission type and app-folder mapping before any live migration.
+
+## App key confirmation by account owner (2026-11-10)
+
+- The user has **explicitly confirmed** that the Dropbox Developer Console app named `healthhub-vault` uses **App key `o2oe9qclhtoic9s`**. This is a public OAuth client identifier, not an App secret.
+- The earlier screenshot confirms selected scopes `account_info.read`, `files.metadata.read`, `files.content.read`, `files.content.write` (the `files.metadata.write` checkbox was not selected). The screenshot does **not** establish permission type (`App Folder` vs `Full Dropbox`).
+- This separate App key must **not** be used to refresh credentials belonging to the currently deployed HealthHub app `t68rmhh5f1l8d85`; OAuth grants are scoped to their client.
+- Before changing the runtime key or migrating files, verify the `healthhub-vault` application's **permission type and App Folder mapping**. The observed `/Apps/healthhub-vault` subtree contains files last modified in early October, whereas `/Apps/HealthHub Cloud Vault/HealthHub` contains current live sources. Unverified key swapping risks a third split-brain datastore.
+- Safety gate remains in place: existing backup complete; no native device pairing reset, no live Dropbox source deletion or account cutover until full file and namespace validation.
