@@ -54,6 +54,36 @@ test('Separate migration token does not touch existing ChatGPT Analytics session
  assert.match(source,/update:item.rev/);
  assert.match(source,/users\/get_current_account/);
  assert.match(source,/expectedEmail/);
- assert.match(source,/Nem a megadott Dropbox-fiók a cél/);
+ assert.match(source,/Nem a megadott Outlook-célfiók van engedélyezve/);
  assert.doesNotMatch(source,/@outlook\.com/i);
+});
+
+test('Gmail source and Outlook target use separate OAuth roles and grants',async()=>{
+ const vals=new Map(),urls=[];
+ w.sessionStorage={setItem:(k,v)=>vals.set(k,v),getItem:k=>vals.get(k),removeItem:k=>vals.delete(k)};
+ w.location={assign:url=>urls.push(new URL(url))};
+ await w.HH_DROPBOX_MIGRATION_V1.authorize('source');
+ const sourceUrl=urls.at(-1);
+ assert.match(sourceUrl.searchParams.get('state'),/^hhmigration_source_/);
+ assert.equal(sourceUrl.searchParams.get('force_reauthentication'),'true');
+ assert.equal(sourceUrl.searchParams.get('scope').includes('files.content.write'),false);
+ assert.equal(JSON.parse(vals.get('hh-migrate-pkce-v1')).role,'source');
+ await w.HH_DROPBOX_MIGRATION_V1.authorize('target');
+ const targetUrl=urls.at(-1);
+ assert.match(targetUrl.searchParams.get('state'),/^hhmigration_target_/);
+ assert.equal(targetUrl.searchParams.get('scope').includes('files.content.write'),true);
+ assert.equal(JSON.parse(vals.get('hh-migrate-pkce-v1')).role,'target');
+ assert.equal(targetUrl.searchParams.get('redirect_uri'),sourceUrl.searchParams.get('redirect_uri'));
+});
+test('Migrator never mutates the active HealthHub browser OAuth token',()=>{
+ assert.doesNotMatch(source,/hh-dropbox-token-v2|hh-dropbox-pkce-v2|SRCAPP|localStorage/);
+ assert.match(source,/\.get\(role\)/);
+ assert.match(source,/\.put\(v,role\)/);
+ assert.match(source,/users\/get_current_account/);
+ assert.match(source,/sourceRoot/);
+ assert.match(source,/targetRoot/);
+});
+test('Live writes remain locked until both full Vaults and attachments are consolidated',async()=>{
+ assert.equal(w.HH_DROPBOX_MIGRATION_V1.isCutoverEnabled,false);
+ await assert.rejects(()=>w.HH_DROPBOX_MIGRATION_V1.commit(true),/zárolva/);
 });

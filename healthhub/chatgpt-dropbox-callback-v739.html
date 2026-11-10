@@ -16,10 +16,10 @@ a{color:#8cc9ff}h1{font-size:21px}</style></head>
  if(new URL(location.href).searchParams.get('state')?.startsWith('hhmigration_')){
   try{
    const script=document.createElement('script');
-   script.src='./dropbox-migration-v1.js?v=1';
+   script.src='./dropbox-migration-v1.js?v=2-dual-oauth';
    await new Promise((ok,no)=>{script.onload=ok;script.onerror=()=>no(Error('Migrációs OAuth modul nem érhető el'));document.head.append(script)});
    const result=await window.HH_DROPBOX_MIGRATION_V1.exchangeCallback(location.href);
-   status.textContent='✓ Az Outlook migrációs Dropbox engedélyezve. Ellenőrző végződés: '+result.suffix+
+   status.textContent='✓ A '+(result.role==='source'?'Gmail FORRÁS':'Outlook CÉL')+' migrációs Dropbox-engedélye elmentve. Ellenőrző végződés: '+result.suffix+
     '. Az adatok még nincsenek átírva. Nyisd meg a migrációs ellenőrzést.';
    const link=document.createElement('a');link.href='./dropbox-migration.html';link.textContent='Vissza a biztonságos Dropbox migrációhoz';
    status.after(link);

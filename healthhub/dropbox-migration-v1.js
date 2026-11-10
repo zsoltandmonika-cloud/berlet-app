@@ -5,10 +5,13 @@
 (function(w){
 'use strict';
 const PREFIX='hhmigration_', PK='hh-migrate-pkce-v1', DB='hh-migrate-auth-v1';
-const KEY='target', APP='dv5a4o8h09wwgtn', SRCAPP='t68rmhh5f1l8d85';
+const APP='dv5a4o8h09wwgtn';
 const CALLBACK='https://zsoltandmonika-cloud.github.io/berlet-app/healthhub/chatgpt-dropbox-callback-v739.html';
 const ROOT='/Apps/HealthHub Cloud Vault/HealthHub';
-const SCOPE='account_info.read files.metadata.read files.content.read files.content.write';
+const READ_SCOPE='account_info.read files.metadata.read files.content.read';
+const WRITE_SCOPE=READ_SCOPE+' files.content.write';
+// Fail closed: full clinical Vault and binary assets have not been migrated yet.
+const CUTOVER_ENABLED=false;
 const FILES=['monika-health-connect.json','zsolt-health-connect.json','monika-digital-wellbeing.json','zsolt-digital-wellbeing.json','monika-nutrition.json','zsolt-nutrition.json'];
 const state={plan:null,identity:null,sourceId:null};
 function fail(s){throw Error(s)}
@@ -17,15 +20,17 @@ function b64url(a){let s='';for(const b of a)s+=String.fromCharCode(b);return w.
 async function hash(bytes){return b64url(new Uint8Array(await w.crypto.subtle.digest('SHA-256',bytes)))}
 function enc(s){return new TextEncoder().encode(s)}
 function db(){return new Promise((ok,no)=>{const r=w.indexedDB.open(DB,1);r.onupgradeneeded=()=>{if(!r.result.objectStoreNames.contains('sessions'))r.result.createObjectStore('sessions')};r.onsuccess=()=>ok(r.result);r.onerror=()=>no(r.error)})}
-async function stored(){const d=await db();try{return await new Promise((ok,no)=>{const r=d.transaction('sessions','readonly').objectStore('sessions').get(KEY);r.onsuccess=()=>ok(r.result||null);r.onerror=()=>no(r.error)})}finally{d.close()}}
-async function save(v){const d=await db();try{await new Promise((ok,no)=>{const t=d.transaction('sessions','readwrite');t.objectStore('sessions').put(v,KEY);t.oncomplete=()=>ok();t.onerror=()=>no(t.error)})}finally{d.close()}}
-async function remove(){const d=await db();try{await new Promise((ok,no)=>{const t=d.transaction('sessions','readwrite');t.objectStore('sessions').delete(KEY);t.oncomplete=()=>ok();t.onerror=()=>no(t.error)})}finally{d.close()}state.plan=null}
-async function authorize(){
- const verifier=random()+random(), nonce=PREFIX+random();
- w.sessionStorage.setItem(PK,JSON.stringify({verifier,nonce,at:Date.now()}));
+async function stored(role='target'){if(role!=='source'&&role!=='target')fail('Hibás OAuth szerep');const d=await db();try{return await new Promise((ok,no)=>{const r=d.transaction('sessions','readonly').objectStore('sessions').get(role);r.onsuccess=()=>ok(r.result||null);r.onerror=()=>no(r.error)})}finally{d.close()}}
+async function save(v,role){if(role!=='source'&&role!=='target')fail('Hibás OAuth szerep');const d=await db();try{await new Promise((ok,no)=>{const t=d.transaction('sessions','readwrite');t.objectStore('sessions').put(v,role);t.oncomplete=()=>ok();t.onerror=()=>no(t.error)})}finally{d.close()}}
+async function remove(role='target'){if(role!=='source'&&role!=='target')fail('Hibás OAuth szerep');const d=await db();try{await new Promise((ok,no)=>{const t=d.transaction('sessions','readwrite');t.objectStore('sessions').delete(role);t.oncomplete=()=>ok();t.onerror=()=>no(t.error)})}finally{d.close()}state.plan=null}
+async function authorize(role='target'){
+ if(role!=='source'&&role!=='target')fail('Hibás OAuth szerep');
+ const verifier=random()+random(), nonce=PREFIX+role+'_'+random();
+ w.sessionStorage.setItem(PK,JSON.stringify({verifier,nonce,role,at:Date.now()}));
  const url=new URL('https://www.dropbox.com/oauth2/authorize');
  const pairs={client_id:APP,response_type:'code',redirect_uri:CALLBACK,code_challenge:await hash(enc(verifier)),
-  code_challenge_method:'S256',token_access_type:'offline',scope:SCOPE,state:nonce,force_reapprove:'true'};
+  code_challenge_method:'S256',token_access_type:'offline',scope:role==='source'?READ_SCOPE:WRITE_SCOPE,
+  state:nonce,force_reapprove:'true',force_reauthentication:role==='source'?'true':'false'};
  for(const [k,v] of Object.entries(pairs))url.searchParams.set(k,v);
  w.location.assign(url.toString());
 }
@@ -35,34 +40,27 @@ async function exchangeCallback(url){
  w.sessionStorage.removeItem(PK);
  if(!raw||u.searchParams.get('error'))fail('Sikertelen migrációs engedélyezés.');
  const p=JSON.parse(raw);if(p.nonce!==u.searchParams.get('state')||Date.now()-p.at>600000)fail('Lejárt vagy eltérő OAuth állapot');
+ const role=p.role;if(role!=='source'&&role!=='target'||!String(p.nonce).startsWith(PREFIX+role+'_'))fail('Migrációs OAuth szerep eltérés');
  const code=u.searchParams.get('code');if(!code)fail('OAuth kód hiányzik');
  const form=new URLSearchParams({code,grant_type:'authorization_code',redirect_uri:CALLBACK,code_verifier:p.verifier,client_id:APP});
  const r=await w.fetch('https://api.dropboxapi.com/oauth2/token',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:form});
  if(!r.ok)fail('OAuth token-csere: HTTP '+r.status);
  const v=await r.json();const scopes=String(v.scope||'').split(' ');
- if(!v.refresh_token||!v.account_id||!SCOPE.split(' ').every(x=>scopes.includes(x)))fail('Hiányzó Dropbox jogosultság');
- await save({refresh:v.refresh_token,access:v.access_token,accountId:v.account_id,expires:Date.now()+(Number(v.expires_in)||14400)*1000-60000});
- return {suffix:v.account_id.slice(-8)};
+ const required=role==='source'?READ_SCOPE:WRITE_SCOPE;
+ if(!v.refresh_token||!v.account_id||!required.split(' ').every(x=>scopes.includes(x)))fail('Hiányzó Dropbox jogosultság');
+ await save({refresh:v.refresh_token,access:v.access_token,accountId:v.account_id,expires:Date.now()+(Number(v.expires_in)||14400)*1000-60000,scope:v.scope},role);
+ return {role,suffix:v.account_id.slice(-8)};
 }
 async function access(which){
- if(which==='source'){
-  let src;try{src=JSON.parse(w.localStorage.getItem('hh-dropbox-token-v2')||'null')}catch(_){}
-  if(!src||!src.refresh_token||!src.account_id)fail('Forrás webes HealthHub Dropbox OAuth hiányzik. Előbb csatlakozz Gmaillel a HealthHubban.');
-  state.sourceId=src.account_id;
-  if(src.access_token && Date.now()+60000<Number(src.expires_at))return src.access_token;
-  const form=new URLSearchParams({refresh_token:src.refresh_token,grant_type:'refresh_token',client_id:SRCAPP});
-  const r=await w.fetch('https://api.dropboxapi.com/oauth2/token',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:form});
-  if(!r.ok)fail('Forrás tokenfrissítés HTTP '+r.status);
-  const v=await r.json();src.access_token=v.access_token;src.expires_at=Date.now()+(Number(v.expires_in)||14400)*1000-60000;
-  w.localStorage.setItem('hh-dropbox-token-v2',JSON.stringify(src));
-  return src.access_token;
- }
- let t=await stored();if(!t||!t.refresh)fail('Az Outlook cél Dropbox még nincs engedélyezve.');
+ if(which!=='source'&&which!=='target')fail('Hibás OAuth szerep');
+ let t=await stored(which);
+ if(!t||!t.refresh||!t.accountId)fail(which==='source'?'A Gmail-forrás nincs külön engedélyezve. Használd a Gmail forrás engedélyezése gombot.':'Az Outlook-cél nincs engedélyezve.');
+ if(which==='source')state.sourceId=t.accountId;
  if(t.access&&Date.now()+60000<Number(t.expires))return t.access;
  const form=new URLSearchParams({refresh_token:t.refresh,grant_type:'refresh_token',client_id:APP});
  const r=await w.fetch('https://api.dropboxapi.com/oauth2/token',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:form});
- if(!r.ok)fail('Outlook tokenfrissítés HTTP '+r.status);
- const v=await r.json();t.access=v.access_token;t.expires=Date.now()+(Number(v.expires_in)||14400)*1000-60000;await save(t);return t.access;
+ if(!r.ok)fail(which+' tokenfrissítés HTTP '+r.status);
+ const v=await r.json();t.access=v.access_token;t.expires=Date.now()+(Number(v.expires_in)||14400)*1000-60000;await save(t,which);return t.access;
 }
 async function api(which,endpoint,body){
  const token=await access(which);
@@ -137,23 +135,27 @@ function mergeDoc(dst,src,name){
  }else fail('Nem engedélyezett fájltípus');
  return {doc:r,issues,counts};
 }
-async function identity(expectedEmail){
+async function identity(expectedEmail,expectedSourceEmail){
  const specified=String(expectedEmail||w.sessionStorage.getItem('hh-migration-expected-target-v1')||'').trim().toLowerCase();
- if(!specified||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(specified))fail('Add meg és ellenőrizd a cél Dropbox e-mail-címét.');
- const src=await access('source');
- const dest=await stored();if(!dest)fail('Cél Dropbox hitelesítés hiányzik');
- if(dest.accountId===state.sourceId)fail('A két Dropbox OAuth ugyanahhoz a fiókhoz tartozik. Nem szabad migrálni.');
- const info=await api('target','users/get_current_account',{});
- if(String(info.email||'').toLowerCase()!==specified)fail('Nem a megadott Dropbox-fiók a cél. A művelet leállt.');
- const md=await api('target','files/get_metadata',{path:ROOT});
- if(md['.tag']!=='folder')fail('Outlook Cloud Vault gyökér hiányzik');
- state.identity={email:info.email,suffix:dest.accountId.slice(-8),sourceSuffix:state.sourceId.slice(-8)};
+ const srcEmail=String(expectedSourceEmail||w.sessionStorage.getItem('hh-migration-expected-source-v1')||'').trim().toLowerCase();
+ const mail=/^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+ if(!mail.test(specified)||!mail.test(srcEmail))fail('Add meg mindkét Dropbox-fiók pontos e-mail-címét.');
+ const src=await stored('source'),dest=await stored('target');
+ if(!src||!dest)fail('Két külön Dropbox-engedély szükséges: Gmail-forrás és Outlook-cél.');
+ if(src.accountId===dest.accountId)fail('A két migrációs OAuth ugyanahhoz a Dropbox-fiókhoz tartozik. A Gmail-forrást külön engedélyezd.');
+ const [sourceInfo,targetInfo]=await Promise.all([api('source','users/get_current_account',{}),api('target','users/get_current_account',{})]);
+ if(String(sourceInfo.email||'').toLowerCase()!==srcEmail)fail('Nem a megadott Gmail-forrásfiók van engedélyezve. Az adatátvitel leállt.');
+ if(String(targetInfo.email||'').toLowerCase()!==specified)fail('Nem a megadott Outlook-célfiók van engedélyezve. Az adatátvitel leállt.');
+ const [sourceRoot,targetRoot]=await Promise.all([api('source','files/get_metadata',{path:ROOT}),api('target','files/get_metadata',{path:ROOT})]);
+ if(sourceRoot['.tag']!=='folder'||targetRoot['.tag']!=='folder')fail('A HealthHub Cloud Vault alkalmazásmappa hiányzik valamelyik fiókból.');
+ state.sourceId=src.accountId;
+ state.identity={email:targetInfo.email,sourceEmail:sourceInfo.email,suffix:dest.accountId.slice(-8),sourceSuffix:src.accountId.slice(-8)};
  return state.identity;
 }
-async function preview(expectedEmail){
- const id=await identity(expectedEmail),out=[],blocked=[];
+async function preview(expectedEmail,expectedSourceEmail){
+ const id=await identity(expectedEmail,expectedSourceEmail),out=[],blocked=[];
  for(const name of FILES){
-  const path='/HealthHub/profiles/'+name,target=ROOT+'/profiles/'+name;
+  const path=ROOT+'/profiles/'+name,target=ROOT+'/profiles/'+name;
   let src,dst,meta,sourceMeta;
   try{sourceMeta=await api('source','files/get_metadata',{path});src=await download('source',path)}catch(e){if(e.status===409){out.push({name,status:'source_missing'});continue}throw e}
   try{meta=await api('target','files/get_metadata',{path:target});dst=await download('target',target)}
@@ -163,13 +165,16 @@ async function preview(expectedEmail){
    out.push({name,status:stable(doc)===stable(dst)?'unchanged':'candidate',rev:meta.rev,sourceRev:sourceMeta.rev,sourcePath:path,target,doc,issues,counts});
   }catch(e){blocked.push({name,reason:String(e.message||e)})}
  }
- state.plan={accountId:(await stored()).accountId,sourceId:state.sourceId,expectedEmail:String(expectedEmail||'').trim().toLowerCase(),files:out,blocked,at:Date.now()};
+ state.plan={accountId:(await stored('target')).accountId,sourceId:state.sourceId,
+  expectedEmail:String(expectedEmail||'').trim().toLowerCase(),expectedSourceEmail:String(expectedSourceEmail||'').trim().toLowerCase(),
+  files:out,blocked,at:Date.now()};
  return {identity:id,files:out.map(({name,status,issues,counts})=>({name,status,conflicts:issues?.length||0,counts})),blocked};
 }
 async function commit(confirmed){
+ if(!CUTOVER_ENABLED)fail('Az éles visszaírás zárolva, amíg a teljes profil-Vault és a dokumentumok egyesítése nincs ellenőrizve.');
  if(confirmed!==true||!state.plan||Date.now()-state.plan.at>5*60000)fail('Hiányzó vagy lejárt, jóváhagyott előnézet');
- await identity(state.plan.expectedEmail);
- const p=state.plan;if(p.sourceId!==state.sourceId||p.accountId!==(await stored()).accountId)fail('Az OAuth fiók időközben megváltozott');
+ await identity(state.plan.expectedEmail,state.plan.expectedSourceEmail);
+ const p=state.plan;if(p.sourceId!==state.sourceId||p.accountId!==(await stored('target')).accountId)fail('Az OAuth fiók időközben megváltozott');
  if(p.blocked.length)fail('Felülvizsgálandó fájlok vannak. Biztonsági okból nincs részleges írás.');
  let results=[];
  for(const item of p.files){
@@ -192,5 +197,5 @@ async function commit(confirmed){
  state.plan=null;
  return {results,targetSuffix:state.identity.suffix,warning:'A natív telefonok OAuth kapcsolata külön állítandó át. A régi fájlokat még ne töröld.'};
 }
-w.HH_DROPBOX_MIGRATION_V1=Object.freeze({authorize,exchangeCallback,preview,commit,stored,remove,compareCandidate:mergeDoc});
+w.HH_DROPBOX_MIGRATION_V1=Object.freeze({authorize,exchangeCallback,preview,commit,stored,remove,compareCandidate:mergeDoc,isCutoverEnabled:CUTOVER_ENABLED});
 })(window);
