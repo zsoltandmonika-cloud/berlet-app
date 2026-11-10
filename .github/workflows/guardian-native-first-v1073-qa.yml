@@ -50,6 +50,9 @@ jobs:
           node --test healthhub/tests/guardian-camera-owner-v1176.test.cjs
           node --test healthhub/tests/guardian-gps-owner-v1173.test.cjs
           node --test healthhub/tests/guardian-live-trio-v845.test.cjs
+          node --test healthhub/tests/guardian-native-relay-v156.test.cjs
+          node --test healthhub/tests/guardian-source-diagnostics-v1038.test.cjs
+          node --test healthhub/tests/guardian-gps-data-saver-v868.test.cjs
           node --test healthhub/tests/guardian-fast-follow-v1005.test.cjs
           node --test healthhub/tests/guardian-gps-source-flap-v1072.test.cjs
           node --test healthhub/tests/guardian-stale-owner-gps-v1071.test.cjs
