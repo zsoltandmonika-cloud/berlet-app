@@ -256,6 +256,7 @@ class MainActivity : ComponentActivity() {
         updateDigitalStatus()
         handleIntent(intent)
         showFamilyGuardRequest(intent)
+        showDropboxAccountReviewRequest(intent)
         updateResilientStatus()
         updateOtaStatus()
         updateSh9GpsUi()
@@ -308,6 +309,7 @@ class MainActivity : ComponentActivity() {
         // run OAuth, change Dropbox credentials, or relaunch SH9.
         handleIntent(intent)
         showFamilyGuardRequest(intent)
+        showDropboxAccountReviewRequest(intent)
         OrchestratorScheduler.runNow(this)
         ResilientHealthSync.schedule(this)
         updateResilientStatus()
@@ -1639,6 +1641,51 @@ class MainActivity : ComponentActivity() {
             }
         }
         request?.removeExtra("guardianEmergencyRequest")
+    }
+
+    private fun showDropboxAccountReviewRequest(request: Intent?) {
+        // Only the worker's one-time, unexpired request is accepted. No external
+        // app may fabricate an OAuth prompt using this exported Activity.
+        val targetSuffix = DropboxAccountReviewNotification.consume(this, request) ?: return
+        request?.removeExtra(DropboxAccountReviewNotification.EXTRA_COMMAND_ID)
+        request?.removeExtra(DropboxAccountReviewNotification.EXTRA_TARGET_SUFFIX)
+        request?.removeExtra(DropboxAccountReviewNotification.EXTRA_EXPIRES_AT)
+        val owner = deviceOwnerProfile()
+        if (owner == null || !OneRemoteAdmin.consent(prefs)) {
+            status.text = "A Dropbox-kérés már nem érvényes. A jelenlegi kapcsolat megmaradt."
+            return
+        }
+        val alreadyConnected = DropboxVaultClient.hasRefreshToken(prefs) &&
+            prefs.getString("dropbox_account_suffix_v1", null) == targetSuffix
+        if (alreadyConnected) {
+            AlertDialog.Builder(this)
+                .setTitle("✅ Dropbox-kapcsolat rendben")
+                .setMessage("Megkaptad a közös Dropbox ellenőrzésére küldött kérést. " +
+                    "Ez a telefon már a megfelelő fiókot használja. Nincs más dolgod. " +
+                    "A beállításaid változatlanok.")
+                .setPositiveButton("Rendben", null)
+                .show()
+            return
+        }
+        AlertDialog.Builder(this)
+            .setTitle("📦 Családi Dropbox csatlakoztatása")
+            .setMessage("Ezzel a HealthHub a közös családi Dropboxot fogja használni.\\n\\n" +
+                "1. Nyomd meg a „Folytatom” gombot.\\n" +
+                "2. A Dropbox oldalán válaszd a közös Outlook-fiókot.\\n" +
+                "3. Nyomd meg az „Engedélyezem” gombot.\\n\\n" +
+                "Ha most nem szeretnéd, válaszd a „Most nem” gombot. " +
+                "A régi kapcsolatod és az adataid megmaradnak.")
+            .setNegativeButton("Most nem", null)
+            .setPositiveButton("Folytatom") { _, _ ->
+                if (deviceOwnerProfile() == owner && OneRemoteAdmin.consent(prefs)) {
+                    // The user explicitly starts Dropbox PKCE on their OWN phone.
+                    // Existing tokens are kept until the returned account ID matches.
+                    startDropboxAuth(owner, targetSuffix)
+                } else {
+                    status.text = "Az ellenőrzés megszakadt. A korábbi Dropbox-kapcsolat megmaradt."
+                }
+            }
+            .show()
     }
 
     private fun openBackgroundLocationSettings() {
