@@ -45,13 +45,16 @@
   return Math.hypot((a.lng-b.lng)*111195*Math.cos(lat),(a.lat-b.lat)*111195);
  }
  function resolveSources(browser,native,profile,priorNative=null,now=Date.now()){
-  const a=snapshot(browser,profile,now),b=snapshot(native,profile,now);
+  // The browser/Supabase row has no physical Android device attestation.
+  // Until the phone cutover is verified, Monika's remote location must come
+  // exclusively from a fresh, owner-checked HH One native Dropbox snapshot.
+  const a=profile==='monika'?null:snapshot(browser,profile,now),b=snapshot(native,profile,now);
   const threshold=(x,y)=>Math.max(500,6*(x.accuracy+y.accuracy));
   if(a&&b&&gpsDistance(a,b)>threshold(a,b))
    return {fix:b,conflict:true,anchor:b,distance:gpsDistance(a,b)};
   if(a&&!b&&priorNative?.profile===profile&&gpsDistance(a,priorNative)>threshold(a,priorNative))
    return {fix:null,conflict:true,anchor:priorNative,distance:gpsDistance(a,priorNative)};
-  return {fix:newest(browser,native,profile,now),conflict:false,anchor:b||null,distance:0};
+  return {fix:profile==='monika'?b:newest(browser,native,profile,now),conflict:false,anchor:b||null,distance:0};
  }
  // 5 km/h opens; <4 closes; the band between retains its previous state.
  // Never retain a badge for a missing, stale or malformed reading.
@@ -196,7 +199,7 @@
      typeof row.longitude==='number'&&Number.isFinite(row.longitude)&&Math.abs(row.longitude)<=180&&
      typeof row.accuracy_m==='number'&&Number.isFinite(row.accuracy_m)&&row.accuracy_m>=0&&row.accuracy_m<=100;
    }).sort((a,b)=>Date.parse(b.updated_at)-Date.parse(a.updated_at));
-   if(!candidates.length)return '🟠 '+person+' · nincs friss hitelesített GPS-jel';
+   if(!candidates.length)return '🟠 '+person+' · '+(profile==='monika'?'nincs friss, telefonhoz kötött natív GPS-jel':'nincs friss hitelesített GPS-jel');
    const time=new Date(candidates[0].updated_at).toLocaleTimeString('hu-HU',{hour:'2-digit',minute:'2-digit'});
    return '🕘 '+person+' · utolsó ismert GPS: '+time+' · NEM ÉLŐ';
   }
@@ -405,13 +408,13 @@
      showFix(next);followRequest=false;
     }else{
      clearMarker();
-     showUnavailable(k,db,native);
+     showUnavailable(k,k==='monika'?null:db,native);
     }
    }catch(_){
     if(ticket===run){
      if(!latest||!preferRemote(latest,localFixAt())){
       clearMarker();
-      showUnavailable(k,db,native);
+      showUnavailable(k,k==='monika'?null:db,native);
      }else paintSpeed(latest); // age-out the speed even across network outages
     }
    }finally{
