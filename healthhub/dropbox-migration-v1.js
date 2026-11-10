@@ -154,13 +154,13 @@ async function preview(expectedEmail){
  const id=await identity(expectedEmail),out=[],blocked=[];
  for(const name of FILES){
   const path='/HealthHub/profiles/'+name,target=ROOT+'/profiles/'+name;
-  let src,dst,meta;
-  try{src=await download('source',path)}catch(e){if(e.status===409){out.push({name,status:'source_missing'});continue}throw e}
+  let src,dst,meta,sourceMeta;
+  try{sourceMeta=await api('source','files/get_metadata',{path});src=await download('source',path)}catch(e){if(e.status===409){out.push({name,status:'source_missing'});continue}throw e}
   try{meta=await api('target','files/get_metadata',{path:target});dst=await download('target',target)}
   catch(e){blocked.push({name,reason:'A célfájl hiányzik vagy nem olvasható'});continue}
   try{
    const {doc,issues,counts}=mergeDoc(dst,src,name);
-   out.push({name,status:stable(doc)===stable(dst)?'unchanged':'candidate',rev:meta.rev,target,doc,issues,counts});
+   out.push({name,status:stable(doc)===stable(dst)?'unchanged':'candidate',rev:meta.rev,sourceRev:sourceMeta.rev,sourcePath:path,target,doc,issues,counts});
   }catch(e){blocked.push({name,reason:String(e.message||e)})}
  }
  state.plan={accountId:(await stored()).accountId,sourceId:state.sourceId,expectedEmail:String(expectedEmail||'').trim().toLowerCase(),files:out,blocked,at:Date.now()};
@@ -174,6 +174,8 @@ async function commit(confirmed){
  let results=[];
  for(const item of p.files){
   if(item.status!=='candidate')continue;
+  const from=await api('source','files/get_metadata',{path:item.sourcePath});
+  if(from.rev!==item.sourceRev)fail('A forrásfájl megváltozott az előnézet óta: '+item.name);
   const before=await api('target','files/get_metadata',{path:item.target});
   if(before.rev!==item.rev)fail('A célfájl megváltozott az előnézet óta: '+item.name);
   const bytes=enc(JSON.stringify(item.doc,null,2)+'\n');
