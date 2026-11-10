@@ -91,7 +91,11 @@ function panel(force){
    var fresh=row&&row.state==='online'&&Number.isFinite(age)&&age>=0&&age<=20*60000;
    html+='<p class="hhRegCentralStatus401"><strong>'+name+'</strong> · '+
     (row?(fresh?'✅ Hitelesítve · online':'🟠 Hitelesítve · friss kapcsolat nem igazolt'):'⚪ Központi állapot még nem ellenőrzött')+
-    (row?'<small>HH One '+clean(row.build||'?')+' · utolsó jelzés: '+clean(stamp(row.last_seen_at))+'</small>':'')+'</p>';
+    (row?'<small>HH One '+clean(row.build||'?')+' · utolsó jelzés: '+clean(stamp(row.last_seen_at))+'</small>':'')+
+    (row&&fresh&&cloud()&&registry&&registry.activePhones[p]!==row.device_id
+      ?'<button type="button" data-hh-reg-action="choose-central" data-profile="'+p+
+        '" data-id="'+clean(row.device_id)+'">✓ Fő telefonnak kijelölöm</button>'
+      :'')+'</p>';
   });
   html+='<details class="hhRegLegacyDetails"><summary>☁️ Régi Dropbox-kapcsolatok és diagnosztika · kibontás</summary>'+
    '<p class="hhRegNote401">Csak régi Dropbox-regisztráció és távoli parancs. A hiányzó bejegyzés nem jelent hiányzó telefonpárosítást.</p>'+
@@ -202,7 +206,7 @@ async function refresh(force){
  }catch(e){error=String(e.message||e);registry=null}
  finally{loading=false;panel(!!force)}
 }
-async function saveChange(action,dev){
+async function saveChange(action,dev,profile){
  if(writing||loading) return;
  if(!cloud()){error='Dropbox Vault nincs csatlakoztatva.';panel(true);return}
  writing=true;
@@ -210,19 +214,36 @@ async function saveChange(action,dev){
   var current=await read();
   var present=await window.hhOrchestratorDevices305();
   var d=present.find(function(x){return dev&&x.deviceId===dev});
-  if(action!=='undo'&&(!d||!idOK(d.deviceId)||(action==='choose'&&!isPhone(d))))
+  if(action==='choose-central'){
+    // A central pairing alone is insufficient: re-read its authenticated
+    // server snapshot, verify owner, exact immutable ID and fresh heartbeat.
+    var center=window.HH_FAMILY_DEVICE_CENTRAL_V1;
+    if(!center||typeof center.refresh!=='function'||typeof center.devices!=='function')
+      throw Error('A központi eszközregiszter nem érhető el.');
+    await center.refresh();
+    var verified=center.devices().find(function(x){
+      return x&&x.profile_key===profile&&x.device_id===dev&&x.verified_at&&
+        x.state==='online'&&idOK(x.device_id)&&online({lastSeenAt:x.last_seen_at});
+    });
+    if(!verified)throw Error('Nincs friss, hitelesített központi Android-jelentés. Nem jelölünk ki telefont.');
+    d={deviceId:dev,deviceType:'android',activeProfile:profile,
+       lastSeenAt:verified.last_seen_at,build:verified.build};
+  }
+  if(action!=='undo'&&(!d||!idOK(d.deviceId)||
+    ((action==='choose'||action==='choose-central')&&!isPhone(d))))
     throw Error('A bejegyzés nem azonosítható. Frissítsd az eszközlistát.');
   var next=normalize(current),pre={activePhones:Object.assign({},current.activePhones),archived:current.archived.slice()};
-  if(action==='choose'){
+  if(action==='choose'||action==='choose-central'){
    if(next.activePhones[d.activeProfile]===d.deviceId&&!next.archived.includes(d.deviceId))return;
    if(!online(d))throw Error('Csak friss Android-jelentésű telefon jelölhető ki. Előbb nyisd meg a HH One Connectet a készüléken.');
    if(!confirm('Ez a '+(d.activeProfile==='zsolt'?'Zsolt':'Mónika')+' profil MOST HASZNÁLT fizikai telefonja?\n\n'+
       'Új Android ID: '+d.deviceId+'\nUtolsó jelentés: '+stamp(d.lastSeenAt)+
       '\nAPK: '+(d.build||'ismeretlen')+
       '\n\nA régi kijelölés megváltozik, de semmilyen eszköz- vagy egészségadatot nem törlünk.'))return;
-   next.activePhones[d.activeProfile]=d.deviceId;
    var other=d.activeProfile==='zsolt'?'monika':'zsolt';
-   if(next.activePhones[other]===d.deviceId)next.activePhones[other]=null;
+   if(next.activePhones[other]===d.deviceId)
+     throw Error('Ez a telefon már a másik profilhoz tartozik. Nem írjuk felül.');
+   next.activePhones[d.activeProfile]=d.deviceId;
    next.archived=next.archived.filter(function(x){return x!==d.deviceId});
   }else if(action==='archive'){
    if(Object.values(next.activePhones).includes(d.deviceId))throw Error('A kijelölt fő telefon nem archiválható. Előbb válassz másikat.');
@@ -299,7 +320,7 @@ function attach(){
    return;
   }
   if(action==='refresh')refresh(true);else if(action==='sync')sync(id);
-  else saveChange(action,id);
+  else saveChange(action,id,b.getAttribute('data-profile'));
  });
  // Central heartbeat changes repaint read-only phone status; no Dropbox writes.
   window.addEventListener('healthhub:central-device-registry-changed',function(){panel(false)});

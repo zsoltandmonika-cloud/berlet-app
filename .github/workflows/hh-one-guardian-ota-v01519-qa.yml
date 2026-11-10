@@ -1,0 +1,53 @@
+name: HH One 0.15.19 · Family Guard OTA QA
+on:
+  pull_request:
+    paths:
+      - 'healthhub/android-bridge/app/src/main/java/hu/zsoltmonika/healthhubbridge/FamilyGuardNativeRelay.kt'
+      - 'healthhub/android-bridge/app/src/main/java/hu/zsoltmonika/healthhubbridge/FamilyDeviceCentral.kt'
+      - 'healthhub/android-bridge/app/src/test/java/hu/zsoltmonika/healthhubbridge/GuardianLegacyRegistryDecisionTest.kt'
+      - 'healthhub/android-bridge/app/build.gradle.kts'
+      - 'healthhub/device-registry-v401.js'
+      - 'healthhub/index.html'
+      - 'healthhub/tests/hh-one-guardian-ota-v01519.test.cjs'
+      - '.github/workflows/hh-one-guardian-ota-v01519-qa.yml'
+  push:
+    paths:
+      - 'healthhub/android-bridge/app/src/main/java/hu/zsoltmonika/healthhubbridge/FamilyGuardNativeRelay.kt'
+      - 'healthhub/android-bridge/app/src/main/java/hu/zsoltmonika/healthhubbridge/FamilyDeviceCentral.kt'
+      - 'healthhub/android-bridge/app/src/test/java/hu/zsoltmonika/healthhubbridge/GuardianLegacyRegistryDecisionTest.kt'
+      - 'healthhub/android-bridge/app/build.gradle.kts'
+      - 'healthhub/device-registry-v401.js'
+      - 'healthhub/index.html'
+      - 'healthhub/tests/hh-one-guardian-ota-v01519.test.cjs'
+      - '.github/workflows/hh-one-guardian-ota-v01519-qa.yml'
+jobs:
+  safe-owner-gps-ota:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify web source and regression contracts
+        run: |
+          node --check healthhub/device-registry-v401.js
+          node --test healthhub/tests/hh-one-guardian-ota-v01519.test.cjs
+          node --test healthhub/tests/hh-one-family-registry-v1.test.cjs
+          node --test healthhub/tests/guardian-native-relay-v156.test.cjs
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.13'
+      - name: Install Android 36 SDK
+        shell: bash
+        run: |
+          SDKMANAGER="$(find "$ANDROID_HOME/cmdline-tools" -type f -name sdkmanager | head -1)"
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" "platforms;android-36" "build-tools;35.0.0"
+      - name: Compile unchanged Android app identity and test owner isolation
+        working-directory: healthhub/android-bridge
+        run: gradle :app:testDebugUnitTest :app:assembleDebug --no-daemon

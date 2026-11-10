@@ -1,0 +1,44 @@
+name: HH One · Approved 0.15.19 One-Time Pilot Dispatch
+# User-approved Zsolt-first rollout after successful PR checks.
+# This workflow dispatches the established, separately certificate-gated
+# Signed OTA workflow. It never signs or publishes APKs itself.
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'healthhub/android-bridge/app/build.gradle.kts'
+
+permissions:
+  contents: read
+  actions: write
+
+jobs:
+  approved-pilot-only:
+    if: ${{ github.event_name == 'push' && contains(github.event.head_commit.message, '[HH-ONE-01519-PILOT-APPROVED]') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - name: Require exact candidate and current signed baseline
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json, pathlib, re
+          b=pathlib.Path('healthhub/android-bridge/app/build.gradle.kts').read_text()
+          old=json.loads(pathlib.Path('healthhub/data/bridge-ota.json').read_text())
+          assert re.search(r'versionCode = 46\b', b), 'Wrong Android candidate'
+          assert re.search(r'versionName = "0\.15\.19"', b), 'Wrong candidate version'
+          assert old['version']=='0.15.18' and old['versionCode']==45, 'OTA baseline changed'
+          assert old['applicationId']=='hu.zsoltmonika.healthhubbridge'
+          assert old['rolloutProfiles']==['zsolt','monika']
+          print('One-time Zsolt-first OTA candidate preconditions confirmed')
+          PY
+      - name: Dispatch existing certificate-gated signed OTA to Zsolt only
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh workflow run healthhub-connect-ota-release.yml --ref main --field rollout=pilot
+          echo 'Signed OTA requested: Zsolt PILOT only; APK release and manifest checks are enforced in signed workflow.' >> "$GITHUB_STEP_SUMMARY"

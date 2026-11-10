@@ -89,16 +89,23 @@ object FamilyGuardNativeRelay {
     }
 
     private suspend fun isSelectedPhysicalPhone(context: Context, profile: String): Boolean {
-        val id = prefs(context).getString(DEVICE_ID_KEY, null)
-            ?.takeIf { it.startsWith("android-") && it.length <= 96 } ?: return false
-        val text = DropboxVaultClient.downloadTextOrNull(prefs(context), REGISTRY_PATH)
+        val p = prefs(context)
+        val id = p.getString(DEVICE_ID_KEY, null)
+            ?.takeIf { it.matches(Regex("^android-[a-f0-9]{8}(-[a-f0-9]{4}){3}-[a-f0-9]{12}$")) }
             ?: return false
-        val registry = JSONObject(text)
-        if (registry.optString("schema") != "healthhub.device_registry/1") return false
-        if (registry.optJSONObject("activePhones")?.optString(profile) != id) return false
-        val archived = registry.optJSONArray("archived") ?: return false
-        for (i in 0 until archived.length()) if (archived.optString(i) == id) return false
-        return true
+        // The legacy Dropbox registry can be missing after profile/account repair,
+        // although the exact same physical device remains centrally verified.
+        // A CONFLICT or invalid registry is never bypassed by a fallback.
+        val legacy = try {
+            DropboxVaultClient.downloadTextOrNull(p, REGISTRY_PATH)
+        } catch (_: Exception) { null }
+        return when (GuardianLegacyRegistryDecision.inspect(legacy, profile, id)) {
+            GuardianLegacyRegistryDecision.Result.SELECTED -> true
+            GuardianLegacyRegistryDecision.Result.UNASSIGNED ->
+                FamilyDeviceCentral.verifiedForNativeRelay(p, profile, id, BuildConfig.VERSION_NAME)
+            GuardianLegacyRegistryDecision.Result.CONFLICT,
+            GuardianLegacyRegistryDecision.Result.INVALID -> false
+        }
     }
 
     private suspend fun ensureFolder(context: Context) {
@@ -245,6 +252,43 @@ object FamilyGuardNativeRelay {
         } finally {
             uploadLock.unlock()
         }
+    }
+}
+
+/** Explicit other-device bindings win over central fallback; missing means
+ * only that an independently verified owner-bound proof MAY be tried.
+ * Never trust a malformed legacy registry or a retired device.
+ */
+internal object GuardianLegacyRegistryDecision {
+    enum class Result { SELECTED, UNASSIGNED, CONFLICT, INVALID }
+
+    fun inspect(json: String?, profile: String, deviceId: String): Result {
+        if (profile !in listOf("zsolt", "monika") ||
+            !deviceId.matches(Regex("^android-[a-f0-9]{8}(-[a-f0-9]{4}){3}-[a-f0-9]{12}$")))
+            return Result.INVALID
+        if (json == null) return Result.UNASSIGNED
+        return try {
+            val registry = JSONObject(json)
+            if (registry.optString("schema") != "healthhub.device_registry/1")
+                return Result.INVALID
+            val phones = registry.optJSONObject("activePhones") ?: return Result.INVALID
+            val archived = registry.optJSONArray("archived") ?: return Result.INVALID
+            for (i in 0 until archived.length())
+                if (archived.optString(i) == deviceId) return Result.CONFLICT
+            val own = phones.opt(profile)
+            val assigned = when (own) {
+                null, JSONObject.NULL -> ""
+                is String -> own
+                else -> return Result.INVALID
+            }
+            val peer = if (profile == "zsolt") "monika" else "zsolt"
+            if (phones.optString(peer) == deviceId) return Result.CONFLICT
+            when {
+                assigned == deviceId -> Result.SELECTED
+                assigned.isBlank() -> Result.UNASSIGNED
+                else -> Result.CONFLICT
+            }
+        } catch (_: Exception) { Result.INVALID }
     }
 }
 

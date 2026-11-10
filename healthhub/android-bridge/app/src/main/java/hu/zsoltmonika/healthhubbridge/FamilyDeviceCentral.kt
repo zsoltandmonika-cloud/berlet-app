@@ -21,6 +21,29 @@ internal object FamilyDeviceCentral {
     const val RESULT = "family_registry_last_result_v1"
     const val LAST_VERIFIED = "family_registry_last_verified_v1"
     private val devicePattern = Regex("^android-[a-f0-9]{8}(-[a-f0-9]{4}){3}-[a-f0-9]{12}$")
+    private data class RelayProof(val owner: String, val deviceId: String, val expiresAt: Long)
+    @Volatile private var relayProof: RelayProof? = null
+
+    /** A server-confirmed, owner/device-bound proof for an already approved
+     * native GPS publisher. In-memory only; expires quickly, never copied across
+     * owners, reinstalls or process restarts. No new GPS permission is granted.
+     */
+    suspend fun verifiedForNativeRelay(
+        prefs: SharedPreferences, owner: String, deviceId: String, build: String
+    ): Boolean {
+        if ((owner != "zsolt" && owner != "monika") || !devicePattern.matches(deviceId) ||
+            !prepared(prefs)) return false
+        val now = System.currentTimeMillis()
+        val previous = relayProof
+        if (previous != null && previous.owner == owner &&
+            previous.deviceId == deviceId && now < previous.expiresAt) return true
+        val verified = try {
+            heartbeat(prefs, owner, deviceId, build) == "verified"
+        } catch (_: Exception) { false }
+        relayProof = if (verified) RelayProof(owner, deviceId, System.currentTimeMillis() + 90_000L)
+                     else null
+        return verified
+    }
 
     fun prepared(prefs: SharedPreferences): Boolean =
         prefs.getBoolean(ENROLLED, false) && !prefs.getString(SECRET, null).isNullOrBlank()
