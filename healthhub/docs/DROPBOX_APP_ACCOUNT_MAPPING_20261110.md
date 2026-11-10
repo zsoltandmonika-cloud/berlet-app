@@ -42,3 +42,11 @@ Next required proof: Dropbox Developer Console Settings (without secrets) for bo
 - This separate App key must **not** be used to refresh credentials belonging to the currently deployed HealthHub app `t68rmhh5f1l8d85`; OAuth grants are scoped to their client.
 - Before changing the runtime key or migrating files, verify the `healthhub-vault` application's **permission type and App Folder mapping**. The observed `/Apps/healthhub-vault` subtree contains files last modified in early October, whereas `/Apps/HealthHub Cloud Vault/HealthHub` contains current live sources. Unverified key swapping risks a third split-brain datastore.
 - Safety gate remains in place: existing backup complete; no native device pairing reset, no live Dropbox source deletion or account cutover until full file and namespace validation.
+
+## Screenshot-confirmed Dropbox Developer Console settings (2026-11-10)
+
+- User screenshot conclusively establishes **App key `o2oe9qclhtoic9s`**, **Permission type `Scoped App (App Folder)`**, and **App folder name `healthhub-vault`**.
+- Checked scopes: `account_info.read`, `files.metadata.read`, `files.content.read`, `files.content.write`. `files.metadata.write` is unchecked.
+- The connected Outlook Dropbox has `/Apps/healthhub-vault` (old October data); it also has `/Apps/HealthHub Cloud Vault/HealthHub` with recent HealthHub activity. The two separate App Folder roots are **not interchangeable**.
+- Dropbox connector OAuth to Outlook does not change the HealthHub Connect native or web OAuth. **No native App key replacement, file overwrites or reconnection** until a verified end-to-end data consolidation and source-of-truth map are complete.
+- The user has already supplied adequate evidence of App key and permission type. **Do not request another screenshot of these fields.**
