@@ -216,6 +216,7 @@
   if(g.nativeStatus==='revoked')return '⛔ '+owner+': a natív helymegosztás visszavonva.';
   if(g.nativeStatus==='missing')return '⚠ '+owner+': nincs natív HH One helyadat a privát tárhelyen.';
   if(g.nativeStatus==='invalid')return '⚠ '+owner+': a natív adat érvénytelen vagy túl régi.';
+   if(g.nativeStatus==='route-unconfigured')return '⛔ '+owner+': GPS-route nincs hitelesítve.';
   if(g.nativeStatus==='ok'&&g.native){
    const age=now-Date.parse(g.native.updated_at);
    if(Number.isFinite(age)&&age>=0)
@@ -303,33 +304,22 @@
    return {sleep:sleepIndex(rows,stamp),nutrition};
   }
   async function fetchGps(profile){
-   const live=auth(),client=live?.getClient?.();
-   if(!client)return {state:'unknown',text:'Nincs jel'};
-   let browser=null,native=null,revokeAt=NaN,nativeStatus='not-connected';
+   // GPS status may not consume the old Supabase/browser home record.
+   const router=w.HH_GUARDIAN_GPS_ROUTER_V1177;
+   let native=null,nativeStatus='not-connected',revokeAt=NaN;
    try{
-    const resp=typeof live.readSharedLocation==='function'
-     ?await live.readSharedLocation(profile)
-     :await client.from('hh_guardian_live_locations')
-      .select('profile_key,latitude,longitude,accuracy_m,updated_at')
-      .eq('profile_key',profile).maybeSingle();
-    if(!resp.error&&resp.data)browser=resp.data;
-   }catch(_){}
-   try{
-    const relay=w.HH_GUARDIAN_NATIVE_V156;
-    if(relay?.connected?.()){
-     const result=await relay.read(profile);
-     nativeStatus=result?.status||'error';
-     if(result?.status==='ok')native=result.data;
-     if(result?.status==='revoked')revokeAt=time(result.updated_at);
-    }
+    const result=await router?.read?.(profile);
+    nativeStatus=result?.status||'not-connected';
+    if(result?.status==='ok')native=result.data;
+    if(result?.status==='revoked')revokeAt=time(result.updated_at);
    }catch(_){nativeStatus='error'}
-   return {browser,native,revokeAt,nativeStatus};
+   return {browser:null,native,revokeAt,nativeStatus};
   }
   async function refresh(){
    if(d.hidden)return;
    const p=selected();
    if(lastProfile!==p)invalidate();
-   if(!permitted(auth(),p)){invalidate();return}
+   if(!w.HH_GUARDIAN_GPS_ROUTER_V1177?.forProfile?.(p)){invalidate();return}
    if(busy){rerun=true;return}
    busy=true;const ticket=++generation;
    const stamp=Date.now(),needHealth=stamp-lastHealthFetch>2*MIN;
@@ -337,11 +327,11 @@
     const [g,h]=await Promise.all([
      fetchGps(p),needHealth?fetchHealth(p,stamp):Promise.resolve(null)
     ]);
-    if(ticket!==generation||selected()!==p||d.hidden||!permitted(auth(),p))return;
+    if(ticket!==generation||selected()!==p||d.hidden)return;
     cachedGPS=g;
     if(needHealth&&h){cachedSleep=h.sleep;cachedNutrition=h.nutrition;lastHealthFetch=stamp}
     const n=nutritionBalance(p,cachedNutrition,readEnergy(p),Date.now());
-    show({gps:gpsState(g.browser,g.native,p,Date.now(),g.revokeAt),
+    show({gps:gpsState(null,g.native,p,Date.now(),g.revokeAt),
      diagnostic:connectionDiagnostic(g,p,Date.now()),sleep:cachedSleep,nutrition:n});
     updatedAt=Date.now();
    }catch(_){
@@ -361,7 +351,7 @@
    // A normal token refresh must not erase GPS, Sleep and Nutrition tiles.
    // Revocation, wrong account and actual profile changes still clear them.
    const p=selected();
-   if(!permitted(auth(),p)){invalidate();return}
+   if(!w.HH_GUARDIAN_GPS_ROUTER_V1177?.forProfile?.(p)){invalidate();return}
    if(p!==lastProfile){invalidate()}
    refresh();
   });
