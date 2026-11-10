@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="hu">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#18112c">
+<meta name="description" content="SHO Smart Match, hiteles BKK-menetrendi csatlakozáskereső és kitűzött idővonal">
+<title>Smart Match · SHO Smart Trip AI</title>
+<link rel="stylesheet" href="./style.css?v=1">
+</head>
+<body>
+<div class="banner" id="pinnedBanner">
+ <span>📌 KITŰZÖTT · SMART MATCH TIMELINE</span>
+ <button id="exitPin" class="btn ghost" type="button">✎ Szerkesztés</button>
+</div>
+<main>
+ <nav class="top" aria-label="Vissza a Smart Trip AI-hoz">
+  <a href="/berlet-app/sh9/smart-travel/public-transport/smart-trip/">‹ Smart Trip AI</a>
+  <span class="pill">SHO · MÓNIKA</span>
+ </nav>
+ <div class="eyebrow">Személyes közlekedés · Smart Match</div>
+ <h1 id="heading">Mónika · Munkahely → Otthon</h1>
+ <p class="sub" id="editorIntro">Válassz céljáratot, állítsd be a ráhordó járatokat, és tűzd ki a következő indulásokat. A sablonok helyben, a böngésződben mentődnek.</p>
+ <div id="templates" role="group" aria-label="Mentett útvonal-sablonok"></div>
+ <section class="hero glass" aria-label="Következő ajánlott indulás">
+  <div class="hero-grid">
+   <div>
+    <div class="hero-label" id="heroLabel">Következő indulás a munkahelyről</div>
+    <div class="hero-time" id="heroTime">--:--</div>
+    <div class="hero-description" id="heroDetail">Hiteles menetrend betöltése…</div>
+   </div>
+   <div class="ring" id="ring"><div class="ring-inner"><b id="countdown">--:--</b><small>indulásig</small></div></div>
+  </div>
+  <div class="flow" id="routeFlow" aria-label="Utazási folyamat"></div>
+ </section>
+ <section class="metrics" aria-label="Sablonparaméterek">
+  <div class="metric"><small>Menetrendi ablak</small><strong id="windowMetric">13:00–19:00</strong></div>
+  <div class="metric"><small>Max. várakozás</small><strong id="waitMetric">≤ 3 perc</strong></div>
+  <div class="metric"><small>Gyaloglás induláskor</small><strong id="walkMetric">10 + 1 perc</strong></div>
+ </section>
+
+ <section class="panel glass" id="editor" aria-label="Smart Match sablonszerkesztő">
+  <div class="section-head"><h2>⚙️ Sablon szerkesztése</h2><span class="muted" id="scopeLabel">BKK · 17 / 19 / 41 / 260</span></div>
+  <div class="form-grid">
+   <label class="wide">Sablon neve<input id="titleInput" type="text" maxlength="80" placeholder="Pl. Mónika · Munkahely → Otthon"></label>
+   <label>Csatlakozás típusa
+    <select id="kind"><option value="transfer">🚋 Járat → céljárat</option><option value="walk">🚶 Gyalog → céljárat</option></select>
+   </label>
+   <label>Céljárat<select id="targetRoute"></select></label>
+   <label>Céljárat iránya / felirata<input id="headsign" type="text" maxlength="90" placeholder="pl. Harsánylejtő"></label>
+   <label>Indulási hely neve<input id="fromLabel" type="text" maxlength="80" placeholder="Munkahely / Otthon"></label>
+   <label>Cél neve<input id="toLabel" type="text" maxlength="80" placeholder="Otthon"></label>
+   <label>Céljárat felszállóhelye<input id="boardStop" type="text" list="stops" maxlength="120"></label>
+   <label class="forTransfer">Ráhordó járat induló megállója<input id="originStop" type="text" list="stops" maxlength="120"></label>
+   <label class="forTransfer">Ráhordó járat érkezési megállója<input id="transferStop" type="text" list="stops" maxlength="120"></label>
+   <div class="wide forTransfer">
+    <strong style="font-size:12px;color:#dbe1fa">Villamosok / buszok, amelyekkel a céljáratot elérnénk</strong>
+    <div class="line-choices" id="feederLines" role="group" aria-label="Ráhordó járatok"></div>
+   </div>
+   <label>Kezdő időpont<input id="timeFrom" type="time" step="3600" value="13:00"></label>
+   <label>Záró időpont<input id="timeUntil" type="time" step="3600" value="19:00"></label>
+   <label>Gyaloglás induláskor, perc<input id="walkMin" type="number" min="0" max="30" step="1" value="10"></label>
+   <label>Indulási biztonsági idő, perc<input id="safetyMin" type="number" min="0" max="10" step="1" value="1"></label>
+   <label class="forTransfer">Megállók közti séta minimum, perc<input id="transferWalk" type="number" min="0" max="20" step="1" value="2"></label>
+   <label class="forTransfer">Megállóban várakozás max., perc<input id="maxWait" type="number" min="1" max="10" step="1" value="3"></label>
+  </div>
+  <datalist id="stops"></datalist>
+  <div class="edit-actions">
+   <button class="btn" id="calcBtn" type="button">🔄 Csatlakozások újraszámítása</button>
+   <button class="btn secondary" id="saveBtn" type="button">💾 Sablon mentése</button>
+   <button class="btn ghost" id="newBtn" type="button">＋ Új sablon</button>
+   <button class="btn" id="pinBtn" type="button">📌 Kitűzés teljes képernyőre</button>
+  </div>
+  <p class="sub" style="font-size:11px;margin-top:13px">A sablon jelenleg profilonként ebben a böngészőben mentődik. Másik eszközre még nem szinkronizálódik automatikusan. A GPS-hez, Family Guardhoz és Dropboxhoz nem nyúl.</p>
+ </section>
+
+ <div id="status" role="status" aria-live="polite">A hivatalos BKK-menetrend ellenőrzése…</div>
+ <section class="glass" style="padding:16px" aria-label="Görgethető Smart Match idővonal">
+  <div class="section-head" style="margin:0 0 13px">
+   <div><h2>✨ Smart Match Timeline</h2><span class="muted" id="timelineSubtitle">A mai menetrend csatlakozásai</span></div>
+   <div class="toolbar">
+    <div class="day-strip"><input type="date" id="day" aria-label="Menetrendi nap"></div>
+    <button id="dayNext" type="button" class="btn ghost" aria-label="Következő nap">+1 nap</button>
+    <button id="remindBtn" type="button" class="btn secondary">🔔 Lapon belüli jelzés</button>
+   </div>
+  </div>
+  <div class="progress"><div id="dayProgress"></div></div>
+  <div class="timeline-wrap">
+   <div class="timeline-rail" id="timeline" role="region" tabindex="0" aria-label="260-as és egyéb céljáratokhoz igazított indulási idővonal">
+    <div class="empty">Menetrendi adatok ellenőrzése…</div>
+   </div>
+  </div>
+  <p class="sub" id="matchSummary" style="font-size:12px;margin-top:14px"></p>
+ </section>
+ <div class="notice">ℹ️ <strong>Menetrendi előrejelzés, nem élő járatkövetés.</strong> A megállók közötti séta becsült; a pontos útvonalat és késéseket a <a href="https://bkk.hu/budapestgo/" target="_blank" rel="noopener noreferrer">BudapestGO-ban</a> ellenőrizd. A riasztás csak nyitott oldalon működik, háttérben nem garantált.</div>
+ <footer class="footer">Forrás: <a href="https://opendata.bkk.hu/data-sources" target="_blank" rel="noopener noreferrer">BKK Zrt. · CC BY 4.0</a> · A menetrendi állományt a SHO korábbi, ellenőrzött GTFS-olvasója tölti be. A „MOST” jel és a visszaszámláló a készülék idejét használja; nem jelentenek valós idejű BKK-követést.</footer>
+</main>
+<div id="toast" role="alert" hidden></div>
+<script type="module" src="./app.mjs?v=1"></script>
+</body>
+</html>

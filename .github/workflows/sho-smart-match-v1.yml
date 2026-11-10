@@ -1,0 +1,37 @@
+name: SHO Smart Match isolated QA
+on:
+  pull_request:
+    paths:
+      - "healthhub/guardian/smart-260-connect/**"
+      - "sh9/smart-travel/public-transport/smart-trip/index.html"
+      - ".github/workflows/sho-smart-match-v1.yml"
+  push:
+    branches:
+      - "feature/guardian-smart-260-connect"
+    paths:
+      - "healthhub/guardian/smart-260-connect/**"
+      - "sh9/smart-travel/public-transport/smart-trip/index.html"
+      - ".github/workflows/sho-smart-match-v1.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - name: Node syntax check (pure browser-side modules)
+        run: |
+          node --version
+          node --check healthhub/guardian/smart-260-connect/core.mjs
+          node --check healthhub/guardian/smart-260-connect/app.mjs
+      - name: Scheduled matching, walking and safe-fail regression tests
+        run: node --test healthhub/guardian/smart-260-connect/core.test.mjs
+      - name: Official public BKK GTFS routing diagnostic
+        run: node --test healthhub/guardian/smart-260-connect/real-feed.test.mjs
+      - name: Validate isolated Smart Trip AI navigation
+        run: |
+          grep -q '/berlet-app/healthhub/guardian/smart-260-connect/' sh9/smart-travel/public-transport/smart-trip/index.html
+          grep -q 'pinnedBanner' healthhub/guardian/smart-260-connect/index.html
+          grep -q 'BKK Zrt.' healthhub/guardian/smart-260-connect/index.html
