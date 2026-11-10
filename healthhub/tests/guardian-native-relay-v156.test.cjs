@@ -28,7 +28,7 @@ function setup(payload,now=Date.now(),authorized=true){
 }
 test('standalone Family Guard loads private, read-only native Dropbox feed',()=>{
  assert.match(html,/guardian-native-dropbox-v156\.js\?v=1172-dual-dropbox-owner-routing/);
- assert.match(live,/HH_GUARDIAN_NATIVE_V156/);
+ assert.match(live,/HH_GUARDIAN_GPS_ROUTER_V1177/);
  assert.match(live,/const selected=nativeFix&&peerSnapshot\(nativeFix\)\?\.live\?nativeFix:null/);
  assert.match(live,/status==='revoked'/);
  assert.match(live,/data\.source==='HH One Native GPS'\?75_000:AGE_MS/);
