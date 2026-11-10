@@ -136,6 +136,28 @@ function select(group,scroll){
  if(changed&&group==='devices')w.setTimeout(()=>w.SH9_VERSION_CENTER_V1?.refresh?.(),180);
 }
 function jump(id){return openTarget(id==='hhDeviceRegistry401'?'registry':'devices',id)}
+// A safe shortcut: opens the existing verified command panel and selects the
+// review scope. It NEVER sends a command or switches a Dropbox credential.
+function openDropboxReview(){
+ if(!isAdmin())return false;
+ select('devices',false);
+ let attempts=0;
+ function prepare(){
+  if(!isAdmin()||selected!=='devices')return;
+  const panel=q('hhSyncOrchestrator305'),scope=q('hhOrchScope305');
+  if(panel&&scope){
+   scope.value='dropbox_account_review';
+   scope.dispatchEvent(new Event('change',{bubbles:true}));
+   panel.scrollIntoView?.({behavior:'instant',block:'start'});
+   help('Dropbox-ellenőrzés előkészítve. Ellenőrizd a Gmail Dropbox CONNECTED állapotát, majd csak a Mónika gombot nyomd meg. Ez az előkészítés még nem küld értesítést.');
+   return;
+  }
+  if(++attempts<10)w.setTimeout(prepare,200);
+  else help('A Dropbox vezérlőpanel még nem töltődött be. Ellenőrizd a Dropbox-kapcsolatot és frissítsd a felületet.');
+ }
+ w.setTimeout(prepare,100);
+ return true;
+}
 const REPAIR_TARGETS=Object.freeze({
  registry:['hhDeviceRegistry401'],
  devices:['hhDeviceRegistry401','hhSyncOrchestrator305','sh9VersionCenterV1'],
@@ -278,6 +300,10 @@ function mount(){
   const cloudFix=el('button','', '☁️ Dropbox kapcsolat javítása');
   cloudFix.type='button';cloudFix.addEventListener('click',()=>openTarget('cloud','hhUnifiedCloudVaultCard'));
   actions.appendChild(cloudFix);
+  const dropboxReview=el('button','', '📦 Dropbox-ellenőrzés előkészítése · Mónika');
+  dropboxReview.type='button';dropboxReview.id='hhAdminDropboxReviewShortcutV749';
+  dropboxReview.addEventListener('click',openDropboxReview);
+  actions.appendChild(dropboxReview);
   // Keep the existing six category cards. One direct Calendar settings link
   // appears only in Cloud & AI; authentication stays in the first-party browser.
   const outlook=el('button','', '📅 Microsoft Calendar · beállítások');
@@ -302,5 +328,5 @@ w.addEventListener('focus',tick);
 w.addEventListener('healthhub:device-registry-updated',tick);
 if(d.readyState==='loading')d.addEventListener('DOMContentLoaded',tick,{once:true});else tick();
 w.setInterval(tick,4500);
-w.HH_ADMIN_MOBILE_V748={version:'809',openPair:openPairModal,openDevices:()=>select('devices',false),openRegistry:()=>openTarget('registry','hhDeviceRegistry401'),openTarget,category:()=>selected,tick};
+w.HH_ADMIN_MOBILE_V748={version:'809',openPair:openPairModal,openDevices:()=>select('devices',false),openRegistry:()=>openTarget('registry','hhDeviceRegistry401'),openTarget,openDropboxReview,category:()=>selected,tick};
 })(window,document);

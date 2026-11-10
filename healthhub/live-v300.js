@@ -54,7 +54,16 @@ function refreshHealthUi(result){
   vals[3].textContent=s&&s.quota?(Math.round((s.usage/s.quota)*1000)/10)+'%':'0%';
  }
 }
+// The inline Admin is an active work surface: never hard-reload it during
+// a background web release probe. The previous code only guarded text inputs,
+// so selecting a dropdown or scrolling could abruptly destroy the entire UI.
+function adminInUse(){
+ var overlay=document.getElementById('haOv');
+ return document.documentElement.dataset.hhInlineAdmin==='yes' ||
+  !!(overlay&&overlay.classList.contains('on'));
+}
 function safeForAutoReload(){
+ if(adminInUse())return false;
  var a=document.activeElement,tag=a&&a.tagName||'';
  if(/^(INPUT|TEXTAREA|SELECT)$/.test(tag))return false;
  var smart=document.getElementById('hhLenaSmart299');
@@ -104,10 +113,19 @@ async function checkForLiveUpdate(){
   var changed=changedPublishedModules(txt);
   if((live&&live!==LIVE_BUILD)||changed.length){
    var target=(live||LIVE_BUILD)+'|'+changed.join(',');
+   if(adminInUse()){
+    // Remember asset-only changes too; the user controls the Admin until exit.
+    try{sessionStorage.setItem('hh-pending-admin-refresh-v1',String(n))}catch(_){}
+    return;
+   }
    if(recentlyAttemptedUpdate(target,n))return;
    try{window.toast&&window.toast('Új HealthHub-kiadás: '+(live||LIVE_BUILD)+' · frissítés…')}catch(e){}
    if(safeForAutoReload()){
     setTimeout(function(){
+     if(!safeForAutoReload()){
+      try{sessionStorage.setItem('hh-pending-admin-refresh-v1',String(Date.now()))}catch(_){}
+      return;
+     }
      try{
       var u=new URL(location.href);
       u.searchParams.set('hhv',(live||LIVE_BUILD).replace(/^v/i,''));
@@ -122,6 +140,23 @@ async function checkForLiveUpdate(){
  }catch(e){}finally{updateChecking=false}
 }
 function resumePendingUpdate(){
+ // A queued update is applied only AFTER the Admin panel is closed.
+ var pendingAdmin='';try{pendingAdmin=sessionStorage.getItem('hh-pending-admin-refresh-v1')||''}catch(_){}
+ if(pendingAdmin&&safeForAutoReload()){
+  try{sessionStorage.removeItem('hh-pending-admin-refresh-v1')}catch(_){}
+  setTimeout(function(){
+   if(!safeForAutoReload()){
+    try{sessionStorage.setItem('hh-pending-admin-refresh-v1',String(Date.now()))}catch(_){}
+    return;
+   }
+   try{
+    var url=new URL(location.href);
+    url.searchParams.set('hh_asset_refresh',String(Date.now()));
+    location.replace(url.toString());
+   }catch(e){location.reload()}
+  },250);
+  return;
+ }
  var live='';try{live=sessionStorage.getItem('hh-pending-live-build')||''}catch(e){}
  if(live&&live===LIVE_BUILD){try{sessionStorage.removeItem('hh-pending-live-build')}catch(e){};return}
  if(live&&live!==LIVE_BUILD&&safeForAutoReload()){
@@ -439,6 +474,8 @@ window.addEventListener('focus',function(){resumePendingUpdate();checkForLiveUpd
 window.addEventListener('online',function(){checkForLiveUpdate()},{passive:true});
 document.addEventListener('visibilitychange',function(){if(!document.hidden){resumePendingUpdate();checkForLiveUpdate()}},{passive:true});
 setTimeout(checkForLiveUpdate,2200);
+// Purely checks a pending flag. Never redraws Admin or downloads while scrolling.
+setInterval(resumePendingUpdate,15000);
 
 document.documentElement.dataset.healthhubAiImprovement='1.303';
 })();
