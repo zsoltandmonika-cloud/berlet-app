@@ -88,7 +88,7 @@ test('v841 is a scoped premium hero change, using only approved owner-bound rela
  const android=fs.readFileSync(path.join(__dirname,'../android-bridge/app/src/main/java/hu/zsoltmonika/healthhubbridge/FamilyGuardNativeRelay.kt'),'utf8');
  assert.match(html,/guardian-profile-battery-v841\.css\?v=841-hero-owner-battery/);
  assert.match(html,/guardian-profile-battery-v841\.js\?v=841-per-profile-battery/);
- assert.match(html,/guardian-native-dropbox-v156\.js\?v=156-private-native-relay&battery=841/);
+ assert.match(html,/guardian-native-dropbox-v156\.js\?v=1172-dual-dropbox-owner-routing/);
  assert.match(css,/\.guardian-hero>\.guardian-battery-v841/);
  assert.match(css,/pointer-events:none!important/);
  assert.match(css,/data-level="red"/);
