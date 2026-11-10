@@ -282,13 +282,24 @@ function onGpsPaused(){
 }
 function onProfileChanged(){
  locationReads.clear();
- stopSharing();removePeer();
+ // Selecting another person on the map must NOT revoke or delete this
+ // phone's previously approved GPS publication. Device owner and viewed
+ // profile are separate concepts. Stop only if the physical binding itself
+ // is no longer trustworthy.
+ const owner=bound();
+ const keepOwnerPublishing=sharing&&!!owner&&sharingProfile===owner&&
+  access.includes(owner);
+ if(sharing&&!keepOwnerPublishing)stopSharing();
+ removePeer();
  setPeerState('Új profil · élő jel ellenőrzése');
- gpsInfo('⚪ Profilváltás után a böngészős GPS-t külön újra kell indítani.');
- updateUi();resetPolling();loadSettings();resumeOwnPhoneAutoFollow();
+ gpsInfo(keepOwnerPublishing
+  ?'🟢 Saját telefon GPS-megosztása tovább működik; másik profil követése.'
+  :'⚪ Nincs aktív saját GPS-megosztás; tulajdonosi jóváhagyás szükséges.');
+ updateUi();resetPolling();loadSettings();
+ if(!sharing)resumeOwnPhoneAutoFollow();
 }
 function onGpsFix(pos){
- if(!api||!sharing||!user||d.hidden||sharingProfile!==self()||!access.includes(sharingProfile))return;
+ if(!api||!sharing||!user||d.hidden||sharingProfile!==bound()||!access.includes(sharingProfile))return;
  const c=pos&&pos.coords||{},lat=Number(c.latitude),lon=Number(c.longitude),accuracy=Number(c.accuracy);
  const ts=Number(pos.timestamp)||Date.now();
  if(!Number.isFinite(lat)||!Number.isFinite(lon)||!Number.isFinite(accuracy)||
