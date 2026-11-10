@@ -3,12 +3,18 @@ on:
   pull_request:
     paths:
       - "healthhub/guardian/guardian-profile-follow-v837.js"
+      - "healthhub/guardian/guardian.js"
+      - "healthhub/guardian/guardian-live-v785.js"
+      - "healthhub/tests/guardian-cross-profile-no-ota-v1171.test.cjs"
       - "healthhub/guardian/index.html"
       - "healthhub/tests/guardian-fast-follow-v1005.test.cjs"
       - ".github/workflows/guardian-native-first-v1073-qa.yml"
   push:
     paths:
       - "healthhub/guardian/guardian-profile-follow-v837.js"
+      - "healthhub/guardian/guardian.js"
+      - "healthhub/guardian/guardian-live-v785.js"
+      - "healthhub/tests/guardian-cross-profile-no-ota-v1171.test.cjs"
       - "healthhub/guardian/index.html"
       - "healthhub/tests/guardian-fast-follow-v1005.test.cjs"
       - ".github/workflows/guardian-native-first-v1073-qa.yml"
@@ -22,9 +28,13 @@ jobs:
         with:
           node-version: "22"
       - name: Verify JavaScript syntax
-        run: node --check healthhub/guardian/guardian-profile-follow-v837.js
+        run: |
+          node --check healthhub/guardian/guardian-profile-follow-v837.js
+          node --check healthhub/guardian/guardian.js
+          node --check healthhub/guardian/guardian-live-v785.js
       - name: Fast follow and fresh-source regression
         run: |
           node --test healthhub/tests/guardian-fast-follow-v1005.test.cjs
           node --test healthhub/tests/guardian-gps-source-flap-v1072.test.cjs
           node --test healthhub/tests/guardian-stale-owner-gps-v1071.test.cjs
+          node --test healthhub/tests/guardian-cross-profile-no-ota-v1171.test.cjs
