@@ -43,5 +43,5 @@ test('all original Admin shortcuts keep their actions and Android-only restricti
 
 test('app busts Admin CSS-in-JS cache while GPS routes remain outside patch',()=>{
  assert.match(index,/hh-admin-mobile-focus-v748\.js\?v=748[^"']*actionGrid=822/);
- assert.match(index,/guardian-gps-routes-v1177\.js|healthhub\//);
+ assert.match(index,/live-v306\.js\?v=820-admin-stable-healthconnect&steady=821/);
 });
