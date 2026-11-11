@@ -77,7 +77,7 @@ function switchButton(){
  b.setAttribute("aria-label","Smart Location automatikus útvonalválasztás");
  b.setAttribute("aria-pressed",String(state.autoEnabled));
  b.setAttribute("title","Csak a már hitelesített Family Guard GPS-ből és mentett helyekből választ. Nincs új helymeghatározás.");
- b.textContent=state.autoEnabled?"📍 Smart Location · BE":"📍 Smart Location · KI";
+ b.textContent=state.autoEnabled?"📍\nBE":"📍\nKI";
  b.addEventListener("click",()=>{
   state.autoEnabled=!state.autoEnabled;
   try{localStorage.setItem(AUTO_KEY,state.autoEnabled?"on":"off")}catch(_){}
@@ -93,9 +93,8 @@ function paintSwitch(label=""){
  const b=document.getElementById(SWITCH_ID);if(!b)return;
  b.setAttribute("aria-pressed",String(state.autoEnabled));
  b.dataset.mode=state.autoEnabled?"on":"off";
- const zone=state.confirmedZone==="home"?" · Otthon":
-  state.confirmedZone==="work"?" · Munkahely":"";
- b.textContent=state.autoEnabled?"📍 Smart Location · BE"+zone:"📍 Smart Location · KI";
+ b.textContent=state.autoEnabled?"📍\nBE":"📍\nKI";
+ b.dataset.zone=state.confirmedZone||"unknown";
  b.setAttribute("aria-label",state.autoEnabled?
   "Smart Location bekapcsolva. Kattintás: automatikus irányváltás kikapcsolása.":
   "Smart Location kikapcsolva. Kattintás: automatikus irányváltás bekapcsolása.");
