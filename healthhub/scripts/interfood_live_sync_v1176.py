@@ -234,6 +234,13 @@ def browser_rendered_html() -> str:
                                         return str(value)[:110] if isinstance(value,str) else value
                                     print("PUBLIC MENU CODE GROUP",key,json.dumps(deep(sample_group),ensure_ascii=False)[:8500])
                             print("PUBLIC MENU QUERY KEYS:",[k for k in urllib.parse.parse_qs(u.query).keys()])
+                            catmap=public.get("25",{}).get("categories",{}) if isinstance(public,dict) else {}
+                            if isinstance(catmap,dict) and catmap:
+                                first=next(iter(catmap.values()))
+                                print("SAMPLE CATEGORY ALL KEYS",list(first.keys()))
+                                for field,value in first.items():
+                                    if isinstance(value,(dict,list)):
+                                        print("SAMPLE CATEGORY NESTED",field,json.dumps(deep(value),ensure_ascii=False)[:8500])
                 except Exception:pass
             page.on("response",observe)
             response=page.goto(SOURCE,wait_until="domcontentloaded",timeout=35000)
@@ -294,6 +301,18 @@ def main():
         print("Source HTTP:",resp.status,"content-type:",mime,"bytes:",len(html))
     if "html" not in mime.lower() or len(html)<1200:
         raise RuntimeError("Public Interfood HTML unavailable")
+    # Check whether the same anonymous menu JSON is available without
+    # browser execution, so scheduled updates can eventually avoid Playwright.
+    try:
+        public_req=urllib.request.Request(SOURCE+"api/v1/menu",
+            headers={"Accept":"application/json","User-Agent":"Mozilla/5.0"})
+        with urllib.request.urlopen(public_req,timeout=10) as public_resp:
+            data=json.load(public_resp)
+            print("DIRECT ANONYMOUS MENU API:",public_resp.status,
+                  "data groups:",len(data.get("data",{})) if isinstance(data,dict) else "invalid",
+                  "error:",data.get("error") if isinstance(data,dict) else "invalid")
+    except Exception as api_error:
+        print("DIRECT ANONYMOUS MENU API unavailable:",str(api_error)[:180])
     now=dt.datetime.now(dt.timezone.utc)
     feed=parse(html,now)
     if len(feed["items"])<8:
