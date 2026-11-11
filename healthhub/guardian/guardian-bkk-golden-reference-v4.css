@@ -584,3 +584,9 @@ html body .shell>main>#hhTransitPanel.hh-transit-panel:has(>#hhBkkLiveBarV796) #
 html body .shell>main>#hhTransitPanel.hh-transit-panel:has(>#hhBkkLiveBarV796) #hhBkkWatchEditV814 {
   transform:translateX(-3px)!important;
 }
+
+/* Golden V5.4: adjust the icon INSIDE the tile only: 2px left and 2px down.
+   The edit button tile retains its V5.3 translateX(-3px) placement. */
+html body .shell>main>#hhTransitPanel.hh-transit-panel:has(>#hhBkkLiveBarV796) #hhBkkWatchEditV814::before {
+  transform:translate(-2px, 2px)!important;
+}
