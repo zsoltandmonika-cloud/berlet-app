@@ -209,6 +209,14 @@ def browser_rendered_html() -> str:
             context=browser.new_context(locale="hu-HU",timezone_id="Europe/Budapest",
                             viewport={"width":1280,"height":960})
             page=context.new_page()
+            public_api=[]
+            def observe(response):
+                try:
+                    u=urllib.parse.urlparse(response.url)
+                    if (u.hostname=="interfood.hu" or str(u.hostname or "").endswith(".interfood.hu")) and response.request.resource_type in ("xhr","fetch"):
+                        public_api.append((u.path[:140],response.status,response.headers.get("content-type","")[:65]))
+                except Exception:pass
+            page.on("response",observe)
             response=page.goto(SOURCE,wait_until="domcontentloaded",timeout=35000)
             print("Browser navigation HTTP:",response.status if response else "unknown",
                   "title:",page.title()[:90])
@@ -225,6 +233,32 @@ def browser_rendered_html() -> str:
             text=page.locator("body").inner_text()
             print("Browser rendered HTML:",len(rendered),"chars; visible text:",len(text),
                   "has SP1:","SP1" in text,"has kcal:","kcal" in text)
+            print("PUBLIC XHR/FETCH (anonymous, paths only):",list(dict.fromkeys(public_api))[:24])
+            for code in ("SP1","D9"):
+                try:
+                    group=page.locator(".category").filter(has=page.locator(".category-code",has_text=code)).first
+                    if group.count():
+                        tile=group.locator(".category-foods > .food").nth(2)
+                        print("FOOD TILE",code,"text:",re.sub(r"\\s+"," ",tile.inner_text())[:600])
+                        details=tile.locator('button[aria-label*="részletei"]')
+                        if details.count():
+                            details.first.click(timeout=2000)
+                            page.wait_for_timeout(300)
+                            print("DETAIL SAMPLE",code,re.sub(r"\\s+"," ",page.locator("body").inner_text())[-1100:])
+                            print("DETAIL IMAGES",code,
+                              [img.get_attribute("src") for img in page.locator("img:visible").all()[-6:]])
+                            page.keyboard.press("Escape")
+                            page.wait_for_timeout(180)
+                        picture=tile.locator('button[aria-label*="képe"]')
+                        if picture.count():
+                            picture.first.click(timeout=2000)
+                            page.wait_for_timeout(300)
+                            print("PHOTO SAMPLE",code,
+                              [img.get_attribute("src") for img in page.locator("img:visible").all()[-6:]])
+                            page.keyboard.press("Escape")
+                            page.wait_for_timeout(180)
+                except Exception as exc:
+                    print("Detail/photo probe skipped:",code,str(exc)[:150])
             context.close()
             return rendered
         finally:
