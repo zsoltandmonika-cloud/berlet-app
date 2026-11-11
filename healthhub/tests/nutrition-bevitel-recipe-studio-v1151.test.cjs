@@ -7,7 +7,8 @@ const html=read('index.html'),main=read('hh-bevitel-premium-v643.js'),
  scan=read('hh-lena-ai-scan-page-v753.js'),
  editor=read('hh-bevitel-category-studio-v644.js'),
  css=read('hh-bevitel-recipe-studio-v1151.css');
-const tile=html.match(/<div class="hh-bevitel-grid"[^>]*>([\s\S]*?)\n <\/div>\n <div class="hh-bevitel-admin-row"/)?.[1]||'';
+// Keep the four-card grid bounded independently from optional spotlight tiles below it.
+const tile=html.match(/<div class="hh-bevitel-grid"[^>]*>([\s\S]*?)\n <\/div>/)?.[1]||'';
 test('Four Bevitel tiles in stable 2x2 order; original three IDs, images and modes unchanged',()=>{
  assert.ok(tile,'Bevitel grid is present');
  const matches=[...tile.matchAll(/\bid="(addFood|addDrink|hhBevitelAI|hhBevitelRecipeStudioV1151)"/g)].map(x=>x[1]);
