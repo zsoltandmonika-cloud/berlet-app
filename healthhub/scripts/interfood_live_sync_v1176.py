@@ -241,6 +241,11 @@ def browser_rendered_html() -> str:
                                 for field,value in first.items():
                                     if isinstance(value,(dict,list)):
                                         print("SAMPLE CATEGORY NESTED",field,json.dumps(deep(value),ensure_ascii=False)[:10000])
+                                if isinstance(first.get("items"),list) and first["items"]:
+                                    item=first["items"][0]
+                                    print("PUBLIC MENU FOOD FIELD NAMES:",list(item.keys()))
+                                    print("PUBLIC MENU FOOD NAME, PHOTO, GRAMS:",{k:str(v)[:150] for k,v in item.items()
+                                       if any(term in k for term in ("name","image","photo","picture","weight","gram","energy","carb","protein","fat","portion","url"))})
                             request=response.request
                             body=request.post_data or ""
                             print("MENU API REQUEST:",request.method,
@@ -252,7 +257,17 @@ def browser_rendered_html() -> str:
                                       list(public_body.keys()) if isinstance(public_body,dict) else type(public_body).__name__,
                                       {k:v for k,v in public_body.items() if k.lower() in ("week","week_id","weekid","date","year")}
                                       if isinstance(public_body,dict) else {})
-                            except Exception:pass
+                                print("MENU API POST PUBLIC FILTER BODY:",body[:550])
+                                request_data=body.encode("utf-8")
+                                pub_req=urllib.request.Request(SOURCE+"api/v1/menu",data=request_data,
+                                 headers={"Content-Type":"application/json","Accept":"application/json",
+                                  "User-Agent":"Mozilla/5.0"},method="POST")
+                                with urllib.request.urlopen(pub_req,timeout=15) as response2:
+                                    api_data=json.load(response2)
+                                    print("DIRECT ANONYMOUS POST API:",response2.status,
+                                     "groups:",len(api_data.get("data",{})) if isinstance(api_data,dict) else "invalid",
+                                     "error:",api_data.get("error") if isinstance(api_data,dict) else "invalid")
+                            except Exception as err:print("MENU API POST PROBE ERROR:",str(err)[:180])
                 except Exception:pass
             page.on("response",observe)
             response=page.goto(SOURCE,wait_until="domcontentloaded",timeout=35000)
