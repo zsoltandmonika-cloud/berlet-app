@@ -108,6 +108,25 @@ function removePeer(){
  const card=$('guardianOtherCard');if(card){card.classList.remove('live');card.classList.remove('guardian-last-known-v807')}
 }
 function setPeerState(s){set('guardianOtherState',s);set('guardianLivePeerStatus',s)}
+// v1181 · Retain only a previously verified same-profile GPS point on a
+// transient timeout/network error, and label it as NOT LIVE.
+function retainVerifiedPeer(reason){
+ const ts=Date.parse(peerUpdatedAt||''),age=Date.now()-ts;
+ if(!peerAvailable||!peerMarker||!Number.isFinite(ts)||age< -5000||age>LAST_KNOWN_MS){
+  removePeer();setPeerState('Nincs igazolt utolsó GPS-pozíció.');return false;
+ }
+ lastPeerSpeedKmh=null;
+ const card=$('guardianOtherCard');
+ if(card){card.classList.remove('live');card.classList.add('guardian-last-known-v807')}
+ const el=peerMarker.getElement?.();
+ if(el){
+  el.classList?.add('guardian-peer-stale-v807');
+  el.setAttribute?.('aria-label',label(other())+' · UTOLSÓ ISMERT HELY · '+time(peerUpdatedAt)+' · NEM ÉLŐ');
+ }
+ setPeerState('🕘 '+label(other())+' · UTOLSÓ ISMERT HELY · '+time(peerUpdatedAt)+
+  ' ('+peerAgeLabel(age)+' óta) · NEM ÉLŐ'+(reason?' · '+reason:''));
+ return true;
+}
 function renderPeer(data){
  if(!map||!w.maplibregl||!w.maplibregl.Marker)return;
  const k=other(),av=w.HH_GOLDEN_AVATARS_V529||{};
@@ -211,38 +230,30 @@ async function poll(){
    lastPeerSpeedKmh=null;removePeer();setPeerState('Natív helymegosztás visszavonva.');
    return;
   }
-  const selected=nativeFix&&peerSnapshot(nativeFix)?.live?nativeFix:null;
-  if(!selected){
-   lastPeerSpeedKmh=null;removePeer();
-   setPeerState(native?.status==='error'?
-     'Nincs friss helyadat · privát Dropbox kapcsolat hiba.':
-     !relay||!relay.connected()?
-     'Nincs megosztott hely · a natív adatokhoz a családi Dropboxot ebben a böngészőben is csatlakoztatni kell.':
-     'Nincs friss, jóváhagyott családi GPS-pozíció.');
-   return;
+  const selected=nativeFix&&peerSnapshot(nativeFix)?nativeFix:null;
+  if(selected){
+   // A valid authenticated 75-second-old HH One reading may be shown as last
+   // known for up to 12h, never LIVE, never after a newer measured position.
+   if(peerUpdatedAt&&Date.parse(selected.updated_at)<Date.parse(peerUpdatedAt)){
+    retainVerifiedPeer('régebbi GPS-jel érkezett');return;
+   }
+   lastPeerSpeedKmh=peerSnapshot(selected)?.live&&Number.isFinite(selected.speed_kmh)&&
+    selected.speed_kmh>=0&&selected.speed_kmh<200&&selected.accuracy_m<=40?
+    selected.speed_kmh:null;
+   displayPeer(selected);return;
   }
-  lastPeerSpeedKmh=Number.isFinite(selected.speed_kmh)&&selected.speed_kmh>=0&&selected.speed_kmh<200&&selected.accuracy_m<=40?selected.speed_kmh:null;
-  displayPeer(selected);
+  if(native?.status==='error'){
+   retainVerifiedPeer('átmeneti Dropbox-olvasási hiba');return;
+  }
+  // Actual revocation, missing credentials, invalid owner proof or a missing
+  // source are not papered over with a historical marker.
+  lastPeerSpeedKmh=null;removePeer();
+  setPeerState(!relay||!relay.connected()||native?.status==='not-connected'?
+   'Nincs megosztott hely · a családi Outlook Dropbox csatlakoztatása szükséges.':
+   'Nincs igazolt családi GPS-pozíció vagy a megosztás megszűnt.');
  }catch(e){
   lastPeerSpeedKmh=null;
-  if(k==='monika'&&token===generation){
-   removePeer();setPeerState('Mónika · nincs friss, telefonhoz kötött natív GPS-jel · NEM ÉLŐ');
-   return;
-  }
-  if(token===generation){
-   // Temporary network failure must not silently remove a still valid, consented fix.
-   const known=peerAvailable&&peerUpdatedAt&&Date.now()-Date.parse(peerUpdatedAt)<=LAST_KNOWN_MS;
-   if(!known)removePeer();
-   else{
-    const card=$('guardianOtherCard');
-    if(card){card.classList.remove('live');card.classList.add('guardian-last-known-v807')}
-    if(peerMarker&&peerMarker.getElement){
-     const el=peerMarker.getElement();if(el)el.classList.add('guardian-peer-stale-v807');
-    }
-   }
-   setPeerState((known?'⚠️ Utolsó ismert hely megőrizve · ':'⚠️ Nincs új helyadat · ')+
-    'kapcsolati hiba, NEM élő követés');
-  }
+  if(token===generation)retainVerifiedPeer('átmeneti hálózati hiba');
  }finally{polling=false}
 }
 function resetPolling(){
