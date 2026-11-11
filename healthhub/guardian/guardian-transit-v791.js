@@ -375,6 +375,8 @@ if(new URLSearchParams(w.location.search).get('hhLivePilot')!=='off'){
   const script=d.createElement('script');
   script.async=false;
   const url=new URL(file,dir);url.searchParams.set('v',new URLSearchParams(w.location.search).get('sh9Transit')==='1'?'929-sh9-bkk-3d-fix':'914-mini-above-marker');
+  // A new query token fetches the retired-button behavior immediately, without changing other BKK assets.
+  if(file==='guardian-live-pilot-v793.js')url.searchParams.set('ui','963-retire-legacy-live-button');
   script.src=url.href;
   script.onerror=function(){
    const holder=d.getElementById('hhTransitPanel');
