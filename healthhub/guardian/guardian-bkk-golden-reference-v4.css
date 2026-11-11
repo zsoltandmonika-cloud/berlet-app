@@ -534,11 +534,11 @@ html body .shell>main>#hhTransitPanel.hh-transit-panel:has(>#hhBkkLiveBarV796) #
   }
 }
 
-/* Golden V4.4 · 2026-11-11 · 5px horizontal squeeze and vertical control alignment.
+/* Golden V4.5 · 2026-11-11 · 8px horizontal squeeze and vertical control alignment.
    CSS-only; all GPS, live BKK, Smart Match and Watchlist behavior is preserved. */
 #hhTransitPanel {
   /* Both right-hand panels gain 5px of breathing room at their left edge. */
-  --bkk-golden-gap:13px;
+  --bkk-golden-gap:16px;
 }
 /* Align the Smart Location tile's vertical centerline to the pencil control.
    Reduce visible width while keeping the control itself independently clickable. */
@@ -549,7 +549,7 @@ html body .shell>main>#hhTransitPanel.hh-transit-panel #hhBkkLiveBarV796>#hhSmar
   transform:translateX(4px)!important;
 }
 @media (max-width:365px) {
-  #hhTransitPanel { --bkk-golden-gap:10px; }
+  #hhTransitPanel { --bkk-golden-gap:13px; }
   html body .shell>main>#hhTransitPanel.hh-transit-panel #hhBkkLiveBarV796>#hhSmartLocationSwitchV1:not([hidden]) {
     width:calc(100% - 6px)!important;
     transform:translateX(3px)!important;
