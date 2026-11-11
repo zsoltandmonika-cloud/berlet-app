@@ -617,35 +617,30 @@ async function watchlistAlwaysOpenSmoke(browser,base,device){
     "Even 320px BKK logo, Watchlist title and Edit must not overlap: "+JSON.stringify(dims));
    await page.setViewportSize({width:390,height:844});
   }
-  // Visual state must reflect the actual BKK filter and map visibility,
-  // not the label of the action the button will take on the next click.
+  // Unified Watchlist button controls both route and live overlays.
+  // Existing LIVE=ON state must be labelled Elrejt, not mistakenly Mutasd.
   const swatch=async selector=>card.locator(selector).evaluate(el=>({
    background:getComputedStyle(el).backgroundImage,
    color:getComputedStyle(el).color,
    state:el.getAttribute("aria-pressed")
   }));
   const assertPastel=(value,color,what)=>{
-   assert.ok(value.background.includes(color==="green"?"rgb(210, 252, 230)":"rgb(255, 225, 229)"),
+   assert.ok(value.background.includes(color==="green"?"rgb(212, 250, 229)":"rgb(255, 236, 243)"),
     what+" expected "+color+" pastel: "+JSON.stringify(value));
    assert.equal(value.color,color==="green"?"rgb(17, 84, 61)":"rgb(132, 35, 62)");
   };
-  assertPastel(await swatch(".hh-bkk-watch-live-v909"),"green","Live ON");
-  assertPastel(await swatch(".hh-bkk-watch-show-v814"),"red","Map hidden");
-  const live=card.locator(".hh-bkk-watch-live-v909");
-  assert.equal(await live.getAttribute("aria-pressed"),"true");
-  await live.click();
-  await page.waitForFunction(()=>document.querySelector("#hhBkkWatchRowsV814 .hh-bkk-watch-live-v909")?.getAttribute("aria-pressed")==="false");
-  assertPastel(await swatch(".hh-bkk-watch-live-v909"),"red","Live OFF after click");
-  assert.equal(await body.evaluate(el=>el.hidden),false,"Live toggle must NOT collapse Watchlist");
-  const show=list.locator("article").first().locator(".hh-bkk-watch-show-v814");
-  assert.equal(await show.textContent(),"↗");
-  await show.click();
-  await page.waitForFunction(()=>document.querySelector("#hhBkkWatchRowsV814 .hh-bkk-watch-show-v814")?.textContent==="◉");
-  assertPastel(await swatch(".hh-bkk-watch-show-v814"),"green","Map visible after click");
-  // Restore hidden state, and verify its pastel color updates again.
-  await show.click();
-  await page.waitForFunction(()=>document.querySelector("#hhBkkWatchRowsV814 .hh-bkk-watch-show-v814")?.getAttribute("data-visible")==="false");
-  assertPastel(await swatch(".hh-bkk-watch-show-v814"),"red","Map hidden after second click");
+  const unified=card.locator(".hh-bkk-watch-unified-v1");
+  assert.equal(await unified.count(),1,"Exactly one Watchlist map/live control per route");
+  assert.equal(await unified.getAttribute("aria-pressed"),"true");
+  assert.match(await unified.textContent(),/^Elrejt/);
+  assertPastel(await swatch(".hh-bkk-watch-unified-v1"),"green","Combined display ON");
+  await unified.click();
+  await page.waitForFunction(()=>document.querySelector("#hhBkkWatchRowsV814 .hh-bkk-watch-unified-v1")?.getAttribute("data-visible")==="false");
+  assertPastel(await swatch(".hh-bkk-watch-unified-v1"),"red","Combined display OFF");
+  assert.equal(await body.evaluate(el=>el.hidden),false,"Combined toggle must NOT collapse Watchlist");
+  await unified.click();
+  await page.waitForFunction(()=>document.querySelector("#hhBkkWatchRowsV814 .hh-bkk-watch-unified-v1")?.getAttribute("data-visible")==="true");
+  assertPastel(await swatch(".hh-bkk-watch-unified-v1"),"green","Combined display ON again");
   assert.equal(await body.evaluate(el=>el.hidden),false);
   const editor=page.locator("#hhBkkCatalogV801");
   await page.locator("#hhBkkWatchEditV814").click();
