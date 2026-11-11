@@ -148,6 +148,7 @@ async function preparePhoto(){
   const result=canvas.toDataURL('image/jpeg',.8);
   if(result.length>940000)throw Error('A képet nem sikerült megfelelően tömöríteni.');
   photoData=result;
+  by('hhIfCardPhoto1175').dataset.photoKey='';
   by('hhIfCardPhoto1175').src=result;
   by('hhIfCardPhoto1175').hidden=false;
   by('hhIfCardPlaceholder1175').hidden=true;
@@ -177,7 +178,7 @@ async function renderCards(){
  if(!all.length){
   const empty=doc.createElement('div');
   empty.className='hh-if-empty-v1175';
-  empty.innerHTML='<strong>🍱 Még nincs mentett Interfood ételkártya</strong><small>Nyisd meg az Interfood étlapot, majd itt készíts fotós kártyát az ételhez.</small>';
+  empty.innerHTML=query?'<strong>Nincs találat</strong><small>Próbálj másik ételkódot vagy ételnevet.</small>':'<strong>🍱 Még nincs mentett Interfood ételkártya</strong><small>Nyisd meg az Interfood étlapot, majd itt készíts fotós kártyát az ételhez.</small>';
   host.append(empty);
   return;
  }
@@ -344,6 +345,7 @@ function init(){
  page.innerHTML=`<div class="hh-if-library-inner-v1175">
   <header class="hh-if-library-head-v1175">
    <button type="button" id="hhIfBack1175" aria-label="Vissza a Nutrition oldalra">‹</button>
+   <img class="hh-if-library-logo-v1175" src="./interfood-logo-v1174.webp" width="90" height="38" alt="">
    <div><small>HEALTHHUB · NUTRITION</small><h1>🍱 Interfood ételeim</h1>
     <p><strong id="hhIfActiveProfile1175">Mónika</strong> · Privát kártyák · Dropbox-szinkron</p></div>
    <button type="button" id="hhIfNew1175">＋ Új kártya</button>
