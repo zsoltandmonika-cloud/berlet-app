@@ -124,6 +124,7 @@ function options(data,date,cfg=DEFAULT,clock=Date.now()){
   uniqueTrips.add(key);
   rows.push({line:bus.line,mode:bus.mode,headsign:bus.headsign,
    departMs:selected.departMs,boardingId:selected.boardingId,nextStop:selected.nextStop,
+   arriveAtDestinationMs:selected.arriveAtDestinationMs,
    best:matches[0]||null,matchingCount:matches.length,
    availablePlatforms:bus.boardingOptions.length});
  }
