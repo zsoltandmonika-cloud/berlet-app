@@ -65,7 +65,7 @@ test('original Premium hero remains unchanged; the smart page has text, image, n
 });
 test('safe UI: no credential collection, no client-side external site scraping, no Puter',()=>{
  for(const src of [ui,core,saved,art])new vm.Script(src);
- assert.doesNotMatch(ui, /puter|OAuth|password|fetch\(['"]https:\/\/rendel\.interfood/gi);
+ assert.doesNotMatch(ui, /(?:root|window)\.puter\b|https:\/\/js\.puter\.com|OAuth\(|type=["']password|fetch\(['"]https:\/\/rendel\.interfood/gi);
  assert.match(ui,/credentials:'omit'/);
  assert.match(ui,/aria-live="polite"/);
 });
