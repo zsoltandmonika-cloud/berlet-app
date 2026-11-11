@@ -348,13 +348,9 @@ function renderResults(item){
   target.append(empty);state.lastNext=null;
   $("heroTime").textContent="--:--";$("countdown").textContent="--:--";
   $("heroDetail").textContent="Nincs megfelelő indulás a kiválasztott időablakban.";
-  $("matchSummary").textContent="0 / 0 igazolt indulás. Ellenőrizd az irányt, a megállót és a napot.";
   return;
  }
  r.rows.forEach((row,i)=>target.append(timelineRow(row,item,i)));
- $("matchSummary").textContent=r.matchingCount+" / "+r.totalCount+
-  " céljárat-indulás igazolt a feltételek alapján. A nem megfelelő indulások halványan látszanak. "+
-  "A megállók közötti séta becsült, nem ellenőrzött gyalogos útvonal.";
  updateTimeline(Date.now(),true);
 }
 async function loadFeed(){
@@ -387,7 +383,6 @@ async function computeRoute({useForm=false}={}){
   box.textContent="Nem jelenítek meg ellenőrizetlen indulási időpontokat.";
   $("timeline").append(box);
   $("status").textContent="⚠️ "+(e?.message||"A BKK menetrend nem érhető el.");
-  $("matchSummary").textContent="A céljárat irányát, a hivatalos megállóneveket és a menetrendi dátumot ellenőrizd.";
  }finally{state.loading=false}
 }
 function enterPinned(){

@@ -75,6 +75,9 @@ async function smoke(browser,base,device){
   assert.equal(await page.locator("#walkMetric").textContent(),"10 + 1 perc");
   assert.equal(await page.locator("#windowMetric").textContent(),"13:00–19:00");
   assert.ok(await page.locator("#ring").isVisible(),"Countdown ring is visible");
+  assert.equal(await page.locator("#matchSummary").count(),0,"No verbose summary underneath the timeline");
+  const normalHeight=await page.locator("#timeline").evaluate(el=>getComputedStyle(el).maxHeight);
+  assert.ok(parseFloat(normalHeight)>500,"Normal view should reserve more height for journey tiles: "+normalHeight);
   // V2 visual regression contract: dedicated hero + source-driven reusable route stages.
   assert.equal(await page.locator("#routeFlow .v2-step").count(),6,
    "Office route must display all six independently styled journey stages");
@@ -100,8 +103,8 @@ async function smoke(browser,base,device){
   assert.equal(await page.locator("#pinnedBanner").isVisible(),false,"Duplicated top pinned toolbar must remain hidden");
   assert.equal(await page.locator("#scheduleInfo").isVisible(),false,
    "Pinned mode must hide long explanations and source paragraphs");
-  assert.equal(await page.locator("#matchSummary").isVisible(),false,
-   "Pinned mode must hide GTFS matching-count prose");
+  assert.equal(await page.locator("#matchSummary").count(),0,
+   "No summary prose may occupy timetable space in any mode");
   const layout=await page.evaluate(()=>{
    const timeline=document.getElementById("timeline").getBoundingClientRect();
    const dock=document.getElementById("pinnedActions").getBoundingClientRect();
