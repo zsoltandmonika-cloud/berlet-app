@@ -360,3 +360,118 @@ html body .shell>main>#hhTransitPanel.hh-transit-panel #hhBkkWatchlistV814 .hh-b
   padding:4px 3px!important;font-size:8px!important;text-overflow:ellipsis!important;
  }
 }
+
+
+/* Golden V4.2 - approved compact reference refinement, display only.
+   Keep all existing BKK, GTFS, GPS, Smart Match, Location and Watchlist handlers. */
+#hhTransitPanel{
+ --bkk-golden-top:98px;
+ --bkk-golden-art-w:clamp(124px,39.5%,160px);
+ --bkk-golden-gap:6px;
+ --bkk-golden-watch-h:43px;
+ --bkk-golden-watch-gap:5px;
+}
+/* Center original HD 1312x1199 artwork without stretching. */
+html body .shell>main>#hhTransitPanel.hh-transit-panel::before{
+ top:4px!important;left:8px!important;
+ width:var(--bkk-golden-art-w)!important;
+ height:calc(var(--bkk-golden-top) + var(--bkk-golden-watch-gap) + var(--bkk-golden-watch-h) - 5px)!important;
+ background-image:url("./assets/bkk-live-hero-original-hd-v4.svg")!important;
+ background-size:contain!important;
+ background-position:center center!important;
+ filter:drop-shadow(0 2px 5px rgba(89,19,100,.18))!important;
+}
+html[data-sh9-transit="on"] body .shell>main>#hhTransitPanel.hh-transit-panel>#hhBkkLiveBarV796,
+html:not([data-sh9-transit="on"]) body .shell>main>#hhTransitPanel.hh-transit-panel>#hhBkkLiveBarV796{
+ grid-template-rows:var(--bkk-golden-top)!important;
+ height:var(--bkk-golden-top)!important;
+ min-height:var(--bkk-golden-top)!important;
+ padding:3px!important;
+ overflow:visible!important;
+}
+html body .shell>main>#hhTransitPanel.hh-transit-panel #hhBkkLiveBarV796>#hhSmartMatchPinV1,
+html body .shell>main>#hhTransitPanel.hh-transit-panel #hhBkkLiveBarV796>#hhSmartMatchPinV1[data-state="ready"]{
+ padding:4px 2px 3px 4px!important;
+ gap:1px!important;
+ justify-content:flex-start!important;
+ height:calc(100% - 8px)!important;
+ max-height:calc(var(--bkk-golden-top) - 8px)!important;
+}
+html body .shell>main>#hhTransitPanel.hh-transit-panel #hhBkkLiveBarV796>#hhSmartMatchPinV1::before{
+ font-size:clamp(10px,2.6vw,12px)!important;
+ line-height:1.15!important;
+ margin:0 0 2px!important;
+}
+html body .shell>main>#hhTransitPanel.hh-transit-panel #hhBkkLiveBarV796>#hhSmartMatchPinV1 .hh-smart-match-pin-label{
+ font-size:clamp(8px,2.35vw,10px)!important;
+ line-height:1.12!important;
+}
+/* Green time panel: reduce the height and avoid excess space. */
+html body .shell>main>#hhTransitPanel.hh-transit-panel #hhBkkLiveBarV796>#hhSmartMatchPinV1::after{
+ height:48px!important;
+ bottom:2px!important;left:2px!important;right:1px!important;
+ border-radius:12px!important;
+}
+html body .shell>main>#hhTransitPanel.hh-transit-panel #hhBkkLiveBarV796>#hhSmartMatchPinV1 strong{
+ margin:7px 0 0!important;
+ font-size:clamp(24px,6.5vw,31px)!important;
+ line-height:1.03!important;
+}
+html body .shell>main>#hhTransitPanel.hh-transit-panel #hhBkkLiveBarV796>#hhSmartMatchPinV1 span{
+ font-size:clamp(8px,2vw,9px)!important;
+ line-height:1.12!important;
+ margin-top:0!important;
+}
+/* Smart Location: compact panel with smaller ON/OFF indicator. */
+html body .shell>main>#hhTransitPanel.hh-transit-panel #hhBkkLiveBarV796>#hhSmartLocationSwitchV1:not([hidden]){
+ height:calc(100% - 8px)!important;
+ max-height:calc(var(--bkk-golden-top) - 8px)!important;
+ min-height:0!important;
+ padding:4px 1px!important;
+ gap:3px!important;
+ border-radius:13px!important;
+ justify-content:center!important;
+}
+html body .shell>main>#hhTransitPanel.hh-transit-panel #hhBkkLiveBarV796>#hhSmartLocationSwitchV1::before{
+ font-size:clamp(8px,2.16vw,10px)!important;
+ line-height:1.12!important;
+}
+html body .shell>main>#hhTransitPanel.hh-transit-panel #hhBkkLiveBarV796>#hhSmartLocationSwitchV1::after{
+ min-width:27px!important;min-height:24px!important;
+ padding:4px 6px!important;font-size:10px!important;
+ line-height:1!important;border-radius:99px!important;
+}
+/* Watchlist exactly under the upper tile with a five-pixel gap. */
+html body .shell>main>#hhTransitPanel.hh-transit-panel:has(>#hhBkkLiveBarV796) #hhBkkWatchlistV814 .hh-bkk-watch-header-v814{
+ height:var(--bkk-golden-watch-h)!important;
+ min-height:var(--bkk-golden-watch-h)!important;
+ margin:var(--bkk-golden-watch-gap) 0 7px calc(var(--bkk-golden-art-w) + var(--bkk-golden-gap))!important;
+ padding:3px 5px!important;
+}
+/* Icon-only edit button. The original button text remains screen-reader accessible. */
+html body .shell>main>#hhTransitPanel.hh-transit-panel:has(>#hhBkkLiveBarV796) #hhBkkWatchEditV814{
+ display:grid!important;place-items:center!important;
+ box-sizing:border-box!important;
+ flex:0 0 36px!important;
+ width:36px!important;min-width:36px!important;max-width:36px!important;
+ height:34px!important;min-height:34px!important;
+ padding:0!important;font-size:0!important;line-height:0!important;
+ white-space:nowrap!important;overflow:hidden!important;
+ border-radius:12px!important;
+ background:linear-gradient(145deg,rgba(255,255,255,.64),rgba(255,228,247,.54))!important;
+ border:1px solid rgba(255,255,255,.94)!important;
+}
+html body .shell>main>#hhTransitPanel.hh-transit-panel:has(>#hhBkkLiveBarV796) #hhBkkWatchEditV814::before{
+ content:"✎"!important;
+ display:block!important;font:900 23px/1 system-ui!important;
+ color:#64215f!important;transform:rotate(-10deg)!important;
+}
+html body .shell>main>#hhTransitPanel.hh-transit-panel:has(>#hhBkkLiveBarV796) #hhBkkWatchEditV814:focus-visible{
+ outline:3px solid #8d4ab0!important;outline-offset:2px!important;
+}
+@media(max-width:355px){
+ #hhTransitPanel{--bkk-golden-top:98px;--bkk-golden-watch-h:44px}
+ html body .shell>main>#hhTransitPanel.hh-transit-panel:has(>#hhBkkLiveBarV796) #hhBkkWatchEditV814{
+  flex-basis:34px!important;min-width:34px!important;max-width:34px!important;
+ }
+}
