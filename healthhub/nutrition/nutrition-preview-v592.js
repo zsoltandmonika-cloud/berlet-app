@@ -1019,6 +1019,27 @@ root.HH_NUTRITION_QUICK_API={
  /* v1175 · Interfood manual menu handoff, kept within the existing private Dropbox diary.
   * A listed meal is a whole serving, NOT an assumed 320 g. Nutrition copied by
   * the user is explicitly tagged as unverified, not claimed as official sync. */
+ /* v1175 · Attach an actual user-supplied image to the already saved Interfood
+  * diary record. Only a profile-valid private Dropbox image reference is accepted. */
+ attachInterfoodPhoto:payload=>{
+  if(payload?.expectedProfile!==active)throw Error('A profil megváltozott a képfeltöltés közben.');
+  const token=String(payload.token||'');
+  if(!/^[a-z0-9_-]{10,100}$/i.test(token))throw Error('Érvénytelen Interfood importazonosító.');
+  const ref=payload.imageRef;
+  if(!ref||!root.HH_NUTRITION_IMAGE_V641?.refValid?.(active,ref))
+   throw Error('A kép nem ehhez a Nutrition profilhoz tartozik.');
+  const id='interfood:'+token;
+  let found=false;
+  update(d=>{
+   const row=d.entries.find(x=>x.id===id&&!x.deleted&&x.interfood?.token===token);
+   if(!row)return;
+   row.interfood.imageRef=ref;
+   row.updatedAt=stamp();
+   found=true;
+  });
+  if(!found)throw Error('Nem található az Interfood naplóbejegyzés.');
+  return{id,profile:active};
+ },
  recordInterfoodMeal:payload=>{
   if(payload?.expectedProfile!==active)throw Error('Profilváltás történt. A naplózás megszakadt.');
   const token=String(payload.token||'').trim(),
