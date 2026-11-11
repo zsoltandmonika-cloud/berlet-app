@@ -8,7 +8,7 @@
 <title>Smart Match · SHO Smart Trip AI</title>
 <link rel="stylesheet" href="./style.css?v=1">
 <link rel="stylesheet" href="./visual-fidelity-v2.css?v=2">
-<link rel="stylesheet" href="./clean-fullscreen-v3.css?v=32">
+<link rel="stylesheet" href="./clean-fullscreen-v3.css?v=33">
 </head>
 <body>
 <div class="banner" id="pinnedBanner">
@@ -21,7 +21,10 @@
   <span class="pill">SHO · MÓNIKA</span>
  </nav>
  <div class="v2-skyline" aria-hidden="true"></div>
- <h1 id="heading">Mónika · Munkahely → Otthon</h1>
+ <div class="v33-titlebar">
+  <h1 id="heading"><span id="headingFull">Mónika · Munkahely → Otthon</span><span id="headingShort">Munkahely → Otthon</span></h1>
+  <button id="reverseBtn" class="v33-reverse" type="button" aria-label="Útvonal megfordítása: Otthon → Munkahely" title="Irányváltás: Otthon → Munkahely" hidden>⇄</button>
+ </div>
  <div id="templates" role="group" aria-label="Mentett útvonal-sablonok"></div>
  <section class="hero glass" aria-label="Következő ajánlott indulás">
   <div class="hero-grid">
@@ -105,6 +108,6 @@
  </details>
 </main>
 <div id="toast" role="alert" hidden></div>
-<script type="module" src="./app.mjs?v=32"></script>
+<script type="module" src="./app.mjs?v=33"></script>
 </body>
 </html>

@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
-import {DEFAULT,HOME,compute,options,walkOnlyOptions,nextIndex,validConfig} from "./core.mjs";
+import {DEFAULT,HOME,REVERSE,compute,options,walkOnlyOptions,nextIndex,validConfig} from "./core.mjs";
 const sec=(h,m,s=0)=>h*3600+m*60+s;
 const ev=(id,h,m)=>[id,sec(h,m),sec(h,m)];
 const data=()=>{
@@ -86,4 +86,34 @@ test("pinned timeline and Smart Trip entrypoint exist without Family Guard modif
  assert.match(app,/localStorage\.setItem/);
  assert.match(page,/Smart Match Timeline/);
  assert.match(page,/Lapon belüli jelzés/);
+});
+
+
+test("reversible commute requires real inbound 260 followed by outbound 17 to Kolosy",()=>{
+ const d=data();
+ d.trips.push(
+  ["260","s","Óbudai rendelőintézet",[ev("ci",8,8),ev("b",8,28),ev("d",8,48)],"bus"],
+  ["17","s","Savoya Park",[ev("t",8,33),ev("k",8,41)],"tram"],
+  ["17","s","Vörösvári út",[ev("t",8,32),ev("o",8,38)],"tram"]
+ );
+ assert.ok(validConfig(REVERSE,d.routes));
+ const r=options(d,date,REVERSE);
+ assert.equal(r.totalCount,1,"Opposite-direction 17 must be excluded");
+ assert.equal(r.matchingCount,1);
+ assert.equal(r.rows[0].line,"17");
+ assert.equal(r.rows[0].best.feederLine,"260");
+ assert.equal(r.rows[0].best.feederMode,"bus");
+ assert.equal(hour(r.rows[0].best.feederDepartMs),"08:08");
+ assert.equal(hour(r.rows[0].best.leaveOfficeMs),"08:00");
+ assert.equal(hour(r.rows[0].departMs),"08:33");
+ assert.equal(r.rows[0].best.waitMin,3);
+ assert.equal(DEFAULT.reverseId,REVERSE.id);
+ assert.equal(REVERSE.reverseId,DEFAULT.id);
+});
+test("reverse planner rejects a 17 that does not continue to Kolosy",()=>{
+ const d=data();d.trips.push(
+  ["260","s","Óbudai rendelőintézet",[ev("ci",8,8),ev("b",8,28),ev("d",8,48)],"bus"],
+  ["17","s","Vörösvári út",[ev("t",8,33),ev("o",8,40)],"tram"]
+ );
+ assert.equal(options(d,date,REVERSE).totalCount,0);
 });

@@ -147,7 +147,45 @@ async function smoke(browser,base,device){
   assert.ok(layout.pageOverflow<=4,"Pinned page itself must not vertically scroll: "+JSON.stringify(layout));
   assert.ok(layout.titleY>=layout.heroArtBottom-2,
    "Pinned route title must stay below the hero image");
+  assert.equal(await page.locator(".v2-skyline").isVisible(),false,
+   "Dedicated scenic hero MUST NOT take space in pinned view");
+  assert.ok(await page.locator("#pinnedActions").isVisible(),
+   "Usual 3-button pinned taskbar remains available");
+  assert.ok(await page.locator("#reverseBtn").isVisible(),
+   "Reverse route icon appears beside the pinned title");
+  const titleRow=await page.evaluate(()=>{
+   const a=document.getElementById("heading").getBoundingClientRect();
+   const b=document.getElementById("reverseBtn").getBoundingClientRect();
+   return {headingTop:a.top,reverseTop:b.top,reverseRight:b.right,width:innerWidth};
+  });
+  assert.ok(Math.abs(titleRow.headingTop-titleRow.reverseTop)<=14,
+   "Reverse icon must be beside title, not on an extra row: "+JSON.stringify(titleRow));
+  assert.ok(titleRow.reverseRight<=titleRow.width,
+   "Reverse icon must not overflow screen");
   await page.screenshot({path:path.join(output,device+"-work-pinned.png"),fullPage:true});
+  await page.locator("#reverseBtn").click();
+  await page.waitForFunction(()=>document.getElementById("headingShort")?.textContent?.includes("Otthon → Munkahely")&&
+   document.getElementById("targetRoute")?.value==="17");
+  assert.equal(await page.locator("#kind").inputValue(),"transfer",
+   "Reversed home->work is a true 260-to-tram connection, not Citronella walk-only");
+  assert.equal(await page.locator("#headingShort").textContent(),"Otthon → Munkahely");
+  assert.equal(await page.locator("#pinTemplateSelect").inputValue(),"monika-home-to-office");
+  await page.waitForFunction(()=>document.getElementById("timelineSubtitle")?.textContent?.includes("17-es · Kolosy tér")&&
+   document.querySelector("#timeline .timeline-row.next"),{timeout:30000});
+  const focused=await page.evaluate(()=>{
+   const outer=document.getElementById("timeline").getBoundingClientRect();
+   const next=document.querySelector("#timeline .timeline-row.next").getBoundingClientRect();
+   return {outerTop:outer.top,outerBottom:outer.bottom,nextTop:next.top,nextBottom:next.bottom};
+  });
+  assert.ok(focused.nextTop>=focused.outerTop-8&&focused.nextTop<focused.outerBottom-15,
+   "After reversal, NEXT departure tile should actually be visible: "+JSON.stringify(focused));
+  assert.equal(await page.locator(".v2-skyline").isVisible(),false);
+  assert.ok(await page.locator("#pinnedActions").isVisible());
+  await page.screenshot({path:path.join(output,device+"-work-reversed-pinned.png"),fullPage:true});
+  await page.locator("#reverseBtn").click();
+  await page.waitForFunction(()=>document.getElementById("headingShort")?.textContent==="Munkahely → Otthon"&&
+   document.getElementById("targetRoute")?.value==="260");
+  assert.equal(await page.locator("#pinTemplateSelect").inputValue(),"monika-260");
   await page.locator("#pinEdit").click();
   await page.waitForFunction(()=>!document.body.classList.contains("pinned"));
 
@@ -168,8 +206,10 @@ async function smoke(browser,base,device){
   assert.ok(await page.locator("#heroTime").isVisible(),"Pinned hero is visible");
   assert.ok(await page.locator("#timeline").isVisible(),"Pinned timeline is visible");
   assert.ok(await page.locator("#pinnedActions").isVisible(),"Bottom dock is visible in fullscreen pinned mode");
-  assert.equal(await page.locator("#pinTemplateSelect option").count(),2,
-   "Pinned selector preserves both previously saved sample schemes");
+  assert.equal(await page.locator("#pinTemplateSelect option").count(),3,
+   "Pinned selector preserves the two existing favorites plus genuine reverse commute");
+  assert.equal(await page.locator("#reverseBtn").isVisible(),false,
+   "Citronella walk-only favorite is not incorrectly mapped to a reverse work commute");
   await page.screenshot({path:path.join(output,device+"-home-pinned.png"),fullPage:true});
   await page.locator("#pinTemplateSelect").selectOption("monika-260");
   await page.waitForFunction(()=>document.getElementById("heading")?.textContent?.includes("Munkahely"));
