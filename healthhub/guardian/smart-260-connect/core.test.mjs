@@ -127,7 +127,7 @@ test("reverse planner rejects a 17 that does not continue to Kolosy",()=>{
 test("260 full timetable is bus-first and preserves unmatched departures",()=>{
  const d=data();
  // Three 260 buses, only one has a safe 17 tram connection.
- d.trips.push(["260","s","Harsánylejtő",[ev("b",10,20),ev("o",10,32),ev("ci",10,45)],"bus"]);
+ d.trips.push(["260","s","Harsánylejtő",[ev("vb",10,20),ev("o",10,32),ev("ci",10,45)],"bus"]);
  const route={...DEFAULT,startHour:0,endHour:24};
  const connections=compute(d,date,route);
  const bus=full260Timetable(d,date,"home");
