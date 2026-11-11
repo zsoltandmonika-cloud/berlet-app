@@ -142,6 +142,39 @@ def parse(html: str, now: dt.datetime):
     }
 
 
+
+def browser_rendered_html() -> str:
+    """Render the public SPA just like a browser; no login and no account cookies."""
+    from playwright.sync_api import sync_playwright
+    with sync_playwright() as playwright:
+        browser=playwright.chromium.launch(channel="chrome",headless=True,
+                        args=["--no-sandbox","--disable-dev-shm-usage"])
+        try:
+            context=browser.new_context(locale="hu-HU",timezone_id="Europe/Budapest",
+                            viewport={"width":1280,"height":960})
+            page=context.new_page()
+            response=page.goto(SOURCE,wait_until="domcontentloaded",timeout=35000)
+            print("Browser navigation HTTP:",response.status if response else "unknown",
+                  "title:",page.title()[:90])
+            try:
+                page.wait_for_function(
+                    "() => /\\b[A-Z]{1,4}\\d{1,3}\\s*[-–]\\s*/.test(document.body.innerText) "
+                    "&& /kcal/i.test(document.body.innerText)",
+                    timeout=30000)
+            except Exception:
+                print("Browser menu wait expired; DOM preview:",
+                      re.sub(r"\s+"," ",page.locator("body").inner_text())[:750])
+            page.wait_for_timeout(1200)  # allow images & nutrition panels to hydrate
+            rendered=page.content()
+            text=page.locator("body").inner_text()
+            print("Browser rendered HTML:",len(rendered),"chars; visible text:",len(text),
+                  "has SP1:","SP1" in text,"has kcal:","kcal" in text)
+            context.close()
+            return rendered
+        finally:
+            browser.close()
+
+
 def main():
     headers={"User-Agent":"Mozilla/5.0 (compatible; HealthHubPublicMenuRead/1.0; personal-use)",
              "Accept":"text/html,application/xhtml+xml","Accept-Language":"hu-HU,hu;q=0.9"}
@@ -154,6 +187,14 @@ def main():
         raise RuntimeError("Public Interfood HTML unavailable")
     now=dt.datetime.now(dt.timezone.utc)
     feed=parse(html,now)
+    if len(feed["items"])<8:
+        # Interfood serves a JavaScript app shell. Browser rendering is required.
+        print("Public HTML is an SPA shell; switching to headless browser reading.")
+        script_urls=re.findall(r'<script[^>]+src=["\']([^"\']+)',html,re.I)
+        print("Public frontend JS bundles:",len(script_urls),
+              [urllib.parse.urlparse(x).path[-70:] for x in script_urls[:9]])
+        html=browser_rendered_html()
+        feed=parse(html,now)
     n=len(feed["items"])
     with_nut=sum(x["nutrients"]["kcal"] is not None for x in feed["items"])
     with_image=sum(x["imageUrl"] is not None for x in feed["items"])
