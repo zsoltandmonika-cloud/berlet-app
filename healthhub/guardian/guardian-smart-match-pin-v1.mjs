@@ -5,6 +5,7 @@
  */
 const STORAGE="sh9-smart-match-templates-v1-m";
 const ACTIVE="sh9-smart-match-active-pin-v1-m";
+const CITRONELLA_DEFAULT_APPLIED="hh-smart-match-citronella-default-v2-m";
 const FULL="/berlet-app/healthhub/guardian/smart-260-connect/";
 import {HOME as MONIKA_DEFAULT,compute} from "./smart-260-connect/core.mjs";
 const HOST_ID="hhSmartMatchPinV1";
@@ -37,11 +38,18 @@ function readPin(){
    x.profile==="monika"&&typeof x.id==="string"&&/^[\w-]{1,90}$/.test(x.id)&&
    typeof x.title==="string"&&x.title.length<=100&&
    typeof x.targetRoute==="string"&&x.targetRoute.length<=20):[];
-  const active=localStorage.getItem(ACTIVE);
-  const preferred=(active&&items.find(x=>x.id===active))||
-   items.filter(x=>x.pinned===true).at(-1);
-  // Mónika normally boards the 260 at Citronella utca (Óbudai rendelőintézet direction).
-  // Explicit browser-local pinned selections still have priority.
+  let active=localStorage.getItem(ACTIVE);
+  if(!localStorage.getItem(CITRONELLA_DEFAULT_APPLIED)){
+   // Correct the previous rollout's mistaken "office" default exactly once.
+   // Any route pinned AFTER this migration remains the user's explicit choice.
+   if(!active||active==="monika-260"){
+    active="home-citronella-260";
+    localStorage.setItem(ACTIVE,active);
+   }
+   localStorage.setItem(CITRONELLA_DEFAULT_APPLIED,"1");
+  }
+  const preferred=active&&items.find(x=>x.id===active);
+  // Mónika normally boards the 260 at Citronella utca toward Óbudai rendelőintézet.
   return preferred||items.find(x=>x.id==="home-citronella-260")||MONIKA_DEFAULT;
  }catch(_){return MONIKA_DEFAULT}
 }
