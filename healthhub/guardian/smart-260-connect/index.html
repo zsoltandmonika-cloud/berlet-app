@@ -8,7 +8,7 @@
 <title>Smart Match · SHO Smart Trip AI</title>
 <link rel="stylesheet" href="./style.css?v=1">
 <link rel="stylesheet" href="./visual-fidelity-v2.css?v=2">
-<link rel="stylesheet" href="./clean-fullscreen-v3.css?v=35-pinned-title-centered">
+<link rel="stylesheet" href="./clean-fullscreen-v3.css?v=36-reminder-pressed-green">
 <link rel="stylesheet" href="./full-260-v34.css?v=34">
 </head>
 <body>
@@ -98,7 +98,7 @@
  </section>
 
  <nav class="pinned-actions glass" id="pinnedActions" aria-label="Kitűzött Smart Match gyorsgombok">
-  <button type="button" class="pin-action pin-action-alert" id="pinReminder">🔔 <span>Emlékeztető</span></button>
+  <button type="button" class="pin-action pin-action-alert" id="pinReminder" aria-pressed="false" aria-label="Emlékeztető KI. Bekapcsoláshoz nyomd meg." title="Emlékeztető KI · bekapcsolás">🔔 <span>Emlékeztető KI</span></button>
   <label class="pin-template-select" for="pinTemplateSelect"><span>📚 Séma</span><select id="pinTemplateSelect" aria-label="Mentett Smart Match sablon váltása"></select></label>
   <button type="button" class="pin-action pin-action-edit" id="pinEdit">✎ <span>Szerkesztés</span></button>
  </nav>
@@ -109,6 +109,6 @@
  </details>
 </main>
 <div id="toast" role="alert" hidden></div>
-<script type="module" src="./app.mjs?v=34"></script>
+<script type="module" src="./app.mjs?v=36-reminder-state-button"></script>
 </body>
 </html>
