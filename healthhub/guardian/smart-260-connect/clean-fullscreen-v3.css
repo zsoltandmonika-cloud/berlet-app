@@ -362,3 +362,28 @@ body.pinned #pinReminder:focus-visible{
   outline:2px solid #a7ffcd;
   outline-offset:2px;
 }
+
+/* V3.8: real back button occupies the approved centered header's left spacer.
+   Identical visual design and size to the route-reverse action on the right. */
+body.pinned main>.v33-titlebar::before{display:none!important}
+body:not(.pinned) #pinnedBackBtn{display:none!important}
+body.pinned main>.v33-titlebar>#pinnedBackBtn{
+  grid-column:1;grid-row:1;justify-self:start;align-self:center;
+  box-sizing:border-box;
+  display:grid;place-items:center;
+  width:43px;height:42px;min-width:43px;min-height:42px;
+  margin:0;padding:0;
+  font:800 26px/1 system-ui;
+  color:#ffe2f8;text-decoration:none;
+  background:linear-gradient(138deg,rgba(127,59,137,.86),rgba(53,52,116,.94));
+  border:1px solid rgba(250,174,240,.8);border-radius:12px;
+  box-shadow:0 0 15px rgba(248,98,208,.18),inset 0 1px rgba(255,255,255,.13);
+  cursor:pointer;
+}
+body.pinned #pinnedBackBtn:focus-visible{outline:3px solid #88f8cb;outline-offset:2px}
+body.pinned #pinnedBackBtn:active{transform:scale(.96)}
+@media(max-width:390px){
+ body.pinned main>.v33-titlebar>#pinnedBackBtn{
+  width:41px;min-width:41px;height:40px;min-height:40px;
+ }
+}
