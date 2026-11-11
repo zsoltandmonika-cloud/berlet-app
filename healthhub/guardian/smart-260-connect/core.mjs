@@ -6,7 +6,7 @@ import {active,validate,wallEpoch} from "../../../sh9/smart-travel/lena-native/b
 
 const DEFAULT=Object.freeze({
  schema:"sh9.smart-match.template/1",id:"monika-260",profile:"monika",
- title:"Mónika · Munkahely → Otthon",originLabel:"Bécsi Corner",destinationLabel:"Otthon",
+ title:"Mónika · Munkahely → Otthon",reverseId:"monika-home-to-office",originLabel:"Bécsi Corner",destinationLabel:"Otthon",
  originStop:"Kolosy tér",transferStop:"Bécsi út / Vörösvári út",
  targetStop:"Bécsi út / Vörösvári út",targetRoute:"260",targetHeadsign:"Harsánylejtő",
  feederRoutes:["17","19","41"],startHour:13,endHour:19,
@@ -28,6 +28,7 @@ function validConfig(c,allowed=[]){
    typeof c.targetStop!=="string"||!c.originStop.trim()||!c.targetStop.trim()||
    !c.transferStop.trim()||!c.targetRoute.trim())return false;
  const lines=new Set(allowed.length?allowed:[...c.feederRoutes,c.targetRoute]);
+ if(["targetAfterStop","feederHeadsign"].some(k=>c[k]!=null&&(typeof c[k]!=="string"||c[k].length>120)))return false;
  if(!lines.has(c.targetRoute)||c.feederRoutes.some(r=>!lines.has(r)||r===c.targetRoute))return false;
  const ranges={
   startHour:[0,23],endHour:[1,24],originWalkMin:[0,30],originSafetyMin:[0,10],
@@ -68,6 +69,9 @@ function options(data,date,cfg=DEFAULT,clock=Date.now()){
    const boardingOptions=[];
    for(let i=0;i<events.length-1;i++){
     if(!boarding.has(events[i][0]))continue;
+    // For reverse commutes, target must continue toward the REAL destination
+    // after this boarding, not the opposite platform with the same name.
+    if(cfg.targetAfterStop&&!events.slice(i+1).some(ev=>clean(data.stops[ev[0]]?.[0])===clean(cfg.targetAfterStop)))continue;
     const dep=wallEpoch(date,events[i][2]/60);
     if(dep<min||dep>=max)continue;
     boardingOptions.push({departMs:dep,boardingId:events[i][0],
@@ -75,7 +79,7 @@ function options(data,date,cfg=DEFAULT,clock=Date.now()){
    }
    if(boardingOptions.length)targets.push({line,mode,headsign,boardingOptions});
   }
-  if(feedLines.has(line)){
+  if(feedLines.has(line)&&(!cfg.feederHeadsign||clean(headsign).includes(clean(cfg.feederHeadsign)))){
    for(let i=0;i<events.length-1;i++){
     if(!origins.has(events[i][0]))continue;
     for(let j=i+1;j<events.length;j++){
@@ -136,7 +140,24 @@ const HOME=Object.freeze({
  feederRoutes:[],startHour:6,endHour:21,originWalkMin:6,originSafetyMin:2,
  maxWaitMin:3,transferWalkMin:0,transferSafetyMin:0,maxTransferMeters:350
 });
-const SAMPLES=Object.freeze([DEFAULT,HOME]);
+/* Verified reverse of Mónika's work->home template, independent of the separate
+ * "Otthon -> Citronella utca" walk-only favorite.
+ * Two legs: 260 toward Óbudai rendelőintézet -> 17 toward Kolosy tér.
+ * Only real active BKK trips with a forward Kolosy stop qualify.
+ */
+const REVERSE=Object.freeze({
+ schema:"sh9.smart-match.template/1",id:"monika-home-to-office",profile:"monika",
+ reverseId:"monika-260",type:"transfer",
+ title:"Mónika · Otthon → Munkahely",originLabel:"Otthon",destinationLabel:"Bécsi Corner",
+ originStop:"Citronella utca",transferStop:"Bécsi út / Vörösvári út",
+ targetStop:"Bécsi út / Vörösvári út",targetRoute:"17",targetHeadsign:"",
+ targetAfterStop:"Kolosy tér",
+ feederRoutes:["260"],feederHeadsign:"Óbudai rendelőintézet",
+ startHour:6,endHour:19,
+ originWalkMin:6,originSafetyMin:2,transferWalkMin:2,transferSafetyMin:1,
+ maxWaitMin:3,maxTransferMeters:350,destinationWalkMin:10
+});
+const SAMPLES=Object.freeze([DEFAULT,HOME,REVERSE]);
 function walkOnlyOptions(data,date,cfg=HOME,clock=Date.now()){
  if(!validate(data,clock))throw Error("A hiteles BKK-menetrend hiányzik vagy lejárt.");
  if(!/^\d{4}-\d{2}-\d{2}$/.test(date)||date<data.feedStart||date>data.feedEnd)
@@ -174,5 +195,5 @@ function walkOnlyOptions(data,date,cfg=HOME,clock=Date.now()){
 function compute(data,date,cfg,clock=Date.now()){
  return cfg?.type==="walk"?walkOnlyOptions(data,date,cfg,clock):options(data,date,cfg,clock);
 }
-export {DEFAULT,HOME,SAMPLES,clean,dist,validConfig,indexStops,options,
+export {DEFAULT,HOME,REVERSE,SAMPLES,clean,dist,validConfig,indexStops,options,
  walkOnlyOptions,compute,nextIndex};
