@@ -197,3 +197,47 @@ body.pinned .footer{padding-bottom:25px}
  .pin-action span{font-size:10px}
 }
 @media(prefers-reduced-motion:reduce){.timeline-row.next{animation:none}}
+
+/* Original, independent hero art (not the Smart Trip hero reused). */
+.v2-skyline{
+ background:radial-gradient(ellipse at 60% 83%,rgba(238,75,193,.26),transparent 70%),
+ url("./assets/smart-match-budapest-neon-hero-v2.svg") center center/cover no-repeat;
+ border-radius:24px;filter:drop-shadow(0 0 12px rgba(231,87,188,.22));
+}
+.v2-skyline:before,.v2-skyline:after,.v2-skyline span{display:none}
+.flow .v2-step,.flow .v2-step-label,.flow .v2-step-detail{
+ background:transparent;border:0;box-shadow:none;padding:0;border-radius:0
+}
+.flow .v2-step-icon{
+ display:grid;place-items:center;width:43px;height:43px;line-height:1;
+ padding:0;border-radius:50%;border:1px solid rgba(255,241,254,.3);
+ background:linear-gradient(135deg,#bb83e3,#543b91);
+ box-shadow:inset 0 1px rgba(255,255,255,.2),0 0 15px rgba(208,114,234,.25)
+}
+.flow .v2-step[data-role=tram] .v2-step-icon{
+ background:linear-gradient(135deg,#ffdb77,#ab7318);box-shadow:0 0 15px rgba(255,185,57,.32)
+}
+.flow .v2-step[data-role=bus] .v2-step-icon{
+ background:linear-gradient(135deg,#7ce6ff,#236ab8);box-shadow:0 0 16px rgba(90,183,255,.4)
+}
+.flow .v2-step[data-role=destination] .v2-step-icon{
+ background:linear-gradient(135deg,#ffb9e9,#ad377b)
+}
+.flow .v2-step[data-role=walk] .v2-step-icon,
+.flow .v2-step[data-role=transfer] .v2-step-icon{
+ background:linear-gradient(135deg,#686c90,#262c55)
+}
+.flow[data-overflow=yes]{
+ grid-template-columns:none;grid-auto-flow:column;grid-auto-columns:minmax(78px,1fr);
+ overflow-x:auto;overscroll-behavior-x:contain;scrollbar-color:#bb72b7 #22163d;
+ scrollbar-width:thin;padding-bottom:12px
+}
+.flow[data-overflow=yes] .v2-step{min-width:78px}
+@media(max-width:620px){
+ .v2-skyline{top:24px;right:0;width:61vw;height:114px}
+ .flow .v2-step-icon{width:33px;height:33px;font-size:17px}
+ .flow[data-overflow=yes]{grid-auto-columns:minmax(71px,1fr)}
+}
+@media(max-width:365px){
+ .flow .v2-step-icon{width:29px;height:29px;font-size:15px}
+}
