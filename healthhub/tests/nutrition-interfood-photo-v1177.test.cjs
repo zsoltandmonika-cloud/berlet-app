@@ -38,7 +38,7 @@ test('only exact public Interfood image endpoint and safe query parameters allow
 });
 test('full original Interfood photo saved in diary and existing cards can be backfilled',()=>{
  assert.match(core,/syncInterfoodLivePhotos:payload=>/);
- assert.match(core,/imageUrl=item\.imageUrl/); // no alternate source needed
+ assert.match(core,/imageUrl:item\.imageUrl/); // no alternate source needed
  assert.match(core,/imageUrl:card\.imageUrl/);
  assert.match(core,/imageUrl,sourceKey/);
  assert.match(core,/sourceKey===stampKey/);
