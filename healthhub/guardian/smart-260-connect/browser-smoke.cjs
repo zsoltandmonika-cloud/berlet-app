@@ -244,8 +244,15 @@ async function guardianPinSmoke(browser,base,device){
   const fixture=base+"healthhub/guardian/tests/smart-match-pin-v1-fixture.html";
   await page.goto(fixture,{waitUntil:"domcontentloaded"});
   await page.locator("#hhSmartMatchPinV1").waitFor({timeout:12000});
-  assert.match(await page.locator("#hhSmartMatchPinTimeV1").textContent(),/Kitűzés/,
-   "Without saved pin, offer a Smart Match setup link, never fake a departure.");
+  await page.waitForFunction(()=>document.getElementById("hhSmartMatchPinV1")?.dataset.state==="ready",{timeout:30000});
+  assert.match(await page.locator("#hhSmartMatchPinTimeV1").textContent(),/^\d{2}:\d{2}$/,
+   "Mónika work-to-home default must be enabled with verified GTFS without manual pin.");
+  assert.match(await page.locator("#hhSmartMatchPinV1").getAttribute("href"),/id=monika-260/,
+   "Mónika's most frequent origin must be the default.");
+  await page.evaluate(()=>document.documentElement.dataset.guardianProfile="z");
+  await page.waitForFunction(()=>document.getElementById("hhSmartMatchPinV1")?.dataset.state==="inactive");
+  await page.evaluate(()=>document.documentElement.dataset.guardianProfile="m");
+  await page.waitForFunction(()=>document.getElementById("hhSmartMatchPinV1")?.dataset.state==="ready");
   assert.equal(await page.locator("#hhBkkFocusV796").textContent(),"Ne mutasd élő járműveket");
   assert.equal(await page.locator("#hhBkkWatchlistV814").textContent(),"⭐ Saját BKK Watchlist");
   await page.goto(base+"healthhub/guardian/smart-260-connect/",{waitUntil:"domcontentloaded"});
