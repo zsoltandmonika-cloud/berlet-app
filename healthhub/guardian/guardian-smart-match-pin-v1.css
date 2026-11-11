@@ -68,9 +68,16 @@
 }
 #hhTransitPanel #hhBkkLiveBarV796 #hhBkkLiveStatusV793{
  flex:1 1 0!important;width:auto!important;min-width:0!important;
- font-size:11px!important;line-height:1.25!important;
+ font-size:0!important;line-height:0!important;
  white-space:nowrap!important;overflow:hidden!important;
  text-overflow:ellipsis!important;margin:0!important;
+}
+/* Compact visual heading, while retaining the full real-time status
+ * in the original live-region text for assistive technology. */
+#hhTransitPanel #hhBkkLiveBarV796 #hhBkkLiveStatusV793::before{
+ content:"BKK élő";display:block!important;
+ font:800 14px/1.25 system-ui!important;
+ color:inherit;white-space:nowrap;
 }
 #hhTransitPanel #hhBkkLiveBarV796 #hhBkkFocusV796:not([hidden]){
  /* Preserve the existing button DOM, click event and full ARIA action.
