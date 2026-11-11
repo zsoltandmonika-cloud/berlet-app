@@ -10,6 +10,7 @@
 })(typeof window!=='undefined'?window:null,function(w){
  'use strict';
  const FRESH_BROWSER_MS=20000,FRESH_NATIVE_MS=75000,MAX_ACCURACY=100;
+ const VERIFIED_LAST_KNOWN_MS=12*60*60*1000;
  // v850: optional measured speed only, never computed from the portrait position.
  const MAX_SPEED_ACCURACY=40,MAX_SPEED_KMH=200,SHOW_ABOVE=5,HIDE_BELOW=4;
  function selectedProfile(storage){
@@ -87,6 +88,7 @@
   // own natív GPS. Supabase login is not proof of this Android phone.
   let authorizedNativeProfile=null;
   let markerCoord=null,moveToken=0,moveFrame=null,lastPaintTs=0,lastReceiveAt=0;
+  let lastKnownVisible=false;
   let lastMotionDuration=820;
   // Camera and portrait move toward the newest REAL position, never beyond it.
   // The camera and portrait should glide for most of the observed fix cadence.
@@ -253,6 +255,7 @@
     'Az eltérő böngészős pozícióra nem ugrunk át; ellenőrizni kell az eszközhozzárendelést.';
   }
   function clearMarker(){
+   lastKnownVisible=false;
    moveToken++;
    if(moveFrame!==null&&w.cancelAnimationFrame)w.cancelAnimationFrame(moveFrame);
    moveFrame=null;markerCoord=null;lastPaintTs=0;lastReceiveAt=0;lastMotionDuration=820;
@@ -260,6 +263,43 @@
    if(marker){try{marker.remove()}catch(_){}marker=null}
    markerNode=null;speedBadge=null;speedValue=null;routeBadge=null;routeDetails=null;speedVisible=false;
    guardian()?.setRemoteMarkerPreferred?.(false);
+  }
+  // Preserve a verified same-profile portrait only during a temporary
+  // outage or freshness gap. The marker is fixed, explicitly NOT LIVE,
+  // and is never used for camera follow, movement or speed reporting.
+  function retainLastKnown(profile,reason){
+   const age=Date.now()-(latest?.ts??NaN);
+   if(!marker||!markerNode||latest?.profile!==profile||
+    latest?.source!=='HH One Native GPS'||authorizedNativeProfile!==profile||
+    !Number.isFinite(age)||age< -5000||age>VERIFIED_LAST_KNOWN_MS){
+    return false;
+   }
+   moveToken++;
+   if(moveFrame!==null&&w.cancelAnimationFrame)w.cancelAnimationFrame(moveFrame);
+   moveFrame=null;
+   lastKnownVisible=true;
+   markerNode.classList?.add('guardian-selected-stale-v1181');
+   const when=new Date(latest.ts).toLocaleTimeString('hu-HU',
+    {hour:'2-digit',minute:'2-digit'});
+   const who=profile==='monika'?'Mónika':'Zsolt';
+   markerNode.setAttribute?.('aria-label',who+
+    ' · UTOLSÓ ISMERT HELY '+when+' · NEM ÉLŐ');
+   if(speedBadge){
+    speedBadge.setAttribute?.('data-active','false');
+    speedBadge.setAttribute?.('aria-hidden','true');
+   }
+   if(speedValue)speedValue.textContent='';
+   speedVisible=false;
+   if(routeBadge){routeBadge.hidden=true;routeBadge.textContent=''}
+   if(routeDetails){routeDetails.hidden=true;routeDetails.textContent=''}
+   markerNode.removeAttribute?.('data-transit-route');
+   const status='🕘 '+who+' · UTOLSÓ ISMERT HELY '+when+
+    ' · NEM ÉLŐ'+(reason?' · '+reason:'');
+   const own=d.getElementById('guardianMeState');
+   if(own)own.textContent=status;
+   const mapLabel=d.getElementById('guardianMapLabel');
+   if(mapLabel)mapLabel.textContent=status;
+   return true;
   }
   function paintTransit(fix){
    if(!routeBadge||!routeDetails||!markerNode)return;
@@ -369,6 +409,8 @@
   function showFix(fix){
    const map=getMap(),Marker=w.maplibregl?.Marker;
    if(!map||typeof Marker!=='function')return;
+   lastKnownVisible=false;
+   markerNode?.classList?.remove('guardian-selected-stale-v1181');
    if(!marker){
     markerNode=decorate(fix);
     marker=new Marker({element:markerNode,anchor:'bottom'})
@@ -420,10 +462,21 @@
     }
     if(ticket!==run||d.hidden||k!==selected())return;
     const source=nativeOutcome.status==='fulfilled'?nativeOutcome.value:{status:'error'};
-    authorizedNativeProfile=snapshot(native,k)?k:null;
+    const fresh=snapshot(native,k),status=source?.status;
+    // Explicit revocation, broken phone authorization and missing grant
+    // must clear the icon. A 75s stale *but verified* GPS report is different.
+    const temporarilyUnavailable=status==='error'||
+     status==='ok'&&!fresh;
+    if(fresh)authorizedNativeProfile=k;
     showNativeSource(k,source);
-    if(!authorized()){
-     latest=null;clearMarker();showUnavailable(k,k==='monika'?null:db,native);
+    if(!fresh&&temporarilyUnavailable&&retainLastKnown(k,
+     status==='error'?'átmeneti kapcsolat hiba':'GPS-jel frissítésére vár')){
+     showConflict(null);return;
+    }
+    if(!fresh||!authorized()){
+     authorizedNativeProfile=null;
+     latest=null;nativeAnchor=null;clearMarker();
+     showUnavailable(k,k==='monika'?null:db,native);
      return;
     }
     // A native explicit revocation supersedes older cached server fixes.
@@ -432,19 +485,21 @@
     nativeAnchor=choice.anchor;
     showConflict(choice.conflict?{profile:k,distance:choice.distance}:null);
     const next=choice.fix;
-    latest=next;
     if(next&&preferRemote(next,localFixAt())){
-     showFix(next);followRequest=false;
+     latest=next;showFix(next);followRequest=false;
     }else{
-     clearMarker();
-     showUnavailable(k,k==='monika'?null:db,native);
+     if(!retainLastKnown(k,'GPS-jel frissítésére vár')){
+      latest=null;clearMarker();showUnavailable(k,k==='monika'?null:db,native);
+     }
     }
    }catch(_){
     if(ticket===run){
-     if(!latest||!preferRemote(latest,localFixAt())){
-      clearMarker();
-      showUnavailable(k,k==='monika'?null:db,native);
-     }else paintSpeed(latest); // age-out the speed even across network outages
+     if(!retainLastKnown(k,'átmeneti hálózati hiba')){
+      if(!latest||!preferRemote(latest,localFixAt())){
+       latest=null;clearMarker();
+       showUnavailable(k,k==='monika'?null:db,native);
+      }else paintSpeed(latest);
+     }
     }
    }finally{
     loading=false;
@@ -456,7 +511,10 @@
   // source is freshest. Never allow the older native marker to coexist with
   // a newly updated, more recent browser GPS portrait.
   function onLocalGpsFix(){
-   if(!current()){if(marker)clearMarker();return false}
+   if(!current()){
+    if(marker&&(!lastKnownVisible||!retainLastKnown(selected(),'GPS-jel frissítésére vár')))clearMarker();
+    return false;
+   }
    if(!marker&&latest)showFix(latest);
    else guardian()?.setRemoteMarkerPreferred?.(true);
    return true;
