@@ -127,6 +127,68 @@ function options(data,date,cfg=DEFAULT,clock=Date.now()){
  return {date,rows,matchingCount:rows.filter(r=>r.best).length,
   totalCount:rows.length,source:"BKK Zrt., CC BY 4.0",live:false,config:cfg};
 }
+/* A bus-first, full-service-day timetable for the exact 260 stop and direction.
+ * This is INDEPENDENT of which tram connections pass the user's constraints.
+ * A genuine scheduled bus must never disappear just because no good transfer exists.
+ */
+const BUS_260_DIRECTIONS=Object.freeze({
+ home:Object.freeze({stop:"Bécsi út / Vörösvári út",headsign:"Harsánylejtő",
+  after:"Citronella utca",origin:"Munkahely",destination:"Otthon"}),
+ work:Object.freeze({stop:"Citronella utca",headsign:"Óbudai rendelőintézet",
+  after:"Bécsi út / Vörösvári út",origin:"Otthon",destination:"Munkahely"})
+});
+function bus260DirectionForTemplate(cfg){
+ if(!cfg)return null;
+ if(cfg.id==="monika-home-to-office"||
+  cfg.targetRoute==="260"&&clean(cfg.targetStop)===clean("Citronella utca")&&
+  clean(cfg.targetHeadsign).includes(clean("Óbudai")))return "work";
+ if(cfg.id==="monika-260"||
+  cfg.targetRoute==="260"&&clean(cfg.targetStop)===clean("Bécsi út / Vörösvári út")&&
+  clean(cfg.targetHeadsign).includes(clean("Harsánylejtő")))return "home";
+ return null;
+}
+function full260Timetable(data,date,direction,clock=Date.now()){
+ if(!validate(data,clock))throw Error("A hivatalos BKK-adat hiányzik vagy lejárt.");
+ if(!/^\\d{4}-\\d{2}-\\d{2}$/.test(date)||date<data.feedStart||date>data.feedEnd)
+  throw Error("A kiválasztott nap nem szerepel a hitelesített menetrendben.");
+ const spec=BUS_260_DIRECTIONS[direction];
+ if(!spec)throw Error("Ismeretlen 260-as irány.");
+ const rows=[],dedup=new Set();
+ const yesterday=new Date(date+"T12:00:00Z");yesterday.setUTCDate(yesterday.getUTCDate()-1);
+ const prevDate=yesterday.toISOString().slice(0,10);
+ const dateStart=wallEpoch(date,0),dateEnd=wallEpoch(date,24*60);
+ for(const trip of data.trips){
+  const [line,service,headsign,events,mode]=trip;
+  if(line!=="260"||mode!=="bus"||!clean(headsign).includes(clean(spec.headsign)))continue;
+  for(const serviceDate of [prevDate,date]){
+   if(!active(data.services[service],serviceDate))continue;
+   const candidate=[];
+   for(let i=0;i<events.length-1;i++){
+    if(clean(data.stops[events[i][0]]?.[0])!==clean(spec.stop))continue;
+    // Require progress toward the right side of the 260 route, not merely
+    // an identically named stop/platform traversed in the wrong direction.
+    if(!events.slice(i+1).some(e=>clean(data.stops[e[0]]?.[0])===clean(spec.after)))continue;
+    const dep=wallEpoch(serviceDate,events[i][2]/60);
+    if(dep<dateStart||dep>=dateEnd)continue;
+    candidate.push({departMs:dep,stopId:events[i][0],
+     nextStop:data.stops[events[i+1][0]]?.[0]||"",headsign});
+   }
+   // One trip at the same public stop can pass several same-named platforms.
+   // Select its final valid boarding platform; never count a loop as two buses.
+   const selected=candidate.at(-1);
+   if(!selected)continue;
+   const key=selected.departMs+"|"+headsign;
+   if(dedup.has(key))continue;
+   dedup.add(key);
+   rows.push({line:"260",mode:"bus",...selected,stop:spec.stop,direction,
+    serviceDate,scheduled:true});
+  }
+ }
+ rows.sort((a,b)=>a.departMs-b.departMs||a.stopId.localeCompare(b.stopId));
+ return {date,direction,stop:spec.stop,headsign:spec.headsign,rows,
+  source:"BKK Zrt., CC BY 4.0",live:false};
+}
+
 function nextIndex(rows,now=Date.now()){
  return rows.findIndex(r=>r.best&&r.best.leaveOfficeMs>=now);
 }
@@ -195,5 +257,5 @@ function walkOnlyOptions(data,date,cfg=HOME,clock=Date.now()){
 function compute(data,date,cfg,clock=Date.now()){
  return cfg?.type==="walk"?walkOnlyOptions(data,date,cfg,clock):options(data,date,cfg,clock);
 }
-export {DEFAULT,HOME,REVERSE,SAMPLES,clean,dist,validConfig,indexStops,options,
- walkOnlyOptions,compute,nextIndex};
+export {DEFAULT,HOME,REVERSE,SAMPLES,BUS_260_DIRECTIONS,bus260DirectionForTemplate,full260Timetable,
+ clean,dist,validConfig,indexStops,options,walkOnlyOptions,compute,nextIndex};
