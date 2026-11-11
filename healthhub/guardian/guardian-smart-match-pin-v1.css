@@ -1,0 +1,58 @@
+/* Family Guard · Smart Match pinned preview V1.
+ * Only the NEW anchor in the BKK live header: existing BKK map controls,
+ * Watchlist, GPS, Guardian profiles and layout scripts are untouched.
+ */
+#hhTransitPanel #hhSmartMatchPinV1{
+ box-sizing:border-box;display:flex;flex-direction:column;align-items:flex-start;
+ justify-content:center;gap:1px;
+ flex:0 0 114px;width:114px;min-width:108px;min-height:56px;
+ margin:0;padding:7px 8px;
+ border-radius:13px;border:1px solid rgba(145,205,251,.62);
+ background:linear-gradient(130deg,rgba(228,243,255,.94),rgba(196,228,252,.82));
+ box-shadow:0 2px 10px rgba(49,88,149,.13),inset 0 1px rgba(255,255,255,.76);
+ text-decoration:none;color:#174469;line-height:1.15;
+ -webkit-tap-highlight-color:transparent;
+}
+#hhTransitPanel #hhSmartMatchPinV1 .hh-smart-match-pin-label{
+ display:block;width:100%;
+ color:#3e6b91;font-size:9px;font-weight:860;letter-spacing:.035em;
+ white-space:nowrap;
+}
+#hhTransitPanel #hhSmartMatchPinV1 strong{
+ color:#073a5c;font-size:clamp(15px,4vw,20px);font-weight:900;
+ font-variant-numeric:tabular-nums;white-space:nowrap;letter-spacing:-.025em;
+}
+#hhTransitPanel #hhSmartMatchPinV1 span{
+ display:block;color:#3e6485;font-size:9px;font-weight:720;
+ white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis;
+}
+#hhTransitPanel #hhSmartMatchPinV1[data-state="ready"]{
+ border-color:rgba(71,180,144,.75);
+ background:linear-gradient(132deg,rgba(222,255,245,.98),rgba(171,234,216,.82));
+ box-shadow:0 0 13px rgba(66,189,143,.17),inset 0 1px rgba(255,255,255,.7);
+}
+#hhTransitPanel #hhSmartMatchPinV1[data-state="ready"] strong{color:#135e50}
+#hhTransitPanel #hhSmartMatchPinV1[data-state="error"] strong,
+#hhTransitPanel #hhSmartMatchPinV1[data-state="loading"] strong{font-size:19px}
+#hhTransitPanel #hhSmartMatchPinV1:focus-visible{
+ outline:3px solid #2788e2;outline-offset:3px;
+}
+:root[data-guardian-profile="m"] #hhTransitPanel #hhSmartMatchPinV1{
+ border-color:rgba(230,123,200,.68);
+ background:linear-gradient(132deg,rgba(255,237,250,.97),rgba(246,207,238,.87));
+}
+:root[data-guardian-profile="m"] #hhTransitPanel #hhSmartMatchPinV1 .hh-smart-match-pin-label{
+ color:#9a487e;
+}
+:root[data-guardian-profile="m"] #hhTransitPanel #hhSmartMatchPinV1[data-state="ready"]{
+ border-color:rgba(65,192,149,.76);
+ background:linear-gradient(132deg,#d5fff0,#b3e4d2);
+}
+#hhTransitPanel>#hhSmartMatchPinV1{width:100%;max-width:260px;margin:0 0 10px}
+@media(max-width:380px){
+ #hhTransitPanel #hhBkkLiveBarV796>#hhSmartMatchPinV1{
+  flex-basis:108px;width:108px;min-width:100px;padding:6px;
+ }
+ #hhTransitPanel #hhSmartMatchPinV1 .hh-smart-match-pin-label{font-size:8px}
+ #hhTransitPanel #hhSmartMatchPinV1 span{font-size:8px}
+}
