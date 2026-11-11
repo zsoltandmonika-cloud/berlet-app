@@ -14,7 +14,7 @@ const AUTO_KEY="sh9-smart-location-switch-v1-m";
 const SWITCH_ID="hhSmartLocationSwitchV1";
 const holder=document.getElementById("hhTransitPanel");
 const state={item:null,id:null,entries:[],day:null,loaded:null,loading:false,visible:false,lastLoadAt:0,
- autoId:null,autoSince:0,pendingZone:null,pendingAt:0,confirmedZone:null,
+ autoId:null,autoSince:0,pendingZone:null,pendingAt:0,pendingFixTs:0,confirmedZone:null,
  autoEnabled:true};
 try{state.autoEnabled=localStorage.getItem(AUTO_KEY)!=="off"}catch(_){}
 
@@ -82,7 +82,7 @@ function switchButton(){
   state.autoEnabled=!state.autoEnabled;
   try{localStorage.setItem(AUTO_KEY,state.autoEnabled?"on":"off")}catch(_){}
   if(!state.autoEnabled){
-   state.autoId=null;state.pendingZone=null;state.confirmedZone=null;
+   state.autoId=null;state.pendingZone=null;state.pendingFixTs=0;state.confirmedZone=null;
    refresh({force:true});
   }else considerLocation();
   paintSwitch();
@@ -92,6 +92,7 @@ function switchButton(){
 function paintSwitch(label=""){
  const b=document.getElementById(SWITCH_ID);if(!b)return;
  b.setAttribute("aria-pressed",String(state.autoEnabled));
+ b.hidden=activeProfile()!=="monika";
  b.dataset.mode=state.autoEnabled?"on":"off";
  b.textContent=state.autoEnabled?"📍\nBE":"📍\nKI";
  b.dataset.zone=state.confirmedZone||"unknown";
@@ -106,9 +107,10 @@ function considerLocation(){
  // sensor, native relay, cloud API or map camera and never uploads coordinates.
  const follow=window.HH_GUARDIAN_PROFILE_FOLLOW_V837;
  const places=window.HH_TRAVEL_FAVORITES_V972?.getSlots?.();
- const choice=chooseLocation(follow?.latestAuthorizedSelectedFix,places,Date.now());
+ const fix=follow?.latestAuthorizedSelectedFix;
+ const choice=chooseLocation(fix,places,Date.now());
  if(!choice){
-  state.pendingZone=null;
+  state.pendingZone=null;state.pendingFixTs=0;
   if(state.autoId&&Date.now()-state.autoSince>5*60*1000){
    state.autoId=null;state.confirmedZone=null;refresh({force:true});
   }
@@ -119,11 +121,12 @@ function considerLocation(){
   state.autoSince=Date.now();paintSwitch();return;
  }
  if(state.pendingZone!==choice.zone){
-  state.pendingZone=choice.zone;state.pendingAt=Date.now();return;
+  state.pendingZone=choice.zone;state.pendingAt=Date.now();
+  state.pendingFixTs=fix.ts;return;
  }
  // Two independent readings separated by 8+ seconds prevent GPS jitter.
- if(Date.now()-state.pendingAt<8000)return;
- state.pendingZone=null;state.autoId=choice.routeId;
+ if(Date.now()-state.pendingAt<8000||fix.ts<=state.pendingFixTs)return;
+ state.pendingZone=null;state.pendingFixTs=0;state.autoId=choice.routeId;
  state.confirmedZone=choice.zone;state.autoSince=Date.now();
  paintSwitch();
  refresh({force:true});
@@ -294,7 +297,7 @@ function start(){
  window.addEventListener("storage",e=>{
   if(e.key===AUTO_KEY){
    state.autoEnabled=e.newValue!=="off";
-   if(!state.autoEnabled){state.autoId=null;state.confirmedZone=null;state.pendingZone=null}
+   if(!state.autoEnabled){state.autoId=null;state.confirmedZone=null;state.pendingZone=null;state.pendingFixTs=0}
    paintSwitch();refresh({force:true});if(state.autoEnabled)considerLocation();
   }
   if(e.key===STORAGE||e.key===ACTIVE)refresh({force:true});
