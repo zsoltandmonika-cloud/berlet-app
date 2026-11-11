@@ -78,7 +78,7 @@
    if(route){
     const shown=supported?!!(transit&&typeof transit.isLineVisible==='function'&&transit.isLineVisible(id)):
      !!(extra&&extra.isLineVisible&&extra.isLineVisible(key));
-    const show=action(shown?'Ne mutasd':'Mutasd ↗',
+    const show=action(shown?'◉':'↗',
      (MODE[mode]||'Járat')+' '+id+(shown?' útvonal elrejtése a térképről':' útvonal mutatása a térképen'),()=>{
       if(!supported){
        if(extra){if(shown)extra.setLineVisible(key,false);else extra.showLine(key)}
@@ -94,6 +94,7 @@
     },!route||(supported&&!mapReady)||(!supported&&!extra));
     show.classList.add('hh-bkk-watch-show-v814');
     show.setAttribute('aria-pressed',String(shown));
+    show.title=shown?'Járat útvonalának elrejtése':'Járat útvonalának megjelenítése';
     show.dataset.visible=String(shown);
     row.dataset.mapVisible=String(shown);
     controls.append(show);
