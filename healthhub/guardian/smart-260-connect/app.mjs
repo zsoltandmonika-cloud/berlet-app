@@ -647,7 +647,7 @@ function initEvents(){
   if(state.reminderEnabled&&typeof Notification!=="undefined"&&Notification.permission==="default"){
    try{await Notification.requestPermission()}catch(_){}
   }
-  toast(state.reminderEnabled?"🔔 Indulás előtt 5 perccel jelzek, amíg ez a lap nyitva van.":"🔕 Lapon belüli jelzés kikapcsolva.");
+  // The colored BE/KI button is sufficient feedback; keep real departure alerts intact.
  });
  window.addEventListener("popstate",()=>{
   if(new URLSearchParams(location.search).get("pinned")==="1")document.body.classList.add("pinned");
