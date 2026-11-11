@@ -585,6 +585,16 @@ async function computeRoute({useForm=false}={}){
   $("status").textContent="⚠️ "+(e?.message||"A BKK menetrend nem érhető el.");
  }finally{state.loading=false;if(current())updateTitle(current())}
 }
+function updatePinReminderUi(){
+ const button=$("pinReminder");
+ if(!button)return;
+ const enabled=state.reminderEnabled;
+ const label=button.querySelector("span");
+ if(label)label.textContent="Emlékeztető "+(enabled?"BE":"KI");
+ button.setAttribute("aria-pressed",String(enabled));
+ button.setAttribute("aria-label",enabled?"Emlékeztető BE. Kikapcsoláshoz nyomd meg.":"Emlékeztető KI. Bekapcsoláshoz nyomd meg.");
+ button.title=enabled?"Emlékeztető BE · indulás előtt 5 perccel, csak nyitott lapon":"Emlékeztető KI · bekapcsolás";
+}
 function enterPinned(){
  if(!save({pin:true}))return;
  document.body.classList.add("pinned");
@@ -618,6 +628,7 @@ function initEvents(){
  $("exitPin").addEventListener("click",leavePinned);
  $("pinEdit")?.addEventListener("click",leavePinned);
  $("reverseBtn")?.addEventListener("click",reverseCommute);
+ updatePinReminderUi();
  $("pinReminder")?.addEventListener("click",()=>$("remindBtn").click());
  $("pinTemplateSelect")?.addEventListener("change",e=>{
   const id=e.target.value;
@@ -632,7 +643,7 @@ function initEvents(){
   $("remindBtn").setAttribute("aria-pressed",String(state.reminderEnabled));
   $("remindBtn").setAttribute("aria-label",state.reminderEnabled?"Lapon belüli jelzés kikapcsolása":"Lapon belüli jelzés bekapcsolása");
   $("remindBtn").title=state.reminderEnabled?"Lapon belüli jelzés: be (csak nyitott lap)":"Lapon belüli jelzés: ki";
-  if($("pinReminder"))$("pinReminder").setAttribute("aria-pressed",String(state.reminderEnabled));
+  updatePinReminderUi();
   if(state.reminderEnabled&&typeof Notification!=="undefined"&&Notification.permission==="default"){
    try{await Notification.requestPermission()}catch(_){}
   }
