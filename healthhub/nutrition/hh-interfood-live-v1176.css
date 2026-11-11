@@ -1,0 +1,83 @@
+/* HealthHub Nutrition · Interfood Live Smart Food v1176.
+ * Scoped below the existing v1174 Premium card and v1175 saved card library.
+ * Uses profile-specific --accent and never overrides the original hero layout.
+ */
+#hhIfLiveArea1176{
+ margin:13px 0 20px;padding:17px;border:1px solid rgba(162,199,236,.32);
+ border-radius:20px;
+ background:linear-gradient(125deg,rgba(34,76,109,.43),rgba(23,28,52,.94));
+ box-shadow:inset 0 1px rgba(255,255,255,.13),0 13px 30px rgba(0,0,0,.2);
+}
+.hh-if-live-heading-v1176{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.hh-if-live-heading-v1176>div{min-width:0}
+.hh-if-live-heading-v1176 small{display:block;color:var(--accent,#f9a6d3);font-weight:850;font-size:10px;letter-spacing:.12em}
+.hh-if-live-heading-v1176 h2{font-size:clamp(20px,3.6vw,27px);margin:5px 0 5px;font-weight:900}
+.hh-if-live-heading-v1176 p{font-size:12px;color:#d0e2ed;line-height:1.5;margin:0}
+#hhIfLiveReload1176{width:43px;height:43px;flex:none;border-radius:13px;
+ background:rgba(27,62,94,.9);border:1px solid rgba(145,202,237,.45);
+ color:#f4faff;font-size:25px;font-weight:800}
+#hhIfLiveReload1176:focus-visible,.hh-if-live-item-v1176:focus-visible{
+ outline:3px solid var(--accent,#f9a6d3);outline-offset:3px
+}
+#hhIfLiveStatus1176{font-size:11px;line-height:1.4;color:#add9f0;margin:13px 0;min-height:18px}
+#hhIfLiveStatus1176[data-tone="error"]{color:#ffc1c4}
+#hhIfLiveStatus1176[data-tone="success"]{color:#a4edd1}
+.hh-if-live-filters-v1176{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:0 0 14px}
+.hh-if-live-filters-v1176 :is(input,select){
+ box-sizing:border-box;min-width:0;min-height:42px;padding:9px 12px;
+ border:1px solid rgba(144,196,234,.48);border-radius:12px;
+ color:#f0f9ff;background:#0a2139;font-size:12px
+}
+#hhIfLiveSearch1176{flex:2 1 210px}
+#hhIfLiveCategory1176{flex:1 1 130px}
+#hhIfLiveDay1176{flex:1 1 145px}
+#hhIfLiveDay1176[hidden]{display:none}
+#hhIfLiveCount1176{font-size:10px;color:#b6d1e4;white-space:nowrap;margin-left:auto}
+.hh-if-live-list-v1176{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.hh-if-live-item-v1176{
+ display:flex;align-items:stretch;gap:12px;min-width:0;min-height:144px;padding:8px;
+ text-align:left;color:#ecf6ff;border:1px solid rgba(155,196,234,.33);border-radius:16px;
+ background:linear-gradient(125deg,#173453,#1d2a46 72%,#302741);
+ box-shadow:inset 0 1px rgba(255,255,255,.13),0 4px 15px rgba(0,0,0,.19);
+ cursor:pointer;transition:transform .15s ease,border-color .15s ease
+}
+.hh-if-live-item-v1176:active{transform:translateY(1px)}
+.hh-if-live-item-v1176:hover{border-color:var(--accent,#f9a6d3)}
+.hh-if-live-item-v1176:disabled{opacity:.65;cursor:wait}
+.hh-if-live-photo-v1176{
+ display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;
+ flex:none;width:132px;border-radius:11px;background:linear-gradient(145deg,#244b69,#3b274a);
+}
+.hh-if-live-photo-v1176 img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.hh-if-live-fallback-v1176{font-size:39px}
+.hh-if-live-copy-v1176{display:flex;flex-direction:column;gap:5px;justify-content:center;min-width:0;flex:1}
+.hh-if-live-copy-v1176>small:first-child{color:var(--accent,#f9a6d3);font-weight:800;font-size:10px;letter-spacing:.02em}
+.hh-if-live-copy-v1176>strong{font-size:14px;line-height:1.35;font-weight:880;word-break:break-word}
+.hh-if-live-macros-v1176{color:#bed5e8;font-size:11px;line-height:1.35}
+.hh-if-live-quick-v1176{
+ display:inline-block;align-self:flex-start;margin-top:4px;padding:6px 9px;
+ color:#e9f9ff;font-size:10px;font-weight:820;
+ background:rgba(92,162,190,.24);border:1px solid rgba(169,222,245,.28);border-radius:9px
+}
+.hh-if-live-empty-v1176{grid-column:1/-1;color:#d3e7fa;text-align:center;padding:30px 12px;
+ border:1px dashed rgba(145,191,235,.4);border-radius:13px;font-size:13px}
+.hh-if-live-footer-v1176{display:flex;align-items:center;justify-content:space-between;
+ gap:12px;margin-top:15px;flex-wrap:wrap}
+.hh-if-live-footer-v1176>a{font-size:12px;font-weight:850;color:var(--accent,#f9a6d3)}
+.hh-if-live-footer-v1176>small{font-size:10px;color:#a8c4d7;line-height:1.35}
+@media(max-width:680px){
+ .hh-if-live-list-v1176{grid-template-columns:1fr}
+ .hh-if-live-item-v1176{min-height:122px}
+ .hh-if-live-photo-v1176{width:126px}
+}
+@media(max-width:420px){
+ #hhIfLiveArea1176{padding:12px;border-radius:16px}
+ .hh-if-live-heading-v1176 p{font-size:11px}
+ .hh-if-live-item-v1176{gap:9px;min-height:112px;padding:7px}
+ .hh-if-live-photo-v1176{width:91px}
+ .hh-if-live-copy-v1176>strong{font-size:12px}
+ .hh-if-live-copy-v1176>small:first-child{font-size:9px}
+ .hh-if-live-macros-v1176{font-size:9px}
+ .hh-if-live-quick-v1176{font-size:9px}
+}
+@media(prefers-reduced-motion:reduce){.hh-if-live-item-v1176{transition:none}}

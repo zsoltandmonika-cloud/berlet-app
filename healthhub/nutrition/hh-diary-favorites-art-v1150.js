@@ -16,9 +16,10 @@
   if(!entry||typeof entry!=='object')return null;
   // v1175: User-provided Interfood photo travels with the exact diary entry,
   // independently of whether it is additionally saved to Favorites.
-  if(entry.interfood?.imageRef){
+  if(entry.interfood?.imageRef||entry.interfood?.imageUrl){
    return {id:entry.id,kind:'interfood',scope:'personal',
-    imageRef:entry.interfood.imageRef,image:'',
+    imageRef:entry.interfood.imageRef||null,image:'',
+    imageUrl:entry.interfood.imageUrl||null,
     icon:entry.icon||'🍱',theme:'meal'};
   }
   // v1154: Keep the imported cookbook photo with its immutable diary snapshot.
@@ -60,6 +61,25 @@
   frame.append(img);
  }
  function useImage(frame,visual,profile){
+  if(visual?.imageUrl&&!visual.imageRef){
+   try{
+    const url=new URL(String(visual.imageUrl));
+    if(url.protocol==='https:'&&
+     (url.hostname==='interfood.hu'||url.hostname.endsWith('.interfood.hu'))&&
+     /\.(?:png|webp|jpe?g)$/i.test(url.pathname)){
+     const key='interfood-public:'+url.href;
+     if(frame.dataset.artKey!==key){
+      frame.dataset.artKey=key;
+      const img=doc.createElement('img');
+      img.alt='';img.loading='lazy';img.referrerPolicy='no-referrer';
+      img.className='hh-diary-fav-photo-v1150';img.src=url.href;
+      img.onerror=()=>{img.remove();if(frame.dataset.artKey===key)delete frame.dataset.artKey};
+      frame.append(img);
+     }
+     return;
+    }
+   }catch(_){}
+  }
   if(isPhoto(visual.image)){
    const key='inline:'+visual.id+':'+visual.image.length;
    if(frame.dataset.artKey===key)return;
