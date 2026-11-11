@@ -175,20 +175,31 @@ async function smoke(browser,base,device){
   assert.equal(await pinAlert.evaluate(el=>getComputedStyle(el).backgroundImage),reminderOffColor,
    "OFF should restore the previously approved pink button");
 
+  assert.ok(await page.locator("#pinnedBackBtn").isVisible(),
+   "Back button appears on the left of the pinned route title");
+  assert.equal(await page.locator("#pinnedBackBtn").getAttribute("href"),
+   "/berlet-app/healthhub/guardian/","Pinned back button must have a safe Guardian fallback");
   assert.ok(await page.locator("#reverseBtn").isVisible(),
    "Reverse route icon appears beside the pinned title");
   const titleRow=await page.evaluate(()=>{
    const a=document.getElementById("heading").getBoundingClientRect();
    const b=document.getElementById("reverseBtn").getBoundingClientRect();
+   const back=document.getElementById("pinnedBackBtn").getBoundingClientRect();
    const row=document.querySelector("main>.v33-titlebar").getBoundingClientRect();
    return {headingTop:a.top,reverseTop:b.top,reverseRight:b.right,width:innerWidth,
     headingCenter:a.left+a.width/2,rowCenter:row.left+row.width/2,
-    headingRight:a.right,reverseLeft:b.left};
+    headingRight:a.right,reverseLeft:b.left,
+    backLeft:back.left,backRight:back.right,backWidth:back.width,reverseWidth:b.width,
+    backTop:back.top};
   });
   assert.ok(Math.abs(titleRow.headingTop-titleRow.reverseTop)<=14,
    "Reverse icon must be beside title, not on an extra row: "+JSON.stringify(titleRow));
   assert.ok(titleRow.reverseRight<=titleRow.width,
    "Reverse icon must not overflow screen");
+  assert.ok(Math.abs(titleRow.backWidth-titleRow.reverseWidth)<=2,
+   "Matching pinned header buttons must have the same width: "+JSON.stringify(titleRow));
+  assert.ok(titleRow.backRight<=titleRow.rowCenter&&titleRow.backLeft>=0,
+   "Back button must fit the left header slot: "+JSON.stringify(titleRow));
   assert.ok(Math.abs(titleRow.headingCenter-titleRow.rowCenter)<=2,
    "Pinned route title must be centered across whole header: "+JSON.stringify(titleRow));
   assert.ok(titleRow.headingRight<=titleRow.reverseLeft+1,
