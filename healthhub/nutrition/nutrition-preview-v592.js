@@ -1108,7 +1108,8 @@ root.HH_NUTRITION_QUICK_API={
   return root.HH_NUTRITION_QUICK_API.recordInterfoodMeal({
     expectedProfile:active,token:payload.token,code:card.code,name:card.name,
     portions:payload.portions,meal:payload.meal||card.meal,
-    nutrients:card.nutrients,cardId:card.id,imageRef:card.imageRef
+    nutrients:card.nutrients,cardId:card.id,imageRef:card.imageRef,
+    weightGrams:card.weightGrams,menuDate:card.menuDate
   });
  },
  recordInterfoodMeal:payload=>{
@@ -1129,15 +1130,22 @@ root.HH_NUTRITION_QUICK_API={
     throw Error('Érvénytelen Interfood tápérték: '+key);
    if(value!=null){nut[key]=Number((value*portions).toFixed(2));known++;}
   }
+  const weightGrams=payload.weightGrams==null||payload.weightGrams===''?null:Number(payload.weightGrams);
+  if(weightGrams!=null&&(!Number.isFinite(weightGrams)||weightGrams<1||weightGrams>3000))
+   throw Error('Érvénytelen Interfood adagsúly.');
+  const totalGrams=weightGrams==null?null:Number((weightGrams*portions).toFixed(2));
   const id='interfood:'+token,old=read(active).entries.find(e=>e.id===id&&!e.deleted);
   if(old)return{id:old.id,name:old.name,kcal:old.nutrients?.kcal,profile:active,date:old.date,duplicate:true};
   const now=stamp(),rec={
    id,createdAt:now,updatedAt:now,date:localDate(),time:localTime(),meal,
    kind:'food',foodId:'interfood:'+(code||token),name,icon:'🍱',
-   quantity:portions,unit:'adag',quantityText:fmt(portions,2)+' adag · Interfood',
+   quantity:totalGrams==null?portions:totalGrams,unit:totalGrams==null?'adag':'g',
+   quantityText:(totalGrams==null?'':fmt(totalGrams,2)+' g · ')+fmt(portions,2)+' adag · Interfood',
    nutrients:nut,source:'interfood-import',
    interfood:{code,token,portionMultiplier:portions,
     cardId:String(payload.cardId||'').slice(0,150),
+    menuDate:String(payload.menuDate||'').slice(0,10),
+    weightGrams,
     imageRef:payload.imageRef&&root.HH_NUTRITION_IMAGE_V641?.refValid?.(active,payload.imageRef)?payload.imageRef:null,
     nutritionBasis:'user-copied-listed-serving',nutritionKnownFields:known,
     inputMethod:'user-copy-or-manual',sourceUrl:'https://rendel.interfood.hu/'}
