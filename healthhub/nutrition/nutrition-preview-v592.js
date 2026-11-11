@@ -59,7 +59,7 @@ function makeDefaultPreset(profile,afternoon){
  return {milkMl:150,milkType:profile==='monika'?'milklactose':(afternoon?'milk01':'milk15'),sugarCubes:afternoon?3:(profile==='monika'?1:2),cubeGrams:4,cinnamonGrams:afternoon?2:0,ladyCount:afternoon?4:0,ladyGrams:7,meal:afternoon?'Uzsonna':'Reggeli',updatedAt:'1970-01-01T00:00:00Z'};
 }
 function fresh(profile){
- return {schemaVersion:SCHEMA,profileKey:profile,updatedAt:stamp(),entries:[],body:[],catalog:[],units:[],quickRecipes:[],quickRecipeOrder:{ids:[],updatedAt:'1970-01-01T00:00:00Z'},hydrationCounterReset:null,goal:{kcal:null,tolerance:150,updatedAt:'1970-01-01T00:00:00Z'},presets:{morning:makeDefaultPreset(profile,false),afternoon:makeDefaultPreset(profile,true)}};
+ return {schemaVersion:SCHEMA,profileKey:profile,updatedAt:stamp(),entries:[],body:[],catalog:[],units:[],quickRecipes:[],interfoodCards:[],quickRecipeOrder:{ids:[],updatedAt:'1970-01-01T00:00:00Z'},hydrationCounterReset:null,goal:{kcal:null,tolerance:150,updatedAt:'1970-01-01T00:00:00Z'},presets:{morning:makeDefaultPreset(profile,false),afternoon:makeDefaultPreset(profile,true)}};
 }
 function normalize(x,profile){
  let d=fresh(profile);
@@ -70,7 +70,7 @@ function normalize(x,profile){
  if(hydrationReset&&isDay(hydrationReset.date)&&Number.isFinite(Number(hydrationReset.offsetMl))&&Number(hydrationReset.offsetMl)>=0&&Number(hydrationReset.offsetMl)<=1e9&&typeof hydrationReset.updatedAt==='string'&&Number.isFinite(Date.parse(hydrationReset.updatedAt))){
   d.hydrationCounterReset={date:hydrationReset.date,offsetMl:Number(hydrationReset.offsetMl),updatedAt:hydrationReset.updatedAt};
  }
- ['entries','body','catalog','units','quickRecipes'].forEach(k=>{if(Array.isArray(x[k]))d[k]=x[k].filter(v=>v&&typeof v.id==='string'&&v.id.length<150).slice(-50000);});
+ ['entries','body','catalog','units','quickRecipes','interfoodCards'].forEach(k=>{if(Array.isArray(x[k]))d[k]=x[k].filter(v=>v&&typeof v.id==='string'&&v.id.length<150).slice(-50000);});
  if(x.quickRecipeOrder&&Array.isArray(x.quickRecipeOrder.ids)){d.quickRecipeOrder={ids:[...new Set(x.quickRecipeOrder.ids.filter(v=>typeof v==='string'&&/^quick:[a-z0-9_-]{1,80}$/i.test(v)))].slice(0,250),updatedAt:typeof x.quickRecipeOrder.updatedAt==='string'?x.quickRecipeOrder.updatedAt:'1970-01-01T00:00:00Z'};}
  if(x.goal&&typeof x.goal==='object'){const kcal=x.goal.kcal==null?null:num(x.goal.kcal,800,6000);d.goal={kcal,tolerance:num(x.goal.tolerance,0,1000)??150,updatedAt:x.goal.updatedAt||d.goal.updatedAt};}
  for(const key of ['morning','afternoon'])if(x.presets&&x.presets[key]){
@@ -103,7 +103,7 @@ function mergeRows(a,b){
 }
 function merge(local,remote,profile){
  let l=normalize(local,profile),r=normalize(remote,profile),o=normalize(l,profile);
- for(const key of ['entries','body','catalog','units','quickRecipes'])o[key]=mergeRows(l[key],r[key]);
+ for(const key of ['entries','body','catalog','units','quickRecipes','interfoodCards'])o[key]=mergeRows(l[key],r[key]);
  o.quickRecipeOrder=String(r.quickRecipeOrder.updatedAt||'')>String(l.quickRecipeOrder.updatedAt||'')?r.quickRecipeOrder:l.quickRecipeOrder;
  o.goal=String(r.goal.updatedAt||'')>String(l.goal.updatedAt||'')?r.goal:l.goal;
  for(const key of ['morning','afternoon'])o.presets[key]=String(r.presets[key].updatedAt||'')>String(l.presets[key].updatedAt||'')?r.presets[key]:l.presets[key];
@@ -1040,6 +1040,77 @@ root.HH_NUTRITION_QUICK_API={
   if(!found)throw Error('Nem található az Interfood naplóbejegyzés.');
   return{id,profile:active};
  },
+ /* v1175 · Profile-scoped Interfood cards, saved to the existing
+  * conflict-safe Dropbox Nutrition JSON but never auto-recorded as eaten. */
+ getInterfoodCards:()=>clone(read(active).interfoodCards.filter(x=>!x.deleted))
+  .sort((a,b)=>String(b.updatedAt||'').localeCompare(String(a.updatedAt||''))),
+ saveInterfoodCard:payload=>{
+  if(payload?.expectedProfile!==active)throw Error('A Nutrition profil megváltozott.');
+  const name=String(payload.name||'').trim().slice(0,80),
+   code=String(payload.code||'').trim().toUpperCase(),
+   meal=normalizeMeal(payload.meal)||'Ebéd';
+  const weight=payload.weightGrams==null||payload.weightGrams===''?null:Number(payload.weightGrams);
+  const day=String(payload.menuDate||'').trim();
+  if(name.length<2||(code&&!/^[A-Z0-9]{1,8}$/.test(code))||
+    (weight!=null&&(!Number.isFinite(weight)||weight<1||weight>3000))||
+    (day&&!isDay(day)))throw Error('Az Interfood kártya neve, ételkódja, súlya vagy dátuma hibás.');
+  const nutrients={};
+  for(const key of ['kcal','protein','carbs','fat']){
+   const raw=payload.nutrients?.[key],val=raw==null||raw===''?null:Number(raw);
+   if(val!=null&&(!Number.isFinite(val)||val<0||val>(key==='kcal'?5000:1000)))
+    throw Error('Hibás tápérték: '+key);
+   nutrients[key]=val==null?null:Number(val.toFixed(2));
+  }
+  const existing=payload.id?read(active).interfoodCards.find(x=>x.id===payload.id&&!x.deleted):null;
+  if(payload.id&&!existing)throw Error('A kártya nem található a jelenlegi profilban.');
+  let imageRef=existing?.imageRef||null;
+  if(payload.imageRef){
+   if(!root.HH_NUTRITION_IMAGE_V641?.refValid?.(active,payload.imageRef))
+    throw Error('A fotó nem a jelenlegi profilhoz tartozik.');
+   imageRef=payload.imageRef;
+  }
+  const now=stamp(),id=existing?.id||'ifcard:'+uid();
+  const row={id,name,code,meal,menuDate:day||null,weightGrams:weight,
+    nutrients,imageRef,source:'interfood-user-saved',originUrl:'https://rendel.interfood.hu/',
+    createdAt:existing?.createdAt||now,updatedAt:now,deleted:false};
+  update(d=>{
+   const idx=d.interfoodCards.findIndex(x=>x.id===id);
+   if(idx>=0)d.interfoodCards[idx]=row;else d.interfoodCards.push(row);
+  });
+  const saved=read(active).interfoodCards.find(x=>x.id===id&&!x.deleted);
+  if(!saved)throw Error('Az Interfood kártya nem került mentésre.');
+  return {id,profile:active,name:saved.name};
+ },
+ attachInterfoodCardPhoto:payload=>{
+  if(payload?.expectedProfile!==active)throw Error('Profilváltás történt képfeltöltés közben.');
+  if(!root.HH_NUTRITION_IMAGE_V641?.refValid?.(active,payload.imageRef))
+   throw Error('Érvénytelen Interfood fotóhivatkozás.');
+  const cardId=String(payload.cardId||'');let found=false;
+  update(d=>{
+   const card=d.interfoodCards.find(x=>x.id===cardId&&!x.deleted);
+   if(card){card.imageRef=payload.imageRef;card.updatedAt=stamp();found=true;}
+  });
+  if(!found)throw Error('Nem található az Interfood ételkártya.');
+  return{id:cardId,profile:active};
+ },
+ deleteInterfoodCard:payload=>{
+  if(payload?.expectedProfile!==active)throw Error('Profilváltás történt.');
+  const id=String(payload.id||'');let found=false;
+  update(d=>{const card=d.interfoodCards.find(x=>x.id===id&&!x.deleted);
+   if(card){card.deleted=true;card.updatedAt=stamp();found=true;}});
+  if(!found)throw Error('Nem található a törlendő Interfood ételkártya.');
+  return {id,profile:active};
+ },
+ recordInterfoodCard:payload=>{
+  if(payload?.expectedProfile!==active)throw Error('A profil megváltozott.');
+  const card=read(active).interfoodCards.find(x=>x.id===payload.cardId&&!x.deleted);
+  if(!card)throw Error('Az Interfood ételkártya nem található.');
+  return root.HH_NUTRITION_QUICK_API.recordInterfoodMeal({
+    expectedProfile:active,token:payload.token,code:card.code,name:card.name,
+    portions:payload.portions,meal:payload.meal||card.meal,
+    nutrients:card.nutrients,cardId:card.id,imageRef:card.imageRef
+  });
+ },
  recordInterfoodMeal:payload=>{
   if(payload?.expectedProfile!==active)throw Error('Profilváltás történt. A naplózás megszakadt.');
   const token=String(payload.token||'').trim(),
@@ -1066,6 +1137,8 @@ root.HH_NUTRITION_QUICK_API={
    quantity:portions,unit:'adag',quantityText:fmt(portions,2)+' adag · Interfood',
    nutrients:nut,source:'interfood-import',
    interfood:{code,token,portionMultiplier:portions,
+    cardId:String(payload.cardId||'').slice(0,150),
+    imageRef:payload.imageRef&&root.HH_NUTRITION_IMAGE_V641?.refValid?.(active,payload.imageRef)?payload.imageRef:null,
     nutritionBasis:'user-copied-listed-serving',nutritionKnownFields:known,
     inputMethod:'user-copy-or-manual',sourceUrl:'https://rendel.interfood.hu/'}
   };
