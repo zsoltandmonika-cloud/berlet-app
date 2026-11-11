@@ -54,7 +54,7 @@ test('saved cards share existing revision-safe per-profile Nutrition cloud journ
  assert.match(core,/attachInterfoodCardPhoto:payload=>/);
  assert.match(core,/recordInterfoodCard:payload=>/);
  assert.match(core,/if\(payload\?\.expectedProfile!==active\)throw Error\(/);
- assert.match(core,/source:'interfood-user-saved'/);
+ assert.match(core,/source:sourceKey\?'interfood-live':'interfood-user-saved'/);
  assert.match(core,/update\(d=>\{/);
  const portion=core.slice(core.indexOf('saveInterfoodCard:payload=>'),core.indexOf('attachInterfoodCardPhoto:payload=>'));
  assert.doesNotMatch(portion,/recordInterfoodMeal|recordInterfoodCard|d\.entries\.push/);
@@ -65,7 +65,7 @@ test('logging a saved card is an explicit one-click action with a source snapsho
  assert.match(core,/token:payload\.token,code:card\.code,name:card\.name/);
  assert.match(core,/cardId:card\.id,imageRef:card\.imageRef/);
  assert.match(core,/source:'interfood-import'/);
- assert.match(diaryArt,/if\(entry\.interfood\?\.imageRef\)/);
+ assert.match(diaryArt,/if\(entry\.interfood\?\.imageRef\|\|entry\.interfood\?\.imageUrl\)/);
 });
 test('three optional exports use existing supported APIs, never invent grams',()=>{
  assert.match(ui,/saveManualFood\(\{/);
