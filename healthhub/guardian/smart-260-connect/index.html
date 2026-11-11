@@ -9,6 +9,7 @@
 <link rel="stylesheet" href="./style.css?v=1">
 <link rel="stylesheet" href="./visual-fidelity-v2.css?v=2">
 <link rel="stylesheet" href="./clean-fullscreen-v3.css?v=33">
+<link rel="stylesheet" href="./full-260-v34.css?v=34">
 </head>
 <body>
 <div class="banner" id="pinnedBanner">
@@ -33,7 +34,7 @@
     <div class="hero-time" id="heroTime">--:--</div>
     <div class="hero-description" id="heroDetail">Hiteles menetrend betöltése…</div>
    </div>
-   <div class="ring" id="ring"><div class="ring-inner"><b id="countdown">--:--</b><small>indulásig</small></div></div>
+   <div class="ring" id="ring"><div class="ring-inner"><b id="countdown">--:--</b><small id="countdownLabel">indulásig</small></div></div>
   </div>
   <div class="flow" id="routeFlow" aria-label="Utazási folyamat"></div>
  </section>
@@ -90,7 +91,7 @@
   </div>
   <div class="progress"><div id="dayProgress"></div></div>
   <div class="timeline-wrap">
-   <div class="timeline-rail" id="timeline" role="region" tabindex="0" aria-label="260-as és egyéb céljáratokhoz igazított indulási idővonal">
+   <div class="timeline-rail" id="timeline" role="region" tabindex="0" aria-label="Teljes napi 260-as menetrend és ellenőrzött csatlakozások">
     <div class="empty">Menetrendi adatok ellenőrzése…</div>
    </div>
   </div>
@@ -108,6 +109,6 @@
  </details>
 </main>
 <div id="toast" role="alert" hidden></div>
-<script type="module" src="./app.mjs?v=33"></script>
+<script type="module" src="./app.mjs?v=34"></script>
 </body>
 </html>
