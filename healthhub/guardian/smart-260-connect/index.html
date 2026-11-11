@@ -8,6 +8,7 @@
 <title>Smart Match · SHO Smart Trip AI</title>
 <link rel="stylesheet" href="./style.css?v=1">
 <link rel="stylesheet" href="./visual-fidelity-v2.css?v=2">
+<link rel="stylesheet" href="./clean-fullscreen-v3.css?v=3">
 </head>
 <body>
 <div class="banner" id="pinnedBanner">
@@ -19,10 +20,8 @@
   <a href="/berlet-app/sh9/smart-travel/public-transport/smart-trip/">‹ Smart Trip AI</a>
   <span class="pill">SHO · MÓNIKA</span>
  </nav>
- <div class="v2-skyline" aria-hidden="true"><span class="v2-skyline-tram">🚋</span><span class="v2-skyline-bus">🚌</span></div>
- <div class="eyebrow">Személyes közlekedés · Smart Match</div>
+ <div class="v2-skyline" aria-hidden="true"></div>
  <h1 id="heading">Mónika · Munkahely → Otthon</h1>
- <p class="sub" id="editorIntro">Válassz céljáratot, állítsd be a ráhordó járatokat, és tűzd ki a következő indulásokat. A sablonok helyben, a böngésződben mentődnek.</p>
  <div id="templates" role="group" aria-label="Mentett útvonal-sablonok"></div>
  <section class="hero glass" aria-label="Következő ajánlott indulás">
   <div class="hero-grid">
@@ -77,7 +76,7 @@
  </section>
 
  <div id="status" role="status" aria-live="polite">A hivatalos BKK-menetrend ellenőrzése…</div>
- <section class="glass" style="padding:16px" aria-label="Görgethető Smart Match idővonal">
+ <section class="glass v3-timeline-panel" id="timelinePanel" style="padding:16px" aria-label="Görgethető Smart Match idővonal">
   <div class="section-head" style="margin:0 0 13px">
    <div><h2>✨ Smart Match Timeline</h2><span class="muted" id="timelineSubtitle">A mai menetrend csatlakozásai</span></div>
    <div class="toolbar">
@@ -94,15 +93,19 @@
   </div>
   <p class="sub" id="matchSummary" style="font-size:12px;margin-top:14px"></p>
  </section>
- <div class="notice">ℹ️ <strong>Menetrendi előrejelzés, nem élő járatkövetés.</strong> A megállók közötti séta becsült; a pontos útvonalat és késéseket a <a href="https://bkk.hu/budapestgo/" target="_blank" rel="noopener noreferrer">BudapestGO-ban</a> ellenőrizd. A riasztás csak nyitott oldalon működik, háttérben nem garantált.</div>
+
  <nav class="pinned-actions glass" id="pinnedActions" aria-label="Kitűzött Smart Match gyorsgombok">
   <button type="button" class="pin-action pin-action-alert" id="pinReminder">🔔 <span>Emlékeztető</span></button>
   <label class="pin-template-select" for="pinTemplateSelect"><span>📚 Séma</span><select id="pinTemplateSelect" aria-label="Mentett Smart Match sablon váltása"></select></label>
   <button type="button" class="pin-action pin-action-edit" id="pinEdit">✎ <span>Szerkesztés</span></button>
  </nav>
- <footer class="footer">Forrás: <a href="https://opendata.bkk.hu/data-sources" target="_blank" rel="noopener noreferrer">BKK Zrt. · CC BY 4.0</a> · A menetrendi állományt a SHO korábbi, ellenőrzött GTFS-olvasója tölti be. A „MOST” jel és a visszaszámláló a készülék idejét használja; nem jelentenek valós idejű BKK-követést.</footer>
+ <details class="v3-info" id="scheduleInfo">
+  <summary>ⓘ Menetrendi információk és források</summary>
+  <p>Menetrendi előrejelzés, nem élő járatkövetés. Az átszállási séta becsült; az aktuális késéseket ellenőrizd a <a href="https://bkk.hu/budapestgo/" target="_blank" rel="noopener noreferrer">BudapestGO-ban</a>. A figyelmeztetés nyitott oldalon működik, háttérben nem garantált.</p>
+  <p>Forrás: <a href="https://opendata.bkk.hu/data-sources" target="_blank" rel="noopener noreferrer">BKK Zrt. · CC BY 4.0</a>. A „MOST” jel és a visszaszámláló a készülék időadatait használja.</p>
+ </details>
 </main>
 <div id="toast" role="alert" hidden></div>
-<script type="module" src="./app.mjs?v=2"></script>
+<script type="module" src="./app.mjs?v=3"></script>
 </body>
 </html>
