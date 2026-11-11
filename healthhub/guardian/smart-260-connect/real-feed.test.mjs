@@ -72,5 +72,9 @@ test("audit 260 bus 08:07 at Citronella vs later downstream stops, 2026-11-11",t
   }
  }
  console.log("CITRONELLA_260_2026_11_11",JSON.stringify(departures));
- assert.ok(departures.some(x=>x.bus==="8:07"),"Official GTFS must contain Citronella at 08:07");
+ const departure=departures.find(x=>x.bus==="8:07");
+ assert.ok(departure,"Official GTFS must contain Citronella at 08:07");
+ assert.equal(departure.following.find(x=>x.name==="Orbán Balázs út")?.hhmm,"8:17",
+  "08:17 is the Orbán Balázs út ARRIVAL, not Citronella departure");
+ assert.equal(departure.following.find(x=>x.name==="Bécsi út / Vörösvári út")?.hhmm,"8:20");
 });
