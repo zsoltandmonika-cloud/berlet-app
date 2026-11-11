@@ -27,6 +27,8 @@ const focusButton=d.createElement('button');
 focusButton.type='button';
 focusButton.id='hhBkkFocusV796';
 focusButton.hidden=true;
+focusButton.tabIndex=-1;
+focusButton.setAttribute('aria-hidden','true');
 focusButton.textContent='Élő jármű mutatása ↗';
 focusButton.style.cssText='min-height:44px;padding:8px 12px;border-radius:10px;border:1px solid #8ceaff;background:#1a81bd;color:white;font:750 13px system-ui;cursor:pointer;';
 bar.append(p,focusButton);
@@ -59,8 +61,12 @@ let lastSourceSnapshot=null; // validated, UNFILTERED BKK response; redraw never
 // Live map visibility is a presentation toggle, not a change to BKK polling.
 let liveVisible=true;
 function updateLiveButton(){
- if(sh9AllMode){focusButton.hidden=true;return;}
- focusButton.hidden=!lastVehicles.length;
+ // Legacy conditional toggle superseded by unified Watchlist Mutasd/Elrejt.
+ // Keep the DOM node for compatibility, but never expose a second live button.
+ focusButton.hidden=true;
+ focusButton.tabIndex=-1;
+ focusButton.setAttribute('aria-hidden','true');
+ if(sh9AllMode)return;
  focusButton.textContent=liveVisible?'Ne mutasd élő járműveket':'Mutasd élő járműveket';
  focusButton.setAttribute('aria-pressed',String(liveVisible));
  focusButton.setAttribute('aria-label',focusButton.textContent);
