@@ -120,8 +120,19 @@ function resetEditor(card=null){
  by('hhIfCardPhoto1175').dataset.photoKey='';
  by('hhIfCardPlaceholder1175').hidden=false;
  by('hhIfDelete1175').hidden=!card;
- by('hhIfPhotoCaption1175').textContent='Saját fotó feltöltése (opcionális)';
- by('hhIfEditHeading1175').textContent=card?'Interfood ételkártya szerkesztése':'Új Interfood ételkártya';
+ const live=Boolean(card?.sourceKey);
+ const photoInput=by('hhIfPhoto1175')?.closest('label');
+ if(photoInput)photoInput.hidden=live;
+ by('hhIfPhotoCaption1175').textContent=live
+   ?(card?.imageUrl?'Hivatalos Interfood fotó · automatikus':'A hivatalos Interfood-fotó nem érhető el')
+   :'Saját fotó feltöltése (opcionális)';
+ by('hhIfCardPlaceholder1175').textContent=live?'Interfood':'🍱';
+ const paste=by('hhIfPaste1175')?.closest('label');
+ if(paste)paste.hidden=live;
+ by('hhIfParse1175').hidden=live;
+ const introduction=by('hhIfIntro1175');
+ if(introduction)introduction.hidden=live;
+ by('hhIfEditHeading1175').textContent=card?'Interfood ételkártya':'Új Interfood ételkártya';
  notice(card?'A meglévő kártyát szerkeszted.':'A kártya mentése nem rögzít automatikusan ebédet.');
  updatePreview();
  if(card?.imageRef)loadImage(by('hhIfCardPhoto1175'),card.imageRef,owner,()=>{
@@ -163,8 +174,14 @@ async function preparePhoto(){
 function publicPhotoURL(value){
  try{
   const u=new URL(String(value||''));
-  if(u.protocol==='https:'&&(u.hostname==='interfood.hu'||u.hostname.endsWith('.interfood.hu'))&&
-   /\.(?:png|webp|jpe?g)$/i.test(u.pathname))return u.href;
+  if(u.protocol!=='https:'||!(u.hostname==='interfood.hu'||u.hostname.endsWith('.interfood.hu')))return null;
+  if(u.hostname==='ia.interfood.hu'&&u.pathname==='/api/v1/i'){
+   const p=u.searchParams;
+   return [...p.keys()].sort().join(',')==='height,menu_item_id,width'&&
+    /^[1-9][0-9]{0,9}$/.test(p.get('menu_item_id')||'')&&
+    p.get('width')==='425'&&p.get('height')==='425'?u.href:null;
+  }
+  return /\.(?:png|webp|jpe?g)$/i.test(u.pathname)?u.href:null;
  }catch(_){}
  return null;
 }
@@ -203,7 +220,7 @@ async function renderCards(){
  for(const card of all){
   const item=doc.createElement('article');item.className='hh-if-food-card-v1175';
   const frame=doc.createElement('div');frame.className='hh-if-food-art-v1175';
-  const emoji=doc.createElement('span');emoji.textContent='🍱';frame.append(emoji);
+  const emoji=doc.createElement('span');emoji.textContent=card.sourceKey?'Interfood':'🍱';frame.append(emoji);
   if(card.imageRef||card.imageUrl){
    const img=doc.createElement('img');img.alt='';img.hidden=true;img.loading='lazy';frame.append(img);
    if(card.imageRef)loadImage(img,card.imageRef,owner);
@@ -386,8 +403,8 @@ function init(){
     <div class="hh-if-card-art-v1175"><img id="hhIfCardPhoto1175" alt="Az étel kiválasztott fotója" hidden><span id="hhIfCardPlaceholder1175">🍱</span></div>
     <div class="hh-if-card-hero-copy-v1175"><small id="hhIfCardCode1175">INTERFOOD</small><strong id="hhIfCardTitle1175">Választott Interfood étel</strong><label class="hh-if-upload-v1175">📷 Fotó kiválasztása<input type="file" accept="image/jpeg,image/png,image/webp" id="hhIfPhoto1175" hidden></label><small id="hhIfPhotoCaption1175">Saját fotó feltöltése (opcionális)</small></div>
    </div>
-   <div class="hh-if-intro-v1175">Az <a href="https://rendel.interfood.hu/" target="_blank" rel="noopener noreferrer">Interfood heti étlapjáról</a> másold be az ételadatokat, vagy írd be kézzel. Az ételkép csak feltöltött fotóból származik; a rendszer nem állítja, hogy minden tápérték hivatalosan ellenőrzött.</div>
-   <label>Másolt ételadatok (opcionális)<textarea id="hhIfPaste1175" rows="2" maxlength="4000" placeholder="D9 - Kemencében sült csirkemell, görög saláta&#10;481 kcal · 45 g fehérje · 24 g szénhidrát · 25 g zsír"></textarea></label>
+   <div id="hhIfIntro1175" class="hh-if-intro-v1175">Az <a href="https://rendel.interfood.hu/" target="_blank" rel="noopener noreferrer">Interfood heti étlapjáról</a> másold be az ételadatokat, vagy írd be kézzel. Az ételkép csak feltöltött fotóból származik; a rendszer nem állítja, hogy minden tápérték hivatalosan ellenőrzött.</div>
+   <label id="hhIfPasteWrap1175">Másolt ételadatok (opcionális)<textarea id="hhIfPaste1175" rows="2" maxlength="4000" placeholder="D9 - Kemencében sült csirkemell, görög saláta&#10;481 kcal · 45 g fehérje · 24 g szénhidrát · 25 g zsír"></textarea></label>
    <button type="button" class="hh-if-parse-v1175" id="hhIfParse1175">✦ Adatok felismerése</button>
    <div class="hh-if-fields-v1175">
     <label>Ételkód<input id="hhIfCode1175" maxlength="8" placeholder="D9"></label>

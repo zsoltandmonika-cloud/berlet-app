@@ -26,6 +26,13 @@ function validPhotoURL(raw){
  const url=validSourceURL(raw);
  if(!url)return null;
  const u=new URL(url);
+ if(u.hostname==='ia.interfood.hu'&&u.pathname==='/api/v1/i'){
+  const qs=u.searchParams;
+  const keys=[...qs.keys()].sort().join(',');
+  const item=qs.get('menu_item_id'),width=qs.get('width'),height=qs.get('height');
+  return keys==='height,menu_item_id,width'&&/^[1-9][0-9]{0,9}$/.test(item||'')&&
+   width==='425'&&height==='425'?url:null;
+ }
  return /\.(?:jpe?g|png|webp)$/i.test(u.pathname)?url:null;
 }
 function cleanFood(raw){
@@ -94,9 +101,9 @@ function cardImage(item){
  if(image){
   const img=doc.createElement('img');img.alt='';img.loading='lazy';img.decoding='async';
   img.referrerPolicy='no-referrer';img.src=image;
-  img.onerror=()=>{img.remove();frame.append(node('span','hh-if-live-fallback-v1176','🍱'));};
+  img.onerror=()=>{img.remove();frame.append(node('span','hh-if-live-fallback-v1176','Interfood'))};
   frame.append(img);
- }else frame.append(node('span','hh-if-live-fallback-v1176','🍱'));
+ }else frame.append(node('span','hh-if-live-fallback-v1176','Interfood'));
  return frame;
 }
 function render(){
@@ -169,6 +176,15 @@ async function fetchLive(force=false){
    const json=await response.json();
    const parsed=validateFeed(json);
    items=parsed.items;menuMeta=parsed.meta;
+   // Restore official photos on cards saved before the photo integration,
+   // without altering their manually edited names or nutrient values.
+   const currentProfile=api()?.getProfile?.();
+   if(currentProfile&&api()?.syncInterfoodLivePhotos){
+    try{
+     const restored=api().syncInterfoodLivePhotos({expectedProfile:currentProfile,items});
+     if(restored.updated>0)UI()?.refreshCards?.();
+    }catch(_){/* feed still works; profile safety is enforced by diary API */}
+   }
    renderFilters();render();
    const stamp=new Date(parsed.meta.updatedAt);
    notify('✓ Interfood Live · '+parsed.meta.count+' étel · frissítve: '+

@@ -1075,7 +1075,12 @@ root.HH_NUTRITION_QUICK_API={
    const url=new URL(rawImage);
    if(url.protocol==='https:'&&
       (url.hostname==='interfood.hu'||url.hostname.endsWith('.interfood.hu'))&&
-      /\.(?:png|webp|jpe?g)$/i.test(url.pathname)&&rawImage.length<=800)
+      ( /\.(?:png|webp|jpe?g)$/i.test(url.pathname) ||
+        (url.hostname==='ia.interfood.hu'&&url.pathname==='/api/v1/i'&&
+         [...url.searchParams.keys()].sort().join(',')==='height,menu_item_id,width'&&
+         /^[1-9][0-9]{0,9}$/.test(url.searchParams.get('menu_item_id')||'')&&
+         url.searchParams.get('width')==='425'&&url.searchParams.get('height')==='425'))&&
+      rawImage.length<=800)
     imageUrl=url.href;
   }catch(_){}
   const sourceKey=String(payload.sourceKey||existing?.sourceKey||'').trim().slice(0,180);
@@ -1098,13 +1103,61 @@ root.HH_NUTRITION_QUICK_API={
  /* v1176 · Server-verified public menu -> single-click private card.
   * On repeated clicks with the same week/day/code/name, never duplicate or
   * overwrite a user's saved card or changes. Never record consumption here. */
+ /* v1177: Attach newly available official photos to previously saved
+  * Interfood Live cards without replacing names, macros, edits, or user images. */
+ syncInterfoodLivePhotos:payload=>{
+  if(payload?.expectedProfile!==active)throw Error('Profilváltás történt.');
+  const items=Array.isArray(payload.items)?payload.items.slice(0,1000):[];
+  const photos=new Map();
+  for(const item of items){
+   if(!item?.id||!item?.menuDate||!item?.week||!item?.imageUrl)continue;
+   const raw=String(item.imageUrl);
+   try{
+    const u=new URL(raw),p=u.searchParams;
+    if(u.protocol!=='https:'||u.hostname!=='ia.interfood.hu'||u.pathname!=='/api/v1/i'||
+       [...p.keys()].sort().join(',')!=='height,menu_item_id,width'||
+       !/^[1-9][0-9]{0,9}$/.test(p.get('menu_item_id')||'')||
+       p.get('width')!=='425'||p.get('height')!=='425')continue;
+    const key='ifv1:'+String(item.menuDate).slice(0,4)+':'+String(item.week)+':'+
+       String(item.id).toLowerCase().replace(/[^a-z0-9-]/g,'-');
+    photos.set(key,u.href);
+   }catch(_){}
+  }
+  const missing=read(active).interfoodCards.filter(x=>!x.deleted&&!x.imageUrl&&
+    photos.has(x.sourceKey)).length;
+  if(!missing)return {updated:0,profile:active};
+  let changed=0;
+  update(d=>{
+   for(const card of d.interfoodCards){
+    if(card.deleted||card.imageUrl||!photos.has(card.sourceKey))continue;
+    card.imageUrl=photos.get(card.sourceKey);
+    card.updatedAt=stamp();
+    changed++;
+   }
+  });
+  return {updated:changed,profile:active};
+ },
  importInterfoodLiveCard:payload=>{
   if(payload?.expectedProfile!==active)throw Error('A Nutrition profil közben megváltozott.');
   const item=payload.item||{},stampKey=String(payload.sourceKey||'').trim();
   if(!/^ifv1:[0-9]{4}:[0-9]{1,2}:[a-z0-9-]{4,120}$/i.test(stampKey))
    throw Error('Érvénytelen Interfood Live ételazonosító.');
   const old=read(active).interfoodCards.find(x=>x.sourceKey===stampKey&&!x.deleted);
-  if(old)return {id:old.id,profile:active,name:old.name,duplicate:true};
+  if(old){
+   // Previously imported cards may be missing the official picture. Fill in
+   // the newly verified photo URL without touching user edits or imageRef.
+   const candidate=String(item.imageUrl||'');
+   if(!old.imageUrl&&candidate&&candidate.startsWith('https://ia.interfood.hu/api/v1/i?')){
+    const photo=new URL(candidate);
+    if(photo.pathname==='/api/v1/i'&&
+       [...photo.searchParams.keys()].sort().join(',')==='height,menu_item_id,width'&&
+       /^[1-9][0-9]{0,9}$/.test(photo.searchParams.get('menu_item_id')||'')&&
+       photo.searchParams.get('width')==='425'&&photo.searchParams.get('height')==='425')
+     update(d=>{const saved=d.interfoodCards.find(x=>x.id===old.id&&!x.deleted);
+      if(saved&&!saved.imageUrl){saved.imageUrl=photo.href;saved.updatedAt=stamp();}});
+   }
+   return {id:old.id,profile:active,name:old.name,duplicate:true};
+  }
   const saved=root.HH_NUTRITION_QUICK_API.saveInterfoodCard({
    expectedProfile:active,name:item.name,code:item.code,
    meal:'Ebéd',menuDate:item.menuDate||'',
@@ -1185,7 +1238,11 @@ root.HH_NUTRITION_QUICK_API={
     imageUrl:(()=>{
      try{const u=new URL(String(payload.imageUrl||''));
       return u.protocol==='https:'&&(u.hostname==='interfood.hu'||u.hostname.endsWith('.interfood.hu'))&&
-       /\.(?:png|webp|jpe?g)$/i.test(u.pathname)?u.href:null;
+       ( /\.(?:png|webp|jpe?g)$/i.test(u.pathname)||
+         (u.hostname==='ia.interfood.hu'&&u.pathname==='/api/v1/i'&&
+          [...u.searchParams.keys()].sort().join(',')==='height,menu_item_id,width'&&
+          /^[1-9][0-9]{0,9}$/.test(u.searchParams.get('menu_item_id')||'')&&
+          u.searchParams.get('width')==='425'&&u.searchParams.get('height')==='425'))?u.href:null;
      }catch(_){return null}
     })(),
     nutritionBasis:String(payload.nutritionBasis||'user-entered').slice(0,40),

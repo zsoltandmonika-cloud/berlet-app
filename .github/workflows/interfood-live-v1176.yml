@@ -6,6 +6,9 @@ on:
       - '.github/workflows/interfood-live-v1176.yml'
       - 'healthhub/scripts/interfood_live_sync_v1176.py'
       - 'healthhub/tests/nutrition-interfood-live-v1176.test.cjs'
+      - 'healthhub/tests/nutrition-interfood-photo-v1177.test.cjs'
+      - 'healthhub/nutrition/hh-interfood-diary-v1175.js'
+      - 'healthhub/nutrition/nutrition-preview-v592.js'
       - 'healthhub/tests/test_interfood_live_v1176.py'
       - 'healthhub/nutrition/hh-interfood-live-v1176.js'
   schedule:
@@ -39,7 +42,7 @@ jobs:
       - name: Validate Interfood extraction (offline fixtures)
         run: python -m unittest discover -s healthhub/tests -p 'test_interfood_live_v1176.py' -v
       - name: Validate one-click Nutrition integration
-        run: node --test healthhub/tests/nutrition-interfood-live-v1176.test.cjs
+        run: node --test healthhub/tests/nutrition-interfood-live-v1176.test.cjs healthhub/tests/nutrition-interfood-photo-v1177.test.cjs healthhub/tests/nutrition-interfood-card-library-v1175.test.cjs
       - name: Public Interfood menu extraction (no account, no credentials)
         run: python healthhub/scripts/interfood_live_sync_v1176.py
       - name: Commit validated public feed only if changed

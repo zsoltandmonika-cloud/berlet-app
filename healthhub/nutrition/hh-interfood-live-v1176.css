@@ -81,3 +81,21 @@
  .hh-if-live-quick-v1176{font-size:9px}
 }
 @media(prefers-reduced-motion:reduce){.hh-if-live-item-v1176{transition:none}}
+
+/* v1177 · Original Interfood photography, no generic meal cartoons. */
+.hh-if-live-fallback-v1176{
+ font-size:16px!important;font-weight:900;letter-spacing:.035em;
+ color:#b5f3c3;text-shadow:0 2px 8px rgba(0,0,0,.4)
+}
+#hhInterfoodLibraryV1175 .hh-if-food-art-v1175>span,
+#hhInterfoodDialogV1175 .hh-if-card-art-v1175>span{
+ font-size:18px;font-weight:900;letter-spacing:.045em;
+ color:#a9f3bd;text-shadow:0 2px 8px rgba(0,0,0,.45)
+}
+#hhInterfoodDialogV1175 .hh-if-upload-v1175[hidden],
+#hhInterfoodDialogV1175 #hhIfPasteWrap1175[hidden],
+#hhInterfoodDialogV1175 #hhIfParse1175[hidden],
+#hhInterfoodDialogV1175 #hhIfIntro1175[hidden]{display:none!important}
+#hhInterfoodDialogV1175 #hhIfPhotoCaption1175{
+ color:var(--accent,#f9a6d3);font-weight:750
+}

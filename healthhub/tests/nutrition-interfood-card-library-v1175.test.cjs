@@ -14,8 +14,8 @@ const parser=require('../nutrition/hh-interfood-diary-v1175.js');
 test('separate Interfood Ételeim page preserves original Premium tile and official link',()=>{
  assert.match(html,/id="hhInterfoodTileV1173"[^>]+href="https:\/\/rendel\.interfood\.hu\/"/);
  assert.match(html,/interfood-logo-v1174\.webp/);
- assert.match(html,/hh-interfood-diary-v1175\.js\?v=1175-copy-to-diary/);
- assert.match(html,/hh-interfood-diary-v1175\.css\?v=1175-safe-import/);
+ assert.match(html,/hh-interfood-diary-v1175\.js\?v=1177-official-photos/);
+ assert.match(html,/hh-interfood-diary-v1175\.css\?v=1177-official-photos/);
  assert.match(ui,/id='hhInterfoodLibraryV1175'/);
  assert.match(ui,/Interfood ételeim/);
  assert.match(ui,/id="hhIfCards1175"/);
@@ -54,7 +54,7 @@ test('saved cards share existing revision-safe per-profile Nutrition cloud journ
  assert.match(core,/attachInterfoodCardPhoto:payload=>/);
  assert.match(core,/recordInterfoodCard:payload=>/);
  assert.match(core,/if\(payload\?\.expectedProfile!==active\)throw Error\(/);
- assert.match(core,/source:'interfood-user-saved'/);
+ assert.match(core,/source:sourceKey\?'interfood-live':'interfood-user-saved'/);
  assert.match(core,/update\(d=>\{/);
  const portion=core.slice(core.indexOf('saveInterfoodCard:payload=>'),core.indexOf('attachInterfoodCardPhoto:payload=>'));
  assert.doesNotMatch(portion,/recordInterfoodMeal|recordInterfoodCard|d\.entries\.push/);
@@ -65,7 +65,7 @@ test('logging a saved card is an explicit one-click action with a source snapsho
  assert.match(core,/token:payload\.token,code:card\.code,name:card\.name/);
  assert.match(core,/cardId:card\.id,imageRef:card\.imageRef/);
  assert.match(core,/source:'interfood-import'/);
- assert.match(diaryArt,/if\(entry\.interfood\?\.imageRef\)/);
+ assert.match(diaryArt,/if\(entry\.interfood\?\.imageRef\|\|entry\.interfood\?\.imageUrl\)/);
 });
 test('three optional exports use existing supported APIs, never invent grams',()=>{
  assert.match(ui,/saveManualFood\(\{/);

@@ -56,7 +56,7 @@ class TestInterfoodPublicParser(unittest.TestCase):
         self.assertEqual(card["weightGrams"],420)
         self.assertEqual(card["menuDate"],"2026-11-09")
         self.assertEqual(card["code"],"SP1")
-        self.assertIsNone(card["imageUrl"]) # DB image ID is not a public URL
+        self.assertEqual(card["imageUrl"],"https://ia.interfood.hu/api/v1/i?menu_item_id=39937&width=425&height=425") # Official site image endpoint, not food.image_id
         self.assertEqual(card["imageId"],"10356")
         self.assertEqual(card["nutritionBasis"],"published-per-serving")
 
