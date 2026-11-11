@@ -387,3 +387,57 @@ body.pinned #pinnedBackBtn:active{transform:scale(.96)}
   width:41px;min-width:41px;height:40px;min-height:40px;
  }
 }
+
+/* V3.9: source-backed Smart Match trip flow.
+   Each stop gets a readable time immediately under its pictogram.
+   ≈ indicates an estimated 10-minute walking leg, never a GTFS ETA.
+   The upper hero grows naturally; the lower timetable keeps its own scroll. */
+.flow .v2-step-time{
+  display:inline-flex;align-items:center;justify-content:center;
+  min-height:19px;max-width:100%;box-sizing:border-box;
+  margin-top:1px;padding:2px 5px;
+  color:#b9ffe7;
+  background:rgba(20,94,84,.46);
+  border:1px solid rgba(121,253,198,.38);border-radius:7px;
+  box-shadow:inset 0 1px rgba(226,255,248,.09);
+  font:900 12px/1.1 system-ui,sans-serif;
+  font-variant-numeric:tabular-nums;
+  letter-spacing:-.02em;
+  white-space:nowrap;
+}
+.flow .v2-step-time.is-estimated{
+  color:#ffdcf5;
+  background:rgba(128,45,98,.44);
+  border-color:rgba(249,173,222,.4);
+}
+.flow .v2-step-time.is-empty{
+  color:#b7afc9;opacity:.53;
+  border-color:rgba(198,181,230,.18);
+  background:rgba(66,54,91,.22);
+}
+.flow .v2-step-hint{
+  display:block;max-width:100%;
+  font-size:9px;line-height:1.1;font-weight:750;
+  color:#ebc5e7;text-align:center;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.flow .v2-step-hint:empty{display:none}
+body.pinned .hero{height:auto}
+body.pinned .flow{margin-top:10px;padding-top:10px;padding-bottom:3px}
+body.pinned .flow .v2-step{gap:4px}
+body.pinned .flow .v2-step-time{
+  font-size:clamp(9.5px,2.7vw,11px);
+  min-height:21px;
+  padding:3px 3px;
+}
+body.pinned .flow .v2-step-hint{font-size:8px;line-height:1.15}
+@media(max-width:390px){
+  body.pinned .flow{margin-top:9px;padding-top:8px}
+  body.pinned .flow .v2-step{gap:3px}
+  body.pinned .flow .v2-step-time{font-size:9.5px;min-height:19px;padding:2px 2px}
+  body.pinned .flow .v2-step-hint{font-size:7.5px}
+}
+@media(max-height:740px){
+  body.pinned .flow{margin-top:6px;padding-top:7px}
+  body.pinned .flow .v2-step{gap:2px}
+}
