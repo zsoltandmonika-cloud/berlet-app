@@ -343,3 +343,20 @@ html body .shell>main>#hhTransitPanel.hh-transit-panel #hhBkkWatchlistV814 .hh-b
   background:#f5e2ee!important;
  }
 }
+
+/* Extra-small screens: avoid edit-button text spilling onto Watchlist. */
+@media(max-width:355px){
+ html body .shell>main>#hhTransitPanel.hh-transit-panel:has(>#hhBkkLiveBarV796) #hhBkkWatchToggleV858{
+  padding-left:0!important;
+ }
+ html body .shell>main>#hhTransitPanel.hh-transit-panel:has(>#hhBkkLiveBarV796) #hhBkkWatchToggleV858::before{
+  content:none!important;display:none!important;
+ }
+ html body .shell>main>#hhTransitPanel.hh-transit-panel:has(>#hhBkkLiveBarV796) #hhBkkWatchToggleV858 .hh-bkk-watch-toggle-label-v858 strong{
+  font-size:9px!important;
+ }
+ html body .shell>main>#hhTransitPanel.hh-transit-panel:has(>#hhBkkLiveBarV796) #hhBkkWatchEditV814{
+  min-width:0!important;max-width:44%!important;overflow:hidden!important;
+  padding:4px 3px!important;font-size:8px!important;text-overflow:ellipsis!important;
+ }
+}
