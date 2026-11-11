@@ -11,7 +11,7 @@ const DEFAULT=Object.freeze({
  targetStop:"Bécsi út / Vörösvári út",targetRoute:"260",targetHeadsign:"Harsánylejtő",
  feederRoutes:["17","19","41"],startHour:13,endHour:19,
  originWalkMin:10,originSafetyMin:1,transferWalkMin:2,transferSafetyMin:1,
- maxWaitMin:3,maxTransferMeters:350
+ maxWaitMin:3,maxTransferMeters:350,destinationTransitStop:"Citronella utca",destinationWalkMin:10
 });
 const clean=s=>String(s??"").normalize("NFD").replace(/[\u0300-\u036f]/g,"")
  .toLocaleLowerCase("hu-HU").replace(/[^\p{L}\p{N}]+/gu," ").trim();
@@ -74,8 +74,12 @@ function options(data,date,cfg=DEFAULT,clock=Date.now()){
     if(cfg.targetAfterStop&&!events.slice(i+1).some(ev=>clean(data.stops[ev[0]]?.[0])===clean(cfg.targetAfterStop)))continue;
     const dep=wallEpoch(date,events[i][2]/60);
     if(dep<min||dep>=max)continue;
+    const lastStop=cfg.destinationTransitStop||cfg.targetAfterStop;
+    const destinationEvent=lastStop?events.slice(i+1).find(ev=>
+     clean(data.stops[ev[0]]?.[0])===clean(lastStop)):null;
     boardingOptions.push({departMs:dep,boardingId:events[i][0],
-     nextStop:data.stops[events[i+1][0]]?.[0]||""});
+     nextStop:data.stops[events[i+1][0]]?.[0]||"",
+     arriveAtDestinationMs:destinationEvent?wallEpoch(date,destinationEvent[1]/60):null});
    }
    if(boardingOptions.length)targets.push({line,mode,headsign,boardingOptions});
   }
@@ -170,8 +174,12 @@ function full260Timetable(data,date,direction,clock=Date.now()){
     if(!events.slice(i+1).some(e=>clean(data.stops[e[0]]?.[0])===clean(spec.after)))continue;
     const dep=wallEpoch(serviceDate,events[i][2]/60);
     if(dep<dateStart||dep>=dateEnd)continue;
+    const destinationStop=direction==="home"?"Citronella utca":"Bécsi út / Vörösvári út";
+    const destinationEvent=events.slice(i+1).find(ev=>
+     clean(data.stops[ev[0]]?.[0])===clean(destinationStop));
     candidate.push({departMs:dep,stopId:events[i][0],
-     nextStop:data.stops[events[i+1][0]]?.[0]||"",headsign});
+     nextStop:data.stops[events[i+1][0]]?.[0]||"",headsign,
+     arriveAtDestinationMs:destinationEvent?wallEpoch(date,destinationEvent[1]/60):null});
    }
    // One trip at the same public stop can pass several same-named platforms.
    // Select its final valid boarding platform; never count a loop as two buses.
@@ -233,7 +241,7 @@ const HOME=Object.freeze({
  type:"walk",title:"Otthon → Citronella utca",originLabel:"Otthon",
  destinationLabel:"Óbudai rendelőintézet",originStop:"",
  targetStop:"Citronella utca",targetRoute:"260",targetHeadsign:"Óbudai rendelőintézet",
- feederRoutes:[],startHour:6,endHour:21,originWalkMin:6,originSafetyMin:2,
+ feederRoutes:[],startHour:6,endHour:21,originWalkMin:10,originSafetyMin:2,
  maxWaitMin:3,transferWalkMin:0,transferSafetyMin:0,maxTransferMeters:350
 });
 /* Verified reverse of Mónika's work->home template, independent of the separate
@@ -250,7 +258,7 @@ const REVERSE=Object.freeze({
  targetAfterStop:"Kolosy tér",
  feederRoutes:["260"],feederHeadsign:"Óbudai rendelőintézet",
  startHour:6,endHour:19,
- originWalkMin:6,originSafetyMin:2,transferWalkMin:2,transferSafetyMin:1,
+ originWalkMin:10,originSafetyMin:2,transferWalkMin:2,transferSafetyMin:1,
  maxWaitMin:3,maxTransferMeters:350,destinationWalkMin:10
 });
 const SAMPLES=Object.freeze([DEFAULT,HOME,REVERSE]);
