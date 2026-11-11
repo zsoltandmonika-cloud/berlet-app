@@ -1,0 +1,32 @@
+name: HealthHub Interfood Outlook Bridge · Secure v1179
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - '.github/workflows/interfood-outlook-bridge-v1179.yml'
+      - 'supabase/functions/hh-interfood-outlook-bridge-v1179/**'
+      - 'supabase/migrations/*interfood_outlook*'
+      - 'healthhub/nutrition/hh-interfood-outlook-bridge-v1179.js'
+      - 'healthhub/nutrition/hh-interfood-outlook-bridge-v1179.css'
+      - 'healthhub/nutrition/index.html'
+      - 'healthhub/tests/nutrition-interfood-outlook-bridge-v1179.test.cjs'
+  push:
+    branches: [main]
+    paths:
+      - 'supabase/functions/hh-interfood-outlook-bridge-v1179/**'
+      - 'healthhub/tests/nutrition-interfood-outlook-bridge-v1179.test.cjs'
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Outlook Graph and Interfood parser safety tests
+        run: node --test healthhub/tests/nutrition-interfood-outlook-bridge-v1179.test.cjs
+      - name: Existing Smart Lunch and Interfood regressions
+        run: node --test healthhub/tests/nutrition-smart-lunch-v1178.test.cjs healthhub/tests/nutrition-interfood-photo-v1177.test.cjs
