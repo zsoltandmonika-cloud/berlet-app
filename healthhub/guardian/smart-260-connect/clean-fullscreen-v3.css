@@ -257,3 +257,48 @@ body:not(.pinned) #timelinePanel #remindBtn.smart-match-bell[aria-pressed="true"
  body:not(.pinned) #timelinePanel #dayNext{min-width:66px;padding:5px 6px;font-size:11px}
  body:not(.pinned) #timelinePanel #remindBtn.smart-match-bell{flex-basis:41px;min-width:41px;width:41px}
 }
+
+
+/* V3.3: no pinned picture and no extra controls row.
+ * Existing bottom actions remain, route reverse sits beside the title. */
+main>.v33-titlebar{
+ display:flex;align-items:center;justify-content:space-between;
+ width:100%;min-width:0;gap:8px;margin:0 0 11px;
+}
+main>.v33-titlebar>h1{
+ position:relative;z-index:1;min-width:0;flex:1;
+ max-width:100%;margin:0;
+ text-shadow:0 3px 19px rgba(216,90,185,.22);
+ overflow-wrap:break-word;
+}
+#headingShort{display:none}
+#reverseBtn[hidden]{display:none!important}
+body:not(.pinned) #reverseBtn{display:none!important}
+body.pinned main>.v2-skyline{display:none!important}
+body.pinned main>.v33-titlebar{
+ flex:0 0 auto;min-height:42px;gap:7px;
+ margin:0 0 5px;padding:0;
+}
+body.pinned main>.v33-titlebar>h1{
+ font-size:clamp(20px,5.2vw,26px);
+ font-weight:830;line-height:1.16;letter-spacing:-.03em;
+ white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+body.pinned #headingFull{display:none}
+body.pinned #headingShort{display:inline}
+body.pinned #reverseBtn:not([hidden]){
+ flex:0 0 43px;width:43px;height:42px;min-height:42px;
+ display:grid;place-items:center;padding:0;
+ font-size:26px;font-weight:800;line-height:1;
+ color:#ffe2f8;background:linear-gradient(138deg,rgba(127,59,137,.86),rgba(53,52,116,.94));
+ border:1px solid rgba(250,174,240,.8);border-radius:12px;
+ box-shadow:0 0 15px rgba(248,98,208,.18),inset 0 1px rgba(255,255,255,.13);
+ cursor:pointer;
+}
+body.pinned #reverseBtn:focus-visible{outline:3px solid #88f8cb;outline-offset:2px}
+body.pinned #reverseBtn:active{transform:scale(.96)}
+body.pinned #reverseBtn:disabled{opacity:.35;cursor:wait}
+@media(max-width:390px){
+ body.pinned main>.v33-titlebar>h1{font-size:clamp(18px,5vw,21px)}
+ body.pinned #reverseBtn:not([hidden]){flex-basis:41px;width:41px;height:40px;min-height:40px}
+}
