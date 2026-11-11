@@ -35,6 +35,46 @@ class TestInterfoodPublicParser(unittest.TestCase):
         self.assertEqual(result['items'][0]['nutrients'],
             {'kcal':None,'protein':None,'carbs':None,'fat':None})
 
+    def test_direct_api_uses_real_serving_grams_and_published_macros(self):
+        data={"error":False,"data":{"25":{
+         "name":"Sport és egészség","categories":[{
+            "code":"SP1","name":"Sport és egészség",
+            "items":[{"id":39937,"date":"2026-11-09","price":1995,
+                      "food":{"name":"Jércesteak joghurtos almás kukoricasalátával","image_id":10356},
+                      "food_name_one":"Jércesteak joghurtos almás kukoricasalátával",
+                      "weight_food_one":420,"energy_portion_food_one":527,
+                      "fat_portion_food_one":19.3,"carb_portion_food_one":42.7,
+                      "protein_portion_food_one":49.8,
+                      "weight_food_two":0,"energy_portion_food_two":0,
+                      "food_name_two":"","weight_food_three":0,"food_name_three":""}]
+         }]}}}
+        now=datetime.datetime(2026,11,11,tzinfo=datetime.timezone.utc)
+        result=parser.parse_public_api(data,2026,46,now)
+        self.assertEqual(len(result["items"]),1)
+        card=result["items"][0]
+        self.assertEqual(card["nutrients"],{"kcal":527,"protein":49.8,"carbs":42.7,"fat":19.3})
+        self.assertEqual(card["weightGrams"],420)
+        self.assertEqual(card["menuDate"],"2026-11-09")
+        self.assertEqual(card["code"],"SP1")
+        self.assertIsNone(card["imageUrl"]) # DB image ID is not a public URL
+        self.assertEqual(card["imageId"],"10356")
+        self.assertEqual(card["nutritionBasis"],"published-per-serving")
+
+    def test_multi_component_food_sums_real_labels(self):
+        row={"food_name_one":"Főétel","weight_food_one":240,
+             "energy_portion_food_one":300,"protein_portion_food_one":25,
+             "carb_portion_food_one":20,"fat_portion_food_one":14,
+             "food_name_two":"Köret","weight_food_two":160,
+             "energy_portion_food_two":180,"protein_portion_food_two":3,
+             "carb_portion_food_two":30,"fat_portion_food_two":5,
+             "food_name_three":"","weight_food_three":0}
+        n,weight=parser.nutrition_and_weight(row)
+        self.assertEqual(weight,400)
+        self.assertEqual(n,{"kcal":480,"protein":28,"carbs":50,"fat":19})
+        del row["protein_portion_food_two"]
+        n,_=parser.nutrition_and_weight(row)
+        self.assertIsNone(n["protein"]) # missing is unknown, never 0
+
     def test_untrusted_images_are_rejected(self):
         self.assertIsNone(parser.trusted_image('https://evil.example/menu.jpg'))
         self.assertIsNone(parser.trusted_image('javascript:alert(1)'))
