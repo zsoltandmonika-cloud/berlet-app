@@ -84,6 +84,13 @@ async function smoke(browser,base,device){
   assert.ok(await page.locator("#templates .template-chip").count()>=2,"Two templates exist");
 
   await page.screenshot({path:path.join(output,device+"-work.png"),fullPage:true});
+  await page.locator("#pinBtn").click();
+  await page.waitForFunction(()=>document.body.classList.contains("pinned"));
+  assert.equal(await page.locator("#routeFlow .v2-step").count(),6,
+   "Pinned work route visual story must retain all stages");
+  await page.screenshot({path:path.join(output,device+"-work-pinned.png"),fullPage:true});
+  await page.locator("#exitPin").click();
+  await page.waitForFunction(()=>!document.body.classList.contains("pinned"));
 
   await page.locator("#templates .template-chip").filter({hasText:"Citronella"}).click();
   await page.waitForFunction(()=>{
