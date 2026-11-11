@@ -294,9 +294,11 @@ def parse_public_api(data,year:int,week:int,now:dt.datetime):
                 key=(menu_date,code,item_id)
                 if key in cards:continue
                 image_id=food.get("image_id") if isinstance(food,dict) else None
-                # Numeric database IDs are not public photo URLs. Expose only
-                # a verified source URL after its real file mapping is known.
-                image_url=None
+                # This URL is the site's own food-photo request, verified by
+                # opening its public green photo button. It uses the exact menu
+                # item ID (NOT food.image_id, which is a private DB key).
+                image_url=("https://ia.interfood.hu/api/v1/i?menu_item_id="+
+                           item_id+"&width=425&height=425")
                 price=as_number(item.get("price"))
                 cards[key]={
                     "id":"if-"+code.lower()+"-"+menu_date+"-"+item_id,
@@ -308,7 +310,7 @@ def parse_public_api(data,year:int,week:int,now:dt.datetime):
                     "imageId":str(image_id) if image_id is not None else None,
                     "priceFt":int(price) if price is not None else None,
                     "nutritionBasis":"published-per-serving" if all(x is not None for x in macros.values()) else "partial-published",
-                    "imageBasis":"no-verified-photo-url"
+                    "imageBasis":"interfood-official-menu-item-image"
                 }
     items=sorted(cards.values(),key=lambda a:(a["menuDate"],a["category"],a["code"],a["name"]))
     return {"schemaVersion":"healthhub.interfood.live/1",
