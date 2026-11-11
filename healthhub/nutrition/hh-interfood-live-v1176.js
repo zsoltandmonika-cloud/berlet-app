@@ -204,6 +204,7 @@ function install(){
  const area=node('section','hh-if-live-area-v1176');
  area.id='hhIfLiveArea1176';
  area.innerHTML='<div class="hh-if-live-heading-v1176"><div><small>✦ LÉNA SMART FOOD IMPORT</small><h2>Interfood Live étlap</h2><p>Ételválasztás = automatikus kártyamentés. Nincs gépelés, fotófeltöltés vagy Puter.</p></div><button type="button" id="hhIfLiveReload1176" title="Étlap frissítése" aria-label="Interfood Live étlap frissítése">↻</button></div><p id="hhIfLiveStatus1176" role="status" aria-live="polite"></p><div class="hh-if-live-filters-v1176"><input type="search" id="hhIfLiveSearch1176" placeholder="Étel vagy ételkód keresése…" aria-label="Interfood Live ételkereső"><select id="hhIfLiveCategory1176" aria-label="Interfood ételkategória"><option value="all">Összes kategória</option></select><select id="hhIfLiveDay1176" aria-label="Interfood nap" hidden><option value="all">Minden nap</option></select><span id="hhIfLiveCount1176"></span></div><div id="hhIfLiveCards1176" class="hh-if-live-list-v1176"></div><div class="hh-if-live-footer-v1176"><a href="https://rendel.interfood.hu/" target="_blank" rel="noopener noreferrer">Rendelés az Interfoodnál ↗</a><small>A tápérték és az adagsúly az Interfood forrásából származik. Ahol a hiteles ételfotó nem hozzáférhető, kép helyett jelölőikon látszik.</small></div>';
+ area.hidden=true; // Smart Lunch v1178: keep 495 public meals as background data, not second screen.
  const tools=page.querySelector('.hh-if-library-intro-v1175');
  if(tools?.parentNode)tools.parentNode.insertBefore(area,tools);
  else page.querySelector('.hh-if-library-inner-v1175')?.append(area);
@@ -211,9 +212,15 @@ function install(){
  const manualNew=id('hhIfNew1175');
  if(manualNew){manualNew.hidden=true;manualNew.setAttribute('aria-hidden','true');}
  const savedHelp=tools?.querySelector('p');
- if(savedHelp)savedHelp.textContent=
-  'Válassz fent egy ételt. Léna automatikusan kártyát készít és ide menti; '+
-  'a Napi naplózás csak külön érintésre történik.';
+ if(savedHelp){
+  savedHelp.textContent='Saját Interfood ételkártyáid, ízértékeléseid és rendelési előzményeid. ';
+  const orderLink=doc.createElement('a');orderLink.href='https://rendel.interfood.hu/';
+  orderLink.target='_blank';orderLink.rel='noopener noreferrer';
+  orderLink.textContent='Új rendelés az Interfoodnál ↗';savedHelp.append(orderLink);
+ }
+ // One permanent Premium tile only. The additional legacy launcher is hidden.
+ const duplicateLauncher=id('hhInterfoodLogV1175');
+ if(duplicateLauncher){duplicateLauncher.hidden=true;duplicateLauncher.setAttribute('aria-hidden','true');}
  id('hhIfLiveSearch1176').addEventListener('input',ev=>{query=ev.target.value.trim().toLocaleLowerCase('hu-HU');render();});
  id('hhIfLiveCategory1176').addEventListener('change',ev=>{category=ev.target.value;render();});
  id('hhIfLiveDay1176').addEventListener('change',ev=>{day=ev.target.value;render();});
@@ -225,12 +232,11 @@ function install(){
   tile.addEventListener('click',event=>{
    event.preventDefault();
    original();
-   fetchLive();
-   area.scrollIntoView?.({behavior:'smooth',block:'start'});
+   fetchLive(); // Refresh photos silently; no page jump or extra search view.
   });
   tile.setAttribute('aria-label','Interfood Live: intelligens ételválasztás és kártyamentés');
   // Separate saved-card entry still works, with the Live feed ready above it.
-  id('hhInterfoodLogV1175')?.addEventListener('click',()=>fetchLive());
+  // A single Interfood Premium tile is the entry point.
  }
 }
 if(doc){
