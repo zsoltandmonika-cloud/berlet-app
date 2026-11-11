@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="hu"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Always-open Watchlist regression</title>
+<style>
+:root{--bk-ink:#274766;--bk-muted:#60758b;--bk-accent:#447be6}
+body{background:#131a34;color:#263e5b;font-family:system-ui;margin:0;padding:14px}
+#hhTransitPanel{box-sizing:border-box;width:min(100%,365px);padding:12px;border-radius:18px;background:#d5e2f1}
+.hh-bkk-watch-header-v814{display:flex;gap:8px;align-items:center}
+.hh-bkk-watch-edit-v814{padding:10px;border-radius:9px}
+.hh-bkk-watch-rows-v814 article{display:flex;justify-content:space-between;gap:7px;align-items:center;border-bottom:1px solid #aac4d9;padding:9px 0}
+.hh-bkk-watch-actions-v814{display:flex;gap:4px;align-items:center}
+.hh-bkk-watch-actions-v814 button{min-height:30px}
+</style>
+<link rel="stylesheet" href="../guardian-bkk-watch-collapse-v858.css?v=859-always-open">
+<link rel="stylesheet" href="../guardian-bkk-watch-compact-v1.css?v=1">
+</head><body>
+<section id="hhTransitPanel">
+ <section id="hhBkkWatchlistV814" class="hh-bkk-watchlist-v814" aria-label="Saját BKK figyelőlista" hidden>
+  <div class="hh-bkk-watch-header-v814">
+   <div id="hhBkkWatchToggleV858" class="hh-bkk-watch-toggle-v858" role="heading" aria-level="3">
+    <span class="hh-bkk-watch-toggle-label-v858"><strong>⭐ Saját BKK Watchlist</strong><small id="hhBkkWatchCountV814">Járatok betöltése…</small></span>
+   </div>
+   <button id="hhBkkWatchEditV814" class="hh-bkk-watch-edit-v814" type="button" aria-expanded="false">✎ Szerkesztés</button>
+  </div>
+  <div id="hhBkkWatchContentV858" class="hh-bkk-watch-content-v858">
+   <div id="hhBkkWatchRowsV814" class="hh-bkk-watch-rows-v814"></div>
+   <p>Választható és sorrendezhető járatok.</p>
+  </div>
+ </section>
+ <button id="hhTransitShow260">260-as útvonal</button>
+</section>
+<details id="hhBkkCatalogV801"><summary>BKK katalógus</summary><input id="hhBkkCatalogSearchV801" aria-label="Keresés"></details>
+<div id="hhSmartHubFavoritesV806"></div>
+<script>
+const routes={"bus:260":{mode:"bus",id:"260",name:"260",directions:["Óbudai rendelőintézet","Harsánylejtő"]},
+ "tram:17":{mode:"tram",id:"17",name:"17",directions:["Bécsi út","Savoya Park"]}};
+let favoriteKeys=["bus:260","tram:17"],active="zsolt";
+function changed(){window.dispatchEvent(new Event("hh-bkk-watchlist-v814-changed"))}
+window.HH_BKK_CATALOG_V801={
+ get favoriteIds(){return [...favoriteKeys]},
+ setProfile(p){active=p},
+ routeByKey(k){return routes[k]||null},
+ moveFavoriteKey(k,delta){const i=favoriteKeys.indexOf(k),j=i+delta;
+  if(i<0||j<0||j>=favoriteKeys.length)return false;
+  [favoriteKeys[i],favoriteKeys[j]]=[favoriteKeys[j],favoriteKeys[i]];changed();return true},
+ removeFavoriteKey(k){favoriteKeys=favoriteKeys.filter(x=>x!==k);changed();return true}
+};
+window.__getFavorites=()=>[...favoriteKeys];
+const liveEnabled=new Map([["bus:260",true],["tram:17",false]]);
+window.HH_BKK_LIVE_PER_LINE_V909={
+ enabled(k){return liveEnabled.get(k)===true},
+ setEnabled(k,v){liveEnabled.set(k,!!v);changed()}
+};
+const lineVisible=new Map();
+window.HH_GUARDIAN_TRANSIT_V790={
+ hasMapRoute(){return true},
+ isLineVisible(id){return lineVisible.get(id)===true},
+ setLineVisible(id,v){lineVisible.set(id,!!v);changed()},
+ showLine(id){lineVisible.set(id,true);changed()}
+};
+</script>
+<script defer src="../guardian-bkk-watchlist-v814.js?v=961-always-open"></script>
+</body></html>

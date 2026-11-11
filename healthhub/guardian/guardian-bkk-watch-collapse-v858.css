@@ -1,14 +1,14 @@
-/* v858: One-tap collapsible BKK Watchlist, same inherited profile pastel glass. */
+/* v859: Always-open BKK Watchlist with static heading and existing profile pastel glass. */
 #hhTransitPanel .hh-bkk-watch-content-v858[hidden]{display:none!important}
 #hhTransitPanel .hh-bkk-watchlist-v814:has(.hh-bkk-watch-content-v858[hidden]){
  padding-top:9px!important;padding-bottom:9px!important
 }
 #hhTransitPanel .hh-bkk-watch-toggle-v858{
  display:flex;flex:1 1 auto;min-width:0;min-height:44px;align-items:center;
- gap:7px;justify-content:space-between;text-align:left;cursor:pointer;
+ gap:7px;justify-content:space-between;text-align:left;cursor:default;
  border:0;background:transparent;box-shadow:none;
  color:var(--bk-ink);padding:3px 4px;border-radius:12px;
- -webkit-tap-highlight-color:transparent;touch-action:manipulation
+ -webkit-tap-highlight-color:transparent;touch-action:auto
 }
 #hhTransitPanel .hh-bkk-watch-toggle-label-v858{
  display:flex;min-width:0;flex-direction:column;gap:3px;align-items:flex-start
@@ -47,3 +47,8 @@
 @media(prefers-reduced-motion:reduce){
  #hhTransitPanel .hh-bkk-watch-chevron-v858{transition:none}
 }
+
+/* The heading is no longer a button. The rows are permanently visible. */
+#hhTransitPanel #hhBkkWatchToggleV858{cursor:default!important;user-select:text}
+#hhTransitPanel #hhBkkWatchContentV858{display:block!important}
+#hhTransitPanel .hh-bkk-watch-chevron-v858{display:none!important}

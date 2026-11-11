@@ -78,7 +78,7 @@
    if(route){
     const shown=supported?!!(transit&&typeof transit.isLineVisible==='function'&&transit.isLineVisible(id)):
      !!(extra&&extra.isLineVisible&&extra.isLineVisible(key));
-    const show=action(shown?'Ne mutasd':'Mutasd ↗',
+    const show=action(shown?'◉':'↗',
      (MODE[mode]||'Járat')+' '+id+(shown?' útvonal elrejtése a térképről':' útvonal mutatása a térképen'),()=>{
       if(!supported){
        if(extra){if(shown)extra.setLineVisible(key,false);else extra.showLine(key)}
@@ -94,6 +94,7 @@
     },!route||(supported&&!mapReady)||(!supported&&!extra));
     show.classList.add('hh-bkk-watch-show-v814');
     show.setAttribute('aria-pressed',String(shown));
+    show.title=shown?'Járat útvonalának elrejtése':'Járat útvonalának megjelenítése';
     show.dataset.visible=String(shown);
     row.dataset.mapVisible=String(shown);
     controls.append(show);
@@ -113,23 +114,19 @@
   const section=$('hhBkkWatchlistV814'),editor=$('hhBkkCatalogV801'),edit=$('hhBkkWatchEditV814');
   const toggle=$('hhBkkWatchToggleV858'),content=$('hhBkkWatchContentV858');
   if(!section||!editor||!edit||!toggle||!content||!catalog())return;
-  // Single accessible collapse target. Existing watchlist values stay mounted.
-  // Initial state: compact, collapsed on page load.
-  function setExpanded(expanded){
-   content.hidden=!expanded;
-   toggle.setAttribute('aria-expanded',String(expanded));
-   toggle.setAttribute('aria-label',expanded?'Saját BKK Watchlist összecsukása':'Saját BKK Watchlist megnyitása');
-   if(!expanded&&editor.open)editor.open=false;
-  }
-  setExpanded(false);
-  toggle.addEventListener('click',()=>setExpanded(content.hidden));
+  // Watchlist is now a permanently expanded, static heading + live rows.
+  // No click-to-collapse listener, persistence key or extra data polling.
+  // Keep the header ID for existing SH9 controls and tests.
+  content.hidden=false;
+  toggle.removeAttribute?.('aria-expanded');
+  toggle.removeAttribute?.('aria-controls');
+  toggle.removeAttribute?.('aria-label');
   // Keep the one existing BKK catalog in Smart Planner, directly before
   // Favorite Places. Watchlist Edit still scrolls to and focuses that catalog.
   const favorites=$('hhSmartHubFavoritesV806');
   if(favorites&&editor.nextElementSibling!==favorites)favorites.before(editor);
   edit.addEventListener('click',()=>{
-   // Editing is independent of collapse but always shows the list context.
-   if(!editor.open)setExpanded(true);
+   // Editing only opens the existing catalog; the Watchlist never closes.
    editor.open=!editor.open;
    edit.setAttribute('aria-expanded',String(editor.open));
    edit.textContent=editor.open?'✕ Szerkesztés bezárása':'✎ Szerkesztés';
