@@ -475,3 +475,61 @@ html body .shell>main>#hhTransitPanel.hh-transit-panel:has(>#hhBkkLiveBarV796) #
   flex-basis:34px!important;min-width:34px!important;max-width:34px!important;
  }
 }
+
+/* Golden V4.3 · 2026-11-11 · approved final micro-alignment.
+   Presentation only: no DOM, GPS, GTFS, storage or button event changes. */
+#hhTransitPanel {
+  /* Slightly more room for the artwork; both right panels shift right and narrow. */
+  --bkk-golden-art-w:clamp(134px,42.5%,172px);
+  --bkk-golden-gap:8px;
+}
+/* Preserve original HD artwork aspect ratio; center in the complete left column. */
+html body .shell>main>#hhTransitPanel.hh-transit-panel::before {
+  left:9px!important;
+  top:3px!important;
+  width:calc(var(--bkk-golden-art-w) + 6px)!important;
+  height:calc(var(--bkk-golden-top) + var(--bkk-golden-watch-h) + var(--bkk-golden-watch-gap) + 7px)!important;
+  background-size:contain!important;
+  background-position:center center!important;
+}
+/* Move the actual departure time down to the middle of the mint capsule. */
+html body .shell>main>#hhTransitPanel.hh-transit-panel #hhBkkLiveBarV796>#hhSmartMatchPinV1 strong {
+  align-self:center!important;
+  margin:12px 0 0!important;
+  text-align:center!important;
+  font-variant-numeric:tabular-nums!important;
+}
+/* Keep note immediately under the departure time. */
+html body .shell>main>#hhTransitPanel.hh-transit-panel #hhBkkLiveBarV796>#hhSmartMatchPinV1 span {
+  text-align:center!important;
+  margin-top:0!important;
+}
+/* Smaller BE/KI indicator inside the still full-size Smart Location control. */
+html body .shell>main>#hhTransitPanel.hh-transit-panel #hhBkkLiveBarV796>#hhSmartLocationSwitchV1::after {
+  min-width:22px!important;
+  min-height:19px!important;
+  padding:3px 4px!important;
+  font-size:9px!important;
+  line-height:1!important;
+}
+/* Compact pencil. Button remains a usable, separately focusable control. */
+html body .shell>main>#hhTransitPanel.hh-transit-panel:has(>#hhBkkLiveBarV796) #hhBkkWatchEditV814 {
+  flex:0 0 32px!important;
+  width:32px!important;
+  min-width:32px!important;
+  max-width:32px!important;
+  height:32px!important;
+  min-height:32px!important;
+  border-radius:11px!important;
+}
+html body .shell>main>#hhTransitPanel.hh-transit-panel:has(>#hhBkkLiveBarV796) #hhBkkWatchEditV814::before {
+  font-size:18px!important;
+  transform:rotate(-8deg)!important;
+}
+@media(max-width:355px) {
+  /* Narrow devices still retain the right-hand labels and edit button. */
+  #hhTransitPanel { --bkk-golden-art-w:clamp(128px,40%,142px);--bkk-golden-gap:5px; }
+  html body .shell>main>#hhTransitPanel.hh-transit-panel:has(>#hhBkkLiveBarV796) #hhBkkWatchEditV814 {
+    flex-basis:30px!important;min-width:30px!important;max-width:30px!important;
+  }
+}
