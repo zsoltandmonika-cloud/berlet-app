@@ -14,6 +14,13 @@
  const isPhoto=(value)=>typeof value==='string'&&value.length<1300000&&regex.test(value);
  function resolve(entry,data,sharedItems=[]){
   if(!entry||typeof entry!=='object')return null;
+  // v1175: User-provided Interfood photo travels with the exact diary entry,
+  // independently of whether it is additionally saved to Favorites.
+  if(entry.interfood?.imageRef){
+   return {id:entry.id,kind:'interfood',scope:'personal',
+    imageRef:entry.interfood.imageRef,image:'',
+    icon:entry.icon||'🍱',theme:'meal'};
+  }
   // v1154: Keep the imported cookbook photo with its immutable diary snapshot.
   // Unlike a Favorite, this image belongs to this exact imported portion.
   if(entry.cookbookImport?.recipeId){
