@@ -97,6 +97,7 @@ async function smoke(browser,base,device){
   await page.waitForFunction(()=>document.body.classList.contains("pinned"));
   assert.equal(await page.locator("#routeFlow .v2-step").count(),6,
    "Pinned work route visual story must retain all stages");
+  assert.equal(await page.locator("#pinnedBanner").isVisible(),false,"Duplicated top pinned toolbar must remain hidden");
   assert.equal(await page.locator("#scheduleInfo").isVisible(),false,
    "Pinned mode must hide long explanations and source paragraphs");
   assert.equal(await page.locator("#matchSummary").isVisible(),false,
@@ -122,7 +123,7 @@ async function smoke(browser,base,device){
   assert.ok(layout.titleY>=layout.heroArtBottom-2,
    "Pinned route title must stay below the hero image");
   await page.screenshot({path:path.join(output,device+"-work-pinned.png"),fullPage:true});
-  await page.locator("#exitPin").click();
+  await page.locator("#pinEdit").click();
   await page.waitForFunction(()=>!document.body.classList.contains("pinned"));
 
   await page.locator("#templates .template-chip").filter({hasText:"Citronella"}).click();
@@ -151,7 +152,7 @@ async function smoke(browser,base,device){
    "Pinned mode must dynamically re-render a different route scheme");
   await page.locator("#pinTemplateSelect").selectOption("home-citronella-260");
   await page.waitForFunction(()=>document.getElementById("kind")?.value==="walk");
-  await page.locator("#exitPin").click();
+  await page.locator("#pinEdit").click();
   await page.waitForFunction(()=>!document.body.classList.contains("pinned"));
   await page.locator("#saveBtn").click();
   const saved=await page.evaluate(()=>JSON.parse(localStorage.getItem("sh9-smart-match-templates-v1-m")));
