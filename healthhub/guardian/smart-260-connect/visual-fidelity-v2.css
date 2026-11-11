@@ -1,0 +1,260 @@
+/* SHO Smart Match Visual Fidelity V2
+ * Scoped to the isolated Smart Match page. No GTFS/GPS/Dropbox changes.
+ * The same route-stage presentation is reusable for any future BKK route.
+ */
+:root{--v2-pink:#ff82d4;--v2-blush:#ffd2ef;--v2-mint:#79ffc3;--v2-blue:#65d0ff;--v2-line:rgba(255,184,234,.32)}
+body{
+ background:radial-gradient(ellipse 78% 30% at 54% 1%,rgba(169,60,145,.47),transparent 75%),
+ radial-gradient(ellipse 75% 65% at 3% 42%,rgba(89,40,131,.3),transparent 80%),
+ linear-gradient(155deg,#140b28 0%,#1d1538 36%,#0a1227 79%,#090c20);
+ overflow-x:hidden;
+}
+main{position:relative;isolation:isolate;padding-bottom:130px}
+.v2-skyline{
+ position:absolute;z-index:-1;right:8px;top:13px;width:min(56vw,310px);height:146px;
+ pointer-events:none;background:radial-gradient(ellipse at 65% 90%,rgba(255,74,178,.55),transparent 55%);
+}
+.v2-skyline:before{
+ content:"";position:absolute;inset:26% 2% 0;
+ background:repeating-linear-gradient(90deg,transparent 0 12px,rgba(150,83,165,.55) 13px 17px,#3b235c 18px 25px,transparent 26px 42px);
+ clip-path:polygon(0 100%,0 72%,9% 72%,9% 43%,15% 43%,15% 70%,22% 70%,22% 22%,29% 22%,29% 74%,39% 74%,39% 8%,45% 8%,45% 75%,58% 75%,58% 0,63% 0,63% 63%,72% 63%,72% 29%,78% 29%,78% 62%,87% 62%,87% 20%,94% 20%,94% 81%,100% 81%,100% 100%);opacity:.8;
+}
+.v2-skyline:after{
+ content:"";position:absolute;bottom:8%;left:6%;right:2%;height:2px;
+ background:linear-gradient(90deg,transparent,#ff8cde,#978cff);
+ box-shadow:0 0 14px #f56ed0,0 8px 23px rgba(251,78,211,.6);transform:rotate(-8deg)
+}
+.v2-skyline span{position:absolute;bottom:14%;z-index:2;font-size:41px;line-height:1;filter:drop-shadow(0 0 13px rgba(255,112,210,.65))}
+.v2-skyline-tram{left:20%}.v2-skyline-bus{right:11%}
+h1{position:relative;text-shadow:0 3px 24px rgba(225,88,210,.3);max-width:calc(100% - min(14vw,70px))}
+.glass{
+ border-color:rgba(241,166,237,.3);
+ background:linear-gradient(135deg,rgba(65,38,105,.69),rgba(26,25,66,.87) 61%,rgba(17,29,61,.91));
+ backdrop-filter:blur(20px) saturate(125%);
+ box-shadow:0 12px 38px rgba(8,4,32,.32),inset 0 1px rgba(255,230,253,.12);
+}
+.template-chip{background:rgba(46,30,83,.83);border-color:var(--v2-line)}
+.template-chip.active{background:linear-gradient(105deg,#ffbee9,#c99bf1);box-shadow:0 0 20px rgba(255,126,219,.31)}
+.hero{
+ isolation:isolate;border-color:rgba(255,164,222,.7);
+ background:radial-gradient(ellipse 64% 90% at 5% 10%,rgba(239,89,178,.3),transparent 80%),
+ linear-gradient(127deg,rgba(85,27,87,.94),rgba(39,26,77,.94) 60%,rgba(9,34,58,.95));
+ box-shadow:0 0 24px rgba(248,86,199,.18),inset 0 1px rgba(255,216,238,.36);
+}
+.hero:before{
+ content:"";position:absolute;width:105%;height:100px;top:16%;left:-5%;
+ border-radius:55%;background:radial-gradient(ellipse,rgba(253,64,178,.3),transparent 73%);
+ transform:rotate(-8deg);filter:blur(12px);pointer-events:none
+}
+.hero:after{
+ content:"";position:absolute;left:7%;right:12%;bottom:22%;height:43px;
+ border-top:2px solid rgba(255,110,206,.75);border-bottom:1px solid rgba(255,140,215,.3);
+ border-radius:45% 55% 50% 30%;box-shadow:0 -8px 19px -10px #ff7ac6;transform:rotate(-5deg);opacity:.76;pointer-events:none
+}
+.hero-grid,.flow{z-index:2}
+.hero-label{font-size:clamp(13px,2.1vw,18px);color:#fff1fa}
+.hero-time{
+ color:#ffecf7;font-size:clamp(54px,11vw,83px);font-weight:900;
+ text-shadow:0 0 17px rgba(255,115,199,.75),0 0 34px rgba(243,91,194,.3);
+}
+.hero-description{color:#f6dcef;font-size:13px}
+.ring{
+ background:conic-gradient(var(--v2-mint) var(--progress,0%),rgba(88,209,173,.22) var(--progress,0%));
+ box-shadow:0 0 22px rgba(55,237,159,.26),inset 0 0 10px rgba(80,235,168,.12)
+}
+.ring-inner{background:#102535;border-color:rgba(140,255,204,.25)}
+.ring-inner small{color:#ccffe4}
+.flow{
+ position:relative;display:grid;grid-template-columns:repeat(var(--steps,6),minmax(0,1fr));
+ gap:3px;margin-top:20px;padding:15px 0 2px;border-top:1px solid rgba(255,205,238,.22)
+}
+.flow i{display:none}
+.flow .v2-step{
+ min-width:0;padding:1px;border:none;border-radius:9px;background:transparent;
+ display:flex;flex-direction:column;align-items:center;gap:5px;text-align:center;position:relative
+}
+.v2-step:not(:last-child):after{content:"›";position:absolute;right:-7px;top:11px;color:#eeb9de;font-size:18px;font-weight:900}
+.v2-step-icon{
+ display:grid;place-items:center;width:43px;height:43px;font-size:22px;line-height:1;
+ border-radius:50%;border:1px solid rgba(255,241,254,.3);
+ background:linear-gradient(135deg,#bb83e3,#543b91);
+ box-shadow:inset 0 1px rgba(255,255,255,.2),0 0 15px rgba(208,114,234,.25)
+}
+.v2-step[data-role=tram] .v2-step-icon{background:linear-gradient(135deg,#ffdb77,#ab7318);box-shadow:0 0 15px rgba(255,185,57,.32)}
+.v2-step[data-role=bus] .v2-step-icon{background:linear-gradient(135deg,#7ce6ff,#236ab8);box-shadow:0 0 16px rgba(90,183,255,.4)}
+.v2-step[data-role=destination] .v2-step-icon{background:linear-gradient(135deg,#ffb9e9,#ad377b)}
+.v2-step[data-role=walk] .v2-step-icon,.v2-step[data-role=transfer] .v2-step-icon{background:linear-gradient(135deg,#686c90,#262c55)}
+.v2-step-label{font-size:11px;line-height:1.2;color:#ffecfa;font-weight:820;max-width:100%;overflow-wrap:anywhere}
+.v2-step-detail{font-size:10px;line-height:1.15;color:#c9bddf;max-width:100%;overflow-wrap:anywhere}
+.metric{
+ border-color:rgba(255,165,225,.4);
+ background:linear-gradient(130deg,rgba(106,45,108,.79),rgba(44,38,89,.88));
+ box-shadow:inset 0 1px rgba(255,255,255,.12),0 4px 15px rgba(5,4,23,.15)
+}
+.metric small{color:#f1d9f3}.metric strong{color:#fff4fd}
+.timeline-wrap{
+ border-color:rgba(224,155,235,.25);
+ background:linear-gradient(145deg,rgba(27,22,63,.78),rgba(13,19,43,.86));
+}
+.timeline-rail:before{
+ background:linear-gradient(#ffb9e3,#bd8cff,#7c8ef4);
+ box-shadow:0 0 10px rgba(247,131,215,.32)
+}
+.timeline-row{
+ background:linear-gradient(110deg,rgba(48,34,78,.76),rgba(20,29,61,.92));
+ border-color:rgba(184,164,241,.26);
+}
+.timeline-row:before{border-color:#ffb5e7;background:#39274c;box-shadow:0 0 0 4px #241c41,0 0 11px rgba(255,139,220,.32)}
+.timeline-row.past{opacity:.35;filter:saturate(.75)}
+.timeline-row.next{
+ background:linear-gradient(110deg,rgba(22,88,74,.93),rgba(25,55,70,.94));
+ border:1px solid #82ffd4;
+ box-shadow:0 0 0 1px rgba(126,255,214,.46),0 0 18px rgba(72,255,182,.52),inset 0 0 13px rgba(90,255,190,.12);
+ animation:v2-breathe 3.6s ease-in-out infinite
+}
+.timeline-row.next:before{background:#b0ffe0;border-color:#69ffbd;box-shadow:0 0 19px #83ffd7}
+.timeline-row.next:after{
+ content:"⚡ Következő";position:absolute;right:9px;top:-11px;
+ padding:4px 10px;border-radius:99px;color:#063a34;background:linear-gradient(120deg,#70ffd0,#adffa7);
+ font-size:11px;font-weight:900;box-shadow:0 0 15px rgba(66,254,174,.34)
+}
+.match-tag{border-color:rgba(105,255,198,.39);background:rgba(20,95,78,.3)}
+.row-time{color:#ffeffa;text-shadow:0 0 9px rgba(255,159,225,.17)}
+.timeline-row.next .row-time{color:#a9ffdd;text-shadow:0 0 8px rgba(100,255,187,.29)}
+.row-mini{border:1px solid rgba(255,255,255,.055);background:rgba(11,23,49,.48)}
+.now-marker{position:relative;z-index:2}
+.now-marker span{background:#bd3f94;border-color:#ffafe6;box-shadow:0 0 15px rgba(240,78,195,.55)}
+#status{font-size:12px}
+.pinned-actions{display:none}
+body.pinned .banner{
+ display:flex;background:linear-gradient(110deg,rgba(90,34,89,.79),rgba(44,38,91,.87));
+ color:#ffcdf0;box-shadow:inset 0 -1px rgba(255,151,236,.22)
+}
+body.pinned #templates{display:none}
+body.pinned main{padding-top:14px;padding-bottom:110px}
+body.pinned h1{font-size:clamp(24px,5vw,38px);margin:7px 0 11px}
+body.pinned .hero{margin-top:10px}
+body.pinned .hero-time{font-size:clamp(58px,11vw,89px)}
+body.pinned .metrics{margin:10px 0}
+body.pinned .pinned-actions{
+ display:flex;position:fixed;z-index:60;left:max(10px,env(safe-area-inset-left));
+ right:max(10px,env(safe-area-inset-right));bottom:max(9px,env(safe-area-inset-bottom));
+ gap:7px;padding:9px;border-radius:20px;align-items:stretch;
+ background:linear-gradient(125deg,rgba(87,36,85,.95),rgba(23,29,62,.98));
+ box-shadow:0 -5px 22px rgba(8,6,30,.38),0 0 20px rgba(229,86,192,.11);
+}
+.pin-action,.pin-template-select{
+ display:flex;align-items:center;justify-content:center;gap:5px;min-height:48px;
+ padding:7px 9px;border:1px solid rgba(249,179,232,.4);border-radius:12px;
+ background:rgba(52,36,81,.89);color:white;font-weight:830;font-size:12px;min-width:0;flex:1
+}
+.pin-action-alert{background:linear-gradient(135deg,#ff9fd5,#ba468b);color:#320d36}
+.pin-template-select{flex:1.15;flex-direction:column;gap:0}
+.pin-template-select span{font-size:10px;color:#dfbfeb}
+.pin-template-select select{background:transparent;color:#fff;border:0;max-width:100%;width:100%;font-weight:750;font-size:11px;text-overflow:ellipsis}
+.pin-template-select option{background:#25214d;color:#fff}
+body.pinned .timeline-rail{max-height:calc(100dvh - 490px);min-height:165px}
+body.pinned .footer{padding-bottom:25px}
+@keyframes v2-breathe{
+ 0%,100%{box-shadow:0 0 0 1px rgba(126,255,214,.46),0 0 14px rgba(72,255,182,.36)}
+ 50%{box-shadow:0 0 0 1px rgba(126,255,214,.63),0 0 22px rgba(72,255,182,.63)}
+}
+@media(max-width:620px){
+ main{padding-left:12px;padding-right:12px}
+ .v2-skyline{top:33px;height:105px;opacity:.8}
+ .v2-skyline span{font-size:28px}
+ h1{max-width:100%;font-size:clamp(25px,6vw,31px)}
+ .hero{padding:15px 12px}
+ .hero-time{font-size:clamp(51px,12.4vw,65px)}
+ .hero-description{font-size:11px}
+ .flow{margin-top:13px;padding-top:12px}
+ .v2-step-icon{width:33px;height:33px;font-size:17px}
+ .v2-step-label{font-size:9px}.v2-step-detail{font-size:8px}
+ .v2-step:not(:last-child):after{top:5px;font-size:13px;right:-5px}
+ .metric{padding:8px 6px;border-radius:12px}.metric small{font-size:10px}.metric strong{font-size:13px}
+ .ring{width:100px;height:100px}
+ body.pinned .hero-time{font-size:clamp(51px,14vw,72px)}
+ body.pinned .hero{margin-top:7px;margin-bottom:7px}
+ body.pinned .metrics{margin:8px 0}
+ body.pinned .timeline-rail{max-height:calc(100dvh - 450px)}
+ body.pinned .timeline-wrap{padding:8px 5px}
+ body.pinned .timeline-row{margin-bottom:6px;border-radius:12px;padding:9px}
+ body.pinned .row-time{font-size:21px}
+ body.pinned .row-mini{padding:6px 3px;border-radius:8px}
+ body.pinned .row-mini b{font-size:14px}
+ body.pinned .row-mini small{font-size:9px}
+ body.pinned .row-foot{font-size:10px;margin-top:6px}
+ body.pinned .timeline-row.next:after{font-size:9px;top:-8px}
+ body.pinned .section-head{margin:5px 0 9px}
+ body.pinned h2{font-size:16px}
+ body.pinned #matchSummary{font-size:10px!important}
+}
+@media(max-width:365px){
+ .v2-step-icon{width:29px;height:29px;font-size:15px}
+ .v2-step-label{font-size:8px}.v2-step-detail{font-size:7px}
+ .hero-time{font-size:45px}
+ .pin-action,.pin-template-select{font-size:10px;padding:6px}
+ .pin-action span{font-size:10px}
+}
+@media(prefers-reduced-motion:reduce){.timeline-row.next{animation:none}}
+
+/* Original, independent hero art (not the Smart Trip hero reused). */
+.v2-skyline{
+ background:radial-gradient(ellipse at 60% 83%,rgba(238,75,193,.26),transparent 70%),
+ url("./assets/smart-match-budapest-neon-hero-v2.svg") center center/cover no-repeat;
+ border-radius:24px;filter:drop-shadow(0 0 12px rgba(231,87,188,.22));
+}
+.v2-skyline:before,.v2-skyline:after,.v2-skyline span{display:none}
+.flow .v2-step,.flow .v2-step-label,.flow .v2-step-detail{
+ background:transparent;border:0;box-shadow:none;padding:0;border-radius:0
+}
+.flow .v2-step-icon{
+ display:grid;place-items:center;width:43px;height:43px;line-height:1;
+ padding:0;border-radius:50%;border:1px solid rgba(255,241,254,.3);
+ background:linear-gradient(135deg,#bb83e3,#543b91);
+ box-shadow:inset 0 1px rgba(255,255,255,.2),0 0 15px rgba(208,114,234,.25)
+}
+.flow .v2-step[data-role=tram] .v2-step-icon{
+ background:linear-gradient(135deg,#ffdb77,#ab7318);box-shadow:0 0 15px rgba(255,185,57,.32)
+}
+.flow .v2-step[data-role=bus] .v2-step-icon{
+ background:linear-gradient(135deg,#7ce6ff,#236ab8);box-shadow:0 0 16px rgba(90,183,255,.4)
+}
+.flow .v2-step[data-role=destination] .v2-step-icon{
+ background:linear-gradient(135deg,#ffb9e9,#ad377b)
+}
+.flow .v2-step[data-role=walk] .v2-step-icon,
+.flow .v2-step[data-role=transfer] .v2-step-icon{
+ background:linear-gradient(135deg,#686c90,#262c55)
+}
+.flow[data-overflow=yes]{
+ grid-template-columns:none;grid-auto-flow:column;grid-auto-columns:minmax(78px,1fr);
+ overflow-x:auto;overscroll-behavior-x:contain;scrollbar-color:#bb72b7 #22163d;
+ scrollbar-width:thin;padding-bottom:12px
+}
+.flow[data-overflow=yes] .v2-step{min-width:78px}
+@media(max-width:620px){
+ .v2-skyline{top:24px;right:0;width:61vw;height:114px}
+ .flow .v2-step-icon{width:33px;height:33px;font-size:17px}
+ .flow[data-overflow=yes]{grid-auto-columns:minmax(71px,1fr)}
+}
+@media(max-width:365px){
+ .flow .v2-step-icon{width:29px;height:29px;font-size:15px}
+}
+
+/* Compact stage names on narrow phones: details remain in the stage title and
+ * in the actual itinerary. Prevent 6 columns from breaking "Átszállás" vertically. */
+@media(max-width:620px){
+ .flow .v2-step-detail{display:none}
+ .flow .v2-step-label{
+  display:block;width:100%;font-size:10px;line-height:1.25;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  overflow-wrap:normal;word-break:normal;min-height:14px;
+ }
+ .flow .v2-step-label[data-short]{font-size:0}
+ .flow .v2-step-label[data-short]:before{
+  content:attr(data-short);font-size:10px;line-height:1.25
+ }
+ .flow .v2-step{min-width:0;gap:7px}
+ .flow .v2-step-icon{flex:none}
+}

@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="440" viewBox="0 0 1200 440" role="img" aria-label="Budapest esti közlekedés: villamos és 260-as busz">
+<defs>
+ <linearGradient id="sky" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#20104c"/><stop offset=".44" stop-color="#5d267b"/><stop offset="1" stop-color="#190d37"/></linearGradient>
+ <radialGradient id="orb" cx=".6" cy=".78" r=".74"><stop stop-color="#ff87ce" stop-opacity=".7"/><stop offset=".58" stop-color="#c855d3" stop-opacity=".22"/><stop offset="1" stop-color="#ba4de1" stop-opacity="0"/></radialGradient>
+ <linearGradient id="tram" x1="0" x2=".9" y2="1"><stop stop-color="#ffe9a0"/><stop offset=".32" stop-color="#ffb83b"/><stop offset="1" stop-color="#e06a1f"/></linearGradient>
+ <linearGradient id="bus" x1="0" x2=".9" y2="1"><stop stop-color="#9ff6ff"/><stop offset=".34" stop-color="#34b2fa"/><stop offset="1" stop-color="#194dca"/></linearGradient>
+ <linearGradient id="glass" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#8298cf" stop-opacity=".92"/><stop offset=".5" stop-color="#263b81"/><stop offset="1" stop-color="#161c59"/></linearGradient>
+ <linearGradient id="trail"><stop stop-color="#ffb9f2" stop-opacity="0"/><stop offset=".3" stop-color="#ff92e8"/><stop offset="1" stop-color="#ffddf8" stop-opacity="0"/></linearGradient>
+ <filter id="glow" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur stdDeviation="12"/></filter>
+ <filter id="soft"><feDropShadow dx="0" dy="7" stdDeviation="9" flood-color="#05061c" flood-opacity=".9"/></filter>
+</defs>
+<rect width="1200" height="440" fill="url(#sky)"/>
+<rect width="1200" height="440" fill="url(#orb)"/>
+<path d="M0 316 Q130 240 245 284 Q340 196 469 254 Q538 220 611 249 Q715 188 798 237 Q896 180 1030 240 Q1108 219 1200 250 L1200 440 L0 440Z" fill="#17113d" opacity=".82"/>
+<g fill="#3c1d5e" opacity=".85">
+<path d="M0 315h70V255h25v60h38V236h47v79h36V274h37v41h36V222h48v93h36v-41h45v41h30v-87h37v87h33v-43h44v43h40v-73h65v73h48v-49h30v49h50V214h38v101h39V259h45v56h45v-83h32v83h36V277h44v38h55v-60h38v60h37v-30h43v30h53V440H0Z"/>
+<path d="M280 258v-64h4v-42h5v43h4v63ZM288 149l-16 12h32Z" fill="#a154b1"/>
+</g>
+<g fill="#d06cbf" opacity=".47">
+ <rect x="91" y="273" width="8" height="13"/><rect x="145" y="255" width="8" height="15"/><rect x="215" y="291" width="9" height="15"/>
+ <rect x="447" y="253" width="6" height="12"/><rect x="510" y="284" width="9" height="14"/>
+ <rect x="812" y="258" width="9" height="13"/><rect x="1049" y="288" width="7" height="12"/>
+</g>
+<path d="M20 390Q364 326 770 373T1210 346" stroke="url(#trail)" stroke-width="5" fill="none" opacity=".94"/>
+<path d="M0 409Q414 349 815 400T1200 374" stroke="#9d61e6" stroke-width="3" fill="none" opacity=".75"/>
+<path d="M0 387Q399 307 783 366T1200 346" stroke="#ff75e6" stroke-width="13" fill="none" opacity=".4" filter="url(#glow)"/>
+<g opacity=".82" fill="#ffc9f5">
+ <circle cx="77" cy="67" r="2"/><circle cx="183" cy="107" r="2"/><circle cx="321" cy="50" r="1.5"/>
+ <circle cx="508" cy="76" r="2"/><circle cx="715" cy="39" r="1.5"/><circle cx="1006" cy="91" r="2"/>
+ <circle cx="1112" cy="34" r="1.5"/>
+</g>
+<!-- tram -->
+<g transform="translate(510 144)" filter="url(#soft)">
+ <path d="M77-6L95-45H177L195-6" fill="none" stroke="#aa85ff" stroke-width="6" stroke-linecap="round"/>
+ <path d="M133-44V-78" stroke="#bb8fff" stroke-width="6"/>
+ <path d="M99-80L178-80" stroke="#d6a8ff" stroke-width="5"/>
+ <path d="M38 26Q38-2 64-6H215Q247-6 252 30L263 177Q265 190 248 200H50Q31 190 32 178Z" fill="url(#tram)" stroke="#ffd78c" stroke-width="4"/>
+ <path d="M59 27Q59 18 74 18H217Q230 18 231 34L238 115H52Z" fill="url(#glass)" stroke="#c6e5ff" stroke-width="3"/>
+ <path d="M72 31H122V105H65Z M134 31H207L218 105H134Z" fill="#536aa6" opacity=".37"/>
+ <path d="M73 27L119 27L54 101Z" fill="#e1f4ff" opacity=".24"/>
+ <rect x="55" y="132" width="179" height="35" rx="8" fill="#bf681e" opacity=".56"/>
+ <rect x="61" y="140" width="58" height="14" rx="4" fill="#ffc975" opacity=".53"/>
+ <rect x="180" y="140" width="45" height="14" rx="4" fill="#ffc975" opacity=".53"/>
+ <rect x="63" y="165" width="37" height="12" rx="5" fill="#fff2bb"/>
+ <rect x="191" y="165" width="38" height="12" rx="5" fill="#fff2bb"/>
+ <circle cx="79" cy="199" r="11" fill="#26243c"/><circle cx="218" cy="199" r="11" fill="#26243c"/>
+ <ellipse cx="83" cy="209" rx="33" ry="12" fill="#ffd78c" opacity=".45" filter="url(#glow)"/>
+ <ellipse cx="215" cy="209" rx="33" ry="12" fill="#ffd78c" opacity=".45" filter="url(#glow)"/>
+</g>
+<!-- bus -->
+<g transform="translate(825 167)" filter="url(#soft)">
+ <path d="M24 23Q27-2 47-5H211Q241 2 243 29L252 157Q254 176 242 187H37Q20 177 18 163Z" fill="url(#bus)" stroke="#94eeff" stroke-width="4"/>
+ <path d="M46 20H207Q223 20 225 36L230 105H37Z" fill="url(#glass)" stroke="#c5efff" stroke-width="3"/>
+ <path d="M47 32H103L46 91Z" fill="#e8fcff" opacity=".27"/>
+ <path d="M119 21L116 104" stroke="#90d3f6" stroke-width="3"/>
+ <rect x="64" y="119" width="150" height="22" rx="7" fill="#154ea1" opacity=".46"/>
+ <rect x="50" y="150" width="35" height="15" rx="5" fill="#f4ffff"/>
+ <rect x="189" y="150" width="35" height="15" rx="5" fill="#f4ffff"/>
+ <circle cx="60" cy="192" r="10" fill="#1b2439"/><circle cx="219" cy="192" r="10" fill="#1b2439"/>
+ <ellipse cx="68" cy="198" rx="29" ry="11" fill="#76dfff" opacity=".37" filter="url(#glow)"/>
+ <ellipse cx="214" cy="198" rx="29" ry="11" fill="#76dfff" opacity=".37" filter="url(#glow)"/>
+</g>
+<path d="M18 420Q250 338 507 358" stroke="#ff92e6" stroke-width="3" fill="none" opacity=".6"/>
+</svg>

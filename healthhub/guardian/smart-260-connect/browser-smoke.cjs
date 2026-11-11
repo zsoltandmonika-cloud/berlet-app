@@ -75,9 +75,22 @@ async function smoke(browser,base,device){
   assert.equal(await page.locator("#walkMetric").textContent(),"10 + 1 perc");
   assert.equal(await page.locator("#windowMetric").textContent(),"13:00–19:00");
   assert.ok(await page.locator("#ring").isVisible(),"Countdown ring is visible");
+  // V2 visual regression contract: dedicated hero + source-driven reusable route stages.
+  assert.equal(await page.locator("#routeFlow .v2-step").count(),6,
+   "Office route must display all six independently styled journey stages");
+  assert.ok(await page.locator(".v2-skyline").isVisible(),"Dedicated Smart Match hero artwork visible");
+  const heroBg=await page.locator(".v2-skyline").evaluate(el=>getComputedStyle(el).backgroundImage);
+  assert.match(heroBg,/smart-match-budapest-neon-hero-v2\.svg/,"Hero must be a standalone original asset");
   assert.ok(await page.locator("#templates .template-chip").count()>=2,"Two templates exist");
 
   await page.screenshot({path:path.join(output,device+"-work.png"),fullPage:true});
+  await page.locator("#pinBtn").click();
+  await page.waitForFunction(()=>document.body.classList.contains("pinned"));
+  assert.equal(await page.locator("#routeFlow .v2-step").count(),6,
+   "Pinned work route visual story must retain all stages");
+  await page.screenshot({path:path.join(output,device+"-work-pinned.png"),fullPage:true});
+  await page.locator("#exitPin").click();
+  await page.waitForFunction(()=>!document.body.classList.contains("pinned"));
 
   await page.locator("#templates .template-chip").filter({hasText:"Citronella"}).click();
   await page.waitForFunction(()=>{
@@ -86,6 +99,8 @@ async function smoke(browser,base,device){
   });
   assert.equal(await page.locator("#walkMetric").textContent(),"6 + 2 perc");
   assert.equal(await page.locator("#kind").inputValue(),"walk");
+  assert.equal(await page.locator("#routeFlow .v2-step").count(),4,
+   "The walk-only route must use the same reusable visual journey component");
   assert.ok(await page.locator(".timeline-row:not(.unmatched)").count()>0,
    "Citronella 260 has expected real timetable results");
   await page.locator("#pinBtn").click();
@@ -93,7 +108,16 @@ async function smoke(browser,base,device){
   assert.equal(await page.locator("#editor").isVisible(),false,"Pinned screen hides form");
   assert.ok(await page.locator("#heroTime").isVisible(),"Pinned hero is visible");
   assert.ok(await page.locator("#timeline").isVisible(),"Pinned timeline is visible");
+  assert.ok(await page.locator("#pinnedActions").isVisible(),"Bottom dock is visible in fullscreen pinned mode");
+  assert.equal(await page.locator("#pinTemplateSelect option").count(),2,
+   "Pinned selector preserves both previously saved sample schemes");
   await page.screenshot({path:path.join(output,device+"-home-pinned.png"),fullPage:true});
+  await page.locator("#pinTemplateSelect").selectOption("monika-260");
+  await page.waitForFunction(()=>document.getElementById("heading")?.textContent?.includes("Munkahely"));
+  assert.equal(await page.locator("#routeFlow .v2-step").count(),6,
+   "Pinned mode must dynamically re-render a different route scheme");
+  await page.locator("#pinTemplateSelect").selectOption("home-citronella-260");
+  await page.waitForFunction(()=>document.getElementById("kind")?.value==="walk");
   await page.locator("#exitPin").click();
   await page.waitForFunction(()=>!document.body.classList.contains("pinned"));
   await page.locator("#saveBtn").click();
