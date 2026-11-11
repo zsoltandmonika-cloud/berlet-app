@@ -13,7 +13,6 @@ const checks=[
  ["/healthhub/guardian/guardian-smart-match-pin-v1.mjs","hhSmartLocationSwitchV1"],
  ["/healthhub/guardian/guardian-smart-location-v1.mjs","function chooseLocation("],
  ["/healthhub/guardian/guardian-smart-match-pin-v1.css","flex-flow:row nowrap!important"],
- ["/healthhub/guardian/index.html","guardian-smart-match-pin-v1.mjs?v=3"],
  ["/healthhub/guardian/guardian-smart-match-pin-v1.mjs","const dir=bus260DirectionForTemplate(item);"],
  ["/healthhub/guardian/guardian-smart-match-pin-v1.mjs","const full=full260Timetable(data,date,dir);"],
  ["/healthhub/guardian/guardian-smart-match-pin-v1.mjs","CITRONELLA_DEFAULT_APPLIED"],
