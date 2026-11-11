@@ -2,7 +2,7 @@
 // Requires one explicit Microsoft OAuth consent; no ChatGPT connector delegation.
 // All token and order reads are gated by Supabase Auth profile membership.
 import {createClient} from "npm:@supabase/supabase-js@2.57.2";
-import {parseConfirmedMail,matchOfficial} from "./parser.ts";
+import {parseConfirmedMail,matchOfficial,graphBodyText} from "./parser.ts";
 const URL0=()=>env("SUPABASE_URL").replace(/\/$/,"");
 const env=(key)=>Deno.env.get(key)?.trim()||"";
 const ORIGIN="https://zsoltandmonika-cloud.github.io";
@@ -176,7 +176,7 @@ async function feedMenu(){
 }
 async function messages(access,folder){
  const base="me/mailFolders/"+encodeURIComponent(folder)+
-  "/messages?$select=id,subject,body,receivedDateTime&$orderby=receivedDateTime%20desc&$top=50";
+  "/messages?$select=id,subject,body,receivedDateTime,from&$orderby=receivedDateTime%20desc&$top=50";
  let next=new URL(base,GRAPH).href,all=[];
  for(let page=0;page<3&&next;page++){
   const data=await graph(access,next,'outlook.body-content-type="text"');
@@ -192,6 +192,13 @@ async function processMessages(row,access,official){
  for(const mail of messagesInFolder){
   if(!/ételrendelés/i.test(String(mail.subject||"")))continue;
   if(!mail.id||!mail.body)continue;
+  const sender=String(mail.from?.emailAddress?.address||"").toLowerCase();
+  const forwarded=graphBodyText(mail.body).slice(0,12000);
+  // The shared mailbox receives a forwarded confirmation, so Graph "from"
+  // may be the household user. Require the original Interfood sender line.
+  if(sender!=="info@interfood.hu"&&
+    !/(?:^|\n)[^\n]{0,90}(?:Feladó|From)[^\n]{0,300}info@interfood\.hu/i.test(forwarded))
+    continue;
   const meals=parseConfirmedMail(mail.body);
   recognized+=meals.length;
   const source_hash=await hash(mail.id);
@@ -273,7 +280,7 @@ async function route(req){
  if(!owner)return json({error:"unauthorized"},401);
  if(input.action==="status"){
   const q=await admin().from("hh_interfood_graph_connections_v1")
-   .select("granted_at,last_sync_at,last_error_code").eq("owner_user_id",owner).maybeSingle();
+   .select("granted_at,last_sync_at,last_error_code").limit(1).maybeSingle();
   if(q.error)return json({error:"status_unavailable"},503);
   return json({configured:configured(),connected:!!q.data,lastSyncAt:q.data?.last_sync_at||null,
    lastError:q.data?.last_error_code||null});
