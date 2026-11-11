@@ -337,3 +337,28 @@ body.pinned main>.v33-titlebar>#reverseBtn:not([hidden]){
 @media(max-width:390px){
   body.pinned main>.v33-titlebar{grid-template-columns:41px minmax(0,1fr) 41px}
 }
+
+/* V3.6 · Pinned reminder has a visually latched ON state.
+   OFF inherits the approved pink tile; only ON becomes mint green. */
+body.pinned #pinReminder{
+  font-size:clamp(9px,2.6vw,10.5px);
+  gap:3px;
+  padding-left:3px;
+  padding-right:3px;
+  white-space:nowrap;
+}
+body.pinned #pinReminder span{
+  font-size:inherit;
+  white-space:nowrap;
+}
+body.pinned #pinReminder[aria-pressed="true"]{
+  background:linear-gradient(145deg,#c6f7df,#54d9a1)!important;
+  border-color:rgba(136,255,198,.95)!important;
+  color:#0b4f3c!important;
+  box-shadow:inset 0 2px 6px rgba(4,88,50,.25),0 0 0 1px rgba(184,255,218,.26),0 1px 3px rgba(4,73,49,.14)!important;
+  transform:translateY(1px);
+}
+body.pinned #pinReminder:focus-visible{
+  outline:2px solid #a7ffcd;
+  outline-offset:2px;
+}
