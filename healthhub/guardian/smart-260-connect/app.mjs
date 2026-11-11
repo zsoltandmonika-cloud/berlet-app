@@ -284,7 +284,7 @@ function timelineRow(row,item,index){
  const title=document.createElement("div");
  const t=document.createElement("div");t.className="row-time";t.textContent=clockFmt(row.departMs);
  const l=document.createElement("div");l.className="row-label";l.textContent=
-  "🚌 "+row.line+"-es · "+(row.headsign||"menetrend szerinti céljárat");
+  (row.mode==="tram"?"🚋 ":row.mode==="bus"?"🚌 ":"🚆 ")+row.line+"-es · "+(row.headsign||"menetrend szerinti céljárat");
  title.append(t,l);
  const tag=document.createElement("span");tag.className="match-tag";
  tag.textContent=row.best?(item.type==="walk"?"✓ "+item.originSafetyMin+" perc tartalék":"✓ "+row.best.waitMin+" perc várakozás"):"Nincs biztonságos match";
@@ -345,7 +345,7 @@ function updateTimeline(now=Date.now(),redraw=false){
   $("heroDetail").textContent=(result.config.type==="walk"?
    "🚶 "+result.config.originWalkMin+" perc séta → ":
    (row.best.feederMode==="bus"?"🚌 ":"🚋 ")+row.best.feederLine+"-es → ")+
-   "🚌 "+row.line+"-es "+clockFmt(row.departMs)+" · "+row.headsign;
+   (row.mode==="tram"?"🚋 ":row.mode==="bus"?"🚌 ":"🚆 ")+row.line+"-es "+clockFmt(row.departMs)+" · "+row.headsign;
   const remain=Math.max(0,Math.floor((row.best.leaveOfficeMs-now)/1000));
   const hr=Math.floor(remain/3600),mn=Math.floor(remain%3600/60),sec=remain%60;
   $("countdown").textContent=(hr?String(hr).padStart(2,"0")+":":"")+
@@ -422,7 +422,7 @@ async function computeRoute({useForm=false}={}){
   box.textContent="Nem jelenítek meg ellenőrizetlen indulási időpontokat.";
   $("timeline").append(box);
   $("status").textContent="⚠️ "+(e?.message||"A BKK menetrend nem érhető el.");
- }finally{state.loading=false}
+ }finally{state.loading=false;if(current())updateTitle(current())}
 }
 function enterPinned(){
  if(!save({pin:true}))return;
