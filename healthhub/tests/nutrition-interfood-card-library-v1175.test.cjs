@@ -83,6 +83,6 @@ test('page stays scoped, accessible on mobile, and JS parses',()=>{
  assert.match(css,/#hhInterfoodLibraryV1175/);
  assert.match(css,/@media\(max-width:600px\)/);
  assert.match(css,/@media\(max-width:360px\)/);
- assert.match(ui,/aria-label='Interfood ételeim'/);
+ assert.match(ui,/setAttribute\('aria-label','Interfood ételeim'\)/);
  assert.match(ui,/aria-live="polite"/);
 });
