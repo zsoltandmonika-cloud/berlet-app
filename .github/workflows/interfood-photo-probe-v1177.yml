@@ -1,0 +1,22 @@
+name: Interfood official photo discovery v1177
+on:
+  pull_request:
+    paths:
+      - 'healthhub/scripts/interfood_photo_probe_v1177.py'
+      - '.github/workflows/interfood-photo-probe-v1177.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  photo-inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install browser runner
+        run: python -m pip install --disable-pip-version-check playwright==1.55.0
+      - name: Inspect public food photo interaction
+        run: python healthhub/scripts/interfood_photo_probe_v1177.py
