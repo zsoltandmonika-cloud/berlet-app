@@ -2,7 +2,7 @@
  * Browser-local saves, read-only BKK GTFS, no GPS/Dropbox/Supabase mutation.
  */
 import {readOfficialSnapshot} from "../../../sh9/smart-travel/lena-native/bkk/bkk-feed-client-v1106.mjs";
-import {DEFAULT,HOME,SAMPLES,compute} from "./core.mjs";
+import {DEFAULT,HOME,REVERSE,SAMPLES,compute} from "./core.mjs";
 import {wallEpoch} from "../../../sh9/smart-travel/lena-native/bkk/bkk-gtfs-core-v1105.mjs";
 const $=id=>document.getElementById(id);
 const STORAGE="sh9-smart-match-templates-v1-m";
@@ -40,6 +40,42 @@ function persist(){
 }
 function current(){return state.items.find(x=>x.id===state.current)||state.items[0]}
 function displayName(item){return String(item.title||"Smart Match útvonal").slice(0,85)}
+function pairedTemplate(item){
+ if(!item)return null;
+ const other=item.reverseId||
+  (item.id===DEFAULT.id?REVERSE.id:item.id===REVERSE.id?DEFAULT.id:null);
+ return other?state.items.find(x=>x.id===other)||null:null;
+}
+function shortTitle(item){
+ const origin=/otthon/i.test(item.originLabel||"")?"Otthon":
+  /bécsi corner|iroda|munkahely/i.test(item.originLabel||"")?"Munkahely":
+  (item.originLabel||"Indulás");
+ const destination=/otthon/i.test(item.destinationLabel||"")?"Otthon":
+  /bécsi corner|iroda|munkahely/i.test(item.destinationLabel||"")?"Munkahely":
+  (item.destinationLabel||"Cél");
+ return origin+" → "+destination;
+}
+function updateTitle(item){
+ $("headingFull").textContent=displayName(item);
+ $("headingShort").textContent=shortTitle(item);
+ $("heading").setAttribute("aria-label",displayName(item));
+ const opposite=pairedTemplate(item),b=$("reverseBtn");
+ b.hidden=!opposite;
+ b.disabled=Boolean(state.loading);
+ if(opposite){
+  const label="Irányváltás: "+shortTitle(opposite);
+  b.setAttribute("aria-label",label);
+  b.title=label;
+ }
+}
+function reverseCommute(){
+ if(!isPinned()||state.loading)return;
+ const opposite=pairedTemplate(current());
+ if(!opposite){toast("Ehhez az útvonalhoz még nincs ellenirányú mentett sablon.");return}
+ state.current=opposite.id;
+ hydrate();
+ computeRoute();
+}
 function chipButtons(){
  const host=$("templates");host.replaceChildren();
  for(const item of state.items){
@@ -62,7 +98,7 @@ function applyFormModes(){
 }
 function hydrate(){
  const item=current();if(!item)return;
- $("heading").textContent=displayName(item);
+ updateTitle(item);
  $("titleInput").value=item.title||"";
  $("kind").value=item.type==="walk"?"walk":"transfer";
  $("targetRoute").value=item.targetRoute||"260";
@@ -212,7 +248,9 @@ function renderFlow(item){
   node.className="v2-step";node.dataset.role=step.role;
   node.setAttribute("title",[step.role==="transfer"?"Átszállás":step.label,step.detail].filter(Boolean).join(" · "));
   const pict=document.createElement("span");pict.className="v2-step-icon";
-  pict.textContent=icons[step.role]||"📍";
+  pict.textContent=step.role==="origin"&&/otthon/i.test(item.originLabel||"")?"🏠":
+   step.role==="destination"&&/bécsi corner|iroda|munkahely/i.test(item.destinationLabel||"")?"🏢":
+   icons[step.role]||"📍";
   const label=document.createElement("span");label.className="v2-step-label";
   label.textContent=step.label;
   if(step.shortLabel)label.dataset.short=step.shortLabel;
@@ -254,9 +292,9 @@ function timelineRow(row,item,index){
  if(row.best){
   const grid=document.createElement("div");grid.className="row-columns";
   addMini(grid,clockFmt(row.best.leaveOfficeMs),
-   item.type==="walk"?"🏠 Indulás otthonról":"🏢 Indulás az irodából");
+   /otthon/i.test(item.originLabel||"")?"🏠 Indulás otthonról":"🏢 Indulás az irodából");
   addMini(grid,item.type==="walk"?item.originWalkMin+" perc":clockFmt(row.best.feederDepartMs),
-   item.type==="walk"?"🚶 Séta": "🚋 "+row.best.feederLine+"-es indulás");
+   item.type==="walk"?"🚶 Séta": (row.best.feederMode==="bus"?"🚌 ":"🚋 ")+row.best.feederLine+"-es indulás");
   addMini(grid,item.type==="walk"?clockFmt(row.departMs):clockFmt(row.best.feederArriveMs),
    item.type==="walk"?"🚌 Felszállás":"🔁 Villamos érkezés");
   article.append(grid);
@@ -305,7 +343,8 @@ function updateTimeline(now=Date.now(),redraw=false){
  if(row){
   $("heroTime").textContent=clockFmt(row.best.leaveOfficeMs);
   $("heroDetail").textContent=(result.config.type==="walk"?
-   "🚶 "+result.config.originWalkMin+" perc séta → ":"🚋 "+row.best.feederLine+"-es → ")+
+   "🚶 "+result.config.originWalkMin+" perc séta → ":
+   (row.best.feederMode==="bus"?"🚌 ":"🚋 ")+row.best.feederLine+"-es → ")+
    "🚌 "+row.line+"-es "+clockFmt(row.departMs)+" · "+row.headsign;
   const remain=Math.max(0,Math.floor((row.best.leaveOfficeMs-now)/1000));
   const hr=Math.floor(remain/3600),mn=Math.floor(remain%3600/60),sec=remain%60;
@@ -370,8 +409,8 @@ async function computeRoute({useForm=false}={}){
   const date=$("day").value;
   const result=compute(state.data,date,item);
   state.result=result;state.lastNext=null;
-  $("heading").textContent=displayName(item);renderFlow(item);metrics(item);
-  $("timelineSubtitle").textContent=date+" · "+item.targetRoute+"-es · "+item.targetHeadsign;
+  updateTitle(item);renderFlow(item);metrics(item);
+  $("timelineSubtitle").textContent=date+" · "+item.targetRoute+"-es · "+(item.targetHeadsign||item.targetAfterStop||"");
   $("status").textContent="✓ BKK GTFS · statikus menetrend · "+result.matchingCount+
    " jó csatlakozás · adatfrissítés: "+new Date(state.manifest.validatedAt).toLocaleString("hu-HU",{timeZone:"Europe/Budapest"});
   renderResults(item);
@@ -417,6 +456,7 @@ function initEvents(){
  });
  $("exitPin").addEventListener("click",leavePinned);
  $("pinEdit")?.addEventListener("click",leavePinned);
+ $("reverseBtn")?.addEventListener("click",reverseCommute);
  $("pinReminder")?.addEventListener("click",()=>$("remindBtn").click());
  $("pinTemplateSelect")?.addEventListener("change",e=>{
   const id=e.target.value;
