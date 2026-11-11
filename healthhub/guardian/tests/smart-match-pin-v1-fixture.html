@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="hu">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Family Guard Smart Match pin read-only fixture</title>
+<style>
+body{margin:0;padding:14px;background:#09172e;color:#fff;font:14px system-ui}
+#hhTransitPanel{width:min(100%,360px);box-sizing:border-box;border-radius:16px;padding:12px;border:1px solid #8fd3f3;background:linear-gradient(#c2e1f1,#add1eb)}
+#hhBkkLiveBarV796{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+#hhBkkLiveStatusV793{font-weight:800;color:#153d66;flex:1 1 175px;margin:0}
+#hhBkkFocusV796{min-height:44px;border:1px solid #98c4ec;color:#193b57;border-radius:9px;background:#d4eaff;padding:6px 9px;font-weight:760}
+</style>
+<link rel="stylesheet" href="../guardian-smart-match-pin-v1.css?v=1">
+</head>
+<body>
+<h1>Family Guard BKK regressziós teszt</h1>
+<section id="hhTransitPanel" class="hh-transit-panel" aria-label="BKK">
+<div id="hhBkkLiveBarV796">
+<p id="hhBkkLiveStatusV793">🚌 BKK élő helyzet · teszt</p>
+<button type="button" id="hhBkkFocusV796">Ne mutasd élő járműveket</button>
+</div>
+<div id="hhBkkWatchlistV814">⭐ Saját BKK Watchlist</div>
+</section>
+<section id="guardianNativeGpsSourceV1174"><strong id="guardianNativeGpsTitleV1177">GPS (érintetlen)</strong></section>
+<script type="module" src="../guardian-smart-match-pin-v1.mjs?v=1"></script>
+</body>
+</html>
