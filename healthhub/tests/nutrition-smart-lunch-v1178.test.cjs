@@ -103,7 +103,7 @@ function fakeJournal(){
  // Test-only hook in memory: never persisted to production source.
  const fixture=core.replace(/\}\)\(window\);\s*$/,'root.__testSetProfile=p=>active=p; })(window);');
  assert.notEqual(fixture,core);
- vm.runInNewContext(fixture,{window,document,localStorage,console:{warn(){}}});
+ vm.runInNewContext(fixture,{window,document,localStorage,console:{warn(){}},setTimeout:()=>1,clearTimeout(){}});
  window.__testSetProfile('monika');
  return {api:window.HH_NUTRITION_QUICK_API,select:window.__testSetProfile};
 }
