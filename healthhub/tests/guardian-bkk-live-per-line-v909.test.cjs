@@ -50,7 +50,7 @@ test('v909: independent favorite live visibility, no extra network requests',asy
  assert.deepEqual(x.rendered.at(-1),['260','17']);
  assert.equal(x.calls.length,1);
 });
-test('v909: global LIVE master remains authoritative and route-line toggle independent',async()=>{
+test('v909: global LIVE master remains authoritative and unified Watchlist can control both layers',async()=>{
  const x=harness();await flush();
  const b=x.globalButton();b.click();
  assert.deepEqual(x.rendered.at(-1),[]);
@@ -59,7 +59,8 @@ test('v909: global LIVE master remains authoritative and route-line toggle indep
  assert.equal(x.calls.length,1);
  b.click();assert.deepEqual(x.rendered.at(-1),['17'],'global ON respects route choice');
  assert.match(watchSource,/transit\.setLineVisible\(id,false\)/);
- assert.match(watchSource,/liveFilter\.setEnabled\(key,!liveFilter\.enabled\(key,profile\),profile\)/);
+ assert.match(watchSource,/liveFilter\.setEnabled\(key,false,profile\)/);
+ assert.match(watchSource,/liveFilter\.setEnabled\(key,true,profile\)/);
 });
 test('v909: cached profile-specific preferences do not mutate favorites',async()=>{
  const x=harness(),f=x.root.HH_BKK_LIVE_PER_LINE_V909;await flush();
@@ -82,5 +83,5 @@ test('v909: no fabricated vehicle data and no extra remote GPS/API traffic',()=>
  assert.match(pilotSource,/lastSourceSnapshot/);
  assert.match(pilotSource,/renderLiveFromSnapshot\(lastSourceSnapshot\)/);
  assert.doesNotMatch(filterSource,/fetch\(|geolocation|setInterval\(/);
- assert.match(watchSource,/hh-bkk-watch-live-v909/);
+ assert.match(watchSource,/hh-bkk-watch-unified-v1/);
 });
