@@ -92,6 +92,62 @@ def parse(html: str, now: dt.datetime):
         m=DAY.search(selected.get("data-date","")) or DAY.search(selected.get_text(" ",strip=True))
         if m:
             selected_date="-".join(m.groups())
+    # Interfood's current SPA has one .category per meal code and one
+    # .food tile per day (Monday through Saturday), all days rendered at once.
+    structured=soup.select(".category")
+    days=[]
+    for button in soup.select(".date-button[data-date]"):
+        value=str(button.get("data-date",""))
+        if re.fullmatch(r"20\d{2}-\d{2}-\d{2}",value) and value not in days:
+            days.append(value)
+    if len(days)>=5 and structured:
+        records={}
+        for group in structured:
+            code_node=group.select_one(".category-code")
+            cat_node=group.select_one(".category-name")
+            foods=group.select(".category-foods > .food")
+            if not code_node or not cat_node or not foods:continue
+            code=code_node.get_text(" ",strip=True).upper()
+            cat=cat_node.get_text(" ",strip=True)
+            if not re.fullmatch(r"[A-Z0-9]{1,8}",code):continue
+            for position,tile in enumerate(foods):
+                title=tile.select_one(".food-top-title-interfood")
+                name=title.get_text(" ",strip=True) if title else ""
+                if len(name)<3 or len(name)>100:continue
+                date=days[position] if len(foods)==len(days) and position<len(days) else None
+                text=tile.get_text(" ",strip=True)
+                macro=NUTRI.search(text)
+                nutrients=({k:float(macro.group(k).replace(",",".")) for k in
+                    ("kcal","protein","carbs","fat")} if macro else
+                    {"kcal":None,"protein":None,"carbs":None,"fat":None})
+                item_id=str(tile.get("data-menu-item-id",""))
+                image=image_near(tile)
+                # Exclude status icons from image attribution. Public meal photos
+                # typically appear in a detail/photo modal, not inside the tile.
+                key=(date or "week")+"|"+code+"|"+name.casefold()
+                if key in records:continue
+                price_node=tile.select_one(".food-top-bottom-price")
+                price_text=price_node.get_text(" ",strip=True) if price_node else ""
+                price=PRICE.search(price_text)
+                records[key]={
+                    "id":"if-"+re.sub(r"[^a-z0-9]+","-",code.lower()+"-"+(date or "weekly")+
+                                      "-"+name.lower())[:110],
+                    "code":code,"name":name,"category":cat,"label":cat,
+                    "menuDate":date,"week":week,"nutrients":nutrients,
+                    "imageUrl":image,"sourceUrl":SOURCE,
+                    "sourceItemId":item_id if item_id.isdigit() else None,
+                    "priceFt":int(re.sub(r"\D","",price.group(1))) if price else None,
+                    "nutritionBasis":"published-per-serving" if macro else "not-published",
+                    "imageBasis":"public-source-url" if image else "no-public-image",
+                }
+        items=list(records.values())
+        items.sort(key=lambda x:((x["menuDate"] or ""),x["category"],x["code"],x["name"]))
+        return {
+            "schemaVersion":"healthhub.interfood.live/1",
+            "updatedAt":now.isoformat(timespec="seconds").replace("+00:00","Z"),
+            "sourceUrl":SOURCE,"week":week,"selectedDate":None,
+            "availableDates":days,"items":items
+        }
     result={}
     category=None
     labels={"Főétel","Desszert","Leves","Sport és egészség","Sport desszert","Vegán","Főzelék","Kis adag","Vegán kis adag","Menü","Tortilla"}
