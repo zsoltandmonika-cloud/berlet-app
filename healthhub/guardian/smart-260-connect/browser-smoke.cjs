@@ -159,12 +159,19 @@ async function smoke(browser,base,device){
   const titleRow=await page.evaluate(()=>{
    const a=document.getElementById("heading").getBoundingClientRect();
    const b=document.getElementById("reverseBtn").getBoundingClientRect();
-   return {headingTop:a.top,reverseTop:b.top,reverseRight:b.right,width:innerWidth};
+   const row=document.querySelector("main>.v33-titlebar").getBoundingClientRect();
+   return {headingTop:a.top,reverseTop:b.top,reverseRight:b.right,width:innerWidth,
+    headingCenter:a.left+a.width/2,rowCenter:row.left+row.width/2,
+    headingRight:a.right,reverseLeft:b.left};
   });
   assert.ok(Math.abs(titleRow.headingTop-titleRow.reverseTop)<=14,
    "Reverse icon must be beside title, not on an extra row: "+JSON.stringify(titleRow));
   assert.ok(titleRow.reverseRight<=titleRow.width,
    "Reverse icon must not overflow screen");
+  assert.ok(Math.abs(titleRow.headingCenter-titleRow.rowCenter)<=2,
+   "Pinned route title must be centered across whole header: "+JSON.stringify(titleRow));
+  assert.ok(titleRow.headingRight<=titleRow.reverseLeft+1,
+   "Centered heading must not overlap reverse button: "+JSON.stringify(titleRow));
   await page.screenshot({path:path.join(output,device+"-work-pinned.png"),fullPage:true});
   await page.locator("#reverseBtn").click();
   await page.waitForFunction(()=>document.getElementById("headingShort")?.textContent?.includes("Otthon → Munkahely")&&
