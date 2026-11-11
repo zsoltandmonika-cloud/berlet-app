@@ -509,6 +509,90 @@ async function guardianSmartLocationSmoke(browser,base,device){
  }finally{await context.close()}
 }
 
+
+async function watchlistAlwaysOpenSmoke(browser,base,device){
+ const mobile=device==="mobile";
+ const context=await browser.newContext({viewport:mobile?{width:390,height:844}:{width:1320,height:890},
+  deviceScaleFactor:mobile?2:1,isMobile:mobile,hasTouch:mobile,serviceWorkers:"block"});
+ await context.route("**/*",req=>{
+  if(req.request().url().startsWith(base))return req.continue();
+  return req.abort();
+ });
+ const page=await context.newPage();
+ try{
+  await page.goto(base+"healthhub/guardian/tests/bkk-watchlist-always-open-fixture.html",
+   {waitUntil:"domcontentloaded"});
+  const list=page.locator("#hhBkkWatchRowsV814");
+  await page.waitForFunction(()=>document.querySelectorAll("#hhBkkWatchRowsV814 article").length===2);
+  const section=page.locator("#hhBkkWatchlistV814");
+  const body=page.locator("#hhBkkWatchContentV858");
+  const header=page.locator("#hhBkkWatchToggleV858");
+  assert.equal(await body.evaluate(el=>el.hidden),false,"Watchlist must be open immediately");
+  assert.equal(await section.evaluate(el=>el.hidden),false);
+  assert.equal(await header.evaluate(el=>el.tagName),"DIV","The heading is not a clickable collapse button");
+  assert.equal(await header.getAttribute("role"),"heading");
+  assert.equal(await header.locator(".hh-bkk-watch-chevron-v858").count(),0);
+  assert.equal(await header.getAttribute("aria-expanded"),null);
+  assert.equal(await list.locator("article").count(),2);
+  const card=page.locator("#hhBkkWatchRowsV814 article").first();
+  assert.equal(await card.locator(".hh-bkk-watch-actions-v814 button").count(),5,
+   "Route controls must include Live, Show, Move up/down and Remove");
+  const check=async width=>{
+   await page.setViewportSize({width,height:800});
+   return page.evaluate(()=>{
+    const row=document.querySelector("#hhBkkWatchRowsV814 article");
+    const actions=row.querySelector(".hh-bkk-watch-actions-v814");
+    const badge=row.querySelector(".hh-bkk-watch-number-v814");
+    const btns=[...actions.querySelectorAll("button")].map(x=>x.getBoundingClientRect());
+    const box=row.getBoundingClientRect(),b=badge.getBoundingClientRect();
+    const css=getComputedStyle(row);
+    return {width:box.width,height:box.height,numberFont:getComputedStyle(badge).fontSize,
+     grid:css.display,buttons:btns.length,topY:btns.map(x=>x.top),
+     lastRight:Math.max(...btns.map(x=>x.right)),right:box.right,topBadge:b.top};
+   });
+  };
+  let dims=await check(mobile?390:1320);
+  assert.equal(dims.grid,"grid");
+  assert.ok(dims.height<115,"Compact Watchlist card should be under 115px: "+JSON.stringify(dims));
+  assert.ok(parseFloat(dims.numberFont)>=21,"Route number should be larger");
+  assert.ok(Math.max(...dims.topY)-Math.min(...dims.topY)<4,
+   "All controls must share one row: "+JSON.stringify(dims));
+  assert.ok(dims.lastRight<=dims.right+1,"Action buttons must not overrun the card");
+  if(mobile){
+   dims=await check(320);
+   assert.ok(dims.height<125,"Narrow phone Watchlist must remain compact: "+JSON.stringify(dims));
+   assert.ok(Math.max(...dims.topY)-Math.min(...dims.topY)<4);
+   assert.ok(dims.lastRight<=dims.right+1);
+   await page.setViewportSize({width:390,height:844});
+  }
+  const live=card.locator(".hh-bkk-watch-live-v909");
+  assert.equal(await live.getAttribute("aria-pressed"),"true");
+  await live.click();
+  await page.waitForFunction(()=>document.querySelector("#hhBkkWatchRowsV814 .hh-bkk-watch-live-v909")?.getAttribute("aria-pressed")==="false");
+  assert.equal(await body.evaluate(el=>el.hidden),false,"Live toggle must NOT collapse Watchlist");
+  const show=list.locator("article").first().locator(".hh-bkk-watch-show-v814");
+  assert.equal(await show.textContent(),"↗");
+  await show.click();
+  await page.waitForFunction(()=>document.querySelector("#hhBkkWatchRowsV814 .hh-bkk-watch-show-v814")?.textContent==="◉");
+  assert.equal(await body.evaluate(el=>el.hidden),false);
+  const editor=page.locator("#hhBkkCatalogV801");
+  await page.locator("#hhBkkWatchEditV814").click();
+  assert.equal(await editor.evaluate(el=>el.open),true);
+  assert.equal(await body.evaluate(el=>el.hidden),false);
+  await page.locator("#hhBkkWatchEditV814").click();
+  assert.equal(await editor.evaluate(el=>el.open),false);
+  assert.equal(await body.evaluate(el=>el.hidden),false);
+  const down=list.locator("article").first().locator("button[aria-label='260 lejjebb helyezése']");
+  await down.click();
+  assert.equal(await list.locator("article").first().locator(".hh-bkk-watch-number-v814").textContent(),"17");
+  assert.equal(await body.evaluate(el=>el.hidden),false);
+  await page.screenshot({path:path.join(output,device+"-bkk-watchlist-always-open-compact.png"),
+   fullPage:true});
+  return {device,open:"permanent",collapseControl:"removed",height:dims.height,
+   actions:"single-row",number:"enlarged",liveAndMap:"preserved",editing:"preserved",reorder:"preserved"};
+ }finally{await context.close()}
+}
+
 (async()=>{
  await new Promise(resolve=>server.listen(0,"127.0.0.1",resolve));
  const base="http://127.0.0.1:"+server.address().port+"/berlet-app/";
@@ -519,6 +603,7 @@ async function guardianSmartLocationSmoke(browser,base,device){
   for(const device of ["desktop","mobile"])console.log("SMART-MATCH-BROWSER-SMOKE",JSON.stringify(await smoke(browser,base,device)));
   for(const device of ["desktop","mobile"])console.log("GUARDIAN-SMART-MATCH-PIN-SMOKE",JSON.stringify(await guardianPinSmoke(browser,base,device)));
   for(const device of ["desktop","mobile"])console.log("GUARDIAN-SMART-LOCATION-SMOKE",JSON.stringify(await guardianSmartLocationSmoke(browser,base,device)));
+  for(const device of ["desktop","mobile"])console.log("BKK-WATCHLIST-ALWAYS-OPEN-COMPACT-SMOKE",JSON.stringify(await watchlistAlwaysOpenSmoke(browser,base,device)));
  }finally{
   if(browser)await browser.close();
   server.close();
