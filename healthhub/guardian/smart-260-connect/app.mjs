@@ -226,14 +226,14 @@ function routeFlowStages(item){
   {role:"origin",label:original,detail:"Kiindulás"},
   {role:"walk",label:item.originWalkMin+" perc",detail:"Séta a megállóig"},
   {role:targetMode,label:item.targetRoute,detail:item.targetStop},
-  {role:"destination",label:destination,detail:"Érkezés"}
+  {role:"destination",label:/bécsi corner/i.test(destination)?"Iroda":destination,detail:destination}
  ]:[
   {role:"origin",label:original==="Bécsi Corner"?"Iroda":original,detail:original},
   {role:"walk",label:item.originWalkMin+" perc",detail:"Séta"},
   {role:feederMode,label:feeders.join("/"),detail:item.originStop},
   {role:"transfer",label:"Csere",detail:item.transferStop},
   {role:targetMode,label:item.targetRoute,detail:item.targetHeadsign||item.targetStop},
-  {role:"destination",label:destination,detail:"Érkezés"}
+  {role:"destination",label:/bécsi corner/i.test(destination)?"Iroda":destination,detail:destination}
  ];
 }
 function renderFlow(item){
@@ -362,7 +362,11 @@ function updateTimeline(now=Date.now(),redraw=false){
   state.lastNext=next;
   if(next>=0){
    const el=all[next],viewport=$("timeline");
-   if(el&&viewport)viewport.scrollTo({top:Math.max(0,el.offsetTop-65),behavior:redraw?"auto":"smooth"});
+   if(el&&viewport){
+    const top=el.getBoundingClientRect().top-viewport.getBoundingClientRect().top+
+     viewport.scrollTop-Math.min(85,Math.floor(viewport.clientHeight*.22));
+    viewport.scrollTo({top:Math.max(0,top),behavior:redraw?"instant":"smooth"});
+   }
   }
  }
  if(state.reminderEnabled&&row&&isToday){
