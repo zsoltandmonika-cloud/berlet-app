@@ -115,8 +115,8 @@
 }
 /* Second harmonized tile: real Watchlist heading and its real Edit button.
  * The favorite route cards stay in their original DOM below. */
-#hhTransitPanel #hhBkkWatchlistV814{position:relative;z-index:1}
-#hhTransitPanel #hhBkkWatchlistV814 .hh-bkk-watch-header-v814{
+#hhTransitPanel:has(>#hhBkkLiveBarV796) #hhBkkWatchlistV814{position:relative;z-index:1}
+#hhTransitPanel:has(>#hhBkkLiveBarV796) #hhBkkWatchlistV814 .hh-bkk-watch-header-v814{
  box-sizing:border-box!important;width:calc(100% - var(--bkk-hero-brand-w))!important;
  margin:1px 0 7px var(--bkk-hero-brand-w)!important;
  padding:6px!important;min-width:0!important;min-height:57px!important;
@@ -125,24 +125,24 @@
  background:var(--bkk-hero-fill)!important;
  box-shadow:inset 0 1px rgba(255,255,255,.86),0 3px 9px var(--bkk-hero-shadow)!important;
 }
-#hhTransitPanel #hhBkkWatchToggleV858{
+#hhTransitPanel:has(>#hhBkkLiveBarV796) #hhBkkWatchToggleV858{
  display:flex!important;flex-direction:row!important;
  flex:1 1 0!important;align-items:center!important;
  min-height:40px!important;min-width:0!important;
  margin:0!important;padding:2px!important;
 }
-#hhTransitPanel #hhBkkWatchToggleV858::before{content:none!important;display:none!important}
-#hhTransitPanel #hhBkkWatchToggleV858 .hh-bkk-watch-toggle-label-v858{
+#hhTransitPanel:has(>#hhBkkLiveBarV796) #hhBkkWatchToggleV858::before{content:none!important;display:none!important}
+#hhTransitPanel:has(>#hhBkkLiveBarV796) #hhBkkWatchToggleV858 .hh-bkk-watch-toggle-label-v858{
  gap:2px!important;min-width:0!important;
 }
-#hhTransitPanel #hhBkkWatchToggleV858 .hh-bkk-watch-toggle-label-v858 strong{
+#hhTransitPanel:has(>#hhBkkLiveBarV796) #hhBkkWatchToggleV858 .hh-bkk-watch-toggle-label-v858 strong{
  font-size:clamp(11px,3.2vw,14px)!important;line-height:1.12!important;
  white-space:nowrap!important;
 }
-#hhTransitPanel #hhBkkWatchToggleV858 .hh-bkk-watch-toggle-label-v858 small{
+#hhTransitPanel:has(>#hhBkkLiveBarV796) #hhBkkWatchToggleV858 .hh-bkk-watch-toggle-label-v858 small{
  font-size:9px!important;line-height:1.2!important;white-space:nowrap!important;
 }
-#hhTransitPanel #hhBkkWatchEditV814{
+#hhTransitPanel:has(>#hhBkkLiveBarV796) #hhBkkWatchEditV814{
  flex:0 0 auto!important;box-sizing:border-box!important;
  min-height:38px!important;max-width:none!important;
  margin:0!important;padding:6px 7px!important;
@@ -152,7 +152,7 @@
  box-shadow:inset 0 1px rgba(255,255,255,.7)!important;
  font-size:10px!important;
 }
-#hhTransitPanel #hhBkkWatchContentV858{position:relative;z-index:0;margin-top:0!important}
+#hhTransitPanel:has(>#hhBkkLiveBarV796) #hhBkkWatchContentV858{position:relative;z-index:0;margin-top:0!important}
 @media(max-width:365px){
  #hhTransitPanel{--bkk-hero-brand-w:clamp(78px,26vw,95px)}
  #hhTransitPanel #hhBkkLiveBarV796{
@@ -170,13 +170,13 @@
  #hhTransitPanel #hhBkkLiveBarV796>#hhSmartLocationSwitchV1::after{
   padding:6px!important;font-size:12px;
  }
- #hhTransitPanel #hhBkkWatchlistV814 .hh-bkk-watch-header-v814{
+ #hhTransitPanel:has(>#hhBkkLiveBarV796) #hhBkkWatchlistV814 .hh-bkk-watch-header-v814{
   gap:2px!important;padding:4px!important;
  }
- #hhTransitPanel #hhBkkWatchToggleV858 .hh-bkk-watch-toggle-label-v858 strong{
+ #hhTransitPanel:has(>#hhBkkLiveBarV796) #hhBkkWatchToggleV858 .hh-bkk-watch-toggle-label-v858 strong{
   font-size:11px!important;
  }
- #hhTransitPanel #hhBkkWatchEditV814{
+ #hhTransitPanel:has(>#hhBkkLiveBarV796) #hhBkkWatchEditV814{
   min-height:36px!important;padding:4px!important;font-size:9px!important;
  }
 }
