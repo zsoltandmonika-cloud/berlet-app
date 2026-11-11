@@ -1,6 +1,11 @@
 name: HealthHub Interfood Live · Smart Feed v1176
 on:
   workflow_dispatch:
+  pull_request:
+    paths:
+      - '.github/workflows/interfood-live-v1176.yml'
+      - 'healthhub/scripts/interfood_live_sync_v1176.py'
+      - 'healthhub/tests/interfood-live-v1176.test.cjs'
   schedule:
     - cron: '27 4,10 * * *'
   push:
