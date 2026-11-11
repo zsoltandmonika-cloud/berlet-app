@@ -578,3 +578,9 @@ html body .shell>main>#hhTransitPanel.hh-transit-panel:has(>#hhBkkLiveBarV796) #
   font-size:0!important;
   transform:none!important;
 }
+
+/* Golden V5.3: shift only the premium Watchlist edit tile 3px left.
+   Layout dimensions, Smart Location and all click handlers are unchanged. */
+html body .shell>main>#hhTransitPanel.hh-transit-panel:has(>#hhBkkLiveBarV796) #hhBkkWatchEditV814 {
+  transform:translateX(-3px)!important;
+}
