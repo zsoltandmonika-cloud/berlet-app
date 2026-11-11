@@ -441,3 +441,24 @@ body.pinned .flow .v2-step-hint{font-size:8px;line-height:1.15}
   body.pinned .flow{margin-top:6px;padding-top:7px}
   body.pinned .flow .v2-step{gap:2px}
 }
+
+/* V4.2 · Make the pinned departure countdown legible without changing the card. */
+body.pinned .ring{
+ width:88px;height:88px;min-width:88px;padding:5px;
+}
+body.pinned .ring-inner small{
+ display:block;width:100%;padding:0 3px;box-sizing:border-box;
+ font-size:8.4px;line-height:1.1;letter-spacing:.015em;
+ white-space:normal;overflow-wrap:normal;text-align:center;
+}
+@media(max-width:620px){
+ body.pinned .ring{width:83px;height:83px;min-width:83px}
+}
+@media(max-width:390px){
+ body.pinned .ring{width:81px;height:81px;min-width:81px}
+ body.pinned .ring-inner small{font-size:8px;letter-spacing:0}
+}
+@media(max-height:740px){
+ body.pinned .ring{width:73px;height:73px;min-width:73px}
+ body.pinned .ring-inner small{font-size:7.8px}
+}
