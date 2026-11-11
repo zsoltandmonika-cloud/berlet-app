@@ -189,6 +189,13 @@ function install(){
  const tools=page.querySelector('.hh-if-library-intro-v1175');
  if(tools?.parentNode)tools.parentNode.insertBefore(area,tools);
  else page.querySelector('.hh-if-library-inner-v1175')?.append(area);
+ // Smart-first: no manual setup or blank-card creation in the normal flow.
+ const manualNew=id('hhIfNew1175');
+ if(manualNew){manualNew.hidden=true;manualNew.setAttribute('aria-hidden','true');}
+ const savedHelp=tools?.querySelector('p');
+ if(savedHelp)savedHelp.textContent=
+  'Válassz fent egy ételt. Léna automatikusan kártyát készít és ide menti; '+
+  'a Napi naplózás csak külön érintésre történik.';
  id('hhIfLiveSearch1176').addEventListener('input',ev=>{query=ev.target.value.trim().toLocaleLowerCase('hu-HU');render();});
  id('hhIfLiveCategory1176').addEventListener('change',ev=>{category=ev.target.value;render();});
  id('hhIfLiveDay1176').addEventListener('change',ev=>{day=ev.target.value;render();});
