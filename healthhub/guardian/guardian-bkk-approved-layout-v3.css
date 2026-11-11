@@ -1,0 +1,293 @@
+/* BKK Hero V3 | Approved reference layout, 2026-11-11.
+   Visual-only. Preserve the existing live BKK, Smart Match, Smart Location,
+   Watchlist and Family GPS DOM, data sources, state and event handlers. */
+#hhTransitPanel{
+ --hh-bkk-target-brand:clamp(116px,35vw,156px);
+ --hh-bkk-target-upper:112px;
+ --hh-bkk-target-gap:7px;
+}
+/* Keep the existing single pastel sheet; only position its live hero. */
+html body #hhTransitPanel>#hhBkkLiveBarV796{
+ box-sizing:border-box!important;position:relative!important;
+ display:grid!important;
+ grid-template-columns:minmax(0,1fr) clamp(49px,13.2vw,61px)!important;
+ grid-template-rows:var(--hh-bkk-target-upper)!important;
+ column-gap:5px!important;align-items:stretch!important;
+ width:calc(100% - var(--hh-bkk-target-brand) - var(--hh-bkk-target-gap))!important;
+ max-width:none!important;
+ margin:0 0 0 calc(var(--hh-bkk-target-brand) + var(--hh-bkk-target-gap))!important;
+ padding:0!important;min-height:var(--hh-bkk-target-upper)!important;
+ border:0!important;border-bottom:0!important;
+ background:transparent!important;box-shadow:none!important;
+ overflow:visible!important;isolation:isolate!important;
+}
+/* Single elegant glass header on the right, not a tall empty card. */
+html body #hhTransitPanel>#hhBkkLiveBarV796::before{
+ content:"";grid-column:1/-1!important;grid-row:1!important;z-index:0;
+ border-radius:17px!important;
+ background:linear-gradient(145deg,rgba(255,235,249,.92),rgba(243,188,225,.81))!important;
+ border:1px solid var(--bkk-hero-edge,rgba(237,159,215,.88))!important;
+ box-shadow:inset 0 1px rgba(255,255,255,.92),0 4px 12px rgba(164,65,141,.17)!important;
+ pointer-events:none!important;
+}
+:root[data-guardian-profile="z"] #hhTransitPanel>#hhBkkLiveBarV796::before{
+ background:var(--bkk-hero-fill)!important;
+}
+/* Existing user-approved BKK illustration stays the graphic on the left.
+   The real status remains in its accessible live region. */
+html body #hhTransitPanel #hhBkkLiveBarV796 #hhBkkLiveStatusV793{
+ position:absolute!important;display:block!important;z-index:1!important;
+ top:0!important;left:calc(0px - var(--hh-bkk-target-brand) - var(--hh-bkk-target-gap))!important;
+ box-sizing:border-box!important;width:var(--hh-bkk-target-brand)!important;
+ min-width:0!important;max-width:none!important;
+ height:calc(var(--hh-bkk-target-upper) + 49px)!important;
+ margin:0!important;padding:0!important;
+ font-size:0!important;line-height:0!important;
+ overflow:visible!important;
+}
+html body #hhTransitPanel #hhBkkLiveBarV796 #hhBkkLiveStatusV793::before{
+ content:""!important;display:block!important;position:absolute!important;
+ inset:0!important;width:100%!important;height:100%!important;
+ background:url("./assets/bkk-live-dashboard-hero-v2.webp") center center/contain no-repeat!important;
+ filter:drop-shadow(0 2px 5px rgba(87,19,96,.15))!important;
+}
+html body #hhTransitPanel #hhBkkLiveBarV796 #hhBkkLiveStatusV793::after{
+ display:none!important;content:none!important;
+}
+/* Functional BKK Live button sits on top of the LIVE part of the emblem. */
+html body #hhTransitPanel #hhBkkLiveBarV796 #hhBkkFocusV796:not([hidden]){
+ position:absolute!important;grid-column:auto!important;grid-row:auto!important;
+ z-index:5!important;top:calc(var(--hh-bkk-target-upper) + 15px)!important;
+ left:-56px!important;right:auto!important;bottom:auto!important;
+ transform:none!important;align-self:auto!important;justify-self:auto!important;
+ width:49px!important;min-width:49px!important;max-width:49px!important;
+ height:28px!important;min-height:28px!important;margin:0!important;
+ border-radius:12px!important;overflow:hidden!important;
+}
+/* Compact Smart Match: title / real route / real departure / real note. */
+html body #hhTransitPanel #hhBkkLiveBarV796>#hhSmartMatchPinV1{
+ grid-column:1!important;grid-row:1!important;
+ position:relative!important;z-index:2!important;
+ box-sizing:border-box!important;min-width:0!important;max-width:none!important;
+ width:100%!important;height:auto!important;min-height:0!important;
+ margin:4px 0 4px 4px!important;padding:6px 5px 6px 7px!important;
+ border:0!important;border-radius:13px!important;
+ background:transparent!important;box-shadow:none!important;
+ display:flex!important;flex-direction:column!important;
+ align-items:stretch!important;justify-content:space-between!important;
+ gap:2px!important;overflow:hidden!important;
+ text-align:left!important;text-decoration:none!important;
+}
+html body #hhTransitPanel #hhBkkLiveBarV796>#hhSmartMatchPinV1::before{
+ content:"✦ Smart Match";display:block;position:relative;z-index:1;
+ font:italic 800 clamp(10px,2.7vw,13px)/1.12 system-ui!important;
+ letter-spacing:0!important;color:#762267!important;
+ white-space:nowrap!important;
+}
+html body #hhTransitPanel #hhBkkLiveBarV796>#hhSmartMatchPinV1::after{
+ content:"";position:absolute;z-index:0;pointer-events:none;
+ bottom:4px;left:5px;right:2px;height:52px;border-radius:12px;
+ background:linear-gradient(125deg,rgba(231,247,242,.87),rgba(203,239,221,.90));
+ border:1px solid rgba(255,255,255,.63);
+}
+html body #hhTransitPanel #hhBkkLiveBarV796>#hhSmartMatchPinV1[data-state="ready"]::after{
+ background:linear-gradient(125deg,#d8ffed,#b4eccc);
+}
+html body #hhTransitPanel #hhBkkLiveBarV796>#hhSmartMatchPinV1 .hh-smart-match-pin-label{
+ position:relative;z-index:1;display:block!important;
+ min-width:0!important;max-width:100%!important;
+ font:850 clamp(8px,2.4vw,10px)/1.12 system-ui!important;
+ color:#63235d!important;letter-spacing:-.01em!important;
+ text-overflow:ellipsis!important;overflow:hidden!important;white-space:nowrap!important;
+}
+html body #hhTransitPanel #hhBkkLiveBarV796>#hhSmartMatchPinV1 strong{
+ position:relative;z-index:1;display:block!important;align-self:center!important;
+ color:#074b41!important;font:900 clamp(26px,7.3vw,35px)/1 system-ui!important;
+ letter-spacing:-.025em!important;margin-top:1px!important;
+ font-variant-numeric:tabular-nums!important;
+ white-space:nowrap!important;
+}
+html body #hhTransitPanel #hhBkkLiveBarV796>#hhSmartMatchPinV1 span{
+ position:relative;z-index:1;display:block!important;
+ text-align:center!important;color:#194f55!important;
+ font:720 clamp(8px,2.3vw,10px)/1.13 system-ui!important;
+ white-space:nowrap!important;text-overflow:ellipsis!important;overflow:hidden!important;
+}
+/* The actual Smart Location switch remains independently clickable. */
+html body #hhTransitPanel #hhBkkLiveBarV796>#hhSmartLocationSwitchV1:not([hidden]){
+ grid-column:2!important;grid-row:1!important;z-index:2!important;
+ position:relative!important;display:flex!important;
+ flex-direction:column!important;align-items:center!important;justify-content:center!important;
+ box-sizing:border-box!important;width:auto!important;min-width:0!important;
+ height:auto!important;min-height:0!important;
+ margin:5px 5px 5px 0!important;padding:5px 2px!important;
+ border-radius:15px!important;gap:8px!important;
+ font-size:0!important;white-space:pre!important;
+ background:linear-gradient(145deg,#d5ffee,#b7eddb)!important;
+ color:#145747!important;border:1px solid rgba(78,194,147,.5)!important;
+}
+html body #hhTransitPanel #hhBkkLiveBarV796>#hhSmartLocationSwitchV1::before{
+ content:"📍\A Smart\A Location"!important;
+ font:800 clamp(8px,2.45vw,11px)/1.2 system-ui!important;
+ text-align:center!important;white-space:pre!important;
+}
+html body #hhTransitPanel #hhBkkLiveBarV796>#hhSmartLocationSwitchV1::after{
+ font:900 13px/1 system-ui!important;padding:6px 8px!important;
+}
+html body #hhTransitPanel #hhBkkLiveBarV796>#hhSmartLocationSwitchV1[hidden]{
+ display:none!important;
+}
+html body #hhTransitPanel #hhBkkLiveBarV796:has(>#hhSmartLocationSwitchV1[hidden])>#hhSmartMatchPinV1{
+ grid-column:1/-1!important;margin-right:5px!important;
+}
+/* Watchlist is directly below the upper right tile. No separator or blank band. */
+html body #hhTransitPanel #hhBkkWatchlistV814,
+html body #hhTransitPanel #hhBkkWatchlistV814:has(.hh-bkk-watch-content-v858[hidden]){
+ box-sizing:border-box!important;width:100%!important;
+ margin:0!important;padding:0!important;border:0!important;
+ border-bottom:0!important;background:transparent!important;
+ box-shadow:none!important;
+}
+html body #hhTransitPanel #hhBkkWatchlistV814 .hh-bkk-watch-header-v814{
+ position:relative!important;z-index:2!important;
+ display:flex!important;align-items:center!important;
+ box-sizing:border-box!important;
+ width:calc(100% - var(--hh-bkk-target-brand) - var(--hh-bkk-target-gap))!important;
+ min-width:0!important;min-height:45px!important;height:auto!important;
+ margin:4px 0 0 calc(var(--hh-bkk-target-brand) + var(--hh-bkk-target-gap))!important;
+ padding:4px 5px!important;gap:3px!important;
+ background:linear-gradient(140deg,rgba(255,238,251,.96),rgba(249,207,237,.90))!important;
+ border:1px solid var(--bkk-hero-edge,rgba(237,159,215,.88))!important;
+ border-radius:14px!important;
+ box-shadow:inset 0 1px rgba(255,255,255,.9),0 3px 8px rgba(164,65,141,.12)!important;
+}
+:root[data-guardian-profile="z"] #hhTransitPanel #hhBkkWatchlistV814 .hh-bkk-watch-header-v814{
+ background:var(--bkk-hero-fill)!important;
+}
+html body #hhTransitPanel #hhBkkWatchToggleV858{
+ box-sizing:border-box!important;flex:1 1 0!important;min-width:0!important;
+ min-height:36px!important;max-width:none!important;
+ margin:0!important;padding:1px!important;gap:0!important;
+ align-items:center!important;justify-content:flex-start!important;
+}
+html body #hhTransitPanel #hhBkkWatchToggleV858::before{
+ display:none!important;content:none!important;
+}
+html body #hhTransitPanel #hhBkkWatchToggleV858 .hh-bkk-watch-toggle-label-v858{
+ display:flex!important;flex-direction:column!important;gap:1px!important;
+ min-width:0!important;max-width:100%!important;
+}
+html body #hhTransitPanel #hhBkkWatchToggleV858 .hh-bkk-watch-toggle-label-v858 strong{
+ font:850 clamp(10px,2.8vw,13px)/1.12 system-ui!important;
+ color:#5d2457!important;white-space:nowrap!important;
+}
+html body #hhTransitPanel #hhBkkWatchToggleV858 .hh-bkk-watch-toggle-label-v858 small{
+ font:600 clamp(8px,2.1vw,10px)/1.1 system-ui!important;
+ color:#64335e!important;white-space:nowrap!important;overflow:hidden!important;
+ text-overflow:ellipsis!important;max-width:100%!important;
+}
+html body #hhTransitPanel #hhBkkWatchEditV814{
+ flex:0 0 auto!important;box-sizing:border-box!important;
+ max-width:48%!important;min-height:33px!important;
+ margin:0!important;padding:5px 5px!important;
+ border:1px solid rgba(255,255,255,.89)!important;border-radius:12px!important;
+ background:rgba(255,255,255,.43)!important;box-shadow:none!important;
+ color:#5e2959!important;font:750 clamp(9px,2.5vw,11px)/1.1 system-ui!important;
+}
+/* No spacer between the watchlist label and its original route cards. */
+html body #hhTransitPanel #hhBkkWatchContentV858{
+ margin:0!important;padding:0!important;border:0!important;
+}
+html body #hhTransitPanel #hhBkkWatchlistV814 .hh-bkk-watch-rows-v814{
+ display:grid!important;gap:7px!important;margin-top:8px!important;
+}
+/* Each route is a single readable line group with functional actions intact. */
+html body #hhTransitPanel #hhBkkWatchlistV814 .hh-bkk-watch-row-v814{
+ display:grid!important;
+ grid-template-columns:clamp(43px,12vw,51px) minmax(0,1fr) auto!important;
+ grid-template-areas:"badge copy actions"!important;
+ align-items:center!important;column-gap:5px!important;row-gap:0!important;
+ min-width:0!important;min-height:72px!important;
+ padding:7px 6px!important;border-radius:14px!important;
+}
+html body #hhTransitPanel #hhBkkWatchlistV814 .hh-bkk-watch-number-v814{
+ grid-area:badge!important;box-sizing:border-box!important;
+ display:grid!important;place-items:center!important;
+ min-width:0!important;width:100%!important;min-height:44px!important;
+ font:900 clamp(20px,5.5vw,26px)/1 system-ui!important;
+ padding:3px!important;border-radius:10px!important;
+}
+html body #hhTransitPanel #hhBkkWatchlistV814 .hh-bkk-watch-copy-v814{
+ grid-area:copy!important;min-width:0!important;
+ display:flex!important;flex-direction:column!important;align-items:flex-start!important;
+ justify-content:center!important;gap:2px!important;overflow:hidden!important;
+}
+html body #hhTransitPanel #hhBkkWatchlistV814 .hh-bkk-watch-copy-v814 strong{
+ display:block!important;font:850 clamp(10px,2.7vw,12px)/1.1 system-ui!important;
+ white-space:nowrap!important;
+}
+html body #hhTransitPanel #hhBkkWatchlistV814 .hh-bkk-watch-copy-v814 span{
+ display:block!important;max-width:100%!important;
+ font:600 clamp(9px,2.4vw,11px)/1.12 system-ui!important;
+ overflow:hidden!important;text-overflow:ellipsis!important;
+ white-space:normal!important;max-height:2.24em!important;
+}
+html body #hhTransitPanel #hhBkkWatchlistV814 .hh-bkk-watch-copy-v814 small{
+ display:block!important;max-width:100%!important;
+ font:500 clamp(7px,1.75vw,9px)/1.15 system-ui!important;
+ white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;
+}
+html body #hhTransitPanel #hhBkkWatchlistV814 .hh-bkk-watch-actions-v814{
+ grid-area:actions!important;display:flex!important;
+ flex-wrap:nowrap!important;align-items:center!important;justify-content:flex-end!important;
+ min-width:0!important;max-width:none!important;width:auto!important;
+ gap:2px!important;
+}
+html body #hhTransitPanel #hhBkkWatchlistV814 .hh-bkk-watch-action-v814{
+ box-sizing:border-box!important;flex:0 0 24px!important;
+ width:24px!important;min-width:24px!important;max-width:24px!important;
+ min-height:34px!important;height:34px!important;
+ padding:1px!important;border-radius:9px!important;font-size:12px!important;
+}
+html body #hhTransitPanel #hhBkkWatchlistV814 .hh-bkk-watch-live-v909{
+ flex:0 0 39px!important;width:39px!important;min-width:39px!important;
+ max-width:39px!important;min-height:34px!important;height:34px!important;
+ font:800 8px/1.05 system-ui!important;padding:1px!important;
+}
+html body #hhTransitPanel #hhBkkWatchlistV814 .hh-bkk-watch-show-v814{
+ flex:0 0 25px!important;width:25px!important;min-width:25px!important;
+ max-width:25px!important;
+}
+html body #hhTransitPanel #hhBkkWatchlistV814 .hh-bkk-watch-remove-v814{
+ flex:0 0 24px!important;width:24px!important;min-width:24px!important;
+ max-width:24px!important;font-size:17px!important;
+}
+/* Narrow phones: preserve click targets and wrap route text, never hide controls. */
+@media(max-width:365px){
+ #hhTransitPanel{--hh-bkk-target-brand:clamp(105px,33vw,125px)}
+ html body #hhTransitPanel>#hhBkkLiveBarV796{
+  grid-template-columns:minmax(0,1fr) 46px!important;column-gap:3px!important;
+ }
+ html body #hhTransitPanel #hhBkkLiveBarV796>#hhSmartMatchPinV1{
+  padding-inline:4px!important;
+ }
+ html body #hhTransitPanel #hhBkkWatchlistV814 .hh-bkk-watch-row-v814{
+  grid-template-columns:42px minmax(0,1fr) auto!important;
+  column-gap:3px!important;padding:6px 4px!important;
+ }
+ html body #hhTransitPanel #hhBkkWatchlistV814 .hh-bkk-watch-action-v814{
+  flex-basis:22px!important;width:22px!important;min-width:22px!important;max-width:22px!important;
+ }
+ html body #hhTransitPanel #hhBkkWatchlistV814 .hh-bkk-watch-live-v909{
+  flex-basis:36px!important;width:36px!important;min-width:36px!important;max-width:36px!important;
+ }
+ html body #hhTransitPanel #hhBkkWatchlistV814 .hh-bkk-watch-show-v814{
+  flex-basis:23px!important;width:23px!important;min-width:23px!important;max-width:23px!important;
+ }
+}
+@media(prefers-reduced-transparency:reduce){
+ html body #hhTransitPanel #hhBkkLiveBarV796::before,
+ html body #hhTransitPanel #hhBkkWatchlistV814 .hh-bkk-watch-header-v814{
+  background:#f5e1ef!important;
+ }
+}
