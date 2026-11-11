@@ -13,6 +13,7 @@ body{background:#131a34;color:#263e5b;font-family:system-ui;margin:0;padding:14p
 .hh-bkk-watch-actions-v814 button{min-height:30px}
 </style>
 <link rel="stylesheet" href="../guardian-bkk-watch-collapse-v858.css?v=859-always-open">
+<link rel="stylesheet" href="../guardian-bkk-watch-compact-v1.css?v=1">
 </head><body>
 <section id="hhTransitPanel">
  <section id="hhBkkWatchlistV814" class="hh-bkk-watchlist-v814" aria-label="Saját BKK figyelőlista" hidden>
@@ -46,6 +47,18 @@ window.HH_BKK_CATALOG_V801={
  removeFavoriteKey(k){favoriteKeys=favoriteKeys.filter(x=>x!==k);changed();return true}
 };
 window.__getFavorites=()=>[...favoriteKeys];
+const liveEnabled=new Map([["bus:260",true],["tram:17",false]]);
+window.HH_BKK_LIVE_PER_LINE_V909={
+ enabled(k){return liveEnabled.get(k)===true},
+ setEnabled(k,v){liveEnabled.set(k,!!v);changed()}
+};
+const lineVisible=new Map();
+window.HH_GUARDIAN_TRANSIT_V790={
+ hasMapRoute(){return true},
+ isLineVisible(id){return lineVisible.get(id)===true},
+ setLineVisible(id,v){lineVisible.set(id,!!v);changed()},
+ showLine(id){lineVisible.set(id,true);changed()}
+};
 </script>
 <script defer src="../guardian-bkk-watchlist-v814.js?v=961-always-open"></script>
 </body></html>
