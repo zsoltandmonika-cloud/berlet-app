@@ -2,12 +2,12 @@
  * Browser-local saves, read-only BKK GTFS, no GPS/Dropbox/Supabase mutation.
  */
 import {readOfficialSnapshot} from "../../../sh9/smart-travel/lena-native/bkk/bkk-feed-client-v1106.mjs";
-import {DEFAULT,HOME,REVERSE,SAMPLES,compute} from "./core.mjs";
+import {DEFAULT,HOME,REVERSE,SAMPLES,compute,bus260DirectionForTemplate,full260Timetable,pair260Connections} from "./core.mjs?v=34";
 import {wallEpoch} from "../../../sh9/smart-travel/lena-native/bkk/bkk-gtfs-core-v1105.mjs";
 const $=id=>document.getElementById(id);
 const STORAGE="sh9-smart-match-templates-v1-m";
 const ACTIVE_PIN_KEY="sh9-smart-match-active-pin-v1-m";
-const state={items:[],current:null,data:null,manifest:null,result:null,
+const state={items:[],current:null,data:null,manifest:null,result:null,full260:null,
  reminderEnabled:false,notificationFired:new Set(),lastNext:null,loading:false};
 const timeFmt=new Intl.DateTimeFormat("hu-HU",{timeZone:"Europe/Budapest",hour:"2-digit",minute:"2-digit",hourCycle:"h23"});
 const dateFmt=new Intl.DateTimeFormat("en-GB",{timeZone:"Europe/Budapest",year:"numeric",month:"2-digit",day:"2-digit"});
@@ -20,7 +20,7 @@ const clone=obj=>JSON.parse(JSON.stringify(obj));
 const freshDate=()=>{
  const day=budapestDay(Date.now()),minutes=Number(timeFmt.format(new Date()).split(":")[0])*60+
   Number(timeFmt.format(new Date()).split(":")[1]);
- return minutes>=19*60?pushDay(day,1):day;
+ return day;
 };
 function safeLoad(){
  let saved=[];
@@ -318,8 +318,142 @@ function timelineRow(row,item,index){
  }
  return article;
 }
+/* The 260 is the scarce service. It owns the timetable, not the feeder tram.
+ * Every verified 260 stop departure remains visible, even if an acceptable
+ * 17/19/41 connection is unavailable. Do not turn an origin leaving time into
+ * a bus departure or a suggested plan into a live vehicle prediction.
+ */
+function renderFull260Row(bus,item,index){
+ const a=document.createElement("article");
+ a.className="timeline-row v34-260-row"+(bus.connectionOk?" v34-matched":" v34-scheduled");
+ a.dataset.index=String(index);
+ a.dataset.busDeparture=String(bus.departMs);
+ if(Number.isFinite(bus.leaveMs))a.dataset.leave=String(bus.leaveMs);
+ const top=document.createElement("div");top.className="row-top";
+ const title=document.createElement("div");
+ const when=document.createElement("div");when.className="row-time";when.textContent=clockFmt(bus.departMs);
+ const label=document.createElement("div");label.className="row-label";
+ label.textContent="🚌 260-as · "+bus.headsign;
+ title.append(when,label);
+ const tag=document.createElement("span");tag.className="match-tag";
+ tag.textContent=bus.connectionOk?(item.type==="walk"?
+  "✓ "+item.originSafetyMin+" perc tartalék":
+  "✓ "+bus.match.best.waitMin+" perc várakozás"):"Menetrend · 260";
+ top.append(title,tag);a.append(top);
+ const grid=document.createElement("div");grid.className="row-columns";
+ addMini(grid,clockFmt(bus.departMs),"🚌 "+bus.stop);
+ if(Number.isFinite(bus.leaveMs)){
+  const fromHome=/otthon/i.test(item.originLabel||"");
+  addMini(grid,clockFmt(bus.leaveMs),
+   fromHome?"🏠 Indulás otthonról":"🏢 Indulás az irodából");
+ }else addMini(grid,"–:–","Nincs igazolt ráhordás");
+ if(item.type==="walk"){
+  addMini(grid,item.originWalkMin+" perc","🚶 Séta");
+ }else if(bus.match){
+  const transferIsBus=bus.direction==="work";
+  addMini(grid,clockFmt(transferIsBus?bus.match.departMs:bus.match.best.feederDepartMs),
+   transferIsBus?"🚋 17-es csatlakozás":"🚋 "+bus.match.best.feederLine+"-es indulás");
+ }else{
+  addMini(grid,"≤ "+item.maxWaitMin+"p","Nincs igazolt csatlakozás");
+ }
+ a.append(grid);
+ const foot=document.createElement("div");foot.className="row-foot";
+ foot.textContent=bus.connectionOk?(item.type==="walk"?
+  item.originWalkMin+" perc séta + "+item.originSafetyMin+" perc tartalék":
+  "Biztonságos átszállás: "+bus.match.best.transferWalkMin+
+  " perc becsült séta, "+bus.match.best.waitMin+" perc várakozás"):
+  "A 260-as menetrend szerint közlekedik; ehhez nincs igazolt, legfeljebb "+
+  item.maxWaitMin+" perces csatlakozás.";
+ a.append(foot);
+ return a;
+}
+function renderFull260Results(item){
+ const list=$("timeline");list.replaceChildren();
+ const rows=state.full260?.rows||[];
+ if(!rows.length){
+  const x=document.createElement("div");x.className="empty";
+  x.textContent="A kiválasztott napra ezen a megállón nincs ellenőrzött 260-as indulás.";
+  list.append(x);$("heroTime").textContent="--:--";
+  $("countdown").textContent="--:--";$("heroDetail").textContent=x.textContent;
+  return;
+ }
+ rows.forEach((bus,i)=>list.append(renderFull260Row(bus,item,i)));
+ updateTimeline(Date.now(),true);
+}
+function updateFull260Timeline(now=Date.now(),redraw=false){
+ const all=[...$("timeline").querySelectorAll(".v34-260-row")],
+  rows=state.full260?.rows||[],day=state.full260?.date;
+ if(!rows.length)return;
+ const today=budapestDay(now),isToday=day===today,pastDay=day<today;
+ const first=rows.findIndex(x=>x.departMs>=now);
+ const next=pastDay?-1:first>=0?first:isToday?-1:0;
+ const marker=$("nowMarker");if(marker)marker.remove();
+ all.forEach((el,i)=>{
+  el.classList.toggle("past",pastDay||isToday&&rows[i].departMs<now);
+  el.classList.toggle("next",i===next);
+  el.classList.toggle("v34-unreachable",isToday&&rows[i].departMs>=now&&
+   (!rows[i].connectionOk||Number.isFinite(rows[i].leaveMs)&&rows[i].leaveMs<now));
+ });
+ if(isToday){
+  const m=document.createElement("div");m.id="nowMarker";m.className="now-marker";
+  const t=document.createElement("span");t.textContent="MOST · "+clockFmt(now);m.append(t);
+  if(first>=0)all[first]?.before(m);else all.at(-1)?.after(m);
+ }
+ const start=wallEpoch(day,0),end=wallEpoch(day,24*60);
+ const percent=isToday?Math.max(0,Math.min(100,(now-start)/(end-start)*100)):pastDay?100:0;
+ $("dayProgress").style.setProperty("--percentage",percent.toFixed(1)+"%");
+ const bus=next>=0?rows[next]:null;
+ $("countdownLabel").textContent="260-asig";
+ if(bus){
+  $("heroTime").textContent=clockFmt(bus.departMs);
+  const safe=bus.connectionOk&&Number.isFinite(bus.leaveMs)&&
+   (!isToday||bus.leaveMs>=now);
+  $("heroDetail").textContent="🚌 "+bus.stop+" · "+bus.headsign+
+   " · "+clockFmt(bus.departMs)+
+   (safe?" · indulás "+(/otthon/i.test(state.result.config.originLabel)?"otthonról ":"az irodából ")+
+    clockFmt(bus.leaveMs):
+    " · ehhez nincs már elérhető, igazolt csatlakozás");
+  const remain=Math.max(0,Math.floor((bus.departMs-now)/1000));
+  const hr=Math.floor(remain/3600),mn=Math.floor(remain%3600/60),sec=remain%60;
+  $("countdown").textContent=(hr?String(hr).padStart(2,"0")+":":"")+
+   String(mn).padStart(2,"0")+":"+String(sec).padStart(2,"0");
+  $("ring").style.setProperty("--progress",Math.max(0,Math.min(100,(3600-remain)/3600*100)).toFixed(1)+"%");
+ }else{
+  $("heroTime").textContent="--:--";$("countdown").textContent="--:--";
+  $("heroDetail").textContent="Ezen a napon nincs több 260-as indulás ebből a megállóból.";
+  $("ring").style.setProperty("--progress","0%");
+ }
+ if(state.lastNext!==next||redraw){
+  state.lastNext=next;
+  if(next>=0){
+   const el=all[next],viewport=$("timeline");
+   if(el&&viewport){
+    const top=el.getBoundingClientRect().top-viewport.getBoundingClientRect().top+
+     viewport.scrollTop-Math.min(85,Math.floor(viewport.clientHeight*.22));
+    viewport.scrollTo({top:Math.max(0,top),behavior:redraw?"instant":"smooth"});
+   }
+  }
+ }
+ if(state.reminderEnabled&&isToday){
+  const recommended=rows.find(x=>x.connectionOk&&Number.isFinite(x.leaveMs)&&x.leaveMs>=now);
+  if(recommended){
+   const remaining=recommended.leaveMs-now,id=day+"/260/"+recommended.leaveMs;
+   if(remaining>0&&remaining<=5*60000&&!state.notificationFired.has(id)){
+    state.notificationFired.add(id);
+    const msg="Mónika, indulás "+clockFmt(recommended.leaveMs)+
+     " · 260-as busz "+clockFmt(recommended.departMs)+"!";
+    toast("🔔 "+msg);
+    if(typeof Notification!=="undefined"&&Notification.permission==="granted"){
+     try{new Notification("SHO Smart Match · indulás közeleg",{body:msg,tag:"smart-match-"+id})}catch(_){}
+    }
+   }
+  }
+ }
+}
+
 function updateTimeline(now=Date.now(),redraw=false){
  if(!state.result)return;
+ if(state.full260){updateFull260Timeline(now,redraw);return;}
  const result=state.result,rows=result.rows,day=result.date;
  const isToday=day===budapestDay(now);
  const isPastDate=day<budapestDay(now);
@@ -391,6 +525,7 @@ function updateTimeline(now=Date.now(),redraw=false){
  }
 }
 function renderResults(item){
+ if(state.full260){renderFull260Results(item);return;}
  const target=$("timeline");target.replaceChildren();
  const r=state.result;
  if(!r||!r.rows.length){
@@ -419,14 +554,28 @@ async function computeRoute({useForm=false}={}){
   const item=useForm?readForm():current();
   if(!item)throw Error("Nincs kiválasztott sablon.");
   const date=$("day").value;
-  const result=compute(state.data,date,item);
+  const busDir=bus260DirectionForTemplate(item);
+  // Apply the existing walk / transfer safety policy to the FULL day,
+  // without changing the user's saved preference for reminder windows.
+  const fullDayConfig=busDir?{...item,startHour:0,endHour:24}:item;
+  const result=compute(state.data,date,fullDayConfig);
   state.result=result;state.lastNext=null;
+  state.full260=busDir?pair260Connections(
+   full260Timetable(state.data,date,busDir),result,fullDayConfig):null;
   updateTitle(item);renderFlow(item);metrics(item);
-  $("timelineSubtitle").textContent=date+" · "+item.targetRoute+"-es · "+(item.targetHeadsign||item.targetAfterStop||"");
-  $("status").textContent="✓ BKK GTFS · statikus menetrend · "+result.matchingCount+
-   " jó csatlakozás · adatfrissítés: "+new Date(state.manifest.validatedAt).toLocaleString("hu-HU",{timeZone:"Europe/Budapest"});
+  $("timelineSubtitle").textContent=state.full260?
+   date+" · 260-as · "+state.full260.stop+" · "+state.full260.rows.length+
+   " menetrendi indulás (teljes nap)":
+   date+" · "+item.targetRoute+"-es · "+(item.targetHeadsign||item.targetAfterStop||"");
+  $("status").textContent="✓ BKK GTFS · statikus menetrend · "+
+   (state.full260?state.full260.rows.length+" db 260-as indulás, ":"")+
+   result.matchingCount+" jó csatlakozás · adatfrissítés: "+
+   new Date(state.manifest.validatedAt).toLocaleString("hu-HU",{timeZone:"Europe/Budapest"});
+  if(state.full260){$("heroLabel").textContent="Következő 260-as · "+state.full260.stop;
+   $("windowMetric").textContent="Teljes nap · 260";}
   renderResults(item);
  }catch(e){
+  state.full260=null;
   state.result=null;state.lastNext=null;$("heroTime").textContent="--:--";$("countdown").textContent="--:--";
   $("heroDetail").textContent="Nincs ellenőrzött menetrendi eredmény.";
   $("timeline").replaceChildren();
