@@ -256,6 +256,33 @@ async function guardianPinSmoke(browser,base,device){
    "Separate 6min walking plus 2min buffer as departure FROM HOME");
   assert.match(await page.locator("#hhSmartMatchPinV1").getAttribute("href"),/id=monika-home-to-office/,
    "Guardian 08:07 bus card must open the COMPLETE home-to-office pinned journey.");
+  // At 09:15 the mini card must show the ACTUAL NEXT 260 bus, not the old
+  // 15:12 matched recommendation observed in production.
+  const scheduleAudit=await page.evaluate(async()=>{
+   Date.now=()=>Date.parse("2026-11-11T08:15:00Z");
+   const {readOfficialSnapshot}=await import("/berlet-app/sh9/smart-travel/lena-native/bkk/bkk-feed-client-v1106.mjs");
+   const {HOME,compute,full260Timetable,pair260Connections}=await import("/berlet-app/healthhub/guardian/smart-260-connect/core.mjs?v=35");
+   const {data}=await readOfficialSnapshot();
+   const cfg={...HOME,startHour:0,endHour:24};
+   const full=full260Timetable(data,"2026-11-11","work");
+   const paired=pair260Connections(full,compute(data,"2026-11-11",cfg),cfg);
+   const bus=paired.rows.find(x=>x.departMs>=Date.now());
+   if(!bus)throw Error("Expected a genuine upcoming Citronella 260 departure.");
+   const expected=new Intl.DateTimeFormat("hu-HU",{timeZone:"Europe/Budapest",hour:"2-digit",minute:"2-digit",hourCycle:"h23"}).format(new Date(bus.departMs));
+   window.dispatchEvent(new Event("focus"));
+   return {expected,total:paired.rows.length,stop:bus.stop};
+  });
+  assert.ok(scheduleAudit.total>=20,"Full-day 260 must include all scheduled departures");
+  assert.equal(scheduleAudit.stop,"Citronella utca");
+  await page.waitForFunction(expected=>document.getElementById("hhSmartMatchPinTimeV1")?.textContent===expected,
+   scheduleAudit.expected,{timeout:4000});
+  assert.ok(scheduleAudit.expected<"12:00","09:15 next 260 must not be an afternoon-only connection: "+JSON.stringify(scheduleAudit));
+  assert.match(await page.locator(".hh-smart-match-pin-label").textContent(),/CITRONELLA/);
+  await page.evaluate(()=>{
+   Date.now=()=>Date.parse("2026-11-11T06:53:00Z");
+   window.dispatchEvent(new Event("focus"));
+  });
+  await page.waitForFunction(()=>document.getElementById("hhSmartMatchPinTimeV1")?.textContent==="08:07");
   // Previous rollout stored an incorrect 'office' default. Migrates once,
   // without hijacking a route subsequently pinned by the user.
   await page.evaluate(()=>{
@@ -315,6 +342,16 @@ async function guardianPinSmoke(browser,base,device){
   await page.locator("#hhSmartMatchPinV1").click();
   await page.waitForFunction(()=>document.body.classList.contains("pinned")&&
    document.getElementById("headingShort")?.textContent==="Munkahely → Otthon",{timeout:30000});
+  // Switching the pinned route must update the Guardian shortcut as well.
+  await page.locator("#reverseBtn").click();
+  await page.waitForFunction(()=>document.getElementById("headingShort")?.textContent==="Otthon → Munkahely"&&
+   localStorage.getItem("sh9-smart-match-active-pin-v1-m")==="monika-home-to-office");
+  await page.goto(fixture,{waitUntil:"domcontentloaded"});
+  await page.waitForFunction(()=>document.getElementById("hhSmartMatchPinV1")?.dataset.state==="ready");
+  assert.match(await page.locator(".hh-smart-match-pin-label").textContent(),/CITRONELLA/);
+  assert.match(await page.locator("#hhSmartMatchPinV1").getAttribute("href"),/id=monika-home-to-office/);
+  assert.equal(await page.locator("#hhSmartMatchPinTimeV1").textContent(),"08:07",
+   "After reversal the Guardian card must focus the selected direction's next real 260");
   return {device,cardTime:time,guardianCard:"passed",opensPinned:"passed",bkkGuard:"unchanged"};
  }finally{await context.close()}
 }
