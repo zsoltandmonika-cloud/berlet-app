@@ -51,8 +51,8 @@ test('one click adds a card to the existing private family diary and does not lo
 test('original Premium hero remains unchanged; the smart page has text, image, nutrition and direct link',()=>{
  assert.match(html,/id="hhInterfoodTileV1173"[^>]*href="https:\/\/rendel\.interfood\.hu\/"/);
  assert.match(html,/interfood-logo-v1174.webp/);
- assert.match(html,/hh-interfood-live-v1176\.js\?v=1176-smart-auto/);
- assert.match(html,/hh-interfood-live-v1176\.css\?v=1176-smart-auto/);
+ assert.match(html,/hh-interfood-live-v1176\.js\?v=1177-official-photos/);
+ assert.match(html,/hh-interfood-live-v1176\.css\?v=1177-official-photos/);
  assert.match(ui,/Interfood Live étlap/);
  assert.match(ui,/Rendelés az Interfoodnál/);
  assert.match(ui,/validPhotoURL\(raw\.imageUrl\)/);
