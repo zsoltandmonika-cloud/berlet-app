@@ -175,7 +175,7 @@
   });
   if(w.addEventListener){
    w.addEventListener('hh-bkk-live-verified-v815',onVerified);
-   w.addEventListener('visibilitychange',render);
+   d.addEventListener('visibilitychange',render);
    w.addEventListener('hh-bkk-watchlist-v814-changed',render);
    w.addEventListener('hh-bkk-static-map-ready-v817',render);
    w.addEventListener('hh-bkk-line-visibility-v855',render);
