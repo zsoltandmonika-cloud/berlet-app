@@ -7,7 +7,7 @@ const STORAGE="sh9-smart-match-templates-v1-m";
 const ACTIVE="sh9-smart-match-active-pin-v1-m";
 const CITRONELLA_DEFAULT_APPLIED="hh-smart-match-citronella-default-v2-m";
 const FULL="/berlet-app/healthhub/guardian/smart-260-connect/";
-import {HOME as MONIKA_DEFAULT,DEFAULT as OFFICE_TO_HOME,REVERSE as HOME_TO_OFFICE,compute,bus260DirectionForTemplate,full260Timetable,pair260Connections} from "./smart-260-connect/core.mjs?v=39-trip-flow-timing";
+import {HOME as MONIKA_DEFAULT,DEFAULT as OFFICE_TO_HOME,REVERSE as HOME_TO_OFFICE,compute,bus260DirectionForTemplate,full260Timetable,pair260Connections} from "./smart-260-connect/core.mjs?v=43-varadi-safe";
 import {chooseLocation} from "./guardian-smart-location-v1.mjs?v=1";
 const HOST_ID="hhSmartMatchPinV1";
 const AUTO_KEY="sh9-smart-location-switch-v1-m";
@@ -52,8 +52,17 @@ function readPin(){
    if((item.id==="home-citronella-260"||item.id==="monika-home-to-office")&&item.originWalkMin===6){
     item.originWalkMin=10;travelTimeUpdated=true;
    }
-   if(item.id==="monika-260"&&item.destinationWalkMin==null){
-    item.destinationWalkMin=10;travelTimeUpdated=true;
+   if(item.id==="monika-260"){
+    if(item.destinationWalkMin==null){item.destinationWalkMin=10;travelTimeUpdated=true;}
+    if(item.targetStop==="Bécsi út / Vörösvári út"){
+     item.targetStop="Váradi utca";travelTimeUpdated=true;
+    }
+    if(item.transferStop==="Bécsi út / Vörösvári út"){
+     item.transferStop="Váradi utca";travelTimeUpdated=true;
+    }
+    if(item.targetStop==="Váradi utca"&&item.targetAfterStop!=="Citronella utca"){
+     item.targetAfterStop="Citronella utca";travelTimeUpdated=true;
+    }
    }
   }
   if(travelTimeUpdated)try{localStorage.setItem(STORAGE,JSON.stringify(a))}catch(_){}
