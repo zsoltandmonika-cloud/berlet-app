@@ -84,3 +84,64 @@ test('only authentic Interfood photos; no private orders, OAuth secrets or inven
  assert.match(core,/url\.hostname==='ia\.interfood\.hu'/);
  assert.doesNotMatch(ui,/monika\.lorincz@|zsolt\.monika@|customer_id|delivery_address/i);
 });
+
+function fakeJournal(){
+ const store=new Map(),localStorage={
+  getItem:k=>store.get(k)||null,setItem:(k,v)=>store.set(k,String(v)),removeItem:k=>store.delete(k)
+ };
+ const node=()=>({
+  textContent:'',hidden:false,value:'',style:{},dataset:{},
+  classList:{add(){},remove(){},toggle(){}},
+  replaceChildren(){},append(){},addEventListener(){},querySelector(){return null},
+  querySelectorAll(){return []},setAttribute(){},removeAttribute(){}
+ });
+ const document={readyState:'loading',addEventListener(){},
+  getElementById(){return node()},querySelectorAll(){return []},createElement:node};
+ let i=0;
+ const window={localStorage,crypto:{randomUUID:()=>String('test-'+(++i))},
+  setTimeout:()=>1,clearTimeout(){},setInterval:()=>1,addEventListener(){}};
+ // Test-only hook in memory: never persisted to production source.
+ const fixture=core.replace(/\}\)\(window\);\s*$/,'root.__testSetProfile=p=>active=p; })(window);');
+ assert.notEqual(fixture,core);
+ vm.runInNewContext(fixture,{window,document,localStorage,console:{warn(){}}});
+ window.__testSetProfile('monika');
+ return {api:window.HH_NUTRITION_QUICK_API,select:window.__testSetProfile};
+}
+function localIsoDay(){
+ const d=new Date(),pad=n=>String(n).padStart(2,'0');
+ return [d.getFullYear(),pad(d.getMonth()+1),pad(d.getDate())].join('-');
+}
+test('runtime: save once, diary once, optional stars, profile separation, feedback history',()=>{
+ const {api,select}=fakeJournal(),day=localIsoDay(),sample={
+  menuDate:day,code:'E2K',name:'Húsos, juhtúrós rakott karfiol',
+  quantity:1,weightGrams:300,
+  imageUrl:'https://ia.interfood.hu/api/v1/i?menu_item_id=40002&width=425&height=425',
+  nutrients:{kcal:378,protein:29.4,carbs:15.3,fat:21.9}};
+ const first=api.importConfirmedInterfoodOrder({expectedProfile:'monika',order:sample});
+ assert.equal(api.importConfirmedInterfoodOrder({expectedProfile:'monika',order:sample}).duplicate,true);
+ assert.equal(api.getData().interfoodCards.length,1);
+ assert.equal(api.getData().entries.length,0);
+ const recorded=api.finishInterfoodSmartOrder({expectedProfile:'monika',
+  orderId:first.id,ate:true,rating:5});
+ assert.equal(recorded.status,'consumed');
+ assert.equal(api.getData().entries.length,1);
+ assert.equal(api.getData().entries[0].nutrients.kcal,378);
+ assert.equal(api.getInterfoodCardRating(first.cardId).average,5);
+ assert.equal(api.finishInterfoodSmartOrder({expectedProfile:'monika',
+  orderId:first.id,ate:true,rating:5}).duplicate,true);
+ assert.equal(api.getData().entries.length,1);
+ const other={...sample,code:'F2K',name:'Sárgaborsó főzelék, sült oldalas',
+  imageUrl:'https://ia.interfood.hu/api/v1/i?menu_item_id=40097&width=425&height=425'};
+ const second=api.importConfirmedInterfoodOrder({expectedProfile:'monika',order:other});
+ const declined=api.finishInterfoodSmartOrder({expectedProfile:'monika',orderId:second.id,ate:false});
+ assert.equal(declined.status,'skipped');assert.equal(api.getData().entries.length,1);
+ const withoutRating={...sample,code:'I',name:'Sárgabarackos gombóc*'};
+ const third=api.importConfirmedInterfoodOrder({expectedProfile:'monika',order:withoutRating});
+ api.finishInterfoodSmartOrder({expectedProfile:'monika',orderId:third.id,ate:true});
+ assert.equal(api.getData().entries.length,2);
+ assert.equal(api.getData().interfoodOrders.find(x=>x.id===third.id).rating,null);
+ select('zsolt');
+ assert.equal(api.getInterfoodSmartOrders().length,0);
+ assert.equal(api.getInterfoodCards().length,0);
+ assert.throws(()=>api.finishInterfoodSmartOrder({expectedProfile:'monika',orderId:first.id,ate:true}),/Profilváltás/);
+});
