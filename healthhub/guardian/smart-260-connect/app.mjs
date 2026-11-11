@@ -2,7 +2,7 @@
  * Browser-local saves, read-only BKK GTFS, no GPS/Dropbox/Supabase mutation.
  */
 import {readOfficialSnapshot} from "../../../sh9/smart-travel/lena-native/bkk/bkk-feed-client-v1106.mjs";
-import {DEFAULT,HOME,REVERSE,SAMPLES,compute,bus260DirectionForTemplate,full260Timetable,pair260Connections} from "./core.mjs?v=34";
+import {DEFAULT,HOME,REVERSE,SAMPLES,compute,bus260DirectionForTemplate,full260Timetable,pair260Connections} from "./core.mjs?v=39-trip-flow-timing";
 import {wallEpoch} from "../../../sh9/smart-travel/lena-native/bkk/bkk-gtfs-core-v1105.mjs";
 const $=id=>document.getElementById(id);
 const STORAGE="sh9-smart-match-templates-v1-m";
@@ -29,6 +29,18 @@ function safeLoad(){
  catch(_){}
  const ids=new Set(saved.map(i=>i.id));
  for(const sample of SAMPLES)if(!ids.has(sample.id))saved.push(clone(sample));
+ // Update only the old default 6-minute walk settings; leave other
+ // personal edits intact. Keep the user's saved templates compatible.
+ let updated=false;
+ for(const item of saved){
+  if((item.id==="home-citronella-260"||item.id==="monika-home-to-office")&&item.originWalkMin===6){
+   item.originWalkMin=10;updated=true;
+  }
+  if(item.id==="monika-260"&&item.destinationWalkMin==null){
+   item.destinationWalkMin=10;updated=true;
+  }
+ }
+ if(updated)try{localStorage.setItem(STORAGE,JSON.stringify(saved))}catch(_){}
  return saved;
 }
 function toast(msg){
@@ -262,9 +274,60 @@ function renderFlow(item){
   const label=document.createElement("span");label.className="v2-step-label";
   label.textContent=step.label;
   if(step.shortLabel)label.dataset.short=step.shortLabel;
+  const stamp=document.createElement("time");stamp.className="v2-step-time is-empty";
+  stamp.textContent="—";stamp.setAttribute("aria-label","Nincs igazolt időpont");
+  const hint=document.createElement("small");hint.className="v2-step-hint";
+  if(step.role==="destination"&&Number(item.destinationWalkMin)>0)
+   hint.textContent="+"+item.destinationWalkMin+"p séta";
   const detail=document.createElement("span");detail.className="v2-step-detail";
   detail.textContent=step.detail||"";
-  node.append(pict,label,detail);flow.append(node);
+  node.append(pict,stamp,label,hint,detail);flow.append(node);
+ }
+}
+// Source-backed departure/arrival stamps for each visual route stage.
+// A tilde means estimated walking time, never a GTFS stop time.
+// Missing or already unreachable connections remain blank rather than invented.
+function updateFlowTimes(item,trip=null){
+ const nodes=[...$("routeFlow").querySelectorAll(".v2-step")];
+ if(!nodes.length)return;
+ const valid=n=>Number.isFinite(n)&&n>0;
+ const when=(n,estimated=false)=>valid(n)?(estimated?"≈":"")+clockFmt(n):"—";
+ const walk=Number.isFinite(item?.originWalkMin)?item.originWalkMin:0;
+ const finishWalk=Number.isFinite(item?.destinationWalkMin)?item.destinationWalkMin:0;
+ const left=trip?.leaveMs,first=trip?.feederDepartMs,transfer=trip?.feederArriveMs;
+ const target=trip?.targetDepartMs,arrival=trip?.destinationArriveMs;
+ let stamps;
+ if(item?.type==="walk"){
+  stamps=[{time:left},{time:valid(left)?left+walk*60000:null,estimated:true},
+   {time:trip?.busDepartMs??target},{time:valid(arrival)?arrival+finishWalk*60000:null,estimated:finishWalk>0}];
+ }else{
+  stamps=[{time:left},{time:valid(left)?left+walk*60000:null,estimated:true},
+   {time:first},{time:transfer},{time:target},
+   {time:valid(arrival)?arrival+finishWalk*60000:null,estimated:finishWalk>0}];
+  // 260-first display: an unmatched bus is still a real published departure,
+  // but its missing 17/19/41 connection must not be implied.
+  if(!trip?.connected&&valid(trip?.busDepartMs)){
+   if(trip?.direction==="work")stamps[2]={time:trip.busDepartMs};
+   else stamps[4]={time:trip.busDepartMs};
+  }
+ }
+ nodes.forEach((node,i)=>{
+  const stamp=node.querySelector(".v2-step-time"),point=stamps[i]||{};
+  if(!stamp)return;
+  const shown=valid(point.time);
+  stamp.textContent=shown?when(point.time,point.estimated):"—";
+  stamp.classList.toggle("is-empty",!shown);
+  stamp.dateTime=shown?new Date(point.time).toISOString():"";
+  stamp.setAttribute("aria-label",shown?
+   (point.estimated?"Becsült időpont: ":"Menetrendi időpont: ")+clockFmt(point.time):
+   "Nincs igazolt időpont");
+ });
+ // Show the actually selected tram line instead of generic 17/19/41
+ // when a full, verified connection is available.
+ if(item?.type!=="walk"&&nodes[2]){
+  const label=nodes[2].querySelector(".v2-step-label");
+  if(label)label.textContent=trip?.connected&&trip?.feederLine?
+   String(trip.feederLine):String((item.feederRoutes||[]).join("/"));
  }
 }
 function renderPinnedSelector(){
@@ -373,7 +436,7 @@ function renderFull260Results(item){
  if(!rows.length){
   const x=document.createElement("div");x.className="empty";
   x.textContent="A kiválasztott napra ezen a megállón nincs ellenőrzött 260-as indulás.";
-  list.append(x);$("heroTime").textContent="--:--";
+  list.append(x);updateFlowTimes(item);$("heroTime").textContent="--:--";
   $("countdown").textContent="--:--";$("heroDetail").textContent=x.textContent;
   return;
  }
@@ -403,6 +466,19 @@ function updateFull260Timeline(now=Date.now(),redraw=false){
  const percent=isToday?Math.max(0,Math.min(100,(now-start)/(end-start)*100)):pastDay?100:0;
  $("dayProgress").style.setProperty("--percentage",percent.toFixed(1)+"%");
  const bus=next>=0?rows[next]:null;
+ const cfg=state.result?.config;
+ const connection=bus?.connectionOk&&bus.match?.best&&Number.isFinite(bus.leaveMs)&&
+  (!isToday||bus.leaveMs>=now)?bus.match:null;
+ const goingToWork=bus?.direction==="work";
+ updateFlowTimes(cfg,connection?{
+  connected:true,direction:bus.direction,leaveMs:bus.leaveMs,
+  feederLine:connection.best.feederLine,
+  feederDepartMs:connection.best.feederDepartMs,
+  feederArriveMs:connection.best.feederArriveMs,
+  targetDepartMs:goingToWork?connection.departMs:bus.departMs,
+  destinationArriveMs:goingToWork?connection.arriveAtDestinationMs:bus.arriveAtDestinationMs,
+  busDepartMs:bus.departMs
+ }:{direction:bus?.direction,busDepartMs:bus?.departMs});
  $("countdownLabel").textContent="260-asig";
  if(bus){
   $("heroTime").textContent=clockFmt(bus.departMs);
@@ -482,6 +558,12 @@ function updateTimeline(now=Date.now(),redraw=false){
  const progress=isToday?Math.max(0,Math.min(100,(now-from)/(to-from)*100)):isPastDate?100:0;
  $("dayProgress").style.setProperty("--percentage",progress.toFixed(1)+"%");
  const row=next>=0?rows[next]:null;
+ updateFlowTimes(result.config,row?.best?{
+  connected:true,leaveMs:row.best.leaveOfficeMs,feederLine:row.best.feederLine,
+  feederDepartMs:row.best.feederDepartMs,feederArriveMs:row.best.feederArriveMs,
+  targetDepartMs:row.departMs,destinationArriveMs:row.arriveAtDestinationMs,
+  busDepartMs:row.mode==="bus"?row.departMs:null
+ }:null);
  if(row){
   $("heroTime").textContent=clockFmt(row.best.leaveOfficeMs);
   $("heroDetail").textContent=(result.config.type==="walk"?
@@ -531,7 +613,7 @@ function renderResults(item){
  if(!r||!r.rows.length){
   const empty=document.createElement("div");empty.className="empty";
   empty.textContent="Ezen a napon nem található a megadott célmegállóhoz és irányhoz megfelelő menetrendi indulás.";
-  target.append(empty);state.lastNext=null;
+  target.append(empty);state.lastNext=null;updateFlowTimes(item);
   $("heroTime").textContent="--:--";$("countdown").textContent="--:--";
   $("heroDetail").textContent="Nincs megfelelő indulás a kiválasztott időablakban.";
   return;
@@ -576,7 +658,7 @@ async function computeRoute({useForm=false}={}){
   renderResults(item);
  }catch(e){
   state.full260=null;
-  state.result=null;state.lastNext=null;$("heroTime").textContent="--:--";$("countdown").textContent="--:--";
+  state.result=null;state.lastNext=null;updateFlowTimes(current());$("heroTime").textContent="--:--";$("countdown").textContent="--:--";
   $("heroDetail").textContent="Nincs ellenőrzött menetrendi eredmény.";
   $("timeline").replaceChildren();
   const box=document.createElement("div");box.className="empty";
