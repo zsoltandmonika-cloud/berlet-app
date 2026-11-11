@@ -28,6 +28,31 @@
   b.addEventListener('click',run);
   return b;
  }
+ /* These badges use ONLY the already-validated GTFS-RT snapshot published
+    by guardian-live-pilot-v793. Never infer live positions from a toggle. */
+ const FRESH_MS=90000;
+ let verifiedAt=0,verifiedKeys=new Set(),expiryTimer=null;
+ function liveKey(v){
+  if(typeof v?.routeKey==='string')return v.routeKey;
+  const id=String(v?.routeId||'');
+  return id==='260'?'bus:260':['17','19','1','41'].includes(id)?'tram:'+id:null;
+ }
+ function freshFor(key){
+  const age=Date.now()-verifiedAt;
+  return verifiedAt>0&&age>=-10000&&age<FRESH_MS&&verifiedKeys.has(key);
+ }
+ function onVerified(e){
+  const payload=e?.detail||{},stamp=Date.parse(payload.generatedAt),age=Date.now()-stamp;
+  if(expiryTimer!==null&&typeof w.clearTimeout==='function')w.clearTimeout(expiryTimer);
+  expiryTimer=null;verifiedAt=0;verifiedKeys=new Set();
+  if(Number.isFinite(stamp)&&age>=-10000&&age<FRESH_MS&&Array.isArray(payload.vehicles)){
+   verifiedAt=stamp;
+   verifiedKeys=new Set(payload.vehicles.map(liveKey).filter(Boolean));
+   if(typeof w.setTimeout==='function')
+    expiryTimer=w.setTimeout(()=>{verifiedAt=0;verifiedKeys=new Set();expiryTimer=null;render()},Math.max(1,FRESH_MS-age+30));
+  }
+  render();
+ }
  function render(){
   const api=catalog(),host=$('hhBkkWatchRowsV814'),section=$('hhBkkWatchlistV814');
   const panel=$('hhTransitPanel');
@@ -58,46 +83,55 @@
     transit.hasMapRoute(id):!!original);
    const note=mapReady?'Menetrendi vonal · élő jel csak friss BKK-adatból':
     supported?'Menetrendi útvonal betöltésre vár · élő jel csak friss BKK-adatból':
-    route?'Új: Mutasd → hiteles megállósorrend, sematikus útvonal · élő jármű külön':'Katalógus betöltésére vár';
+    route?'Mutasd / Elrejt · menetrendi útvonal és elérhető élő járművek':'Katalógus betöltésére vár';
    detail.append(node('small','',note));
    const controls=node('div','hh-bkk-watch-actions-v814');
-   // Static route lines and LIVE vehicles must never share their toggle state.
+   // One control manages both static routes and authenticated live vehicles.
+   // The map layer and live vehicle layer remain independently implemented.
    const liveFilter=w.HH_BKK_LIVE_PER_LINE_V909;
-   if(route&&liveFilter){
-    const enabled=liveFilter.enabled(key,profile);
-    const live=action(enabled?'Élő: BE':'Élő: KI',
-     (MODE[mode]||'Járat')+' '+id+' élő járműveinek '+(enabled?'elrejtése':'megjelenítése'),()=>{
-      liveFilter.setEnabled(key,!liveFilter.enabled(key,profile),profile);
-    });
-    live.classList.add('hh-bkk-watch-live-v909');
-    live.dataset.liveEnabled=String(enabled);
-    live.setAttribute('aria-pressed',String(enabled));
-    live.title='Csak ennek a járatnak az élő járműveit kapcsolja';
-    controls.append(live);
-   }
    if(route){
     const shown=supported?!!(transit&&typeof transit.isLineVisible==='function'&&transit.isLineVisible(id)):
      !!(extra&&extra.isLineVisible&&extra.isLineVisible(key));
-    const show=action(shown?'◉':'↗',
-     (MODE[mode]||'Járat')+' '+id+(shown?' útvonal elrejtése a térképről':' útvonal mutatása a térképen'),()=>{
-      if(!supported){
-       if(extra){if(shown)extra.setLineVisible(key,false);else extra.showLine(key)}
-       return;
+    const liveEnabled=!!(liveFilter&&liveFilter.enabled(key,profile));
+    // A previously enabled LIVE overlay is respected during migration, even
+    // when its static route was hidden. Never mislabel an active view "Mutasd".
+    const displayed=shown||liveEnabled;
+    const canDraw=supported?!!mapReady:!!extra;
+    const toggle=action(displayed?'Elrejt':'Mutasd',
+     (MODE[mode]||'Járat')+' '+id+(displayed?' útvonalának és élő járműveinek elrejtése':' útvonalának és élő járműveinek megjelenítése'),async()=>{
+      if(displayed){
+       // Hide verified live markers first; then remove the static route.
+       if(liveFilter)liveFilter.setEnabled(key,false,profile);
+       if(shown){
+        if(supported&&transit?.setLineVisible)transit.setLineVisible(id,false);
+        else if(!supported&&extra?.setLineVisible)await extra.setLineVisible(key,false);
+       }
+       render();return;
       }
-      if(!mapReady)return;
-      if(transit&&typeof transit.setLineVisible==='function'){
-       if(shown)transit.setLineVisible(id,false);
-       else if(typeof transit.showLine==='function')transit.showLine(id);
-       else transit.setLineVisible(id,true);
-      }else if(!shown&&original&&!original.disabled)original.click();
+      // Only enable the LIVE overlay if the requested map line loaded.
+      let visible=false;
+      if(supported){
+       if(transit?.showLine)visible=(await transit.showLine(id))!==false;
+       else if(transit?.setLineVisible)visible=(await transit.setLineVisible(id,true))!==false;
+       else if(original&&!original.disabled){original.click();visible=true}
+      }else if(extra?.showLine)visible=(await extra.showLine(key))===true;
+      if(visible&&liveFilter)liveFilter.setEnabled(key,true,profile);
       render();
-    },!route||(supported&&!mapReady)||(!supported&&!extra));
-    show.classList.add('hh-bkk-watch-show-v814');
-    show.setAttribute('aria-pressed',String(shown));
-    show.title=shown?'Járat útvonalának elrejtése':'Járat útvonalának megjelenítése';
-    show.dataset.visible=String(shown);
+     },!displayed&&!canDraw);
+    toggle.classList.add('hh-bkk-watch-unified-v1');
+    toggle.dataset.visible=String(displayed);
+    toggle.dataset.mapVisible=String(shown);
+    toggle.dataset.liveEnabled=String(liveEnabled);
+    toggle.setAttribute('aria-pressed',String(displayed));
+    toggle.title=displayed?'Útvonal és élő járművek elrejtése':'Útvonal és élő járművek megjelenítése';
+    if(displayed&&liveEnabled&&freshFor(key)){
+     const liveBadge=node('span','hh-bkk-watch-live-badge-v1','ÉLŐ');
+     liveBadge.title='Friss, ellenőrzött BKK járműpozíció';
+     liveBadge.setAttribute('aria-hidden','true');
+     toggle.append(liveBadge);
+    }
     row.dataset.mapVisible=String(shown);
-    controls.append(show);
+    controls.append(toggle);
    }
    const up=action('↑',id+' feljebb helyezése',()=>api.moveFavoriteKey(key,-1),i===0);
    const down=action('↓',id+' lejjebb helyezése',()=>api.moveFavoriteKey(key,1),i===keys.length-1);
@@ -140,6 +174,8 @@
    edit.textContent=editor.open?'✕ Szerkesztés bezárása':'✎ Szerkesztés';
   });
   if(w.addEventListener){
+   w.addEventListener('hh-bkk-live-verified-v815',onVerified);
+   w.addEventListener('visibilitychange',render);
    w.addEventListener('hh-bkk-watchlist-v814-changed',render);
    w.addEventListener('hh-bkk-static-map-ready-v817',render);
    w.addEventListener('hh-bkk-line-visibility-v855',render);
