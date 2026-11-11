@@ -297,7 +297,7 @@ async function saveCard(event){
      try{sharedRef=await vault().save('shared',photoData);}
      catch(err){warnings.push('Családi fotó: '+String(err.message||err));}
     }
-    await shared().upsert({name:data.name,categories:['Interfood'],favorite:true,
+    await shared().upsert({name:data.name,categories:['Interfood'],favorite,
      kind:'food',meal:data.meal,nutrients:nutrient,imageRef:sharedRef,
      description:'Interfood · 1 adag',ingredients:'Interfood ételkártyából'});
     done.push('Családi ételtár');
