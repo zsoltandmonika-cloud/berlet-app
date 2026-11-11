@@ -1,0 +1,114 @@
+/* Guardian BKK one-sheet branding V1.
+   Compact authentic BKK crest cropped from the illustration supplied by the user.
+   Cosmetic-only; never reads/writes GPS, BKK, favorite or Dropbox state. */
+#hhTransitPanel{
+ --hh-bkk-brand:url("data:image/webp;base64,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");
+ --hh-bkk-edge:rgba(100,159,202,.32);
+ --hh-bkk-glow:rgba(48,102,155,.12);
+ --hh-bkk-separator:rgba(100,146,177,.22);
+}
+:root[data-guardian-profile="m"] #hhTransitPanel{
+ --hh-bkk-edge:rgba(224,145,201,.52);
+ --hh-bkk-glow:rgba(199,101,173,.15);
+ --hh-bkk-separator:rgba(167,112,153,.22);
+}
+:root[data-guardian-profile="z"] #hhTransitPanel{
+ --hh-bkk-edge:rgba(111,179,228,.47);
+ --hh-bkk-glow:rgba(69,136,197,.13);
+ --hh-bkk-separator:rgba(104,153,200,.23);
+}
+/* A continuous profile-colored glass sheet; preserve existing grid and tap targets. */
+html body .shell>main>#hhTransitPanel.hh-transit-panel{
+ border-color:var(--hh-bkk-edge)!important;
+ box-shadow:inset 0 1px rgba(255,255,255,.86),
+  0 8px 24px var(--hh-bkk-glow)!important;
+ background:linear-gradient(145deg,
+  var(--hhg-panel-start,rgba(225,239,253,.87)),
+  var(--hhg-panel-end,rgba(189,222,246,.78)))!important;
+}
+#hhTransitPanel>#hhBkkLiveBarV796,
+#hhTransitPanel .hh-bkk-watchlist-v814{
+ border-bottom-color:var(--hh-bkk-separator)!important;
+}
+#hhTransitPanel .hh-bkk-watchlist-v814,
+#hhTransitPanel #hhSmartHubDestinationV802.hh-smart-hub-v802{
+ background:transparent!important;
+ box-shadow:none!important;
+}
+/* The old full-status text stays in the live region for screen readers.
+   Its visible 'BKK élő' heading becomes the user's graphical BKK badge. */
+#hhTransitPanel #hhBkkLiveBarV796 #hhBkkLiveStatusV793{
+ display:flex!important;align-items:center!important;gap:4px!important;
+ flex:1 1 0!important;min-width:0!important;overflow:hidden!important;
+}
+#hhTransitPanel #hhBkkLiveBarV796 #hhBkkLiveStatusV793::before{
+ content:""!important;display:block!important;
+ flex:0 1 70px;width:70px;min-width:0;max-width:70px;height:31px;
+ background-image:var(--hh-bkk-brand)!important;
+ background-size:contain!important;background-position:left center!important;
+ background-repeat:no-repeat!important;
+}
+#hhTransitPanel #hhBkkLiveBarV796 #hhBkkLiveStatusV793::after{
+ content:"LIVE";display:block;flex:0 0 auto;
+ padding:2px 4px;border-radius:6px;
+ background:linear-gradient(125deg,#fbccd9,#f3aabf);
+ color:#932543;font:900 9px/1.2 system-ui;
+ letter-spacing:.035em;
+}
+/* Logo occupies the freed left-hand slot; title shifts right but Szerkesztés stays. */
+#hhTransitPanel .hh-bkk-watch-header-v814{
+ display:flex!important;align-items:center!important;
+ gap:4px!important;min-width:0!important;
+}
+#hhTransitPanel #hhBkkWatchToggleV858{
+ display:flex!important;flex-direction:row!important;align-items:center!important;
+ justify-content:flex-start!important;flex:1 1 auto!important;
+ gap:7px!important;min-width:0!important;
+}
+#hhTransitPanel #hhBkkWatchToggleV858::before{
+ content:"";display:block;
+ flex:0 0 53px;width:53px;height:27px;
+ background-image:var(--hh-bkk-brand);
+ background-repeat:no-repeat;background-position:center;
+ background-size:contain;
+}
+#hhTransitPanel #hhBkkWatchToggleV858 .hh-bkk-watch-toggle-label-v858{
+ display:flex!important;min-width:0!important;gap:2px!important;
+}
+#hhTransitPanel #hhBkkWatchToggleV858 .hh-bkk-watch-toggle-label-v858 strong{
+ font:850 clamp(12px,3.7vw,15px)/1.15 system-ui!important;
+ white-space:nowrap!important;color:var(--hhg-ink,#193653)!important;
+}
+#hhTransitPanel #hhBkkWatchToggleV858 .hh-bkk-watch-toggle-label-v858 small{
+ font-size:10px!important;line-height:1.2!important;white-space:nowrap;
+}
+#hhTransitPanel #hhBkkWatchEditV814{flex:0 0 auto!important;}
+/* Same glass language for the inner route rows; keep existing state colors. */
+#hhTransitPanel .hh-bkk-watch-row-v814{
+ background:rgba(255,255,255,.25)!important;
+ border:1px solid rgba(255,255,255,.64)!important;
+ box-shadow:inset 0 1px rgba(255,255,255,.46)!important;
+}
+@media(max-width:370px){
+ #hhTransitPanel #hhBkkWatchToggleV858{gap:4px!important;padding-inline:0!important}
+ #hhTransitPanel #hhBkkWatchToggleV858::before{
+  flex-basis:39px;width:39px;height:23px;
+ }
+ #hhTransitPanel #hhBkkWatchToggleV858 .hh-bkk-watch-toggle-label-v858 strong{
+  font-size:12px!important;
+ }
+ #hhTransitPanel #hhBkkWatchToggleV858 .hh-bkk-watch-toggle-label-v858 small{
+  font-size:9px!important;
+ }
+ #hhTransitPanel #hhBkkLiveBarV796 #hhBkkLiveStatusV793::before{
+  flex-basis:51px;width:51px;height:28px;
+ }
+ #hhTransitPanel #hhBkkLiveBarV796 #hhBkkLiveStatusV793::after{
+  font-size:8px;padding:2px;
+ }
+}
+@media(prefers-reduced-transparency:reduce){
+ html body .shell>main>#hhTransitPanel.hh-transit-panel{
+  background:var(--hhg-panel-start,#e4effa)!important;
+ }
+}

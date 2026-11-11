@@ -317,7 +317,7 @@ async function guardianPinSmoke(browser,base,device){
   await page.evaluate(()=>document.documentElement.dataset.guardianProfile="m");
   await page.waitForFunction(()=>document.getElementById("hhSmartMatchPinV1")?.dataset.state==="ready");
   assert.equal(await page.locator("#hhBkkFocusV796").textContent(),"Ne mutasd élő járműveket");
-  assert.equal(await page.locator("#hhBkkWatchlistV814").textContent(),"⭐ Saját BKK Watchlist");
+  assert.equal(await page.locator("#hhBkkWatchlistV814").textContent(),"BKK Watchlist");
   await page.goto(base+"healthhub/guardian/smart-260-connect/",{waitUntil:"domcontentloaded"});
   await page.waitForFunction(()=>document.getElementById("status")?.textContent?.includes("✓ BKK GTFS"),
    {timeout:30000});
@@ -418,8 +418,19 @@ async function guardianSmartLocationSmoke(browser,base,device){
    button.setAttribute("aria-pressed","true");
    return {current,disabled,originalText:button.textContent};
   });
-  assert.match(preview.current.label,/BKK élő/);
-  assert.equal(preview.current.labelFont,"14px","BKK élő should be more readable than before");
+  assert.equal(preview.current.label,'""',
+   "The compact supplied BKK logo replaces the visible BKK élő text");
+  const crest=await page.evaluate(async()=>{
+   const status=document.getElementById("hhBkkLiveStatusV793");
+   const image=getComputedStyle(status,"::before").backgroundImage;
+   const url=image.match(/url\(["']?(data:image\/webp;base64,[^"')]+)/)?.[1];
+   if(!url)return {ok:false,image:image.slice(0,70)};
+   const im=new Image();im.src=url;
+   try{await im.decode();return {ok:true,width:im.naturalWidth,height:im.naturalHeight}}
+   catch(_){return {ok:false,image:"decode failed"}}
+  });
+  assert.ok(crest.ok&&crest.width>=100&&crest.height>=40,
+   "BKK logo must decode from the user's artwork: "+JSON.stringify(crest));
   assert.equal(preview.current.enabled,'"ON"');
   assert.equal(preview.disabled.text,'"OFF"');
   assert.match(preview.current.enabledBg,/36, 184, 97|8, 119, 64/,
@@ -533,6 +544,17 @@ async function watchlistAlwaysOpenSmoke(browser,base,device){
   assert.equal(await header.getAttribute("role"),"heading");
   assert.equal(await header.locator(".hh-bkk-watch-chevron-v858").count(),0);
   assert.equal(await header.getAttribute("aria-expanded"),null);
+  assert.equal(await header.locator("strong").textContent(),"BKK Watchlist");
+  const mark=await header.evaluate(async el=>{
+   const css=getComputedStyle(el,"::before");
+   const url=css.backgroundImage.match(/url\(["']?(data:image\/webp;base64,[^"')]+)/)?.[1];
+   if(!url)return {decoded:false,css:css.backgroundImage.slice(0,55)};
+   const im=new Image();im.src=url;
+   try{await im.decode();return {decoded:true,width:im.naturalWidth,height:im.naturalHeight}}
+   catch(e){return {decoded:false,message:String(e)}}
+  });
+  assert.ok(mark.decoded&&mark.width>=100,
+   "Watchlist left BKK crest must use the supplied cropped artwork");
   assert.equal(await list.locator("article").count(),2);
   const card=page.locator("#hhBkkWatchRowsV814 article").first();
   assert.equal(await card.locator(".hh-bkk-watch-actions-v814 button").count(),5,
@@ -546,9 +568,14 @@ async function watchlistAlwaysOpenSmoke(browser,base,device){
     const btns=[...actions.querySelectorAll("button")].map(x=>x.getBoundingClientRect());
     const box=row.getBoundingClientRect(),b=badge.getBoundingClientRect();
     const css=getComputedStyle(row);
+    const heading=document.getElementById("hhBkkWatchToggleV858").getBoundingClientRect();
+    const text=document.querySelector("#hhBkkWatchToggleV858 strong").getBoundingClientRect();
+    const edit=document.getElementById("hhBkkWatchEditV814").getBoundingClientRect();
     return {width:box.width,height:box.height,numberFont:getComputedStyle(badge).fontSize,
      grid:css.display,buttons:btns.length,topY:btns.map(x=>x.top),
-     lastRight:Math.max(...btns.map(x=>x.right)),right:box.right,topBadge:b.top};
+     lastRight:Math.max(...btns.map(x=>x.right)),right:box.right,topBadge:b.top,
+     titleLeft:text.left,headingLeft:heading.left,titleRight:text.right,
+     editLeft:edit.left,watchGap:edit.left-text.right};
    });
   };
   let dims=await check(mobile?390:1320);
@@ -558,11 +585,17 @@ async function watchlistAlwaysOpenSmoke(browser,base,device){
   assert.ok(Math.max(...dims.topY)-Math.min(...dims.topY)<4,
    "All controls must share one row: "+JSON.stringify(dims));
   assert.ok(dims.lastRight<=dims.right+1,"Action buttons must not overrun the card");
+  assert.ok(dims.titleLeft>=dims.headingLeft+30,
+   "BKK Watchlist title must shift RIGHT to leave space for the image: "+JSON.stringify(dims));
+  assert.ok(dims.watchGap>=-1,
+   "BKK Watchlist title must not overlap Szerkesztés: "+JSON.stringify(dims));
   if(mobile){
    dims=await check(320);
    assert.ok(dims.height<125,"Narrow phone Watchlist must remain compact: "+JSON.stringify(dims));
    assert.ok(Math.max(...dims.topY)-Math.min(...dims.topY)<4);
    assert.ok(dims.lastRight<=dims.right+1);
+   assert.ok(dims.watchGap>=-1,
+    "Even 320px BKK logo, Watchlist title and Edit must not overlap: "+JSON.stringify(dims));
    await page.setViewportSize({width:390,height:844});
   }
   // Visual state must reflect the actual BKK filter and map visibility,
