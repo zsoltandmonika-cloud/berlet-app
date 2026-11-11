@@ -16,6 +16,9 @@ const data=()=>{
    k:["Kolosy tér",47.52693,19.03802],
    t:["Bécsi út / Vörösvári út",47.54100,19.03500],
    b:["Bécsi út / Vörösvári út",47.54145,19.03540],
+   vt:["Váradi utca",47.53310,19.03570],
+   vb:["Váradi utca",47.53325,19.03570],
+   vb2:["Váradi utca",47.53820,19.04000],
    o:["Orbán Balázs út",47.55000,19.03000],
    ci:["Citronella utca",47.56110,19.02500],
    ko:["Kocsis Sándor út",47.56210,19.02500],
@@ -23,8 +26,8 @@ const data=()=>{
   },
   services:{s:{start:"2026-01-01",end:"2027-12-31",days:[1,1,1,1,1,1,1],exceptions:{}}},
   trips:[
-   ["17","s","Bécsi út / Vörösvári út",[ev("k",16,5),ev("t",16,15)],"tram"],
-   ["260","s","Harsánylejtő",[ev("b",16,20),ev("o",16,22),ev("ci",16,33)],"bus"],
+   ["17","s","Bécsi út / Vörösvári út",[ev("k",16,5),ev("vt",16,15)],"tram"],
+   ["260","s","Harsánylejtő",[ev("vb",16,20),ev("o",16,22),ev("ci",16,33)],"bus"],
    ["260","s","Óbudai rendelőintézet",[ev("ci",16,30),ev("ko",16,32),ev("d",16,45)],"bus"],
    ["260","s","Harsánylejtő",[ev("ci",16,29),ev("o",16,30)],"bus"]
   ]
@@ -46,14 +49,14 @@ test("target-first 260 matcher finds safe transfer with 10-minute office walk",(
  assert.equal(hour(match.departMs),"16:20");
  assert.ok(match.best.waitMin>=1&&match.best.waitMin<=3);
 });
-test("home walk-only reaches Citronella 260 with six-minute walk and two-minute buffer",()=>{
+test("home walk-only reaches Citronella 260 with 10-minute walk and two-minute buffer",()=>{
  const d=data();
  const r=walkOnlyOptions(d,date,HOME);
  assert.equal(r.rows.length,1);
  assert.equal(r.matchingCount,1);
  assert.equal(hour(r.rows[0].departMs),"16:30");
- assert.equal(hour(r.rows[0].best.leaveOfficeMs),"16:22");
- assert.equal(r.rows[0].best.transferWalkMin,6);
+ assert.equal(hour(r.rows[0].best.leaveOfficeMs),"16:18");
+ assert.equal(r.rows[0].best.transferWalkMin,10);
  assert.equal(r.rows[0].best.waitMin,2);
  assert.equal(compute(d,date,HOME).matchingCount,1);
 });
@@ -129,7 +132,7 @@ test("260 full timetable is bus-first and preserves unmatched departures",()=>{
  const connections=compute(d,date,route);
  const bus=full260Timetable(d,date,"home");
  const paired=pair260Connections(bus,connections,route);
- assert.equal(bus.stop,"Bécsi út / Vörösvári út");
+ assert.equal(bus.stop,"Váradi utca");
  assert.deepEqual(bus.rows.map(x=>hour(x.departMs)),["10:20","16:20"]);
  assert.equal(paired.rows.length,2);
  assert.equal(paired.rows.filter(x=>x.connectionOk).length,1);
@@ -166,11 +169,11 @@ test("full 260 preserves both directions while excluding opposite terminus",()=>
  assert.throws(()=>full260Timetable(d,date,"wrong"));
 });
 
-test("the two Bécsi GTFS platforms do not hide a genuine tram-to-260 match",()=>{
+test("two Váradi GTFS platforms do not hide a genuine tram-to-260 match",()=>{
  const d=data();
  d.trips=d.trips.filter(x=>x[0]!=="260"||x[2]!=="Harsánylejtő");
  d.trips.push(["260","s","Harsánylejtő",[
-  ev("b",16,20),ev("t",16,22),ev("o",16,25),ev("ci",16,36)
+  ev("vb",16,20),ev("vb2",16,22),ev("o",16,25),ev("ci",16,36)
  ],"bus"]);
  const timetable=full260Timetable(d,date,"home");
  const connections=compute(d,date,{...DEFAULT,startHour:0,endHour:24});
@@ -182,7 +185,7 @@ test("the two Bécsi GTFS platforms do not hide a genuine tram-to-260 match",()=
  assert.equal(paired.rows[0].connectionOk,true);
  assert.equal(hour(paired.rows[0].departMs),"16:20",
   "Matched row displays EXACT accessible platform time, not 16:22");
- assert.equal(paired.rows[0].stopId,"b");
+ assert.equal(paired.rows[0].stopId,"vb");
 });
 
 
