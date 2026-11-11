@@ -6,6 +6,7 @@
 const STORAGE="sh9-smart-match-templates-v1-m";
 const ACTIVE="sh9-smart-match-active-pin-v1-m";
 const FULL="/berlet-app/healthhub/guardian/smart-260-connect/";
+import {DEFAULT as MONIKA_DEFAULT,compute} from "./smart-260-connect/core.mjs";
 const HOST_ID="hhSmartMatchPinV1";
 const holder=document.getElementById("hhTransitPanel");
 const state={item:null,id:null,entries:[],day:null,loaded:null,loading:false,visible:false,lastLoadAt:0};
@@ -25,18 +26,24 @@ function nextDay(day){
  d.setUTCDate(d.getUTCDate()+1);
  return d.toISOString().slice(0,10);
 }
+function activeProfile(){
+ return document.documentElement.dataset.guardianProfile==="m"?"monika":"zsolt";
+}
 function readPin(){
+ if(activeProfile()!=="monika")return null;
  try{
   const raw=localStorage.getItem(STORAGE),a=JSON.parse(raw||"null");
-  if(!Array.isArray(a))return null;
-  const items=a.filter(x=>x&&typeof x==="object"&&x.profile==="monika"&&
-   typeof x.id==="string"&&/^[\w-]{1,90}$/.test(x.id)&&typeof x.title==="string"&&
-   x.title.length<=100&&typeof x.targetRoute==="string"&&
-   x.targetRoute.length<=20);
+  const items=Array.isArray(a)?a.filter(x=>x&&typeof x==="object"&&
+   x.profile==="monika"&&typeof x.id==="string"&&/^[\w-]{1,90}$/.test(x.id)&&
+   typeof x.title==="string"&&x.title.length<=100&&
+   typeof x.targetRoute==="string"&&x.targetRoute.length<=20):[];
   const active=localStorage.getItem(ACTIVE);
-  return (active&&items.find(x=>x.id===active))||
-   items.filter(x=>x.pinned===true).at(-1)||null;
- }catch(_){return null}
+  const preferred=(active&&items.find(x=>x.id===active))||
+   items.filter(x=>x.pinned===true).at(-1);
+  // Mónika starts at work most often. Activate the existing default route
+  // without writing any settings or secretly pinning the user's phone.
+  return preferred||items.find(x=>x.id==="monika-260")||MONIKA_DEFAULT;
+ }catch(_){return MONIKA_DEFAULT}
 }
 function stageText(item){
  if(!item)return"Kitűzhető útvonal";
@@ -103,10 +110,7 @@ async function updateSchedule({force=false}={}){
   title:"Smart Match · ellenőrzött menetrend betöltése",link:currentLink(state.item)});
  try{
   // Only now download the public snapshot. Does not access protected Family Guard data.
-  const [{readOfficialSnapshot},{compute}]=await Promise.all([
-   import("../../sh9/smart-travel/lena-native/bkk/bkk-feed-client-v1106.mjs"),
-   import("./smart-260-connect/core.mjs")
-  ]);
+  const {readOfficialSnapshot}=await import("../../sh9/smart-travel/lena-native/bkk/bkk-feed-client-v1106.mjs");
   const {data,manifest}=await readOfficialSnapshot();
   const dates=[day,nextDay(day)],out=[];
   for(const date of dates){
@@ -131,8 +135,8 @@ function refresh({force=false}={}){
  const item=readPin();
  if(!item){
   state.item=null;state.id=null;state.entries=[];state.loaded=null;
-  setView({time:"＋ Kitűzés",note:"Séma kiválasztása ↗",status:"empty",
-   title:"Smart Match kitűzése a Family Guardra",link:FULL});
+  setView({time:"Smart Match",note:"Mónika-profilban aktív ↗",status:"inactive",
+   title:"Smart Match · Mónika útvonala",link:FULL});
   return;
  }
  const change=state.id!==item.id||JSON.stringify(state.item)!==JSON.stringify(item);
@@ -144,6 +148,8 @@ function refresh({force=false}={}){
 function start(){
  const card=createCard();
  dock(card);
+ const themeWatcher=new MutationObserver(()=>refresh({force:true}));
+ themeWatcher.observe(document.documentElement,{attributes:true,attributeFilter:["data-guardian-profile"]});
  // Existing BKK Live module creates its bar asynchronously. Append without replacing it.
  const observer=new MutationObserver(()=>{if(holder.querySelector("#hhBkkLiveBarV796")){dock(card);observer.disconnect()}});
  observer.observe(holder,{childList:true});
