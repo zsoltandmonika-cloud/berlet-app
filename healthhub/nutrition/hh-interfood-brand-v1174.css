@@ -1,0 +1,45 @@
+/* v1174 · Interfood official-style brand mark on the existing Golden Glassy tile.
+ * Only positioning of the new logo and adjacent content. The 3 text lines,
+ * destination, nutrition actions, admin tools, and profile theme are unchanged.
+ */
+#hhInterfoodTileV1173{gap:14px}
+#hhInterfoodTileV1173 .hh-interfood-brand-v1174{
+ position:relative;z-index:2;display:flex;align-items:center;justify-content:center;
+ flex:0 0 164px;height:76px;min-width:0;padding:0 13px 0 0;
+ border-right:1px solid rgba(255,198,224,.68);
+ filter:drop-shadow(0 3px 7px rgba(0,0,0,.65));
+}
+#hhInterfoodTileV1173 .hh-interfood-brand-v1174 img{
+ display:block;width:100%;height:100%;max-width:148px;max-height:76px;
+ object-fit:contain;object-position:center;
+}
+#hhInterfoodTileV1173 .hh-interfood-content-v1173{min-width:0}
+@media(max-width:620px){
+ #hhInterfoodTileV1173{gap:9px;padding-left:12px;padding-right:12px}
+ #hhInterfoodTileV1173 .hh-interfood-brand-v1174{
+  flex-basis:104px;height:66px;padding-right:8px;
+ }
+ #hhInterfoodTileV1173 .hh-interfood-brand-v1174 img{max-width:96px;max-height:65px}
+ #hhInterfoodTileV1173 .hh-interfood-content-v1173>strong{font-size:clamp(17px,3.5vw,21px)}
+ #hhInterfoodTileV1173 .hh-interfood-content-v1173>strong span{font-size:.47em;letter-spacing:.05em}
+}
+@media(max-width:420px){
+ #hhInterfoodTileV1173{gap:8px;min-height:103px;padding:11px 10px}
+ #hhInterfoodTileV1173 .hh-interfood-brand-v1174{
+  flex-basis:78px;height:56px;padding-right:7px;
+ }
+ #hhInterfoodTileV1173 .hh-interfood-brand-v1174 img{max-width:70px;max-height:55px}
+ #hhInterfoodTileV1173 .hh-interfood-content-v1173{gap:3px}
+ #hhInterfoodTileV1173 .hh-interfood-content-v1173>strong{font-size:18px}
+ #hhInterfoodTileV1173 .hh-interfood-content-v1173>small{font-size:10px;line-height:1.3}
+ #hhInterfoodTileV1173 .hh-interfood-kicker-v1173{font-size:8px;letter-spacing:.04em}
+ #hhInterfoodTileV1173 .hh-interfood-open-v1173{min-width:54px;min-height:37px;padding:6px 7px;font-size:11px;gap:3px}
+}
+@media(max-width:355px){
+ #hhInterfoodTileV1173{gap:6px;padding-left:8px;padding-right:8px}
+ #hhInterfoodTileV1173 .hh-interfood-brand-v1174{flex-basis:64px;padding-right:5px}
+ #hhInterfoodTileV1173 .hh-interfood-brand-v1174 img{max-width:59px}
+ #hhInterfoodTileV1173 .hh-interfood-content-v1173>strong{font-size:16px}
+ #hhInterfoodTileV1173 .hh-interfood-content-v1173>small{font-size:9px}
+ #hhInterfoodTileV1173 .hh-interfood-open-v1173{min-width:48px;padding:5px;font-size:10px}
+}
