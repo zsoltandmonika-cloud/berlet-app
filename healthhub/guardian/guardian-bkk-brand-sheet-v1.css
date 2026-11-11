@@ -61,7 +61,8 @@ html body .shell>main>#hhTransitPanel.hh-transit-panel{
  gap:4px!important;min-width:0!important;
 }
 #hhTransitPanel #hhBkkWatchToggleV858{
- display:flex!important;align-items:center!important;flex:1 1 auto!important;
+ display:flex!important;flex-direction:row!important;align-items:center!important;
+ justify-content:flex-start!important;flex:1 1 auto!important;
  gap:7px!important;min-width:0!important;
 }
 #hhTransitPanel #hhBkkWatchToggleV858::before{
