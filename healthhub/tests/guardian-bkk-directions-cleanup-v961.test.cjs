@@ -21,7 +21,7 @@ test('v961 removes all three user-marked visual clutter areas',()=>{
  assert.match(css,/#hhTransitProfileV791\[hidden\]/);
  assert.match(css,/#hhTransitDirectionsV791 > p\{\s*display:none!important;/);
  assert.match(html,/guardian-bkk-directions-cleanup-v961\.css\?v=961/);
- assert.match(html,/guardian-transit-v791\.js\?v=961-clean-directions-status/);
+ assert.match(html,/guardian-transit-v791\.js\?v=963-retire-legacy-live-button/);
 });
 
 test('v961 retains the route/stop checkboxes, the active-profile bridge and actionable warnings',()=>{
