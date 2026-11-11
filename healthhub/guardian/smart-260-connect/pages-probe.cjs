@@ -13,7 +13,6 @@ const checks=[
  ["/healthhub/guardian/guardian-smart-match-pin-v1.mjs","const full=full260Timetable(data,date,dir);"],
  ["/healthhub/guardian/guardian-smart-match-pin-v1.mjs","CITRONELLA_DEFAULT_APPLIED"],
  ["/healthhub/guardian/guardian-smart-match-pin-v1.mjs","focus the NEXT official 260 departure"],
- ["/healthhub/guardian/index.html","guardian-smart-match-pin-v1.mjs?v=2"],
  ["/healthhub/guardian/guardian-smart-match-pin-v1.css","hhSmartMatchPinV1"],
  ["/healthhub/guardian/smart-260-connect/app.mjs","sh9-smart-match-templates-v1-m"],
  ["/healthhub/guardian/smart-260-connect/core.mjs","sh9.smart-match.template/1"],
