@@ -6,6 +6,9 @@ const origin="https://zsoltandmonika-cloud.github.io/berlet-app";
 const checks=[
  ["/healthhub/guardian/smart-260-connect/","SHO Smart Trip AI"],
  ["/healthhub/guardian/smart-260-connect/index.html","Smart Match Timeline"],
+ ["/healthhub/guardian/index.html","guardian-smart-match-pin-v1.mjs"],
+ ["/healthhub/guardian/guardian-smart-match-pin-v1.mjs","MONIKA_DEFAULT"],
+ ["/healthhub/guardian/guardian-smart-match-pin-v1.css","hhSmartMatchPinV1"],
  ["/healthhub/guardian/smart-260-connect/app.mjs","sh9-smart-match-templates-v1-m"],
  ["/healthhub/guardian/smart-260-connect/core.mjs","sh9.smart-match.template/1"],
  ["/healthhub/guardian/smart-260-connect/style.css","SH9 Smart Match"],
