@@ -7,6 +7,7 @@
 <meta name="description" content="SHO Smart Match, hiteles BKK-menetrendi csatlakozáskereső és kitűzött idővonal">
 <title>Smart Match · SHO Smart Trip AI</title>
 <link rel="stylesheet" href="./style.css?v=1">
+<link rel="stylesheet" href="./visual-fidelity-v2.css?v=2">
 </head>
 <body>
 <div class="banner" id="pinnedBanner">
@@ -18,6 +19,7 @@
   <a href="/berlet-app/sh9/smart-travel/public-transport/smart-trip/">‹ Smart Trip AI</a>
   <span class="pill">SHO · MÓNIKA</span>
  </nav>
+ <div class="v2-skyline" aria-hidden="true"><span class="v2-skyline-tram">🚋</span><span class="v2-skyline-bus">🚌</span></div>
  <div class="eyebrow">Személyes közlekedés · Smart Match</div>
  <h1 id="heading">Mónika · Munkahely → Otthon</h1>
  <p class="sub" id="editorIntro">Válassz céljáratot, állítsd be a ráhordó járatokat, és tűzd ki a következő indulásokat. A sablonok helyben, a böngésződben mentődnek.</p>
@@ -93,9 +95,14 @@
   <p class="sub" id="matchSummary" style="font-size:12px;margin-top:14px"></p>
  </section>
  <div class="notice">ℹ️ <strong>Menetrendi előrejelzés, nem élő járatkövetés.</strong> A megállók közötti séta becsült; a pontos útvonalat és késéseket a <a href="https://bkk.hu/budapestgo/" target="_blank" rel="noopener noreferrer">BudapestGO-ban</a> ellenőrizd. A riasztás csak nyitott oldalon működik, háttérben nem garantált.</div>
+ <nav class="pinned-actions glass" id="pinnedActions" aria-label="Kitűzött Smart Match gyorsgombok">
+  <button type="button" class="pin-action pin-action-alert" id="pinReminder">🔔 <span>Emlékeztető</span></button>
+  <label class="pin-template-select" for="pinTemplateSelect"><span>📚 Séma</span><select id="pinTemplateSelect" aria-label="Mentett Smart Match sablon váltása"></select></label>
+  <button type="button" class="pin-action pin-action-edit" id="pinEdit">✎ <span>Szerkesztés</span></button>
+ </nav>
  <footer class="footer">Forrás: <a href="https://opendata.bkk.hu/data-sources" target="_blank" rel="noopener noreferrer">BKK Zrt. · CC BY 4.0</a> · A menetrendi állományt a SHO korábbi, ellenőrzött GTFS-olvasója tölti be. A „MOST” jel és a visszaszámláló a készülék idejét használja; nem jelentenek valós idejű BKK-követést.</footer>
 </main>
 <div id="toast" role="alert" hidden></div>
-<script type="module" src="./app.mjs?v=1"></script>
+<script type="module" src="./app.mjs?v=2"></script>
 </body>
 </html>
