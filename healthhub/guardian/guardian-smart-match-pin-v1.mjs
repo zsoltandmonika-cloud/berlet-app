@@ -5,8 +5,9 @@
  */
 const STORAGE="sh9-smart-match-templates-v1-m";
 const ACTIVE="sh9-smart-match-active-pin-v1-m";
+const CITRONELLA_DEFAULT_APPLIED="hh-smart-match-citronella-default-v2-m";
 const FULL="/berlet-app/healthhub/guardian/smart-260-connect/";
-import {DEFAULT as MONIKA_DEFAULT,compute} from "./smart-260-connect/core.mjs";
+import {HOME as MONIKA_DEFAULT,compute} from "./smart-260-connect/core.mjs";
 const HOST_ID="hhSmartMatchPinV1";
 const holder=document.getElementById("hhTransitPanel");
 const state={item:null,id:null,entries:[],day:null,loaded:null,loading:false,visible:false,lastLoadAt:0};
@@ -37,12 +38,19 @@ function readPin(){
    x.profile==="monika"&&typeof x.id==="string"&&/^[\w-]{1,90}$/.test(x.id)&&
    typeof x.title==="string"&&x.title.length<=100&&
    typeof x.targetRoute==="string"&&x.targetRoute.length<=20):[];
-  const active=localStorage.getItem(ACTIVE);
-  const preferred=(active&&items.find(x=>x.id===active))||
-   items.filter(x=>x.pinned===true).at(-1);
-  // Mónika starts at work most often. Activate the existing default route
-  // without writing any settings or secretly pinning the user's phone.
-  return preferred||items.find(x=>x.id==="monika-260")||MONIKA_DEFAULT;
+  let active=localStorage.getItem(ACTIVE);
+  if(!localStorage.getItem(CITRONELLA_DEFAULT_APPLIED)){
+   // Correct the previous rollout's mistaken "office" default exactly once.
+   // Any route pinned AFTER this migration remains the user's explicit choice.
+   if(!active||active==="monika-260"){
+    active="home-citronella-260";
+    localStorage.setItem(ACTIVE,active);
+   }
+   localStorage.setItem(CITRONELLA_DEFAULT_APPLIED,"1");
+  }
+  const preferred=active&&items.find(x=>x.id===active);
+  // Mónika normally boards the 260 at Citronella utca toward Óbudai rendelőintézet.
+  return preferred||items.find(x=>x.id==="home-citronella-260")||MONIKA_DEFAULT;
  }catch(_){return MONIKA_DEFAULT}
 }
 function stageText(item){
@@ -82,22 +90,34 @@ function currentLink(item){
 function renderClock(){
  if(!state.item)return;
  const now=Date.now();
- const future=state.entries.find(x=>x.leaveMs>=now);
+ // A recommended HOME leave time is not the time the bus departs the stop!
+ const future=state.entries.find(x=>x.displayMs>=now);
  if(!future){
   const reason=state.loaded?"Nincs további igazolt indulás":"Menetrend ellenőrzése";
-  setView({time:"–:–",note:reason,status:"empty",title:stageText(state.item)+" · "+reason,link:currentLink(state.item)});
+  setView({time:"–:–",note:reason,status:"empty",
+   title:stageText(state.item)+" · "+reason,link:currentLink(state.item)});
   if(state.loaded&&budapestDay(now)!==state.day)refresh({force:true});
   return;
  }
- const min=Math.max(0,Math.ceil((future.leaveMs-now)/60000));
- const time=clock(future.leaveMs);
- const note=(future.date===budapestDay(now)?"":"Holnap · ")+
-  (min>=60?Math.floor(min/60)+"ó "+String(min%60)+"p":" "+min+" perc")+" múlva";
- setView({
-  time, note:note.trim(),status:"ready",
-  title:stageText(state.item)+" · indulás "+time+" · céljárat "+future.line+" · menetrend szerinti idő",
-  link:currentLink(state.item)
- });
+ const mins=Math.max(0,Math.ceil((future.displayMs-now)/60000));
+ const time=clock(future.displayMs),home=clock(future.leaveMs);
+ let note,title;
+ if(future.stopDeparture){
+  note=future.date===budapestDay(now)?
+   "Otthonról "+home:"Holnap · otthonról "+home;
+  title="260-as busz · Citronella utca · "+time+
+   " menetrend szerinti indulás; 6 perc séta + 2 perc ráhagyás: otthonról "+home+
+   (future.leaveMs<now?" (az ajánlott otthoni indulási idő elmúlt)":"");
+ }else{
+  note=(future.date===budapestDay(now)?"":"Holnap · ")+
+   "Indulj "+(mins>=60?Math.floor(mins/60)+"ó "+String(mins%60)+"p":mins+" perc")+" múlva";
+  title=stageText(state.item)+" · indulás a kiinduló helyről "+time+
+   " · céljárat "+future.line+"; menetrend szerinti javaslat";
+ }
+ const card=document.getElementById(HOST_ID);
+ const label=card?.querySelector(".hh-smart-match-pin-label");
+ if(label)label.textContent=future.stopDeparture?"🚌 260 · CITRONELLA":"📌 SMART MATCH";
+ setView({time,note,status:"ready",title,link:currentLink(state.item)});
 }
 async function updateSchedule({force=false}={}){
  if(!state.item||state.loading||!state.visible)return;
@@ -118,10 +138,21 @@ async function updateSchedule({force=false}={}){
    const result=compute(data,date,state.item);
    for(const r of result.rows){
     if(!r.best||!Number.isFinite(r.best.leaveOfficeMs))continue;
-    out.push({date,leaveMs:r.best.leaveOfficeMs,line:r.line});
+    // For Citronella, display the actual 260 STOP departure, not a downstream
+    // arrival or the earlier recommended 6+2 minute home-leaving time.
+    const walk260=state.item.type==="walk"&&state.item.targetRoute==="260"&&
+     state.item.targetStop==="Citronella utca";
+    const reverse260=state.item.id==="monika-home-to-office"&&
+     r.best.feederLine==="260"&&state.item.originStop==="Citronella utca";
+    const stopDeparture=walk260||reverse260;
+    const displayMs=walk260?r.departMs:
+     reverse260?r.best.feederDepartMs:r.best.leaveOfficeMs;
+    if(!Number.isFinite(displayMs))continue;
+    out.push({date,leaveMs:r.best.leaveOfficeMs,displayMs,line:stopDeparture?"260":r.line,
+     stopDeparture});
    }
   }
-  out.sort((a,b)=>a.leaveMs-b.leaveMs);
+  out.sort((a,b)=>a.displayMs-b.displayMs);
   state.entries=out;state.loaded=manifest;state.lastLoadAt=Date.now();
   renderClock();
  }catch(_){

@@ -240,15 +240,30 @@ async function guardianPinSmoke(browser,base,device){
   return request.abort();
  });
  const page=await context.newPage();
+ // Fixed 07:53 Budapest on 2026-11-11 to catch the original 08:07 vs 08:17 bug.
+ await page.addInitScript(()=>{Date.now=()=>Date.parse("2026-11-11T06:53:00Z")});
  try{
   const fixture=base+"healthhub/guardian/tests/smart-match-pin-v1-fixture.html";
   await page.goto(fixture,{waitUntil:"domcontentloaded"});
   await page.locator("#hhSmartMatchPinV1").waitFor({timeout:12000});
   await page.waitForFunction(()=>document.getElementById("hhSmartMatchPinV1")?.dataset.state==="ready",{timeout:30000});
-  assert.match(await page.locator("#hhSmartMatchPinTimeV1").textContent(),/^\d{2}:\d{2}$/,
-   "Mónika work-to-home default must be enabled with verified GTFS without manual pin.");
-  assert.match(await page.locator("#hhSmartMatchPinV1").getAttribute("href"),/id=monika-260/,
-   "Mónika's most frequent origin must be the default.");
+  assert.equal(await page.locator("#hhSmartMatchPinTimeV1").textContent(),"08:07",
+   "At 07:53 the Citronella 260 inbound bus must depart at 08:07, not 08:17");
+  assert.match(await page.locator("#hhSmartMatchPinNoteV1").textContent(),/07:59/,
+   "Separate 6min walking plus 2min buffer as departure FROM HOME");
+  assert.match(await page.locator("#hhSmartMatchPinV1").getAttribute("href"),/id=home-citronella-260/,
+   "Mónika's default must be the actual Citronella bus stop, not the office trip.");
+  // Previous rollout stored an incorrect 'office' default. Migrates once,
+  // without hijacking a route subsequently pinned by the user.
+  await page.evaluate(()=>{
+   localStorage.removeItem("hh-smart-match-citronella-default-v2-m");
+   localStorage.setItem("sh9-smart-match-active-pin-v1-m","monika-260");
+  });
+  await page.reload({waitUntil:"domcontentloaded"});
+  await page.waitForFunction(()=>document.getElementById("hhSmartMatchPinV1")?.dataset.state==="ready");
+  assert.equal(await page.locator("#hhSmartMatchPinTimeV1").textContent(),"08:07");
+  assert.equal(await page.evaluate(()=>localStorage.getItem("sh9-smart-match-active-pin-v1-m")),
+   "home-citronella-260","Migrate old default exactly once");
   await page.evaluate(()=>document.documentElement.dataset.guardianProfile="z");
   await page.waitForFunction(()=>document.getElementById("hhSmartMatchPinV1")?.dataset.state==="inactive");
   await page.evaluate(()=>document.documentElement.dataset.guardianProfile="m");
