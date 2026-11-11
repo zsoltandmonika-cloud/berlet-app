@@ -520,9 +520,9 @@ function updateFull260Timeline(now=Date.now(),redraw=false){
    "🏢 Irodai indulás "+clockFmt(focusMs)+
     " · 🚋 "+bus.match.best.feederLine+"-es "+clockFmt(bus.match.best.feederDepartMs)+
     " · 🚌 260-as "+clockFmt(bus.departMs)+" (menetrend)":
-   "🏠 Otthonról indulás "+clockFmt(focusMs)+
-    " · 🚶 "+cfg.originWalkMin+" perc séta + "+cfg.originSafetyMin+" perc ráhagyás"+
-    " · 🚌 260 Citronella "+clockFmt(bus.departMs)+" (menetrend)";
+   "🏠 Otthon "+clockFmt(focusMs)+
+    " · 🚶 "+cfg.originWalkMin+" perc séta + "+cfg.originSafetyMin+"p tartalék"+
+    " · 🚌 260 "+clockFmt(bus.departMs)+" (menetrend)";
   const remain=Math.max(0,Math.floor((focusMs-now)/1000));
   const hr=Math.floor(remain/3600),mn=Math.floor(remain%3600/60),sec=remain%60;
   $("countdown").textContent=(hr?String(hr).padStart(2,"0")+":":"")+
