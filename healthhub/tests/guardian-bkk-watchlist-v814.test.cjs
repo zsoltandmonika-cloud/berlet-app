@@ -12,9 +12,9 @@ test('Watchlist is on canonical Family Guard, reuses verified BKK catalog with e
  const style=read('guardian-bkk-watchlist-v814.css');
  assert.match(html,/id="hhBkkWatchlistV814"/);
  assert.match(html,/id="hhBkkWatchEditV814"/);
- assert.match(html,/guardian-bkk-watchlist-v814.js\?v=817-1-41-static/);
+ assert.match(html,/guardian-bkk-watchlist-v814.js\?v=962-unified-live-route/);
  assert.match(html,/guardian-bkk-watchlist-v814.css\?v=814/);
- assert.match(html,/guardian-bkk-catalog-v801.js\?v=817-1-41-static/);
+ assert.match(html,/guardian-bkk-catalog-v801.js\?v=911-universal-bkk-live/);
  assert.match(style,/hh-bkk-watch-ready-v814 \.hh-transit-choices/);
  assert.match(style,/#hhTransitCardsV791/);
  assert.match(catalog,/const STORE='hh-bkk-route-favorites-v801'/);
@@ -75,18 +75,18 @@ test('Watchlist renders, reorders, edits and removes with no GPS or fabricated l
  assert.equal(all.hhTransitPanel.classList.tags.has('hh-bkk-watch-ready-v814'),true);
  assert.equal(all.hhBkkWatchRowsV814.children.length,2);
  assert.equal(all.hhBkkWatchRowsV814.children[1].children[0].textContent,'H5');
- assert.equal(all.hhBkkWatchRowsV814.children[1].children[2].children.length,3,
-   'no fake live route action for unsupported HÉV');
+ assert.equal(all.hhBkkWatchRowsV814.children[1].children[2].children.length,4,
+   'one disabled display action and three ordering actions for unavailable HÉV map');
  assert.equal(all.hhBkkWatchRowsV814.children[0].children[2].children.length,4,
-   'supported 260 has real static route action');
+   'supported 260 has one combined action and three ordering actions');
  all.hhBkkWatchRowsV814.children[0].children[2].children[0].click();
  assert.deepEqual(actions.filter(x=>x==='show-260'),['show-260']);
- all.hhBkkWatchRowsV814.children[1].children[2].children[0].click();
+ all.hhBkkWatchRowsV814.children[1].children[2].children[1].click();
  assert.deepEqual(lists.zsolt,['hev:H5','bus:260']);
  all.hhBkkWatchEditV814.click();
  assert.equal(all.hhBkkCatalogV801.open,true);
  assert.equal(all.hhBkkWatchEditV814.attrs['aria-expanded'],'true');
- all.hhBkkWatchRowsV814.children[0].children[2].children[2].click();
+ all.hhBkkWatchRowsV814.children[0].children[2].children[3].click();
  assert.deepEqual(lists.zsolt,['bus:260']);
  all.hhTransitProfileV791.value='monika';
  all.hhTransitProfileV791.events.change();
