@@ -85,7 +85,10 @@ function setView({time,note,title,status,link}){
  card.href=link||FULL;
 }
 function currentLink(item){
- return item?FULL+"?pinned=1&id="+encodeURIComponent(item.id):FULL;
+ // The Guardian HOME bus preview opens the complete home-to-work commute,
+ // not the separate walk-only sample that has no reverse title button.
+ const target=item?.id==="home-citronella-260"?"monika-home-to-office":item?.id;
+ return target?FULL+"?pinned=1&id="+encodeURIComponent(target):FULL;
 }
 function renderClock(){
  if(!state.item)return;
