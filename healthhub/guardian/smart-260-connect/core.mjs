@@ -7,8 +7,8 @@ import {active,validate,wallEpoch} from "../../../sh9/smart-travel/lena-native/b
 const DEFAULT=Object.freeze({
  schema:"sh9.smart-match.template/1",id:"monika-260",profile:"monika",
  title:"Mónika · Munkahely → Otthon",reverseId:"monika-home-to-office",originLabel:"Bécsi Corner",destinationLabel:"Otthon",
- originStop:"Kolosy tér",transferStop:"Bécsi út / Vörösvári út",
- targetStop:"Bécsi út / Vörösvári út",targetRoute:"260",targetHeadsign:"Harsánylejtő",
+ originStop:"Kolosy tér",transferStop:"Váradi utca",
+ targetStop:"Váradi utca",targetAfterStop:"Citronella utca",targetRoute:"260",targetHeadsign:"Harsánylejtő",
  feederRoutes:["17","19","41"],startHour:13,endHour:19,
  originWalkMin:10,originSafetyMin:1,transferWalkMin:2,transferSafetyMin:1,
  maxWaitMin:3,maxTransferMeters:350,destinationTransitStop:"Citronella utca",destinationWalkMin:10
@@ -137,7 +137,7 @@ function options(data,date,cfg=DEFAULT,clock=Date.now()){
  * A genuine scheduled bus must never disappear just because no good transfer exists.
  */
 const BUS_260_DIRECTIONS=Object.freeze({
- home:Object.freeze({stop:"Bécsi út / Vörösvári út",headsign:"Harsánylejtő",
+ home:Object.freeze({stop:"Váradi utca",headsign:"Harsánylejtő",
   after:"Citronella utca",origin:"Munkahely",destination:"Otthon"}),
  work:Object.freeze({stop:"Citronella utca",headsign:"Óbudai rendelőintézet",
   after:"Bécsi út / Vörösvári út",origin:"Otthon",destination:"Munkahely"})
@@ -148,7 +148,7 @@ function bus260DirectionForTemplate(cfg){
   cfg.targetRoute==="260"&&clean(cfg.targetStop)===clean("Citronella utca")&&
   clean(cfg.targetHeadsign).includes(clean("Óbudai")))return "work";
  if(cfg.id==="monika-260"||
-  cfg.targetRoute==="260"&&clean(cfg.targetStop)===clean("Bécsi út / Vörösvári út")&&
+  cfg.targetRoute==="260"&&clean(cfg.targetStop)===clean("Váradi utca")&&
   clean(cfg.targetHeadsign).includes(clean("Harsánylejtő")))return "home";
  return null;
 }
