@@ -230,6 +230,52 @@ async function smoke(browser,base,device){
    pinnedTest:"passed",storageTest:"passed",overflow};
  }finally{await context.close()}
 }
+
+async function guardianPinSmoke(browser,base,device){
+ const mobile=device==="mobile";
+ const context=await browser.newContext({viewport:mobile?{width:390,height:844}:{width:1320,height:890},
+  deviceScaleFactor:mobile?2:1,isMobile:mobile,hasTouch:mobile,serviceWorkers:"block"});
+ await context.route("**/*",request=>{
+  if(request.request().url().startsWith(base))return request.continue();
+  return request.abort();
+ });
+ const page=await context.newPage();
+ try{
+  const fixture=base+"healthhub/guardian/tests/smart-match-pin-v1-fixture.html";
+  await page.goto(fixture,{waitUntil:"domcontentloaded"});
+  await page.locator("#hhSmartMatchPinV1").waitFor({timeout:12000});
+  assert.match(await page.locator("#hhSmartMatchPinTimeV1").textContent(),/Kitűzés/,
+   "Without saved pin, offer a Smart Match setup link, never fake a departure.");
+  assert.equal(await page.locator("#hhBkkFocusV796").textContent(),"Ne mutasd élő járműveket");
+  assert.equal(await page.locator("#hhBkkWatchlistV814").textContent(),"⭐ Saját BKK Watchlist");
+  await page.goto(base+"healthhub/guardian/smart-260-connect/",{waitUntil:"domcontentloaded"});
+  await page.waitForFunction(()=>document.getElementById("status")?.textContent?.includes("✓ BKK GTFS"),
+   {timeout:30000});
+  await page.locator("#pinBtn").click();
+  assert.equal(await page.evaluate(()=>localStorage.getItem("sh9-smart-match-active-pin-v1-m")),
+   "monika-260","Pinning must publish active selection under new browser-local key.");
+  await page.goto(fixture,{waitUntil:"domcontentloaded"});
+  await page.waitForFunction(()=>document.getElementById("hhSmartMatchPinV1")?.dataset?.state==="ready",
+   {timeout:30000});
+  assert.equal(await page.locator("#hhSmartMatchPinV1").evaluate(el=>el.parentElement.id),"hhBkkLiveBarV796",
+   "Pin chip must be added after existing BKK controls without moving/replacing them.");
+  assert.equal(await page.locator("#hhBkkFocusV796").textContent(),"Ne mutasd élő járműveket",
+   "Existing BKK visibility action must remain untouched.");
+  assert.equal(await page.locator("#guardianNativeGpsTitleV1177").textContent(),"GPS (érintetlen)");
+  const time=await page.locator("#hhSmartMatchPinTimeV1").textContent();
+  assert.match(time,/^\d{2}:\d{2}$/,"Only a verified official GTFS departure may be shown: "+time);
+  const href=await page.locator("#hhSmartMatchPinV1").getAttribute("href");
+  assert.match(href,/pinned=1&id=monika-260/);
+  const rect=await page.locator("#hhSmartMatchPinV1").boundingBox();
+  assert.ok(rect.width>=100&&rect.width<=130&&rect.height>=50,"Compact header chip expected");
+  await page.screenshot({path:path.join(output,device+"-guardian-smart-match-pin.png"),fullPage:true});
+  await page.locator("#hhSmartMatchPinV1").click();
+  await page.waitForFunction(()=>document.body.classList.contains("pinned")&&
+   document.getElementById("headingShort")?.textContent==="Munkahely → Otthon",{timeout:30000});
+  return {device,cardTime:time,guardianCard:"passed",opensPinned:"passed",bkkGuard:"unchanged"};
+ }finally{await context.close()}
+}
+
 (async()=>{
  await new Promise(resolve=>server.listen(0,"127.0.0.1",resolve));
  const base="http://127.0.0.1:"+server.address().port+"/berlet-app/";
@@ -238,6 +284,7 @@ async function smoke(browser,base,device){
   browser=await chromium.launch({headless:true,executablePath:findChrome(),
    args:["--no-sandbox","--disable-dev-shm-usage"]});
   for(const device of ["desktop","mobile"])console.log("SMART-MATCH-BROWSER-SMOKE",JSON.stringify(await smoke(browser,base,device)));
+  for(const device of ["desktop","mobile"])console.log("GUARDIAN-SMART-MATCH-PIN-SMOKE",JSON.stringify(await guardianPinSmoke(browser,base,device)));
  }finally{
   if(browser)await browser.close();
   server.close();
