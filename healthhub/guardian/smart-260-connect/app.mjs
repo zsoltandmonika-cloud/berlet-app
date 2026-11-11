@@ -195,7 +195,7 @@ function routeFlowStages(item){
   {role:"origin",label:original==="Bécsi Corner"?"Iroda":original,detail:original},
   {role:"walk",label:item.originWalkMin+" perc",detail:"Séta"},
   {role:feederMode,label:feeders.join("/"),detail:item.originStop},
-  {role:"transfer",label:"Átszállás",detail:item.transferStop,shortLabel:"Csere"},
+  {role:"transfer",label:"Csere",detail:item.transferStop},
   {role:targetMode,label:item.targetRoute,detail:item.targetHeadsign||item.targetStop},
   {role:"destination",label:destination,detail:"Érkezés"}
  ];
@@ -210,7 +210,7 @@ function renderFlow(item){
  for(const step of steps){
   const node=document.createElement("span");
   node.className="v2-step";node.dataset.role=step.role;
-  node.setAttribute("title",[step.label,step.detail].filter(Boolean).join(" · "));
+  node.setAttribute("title",[step.role==="transfer"?"Átszállás":step.label,step.detail].filter(Boolean).join(" · "));
   const pict=document.createElement("span");pict.className="v2-step-icon";
   pict.textContent=icons[step.role]||"📍";
   const label=document.createElement("span");label.className="v2-step-label";
