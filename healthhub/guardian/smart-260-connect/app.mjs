@@ -427,7 +427,10 @@ function initEvents(){
  $("day").addEventListener("change",()=>computeRoute());
  $("remindBtn").addEventListener("click",async()=>{
   state.reminderEnabled=!state.reminderEnabled;
-  $("remindBtn").textContent=state.reminderEnabled?"🔔 Jelzés BE (nyitott lap)":"🔔 Lapon belüli jelzés";
+  $("remindBtn").textContent="🔔";
+  $("remindBtn").setAttribute("aria-pressed",String(state.reminderEnabled));
+  $("remindBtn").setAttribute("aria-label",state.reminderEnabled?"Lapon belüli jelzés kikapcsolása":"Lapon belüli jelzés bekapcsolása");
+  $("remindBtn").title=state.reminderEnabled?"Lapon belüli jelzés: be (csak nyitott lap)":"Lapon belüli jelzés: ki";
   if($("pinReminder"))$("pinReminder").setAttribute("aria-pressed",String(state.reminderEnabled));
   if(state.reminderEnabled&&typeof Notification!=="undefined"&&Notification.permission==="default"){
    try{await Notification.requestPermission()}catch(_){}
