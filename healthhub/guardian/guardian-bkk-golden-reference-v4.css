@@ -534,7 +534,7 @@ html body .shell>main>#hhTransitPanel.hh-transit-panel:has(>#hhBkkLiveBarV796) #
   }
 }
 
-/* Golden V4.9 · 2026-11-11 · 16px horizontal squeeze and vertical control alignment.
+/* Golden V5.0 · 2026-11-11 · 16px horizontal squeeze, switch 2px left and vertical control alignment.
    CSS-only; all GPS, live BKK, Smart Match and Watchlist behavior is preserved. */
 #hhTransitPanel {
   /* Both right-hand panels shifted another 2px right; shared alignment retained. */
@@ -546,18 +546,18 @@ html body .shell>main>#hhTransitPanel.hh-transit-panel #hhBkkLiveBarV796>#hhSmar
   box-sizing:border-box!important;
   justify-self:end!important;
   width:calc(100% - 8px)!important;
-  transform:translateX(4px)!important;
+  transform:translateX(2px)!important;
 }
 @media (max-width:365px) {
   #hhTransitPanel { --bkk-golden-gap:21px; }
   html body .shell>main>#hhTransitPanel.hh-transit-panel #hhBkkLiveBarV796>#hhSmartLocationSwitchV1:not([hidden]) {
     width:calc(100% - 6px)!important;
-    transform:translateX(3px)!important;
+    transform:translateX(1px)!important;
   }
 }
 @media (min-width:406px) {
   html body .shell>main>#hhTransitPanel.hh-transit-panel #hhBkkLiveBarV796>#hhSmartLocationSwitchV1:not([hidden]) {
     width:calc(100% - 10px)!important;
-    transform:translateX(5px)!important;
+    transform:translateX(3px)!important;
   }
 }
