@@ -159,3 +159,22 @@ test("full 260 preserves both directions while excluding opposite terminus",()=>
  assert.equal(towardHome.rows[0].headsign,"Harsánylejtő");
  assert.throws(()=>full260Timetable(d,date,"wrong"));
 });
+
+test("the two Bécsi GTFS platforms do not hide a genuine tram-to-260 match",()=>{
+ const d=data();
+ d.trips=d.trips.filter(x=>x[0]!=="260"||x[2]!=="Harsánylejtő");
+ d.trips.push(["260","s","Harsánylejtő",[
+  ev("b",16,20),ev("t",16,22),ev("o",16,25),ev("ci",16,36)
+ ],"bus"]);
+ const timetable=full260Timetable(d,date,"home");
+ const connections=compute(d,date,{...DEFAULT,startHour:0,endHour:24});
+ const paired=pair260Connections(timetable,connections,DEFAULT);
+ assert.equal(timetable.rows.length,1,"Two platforms are ONE actual bus");
+ assert.equal(timetable.rows[0].platforms.length,2);
+ assert.equal(hour(timetable.rows[0].departMs),"16:22",
+  "Unmatched default is final GTFS boarding platform");
+ assert.equal(paired.rows[0].connectionOk,true);
+ assert.equal(hour(paired.rows[0].departMs),"16:20",
+  "Matched row displays EXACT accessible platform time, not 16:22");
+ assert.equal(paired.rows[0].stopId,"b");
+});
