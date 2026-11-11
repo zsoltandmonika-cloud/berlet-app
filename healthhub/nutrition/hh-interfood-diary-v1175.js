@@ -22,9 +22,12 @@ function parseMenuCopy(value){
  const lines=input.split(/\r?\n/).map(s=>s.trim()).filter(Boolean);
  const m=input.match(/\b([A-Z]{1,4}\d{1,3}K?)\s*[-–:]\s*([^\n]{2,80})/i);
  const code=m?m[1].toUpperCase():(lines[0]?.match(/^([A-Z]{1,4}\d{1,3}K?)$/i)?.[1]?.toUpperCase()||'');
- const name=m?m[2].trim().slice(0,80):
-  (lines.find(line=>line.length>6&&!/^([A-Z]{1,4}\d{1,3}K?)$/i.test(line)&&
-   !/(\b(kcal|fehérje|szénhidrát|szénh|zsír|ft)\b|\b\d{1,4}\s*g\b)/i.test(line))||'').slice(0,80);
+ const candidate=lines.find(line=>line.length>6&&!/^([A-Z]{1,4}\d{1,3}K?)$/i.test(line)&&
+   !/^([A-Z]{1,4}\d{1,3}K?)\s*[-–:]\s*(?:főétel|étlap)$/i.test(line)&&
+   !/^(?:főétel|étlap|új|sport menü)$/i.test(line)&&
+   !/(\b(?:kcal|fehérje|szénhidrát|szénh|zsír|ft)\b|\b\d{1,4}\s*g\b)/i.test(line));
+ const rawTitle=m?.[2]?.trim()||'';
+ const name=rawTitle&&!/^(?:főétel|étlap|új)$/i.test(rawTitle)?rawTitle.slice(0,80):(candidate||'').slice(0,80);
  function val(re){
   const found=input.match(re);
   if(!found)return null;
@@ -107,14 +110,16 @@ function resetEditor(card=null){
  by('hhIfMeal1175').value=card?.meal||'Ebéd';
  by('hhIfPaste1175').value='';
  by('hhIfPhoto1175').value='';
- by('hhIfSaveFood1175').checked=true;
- by('hhIfSaveFavorite1175').checked=true;
+ by('hhIfSaveFood1175').checked=!card;
+ by('hhIfSaveFavorite1175').checked=!card;
  by('hhIfSaveFamily1175').checked=false;
  setValues(card?.nutrients||null);
  photoData=null;
  by('hhIfCardPhoto1175').hidden=true;
  by('hhIfCardPhoto1175').removeAttribute('src');
+ by('hhIfCardPhoto1175').dataset.photoKey='';
  by('hhIfCardPlaceholder1175').hidden=false;
+ by('hhIfDelete1175').hidden=!card;
  by('hhIfPhotoCaption1175').textContent='Saját fotó feltöltése (opcionális)';
  by('hhIfEditHeading1175').textContent=card?'Interfood ételkártya szerkesztése':'Új Interfood ételkártya';
  notice(card?'A meglévő kártyát szerkeszted.':'A kártya mentése nem rögzít automatikusan ebédet.');
@@ -206,6 +211,7 @@ function openLibrary(){
  by('hhInterfoodLibraryV1175').hidden=false;
  by('hhIfSearch1175').value='';
  renderCards();
+ by('hhIfBack1175').focus();
 }
 function closeLibrary(){
  by('hhInterfoodLibraryV1175').hidden=true;
@@ -214,6 +220,7 @@ function closeLibrary(){
 function openEditor(card){
  if(api()?.getProfile?.()!==owner){pageToast('Profilváltás történt. Nyisd meg újra az Interfood ételeimet.','error');return;}
  resetEditor(card);
+ by('hhIfProfile1175').textContent=profileName(owner);
  by('hhInterfoodDialogV1175').showModal();
 }
 function recognize(){
@@ -318,7 +325,7 @@ function logCard(card,button){
  finally{root.setTimeout?.(()=>{button.disabled=false;},1200);}
 }
 function deleteCard(){
- const card=editing;if(!card)return;
+ const card=editing;if(!card||busy)return;
  if(!root.confirm?.('Biztosan törlöd ezt az Interfood ételkártyát? A már naplózott ebéd megmarad.'))return;
  try{
   api().deleteInterfoodCard({expectedProfile:owner,id:card.id});
@@ -389,7 +396,10 @@ function init(){
  doc.body.append(dlg);
  launcher.addEventListener('click',openLibrary);
  by('hhIfBack1175').addEventListener('click',closeLibrary);
- by('hhIfNew1175').addEventListener('click',()=>{owner=api()?.getProfile?.();openEditor(null);});
+ page.addEventListener('keydown',e=>{
+  if(e.key==='Escape'&&!by('hhInterfoodDialogV1175')?.open){e.preventDefault();closeLibrary();}
+ });
+ by('hhIfNew1175').addEventListener('click',()=>openEditor(null));
  by('hhIfSearch1175').addEventListener('input',renderCards);
  by('hhIfClose1175').addEventListener('click',()=>dlg.close());
  by('hhIfCancel1175').addEventListener('click',()=>dlg.close());
