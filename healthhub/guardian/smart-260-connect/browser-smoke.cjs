@@ -406,6 +406,28 @@ async function guardianSmartLocationSmoke(browser,base,device){
   assert.equal(sameRow.liveFont,"0px","Long BKK text must be replaced VISUALLY by an icon");
   assert.equal(sameRow.liveLabel,"Ne mutasd élő járműveket",
    "Do not modify the existing BKK control's JS, DOM action or text");
+  const preview=await page.evaluate(()=>{
+   const label=document.getElementById("hhBkkLiveStatusV793"),button=document.getElementById("hhBkkFocusV796");
+   const current={label:getComputedStyle(label,"::before").content,
+    labelFont:getComputedStyle(label,"::before").fontSize,
+    enabled:getComputedStyle(button,"::before").content,
+    enabledBg:getComputedStyle(button).backgroundImage};
+   button.setAttribute("aria-pressed","false");
+   const disabled={text:getComputedStyle(button,"::before").content,
+    bg:getComputedStyle(button).backgroundImage};
+   button.setAttribute("aria-pressed","true");
+   return {current,disabled,originalText:button.textContent};
+  });
+  assert.match(preview.current.label,/BKK élő/);
+  assert.equal(preview.current.labelFont,"14px","BKK élő should be more readable than before");
+  assert.equal(preview.current.enabled,'"ON"');
+  assert.equal(preview.disabled.text,'"OFF"');
+  assert.match(preview.current.enabledBg,/36, 184, 97|8, 119, 64/,
+   "ON must have a green background");
+  assert.match(preview.disabled.bg,/233, 89, 98|169, 25, 48/,
+   "OFF must have a red background");
+  assert.equal(preview.originalText,"Ne mutasd élő járműveket",
+   "Existing BKK live button's accessible action text remains intact");
   if(mobile){
    await page.setViewportSize({width:320,height:730});
    const narrow=await page.evaluate(()=>{
