@@ -158,7 +158,7 @@ def browser_rendered_html() -> str:
                   "title:",page.title()[:90])
             try:
                 page.wait_for_function(
-                    "() => /\\b[A-Z]{1,4}\\d{1,3}\\s*[-–]\\s*/.test(document.body.innerText) "
+                    "() => document.querySelectorAll('.category-foods .food').length >= 8 "
                     "&& /kcal/i.test(document.body.innerText)",
                     timeout=30000)
             except Exception:
@@ -210,6 +210,16 @@ def main():
             print(needle,"offset:",idx,"preview:",
                   re.sub(r"\s+"," ",html[max(0,idx-90):idx+400])[:460] if idx>=0 else "",
                   file=sys.stderr)
+        # Diagnostic structure only; no account, addresses, cookies, or full page stored.
+        dom=BeautifulSoup(html,"html.parser")
+        print("Category codes:",len(dom.select(".category-code")),
+              "Food tiles:",len(dom.select(".category-foods .food")),file=sys.stderr)
+        for tile in dom.select(".category-foods .food")[:2]:
+            print("FOOD HTML SAMPLE:",str(tile)[:3500],file=sys.stderr)
+        for code in dom.select(".category-code")[:2]:
+            print("CATEGORY WRAPPER SAMPLE:",str(code.parent)[:1900],file=sys.stderr)
+        for date in dom.select("[data-date]")[:6]:
+            print("DATE SAMPLE:",str(date)[:500],file=sys.stderr)
         raise RuntimeError("Interfood menu parsing validation failed; refusing empty/stale publish")
     OUTPUT.parent.mkdir(parents=True,exist_ok=True)
     OUTPUT.write_text(json.dumps(feed,ensure_ascii=False,separators=(",",":"))+"\n",encoding="utf-8")
