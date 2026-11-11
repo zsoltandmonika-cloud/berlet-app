@@ -25,7 +25,7 @@ test("public BKK GTFS real-snapshot 260 boarding sanity, without live claims",t=
   reverseSample:reverse.rows.slice(0,4).map(r=>({headsign:r.headsign,boarding:r.boardingId,matched:!!r.best,feeder:r.best?.feederLine,transferWalk:r.best?.transferWalkMin})),
   workSample:work.rows.slice(0,3).map(r=>({headsign:r.headsign,matched:!!r.best})),
   homeSample:home.rows.slice(0,3).map(r=>({headsign:r.headsign,matched:!!r.best})),
-  outboundHarsanTrips:board("260","Bécsi út / Vörösvári út","harsa"),
+  outboundHarsanTrips:board("260","Váradi utca","harsa"),
   inboundCitronellaTrips:board("260","Citronella utca","obudai")
  };
  console.log("PUBLIC-BKK-SMART-MATCH-COUNTS",JSON.stringify(shape));
@@ -88,6 +88,31 @@ test("real BKK snapshot full-day 260 bus departures must be complete and directi
  const home=full260Timetable(d,date,"work");
  const officeMatches=pair260Connections(office,compute(d,date,{...DEFAULT,startHour:0,endHour:24}),DEFAULT);
  const homeMatches=pair260Connections(home,compute(d,date,{...REVERSE,startHour:0,endHour:24}),REVERSE);
+ const minutes=ms=>new Date(ms).toLocaleTimeString("en-GB",{timeZone:"Europe/Budapest",hour:"2-digit",minute:"2-digit",hourCycle:"h23"});
+ const peak=officeMatches.rows.filter(x=>Number.isFinite(x.departMs)&&minutes(x.departMs)>="17:00"&&minutes(x.departMs)<"19:00");
+ console.log("VÁRADI_17_19_PEAK",JSON.stringify(peak.map(x=>({
+  bus:minutes(x.departMs),connected:x.connectionOk,
+  leave:x.leaveMs?minutes(x.leaveMs):null,
+  tram:x.match?.best?.feederDepartMs?minutes(x.match.best.feederDepartMs):null,
+  wait:x.match?.best?.waitMin??null,stop:x.stop
+ }))));
+ assert.equal(office.stop,"Váradi utca","Outbound 260 boards at Váradi utca");
+ assert.ok(peak.length>0,"Harsánylejtő-bound 260 runs 17:00–19:00");
+ assert.ok(officeMatches.rows.filter(x=>x.connectionOk).length>0,
+  "At least one verified office-to-home 17/19/41→260 transfer must be available");
+ for(const bus of officeMatches.rows.filter(x=>x.connectionOk)){
+  const match=bus.match?.best;
+  assert.ok(match&&bus.leaveMs<=match.feederDepartMs&&
+   match.feederDepartMs<match.feederArriveMs&&
+   match.feederArriveMs<bus.departMs,
+   "Homebound departure → tram → bus must stay chronological");
+ }
+ for(const bus of homeMatches.rows.filter(x=>x.connectionOk)){
+  const match=bus.match?.best;
+  assert.ok(match&&bus.leaveMs<=bus.departMs&&
+   bus.departMs<match.feederArriveMs&&match.feederArriveMs<bus.match.departMs,
+   "Reverse home → 260 → tram must stay chronological");
+ }
  const fmt=ms=>new Intl.DateTimeFormat("en-GB",{timeZone:"Europe/Budapest",hour:"2-digit",minute:"2-digit",hourCycle:"h23"}).format(new Date(ms));
  console.log("FULL_260_2026_11_11",JSON.stringify({
   home:office.rows.length,work:home.rows.length,
