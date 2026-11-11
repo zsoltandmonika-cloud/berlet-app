@@ -176,6 +176,15 @@ async function fetchLive(force=false){
    const json=await response.json();
    const parsed=validateFeed(json);
    items=parsed.items;menuMeta=parsed.meta;
+   // Restore official photos on cards saved before the photo integration,
+   // without altering their manually edited names or nutrient values.
+   const currentProfile=api()?.getProfile?.();
+   if(currentProfile&&api()?.syncInterfoodLivePhotos){
+    try{
+     const restored=api().syncInterfoodLivePhotos({expectedProfile:currentProfile,items});
+     if(restored.updated>0)UI()?.refreshCards?.();
+    }catch(_){/* feed still works; profile safety is enforced by diary API */}
+   }
    renderFilters();render();
    const stamp=new Date(parsed.meta.updatedAt);
    notify('✓ Interfood Live · '+parsed.meta.count+' étel · frissítve: '+
