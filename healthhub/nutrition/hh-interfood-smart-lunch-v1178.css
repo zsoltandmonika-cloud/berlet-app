@@ -79,3 +79,5 @@
  .hh-sl-finish-inner{animation:none}
  .hh-sl-star{transition:none}
 }
+/* The legacy ID selectors set display:flex/grid, which can override UA [hidden]. */
+#hhInterfoodLogV1175[hidden],#hhIfLiveArea1176[hidden]{display:none!important}
