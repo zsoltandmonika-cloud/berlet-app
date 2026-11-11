@@ -149,7 +149,7 @@ function bus260DirectionForTemplate(cfg){
 }
 function full260Timetable(data,date,direction,clock=Date.now()){
  if(!validate(data,clock))throw Error("A hivatalos BKK-adat hiányzik vagy lejárt.");
- if(!/^\\d{4}-\\d{2}-\\d{2}$/.test(date)||date<data.feedStart||date>data.feedEnd)
+ if(!/^\d{4}-\d{2}-\d{2}$/.test(date)||date<data.feedStart||date>data.feedEnd)
   throw Error("A kiválasztott nap nem szerepel a hitelesített menetrendben.");
  const spec=BUS_260_DIRECTIONS[direction];
  if(!spec)throw Error("Ismeretlen 260-as irány.");
