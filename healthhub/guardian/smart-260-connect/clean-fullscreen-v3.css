@@ -302,3 +302,38 @@ body.pinned #reverseBtn:disabled{opacity:.35;cursor:wait}
  body.pinned main>.v33-titlebar>h1{font-size:clamp(18px,5vw,21px)}
  body.pinned #reverseBtn:not([hidden]){flex-basis:41px;width:41px;height:40px;min-height:40px}
 }
+
+/* V3.5 · 2026-11-11: pinned route title optically centered across the whole
+   card, not across the remaining space beside the right-side reverse icon.
+   Equal spacer on left preserves route-reverse button position at right.
+   Scope: pinned view header only; all timetable, actions and handlers unchanged. */
+body.pinned main>.v33-titlebar{
+  display:grid;
+  grid-template-columns:43px minmax(0,1fr) 43px;
+  column-gap:0;
+  align-items:center;
+}
+body.pinned main>.v33-titlebar::before{
+  content:"";
+  display:block;
+  grid-column:1;
+  grid-row:1;
+  pointer-events:none;
+}
+body.pinned main>.v33-titlebar>h1{
+  grid-column:2;
+  grid-row:1;
+  justify-self:stretch;
+  width:100%;
+  margin:0;
+  text-align:center;
+  min-width:0;
+}
+body.pinned main>.v33-titlebar>#reverseBtn:not([hidden]){
+  grid-column:3;
+  grid-row:1;
+  justify-self:end;
+}
+@media(max-width:390px){
+  body.pinned main>.v33-titlebar{grid-template-columns:41px minmax(0,1fr) 41px}
+}
