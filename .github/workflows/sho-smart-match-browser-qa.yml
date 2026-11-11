@@ -3,11 +3,17 @@ on:
   pull_request:
     paths:
       - "healthhub/guardian/smart-260-connect/**"
+      - "healthhub/guardian/guardian-smart-match-pin-v1.*"
+      - "healthhub/guardian/tests/smart-match-pin-v1-fixture.html"
+      - "healthhub/guardian/index.html"
       - ".github/workflows/sho-smart-match-browser-qa.yml"
   push:
     branches: ["main"]
     paths:
       - "healthhub/guardian/smart-260-connect/**"
+      - "healthhub/guardian/guardian-smart-match-pin-v1.*"
+      - "healthhub/guardian/tests/smart-match-pin-v1-fixture.html"
+      - "healthhub/guardian/index.html"
       - ".github/workflows/sho-smart-match-browser-qa.yml"
   workflow_dispatch:
 permissions:
