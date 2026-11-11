@@ -240,15 +240,15 @@ async function guardianPinSmoke(browser,base,device){
   return request.abort();
  });
  const page=await context.newPage();
- // Fixed 07:45 Budapest on 2026-11-11 to catch the original 08:07 vs 08:17 bug.
- await page.addInitScript(()=>{Date.now=()=>Date.parse("2026-11-11T06:45:00Z")});
+ // Fixed 07:53 Budapest on 2026-11-11 to catch the original 08:07 vs 08:17 bug.
+ await page.addInitScript(()=>{Date.now=()=>Date.parse("2026-11-11T06:53:00Z")});
  try{
   const fixture=base+"healthhub/guardian/tests/smart-match-pin-v1-fixture.html";
   await page.goto(fixture,{waitUntil:"domcontentloaded"});
   await page.locator("#hhSmartMatchPinV1").waitFor({timeout:12000});
   await page.waitForFunction(()=>document.getElementById("hhSmartMatchPinV1")?.dataset.state==="ready",{timeout:30000});
   assert.equal(await page.locator("#hhSmartMatchPinTimeV1").textContent(),"08:07",
-   "At 07:45 the Citronella 260 inbound bus must depart at 08:07, not 08:17");
+   "At 07:53 the Citronella 260 inbound bus must depart at 08:07, not 08:17");
   assert.match(await page.locator("#hhSmartMatchPinNoteV1").textContent(),/07:59/,
    "Separate 6min walking plus 2min buffer as departure FROM HOME");
   assert.match(await page.locator("#hhSmartMatchPinV1").getAttribute("href"),/id=home-citronella-260/,
