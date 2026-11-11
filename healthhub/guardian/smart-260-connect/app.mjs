@@ -395,39 +395,52 @@ function renderFull260Row(bus,item,index){
  if(Number.isFinite(bus.leaveMs))a.dataset.leave=String(bus.leaveMs);
  const top=document.createElement("div");top.className="row-top";
  const title=document.createElement("div");
- const when=document.createElement("div");when.className="row-time";when.textContent=clockFmt(bus.departMs);
+ const connected=Boolean(bus.connectionOk&&bus.match?.best&&Number.isFinite(bus.leaveMs));
+ const homebound=bus.direction==="home";
+ const when=document.createElement("div");when.className="row-time";
+ // Start each usable itinerary at its first chronological event.
+ when.textContent=clockFmt(connected?bus.leaveMs:bus.departMs);
  const label=document.createElement("div");label.className="row-label";
- label.textContent="🚌 260-as · "+bus.headsign;
+ label.textContent=connected?
+  (homebound?"🏢 Irodai indulás":"🏠 Otthoni indulás")+
+    " · 🚌 260 "+clockFmt(bus.departMs)+" · "+bus.stop:
+  "🚌 260 "+bus.stop+" · kizárólag menetrendi indulás";
  title.append(when,label);
  const tag=document.createElement("span");tag.className="match-tag";
- tag.textContent=bus.connectionOk?(item.type==="walk"?
+ tag.textContent=connected?(item.type==="walk"?
   "✓ "+item.originSafetyMin+" perc tartalék":
-  "✓ "+bus.match.best.waitMin+" perc várakozás"):"Menetrend · 260";
+  "✓ "+bus.match.best.waitMin+" perc várakozás"):"Csatlakozás nélkül";
  top.append(title,tag);a.append(top);
  const grid=document.createElement("div");grid.className="row-columns";
- addMini(grid,clockFmt(bus.departMs),"🚌 "+bus.stop);
- if(Number.isFinite(bus.leaveMs)){
-  const fromHome=/otthon/i.test(item.originLabel||"");
+ if(connected){
+  // Chronological left → right: door departure, feeder, target leg.
   addMini(grid,clockFmt(bus.leaveMs),
-   fromHome?"🏠 Indulás otthonról":"🏢 Indulás az irodából");
- }else addMini(grid,"–:–","Nincs igazolt ráhordás");
- if(item.type==="walk"){
-  addMini(grid,item.originWalkMin+" perc","🚶 Séta");
- }else if(bus.match){
-  const transferIsBus=bus.direction==="work";
-  addMini(grid,clockFmt(transferIsBus?bus.match.departMs:bus.match.best.feederDepartMs),
-   transferIsBus?"🚋 17-es csatlakozás":"🚋 "+bus.match.best.feederLine+"-es indulás");
+   homebound?"🏢 Indulás az irodából":"🏠 Indulás otthonról");
+  if(item.type==="walk"){
+   addMini(grid,"≈"+clockFmt(bus.leaveMs+item.originWalkMin*60000),
+    "🚶 Megállóhoz érkezés");
+   addMini(grid,clockFmt(bus.departMs),"🚌 260 · "+bus.stop);
+  }else if(homebound){
+   addMini(grid,clockFmt(bus.match.best.feederDepartMs),
+    "🚋 "+bus.match.best.feederLine+" · Kolosy tér");
+   addMini(grid,clockFmt(bus.departMs),"🚌 260 · "+bus.stop);
+  }else{
+   addMini(grid,clockFmt(bus.departMs),"🚌 260 · "+bus.stop);
+   addMini(grid,clockFmt(bus.match.departMs),"🚋 "+bus.match.line+" · átszállás");
+  }
  }else{
-  addMini(grid,"≤ "+item.maxWaitMin+"p","Nincs igazolt csatlakozás");
+  // A real GTFS service with no checked connection is NOT an invitation to
+  // leave the office or a guessed vehicle arrival.
+  addMini(grid,clockFmt(bus.departMs),"🚌 260 · "+bus.stop+" (menetrend)");
  }
  a.append(grid);
  const foot=document.createElement("div");foot.className="row-foot";
- foot.textContent=bus.connectionOk?(item.type==="walk"?
+ foot.textContent=connected?(item.type==="walk"?
   item.originWalkMin+" perc séta + "+item.originSafetyMin+" perc tartalék":
-  "Biztonságos átszállás: "+bus.match.best.transferWalkMin+
-  " perc becsült séta, "+bus.match.best.waitMin+" perc várakozás"):
-  "A 260-as menetrend szerint közlekedik; ehhez nincs igazolt, legfeljebb "+
-  item.maxWaitMin+" perces csatlakozás.";
+  "Villamos érkezése "+clockFmt(bus.match.best.feederArriveMs)+
+   " · átszállás: "+bus.match.best.transferWalkMin+
+   " perc séta, "+bus.match.best.waitMin+" perc várakozás · menetrend"):
+  "CSAK MENETREND. Ehhez a 260-ashoz nincs igazolt csatlakozás; ne ez alapján indulj el.";
  a.append(foot);
  return a;
 }
