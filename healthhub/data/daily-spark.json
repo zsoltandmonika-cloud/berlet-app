@@ -1,17 +1,17 @@
 {
   "schemaVersion": 1,
-  "date": "2026-11-10",
-  "generatedAt": "2026-11-10T13:43:41+01:00",
+  "date": "2026-11-11",
+  "generatedAt": "2026-11-11T12:55:40+01:00",
   "profiles": {
     "zsolt": {
       "sign": "Szűz",
-      "headline": "A mai nap akkor működik jól, ha a fontos dolgoknak valódi helyet hagysz.",
+      "headline": "Egy kis rend, egy őszinte mondat és egy lezárt feladat meglepően sokat adhat a naphoz.",
       "sections": {
         "focus": "A fókusz ma nem több erőfeszítést jelent, hanem kevesebb felesleges váltást.",
-        "workMoney": "Az egyszerű, jól ellenőrizhető megoldás ma erősebb, mint a túl sok feltételre épített terv.",
-        "relationships": "Ma érdemes egy fél mondattal többet kérdezni, mielőtt következtetsz.",
-        "energy": "Dolgozz rövidebb, fókuszált blokkokban, majd válts környezetet vagy mozogj pár percet.",
-        "evening": "Valami könnyű és inspiráló program jobban feltölt, mint még egy feladat kipipálása.",
+        "workMoney": "Egy kis adminisztratív rendrakás később időt és idegeskedést spórolhat.",
+        "relationships": "Egy kisebb félreértést érdemes gyorsan tisztázni, mielőtt önálló életet kezd.",
+        "energy": "A nap közepén egy rövid szünet többet érhet, mint még egy erőből végigvitt óra.",
+        "evening": "Egy nyugodtabb este ma többet adhat, mint egy utolsó nagy nekifutás.",
         "lenaThought": "A tisztább döntés gyakran abból születik, amit kihagysz, nem abból, amit még hozzáadsz."
       }
     },
@@ -19,12 +19,12 @@
       "sign": "Vízöntő",
       "headline": "Egy egyszerűbb megközelítés ma többet érhet, mint egy túlkomplikált terv.",
       "sections": {
-        "focus": "Ne próbálj mindent egyszerre optimalizálni. Egy jól befejezett dolog ma többet ér három félkésznél.",
-        "workMoney": "A mai döntéseknél különítsd el azt, ami sürgős attól, ami csak hangos.",
+        "focus": "A mai nap akkor lesz könnyebb, ha a három fontos feladatból először a legkisebb bizonytalanságút zárod le.",
+        "workMoney": "A részletek ma segítenek. Egy rövid ellenőrzés vagy pontosítás megelőzhet egy fölösleges kört.",
         "relationships": "A figyelem most többet adhat a másiknak, mint bármilyen nagy gesztus.",
-        "energy": "Ne várd meg, amíg teljesen elfogy a lendület. Egy kis váltás időben sokat számít.",
-        "evening": "Az esti órákban hagyj egy kis helyet valaminek, aminek semmi haszna nincs, csak jólesik.",
-        "lenaThought": "A tisztább döntés gyakran abból születik, amit kihagysz, nem abból, amit még hozzáadsz."
+        "energy": "A nap közepén egy rövid szünet többet érhet, mint még egy erőből végigvitt óra.",
+        "evening": "Zárd le a napot egyetlen rövid holnapi jegyzettel, aztán hagyd békén a teendőlistát.",
+        "lenaThought": "A haladás néha nem látványos. Néha csak annyi, hogy eggyel kevesebb nyitott szál marad."
       }
     }
   }

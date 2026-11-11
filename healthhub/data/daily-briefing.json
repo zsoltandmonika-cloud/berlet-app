@@ -1,176 +1,201 @@
 {
   "schemaVersion": 1,
-  "date": "2026-11-10",
-  "generatedAt": "2026-11-10T13:43:41+01:00",
-  "headline": "A reggel fő témái: Trump says FBI investigating Nvidia boss's affair with alleged Chinese spy; Ukraine peace talks resume with 'some flexibility' by warring sides, US officials say",
+  "date": "2026-11-11",
+  "generatedAt": "2026-11-11T12:55:40+01:00",
+  "headline": "A reggel fő témái: Three Iran-backed suspects plotted attacks including RAF Fairford incident, US says; US House blocks bid to impeach Defence Secretary Pete Hegseth, for now",
   "sections": [
     {
       "id": "executive",
       "title": "Vezetői összefoglaló",
       "items": [
-        "BBC World: Trump says FBI investigating Nvidia boss's affair with alleged Chinese spy",
-        "BBC World: Ukraine peace talks resume with 'some flexibility' by warring sides, US officials say",
-        "BBC World: 'There is no justice' - Epstein survivor on how model agency sent her to abuser's home",
-        "BBC World: 'Cruise for life' ship seized in Singapore"
+        "BBC World: Three Iran-backed suspects plotted attacks including RAF Fairford incident, US says",
+        "BBC World: US House blocks bid to impeach Defence Secretary Pete Hegseth, for now",
+        "BBC World: Meghan's father Thomas Markle back in federal custody after allegedly removing ankle monitor",
+        "BBC World: Vinícius Jr sends message to Sudan boy who received prosthetic legs after BBC report sparks appeal"
       ]
     },
     {
       "id": "overnight",
       "title": "Éjszakai fejlemények",
       "items": [
-        "BBC World: Trump says FBI investigating Nvidia boss's affair with alleged Chinese spy",
-        "BBC World: Ukraine peace talks resume with 'some flexibility' by warring sides, US officials say",
-        "BBC World: 'Cruise for life' ship seized in Singapore"
+        "BBC World: Three Iran-backed suspects plotted attacks including RAF Fairford incident, US says",
+        "BBC World: US House blocks bid to impeach Defence Secretary Pete Hegseth, for now",
+        "BBC World: Meghan's father Thomas Markle back in federal custody after allegedly removing ankle monitor"
       ]
     },
     {
       "id": "geopolitics",
       "title": "Külpolitika / Geopolitika",
       "items": [
-        "BBC World: Trump says FBI investigating Nvidia boss's affair with alleged Chinese spy",
-        "BBC World: Ukraine peace talks resume with 'some flexibility' by warring sides, US officials say",
-        "BBC World: 'There is no justice' - Epstein survivor on how model agency sent her to abuser's home"
+        "BBC World: Three Iran-backed suspects plotted attacks including RAF Fairford incident, US says",
+        "BBC World: US House blocks bid to impeach Defence Secretary Pete Hegseth, for now",
+        "BBC World: Meghan's father Thomas Markle back in federal custody after allegedly removing ankle monitor"
       ]
     },
     {
       "id": "hungary",
       "title": "Magyarország",
       "items": [
-        "Portfolio.hu: Magyar Péter: amíg én vezetem Magyarország kormányát, addig megvédjük a külső határokat - Portfolio.hu",
-        "Magyarország Kormánya: Iskolakezdési támogatás: utalványt kapnak a rászoruló családok - Magyarország Kormánya",
-        "NB1.hu: Georgia-Magyarország: Sallai két győzelemről és Szoboszlai lehetséges pályára lépéséről beszélt - NB1.hu"
+        "Klubrádió: Róna Péter: A vezérkultusz akadályozza a demokratikus Magyarország megteremtését - Klubrádió",
+        "Infostart: Csütörtök este érkezik Charles Magyarország fölé, érdemes felkészülni - Infostart",
+        "Economx.hu: Látványos a változás a Dunánál: már a húszemeletes házak magasságában jár Magyarország épülő új óriáshídja - Economx.hu"
       ]
     },
     {
       "id": "economy",
       "title": "Gazdaság / Piacok",
       "items": [
-        "BBC Business: Trump says FBI investigating Nvidia boss's affair with alleged Chinese spy",
-        "BBC Business: Sales of tinned food and bottled water jump after 'Be Ready' campaign launch",
-        "BBC Business: Kim Kardashian's Skims offers refunds for $148 advent calendar after backlash"
+        "BBC Business: Poundland set for more time to secure a rescue deal as emergency talks continue",
+        "BBC Business: Christmas toy rush being driven by squishies and building sets",
+        "BBC Business: Nvidia hires major US law firm to investigate alleged Chinese spy affair"
       ]
     },
     {
       "id": "technology",
       "title": "Technológia / AI",
       "items": [
-        "BBC Technology: Faisal Islam: What the boss of US tech giant Nvidia told me about China and national security",
-        "BBC Technology: Trump says FBI investigating Nvidia boss's affair with alleged Chinese spy",
-        "BBC Technology: Australia considers criminal penalties for rogue AI in wake of OpenAI hack"
+        "BBC Technology: New Indian mega library rocked by scandal over 'AI-generated books'",
+        "BBC Technology: What we know so far about Jensen Huang's affair with suspected Chinese spy",
+        "BBC Technology: Robot vessels take on the dangerous work of mine hunting"
       ]
     },
     {
       "id": "risks",
       "title": "Mai kockázatok",
       "items": [
-        "Figyelmi pont: Ukraine peace talks resume with 'some flexibility' by warring sides, US officials say (BBC World).",
-        "Figyelmi pont: DR Congo sentences 66 soldiers to death for being 'cowards' (BBC World)."
+        "Figyelmi pont: Three Iran-backed suspects plotted attacks including RAF Fairford incident, US says (BBC World).",
+        "Figyelmi pont: US warns Madagascar over growing military ties with Russia (BBC World).",
+        "Figyelmi pont: Claude chatbot maker set for $1.3tn stock market debut despite 'catastrophic' AI warning (BBC Business)."
       ]
     },
     {
       "id": "watch",
       "title": "Mi számít igazán / Figyelmi szint",
       "items": [
-        "BBC World: Trump says FBI investigating Nvidia boss's affair with alleged Chinese spy",
-        "BBC World: Ukraine peace talks resume with 'some flexibility' by warring sides, US officials say"
+        "BBC World: Three Iran-backed suspects plotted attacks including RAF Fairford incident, US says",
+        "BBC World: US House blocks bid to impeach Defence Secretary Pete Hegseth, for now"
       ]
     }
   ],
   "sources": [
     {
-      "title": "Trump says FBI investigating Nvidia boss's affair with alleged Chinese spy",
+      "title": "Three Iran-backed suspects plotted attacks including RAF Fairford incident, US says",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cqg7x7dpvym8o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-10"
+      "url": "https://www.bbc.co.uk/news/articles/c3rryrryk59zo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-11"
     },
     {
-      "title": "Ukraine peace talks resume with 'some flexibility' by warring sides, US officials say",
+      "title": "US House blocks bid to impeach Defence Secretary Pete Hegseth, for now",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cqpvgvrpjvv8o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-10"
+      "url": "https://www.bbc.co.uk/news/articles/cxly4y5jzl0qo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-11"
     },
     {
-      "title": "'There is no justice' - Epstein survivor on how model agency sent her to abuser's home",
+      "title": "Meghan's father Thomas Markle back in federal custody after allegedly removing ankle monitor",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cm86z6w59gggo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-10"
+      "url": "https://www.bbc.co.uk/news/articles/c9j3433zy4vro?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-11"
     },
     {
-      "title": "'Cruise for life' ship seized in Singapore",
+      "title": "Vinícius Jr sends message to Sudan boy who received prosthetic legs after BBC report sparks appeal",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cqr7y7myer53o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-10"
+      "url": "https://www.bbc.co.uk/news/articles/cqm26mmpp2p1o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-11"
     },
     {
-      "title": "DR Congo sentences 66 soldiers to death for being 'cowards'",
+      "title": "Headquarters of Haitian gang destroyed, El Salvador's president says",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cmreye1q3dnjo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-10"
+      "url": "https://www.bbc.co.uk/news/articles/cmvg2xdwnwezo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-11"
     },
     {
-      "title": "Israel's new parliament to be sworn in as leaders compete to form government",
+      "title": "Kennedys sue to block Trump's arch, arguing it would cast shadow on JFK's grave",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/crd939lpzjp9o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-10"
+      "url": "https://www.bbc.co.uk/news/articles/cw8dvpmzp2p4o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-11"
     },
     {
-      "title": "Police officer dies and another injured after backpack explosion in Oviedo",
+      "title": "Judge allows Trump's $10bn defamation case against BBC to proceed",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cwm262pzezy0o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-10"
+      "url": "https://www.bbc.co.uk/news/articles/cm93rpy6lx0do?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-11"
     },
     {
-      "title": "Israeli forces kill Palestinian boy in West Bank, health ministry says",
+      "title": "US warns Madagascar over growing military ties with Russia",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cqpvgv318yyeo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-10"
+      "url": "https://www.bbc.co.uk/news/articles/crkgv58pknyeo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-11"
     },
     {
-      "title": "Magyar Péter: amíg én vezetem Magyarország kormányát, addig megvédjük a külső határokat - Portfolio.hu",
-      "publisher": "Portfolio.hu",
-      "url": "https://news.google.com/rss/articles/CBMizgFBVV95cUxOVFNQbDJibVV4dGJObFhsSVJuUXBBUjdaQkRMSVBBX1hxdDJkWUhWN3M3alJzUzhwMFVHcHlBMDJjV0JHc1hFc3NsRHgxNlMwUnU0VEdNMC1DYTh2MmcxQXM5dDVZZW9sZVdWMUt1QWpwMnBza0xyR3hfdzM5aXl0N2YtZXJ6dmVNT19xNW1yNXA4NWI4Y1JXRnJ5S2tQa0xJVmNiLWtjX0dPVlNHeGc2enpXSFNheTBENlpORzZaQnh3eFQ0d2ozV2dwUk1mUdIB0wFBVV95cUxQX0lNWEJUemxCS2ZKR25TY21oOVV1VDNUU2xjUHh6Z25YUEtieFVobWEtMHp0QU1DZlpCaXpsN0FHblNVWGZTaVVXRTFfOW9sTWpDTW9yTVJLcEk1RlhLOXpVLUg4YjZCSmtPR1lTcHMyZ1lVUElRRTZRTEdCRGNRdU9WWm91QVdiWjdSZGhvaHpMdjJuckt2Y2gxbU1TT2xWaUk3cVQyNkJ2VWliYmp0cGxBcll1WDV5MXpTeFhjNzdsU3hiTmtibFJ1YXB6bkkzS2VJ?oc=5",
-      "publishedAt": "2026-11-09"
+      "title": "Róna Péter: A vezérkultusz akadályozza a demokratikus Magyarország megteremtését - Klubrádió",
+      "publisher": "Klubrádió",
+      "url": "https://news.google.com/rss/articles/CBMiuAFBVV95cUxPUm9qWGVaSDR3djlGQmFLR2tqYUVGaC1uR3oyTk5ia1pydWlJMmYtMDFCSWhBWXdZLTNrZkZ5VTlxWjJoTldEQVAwSGhTVXc2WGcwTkNEUU9SelBtZi03UndDVWFmQkU1UDhHMFQ4X0ZjLXNxOXQ5RkxBbG5mMldBM0ZZWVRsNkpmMmkwUlRGMGlCMy10U1RrYlhacUtLY21iZ1BmN0ExY2N5YWxDeldwN2x5czdaVUhE?oc=5",
+      "publishedAt": "2026-11-11"
     },
     {
-      "title": "Iskolakezdési támogatás: utalványt kapnak a rászoruló családok - Magyarország Kormánya",
-      "publisher": "Magyarország Kormánya",
-      "url": "https://news.google.com/rss/articles/CBMijwFBVV95cUxPaVlhZ3ZHRnJaWjZMbTJrYUNzWDltUVd2Z215YTJzdHJtbmlQc2NSb2s1MUdNZEhGaWpIOXJSZDFIY0tUUWZSbHVaa1FpQ3lmMmZVWHNBZEhOMjJvVlBHNU9RNEpQTG5RTzlxWllDekp1TkZPTU9XMEF1d2RkdElWSW5HSVRjMkZBM21WUDJBOA?oc=5",
-      "publishedAt": "2026-11-10"
+      "title": "Csütörtök este érkezik Charles Magyarország fölé, érdemes felkészülni - Infostart",
+      "publisher": "Infostart",
+      "url": "https://news.google.com/rss/articles/CBMirAFBVV95cUxNdWhxdHI5dHBlbW8zY2tQVE83MTFJLW5aM0trakdTY01kVVFiLW9POW9GLTVucGtncUx6MEVzbzBxMERkTS00T0FoOUlBcGdSTWk0aEJWNWw1N0RQZmZNdFRaZmlhaDRtSVJUVDdZb0hYWGIyQTBmZm1hQVdRS0QtbWJhLTJjY2p6S2NEQjRTU1gyUzA2aVEycGFLY2QtTkZrVHFfLTFWMnMxcjNw?oc=5",
+      "publishedAt": "2026-11-11"
     },
     {
-      "title": "Georgia-Magyarország: Sallai két győzelemről és Szoboszlai lehetséges pályára lépéséről beszélt - NB1.hu",
-      "publisher": "NB1.hu",
-      "url": "https://news.google.com/rss/articles/CBMipgFBVV95cUxQcFZvVmdQQjVPWVN5YjhjTzdrb3ZSeWg0NmNXNVV6U1FhMDFIb05MMk5CdVFOTmlMUWN4SUE1SkJZMk5IcTVTUnlUSUpVQkp0TVFWbExOcnhpUmJRRk9oMUlvcTIwTEJqTmRmMlJyZHdaZzNKSUdyMGdpMnNnQkNkRWo3dkthNHl1Q0pPamlodzNaUHU4OU9XLW1IQVUzd1B6cDZUTTJn?oc=5",
-      "publishedAt": "2026-11-10"
+      "title": "Látványos a változás a Dunánál: már a húszemeletes házak magasságában jár Magyarország épülő új óriáshídja - Economx.hu",
+      "publisher": "Economx.hu",
+      "url": "https://news.google.com/rss/articles/CBMilAFBVV95cUxNcUFQNnFURGhhOU94RERUdDlzOTJJNVNiSl9ZekRRTU5IVTYwMlR3QmR4WXlxeFF2XzBxU19HamhGMGh5TTJKb1liN1dtcldnTEprZWt1OFZWMW9wbFlfTjh1TDZBT2QwaXBEUzgtSElBaGRoZm56aEhsQ2o3VG01Y2lDOFUycjd2YUJFYjUwb09pSFht?oc=5",
+      "publishedAt": "2026-11-11"
     },
     {
-      "title": "Áll a bál Brüsszelben: Merz ultimátuma miatt veszélybe kerülhet az uniós költségvetés, Magyarország is célkeresztben - Világgazdaság",
+      "title": "Különös részletek derültek ki: Magyarország autópálya-építésről és az útdíjak beszedéséről is nemzetközi megállapodást kötött – a PPP-projektek is előkerültek - Világgazdaság",
       "publisher": "Világgazdaság",
-      "url": "https://news.google.com/rss/articles/CBMikwFBVV95cUxOVm9ma3gxem5vTGl0c3lRX3E1MHJEWWlhdndrOTVxREVoVElDeW9mSEJQT0FPSVlkX2NiX0E2WmlIWl9aU05oOU5kRlFyYmlPWUlZQWFPX2NvelZmdVdBYzlVaU5vRVJtMF8tVDZkc1ExYl9uUDBvX2ZndnFkVlJ2ZUVwTDBTMlV4TE1OdWswaWFxUFk?oc=5",
-      "publishedAt": "2026-11-10"
+      "url": "https://news.google.com/rss/articles/CBMioAFBVV95cUxOYUtiR0RfS2puYlZ2THlNNjhXeDlkbzFMRjJUTFVMeHhVT1UxS0k1M0t3X29EX1c0TEZmRjdkUnFrU0NsbmNta3lWRFZ0cG9ranV6WnFyU1kxcU1hSjl3MFZHbkcwQi1GRXBUTHIyaXhyZTFQTm1BWDNFZy1mZWtHLXkzS1BMQ3A4d3hOQllBaC1FTWhiUE5SZWVualhJZlll?oc=5",
+      "publishedAt": "2026-11-11"
     },
     {
-      "title": "Magyarország dobogós lett Európában az ingatlanárak növekedésében összevetve a jövedelmekkel - Piac&Profit",
-      "publisher": "Piac&Profit",
-      "url": "https://news.google.com/rss/articles/CBMi0wFBVV95cUxNaHJ4emMwMWxFMVdHbm9DV0c2c0paSlliaXdxMlI4THp6NVFNNVZ3SktuaWxMRWNYVm1STkpUQjdVZHpIQzl3Rmg4M1lGM1pWZWpXNFFKV05YUHRWUnhxMk1kcVRtYXN6Tm5LencxSVhHcjdjUUF5MVNpZnN4VGxkRVlVWm9kb3BDUlBvZjhmRzVKeE5Hbll0cS1oZ1dtRlVEZnl5YzlhaWVsR3FJNG4yWXEzcmc1UExOcTZTQ1VUNTBmeXd3clQwcDkta000QzVvYTRJ?oc=5",
-      "publishedAt": "2026-11-10"
+      "title": "VI. Jogi Segítségnyújtási Konferencia - Magyarország Kormánya",
+      "publisher": "Magyarország Kormánya",
+      "url": "https://news.google.com/rss/articles/CBMifkFVX3lxTE1xaFJpMGIzSXRMbHVoSm5tTmxvYW9ReTc0QWY5eXpXNHYyLVFSSU96emg2SExwaGlRcUhjQ1o2bWxsM09IU0NXams0Y0h6S2h6cXFmaWNrUXExMEtMNlRmQmw3a0wtTkJyMnJWZE5qYk5pOTNtaGhZcVRzZHpvQQ?oc=5",
+      "publishedAt": "2026-11-11"
     },
     {
-      "title": "Több mint 400 ezer rászoruló gyermek családjának kézbesítik a 100 ezer forintos iskolakezdési támogatás második részletét utalvány formájában. Ezeket márciusig lehet felhasználni többek közt írószerre, ruhákra és műszaki cikkekre. - Facebook",
+      "title": "Térdig gázol Magyarország az illegális vape-ekben – tombol a feketepiac, a veszély a vásárlóknál marad - Index.hu",
+      "publisher": "Index.hu",
+      "url": "https://news.google.com/rss/articles/CBMipwFBVV95cUxQUHJRMmtnWjFEZnNhaXFDMzcwWHozSHctdWppNDNrYjJEbDgtcHdSbjV2aGI1OWFKalU3TWctS1VmSVNhZ0w4SndoYjAzajF3VmlvRVN2RTRqbTlnQkZ5aFZjSnhVV1h5ZnlTbWZZRU9VODhhbmF4bktPNjhSVWYxTnBDWmU5QU1YX2RMZVQ3TGJiNm1BcTdJRHJFMi1fVWJBQzhMc2pxcw?oc=5",
+      "publishedAt": "2026-11-11"
+    },
+    {
+      "title": "A szabályozástól az innovációig: Nyílt Napot rendez a Campden BRI Magyarország és az EIT Food magyarországi képviselete - Trade magazin",
+      "publisher": "Trade magazin",
+      "url": "https://news.google.com/rss/articles/CBMi3wFBVV95cUxQd2NUZ0RnWG5VYVRmcnBsQ0dFRlVLcUdYSDFpM1QyeWdfZHdUejBZNzAxMnlZek5LYmZITkNZMXkyanUzRzlXbG9DS3hFWUVhVmZCaHlOMXgwUGw0QnVFTUNJaU5GNFI4YTdsUEVmdmJOeU1wYUFnWm1Ea0FIVENBMXdiU29mTEM2Y0hqdld2cUE1dmZSSkR6TXl2bTBzYjcxWXpEUHhuS1VLZnAyNU5mZWhHcXE2UWROdWpmYzVja1gtLVdDb3o3a1VOOU1tQ1lPQWZFRW9ITFJsa0Y1Qmhj?oc=5",
+      "publishedAt": "2026-11-11"
+    },
+    {
+      "title": "Az idei aszályos nyár arra figyelmeztet, hogy minden eszközzel javítani kell a környezet vízmegtartó képességét. Ezért átfogó országfásítási és település-zöldítési programot indítunk. - Facebook",
       "publisher": "Facebook",
-      "url": "https://news.google.com/rss/articles/CBMihgJBVV95cUxPUGlZWGQwelJDRmRxc29SVlZ5eTZnODJvR25iTGVGWXV4ODRlSktkZ25MWm1iMlRjRFZ1SlA0RUlhQWZRQ1NSeGR3NDhoMTY3YUZtaTZRMjRWeHhhaU5pUHZVeVhmOW1GUlRuMmFZdnhSU1FKbVNnV3hrVmgxSWJENUs1eEtPUndmUVpEaTczSDliOHdRZUZvdnZqQnB0SVJFNWRlVkJMY0pyRkpsQ2tpMUtpaHNscDhCY3ViZEJMclBfQTlHclA2MmpYY1l4WEowYS04UDZ1NjF4ZkZPN2N0a0pzbm1zUTNzSE5xdGtfam54bVZ6THNSbVpyOTI1SnY0dzJVenp3?oc=5",
+      "url": "https://news.google.com/rss/articles/CBMi-AFBVV95cUxNMm5qQ0NzUHZ4eElTMzNyb1ZFbFRfdkRnaXlGa20zeEFLODBQS292RmVPWUpta3JmbzAwSlIyQ0hsT0lhVUtnRWJMcmFsSGpKWmhWREFnLTV4VEw0SHdTMzFzY0lYbGd4QlRnUXdjZDBCR0xidm1uQWFmbDdCRXlUNmo5RTc2WUwzazlJR3UwcjBnMWtrMnBjV3NVYXdxYUlGMm5oRXltb0puTE45RjF3NFhhOWFfdFVXVDI3Rk1lU04xZWdpY0FrQmR1WVI3aGJFUUNRdENwSkFZNjhYUGVCLXRDem0xOUZDVE91LXk4LXBaVmhmMk1kdQ?oc=5",
+      "publishedAt": "2026-11-11"
+    },
+    {
+      "title": "Poundland set for more time to secure a rescue deal as emergency talks continue",
+      "publisher": "BBC Business",
+      "url": "https://www.bbc.co.uk/news/articles/c3702jjkez4ko?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-11"
+    },
+    {
+      "title": "Christmas toy rush being driven by squishies and building sets",
+      "publisher": "BBC Business",
+      "url": "https://www.bbc.co.uk/news/articles/cx5ynyg6j375o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-11"
+    },
+    {
+      "title": "Nvidia hires major US law firm to investigate alleged Chinese spy affair",
+      "publisher": "BBC Business",
+      "url": "https://www.bbc.co.uk/news/articles/ck1wvwwl3x0go?at_medium=RSS&at_campaign=rss",
       "publishedAt": "2026-11-10"
     },
     {
-      "title": "Új HR-igazgató a B+N Magyarországnál - HR Portál",
-      "publisher": "HR Portál",
-      "url": "https://news.google.com/rss/articles/CBMigAFBVV95cUxQT2EyWG9JSTA2MF90MG5MS3d4LU1tSGt0LUdKX2tPbU5zOE5YRl9uVFhOM0lMOVA5WUxiYWExNWxjTDdHMTBUZTd2QjF6WXh2UmhGcDZ2bHhvSUlyVVo2MS02QmdPWTdkRklxNnhHSGw0Tk5NdnAyMWdJeVh3VGhhdw?oc=5",
-      "publishedAt": "2026-11-10"
-    },
-    {
-      "title": "Már csak két nap, és Szegedre érkezik a jövő! Dél-Magyarország legnagyobb ingyenes IT-expójára még jegy sem kell! (galéria, videó) – Szegedi hírek - Szeged365",
-      "publisher": "Szeged365",
-      "url": "https://news.google.com/rss/articles/CBMi7gFBVV95cUxNTmEzb0FKcG5YeTB6S3hQWlF1bEFDRTBBUDFWZHI5SWN4R093VzFVVDdFejctSFdtRUtVNWxhOU9ST0dCUlBmaWhSUlRObWE4b0JSS0YzSHI5V0luQ1ZYV29LcTk5a1FnNnMtSDNJVzVvaWpoaTZzZHNGdVVhRUtzZzR6UDFwNkNSVEowTVdORVZnUTdDRVp1QUM5Qi1nanEyMEVxMVVoRVVnc3Nua29POXZBYW9jci1kVVZnNHgzLUxyM1hXQ1l0b3NXVTNrdFREcGtMR0RMVVVNZERfYWhfN3NicjBBVkplclB3cWlB?oc=5",
+      "title": "Claude chatbot maker set for $1.3tn stock market debut despite 'catastrophic' AI warning",
+      "publisher": "BBC Business",
+      "url": "https://www.bbc.co.uk/news/articles/crpdgd723x2zo?at_medium=RSS&at_campaign=rss",
       "publishedAt": "2026-11-10"
     },
     {
@@ -180,45 +205,21 @@
       "publishedAt": "2026-11-10"
     },
     {
+      "title": "Robot vessels take on the dangerous work of mine hunting",
+      "publisher": "BBC Business",
+      "url": "https://www.bbc.co.uk/news/articles/cj5yn24llxd6o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-11"
+    },
+    {
       "title": "Kim Kardashian's Skims offers refunds for $148 advent calendar after backlash",
       "publisher": "BBC Business",
       "url": "https://www.bbc.co.uk/news/articles/cqp8g8p53x6ko?at_medium=RSS&at_campaign=rss",
       "publishedAt": "2026-11-10"
     },
     {
-      "title": "Faisal Islam: What the boss of US tech giant Nvidia told me about China and national security",
+      "title": "US inflation higher than expected in October - here's what is happening with prices",
       "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/c64g1gzy2vdzo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-10"
-    },
-    {
-      "title": "I took Vinted to court to get my money back",
-      "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/cm369e3l15lwo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-10"
-    },
-    {
-      "title": "How a civil servant got away with juggling five jobs for so long",
-      "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/cw1m4d8vjvppo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-09"
-    },
-    {
-      "title": "The superpower battle over energy – and what it means for your bills",
-      "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/cw62y2z53pg1o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-10"
-    },
-    {
-      "title": "Nvidia shares tumble over investigation into Huang's affair with alleged Chinese spy",
-      "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/c6zxjx01vyleo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-09"
-    },
-    {
-      "title": "Australia considers criminal penalties for rogue AI in wake of OpenAI hack",
-      "publisher": "BBC Technology",
-      "url": "https://www.bbc.co.uk/news/articles/cmp3g37l566po?at_medium=RSS&at_campaign=rss",
+      "url": "https://www.bbc.co.uk/news/articles/cwy8lx3pg4k2o?at_medium=RSS&at_campaign=rss",
       "publishedAt": "2026-11-10"
     }
   ]
