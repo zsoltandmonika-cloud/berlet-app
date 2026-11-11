@@ -56,3 +56,81 @@
  #hhTransitPanel #hhSmartMatchPinV1 .hh-smart-match-pin-label{font-size:8px}
  #hhTransitPanel #hhSmartMatchPinV1 span{font-size:8px}
 }
+
+
+/* Smart Location V1 · BKK status, live toggle, Smart Match and location toggle:
+ * one single non-wrapping row, including narrow Samsung screens.
+ * The BKK pilot controller and its toggle behavior stay untouched. */
+#hhTransitPanel #hhBkkLiveBarV796{
+ display:flex!important;flex-flow:row nowrap!important;
+ align-items:center!important;justify-content:space-between!important;
+ gap:5px!important;min-width:0!important;overflow:hidden;
+}
+#hhTransitPanel #hhBkkLiveBarV796 #hhBkkLiveStatusV793{
+ flex:1 1 0!important;width:auto!important;min-width:0!important;
+ font-size:11px!important;line-height:1.25!important;
+ white-space:nowrap!important;overflow:hidden!important;
+ text-overflow:ellipsis!important;margin:0!important;
+}
+#hhTransitPanel #hhBkkLiveBarV796 #hhBkkFocusV796:not([hidden]){
+ /* Preserve the existing button DOM, click event and full ARIA action.
+  * Replace ONLY its visible, overly verbose copy with a 2-state icon. */
+ box-sizing:border-box!important;
+ display:inline-grid!important;place-items:center!important;
+ flex:0 0 42px!important;width:42px!important;min-width:42px!important;
+ max-width:42px!important;height:52px!important;min-height:52px!important;
+ padding:0!important;border-radius:11px!important;
+ font-size:0!important;line-height:1!important;
+ overflow:hidden!important;white-space:nowrap!important;
+}
+#hhTransitPanel #hhBkkLiveBarV796 #hhBkkFocusV796:not([hidden])::before{
+ content:"👁️";font-size:22px;line-height:1;
+}
+#hhTransitPanel #hhBkkLiveBarV796 #hhBkkFocusV796[aria-pressed="false"]:not([hidden])::before{
+ content:"🙈";
+}
+#hhTransitPanel #hhBkkLiveBarV796>#hhSmartMatchPinV1{
+ flex:0 0 107px!important;width:107px!important;min-width:107px!important;
+ max-width:107px!important;min-height:52px!important;
+ margin:0!important;padding:5px 6px!important;
+}
+#hhTransitPanel #hhBkkLiveBarV796>#hhSmartMatchPinV1 .hh-smart-match-pin-label{
+ font-size:8px!important;letter-spacing:0!important;
+}
+#hhTransitPanel #hhBkkLiveBarV796>#hhSmartMatchPinV1 strong{
+ font-size:17px!important;
+}
+#hhTransitPanel #hhBkkLiveBarV796>#hhSmartMatchPinV1 span{
+ font-size:9px!important;
+}
+#hhTransitPanel #hhBkkLiveBarV796>#hhSmartLocationSwitchV1{
+ box-sizing:border-box;flex:0 0 44px;width:44px;min-width:44px;max-width:44px;
+ min-height:52px;height:52px;padding:4px 1px;
+ border-radius:11px;border:1px solid rgba(83,171,199,.65);
+ background:linear-gradient(140deg,rgba(224,244,255,.98),rgba(190,223,246,.88));
+ color:#175372;font:850 11px/1.45 system-ui;
+ white-space:pre-line;text-align:center;cursor:pointer;
+ box-shadow:0 2px 8px rgba(28,74,107,.13);
+}
+#hhTransitPanel #hhBkkLiveBarV796>#hhSmartLocationSwitchV1[aria-pressed="true"]{
+ border-color:rgba(65,187,147,.82);
+ background:linear-gradient(140deg,#c9ffe8,#a8edcc);color:#17604b;
+}
+#hhTransitPanel #hhBkkLiveBarV796>#hhSmartLocationSwitchV1:focus-visible,
+#hhTransitPanel #hhBkkLiveBarV796>#hhBkkFocusV796:focus-visible{
+ outline:3px solid #388cde!important;outline-offset:2px;
+}
+@media(max-width:365px){
+ #hhTransitPanel #hhBkkLiveBarV796{gap:4px!important}
+ #hhTransitPanel #hhBkkLiveBarV796>#hhSmartMatchPinV1{
+  flex-basis:98px!important;width:98px!important;min-width:98px!important;
+  max-width:98px!important;
+ }
+ #hhTransitPanel #hhBkkLiveBarV796 #hhBkkFocusV796:not([hidden]){
+  flex-basis:40px!important;width:40px!important;min-width:40px!important;
+  max-width:40px!important;
+ }
+ #hhTransitPanel #hhBkkLiveBarV796>#hhSmartLocationSwitchV1{
+  flex-basis:40px;width:40px;min-width:40px;max-width:40px;
+ }
+}
