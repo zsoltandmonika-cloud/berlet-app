@@ -14,8 +14,8 @@ const parser=require('../nutrition/hh-interfood-diary-v1175.js');
 test('separate Interfood Ételeim page preserves original Premium tile and official link',()=>{
  assert.match(html,/id="hhInterfoodTileV1173"[^>]+href="https:\/\/rendel\.interfood\.hu\/"/);
  assert.match(html,/interfood-logo-v1174\.webp/);
- assert.match(html,/hh-interfood-diary-v1175\.js\?v=1175-copy-to-diary/);
- assert.match(html,/hh-interfood-diary-v1175\.css\?v=1175-safe-import/);
+ assert.match(html,/hh-interfood-diary-v1175\.js\?v=1177-official-photos/);
+ assert.match(html,/hh-interfood-diary-v1175\.css\?v=1177-official-photos/);
  assert.match(ui,/id='hhInterfoodLibraryV1175'/);
  assert.match(ui,/Interfood ételeim/);
  assert.match(ui,/id="hhIfCards1175"/);
