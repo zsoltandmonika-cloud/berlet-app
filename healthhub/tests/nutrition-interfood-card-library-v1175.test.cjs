@@ -47,7 +47,7 @@ test('parser reads copied published-serving nutrition and retains unknown number
 });
 test('saved cards share existing revision-safe per-profile Nutrition cloud journal',()=>{
  assert.match(core,/quickRecipes:\[\],interfoodCards:\[\]/);
- assert.match(core,/\['entries','body','catalog','units','quickRecipes','interfoodCards'\]/);
+ assert.match(core,/\['entries','body','catalog','units','quickRecipes','interfoodCards','interfoodOrders'\]/);
  assert.match(core,/getInterfoodCards:\(\)=>clone\(read\(active\)\.interfoodCards/);
  assert.match(core,/saveInterfoodCard:payload=>/);
  assert.match(core,/deleteInterfoodCard:payload=>/);
