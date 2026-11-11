@@ -113,7 +113,7 @@ body.pinned #status{
  clip-path:inset(50%)!important;white-space:nowrap!important;
 }
 body.pinned #editor,body.pinned #templates,body.pinned #scheduleInfo,
-body.pinned #matchSummary,body.pinned .notice,body.pinned .footer{display:none!important}
+body.pinned .notice,body.pinned .footer{display:none!important}
 body.pinned #timelinePanel{
  flex:1 1 auto;min-height:95px;
  display:flex;flex-direction:column;overflow:hidden;
@@ -205,3 +205,13 @@ body.pinned .now-marker{margin-left:-20px}
 /* One clear exit action in the fixed bottom dock. The duplicate toolbar at
  * the very top served no purpose and stole usable timeline height. */
 body.pinned #pinnedBanner{display:none!important}
+
+
+/* V3.1: make the actual timetable rows consume the reclaimed text area,
+ * in both normal mode and fullscreen without changing any departure data. */
+body:not(.pinned) #timeline {
+ max-height:min(79dvh,900px);
+}
+body:not(.pinned) #timelinePanel .timeline-wrap {
+ padding-bottom:8px;
+}
