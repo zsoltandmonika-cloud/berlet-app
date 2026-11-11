@@ -10,6 +10,7 @@ const checks=[
  ["/healthhub/guardian/smart-260-connect/core.mjs","sh9.smart-match.template/1"],
  ["/healthhub/guardian/smart-260-connect/style.css","SH9 Smart Match"],
  ["/healthhub/guardian/smart-260-connect/visual-fidelity-v2.css","SHO Smart Match Visual Fidelity V2"],
+ ["/healthhub/guardian/smart-260-connect/clean-fullscreen-v3.css","Smart Match V3"],
  ["/healthhub/guardian/smart-260-connect/assets/smart-match-budapest-neon-hero-v2.svg","<svg"],
  ["/sh9/smart-travel/public-transport/smart-trip/","Smart Match megnyitása"],
  ["/sh9/smart-travel/lena-native/bkk/data/bkk-feed-manifest-v1106.json","feedEnd"]
