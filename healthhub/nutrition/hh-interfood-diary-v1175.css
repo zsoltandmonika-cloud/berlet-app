@@ -83,3 +83,117 @@
  #hhInterfoodLogV1175>small{display:none}
  #hhInterfoodDialogV1175 footer button{font-size:11px}
 }
+
+
+/* v1175 · Full-screen Interfood Ételeim, deliberately isolated from the Nutrition tiles. */
+#hhInterfoodLibraryV1175[hidden],#hhIfToast1175[hidden],#hhIfCardPhoto1175[hidden],
+#hhIfCardPlaceholder1175[hidden],#hhIfCards1175 img[hidden]{display:none!important}
+#hhInterfoodLibraryV1175{
+ position:fixed;z-index:10020;inset:0;box-sizing:border-box;overflow-y:auto;
+ background:radial-gradient(ellipse at 22% -12%,var(--accentWash,rgba(249,122,189,.18)),transparent 63%),
+ linear-gradient(135deg,#081c33,#0a1527 75%,#17172b);
+ color:#f2f7ff;overscroll-behavior:contain;padding:0 0 env(safe-area-inset-bottom,0px);
+}
+.hh-if-library-inner-v1175{width:min(980px,100%);margin:auto;padding:16px max(15px,env(safe-area-inset-left)) 70px}
+.hh-if-library-head-v1175{display:flex;align-items:center;gap:14px;margin-bottom:20px}
+.hh-if-library-head-v1175>div{min-width:0;flex:1}
+.hh-if-library-head-v1175>div>small{color:var(--accent,#f9a6d3);font-size:10px;letter-spacing:.12em;font-weight:900}
+.hh-if-library-head-v1175 h1{margin:4px 0 5px;font-size:clamp(23px,4vw,32px);font-weight:900}
+.hh-if-library-head-v1175 p{margin:0;font-size:12px;color:#c4d9ec}
+.hh-if-library-head-v1175>button{
+ min-height:44px;min-width:44px;border-radius:13px;color:#f5faff;
+ border:1px solid rgba(143,192,233,.38);
+ background:linear-gradient(130deg,#1a3553,#18304c);
+ font-size:19px;font-weight:850;flex:none;padding:8px 13px
+}
+#hhIfNew1175{color:#12243b;background:linear-gradient(120deg,var(--accent,#f9a6d3),#87d5f4);
+ border-color:transparent;font-size:13px}
+.hh-if-library-intro-v1175{padding:18px;border:1px solid rgba(171,209,245,.24);border-radius:20px;
+ background:linear-gradient(125deg,rgba(51,84,122,.26),rgba(20,26,48,.92));margin-bottom:15px}
+.hh-if-library-intro-v1175 strong{font-size:16px}
+.hh-if-library-intro-v1175 p{margin:5px 0 0;font-size:12px;line-height:1.6;color:#bbcfdf}
+.hh-if-library-intro-v1175 a{color:var(--accent,#f9a6d3);font-weight:750;text-decoration:none}
+.hh-if-library-tools-v1175{display:flex;align-items:center;gap:12px;justify-content:space-between;margin:12px 0}
+.hh-if-library-tools-v1175 input{flex:1;min-width:0;min-height:44px;padding:11px 13px;border-radius:13px;
+ border:1px solid rgba(150,196,238,.37);background:#0e223a;color:#f2f9ff}
+.hh-if-library-tools-v1175 small{font-size:11px;white-space:nowrap;color:#a9cce5}
+#hhIfToast1175{padding:12px 13px;margin:10px 0;border-radius:13px;border:1px solid rgba(101,216,178,.55);
+ background:rgba(24,81,68,.55);color:#e1fff5;font-size:12px;line-height:1.55}
+#hhIfToast1175[data-state="warning"]{background:rgba(84,60,26,.64);
+ border-color:rgba(245,187,97,.5);color:#ffe6b5}
+#hhIfToast1175[data-state="error"]{background:rgba(92,26,42,.56);
+ border-color:rgba(244,132,143,.55);color:#ffcad3}
+.hh-if-card-grid-v1175{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.hh-if-food-card-v1175{min-width:0;overflow:hidden;border-radius:19px;
+ background:linear-gradient(145deg,rgba(44,74,112,.28),rgba(10,24,43,.94));
+ border:1px solid rgba(149,199,235,.29);box-shadow:inset 0 1px rgba(255,255,255,.13),0 9px 24px rgba(0,0,0,.18)}
+.hh-if-food-art-v1175{display:flex;height:164px;align-items:center;justify-content:center;
+ overflow:hidden;position:relative;background:linear-gradient(135deg,#193752,#253251 60%,#402947)}
+.hh-if-food-art-v1175>span{font-size:55px;opacity:.9}
+.hh-if-food-art-v1175>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.hh-if-food-info-v1175{display:flex;flex-direction:column;gap:8px;padding:13px 14px 15px}
+.hh-if-food-info-v1175>small{color:var(--accent,#f9a6d3);font-size:10px;letter-spacing:.08em;font-weight:900}
+.hh-if-food-info-v1175>strong{font-size:16px;font-weight:850;line-height:1.35;min-height:43px}
+.hh-if-food-info-v1175>p{margin:0;color:#c5d9eb;font-size:11px;line-height:1.45;min-height:31px}
+.hh-if-card-actions-v1175{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.hh-if-card-actions-v1175>button{min-width:0;min-height:43px;border-radius:11px;
+ font-size:12px;font-weight:820;background:#1d3c5d;border:1px solid #749bb96b;color:#fff}
+.hh-if-card-actions-v1175>.hh-if-log-v1175{color:#071a2e;
+ background:linear-gradient(125deg,var(--accent,#f9a6d3),#91d5f3);border:0}
+.hh-if-card-actions-v1175>button:disabled{opacity:.5}
+.hh-if-empty-v1175{grid-column:1/-1;display:flex;flex-direction:column;gap:11px;align-items:center;
+ text-align:center;padding:45px 20px;color:#ccdef0;border:1px dashed #789bb88e;border-radius:19px}
+.hh-if-empty-v1175>strong{font-size:17px}.hh-if-empty-v1175>small{font-size:12px;max-width:370px;line-height:1.6}
+#hhInterfoodDialogV1175{z-index:10030}
+#hhInterfoodDialogV1175 .hh-if-card-hero-v1175{display:grid;grid-template-columns:155px minmax(0,1fr);
+ gap:15px;padding:10px;margin:0 0 9px;border:1px solid rgba(150,191,231,.25);border-radius:16px;
+ background:linear-gradient(135deg,#102f4c,#23314e 65%,#39273f)}
+#hhInterfoodDialogV1175 .hh-if-card-art-v1175{display:flex;align-items:center;justify-content:center;
+ background:#193350;border-radius:12px;overflow:hidden;position:relative;min-height:142px}
+#hhInterfoodDialogV1175 .hh-if-card-art-v1175>span{font-size:50px}
+#hhInterfoodDialogV1175 .hh-if-card-art-v1175>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+#hhInterfoodDialogV1175 .hh-if-card-hero-copy-v1175{display:flex;flex-direction:column;justify-content:center;gap:8px;min-width:0}
+#hhInterfoodDialogV1175 .hh-if-card-hero-copy-v1175>small:first-child{font-size:10px;font-weight:900;letter-spacing:.1em;color:var(--accent,#f9a6d3)}
+#hhInterfoodDialogV1175 .hh-if-card-hero-copy-v1175>strong{font-size:17px;line-height:1.25;word-break:break-word}
+#hhInterfoodDialogV1175 .hh-if-upload-v1175{display:inline-flex!important;flex:none!important;
+ padding:10px 12px!important;align-items:center;justify-content:center;width:max-content;max-width:100%;
+ min-height:41px;border:1px solid rgba(249,166,211,.6);border-radius:11px;background:#263f60;
+ font-size:12px!important;cursor:pointer}
+#hhInterfoodDialogV1175 .hh-if-card-hero-copy-v1175>small:last-child{color:#b5cee3;font-size:10px;line-height:1.35}
+#hhInterfoodDialogV1175 .hh-if-options-v1175{border:1px solid rgba(149,191,232,.25);
+ background:rgba(35,62,90,.22);border-radius:13px;padding:12px 13px;display:flex;flex-direction:column;gap:10px}
+#hhInterfoodDialogV1175 .hh-if-options-v1175 legend{color:#d9eafd;font-size:12px;font-weight:850;padding:0 4px}
+#hhInterfoodDialogV1175 .hh-if-options-v1175 label{display:flex;flex-direction:row;gap:10px;
+ align-items:center;font-weight:700;color:#e4eefd;cursor:pointer}
+#hhInterfoodDialogV1175 .hh-if-options-v1175 label input{width:19px;height:19px;min-height:19px;
+ flex:none;accent-color:var(--accent,#f9a6d3)}
+#hhInterfoodDialogV1175 footer{flex-wrap:wrap}
+#hhIfDelete1175{background:rgba(123,44,56,.45);color:#ffd9d9;border:1px solid rgba(255,128,128,.25)}
+#hhIfSave1175{flex:2!important;min-width:185px}
+@media(max-width:600px){
+ .hh-if-card-grid-v1175{grid-template-columns:1fr}
+ .hh-if-library-inner-v1175{padding:13px 12px 70px}
+ .hh-if-library-head-v1175{gap:8px}
+ .hh-if-library-head-v1175 h1{font-size:21px}
+ .hh-if-library-head-v1175>button{font-size:17px;padding:8px 10px}
+ #hhIfNew1175{font-size:11px}
+ .hh-if-food-card-v1175{display:grid;grid-template-columns:116px minmax(0,1fr)}
+ .hh-if-food-art-v1175{height:100%;min-height:162px}
+ .hh-if-food-info-v1175{padding:11px;gap:6px}
+ .hh-if-food-info-v1175>strong{font-size:14px;min-height:0}
+ .hh-if-food-info-v1175>p{font-size:10px}
+ .hh-if-card-actions-v1175>button{font-size:11px;padding:6px}
+ #hhInterfoodDialogV1175 .hh-if-card-hero-v1175{grid-template-columns:110px minmax(0,1fr);gap:11px}
+ #hhInterfoodDialogV1175 .hh-if-card-art-v1175{min-height:120px}
+ #hhInterfoodDialogV1175 .hh-if-card-hero-copy-v1175>strong{font-size:15px}
+}
+@media(max-width:360px){
+ .hh-if-library-head-v1175 h1{font-size:18px}
+ .hh-if-food-card-v1175{grid-template-columns:92px minmax(0,1fr)}
+ .hh-if-card-actions-v1175{grid-template-columns:1fr}
+ #hhInterfoodDialogV1175 .hh-if-card-hero-v1175{grid-template-columns:90px minmax(0,1fr)}
+ #hhInterfoodDialogV1175 .hh-if-card-art-v1175{min-height:110px}
+}
+@media(prefers-reduced-motion:reduce){
+ #hhInterfoodLibraryV1175,#hhInterfoodDialogV1175{scroll-behavior:auto}
+}
