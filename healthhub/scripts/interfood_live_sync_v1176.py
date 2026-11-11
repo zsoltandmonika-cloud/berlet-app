@@ -1,0 +1,182 @@
+#!/usr/bin/env python3
+"""HealthHub Interfood Live v1176.
+Fetch public anonymous menu HTML, extract verifiable food text and source image URLs.
+No login, credentials, personal data, artificial nutrition estimates or paid APIs.
+Fail closed on markup changes: previous verified JSON remains unchanged on GitHub.
+"""
+from __future__ import annotations
+import datetime as dt
+import json
+import os
+import re
+import sys
+import urllib.parse
+import urllib.request
+from pathlib import Path
+
+from bs4 import BeautifulSoup
+
+SOURCE = "https://rendel.interfood.hu/"
+OUTPUT = Path("healthhub/nutrition/interfood-live-feed-v1176.json")
+CATEGORIES = {
+    "Sport és egészség","Levesek","Saláta","Fitness","Rántott ételek","Főzelék",
+    "Világkonyha","Tortilla","Főétel","Vadvilág","Menük","Hidegtál","Desszert",
+    "Vegán","Zéró","Savanyúság","Pékáru","Karcsúsító","Libakaland"
+}
+CODE = re.compile(r"^([A-Z]{1,5}\d{0,3}K?)\s*[-–]\s*(.{2,80})$", re.I)
+NUTRI = re.compile(
+    r"(?P<kcal>\d{1,4}(?:[.,]\d+)?)\s*kcal\s*[,;·]\s*"
+    r"(?P<carbs>\d{1,3}(?:[.,]\d+)?)\s*g\s*szénh(?:\.|idrát)?\s*[,;·]\s*"
+    r"(?P<protein>\d{1,3}(?:[.,]\d+)?)\s*g\s*fehérje\s*[,;·]\s*"
+    r"(?P<fat>\d{1,3}(?:[.,]\d+)?)\s*g\s*zsír", re.I)
+PRICE = re.compile(r"^([\d\s]{3,8})\s*Ft$", re.I)
+DAY = re.compile(r"\b(20\d{2})\.(\d\d)\.(\d\d)\.")
+WEEK = re.compile(r"\b(\d{1,2})\.\s*hét\b", re.I)
+SKIP = re.compile(r"^(?:Image:|Húsmentes|Last Minute|Kis adag|Új|Gomba|^\d+$|Ft$)",re.I)
+BAD_NAME = re.compile(r"^(?:hétfő|kedd|szerda|csütörtök|péntek|szombat|vasárnap|\d{4}\.)",re.I)
+
+
+def html_text(html: str):
+    soup=BeautifulSoup(html,"html.parser")
+    for bad in soup(["script","style","noscript","iframe","svg"]):
+        bad.decompose()
+    lines=[re.sub(r"\s+"," ",x).strip() for x in soup.stripped_strings]
+    return soup,[x for x in lines if x]
+
+
+def trusted_image(raw: str | None) -> str | None:
+    if not raw or len(raw)>800:
+        return None
+    url=urllib.parse.urljoin(SOURCE,raw.strip())
+    p=urllib.parse.urlparse(url)
+    if p.scheme!="https" or not p.hostname or (
+       p.hostname!="interfood.hu" and not p.hostname.endswith(".interfood.hu")):
+        return None
+    if not re.search(r"\.(?:jpe?g|png|webp)(?:$|[?#])",p.path,re.I):
+        return None
+    if re.search(r"(icon|badge|label|facebook|logo|default|placeholder|stamp|svg)",p.path,re.I):
+        return None
+    return url
+
+
+def image_near(element) -> str | None:
+    if element is None:
+        return None
+    current=element
+    # Choose the tightest wrapper with a real image and at most one food code.
+    for _ in range(5):
+        if current is None or not getattr(current,"find_all",None):break
+        text=current.get_text(" ",strip=True)
+        if len(text)>1200:break
+        for img in current.find_all("img",limit=9):
+            for field in ("data-src","data-original","data-lazy-src","src"):
+                candidate=trusted_image(img.get(field))
+                if candidate:return candidate
+        for el in current.find_all(style=True,limit=9):
+            m=re.search(r"background(?:-image)?\s*:[^;]*url\(\s*['\"]?([^'\"\)]+)",el.get("style",""),re.I)
+            if m:
+                candidate=trusted_image(m.group(1))
+                if candidate:return candidate
+        current=current.parent
+    return None
+
+
+def parse(html: str, now: dt.datetime):
+    soup,lines=html_text(html)
+    week_match=WEEK.search(" ".join(lines[:120]))
+    week=int(week_match.group(1)) if week_match else None
+    selected_date=None
+    # Only use an explicitly tagged selected day (never infer an item's delivery day).
+    selected=soup.select_one("[aria-selected='true'][data-date], .active[data-date], [data-selected='true'][data-date]")
+    if selected:
+        m=DAY.search(selected.get("data-date","")) or DAY.search(selected.get_text(" ",strip=True))
+        if m:
+            selected_date="-".join(m.groups())
+    result={}
+    category=None
+    labels={"Főétel","Desszert","Leves","Sport és egészség","Sport desszert","Vegán","Főzelék","Kis adag","Vegán kis adag","Menü","Tortilla"}
+    for i,line in enumerate(lines):
+        if line in CATEGORIES:
+            category=line
+            continue
+        m=CODE.match(line)
+        if not m:continue
+        code=m.group(1).upper()
+        desc=m.group(2).strip()
+        if code.isdigit() or len(code)>8:continue
+        name=next((t for t in lines[i+1:i+7] if
+            7<=len(t)<=100 and not CODE.match(t) and
+            t not in CATEGORIES and t not in labels and
+            not SKIP.match(t) and not BAD_NAME.match(t) and
+            not PRICE.match(t) and not NUTRI.search(t) and
+            not re.search(r"\b(kcal|szénh|fehérje|zsír)\b",t,re.I)),None)
+        if not name:continue
+        nutrient_line=next((x for x in lines[i+1:i+9] if NUTRI.search(x)),None)
+        macro=NUTRI.search(nutrient_line) if nutrient_line else None
+        nutrients=({k:float(macro.group(k).replace(",",".")) for k in
+            ("kcal","protein","carbs","fat")} if macro else
+            {"kcal":None,"protein":None,"carbs":None,"fat":None})
+        if nutrients["kcal"] is not None and not 0<=nutrients["kcal"]<=5000:continue
+        # Limit candidate scope to the immediate text parent (avoid unrelated photos).
+        target=soup.find(string=lambda t: bool(t and t.strip()==line))
+        image=image_near(target.parent if target else None)
+        key=code+"|"+name.casefold()
+        if key in result:continue
+        result[key]={
+            "id":"if-"+re.sub(r"[^a-z0-9]+","-",code.lower()+"-"+name.lower())[:110],
+            "code":code,"name":name,
+            "category":category or desc,"label":desc,
+            "menuDate":selected_date,
+            "week":week,"nutrients":nutrients,
+            "imageUrl":image,"sourceUrl":SOURCE,
+            "nutritionBasis":"published-per-serving" if macro else "not-published",
+            "imageBasis":"public-source-url" if image else "no-public-image",
+        }
+    items=list(result.values())
+    items.sort(key=lambda x:(x["category"],x["code"],x["name"]))
+    return {
+        "schemaVersion":"healthhub.interfood.live/1",
+        "updatedAt":now.isoformat(timespec="seconds").replace("+00:00","Z"),
+        "sourceUrl":SOURCE,"week":week,"selectedDate":selected_date,
+        "items":items
+    }
+
+
+def main():
+    headers={"User-Agent":"Mozilla/5.0 (compatible; HealthHubPublicMenuRead/1.0; personal-use)",
+             "Accept":"text/html,application/xhtml+xml","Accept-Language":"hu-HU,hu;q=0.9"}
+    request=urllib.request.Request(SOURCE,headers=headers,method="GET")
+    with urllib.request.urlopen(request,timeout=22) as resp:
+        mime=resp.headers.get("Content-Type","")
+        html=resp.read(3_000_000).decode("utf-8",errors="replace")
+        print("Source HTTP:",resp.status,"content-type:",mime,"bytes:",len(html))
+    if "html" not in mime.lower() or len(html)<1200:
+        raise RuntimeError("Public Interfood HTML unavailable")
+    now=dt.datetime.now(dt.timezone.utc)
+    feed=parse(html,now)
+    n=len(feed["items"])
+    with_nut=sum(x["nutrients"]["kcal"] is not None for x in feed["items"])
+    with_image=sum(x["imageUrl"] is not None for x in feed["items"])
+    print("Extracted:",n,"foods,",with_nut,"complete macro sets,",with_image,
+          "public image URLs; week:",feed["week"],"selected day:",feed["selectedDate"])
+    for x in feed["items"][:3]:
+        print("Sample public item:",x["code"],x["name"][:75],x["nutritionBasis"])
+    if n<8 or with_nut<3:
+        # Snapshot failure is loud. Previous verified public feed stays untouched.
+        print("DEBUG around food code / serialized page markers:",file=sys.stderr)
+        for needle in ["D9","SP1","__NEXT_DATA__","__NUXT__","application/ld+json"]:
+            idx=html.find(needle)
+            print(needle,"offset:",idx,"preview:",
+                  re.sub(r"\s+"," ",html[max(0,idx-90):idx+400])[:460] if idx>=0 else "",
+                  file=sys.stderr)
+        raise RuntimeError("Interfood menu parsing validation failed; refusing empty/stale publish")
+    OUTPUT.parent.mkdir(parents=True,exist_ok=True)
+    OUTPUT.write_text(json.dumps(feed,ensure_ascii=False,separators=(",",":"))+"\n",encoding="utf-8")
+    print("Written validated feed:",OUTPUT)
+
+
+if __name__=="__main__":
+    try:main()
+    except Exception as e:
+        print("Interfood Sync ERROR:",str(e),file=sys.stderr)
+        sys.exit(1)
