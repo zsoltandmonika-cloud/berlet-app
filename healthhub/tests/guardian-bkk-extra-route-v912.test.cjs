@@ -9,12 +9,13 @@ test('v912 existing BKK directed GTFS stop patterns cover tram 41, HEV H5 and me
  assert.notEqual(parsed.get('bus:19'),parsed.get('tram:19'));
  assert.match(network.limitations,/One most-frequent stop pattern/);
 });
-test('v912 Watchlist offers independent Mutasd and Élő toggle for any source-backed BKK favorite',()=>{
+test('v912 Watchlist offers one Mutasd/Elrejt toggle for source-backed BKK favorites',()=>{
  const s=read('guardian-bkk-watchlist-v814.js');
  assert.match(s,/if\(route\)\{/);
  assert.match(s,/extra\.showLine\(key\)/);
  assert.match(s,/extra\.setLineVisible\(key,false\)/);
- assert.match(s,/if\(route&&liveFilter\)/);
+ assert.match(s,/const liveFilter=w\.HH_BKK_LIVE_PER_LINE_V909/);
+ assert.match(s,/hh-bkk-watch-unified-v1/);
  assert.match(read('index.html'),/guardian-bkk-extra-route-v912\.js/);
 });
 test('v912 popup is opt-in, source-aware, and does not invent vehicle locations/ETA',()=>{
