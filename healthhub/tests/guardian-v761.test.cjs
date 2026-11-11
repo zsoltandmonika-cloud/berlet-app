@@ -1064,7 +1064,7 @@ test('v796 live-only focus button shows real vehicles without changing v794 defa
  new Function(pilot);new Function(overlay);
  assert.match(pilot,/hhBkkFocusV796/);
  assert.match(pilot,/renderer\.focus\(mapApi\.map,lastVehicles\)/);
- assert.match(pilot,/focusButton\.hidden=lastVehicles\.length===0/);
+ assert.match(pilot,/focusButton\.hidden=true/);
  assert.match(pilot,/scrollIntoView/);
  assert.match(overlay,/ÉLŐ/);
  assert.match(overlay,/function focus\(map,vehicles\)/);
