@@ -27,6 +27,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - name: Install pinned public HTML parser
+        run: python -m pip install --disable-pip-version-check beautifulsoup4==4.12.3
       - name: Public Interfood menu extraction (no account, no credentials)
         run: python healthhub/scripts/interfood_live_sync_v1176.py
       - name: Commit validated public feed only if changed
