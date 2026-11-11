@@ -79,7 +79,7 @@ function hydrate(){
  $("timeFrom").value=timeField(item.startHour??13);
  $("timeUntil").value=timeField(item.endHour??19);
  renderFeederChecks(item.feederRoutes||[]);
- applyFormModes();chipButtons();renderFlow(item);metrics(item);
+ applyFormModes();chipButtons();renderPinnedSelector();renderFlow(item);metrics(item);
  $("timelineSubtitle").textContent=displayName(item)+" · menetrend szerint";
 }
 function availableRoutes(){
@@ -166,20 +166,68 @@ function metrics(item){
  $("walkMetric").textContent=item.originWalkMin+" + "+item.originSafetyMin+" perc";
  $("heroLabel").textContent=item.type==="walk"?"Következő indulás otthonról":"Következő indulás "+(item.originLabel||"az irodából")+" helyszínről";
 }
-function renderFlow(item){
- const flow=$("routeFlow");flow.replaceChildren();
- const tokens=item.type==="walk"?[
-  "🏠 "+(item.originLabel||"Otthon"),"🚶 "+item.originWalkMin+" perc",
-  "🚌 "+item.targetRoute+" · "+item.targetStop,"📍 "+(item.destinationLabel||"Cél")
- ]:[
-  "🏢 "+item.originLabel,"🚶 "+item.originWalkMin+" perc",
-  "🚋 "+item.feederRoutes.join(" / "),"🔁 "+item.transferStop,
-  "🚌 "+item.targetRoute,"🏡 "+item.destinationLabel
- ];
- for(const [i,label] of tokens.entries()){
-  if(i){const arrow=document.createElement("i");arrow.textContent="→";flow.append(arrow)}
-  const token=document.createElement("span");token.textContent=label;flow.append(token);
+function getMode(line){
+ // Source-backed mode; the renderer is not hardwired to a bus/tram list.
+ return state.data?.trips.find(t=>t[0]===line)?.[4]||
+  (line==="260"?"bus":"tram");
+}
+function routeFlowStages(item){
+ // Future Smart Trip results may provide arbitrary validated travel stages.
+ // Render them as data, without extending today's 4-line routing coverage.
+ if(Array.isArray(item.flowSteps)&&item.flowSteps.length>=2&&item.flowSteps.length<=12){
+  const valid=new Set(["origin","walk","tram","bus","metro","train","transfer","destination","ferry"]);
+  if(item.flowSteps.every(s=>s&&valid.has(s.role)&&typeof s.label==="string"&&s.label.length<=90))
+   return item.flowSteps.map(s=>({role:s.role,label:s.label,detail:String(s.detail||"").slice(0,120)}));
  }
+ const walking=item.type==="walk";
+ const original=String(item.originLabel||"Indulás");
+ const destination=String(item.destinationLabel||"Cél");
+ const feeders=(item.feederRoutes||[]);
+ const feederModes=new Set(feeders.map(getMode));
+ const feederMode=feederModes.size===1?[...feederModes][0]:"tram";
+ const targetMode=getMode(item.targetRoute);
+ return walking?[
+  {role:"origin",label:original,detail:"Kiindulás"},
+  {role:"walk",label:item.originWalkMin+" perc",detail:"Séta a megállóig"},
+  {role:targetMode,label:item.targetRoute,detail:item.targetStop},
+  {role:"destination",label:destination,detail:"Érkezés"}
+ ]:[
+  {role:"origin",label:original,detail:"Indulás"},
+  {role:"walk",label:item.originWalkMin+" perc",detail:"Séta"},
+  {role:feederMode,label:feeders.join(" / "),detail:item.originStop},
+  {role:"transfer",label:"Átszállás",detail:item.transferStop},
+  {role:targetMode,label:item.targetRoute,detail:item.targetHeadsign||item.targetStop},
+  {role:"destination",label:destination,detail:"Érkezés"}
+ ];
+}
+function renderFlow(item){
+ const icons={origin:"🏢",walk:"🚶",tram:"🚋",bus:"🚌",metro:"🚇",
+  train:"🚆",ferry:"⛴️",transfer:"⇄",destination:"🏠"};
+ const steps=routeFlowStages(item),flow=$("routeFlow");
+ flow.replaceChildren();
+ flow.style.setProperty("--steps",String(Math.min(6,steps.length)));
+ flow.dataset.overflow=steps.length>6?"yes":"no";
+ for(const step of steps){
+  const node=document.createElement("span");
+  node.className="v2-step";node.dataset.role=step.role;
+  const pict=document.createElement("span");pict.className="v2-step-icon";
+  pict.textContent=icons[step.role]||"📍";
+  const label=document.createElement("span");label.className="v2-step-label";
+  label.textContent=step.label;
+  const detail=document.createElement("span");detail.className="v2-step-detail";
+  detail.textContent=step.detail||"";
+  node.append(pict,label,detail);flow.append(node);
+ }
+}
+function renderPinnedSelector(){
+ const select=$("pinTemplateSelect");
+ if(!select)return;
+ select.replaceChildren();
+ for(const item of state.items){
+  const o=document.createElement("option");o.value=item.id;o.textContent=displayName(item);
+  select.append(o);
+ }
+ select.value=state.current;
 }
 function addMini(host,time,label){
  const div=document.createElement("div");div.className="row-mini";
@@ -371,11 +419,19 @@ function initEvents(){
   try{enterPinned()}catch(e){toast("⚠️ "+e.message)}
  });
  $("exitPin").addEventListener("click",leavePinned);
+ $("pinEdit")?.addEventListener("click",leavePinned);
+ $("pinReminder")?.addEventListener("click",()=>$("remindBtn").click());
+ $("pinTemplateSelect")?.addEventListener("change",e=>{
+  const id=e.target.value;
+  if(!state.items.some(x=>x.id===id))return;
+  state.current=id;hydrate();computeRoute();
+ });
  $("dayNext").addEventListener("click",()=>stepDay(1));
  $("day").addEventListener("change",()=>computeRoute());
  $("remindBtn").addEventListener("click",async()=>{
   state.reminderEnabled=!state.reminderEnabled;
   $("remindBtn").textContent=state.reminderEnabled?"🔔 Jelzés BE (nyitott lap)":"🔔 Lapon belüli jelzés";
+  if($("pinReminder"))$("pinReminder").setAttribute("aria-pressed",String(state.reminderEnabled));
   if(state.reminderEnabled&&typeof Notification!=="undefined"&&Notification.permission==="default"){
    try{await Notification.requestPermission()}catch(_){}
   }
