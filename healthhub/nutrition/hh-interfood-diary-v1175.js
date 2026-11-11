@@ -128,6 +128,9 @@ function resetEditor(card=null){
   by('hhIfCardPlaceholder1175').hidden=true;
   by('hhIfCardPhoto1175').hidden=false;
  });
+ else if(card?.imageUrl)loadPublicPhoto(by('hhIfCardPhoto1175'),card.imageUrl,()=>{
+  by('hhIfCardPlaceholder1175').hidden=true;
+ });
 }
 async function preparePhoto(){
  const file=by('hhIfPhoto1175').files?.[0];
@@ -156,6 +159,21 @@ async function preparePhoto(){
   notice('Fotó előkészítve, a kártya mentésével feltöltjük.');
  }catch(err){notice(String(err.message||err),'error');}
  finally{URL.revokeObjectURL(url);}
+}
+function publicPhotoURL(value){
+ try{
+  const u=new URL(String(value||''));
+  if(u.protocol==='https:'&&(u.hostname==='interfood.hu'||u.hostname.endsWith('.interfood.hu'))&&
+   /\.(?:png|webp|jpe?g)$/i.test(u.pathname))return u.href;
+ }catch(_){}
+ return null;
+}
+function loadPublicPhoto(img,url,ready){
+ const safe=publicPhotoURL(url);if(!safe)return;
+ img.referrerPolicy='no-referrer';img.loading='lazy';img.decoding='async';
+ img.onerror=()=>{img.hidden=true;};
+ img.onload=()=>{img.hidden=false;if(ready)ready();};
+ img.src=safe;
 }
 async function loadImage(img,ref,profile,ready){
  const v=vault();
@@ -186,9 +204,10 @@ async function renderCards(){
   const item=doc.createElement('article');item.className='hh-if-food-card-v1175';
   const frame=doc.createElement('div');frame.className='hh-if-food-art-v1175';
   const emoji=doc.createElement('span');emoji.textContent='🍱';frame.append(emoji);
-  if(card.imageRef){
+  if(card.imageRef||card.imageUrl){
    const img=doc.createElement('img');img.alt='';img.hidden=true;img.loading='lazy';frame.append(img);
-   loadImage(img,card.imageRef,owner);
+   if(card.imageRef)loadImage(img,card.imageRef,owner);
+   else loadPublicPhoto(img,card.imageUrl);
   }
   const info=doc.createElement('div');info.className='hh-if-food-info-v1175';
   const code=doc.createElement('small');code.textContent=(card.code||'INTERFOOD')+(card.menuDate?' · '+card.menuDate:'');
@@ -418,6 +437,6 @@ if(doc){
  if(doc.readyState==='loading')doc.addEventListener('DOMContentLoaded',init,{once:true});
  else init();
 }
-root.HH_INTERFOOD_DIARY_V1175=Object.freeze({parseMenuCopy,scale,openLibrary});
+root.HH_INTERFOOD_DIARY_V1175=Object.freeze({parseMenuCopy,scale,openLibrary,refreshCards:renderCards});
 if(typeof module!=='undefined'&&module.exports)module.exports={parseMenuCopy,scale};
 })(typeof window!=='undefined'?window:{},typeof document!=='undefined'?document:null);
