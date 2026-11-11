@@ -450,7 +450,14 @@ function updateFull260Timeline(now=Date.now(),redraw=false){
  if(!rows.length)return;
  const today=budapestDay(now),isToday=day===today,pastDay=day<today;
  const first=rows.findIndex(x=>x.departMs>=now);
- const next=pastDay?-1:first>=0?first:isToday?-1:0;
+ // The homebound HERO is a door-to-door recommendation, not a bus stop board:
+ // select only a connection whose office departure has not been missed.
+ // All scheduled 260 services remain independently visible in the timeline.
+ const workToHome=state.full260?.direction==="home";
+ const next=pastDay?-1:workToHome?
+  rows.findIndex(x=>x.connectionOk&&Number.isFinite(x.leaveMs)&&
+   (!isToday||x.leaveMs>=now)):
+  first>=0?first:isToday?-1:0;
  const marker=$("nowMarker");if(marker)marker.remove();
  all.forEach((el,i)=>{
   el.classList.toggle("past",pastDay||isToday&&rows[i].departMs<now);
@@ -480,24 +487,30 @@ function updateFull260Timeline(now=Date.now(),redraw=false){
   destinationArriveMs:goingToWork?connection.arriveAtDestinationMs:bus.arriveAtDestinationMs,
   busDepartMs:bus.departMs
  }:{direction:bus?.direction,busDepartMs:bus?.departMs});
- $("countdownLabel").textContent="260-asig";
+ $("countdownLabel").textContent=workToHome?"irodai indulásig":"260-asig";
  if(bus){
-  $("heroTime").textContent=clockFmt(bus.departMs);
   const safe=bus.connectionOk&&Number.isFinite(bus.leaveMs)&&
    (!isToday||bus.leaveMs>=now);
-  $("heroDetail").textContent="🚌 "+bus.stop+" · "+bus.headsign+
-   " · "+clockFmt(bus.departMs)+
-   (safe?" · indulás "+(/otthon/i.test(state.result.config.originLabel)?"otthonról ":"az irodából ")+
-    clockFmt(bus.leaveMs):
-    " · ehhez nincs már elérhető, igazolt csatlakozás");
-  const remain=Math.max(0,Math.floor((bus.departMs-now)/1000));
+  const focusMs=workToHome?bus.leaveMs:bus.departMs;
+  $("heroTime").textContent=clockFmt(focusMs);
+  $("heroDetail").textContent=workToHome?
+   "🏢 Indulás az irodából · "+clockFmt(bus.leaveMs)+
+    " · 🚋 "+bus.match.best.feederLine+"-es "+clockFmt(bus.match.best.feederDepartMs)+
+    " · 🚌 260-as "+clockFmt(bus.departMs)+" (menetrend szerint)":
+   "🚌 "+bus.stop+" · "+bus.headsign+
+    " · "+clockFmt(bus.departMs)+
+    (safe?" · indulás otthonról "+clockFmt(bus.leaveMs):
+     " · ehhez nincs már elérhető, igazolt csatlakozás");
+  const remain=Math.max(0,Math.floor((focusMs-now)/1000));
   const hr=Math.floor(remain/3600),mn=Math.floor(remain%3600/60),sec=remain%60;
   $("countdown").textContent=(hr?String(hr).padStart(2,"0")+":":"")+
    String(mn).padStart(2,"0")+":"+String(sec).padStart(2,"0");
   $("ring").style.setProperty("--progress",Math.max(0,Math.min(100,(3600-remain)/3600*100)).toFixed(1)+"%");
  }else{
   $("heroTime").textContent="--:--";$("countdown").textContent="--:--";
-  $("heroDetail").textContent="Ezen a napon nincs több 260-as indulás ebből a megállóból.";
+  $("heroDetail").textContent=workToHome?
+   "Nincs már elérhető, megfelelő csatlakozás az irodából. A 260-asok alább csak menetrendi adatok.":
+   "Ezen a napon nincs több 260-as indulás ebből a megállóból.";
   $("ring").style.setProperty("--progress","0%");
  }
  if(state.lastNext!==next||redraw){
@@ -654,7 +667,9 @@ async function computeRoute({useForm=false}={}){
    (state.full260?state.full260.rows.length+" db 260-as indulás, ":"")+
    result.matchingCount+" jó csatlakozás · adatfrissítés: "+
    new Date(state.manifest.validatedAt).toLocaleString("hu-HU",{timeZone:"Europe/Budapest"});
-  if(state.full260){$("heroLabel").textContent="Következő 260-as · "+state.full260.stop;
+  if(state.full260){$("heroLabel").textContent=state.full260.direction==="home"?
+   "Következő ajánlott indulás az irodából":
+   "Következő 260-as · "+state.full260.stop;
    $("windowMetric").textContent="Teljes nap · 260";}
   renderResults(item);
  }catch(e){
