@@ -590,3 +590,9 @@ html body .shell>main>#hhTransitPanel.hh-transit-panel:has(>#hhBkkLiveBarV796) #
 html body .shell>main>#hhTransitPanel.hh-transit-panel:has(>#hhBkkLiveBarV796) #hhBkkWatchEditV814::before {
   transform:translate(-2px, 2px)!important;
 }
+
+/* Golden V5.5: move only the Smart Match departure time 2px down within its tile.
+   No other content, dimensions, or transit behavior changes. */
+html body .shell>main>#hhTransitPanel.hh-transit-panel #hhBkkLiveBarV796>#hhSmartMatchPinV1 strong {
+  transform:translateY(2px)!important;
+}
