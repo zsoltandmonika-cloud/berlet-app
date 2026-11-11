@@ -317,6 +317,7 @@ function updateFlowTimes(item,trip=null){
   const shown=valid(point.time);
   stamp.textContent=shown?when(point.time,point.estimated):"—";
   stamp.classList.toggle("is-empty",!shown);
+  stamp.classList.toggle("is-estimated",shown&&Boolean(point.estimated));
   stamp.dateTime=shown?new Date(point.time).toISOString():"";
   stamp.setAttribute("aria-label",shown?
    (point.estimated?"Becsült időpont: ":"Menetrendi időpont: ")+clockFmt(point.time):
