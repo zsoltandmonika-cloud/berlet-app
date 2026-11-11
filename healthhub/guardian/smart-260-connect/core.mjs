@@ -189,6 +189,25 @@ function full260Timetable(data,date,direction,clock=Date.now()){
   source:"BKK Zrt., CC BY 4.0",live:false};
 }
 
+function pair260Connections(timetable,connections,cfg){
+ if(!timetable||!Array.isArray(timetable.rows))throw Error("260-as menetrend nélkül nem kapcsolható csatlakozás.");
+ const rows=connections?.rows||[],dir=timetable.direction;
+ return {...timetable,rows:timetable.rows.map(bus=>{
+  const match=rows.filter(r=>{
+   if(!r.best)return false;
+   if(cfg.type==="walk")return r.departMs===bus.departMs;
+   return dir==="work"?r.best.feederLine==="260"&&
+    r.best.feederDepartMs===bus.departMs:r.departMs===bus.departMs;
+  }).sort((a,b)=>{
+   const aw=Math.abs((a.best?.waitMin||0)-2),bw=Math.abs((b.best?.waitMin||0)-2);
+   return aw-bw||a.departMs-b.departMs;
+  })[0]||null;
+  const leaveMs=match?.best?.leaveOfficeMs??(cfg.type==="walk"?
+   bus.departMs-(cfg.originWalkMin+cfg.originSafetyMin)*60000:null);
+  return {...bus,match,leaveMs,connectionOk:!!match};
+ })};
+}
+
 function nextIndex(rows,now=Date.now()){
  return rows.findIndex(r=>r.best&&r.best.leaveOfficeMs>=now);
 }
@@ -257,5 +276,5 @@ function walkOnlyOptions(data,date,cfg=HOME,clock=Date.now()){
 function compute(data,date,cfg,clock=Date.now()){
  return cfg?.type==="walk"?walkOnlyOptions(data,date,cfg,clock):options(data,date,cfg,clock);
 }
-export {DEFAULT,HOME,REVERSE,SAMPLES,BUS_260_DIRECTIONS,bus260DirectionForTemplate,full260Timetable,
+export {DEFAULT,HOME,REVERSE,SAMPLES,BUS_260_DIRECTIONS,bus260DirectionForTemplate,full260Timetable,pair260Connections,
  clean,dist,validConfig,indexStops,options,walkOnlyOptions,compute,nextIndex};
