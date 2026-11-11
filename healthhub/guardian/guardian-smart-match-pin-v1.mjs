@@ -7,7 +7,7 @@ const STORAGE="sh9-smart-match-templates-v1-m";
 const ACTIVE="sh9-smart-match-active-pin-v1-m";
 const CITRONELLA_DEFAULT_APPLIED="hh-smart-match-citronella-default-v2-m";
 const FULL="/berlet-app/healthhub/guardian/smart-260-connect/";
-import {HOME as MONIKA_DEFAULT,compute} from "./smart-260-connect/core.mjs";
+import {HOME as MONIKA_DEFAULT,compute,bus260DirectionForTemplate,full260Timetable,pair260Connections} from "./smart-260-connect/core.mjs?v=35";
 const HOST_ID="hhSmartMatchPinV1";
 const holder=document.getElementById("hhTransitPanel");
 const state={item:null,id:null,entries:[],day:null,loaded:null,loading:false,visible:false,lastLoadAt:0};
@@ -93,34 +93,36 @@ function currentLink(item){
 function renderClock(){
  if(!state.item)return;
  const now=Date.now();
- // A recommended HOME leave time is not the time the bus departs the stop!
+ // Match the full-size pinned card: focus the NEXT official 260 departure
+ // at the selected stop, even if no short tram connection is possible.
  const future=state.entries.find(x=>x.displayMs>=now);
+ const link=currentLink(state.item);
  if(!future){
-  const reason=state.loaded?"Nincs további igazolt indulás":"Menetrend ellenőrzése";
+  const reason=state.loaded?"Nincs több indulás ma":"Menetrend ellenőrzése";
   setView({time:"–:–",note:reason,status:"empty",
-   title:stageText(state.item)+" · "+reason,link:currentLink(state.item)});
+   title:stageText(state.item)+" · "+reason,link});
   if(state.loaded&&budapestDay(now)!==state.day)refresh({force:true});
   return;
  }
- const mins=Math.max(0,Math.ceil((future.displayMs-now)/60000));
- const time=clock(future.displayMs),home=clock(future.leaveMs);
- let note,title;
- if(future.stopDeparture){
-  note=future.date===budapestDay(now)?
-   "Otthonról "+home:"Holnap · otthonról "+home;
-  title="260-as busz · Citronella utca · "+time+
-   " menetrend szerinti indulás; 6 perc séta + 2 perc ráhagyás: otthonról "+home+
-   (future.leaveMs<now?" (az ajánlott otthoni indulási idő elmúlt)":"");
- }else{
-  note=(future.date===budapestDay(now)?"":"Holnap · ")+
-   "Indulj "+(mins>=60?Math.floor(mins/60)+"ó "+String(mins%60)+"p":mins+" perc")+" múlva";
-  title=stageText(state.item)+" · indulás a kiinduló helyről "+time+
-   " · céljárat "+future.line+"; menetrend szerinti javaslat";
- }
- const card=document.getElementById(HOST_ID);
- const label=card?.querySelector(".hh-smart-match-pin-label");
- if(label)label.textContent=future.stopDeparture?"🚌 260 · CITRONELLA":"📌 SMART MATCH";
- setView({time,note,status:"ready",title,link:currentLink(state.item)});
+ const time=clock(future.displayMs),isToday=future.date===budapestDay(now);
+ const from=future.dir==="work"?"Otthonról":"Irodából";
+ const leave=future.leaveMs!=null?clock(future.leaveMs):null;
+ const reachable=future.match&&future.leaveMs!=null&&(!isToday||future.leaveMs>=now);
+ const note=future.dir==="work"&&leave?
+  (isToday?"":"Holnap · ")+from+" "+leave+
+   (future.leaveMs<now&&isToday?" · késő":""):
+  reachable?(isToday?"":"Holnap · ")+from+" "+leave:
+   (isToday?"":"Holnap · ")+"Csatlakozás nélkül";
+ const stop=future.stop||"260-as megálló";
+ const title="Smart Match · "+stageText(state.item)+
+  " · 260-as "+stop+" · menetrend szerinti indulás "+time+
+  (reachable?" · ajánlott indulás "+from.toLowerCase()+" "+leave:
+   future.dir==="work"&&leave?" · "+from.toLowerCase()+" "+leave:
+   " · nincs igazolt, legfeljebb 3 perces csatlakozás");
+ const label=document.getElementById(HOST_ID)?.querySelector(".hh-smart-match-pin-label");
+ if(label)label.textContent=future.dir==="work"?"🚌 260 · CITRONELLA":
+  future.dir==="home"?"🚌 260 · BÉCSI ÚT":"📌 SMART MATCH";
+ setView({time,note,status:"ready",title,link});
 }
 async function updateSchedule({force=false}={}){
  if(!state.item||state.loading||!state.visible)return;
@@ -129,41 +131,57 @@ async function updateSchedule({force=false}={}){
   renderClock();return;
  }
  state.loading=true;state.day=day;
- setView({time:"…",note:"Menetrend ellenőrzése",status:"loading",
-  title:"Smart Match · ellenőrzött menetrend betöltése",link:currentLink(state.item)});
+ const item=state.item,requestedId=state.id;
+ setView({time:"…",note:"260-as menetrend",status:"loading",
+  title:"Smart Match · teljes BKK 260-as menetrend betöltése",link:currentLink(item)});
  try{
-  // Only now download the public snapshot. Does not access protected Family Guard data.
+  // Same verified BKK feed and exact stop/boarding-platform matching as
+  // the full-screen Smart Match V3.4. Never use only green transfer matches
+  // as the source of the mini-card's next bus.
   const {readOfficialSnapshot}=await import("../../sh9/smart-travel/lena-native/bkk/bkk-feed-client-v1106.mjs");
   const {data,manifest}=await readOfficialSnapshot();
   const dates=[day,nextDay(day)],out=[];
-  for(const date of dates){
-   if(date<data.feedStart||date>data.feedEnd)continue;
-   const result=compute(data,date,state.item);
-   for(const r of result.rows){
-    if(!r.best||!Number.isFinite(r.best.leaveOfficeMs))continue;
-    // For Citronella, display the actual 260 STOP departure, not a downstream
-    // arrival or the earlier recommended 6+2 minute home-leaving time.
-    const walk260=state.item.type==="walk"&&state.item.targetRoute==="260"&&
-     state.item.targetStop==="Citronella utca";
-    const reverse260=state.item.id==="monika-home-to-office"&&
-     r.best.feederLine==="260"&&state.item.originStop==="Citronella utca";
-    const stopDeparture=walk260||reverse260;
-    const displayMs=walk260?r.departMs:
-     reverse260?r.best.feederDepartMs:r.best.leaveOfficeMs;
-    if(!Number.isFinite(displayMs))continue;
-    out.push({date,leaveMs:r.best.leaveOfficeMs,displayMs,line:stopDeparture?"260":r.line,
-     stopDeparture});
+  const dir=bus260DirectionForTemplate(item);
+  if(dir){
+   for(const date of dates){
+    if(date<data.feedStart||date>data.feedEnd)continue;
+    const full=full260Timetable(data,date,dir);
+    // Complete service day independent of saved partial matching window.
+    const expanded={...item,startHour:0,endHour:24};
+    const connections=compute(data,date,expanded);
+    const paired=pair260Connections(full,connections,expanded);
+    for(const bus of paired.rows){
+     out.push({date,displayMs:bus.departMs,leaveMs:Number.isFinite(bus.leaveMs)?bus.leaveMs:null,
+      stop:bus.stop,dir,match:bus.connectionOk});
+    }
+   }
+  }else{
+   // Custom non-260 routes retain their generic matched recommendation.
+   for(const date of dates){
+    if(date<data.feedStart||date>data.feedEnd)continue;
+    const result=compute(data,date,item);
+    for(const row of result.rows){
+     if(!row.best||!Number.isFinite(row.best.leaveOfficeMs))continue;
+     out.push({date,displayMs:row.best.leaveOfficeMs,leaveMs:row.best.leaveOfficeMs,
+      stop:item.targetStop,dir:"other",match:true});
+    }
    }
   }
+  if(state.id!==requestedId)return;
   out.sort((a,b)=>a.displayMs-b.displayMs);
   state.entries=out;state.loaded=manifest;state.lastLoadAt=Date.now();
   renderClock();
  }catch(_){
+  if(state.id!==requestedId)return;
   state.entries=[];state.loaded=null;
   setView({time:"–:–",note:"Menetrend nem elérhető",status:"error",
    title:"Smart Match · nem sikerült ellenőrizni a BKK-menetrendet",
-   link:currentLink(state.item)});
- }finally{state.loading=false}
+   link:currentLink(item)});
+ }finally{
+  state.loading=false;
+  // A route may change while public GTFS is loading. Do not display a stale bus.
+  if(state.item&&state.id!==requestedId)updateSchedule({force:true});
+ }
 }
 function refresh({force=false}={}){
  const item=readPin();
