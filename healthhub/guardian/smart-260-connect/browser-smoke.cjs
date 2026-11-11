@@ -267,6 +267,24 @@ async function guardianPinSmoke(browser,base,device){
   assert.equal(await page.locator("#hhSmartMatchPinTimeV1").textContent(),"08:07");
   assert.equal(await page.evaluate(()=>localStorage.getItem("sh9-smart-match-active-pin-v1-m")),
    "home-citronella-260","Migrate old default exactly once");
+  // Reproduce the reported bad pinned focus: at 07:53, Guardian's
+  // Citronella card opens the FULL home-to-office route and must show
+  // the real 260 stop time 08:07, never a later office/feeder proposal.
+  await page.locator("#hhSmartMatchPinV1").click();
+  await page.waitForFunction(()=>
+   document.body.classList.contains("pinned")&&
+   document.getElementById("headingShort")?.textContent==="Otthon → Munkahely"&&
+   document.getElementById("heroTime")?.textContent==="08:07",{timeout:30000});
+  assert.equal(await page.locator("#countdownLabel").textContent(),"260-asig");
+  assert.match(await page.locator("#timelineSubtitle").textContent(),/Citronella utca/);
+  assert.ok(await page.locator(".v34-260-row").count()>=20,
+   "Pinned home-to-office must show the COMPLETE Citronella daily timetable");
+  assert.equal(await page.locator("#heroTime").textContent(),
+   await page.locator(".v34-260-row.next .row-time").first().textContent(),
+   "Big focus time must be the 260 stop departure, not the proposed origin departure");
+  await page.screenshot({path:path.join(output,device+"-guardian-full-260-pinned.png"),fullPage:true});
+  await page.goto(fixture,{waitUntil:"domcontentloaded"});
+  await page.waitForFunction(()=>document.getElementById("hhSmartMatchPinV1")?.dataset.state==="ready",{timeout:30000});
   await page.evaluate(()=>document.documentElement.dataset.guardianProfile="z");
   await page.waitForFunction(()=>document.getElementById("hhSmartMatchPinV1")?.dataset.state==="inactive");
   await page.evaluate(()=>document.documentElement.dataset.guardianProfile="m");
