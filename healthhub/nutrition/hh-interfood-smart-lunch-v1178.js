@@ -30,7 +30,7 @@ function normalizeName(s){
 function parseConfirmedOrderEmail(body){
  const lines=String(body||'').slice(0,100000).split(/\r?\n/).map(s=>s.trim());
  const orders=[];let date=null;
- const dayRE=/^(\d{4})[.\/-](\d{2})[.\/-](\d{2})\s+(?:hétfő|kedd|szerda|csütörtök|péntek|szombat|vasárnap)\b/i;
+ const dayRE=/^(\d{4})[.\/-](\d{2})[.\/-](\d{2})\s+(?:hétfő|kedd|szerda|csütörtök|péntek|szombat|vasárnap)(?:\s|$)/i;
  const rowRE=/^([A-Z][A-Z0-9]{0,7})\s+(\d{1,2})\s+adag\s+(.{2,140}?)\s*:\s*[\d\s.,]+\s*Ft\b/i;
  const number='(\\d+(?:[.,]\\d+)?)';
  const macroRE=new RegExp('^\\(?\\s*'+number+'\\s*kcal\\s*[,;]\\s*'+number+
@@ -39,7 +39,8 @@ function parseConfirmedOrderEmail(body){
  for(let i=0;i<lines.length;i++){
   const day=lines[i].match(dayRE);
   if(day){date=day[1]+'-'+day[2]+'-'+day[3];continue;}
-  const match=lines[i].match(rowRE);
+  const mealLine=lines[i].replace(/^\*\*([A-Z][A-Z0-9]{0,7})\*\*\s+/,'$1 ');
+  const match=mealLine.match(rowRE);
   if(!match||!date)continue;
   const macro=lines.slice(i+1,i+4).map(s=>s.match(macroRE)).find(Boolean);
   if(!macro)continue; // Without printed macros, no speculative diary item.
@@ -145,7 +146,7 @@ function render(){
  const all=api.getInterfoodSmartOrders().filter(x=>x.menuDate===today());
  const pending=all.filter(x=>x.status==='planned');
  const complete=all.filter(x=>x.status!=='planned');
- host.replaceChildren();host.hidden=profile!=='monika'&&!all.length;
+ host.replaceChildren();host.hidden=!all.length;
  if(host.hidden)return;
  const heading=text('div','','hh-sl-head');
  heading.append(text('span','✦ LÉNA · SMART LUNCH'));
