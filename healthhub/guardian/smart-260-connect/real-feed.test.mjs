@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
 import {validate,active} from "../../../sh9/smart-travel/lena-native/bkk/bkk-gtfs-core-v1105.mjs";
-import {DEFAULT,HOME,compute} from "./core.mjs";
+import {DEFAULT,HOME,REVERSE,compute} from "./core.mjs";
 
 test("public BKK GTFS real-snapshot 260 boarding sanity, without live claims",t=>{
  const json=readFileSync(new URL("../../../sh9/smart-travel/lena-native/bkk/data/bkk-selected-routes-v1106.json",import.meta.url),"utf8");
@@ -18,8 +18,11 @@ test("public BKK GTFS real-snapshot 260 boarding sanity, without live claims",t=
  };
  const work=compute(data,day,DEFAULT);
  const home=compute(data,day,HOME);
+ const reverse=compute(data,day,REVERSE);
  const shape={workTotal:work.totalCount,workMatched:work.matchingCount,
   homeTotal:home.totalCount,homeMatched:home.matchingCount,
+  reverseTotal:reverse.totalCount,reverseMatched:reverse.matchingCount,
+  reverseSample:reverse.rows.slice(0,4).map(r=>({headsign:r.headsign,boarding:r.boardingId,matched:!!r.best,feeder:r.best?.feederLine,transferWalk:r.best?.transferWalkMin})),
   workSample:work.rows.slice(0,3).map(r=>({headsign:r.headsign,matched:!!r.best})),
   homeSample:home.rows.slice(0,3).map(r=>({headsign:r.headsign,matched:!!r.best})),
   outboundHarsanTrips:board("260","Bécsi út / Vörösvári út","harsa"),
@@ -41,6 +44,7 @@ test("public BKK GTFS real-snapshot 260 boarding sanity, without live claims",t=
   stopPatterns
  }));
 
+ assert.ok(reverse.totalCount>0,"Actual BKK data must contain 17 going from Bécsi to Kolosy");
  assert.ok(data.routes.includes("260"));
  assert.ok(data.routes.includes("17"));
  assert.ok(data.stops&&Object.values(data.stops).some(s=>s[0]==="Citronella utca"));
