@@ -40,8 +40,10 @@ function cleanFood(raw){
  }
  const date=String(raw.menuDate||'');
  if(date&&!/^\d{4}-\d{2}-\d{2}$/.test(date))return null;
+ const grams=raw.weightGrams==null?null:Number(raw.weightGrams);
+ const weightGrams=grams!=null&&Number.isFinite(grams)&&grams>=1&&grams<=3000?grams:null;
  return {id:String(raw.id||'').slice(0,120),name,code,category:String(raw.category||'Egyéb').slice(0,60),
-  menuDate:date||null,week:Number(raw.week)||null,nutrients:nut,
+  menuDate:date||null,week:Number(raw.week)||null,nutrients:nut,weightGrams,
   nutritionBasis:raw.nutritionBasis==='published-per-serving'?'published-per-serving':'not-published',
   imageUrl:validPhotoURL(raw.imageUrl),sourceUrl:validSourceURL(raw.sourceUrl)||'https://rendel.interfood.hu/'};
 }
