@@ -13,7 +13,7 @@ test('Watchlist is on canonical Family Guard, reuses verified BKK catalog with e
  assert.match(html,/id="hhBkkWatchlistV814"/);
  assert.match(html,/id="hhBkkWatchEditV814"/);
  assert.match(html,/guardian-bkk-watchlist-v814.js\?v=962-unified-live-route/);
- assert.match(html,/guardian-bkk-watchlist-v814.css\?v=814/);
+ assert.match(html,/guardian-bkk-watchlist-v814.css\?v=912-route-popups/);
  assert.match(html,/guardian-bkk-catalog-v801.js\?v=911-universal-bkk-live/);
  assert.match(style,/hh-bkk-watch-ready-v814 \.hh-transit-choices/);
  assert.match(style,/#hhTransitCardsV791/);
@@ -30,25 +30,29 @@ test('Watchlist renders, reorders, edits and removes with no GPS or fabricated l
  const source=read('guardian-bkk-watchlist-v814.js');
  const all={},winEvents={},actions=[];
  function element(id){
-  const e={id,children:[],attrs:{},events:{},value:'zsolt',hidden:false,disabled:false,open:false,
+  const e={id,children:[],attrs:{},dataset:{},events:{},value:'zsolt',hidden:false,disabled:false,open:false,
    classList:{tags:new Set(),add(v){this.tags.add(v)}},parentNode:null,
-   setAttribute(k,v){this.attrs[k]=v},
+   setAttribute(k,v){this.attrs[k]=v},removeAttribute(k){delete this.attrs[k]},getAttribute(k){return this.attrs[k]},set text(v){this.textContent=v},
+
    addEventListener(k,fn){this.events[k]=fn},
    append(...kids){this.children.push(...kids)},
    replaceChildren(...kids){this.children=kids},
    scrollIntoView(){},focus(){},
-   after(x){actions.push('moved-catalog')},
+   after(x){actions.push('moved-catalog')},before(x){actions.push('moved-catalog')},
+
    click(){this.events.click?.()}
   };
   return e;
  }
  for(const id of ['hhTransitPanel','hhBkkWatchlistV814','hhBkkWatchRowsV814',
   'hhBkkWatchCountV814','hhBkkWatchEditV814','hhBkkCatalogV801',
-  'hhBkkCatalogSearchV801','hhTransitProfileV791','hhTransitShow260'])
+  'hhBkkCatalogSearchV801','hhTransitProfileV791','hhTransitShow260',
+  'hhBkkWatchToggleV858','hhBkkWatchContentV858','hhSmartHubFavoritesV806'])
   all[id]=element(id);
  const common=element('parent');
  all.hhBkkWatchlistV814.parentNode=common;
  all.hhBkkCatalogV801.parentNode=common;
+ all.hhBkkCatalogV801.nextElementSibling=all.hhSmartHubFavoritesV806;
  all.hhTransitShow260.events.click=()=>actions.push('show-260');
  const doc={readyState:'complete',getElementById(id){return all[id]||null},
    createElement(tag){return element(tag)},addEventListener(){}};
