@@ -227,6 +227,8 @@ async function smoke(browser,base,device){
   assert.ok(titleRow.headingRight<=titleRow.reverseLeft+1,
    "Centered heading must not overlap reverse button: "+JSON.stringify(titleRow));
   await page.screenshot({path:path.join(output,device+"-work-pinned.png"),fullPage:true});
+  // Morning commute must be evaluated before the 10+2 minute walk window.
+  await page.evaluate(()=>{Date.now=()=>Date.parse("2026-11-11T06:53:00Z")});
   await page.locator("#reverseBtn").click();
   await page.waitForFunction(()=>document.getElementById("headingShort")?.textContent?.includes("Otthon → Munkahely")&&
    document.getElementById("targetRoute")?.value==="17");
@@ -240,8 +242,28 @@ async function smoke(browser,base,device){
    role:el.dataset.role,time:el.querySelector(".v2-step-time")?.textContent?.trim(),
    hint:el.querySelector(".v2-step-hint")?.textContent?.trim()})));
   assert.equal(reverseFlow.length,6);
-  assert.equal(reverseFlow[2].time,await page.locator("#heroTime").textContent(),
-   "Home-to-work big Citronella 260 departure must also appear under the bus icon");
+  assert.equal(await page.locator("#heroLabel").textContent(),
+   "Következő ajánlott indulás otthonról");
+  assert.equal(await page.locator("#countdownLabel").textContent(),"otthoni indulásig");
+  const nextHome=page.locator(".v34-260-row.next");
+  assert.ok(await nextHome.count(),"Expected a verified future inbound commute on test day");
+  const homeTimes=await nextHome.evaluate(el=>({
+   leave:Number(el.dataset.leave),bus:Number(el.dataset.busDeparture)}));
+  assert.ok(Number.isFinite(homeTimes.leave)&&Number.isFinite(homeTimes.bus));
+  assert.equal(homeTimes.bus-homeTimes.leave,12*60000,
+   "Citronella 260 must be 10min comfortable walk +2min buffer after departure");
+  const fmt=ms=>new Intl.DateTimeFormat("en-GB",{
+   timeZone:"Europe/Budapest",hour:"2-digit",minute:"2-digit",hourCycle:"h23"
+  }).format(new Date(ms));
+  assert.equal(await page.locator("#heroTime").textContent(),fmt(homeTimes.leave),
+   "Hero clock must show home departure, not the 260 stop time");
+  assert.equal(reverseFlow[0].time,fmt(homeTimes.leave),
+   "Home icon must show the same leave-home time as the hero");
+  assert.equal(reverseFlow[2].time,fmt(homeTimes.bus),
+   "260 icon must retain its actual Citronella departure time");
+  const ringMinutes=await page.locator("#countdown").textContent();
+  assert.match(ringMinutes,/^(?:\\d{2}:)?\\d{2}:\\d{2}$/,
+   "Green ring must count down to leaving home: "+ringMinutes);
   assert.equal(reverseFlow[5].hint,"+10p séta",
    "Kolosy-to-office walk must be visible as a final leg");
   const inboundChronology=await page.locator(".v34-260-row.v34-matched").first()
@@ -371,21 +393,31 @@ async function guardianPinSmoke(browser,base,device){
   assert.equal(await page.locator("#hhSmartMatchPinTimeV1").textContent(),"08:07");
   assert.equal(await page.evaluate(()=>localStorage.getItem("sh9-smart-match-active-pin-v1-m")),
    "home-citronella-260","Migrate old default exactly once");
-  // Reproduce the reported bad pinned focus: at 07:53, Guardian's
-  // Citronella card opens the FULL home-to-office route and must show
-  // the real 260 stop time 08:07, never a later office/feeder proposal.
+  // Guardian's bus preview remains a 260 timetable, but the expanded
+  // home-to-office hero MUST show leave-home time, never the bus time.
   await page.locator("#hhSmartMatchPinV1").click();
   await page.waitForFunction(()=>
    document.body.classList.contains("pinned")&&
    document.getElementById("headingShort")?.textContent==="Otthon → Munkahely"&&
-   document.getElementById("heroTime")?.textContent==="08:07",{timeout:30000});
-  assert.equal(await page.locator("#countdownLabel").textContent(),"260-asig");
+   document.getElementById("status")?.textContent?.includes("✓ BKK GTFS"),{timeout:30000});
+  assert.equal(await page.locator("#countdownLabel").textContent(),"otthoni indulásig");
   assert.match(await page.locator("#timelineSubtitle").textContent(),/Citronella utca/);
   assert.ok(await page.locator(".v34-260-row").count()>=20,
    "Pinned home-to-office must show the COMPLETE Citronella daily timetable");
-  assert.equal(await page.locator("#heroTime").textContent(),
-   await page.locator(".v34-260-row.next .row-time").first().textContent(),
-   "Big focus time must be the 260 stop departure, not the proposed origin departure");
+  const chosen=page.locator(".v34-260-row.next");
+  if(await chosen.count()){
+   const departureMs=Number(await chosen.getAttribute("data-leave"));
+   const busMs=Number(await chosen.getAttribute("data-bus-departure"));
+   assert.equal(busMs-departureMs,12*60000,
+    "The official 260 stop time must be 12 minutes after leave-home time");
+   const hhmm=new Intl.DateTimeFormat("en-GB",{timeZone:"Europe/Budapest",
+    hour:"2-digit",minute:"2-digit",hourCycle:"h23"}).format(new Date(departureMs));
+   assert.equal(await page.locator("#heroTime").textContent(),hhmm,
+    "Pinned home-to-office hero must show departure from HOME");
+  }else{
+   assert.equal(await page.locator("#heroTime").textContent(),"--:--",
+    "When no reachable verified tram connection exists, the planner must not invent a departure");
+  }
   await page.screenshot({path:path.join(output,device+"-guardian-full-260-pinned.png"),fullPage:true});
   await page.goto(fixture,{waitUntil:"domcontentloaded"});
   await page.waitForFunction(()=>document.getElementById("hhSmartMatchPinV1")?.dataset.state==="ready",{timeout:30000});
