@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 """HealthHub Interfood Live v1176.
-Fetch public anonymous menu HTML, extract verifiable food text and source image URLs.
-No login, credentials, personal data, artificial nutrition estimates or paid APIs.
-Fail closed on markup changes: previous verified JSON remains unchanged on GitHub.
+Read the public anonymous Interfood menu JSON as the site's own SPA does.
+Exact per-serving nutrient values, dates, codes and weights; no AI guessing,
+credentials, private data, browser automation, or invented image URLs.
+Fail closed on source/schema changes, preserving the previously verified feed.
 """
 from __future__ import annotations
 import datetime as dt
 import json
-import os
 import re
 import sys
 import urllib.parse
@@ -199,135 +199,6 @@ def parse(html: str, now: dt.datetime):
 
 
 
-def browser_rendered_html() -> str:
-    """Render the public SPA just like a browser; no login and no account cookies."""
-    from playwright.sync_api import sync_playwright
-    with sync_playwright() as playwright:
-        browser=playwright.chromium.launch(channel="chrome",headless=True,
-                        args=["--no-sandbox","--disable-dev-shm-usage"])
-        try:
-            context=browser.new_context(locale="hu-HU",timezone_id="Europe/Budapest",
-                            viewport={"width":1280,"height":960})
-            page=context.new_page()
-            public_api=[]
-            def observe(response):
-                try:
-                    u=urllib.parse.urlparse(response.url)
-                    if (u.hostname=="interfood.hu" or str(u.hostname or "").endswith(".interfood.hu")) and response.request.resource_type in ("xhr","fetch"):
-                        public_api.append((u.path[:140],response.status,response.headers.get("content-type","")[:65]))
-                        if u.path=="/api/v1/menu" and response.status==200:
-                            data=response.json()
-                            def sample(value,depth=0):
-                                if depth>=4:return type(value).__name__
-                                if isinstance(value,dict):return {k:sample(v,depth+1) for k,v in list(value.items())[:14]}
-                                if isinstance(value,list):return {"count":len(value),"sample":sample(value[0],depth+1) if value else None}
-                                return str(value)[:65] if isinstance(value,str) else value
-                            print("PUBLIC MENU API HOST:",u.scheme,u.hostname,u.path)
-                            print("PUBLIC MENU API STRUCTURE:",json.dumps(sample(data),ensure_ascii=False)[:3800])
-                            public=data.get("data",{}) if isinstance(data,dict) else {}
-                            for key in ("25","33"):
-                                sample_group=public.get(key) if isinstance(public,dict) else None
-                                if sample_group:
-                                    def deep(value,depth=0):
-                                        if depth>=8:return type(value).__name__
-                                        if isinstance(value,dict):return {k:deep(v,depth+1) for k,v in list(value.items())[:13]}
-                                        if isinstance(value,list):return {"count":len(value),"sample":deep(value[0],depth+1) if value else None}
-                                        return str(value)[:110] if isinstance(value,str) else value
-                                    print("PUBLIC MENU CODE GROUP",key,json.dumps(deep(sample_group),ensure_ascii=False)[:8500])
-                            print("PUBLIC MENU QUERY KEYS:",[k for k in urllib.parse.parse_qs(u.query).keys()])
-                            catmap=public.get("25",{}).get("categories",[]) if isinstance(public,dict) else []
-                            if isinstance(catmap,list) and catmap:
-                                first=catmap[0]
-                                print("SAMPLE CATEGORY ALL KEYS",list(first.keys()))
-                                for field,value in first.items():
-                                    if isinstance(value,(dict,list)):
-                                        print("SAMPLE CATEGORY NESTED",field,json.dumps(deep(value),ensure_ascii=False)[:10000])
-                                if isinstance(first.get("items"),list) and first["items"]:
-                                    item=first["items"][0]
-                                    print("PUBLIC MENU FOOD FIELD NAMES:",list(item.keys()))
-                                    print("PUBLIC MENU FOOD NAME, PHOTO, GRAMS:",{k:str(v)[:150] for k,v in item.items()
-                                       if any(term in k for term in ("name","image","photo","picture","weight","gram","energy","carb","protein","fat","portion","url"))})
-                                    nested=item.get("food")
-                                    if isinstance(nested,dict):
-                                        print("NESTED FOOD MODEL KEYS:",list(nested.keys()))
-                                        print("NESTED FOOD MEDIA:",{k:str(v)[:350] for k,v in nested.items() if
-                                         any(w in k for w in ("image","photo","picture","media","file","name","title","weight"))})
-                                    for name in ("menu_icons","menu_category"):
-                                        other=item.get(name)
-                                        if isinstance(other,(dict,list)):
-                                            print("MENU ITEM RELATION",name,json.dumps(deep(other),ensure_ascii=False)[:850])
-                            request=response.request
-                            body=request.post_data or ""
-                            print("MENU API REQUEST:",request.method,
-                                  "content type:",request.headers.get("content-type",""),
-                                  "body bytes:",len(body))
-                            try:
-                                public_body=json.loads(body)
-                                print("MENU API POST KEYS:",
-                                      list(public_body.keys()) if isinstance(public_body,dict) else type(public_body).__name__,
-                                      {k:v for k,v in public_body.items() if k.lower() in ("week","week_id","weekid","date","year")}
-                                      if isinstance(public_body,dict) else {})
-                                print("MENU API POST PUBLIC FILTER BODY:",body[:550])
-                                request_data=body.encode("utf-8")
-                                pub_req=urllib.request.Request(u.scheme+"://"+u.hostname+u.path,data=request_data,
-                                 headers={"Content-Type":"application/json","Accept":"application/json",
-                                  "User-Agent":"Mozilla/5.0"},method="POST")
-                                with urllib.request.urlopen(pub_req,timeout=15) as response2:
-                                    api_data=json.load(response2)
-                                    print("DIRECT ANONYMOUS POST API:",response2.status,
-                                     "groups:",len(api_data.get("data",{})) if isinstance(api_data,dict) else "invalid",
-                                     "error:",api_data.get("error") if isinstance(api_data,dict) else "invalid")
-                            except Exception as err:print("MENU API POST PROBE ERROR:",str(err)[:180])
-                except Exception:pass
-            page.on("response",observe)
-            response=page.goto(SOURCE,wait_until="domcontentloaded",timeout=35000)
-            print("Browser navigation HTTP:",response.status if response else "unknown",
-                  "title:",page.title()[:90])
-            try:
-                page.wait_for_function(
-                    "() => document.querySelectorAll('.category-foods .food').length >= 8 "
-                    "&& /kcal/i.test(document.body.innerText)",
-                    timeout=30000)
-            except Exception:
-                print("Browser menu wait expired; DOM preview:",
-                      re.sub(r"\s+"," ",page.locator("body").inner_text())[:750])
-            page.wait_for_timeout(1200)  # allow images & nutrition panels to hydrate
-            rendered=page.content()
-            text=page.locator("body").inner_text()
-            print("Browser rendered HTML:",len(rendered),"chars; visible text:",len(text),
-                  "has SP1:","SP1" in text,"has kcal:","kcal" in text)
-            print("PUBLIC XHR/FETCH (anonymous, paths only):",list(dict.fromkeys(public_api))[:24])
-            for code in ("SP1","D9"):
-                try:
-                    group=page.locator(".category").filter(has=page.locator(".category-code",has_text=code)).first
-                    if group.count():
-                        tile=group.locator(".category-foods > .food").nth(2)
-                        print("FOOD TILE",code,"text:",re.sub(r"\\s+"," ",tile.inner_text())[:600])
-                        details=tile.locator('button[aria-label*="részletei"]')
-                        if details.count():
-                            details.first.click(timeout=2000)
-                            page.wait_for_timeout(300)
-                            print("DETAIL SAMPLE",code,re.sub(r"\\s+"," ",page.locator("body").inner_text())[-1100:])
-                            print("DETAIL IMAGES",code,
-                              [img.get_attribute("src") for img in page.locator("img:visible").all()[-6:]])
-                            page.keyboard.press("Escape")
-                            page.wait_for_timeout(180)
-                        picture=tile.locator('button[aria-label*="képe"]')
-                        if picture.count():
-                            picture.first.click(timeout=2000)
-                            page.wait_for_timeout(300)
-                            print("PHOTO SAMPLE",code,
-                              [img.get_attribute("src") for img in page.locator("img:visible").all()[-6:]])
-                            page.keyboard.press("Escape")
-                            page.wait_for_timeout(180)
-                except Exception as exc:
-                    print("Detail/photo probe skipped:",code,str(exc)[:150])
-            context.close()
-            return rendered
-        finally:
-            browser.close()
-
-
 
 API = "https://ia.interfood.hu/api/v1/menu"
 PARTS = ("one", "two", "three")
@@ -463,16 +334,6 @@ def main():
           weights,"measured portion weights,",photos,"confirmed photos")
     print("First verified entries:",[(row["menuDate"],row["code"],row["name"][:35],row["nutrients"])
                                     for row in items[:3]])
-    sample_id=next((row["imageId"] for row in items if row.get("imageId")),None)
-    if sample_id:
-        photo_url="https://ia.interfood.hu/file/"+sample_id
-        try:
-            photo_req=urllib.request.Request(photo_url,method="HEAD")
-            with urllib.request.urlopen(photo_req,timeout=8) as resp:
-                print("PUBLIC PHOTO ID PROBE:",resp.status,resp.headers.get("Content-Type",""),
-                      resp.headers.get("Content-Length",""))
-        except Exception as exc:
-            print("PUBLIC PHOTO ID PROBE NOT VALID:",str(exc)[:130])
     if count<8 or complete<3:
         raise RuntimeError("Interfood returned incomplete public menu; refusing to publish")
     OUTPUT.parent.mkdir(parents=True,exist_ok=True)
