@@ -112,10 +112,10 @@ test('v1181 GPS stability does not modify OTA, owner registry, Dropbox OAuth or 
  const files=['guardian-live-v785.js','guardian-profile-follow-v837.js'];
  for(const file of files){
   const text=read(file);
-  assert.doesNotMatch(text,/HH_DROPBOX_VAULT\\.disconnect|device_owner_profile\\s*=|navigator\\.geolocation/);
+  assert.doesNotMatch(text,/HH_DROPBOX_VAULT\.disconnect|device_owner_profile\s*=|navigator\.geolocation/);
  }
  const html=read('index.html');
- assert.match(html,/guardian-live-v785\\.js\\?v=1181-stable-peers/);
- assert.match(html,/guardian-profile-follow-v837\\.js\\?v=1181-stable-selected/);
- assert.match(html,/guardian-profile-follow-v837\\.css\\?v=1181-stale-portrait-label/);
+ assert.match(html,/guardian-live-v785\.js\?v=1181-stable-peers/);
+ assert.match(html,/guardian-profile-follow-v837\.js\?v=1181-stable-selected/);
+ assert.match(html,/guardian-profile-follow-v837\.css\?v=1181-stale-portrait-label/);
 });
