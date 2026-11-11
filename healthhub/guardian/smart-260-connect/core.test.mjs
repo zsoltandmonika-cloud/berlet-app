@@ -105,7 +105,9 @@ test("reversible commute requires real inbound 260 followed by outbound 17 to Ko
  assert.equal(r.rows[0].best.feederLine,"260");
  assert.equal(r.rows[0].best.feederMode,"bus");
  assert.equal(hour(r.rows[0].best.feederDepartMs),"08:08");
- assert.equal(hour(r.rows[0].best.leaveOfficeMs),"08:00");
+ assert.equal(hour(r.rows[0].best.leaveOfficeMs),"07:56");
+ assert.equal(hour(r.rows[0].arriveAtDestinationMs),"08:41");
+ assert.equal(REVERSE.destinationWalkMin,10,"Kolosy → iroda 10 perc gyalog");
  assert.equal(hour(r.rows[0].departMs),"08:33");
  assert.equal(r.rows[0].best.waitMin,3);
  assert.equal(DEFAULT.reverseId,REVERSE.id);
@@ -134,6 +136,8 @@ test("260 full timetable is bus-first and preserves unmatched departures",()=>{
  assert.equal(paired.rows[0].match,null,"Unmatched scheduled bus must remain visible");
  assert.equal(hour(paired.rows[1].leaveMs),"15:54","Do not mislabel 15:54 as the bus departure");
  assert.equal(hour(paired.rows[1].departMs),"16:20");
+ assert.equal(hour(paired.rows[1].arriveAtDestinationMs),"16:33",
+  "Official 260 arrival at Citronella available for +10min home walk");
  assert.equal(bus260DirectionForTemplate(DEFAULT),"home");
  assert.equal(bus260DirectionForTemplate(REVERSE),"work");
 });
@@ -147,7 +151,8 @@ test("260 inbound timetable uses Citronella departure, not Orbán Balázs arriva
   {...HOME,startHour:0,endHour:24});
  assert.deepEqual(bus.rows.map(x=>hour(x.departMs)),["08:07"]);
  assert.equal(hour(matched.rows[0].departMs),"08:07");
- assert.equal(hour(matched.rows[0].leaveMs),"07:59");
+ assert.equal(hour(matched.rows[0].leaveMs),"07:55");
+ assert.equal(HOME.originWalkMin,10,"Otthon → Citronella 10 perc gyalog");
  assert.equal(matched.rows[0].connectionOk,true);
 });
 test("full 260 preserves both directions while excluding opposite terminus",()=>{
