@@ -6,6 +6,7 @@ import {DEFAULT,HOME,REVERSE,SAMPLES,compute} from "./core.mjs";
 import {wallEpoch} from "../../../sh9/smart-travel/lena-native/bkk/bkk-gtfs-core-v1105.mjs";
 const $=id=>document.getElementById(id);
 const STORAGE="sh9-smart-match-templates-v1-m";
+const ACTIVE_PIN_KEY="sh9-smart-match-active-pin-v1-m";
 const state={items:[],current:null,data:null,manifest:null,result:null,
  reminderEnabled:false,notificationFired:new Set(),lastNext:null,loading:false};
 const timeFmt=new Intl.DateTimeFormat("hu-HU",{timeZone:"Europe/Budapest",hour:"2-digit",minute:"2-digit",hourCycle:"h23"});
@@ -37,6 +38,11 @@ function toast(msg){
 function persist(){
  try{localStorage.setItem(STORAGE,JSON.stringify(state.items));return true}
  catch(_){toast("A böngésző nem engedi a sablon tárolását.");return false}
+}
+function publishActivePin(){
+ // Same-origin browser-local preference; no GPS or Dropbox writes.
+ const item=current();if(!item||!isPinned())return;
+ try{localStorage.setItem(ACTIVE_PIN_KEY,item.id)}catch(_){}
 }
 function current(){return state.items.find(x=>x.id===state.current)||state.items[0]}
 function displayName(item){return String(item.title||"Smart Match útvonal").slice(0,85)}
@@ -73,6 +79,7 @@ function reverseCommute(){
  const opposite=pairedTemplate(current());
  if(!opposite){toast("Ehhez az útvonalhoz még nincs ellenirányú mentett sablon.");return}
  state.current=opposite.id;
+ publishActivePin();
  hydrate();
  computeRoute();
 }
@@ -193,6 +200,7 @@ function save({pin=false,newTemplate=false}={}){
  else{const ix=state.items.findIndex(x=>x.id===state.current);if(ix>=0)state.items[ix]=item}
  if(pin)item.pinned=true;
  if(!persist())return false;
+ if(pin){try{localStorage.setItem(ACTIVE_PIN_KEY,item.id)}catch(_){}}
  hydrate();toast(pin?"📌 Kitűzött sablon mentve":"💾 Sablon mentve");
  return true;
 }
@@ -465,7 +473,7 @@ function initEvents(){
  $("pinTemplateSelect")?.addEventListener("change",e=>{
   const id=e.target.value;
   if(!state.items.some(x=>x.id===id))return;
-  state.current=id;hydrate();computeRoute();
+  state.current=id;publishActivePin();hydrate();computeRoute();
  });
  $("dayNext").addEventListener("click",()=>stepDay(1));
  $("day").addEventListener("change",()=>computeRoute());
