@@ -180,7 +180,7 @@ function full260Timetable(data,date,direction,clock=Date.now()){
    const key=selected.departMs+"|"+headsign;
    if(dedup.has(key))continue;
    dedup.add(key);
-   rows.push({line:"260",mode:"bus",...selected,stop:spec.stop,direction,
+   rows.push({line:"260",mode:"bus",...selected,platforms:candidate,stop:spec.stop,direction,
     serviceDate,scheduled:true});
   }
  }
@@ -192,22 +192,37 @@ function full260Timetable(data,date,direction,clock=Date.now()){
 function pair260Connections(timetable,connections,cfg){
  if(!timetable||!Array.isArray(timetable.rows))throw Error("260-as menetrend nélkül nem kapcsolható csatlakozás.");
  const rows=connections?.rows||[],dir=timetable.direction;
- return {...timetable,rows:timetable.rows.map(bus=>{
-  const match=rows.filter(r=>{
+ const paired=timetable.rows.map(bus=>{
+  const platforms=bus.platforms?.length?bus.platforms:[bus];
+  const candidates=rows.filter(r=>{
    if(!r.best)return false;
-   if(cfg.type==="walk")return r.departMs===bus.departMs;
-   return dir==="work"?r.best.feederLine==="260"&&
-    r.best.feederDepartMs===bus.departMs:r.departMs===bus.departMs;
-  }).sort((a,b)=>{
+   if(cfg.type==="walk"||dir==="home"){
+    // Match the exact platform and time returned by the 17/19/41 transfer
+    // engine, not another GTFS stop sharing the same public display name.
+    return platforms.some(p=>p.departMs===r.departMs&&p.stopId===r.boardingId);
+   }
+   return r.best.feederLine==="260"&&
+    platforms.some(p=>p.departMs===r.best.feederDepartMs);
+  });
+  candidates.sort((a,b)=>{
    const aw=Math.abs((a.best?.waitMin||0)-2),bw=Math.abs((b.best?.waitMin||0)-2);
    return aw-bw||a.departMs-b.departMs;
-  })[0]||null;
+  });
+  const match=candidates[0]||null;
+  // For a successfully matched connection, the displayed 260 departure must
+  // be the departure at that EXACT safe boarding platform. An unmatched bus
+  // keeps its source-backed default platform, never a fabricated candidate.
+  const board=match&&cfg.type!=="walk"&&dir==="work"?
+   platforms.find(p=>p.departMs===match.best.feederDepartMs):
+   match?platforms.find(p=>p.departMs===match.departMs&&p.stopId===match.boardingId):null;
+  const selected=board||bus;
   const leaveMs=match?.best?.leaveOfficeMs??(cfg.type==="walk"?
-   bus.departMs-(cfg.originWalkMin+cfg.originSafetyMin)*60000:null);
-  return {...bus,match,leaveMs,connectionOk:!!match};
- })};
+   selected.departMs-(cfg.originWalkMin+cfg.originSafetyMin)*60000:null);
+  return {...bus,...selected,platforms,match,leaveMs,connectionOk:!!match};
+ });
+ paired.sort((a,b)=>a.departMs-b.departMs||a.stopId.localeCompare(b.stopId));
+ return {...timetable,rows:paired};
 }
-
 function nextIndex(rows,now=Date.now()){
  return rows.findIndex(r=>r.best&&r.best.leaveOfficeMs>=now);
 }
