@@ -79,6 +79,15 @@ async function smoke(browser,base,device){
   assert.equal(await page.locator("#routeFlow .v2-step").count(),6,
    "Office route must display all six independently styled journey stages");
   assert.ok(await page.locator(".v2-skyline").isVisible(),"Dedicated Smart Match hero artwork visible");
+  assert.equal(await page.locator(".eyebrow, #editorIntro").count(),0,
+   "Normal mode must not show redundant header text");
+  const heroRect=await page.locator(".v2-skyline").boundingBox();
+  const headingRect=await page.locator("#heading").boundingBox();
+  assert.ok(headingRect.y>=heroRect.y+heroRect.height-2,
+   "Route title must be BELOW the standalone hero without overlap");
+  assert.ok(await page.locator("#scheduleInfo").count()===1,
+   "Technical information should be available as collapsed details");
+  assert.equal(await page.locator("#scheduleInfo").evaluate(el=>el.open),false);
   const heroBg=await page.locator(".v2-skyline").evaluate(el=>getComputedStyle(el).backgroundImage);
   assert.match(heroBg,/smart-match-budapest-neon-hero-v2\.svg/,"Hero must be a standalone original asset");
   assert.ok(await page.locator("#templates .template-chip").count()>=2,"Two templates exist");
@@ -88,6 +97,30 @@ async function smoke(browser,base,device){
   await page.waitForFunction(()=>document.body.classList.contains("pinned"));
   assert.equal(await page.locator("#routeFlow .v2-step").count(),6,
    "Pinned work route visual story must retain all stages");
+  assert.equal(await page.locator("#scheduleInfo").isVisible(),false,
+   "Pinned mode must hide long explanations and source paragraphs");
+  assert.equal(await page.locator("#matchSummary").isVisible(),false,
+   "Pinned mode must hide GTFS matching-count prose");
+  const layout=await page.evaluate(()=>{
+   const timeline=document.getElementById("timeline").getBoundingClientRect();
+   const dock=document.getElementById("pinnedActions").getBoundingClientRect();
+   const banner=document.getElementById("pinnedBanner").getBoundingClientRect();
+   const title=document.getElementById("heading").getBoundingClientRect();
+   const skyline=document.querySelector(".v2-skyline").getBoundingClientRect();
+   return {timelineHeight:timeline.height,timelineBottom:timeline.bottom,
+    dockTop:dock.top,scrollHeight:document.getElementById("timeline").scrollHeight,
+    clientHeight:document.getElementById("timeline").clientHeight,
+    pageOverflow:document.documentElement.scrollHeight-innerHeight,
+    titleY:title.y,heroArtBottom:skyline.bottom,
+    bannerHeight:banner.height};
+  });
+  assert.ok(layout.timelineHeight>=105,"Pinned viewport must reserve useful vertical timeline space: "+JSON.stringify(layout));
+  assert.ok(layout.timelineBottom<=layout.dockTop+3,
+   "Scrollable timeline must stop before pinned action dock: "+JSON.stringify(layout));
+  assert.ok(layout.scrollHeight>layout.clientHeight,"Timeline must scroll independently");
+  assert.ok(layout.pageOverflow<=4,"Pinned page itself must not vertically scroll: "+JSON.stringify(layout));
+  assert.ok(layout.titleY>=layout.heroArtBottom-2,
+   "Pinned route title must stay below the hero image");
   await page.screenshot({path:path.join(output,device+"-work-pinned.png"),fullPage:true});
   await page.locator("#exitPin").click();
   await page.waitForFunction(()=>!document.body.classList.contains("pinned"));
