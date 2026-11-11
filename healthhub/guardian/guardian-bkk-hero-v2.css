@@ -174,7 +174,7 @@
   gap:2px!important;padding:4px!important;
  }
  #hhTransitPanel:has(>#hhBkkLiveBarV796) #hhBkkWatchToggleV858 .hh-bkk-watch-toggle-label-v858 strong{
-  font-size:11px!important;
+  font-size:10px!important;letter-spacing:-.02em!important;
  }
  #hhTransitPanel:has(>#hhBkkLiveBarV796) #hhBkkWatchEditV814{
   min-height:36px!important;padding:4px!important;font-size:9px!important;
