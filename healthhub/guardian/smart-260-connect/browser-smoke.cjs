@@ -262,7 +262,7 @@ async function smoke(browser,base,device){
   assert.equal(reverseFlow[2].time,fmt(homeTimes.bus),
    "260 icon must retain its actual Citronella departure time");
   const ringMinutes=await page.locator("#countdown").textContent();
-  assert.match(ringMinutes,/^(?:\\d{2}:)?\\d{2}:\\d{2}$/,
+  assert.match(ringMinutes,/^(?:\d{2}:)?\d{2}:\d{2}$/,
    "Green ring must count down to leaving home: "+ringMinutes);
   assert.equal(reverseFlow[5].hint,"+10p séta",
    "Kolosy-to-office walk must be visible as a final leg");
