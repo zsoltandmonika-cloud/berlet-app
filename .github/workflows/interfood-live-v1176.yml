@@ -26,7 +26,7 @@ concurrency:
 jobs:
   smart-menu:
     runs-on: ubuntu-latest
-    timeout-minutes: 8
+    timeout-minutes: 4
     steps:
       - uses: actions/checkout@v4
         with:
@@ -34,12 +34,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Install pinned public HTML and browser parser
-        run: python -m pip install --disable-pip-version-check beautifulsoup4==4.12.3 playwright==1.55.0
-      - name: Check headless Chrome installed on GitHub runner
-        run: |
-          command -v google-chrome
-          google-chrome --version
+      - name: Install pinned lightweight test parser
+        run: python -m pip install --disable-pip-version-check beautifulsoup4==4.12.3
       - name: Validate Interfood extraction (offline fixtures)
         run: python -m unittest discover -s healthhub/tests -p 'test_interfood_live_v1176.py' -v
       - name: Validate one-click Nutrition integration
