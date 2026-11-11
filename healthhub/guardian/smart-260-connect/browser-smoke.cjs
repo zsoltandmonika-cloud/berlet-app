@@ -125,6 +125,17 @@ async function smoke(browser,base,device){
   await page.waitForFunction(()=>document.body.classList.contains("pinned"));
   assert.equal(await page.locator("#routeFlow .v2-step").count(),6,
    "Pinned work route visual story must retain all stages");
+  const workFlow=await page.locator("#routeFlow .v2-step").evaluateAll(els=>els.map(el=>({
+   role:el.dataset.role,time:el.querySelector(".v2-step-time")?.textContent?.trim(),
+   label:el.querySelector(".v2-step-label")?.textContent?.trim(),
+   hint:el.querySelector(".v2-step-hint")?.textContent?.trim()})));
+  assert.equal(workFlow.length,6,"Route must remain six distinct steps");
+  assert.ok(workFlow.every(x=>x.time&&(/^(≈)?\\d{2}:\\d{2}$|^—$/).test(x.time)),
+   "Every trip-flow stage must show a valid clock or honest unavailable mark: "+JSON.stringify(workFlow));
+  assert.equal(workFlow[4].time,await page.locator("#heroTime").textContent(),
+   "Work-to-home big 260 departure must also appear under the 260 icon");
+  assert.equal(workFlow[5].hint,"+10p séta",
+   "Citronella-to-home walk must be visible as a separate final leg");
   assert.equal(await page.locator("#pinnedBanner").isVisible(),false,"Duplicated top pinned toolbar must remain hidden");
   assert.equal(await page.locator("#scheduleInfo").isVisible(),false,
    "Pinned mode must hide long explanations and source paragraphs");
@@ -212,6 +223,16 @@ async function smoke(browser,base,device){
    "Reversed home->work is a true 260-to-tram connection, not Citronella walk-only");
   assert.equal(await page.locator("#headingShort").textContent(),"Otthon → Munkahely");
   assert.equal(await page.locator("#pinTemplateSelect").inputValue(),"monika-home-to-office");
+  assert.equal(await page.locator("#walkMetric").textContent(),"10 + 2 perc",
+   "Home-to-Citronella is 10min walk with 2min safety buffer");
+  const reverseFlow=await page.locator("#routeFlow .v2-step").evaluateAll(els=>els.map(el=>({
+   role:el.dataset.role,time:el.querySelector(".v2-step-time")?.textContent?.trim(),
+   hint:el.querySelector(".v2-step-hint")?.textContent?.trim()})));
+  assert.equal(reverseFlow.length,6);
+  assert.equal(reverseFlow[2].time,await page.locator("#heroTime").textContent(),
+   "Home-to-work big Citronella 260 departure must also appear under the bus icon");
+  assert.equal(reverseFlow[5].hint,"+10p séta",
+   "Kolosy-to-office walk must be visible as a final leg");
   await page.waitForFunction(()=>document.getElementById("timelineSubtitle")?.textContent?.includes("260-as · Citronella utca")&&
    document.querySelector("#timeline .timeline-row.next"),{timeout:30000});
   const focused=await page.evaluate(()=>{
@@ -236,7 +257,7 @@ async function smoke(browser,base,device){
    const s=document.getElementById("status")?.textContent||"";
    return document.getElementById("kind")?.value==="walk"&&s.includes("✓ BKK GTFS");
   });
-  assert.equal(await page.locator("#walkMetric").textContent(),"6 + 2 perc");
+  assert.equal(await page.locator("#walkMetric").textContent(),"10 + 2 perc");
   assert.equal(await page.locator("#kind").inputValue(),"walk");
   assert.equal(await page.locator("#routeFlow .v2-step").count(),4,
    "The walk-only route must use the same reusable visual journey component");
@@ -291,8 +312,8 @@ async function guardianPinSmoke(browser,base,device){
   await page.waitForFunction(()=>document.getElementById("hhSmartMatchPinV1")?.dataset.state==="ready",{timeout:30000});
   assert.equal(await page.locator("#hhSmartMatchPinTimeV1").textContent(),"08:07",
    "At 07:53 the Citronella 260 inbound bus must depart at 08:07, not 08:17");
-  assert.match(await page.locator("#hhSmartMatchPinNoteV1").textContent(),/07:59/,
-   "Separate 6min walking plus 2min buffer as departure FROM HOME");
+  assert.match(await page.locator("#hhSmartMatchPinNoteV1").textContent(),/07:55/,
+   "10min home-to-Citronella walking plus 2min buffer must precede 08:07 bus");
   assert.match(await page.locator("#hhSmartMatchPinV1").getAttribute("href"),/id=monika-home-to-office/,
    "Guardian 08:07 bus card must open the COMPLETE home-to-office pinned journey.");
   // At 09:15 the mini card must show the ACTUAL NEXT 260 bus, not the old
@@ -300,7 +321,7 @@ async function guardianPinSmoke(browser,base,device){
   const scheduleAudit=await page.evaluate(async()=>{
    Date.now=()=>Date.parse("2026-11-11T08:15:00Z");
    const {readOfficialSnapshot}=await import("/berlet-app/sh9/smart-travel/lena-native/bkk/bkk-feed-client-v1106.mjs");
-   const {HOME,compute,full260Timetable,pair260Connections}=await import("/berlet-app/healthhub/guardian/smart-260-connect/core.mjs?v=35");
+   const {HOME,compute,full260Timetable,pair260Connections}=await import("/berlet-app/healthhub/guardian/smart-260-connect/core.mjs?v=39-trip-flow-timing");
    const {data}=await readOfficialSnapshot();
    const cfg={...HOME,startHour:0,endHour:24};
    const full=full260Timetable(data,"2026-11-11","work");
