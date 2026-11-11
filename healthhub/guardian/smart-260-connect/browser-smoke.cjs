@@ -95,6 +95,28 @@ async function smoke(browser,base,device){
   assert.match(heroBg,/smart-match-budapest-neon-hero-v2\.svg/,"Hero must be a standalone original asset");
   assert.ok(await page.locator("#templates .template-chip").count()>=2,"Two templates exist");
 
+  // V3.2: calendar, next-day and bell must share one real row on phones.
+  const rowLayout=await page.evaluate(()=>{
+   const ids=["day","dayNext","remindBtn"];
+   const boxes=ids.map(id=>document.getElementById(id).getBoundingClientRect());
+   return {tops:boxes.map(b=>b.top),bottoms:boxes.map(b=>b.bottom),
+    lefts:boxes.map(b=>b.left),rights:boxes.map(b=>b.right),
+    parentRight:document.getElementById("timelinePanel").getBoundingClientRect().right,
+    widths:boxes.map(b=>b.width)};
+  });
+  assert.ok(Math.max(...rowLayout.tops)-Math.min(...rowLayout.tops)<=4,
+   "Date, +1 day and bell must be on the same row: "+JSON.stringify(rowLayout));
+  assert.ok(rowLayout.rights[2]<=rowLayout.parentRight+2,
+   "Bell must fit inside timeline card: "+JSON.stringify(rowLayout));
+  assert.equal(await page.locator("#remindBtn").textContent(),"🔔","Bell must be icon-only");
+  assert.equal(await page.locator("#remindBtn").getAttribute("aria-pressed"),"false");
+  await page.locator("#remindBtn").click();
+  assert.equal(await page.locator("#remindBtn").getAttribute("aria-pressed"),"true",
+   "Reminder switch must still work");
+  assert.match(await page.locator("#remindBtn").getAttribute("aria-label"),/kikapcsolása/);
+  await page.locator("#remindBtn").click();
+  assert.equal(await page.locator("#remindBtn").getAttribute("aria-pressed"),"false");
+
   await page.screenshot({path:path.join(output,device+"-work.png"),fullPage:true});
   await page.locator("#pinBtn").click();
   await page.waitForFunction(()=>document.body.classList.contains("pinned"));
