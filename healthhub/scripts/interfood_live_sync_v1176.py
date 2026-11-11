@@ -234,13 +234,25 @@ def browser_rendered_html() -> str:
                                         return str(value)[:110] if isinstance(value,str) else value
                                     print("PUBLIC MENU CODE GROUP",key,json.dumps(deep(sample_group),ensure_ascii=False)[:8500])
                             print("PUBLIC MENU QUERY KEYS:",[k for k in urllib.parse.parse_qs(u.query).keys()])
-                            catmap=public.get("25",{}).get("categories",{}) if isinstance(public,dict) else {}
-                            if isinstance(catmap,dict) and catmap:
-                                first=next(iter(catmap.values()))
+                            catmap=public.get("25",{}).get("categories",[]) if isinstance(public,dict) else []
+                            if isinstance(catmap,list) and catmap:
+                                first=catmap[0]
                                 print("SAMPLE CATEGORY ALL KEYS",list(first.keys()))
                                 for field,value in first.items():
                                     if isinstance(value,(dict,list)):
-                                        print("SAMPLE CATEGORY NESTED",field,json.dumps(deep(value),ensure_ascii=False)[:8500])
+                                        print("SAMPLE CATEGORY NESTED",field,json.dumps(deep(value),ensure_ascii=False)[:10000])
+                            request=response.request
+                            body=request.post_data or ""
+                            print("MENU API REQUEST:",request.method,
+                                  "content type:",request.headers.get("content-type",""),
+                                  "body bytes:",len(body))
+                            try:
+                                public_body=json.loads(body)
+                                print("MENU API POST KEYS:",
+                                      list(public_body.keys()) if isinstance(public_body,dict) else type(public_body).__name__,
+                                      {k:v for k,v in public_body.items() if k.lower() in ("week","week_id","weekid","date","year")}
+                                      if isinstance(public_body,dict) else {})
+                            except Exception:pass
                 except Exception:pass
             page.on("response",observe)
             response=page.goto(SOURCE,wait_until="domcontentloaded",timeout=35000)
