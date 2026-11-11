@@ -2,7 +2,7 @@
  * Browser-local saves, read-only BKK GTFS, no GPS/Dropbox/Supabase mutation.
  */
 import {readOfficialSnapshot} from "../../../sh9/smart-travel/lena-native/bkk/bkk-feed-client-v1106.mjs";
-import {DEFAULT,HOME,REVERSE,SAMPLES,compute,bus260DirectionForTemplate,full260Timetable,pair260Connections} from "./core.mjs?v=39-trip-flow-timing";
+import {DEFAULT,HOME,REVERSE,SAMPLES,compute,bus260DirectionForTemplate,full260Timetable,pair260Connections} from "./core.mjs?v=41-varadi-boarding";
 import {wallEpoch} from "../../../sh9/smart-travel/lena-native/bkk/bkk-gtfs-core-v1105.mjs";
 const $=id=>document.getElementById(id);
 const STORAGE="sh9-smart-match-templates-v1-m";
@@ -36,8 +36,19 @@ function safeLoad(){
   if((item.id==="home-citronella-260"||item.id==="monika-home-to-office")&&item.originWalkMin===6){
    item.originWalkMin=10;updated=true;
   }
-  if(item.id==="monika-260"&&item.destinationWalkMin==null){
-   item.destinationWalkMin=10;updated=true;
+  if(item.id==="monika-260"){
+   if(item.destinationWalkMin==null){item.destinationWalkMin=10;updated=true;}
+   // Prior default mistakenly boarded at Bécsi út / Vörösvári út;
+   // migrate only that value, preserving intentionally edited templates.
+   if(item.targetStop==="Bécsi út / Vörösvári út"){
+    item.targetStop="Váradi utca";updated=true;
+   }
+   if(item.transferStop==="Bécsi út / Vörösvári út"){
+    item.transferStop="Váradi utca";updated=true;
+   }
+   if(item.targetAfterStop!=="Citronella utca"&&item.targetStop==="Váradi utca"){
+    item.targetAfterStop="Citronella utca";updated=true;
+   }
   }
  }
  if(updated)try{localStorage.setItem(STORAGE,JSON.stringify(saved))}catch(_){}
