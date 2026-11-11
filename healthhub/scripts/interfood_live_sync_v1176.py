@@ -222,6 +222,7 @@ def browser_rendered_html() -> str:
                                 if isinstance(value,dict):return {k:sample(v,depth+1) for k,v in list(value.items())[:14]}
                                 if isinstance(value,list):return {"count":len(value),"sample":sample(value[0],depth+1) if value else None}
                                 return str(value)[:65] if isinstance(value,str) else value
+                            print("PUBLIC MENU API HOST:",u.scheme,u.hostname,u.path)
                             print("PUBLIC MENU API STRUCTURE:",json.dumps(sample(data),ensure_ascii=False)[:3800])
                             public=data.get("data",{}) if isinstance(data,dict) else {}
                             for key in ("25","33"):
@@ -246,6 +247,15 @@ def browser_rendered_html() -> str:
                                     print("PUBLIC MENU FOOD FIELD NAMES:",list(item.keys()))
                                     print("PUBLIC MENU FOOD NAME, PHOTO, GRAMS:",{k:str(v)[:150] for k,v in item.items()
                                        if any(term in k for term in ("name","image","photo","picture","weight","gram","energy","carb","protein","fat","portion","url"))})
+                                    nested=item.get("food")
+                                    if isinstance(nested,dict):
+                                        print("NESTED FOOD MODEL KEYS:",list(nested.keys()))
+                                        print("NESTED FOOD MEDIA:",{k:str(v)[:350] for k,v in nested.items() if
+                                         any(w in k for w in ("image","photo","picture","media","file","name","title","weight"))})
+                                    for name in ("menu_icons","menu_category"):
+                                        other=item.get(name)
+                                        if isinstance(other,(dict,list)):
+                                            print("MENU ITEM RELATION",name,json.dumps(deep(other),ensure_ascii=False)[:850])
                             request=response.request
                             body=request.post_data or ""
                             print("MENU API REQUEST:",request.method,
@@ -259,7 +269,7 @@ def browser_rendered_html() -> str:
                                       if isinstance(public_body,dict) else {})
                                 print("MENU API POST PUBLIC FILTER BODY:",body[:550])
                                 request_data=body.encode("utf-8")
-                                pub_req=urllib.request.Request(SOURCE+"api/v1/menu",data=request_data,
+                                pub_req=urllib.request.Request(u.scheme+"://"+u.hostname+u.path,data=request_data,
                                  headers={"Content-Type":"application/json","Accept":"application/json",
                                   "User-Agent":"Mozilla/5.0"},method="POST")
                                 with urllib.request.urlopen(pub_req,timeout=15) as response2:
