@@ -326,7 +326,7 @@ function render(){
   const line=document.createElement('div');line.className='entry';line.dataset.entryId=e.id;
   const left=document.createElement('div'),right=document.createElement('aside');
   const name=document.createElement('strong');name.textContent=(e.icon||'🍽️')+' '+e.name;
-  const smaller=document.createElement('small');smaller.textContent=e.time+' · '+e.meal+(e.quantityText?' · '+e.quantityText:'')+(e.source==='estimated'?' · becsült':'');
+  const smaller=document.createElement('small');smaller.textContent=e.time+' · '+e.meal+(e.quantityText?' · '+e.quantityText:'')+(e.source==='estimated'?' · becsült':e.source==='interfood-import'?' · Interfood · felhasználói átvétel':'');
   left.append(name,smaller);
   // v1150: view-only thumbnail from the original Favorite, no extra diary fields.
   root.HH_NUTRITION_DIARY_FAVORITE_ART_V1150?.attach?.(left,e,active,d);
@@ -1016,6 +1016,45 @@ root.HH_NUTRITION_QUICK_API={
  // v1130 · Minimal manual diary input. Unknown nutrition remains NULL, not 0.
  getManualSuggestions:()=>catalog().map(f=>({id:f.id,name:f.name,kind:f.kind,category:f.category,
   per100:{...f.per},imageRef:f.imageRef||null})),
+ /* v1175 · Interfood manual menu handoff, kept within the existing private Dropbox diary.
+  * A listed meal is a whole serving, NOT an assumed 320 g. Nutrition copied by
+  * the user is explicitly tagged as unverified, not claimed as official sync. */
+ recordInterfoodMeal:payload=>{
+  if(payload?.expectedProfile!==active)throw Error('Profilváltás történt. A naplózás megszakadt.');
+  const token=String(payload.token||'').trim(),
+   code=String(payload.code||'').trim().toUpperCase(),
+   name=String(payload.name||'').trim().slice(0,80),
+   portions=Number(payload.portions),meal=normalizeMeal(payload.meal);
+  if(!/^[a-z0-9_-]{10,100}$/i.test(token)||name.length<2||!meal||
+     (code&&!/^[A-Z0-9]{1,8}$/.test(code))||
+     !Number.isFinite(portions)||portions<0.25||portions>4)
+   throw Error('Az Interfood étel neve, adagja vagy azonosítója érvénytelen.');
+  const nut=Object.fromEntries(metrics.map(k=>[k,null]));
+  let known=0;
+  for(const key of ['kcal','protein','carbs','fat']){
+   const raw=payload.nutrients?.[key],value=raw==null||raw===''?null:Number(raw);
+   if(value!=null&&(!Number.isFinite(value)||value<0||value>(key==='kcal'?5000:1000)))
+    throw Error('Érvénytelen Interfood tápérték: '+key);
+   if(value!=null){nut[key]=Number((value*portions).toFixed(2));known++;}
+  }
+  const id='interfood:'+token,old=read(active).entries.find(e=>e.id===id&&!e.deleted);
+  if(old)return{id:old.id,name:old.name,kcal:old.nutrients?.kcal,profile:active,date:old.date,duplicate:true};
+  const now=stamp(),rec={
+   id,createdAt:now,updatedAt:now,date:localDate(),time:localTime(),meal,
+   kind:'food',foodId:'interfood:'+(code||token),name,icon:'🍱',
+   quantity:portions,unit:'adag',quantityText:fmt(portions,2)+' adag · Interfood',
+   nutrients:nut,source:'interfood-import',
+   interfood:{code,token,portionMultiplier:portions,
+    nutritionBasis:'user-copied-listed-serving',nutritionKnownFields:known,
+    inputMethod:'user-copy-or-manual',sourceUrl:'https://rendel.interfood.hu/'}
+  };
+  if($('logDate'))$('logDate').value=rec.date;
+  update(d=>{if(!d.entries.some(e=>e.id===id))d.entries.push(rec);});
+  const saved=read(active).entries.find(e=>e.id===id&&!e.deleted);
+  if(!saved)throw Error('Az Interfood étel nem került be a naplóba.');
+  success();
+  return{id:saved.id,name:saved.name,kcal:saved.nutrients?.kcal,profile:active,date:saved.date,duplicate:false};
+ },
  recordManualMeal:payload=>{
   if(payload?.expectedProfile!==active)throw Error('Profilváltás történt. A mentés megszakadt.');
   const name=String(payload.name||'').trim().slice(0,80),meal=normalizeMeal(payload.meal),
