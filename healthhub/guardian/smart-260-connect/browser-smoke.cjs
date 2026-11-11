@@ -132,7 +132,7 @@ async function smoke(browser,base,device){
    label:el.querySelector(".v2-step-label")?.textContent?.trim(),
    hint:el.querySelector(".v2-step-hint")?.textContent?.trim()})));
   assert.equal(workFlow.length,6,"Route must remain six distinct steps");
-  assert.ok(workFlow.every(x=>x.time&&(/^(≈)?\\d{2}:\\d{2}$|^—$/).test(x.time)),
+  assert.ok(workFlow.every(x=>x.time&&(/^(≈)?\d{2}:\d{2}$|^—$/).test(x.time)),
    "Every trip-flow stage must show a valid clock or honest unavailable mark: "+JSON.stringify(workFlow));
   assert.equal(workFlow[0].time,await page.locator("#heroTime").textContent(),
    "Homebound hero must show the office departure, not the 260 stop departure");
