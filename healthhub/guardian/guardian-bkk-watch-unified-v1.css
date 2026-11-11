@@ -48,3 +48,11 @@ html body .shell>main>#hhTransitPanel.hh-transit-panel #hhBkkWatchlistV814 .hh-b
     flex-basis:47px!important;width:47px!important;min-width:47px!important;max-width:47px!important;
   }
 }
+/* BKK unified V1.1: retire the old conditional global live-toggle button.
+   Unified per-route Watchlist controls replace it. BKK badge/logo remains unchanged. */
+html body .shell>main>#hhTransitPanel.hh-transit-panel #hhBkkFocusV796,
+html body .shell>main>#hhTransitPanel.hh-transit-panel #hhBkkFocusV796:not([hidden]) {
+ display:none!important;
+ visibility:hidden!important;
+ pointer-events:none!important;
+}
