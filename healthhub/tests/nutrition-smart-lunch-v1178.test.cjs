@@ -1,0 +1,86 @@
+'use strict';
+const test=require('node:test'),assert=require('node:assert/strict');
+const fs=require('node:fs'),vm=require('node:vm'),path=require('node:path');
+const dir=path.resolve(__dirname,'../nutrition');
+const read=n=>fs.readFileSync(path.join(dir,n),'utf8');
+const lib=require('../nutrition/hh-interfood-smart-lunch-v1178.js');
+const feed=require('../nutrition/interfood-live-feed-v1176.json');
+const core=read('nutrition-preview-v592.js');
+const ui=read('hh-interfood-smart-lunch-v1178.js');
+const css=read('hh-interfood-smart-lunch-v1178.css');
+const html=read('index.html');
+const live=read('hh-interfood-live-v1176.js');
+const example=[
+'2026-11-09 Hétfő',
+'**I** 1 adag Sárgabarackos gombóc*: 860 FT (860 FT)',
+'(179kcal, 37.9g szénh., 3.5g fehérje, 1.4g zsír)',
+'2026-11-11 Szerda',
+'**F2K** 1 adag Sárgaborsó főzelék, sült oldalas: 1240 FT (1240 FT)',
+'(858kcal, 57.3g szénh., 30g fehérje, 57g zsír)',
+'2026-11-12 Csütörtök',
+'**E2K** 1 adag Húsos, juhtúrós rakott karfiol: 1420 FT (1420 FT)',
+'(378kcal, 15.3g szénh., 29.4g fehérje, 21.9g zsír)',
+'2026-11-13 Péntek',
+'**E4K** 1 adag Currys pulyka sárgabarackkal, mazsolás jázmin rizs: 1475 FT',
+'(1475 FT)',
+'(495kcal, 90.9g szénh., 24.9g fehérje, 5.4g zsír)',
+].join('\n');
+test('real-format Outlook Markdown: 4 separate dated meals and exact macros',()=>{
+ const meals=lib.parseConfirmedOrderEmail(example);
+ assert.equal(meals.length,4);
+ assert.deepEqual(meals.map(x=>x.code),['I','F2K','E2K','E4K']);
+ assert.deepEqual(meals.map(x=>x.menuDate),
+ ['2026-11-09','2026-11-11','2026-11-12','2026-11-13']);
+ assert.deepEqual(meals[1].nutrients,{kcal:858,carbs:57.3,protein:30,fat:57});
+ assert.equal(meals[3].nutrients.carbs,90.9);
+});
+test('confirmation lines must have published nutrients; contact data never becomes a meal',()=>{
+ const fake='Név: Example\nE-mail: fake@example.net\nTelefon: 1234\n'+
+  '2026-11-12 Csütörtök\n**E2K** 1 adag Húsos, juhtúrós rakott karfiol: 1420 FT\n'+
+  '(378kcal, 15.3g szénh., 29.4g fehérje, 21.9g zsír)';
+ const parsed=lib.parseConfirmedOrderEmail(fake);
+ assert.equal(parsed.length,1);
+ assert.equal(JSON.stringify(parsed).includes('example.net'),false);
+ assert.equal(lib.parseConfirmedOrderEmail('2026-11-12 Csütörtök\n**E2K** 1 adag Ebéd: 100 FT').length,0);
+});
+test('matching requires same date + code + dish name + all four macros',()=>{
+ const ordered=lib.parseConfirmedOrderEmail(example);
+ const matched=ordered.map(order=>lib.matchToOfficialMenu(order,feed.items));
+ assert.equal(matched.length,4);
+ assert.ok(matched.every(Boolean));
+ assert.ok(matched.every(x=>x.imageUrl&&x.imageUrl.startsWith('https://ia.interfood.hu/api/v1/i?menu_item_id=')));
+ assert.equal(matched[1].code,'F2K');
+ assert.equal(matched[1].name,'Sárgaborsó főzelék, sült oldalas');
+ assert.equal(matched[2].weightGrams,300);
+ assert.equal(lib.matchToOfficialMenu({...ordered[1],code:'F1K'},feed.items),null);
+ assert.equal(lib.matchToOfficialMenu({...ordered[1],nutrients:{...ordered[1].nutrients,kcal:999}},feed.items),null);
+ assert.equal(lib.matchToOfficialMenu({...ordered[1],menuDate:'2026-11-12'},feed.items),null);
+});
+test('one card is on Bevitel below premium tile; the duplicate launcher and large search are hidden',()=>{
+ assert.match(ui,/tile\.insertAdjacentElement\('afterend',host\)/);
+ assert.match(ui,/rating:ate\?\(choices\.get\(order\.id\)\|\|null\):null/);
+ assert.match(ui,/render\(\);showResult\(order,result\)/);
+ assert.match(live,/area\.hidden=true/);
+ assert.match(live,/duplicateLauncher\.hidden=true/);
+ assert.match(html,/hh-interfood-smart-lunch-v1178\.js\?v=1178-one-card/);
+ assert.match(html,/hh-interfood-smart-lunch-v1178\.css\?v=1178-one-card/);
+ assert.match(css,/\.hh-sl-hero/);
+});
+test('diary and feedback are profile-private, explicit and idempotent',()=>{
+ assert.match(core,/interfoodOrders:\[\]/);
+ assert.match(core,/importConfirmedInterfoodOrder:payload=>/);
+ assert.match(core,/finishInterfoodSmartOrder:payload=>/);
+ assert.match(core,/current\.status!=='planned'/);
+ assert.match(core,/order\.rating=ate\?rating:null/);
+ assert.match(core,/id:diaryId/);
+ assert.match(core,/if\(ate\)success\(\)/);
+ assert.match(core,/getInterfoodCardRating:cardId=>/);
+ assert.match(core,/return \{id,profile:active,status:current\.status/);
+});
+test('only authentic Interfood photos; no private orders, OAuth secrets or invented images in the repo',()=>{
+ for(const src of [ui,core,live])new vm.Script(src);
+ assert.doesNotMatch(ui,/localStorage\.setItem|client_secret|access_token|puter|api\.openai/i);
+ assert.match(ui,/const BUDDY='\.\.\/\.\.\/sh9\/family-hub\/assets\/family-success-buddy-v881\.webp'/);
+ assert.match(core,/url\.hostname==='ia\.interfood\.hu'/);
+ assert.doesNotMatch(ui,/monika\.lorincz@|zsolt\.monika@|customer_id|delivery_address/i);
+});
