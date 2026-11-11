@@ -215,6 +215,14 @@ def browser_rendered_html() -> str:
                     u=urllib.parse.urlparse(response.url)
                     if (u.hostname=="interfood.hu" or str(u.hostname or "").endswith(".interfood.hu")) and response.request.resource_type in ("xhr","fetch"):
                         public_api.append((u.path[:140],response.status,response.headers.get("content-type","")[:65]))
+                        if u.path=="/api/v1/menu" and response.status==200:
+                            data=response.json()
+                            def sample(value,depth=0):
+                                if depth>=4:return type(value).__name__
+                                if isinstance(value,dict):return {k:sample(v,depth+1) for k,v in list(value.items())[:14]}
+                                if isinstance(value,list):return {"count":len(value),"sample":sample(value[0],depth+1) if value else None}
+                                return str(value)[:65] if isinstance(value,str) else value
+                            print("PUBLIC MENU API STRUCTURE:",json.dumps(sample(data),ensure_ascii=False)[:3800])
                 except Exception:pass
             page.on("response",observe)
             response=page.goto(SOURCE,wait_until="domcontentloaded",timeout=35000)
@@ -292,6 +300,8 @@ def main():
           "public image URLs; week:",feed["week"],"selected day:",feed["selectedDate"])
     for x in feed["items"][:3]:
         print("Sample public item:",x["code"],x["name"][:75],x["nutritionBasis"])
+    for x in [i for i in feed["items"] if i.get("imageUrl")][:5]:
+        print("PHOTO ATTRIBUTION SAMPLE:",x["code"],x["name"][:45],x["imageUrl"][:130])
     if n<8 or with_nut<3:
         # Snapshot failure is loud. Previous verified public feed stays untouched.
         print("DEBUG around food code / serialized page markers:",file=sys.stderr)
