@@ -32,7 +32,7 @@ function parseConfirmedOrderEmail(body){
  const orders=[];let date=null;
  const dayRE=/^(\d{4})[.\/-](\d{2})[.\/-](\d{2})\s+(?:hétfő|kedd|szerda|csütörtök|péntek|szombat|vasárnap)\b/i;
  const rowRE=/^([A-Z][A-Z0-9]{0,7})\s+(\d{1,2})\s+adag\s+(.{2,140}?)\s*:\s*[\d\s.,]+\s*Ft\b/i;
- const number='(\d+(?:[.,]\d+)?)';
+ const number='(\\d+(?:[.,]\\d+)?)';
  const macroRE=new RegExp('^\\(?\\s*'+number+'\\s*kcal\\s*[,;]\\s*'+number+
   '\\s*g\\s*(?:szénh\\.?|szénhidrát)\\s*[,;]\\s*'+number+
   '\\s*g\\s*fehérje\\s*[,;]\\s*'+number+'\\s*g\\s*zsír\\s*\\)?','i');
