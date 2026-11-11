@@ -317,7 +317,7 @@ async function guardianPinSmoke(browser,base,device){
   await page.evaluate(()=>document.documentElement.dataset.guardianProfile="m");
   await page.waitForFunction(()=>document.getElementById("hhSmartMatchPinV1")?.dataset.state==="ready");
   assert.equal(await page.locator("#hhBkkFocusV796").textContent(),"Ne mutasd élő járműveket");
-  assert.equal(await page.locator("#hhBkkWatchlistV814").textContent(),"⭐ Saját BKK Watchlist");
+  assert.equal(await page.locator("#hhBkkWatchlistV814").textContent(),"BKK Watchlist");
   await page.goto(base+"healthhub/guardian/smart-260-connect/",{waitUntil:"domcontentloaded"});
   await page.waitForFunction(()=>document.getElementById("status")?.textContent?.includes("✓ BKK GTFS"),
    {timeout:30000});
