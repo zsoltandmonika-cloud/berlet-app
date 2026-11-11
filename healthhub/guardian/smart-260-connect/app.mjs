@@ -628,6 +628,16 @@ function initEvents(){
  $("exitPin").addEventListener("click",leavePinned);
  $("pinEdit")?.addEventListener("click",leavePinned);
  $("reverseBtn")?.addEventListener("click",reverseCommute);
+ // Return to the actual calling page when available; direct/bookmarked links
+ // always have a safe route back to the Family Guard.
+ $("pinnedBackBtn")?.addEventListener("click",event=>{
+  let canReturn=false;
+  try{
+   const ref=new URL(document.referrer);
+   canReturn=ref.origin===location.origin&&ref.pathname!==location.pathname&&history.length>1;
+  }catch(_){}
+  if(canReturn){event.preventDefault();history.back()}
+ });
  updatePinReminderUi();
  $("pinReminder")?.addEventListener("click",()=>$("remindBtn").click());
  $("pinTemplateSelect")?.addEventListener("change",e=>{
