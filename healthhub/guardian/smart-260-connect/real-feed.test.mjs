@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
 import {validate,active} from "../../../sh9/smart-travel/lena-native/bkk/bkk-gtfs-core-v1105.mjs";
-import {DEFAULT,HOME,REVERSE,compute} from "./core.mjs";
+import {DEFAULT,HOME,REVERSE,compute,full260Timetable,pair260Connections} from "./core.mjs";
 
 test("public BKK GTFS real-snapshot 260 boarding sanity, without live claims",t=>{
  const json=readFileSync(new URL("../../../sh9/smart-travel/lena-native/bkk/data/bkk-selected-routes-v1106.json",import.meta.url),"utf8");
@@ -77,4 +77,31 @@ test("audit 260 bus 08:07 at Citronella vs later downstream stops, 2026-11-11",t
  assert.equal(departure.following.find(x=>x.name==="Orbán Balázs út")?.hhmm,"8:17",
   "08:17 is the Orbán Balázs út ARRIVAL, not Citronella departure");
  assert.equal(departure.following.find(x=>x.name==="Bécsi út / Vörösvári út")?.hhmm,"8:20");
+});
+
+
+test("real BKK snapshot full-day 260 bus departures must be complete and directional",t=>{
+ const d=JSON.parse(readFileSync(new URL("../../../sh9/smart-travel/lena-native/bkk/data/bkk-selected-routes-v1106.json",import.meta.url),"utf8"));
+ const date="2026-11-11";
+ if(date<d.feedStart||date>d.feedEnd||!validate(d)){t.skip("Feed no longer covers the test day");return;}
+ const office=full260Timetable(d,date,"home");
+ const home=full260Timetable(d,date,"work");
+ const officeMatches=pair260Connections(office,compute(d,date,{...DEFAULT,startHour:0,endHour:24}),DEFAULT);
+ const homeMatches=pair260Connections(home,compute(d,date,{...REVERSE,startHour:0,endHour:24}),REVERSE);
+ const fmt=ms=>new Intl.DateTimeFormat("en-GB",{timeZone:"Europe/Budapest",hour:"2-digit",minute:"2-digit",hourCycle:"h23"}).format(new Date(ms));
+ console.log("FULL_260_2026_11_11",JSON.stringify({
+  home:office.rows.length,work:home.rows.length,
+  sampleBecsi:office.rows.slice(0,5).map(r=>fmt(r.departMs)),
+  sampleCitronella:home.rows.slice(0,8).map(r=>fmt(r.departMs)),
+  safeHome:officeMatches.rows.filter(r=>r.connectionOk).length,
+  safeWork:homeMatches.rows.filter(r=>r.connectionOk).length,
+  sampleUnmatched:officeMatches.rows.filter(r=>!r.connectionOk).slice(0,4).map(r=>fmt(r.departMs))
+ }));
+ assert.ok(office.rows.length>=15,"Full 260 home direction must include morning AND afternoon scheduled departures");
+ assert.ok(home.rows.length>=15,"Full 260 work direction must include all daily stop departures");
+ assert.ok(officeMatches.rows.length>=officeMatches.rows.filter(r=>r.connectionOk).length);
+ assert.ok(homeMatches.rows.length>=homeMatches.rows.filter(r=>r.connectionOk).length);
+ assert.ok(home.rows.some(r=>fmt(r.departMs)==="08:07"),"08:07 Citronella stop departure must remain present");
+ assert.ok(homeMatches.rows.every(r=>r.headsign.includes("Óbudai")));
+ assert.ok(officeMatches.rows.every(r=>r.headsign.includes("Harsánylejtő")));
 });

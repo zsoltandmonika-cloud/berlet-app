@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
-import {DEFAULT,HOME,REVERSE,compute,options,walkOnlyOptions,nextIndex,validConfig} from "./core.mjs";
+import {DEFAULT,HOME,REVERSE,compute,options,walkOnlyOptions,nextIndex,validConfig,full260Timetable,pair260Connections,bus260DirectionForTemplate} from "./core.mjs";
 const sec=(h,m,s=0)=>h*3600+m*60+s;
 const ev=(id,h,m)=>[id,sec(h,m),sec(h,m)];
 const data=()=>{
@@ -116,4 +116,65 @@ test("reverse planner rejects a 17 that does not continue to Kolosy",()=>{
   ["17","s","Vörösvári út",[ev("t",8,33),ev("o",8,40)],"tram"]
  );
  assert.equal(options(d,date,REVERSE).totalCount,0);
+});
+
+test("260 full timetable is bus-first and preserves unmatched departures",()=>{
+ const d=data();
+ // Three 260 buses, only one has a safe 17 tram connection.
+ d.trips.push(["260","s","Harsánylejtő",[ev("b",10,20),ev("o",10,32),ev("ci",10,45)],"bus"]);
+ const route={...DEFAULT,startHour:0,endHour:24};
+ const connections=compute(d,date,route);
+ const bus=full260Timetable(d,date,"home");
+ const paired=pair260Connections(bus,connections,route);
+ assert.equal(bus.stop,"Bécsi út / Vörösvári út");
+ assert.deepEqual(bus.rows.map(x=>hour(x.departMs)),["10:20","16:20"]);
+ assert.equal(paired.rows.length,2);
+ assert.equal(paired.rows.filter(x=>x.connectionOk).length,1);
+ assert.equal(paired.rows[0].match,null,"Unmatched scheduled bus must remain visible");
+ assert.equal(hour(paired.rows[1].leaveMs),"15:54","Do not mislabel 15:54 as the bus departure");
+ assert.equal(hour(paired.rows[1].departMs),"16:20");
+ assert.equal(bus260DirectionForTemplate(DEFAULT),"home");
+ assert.equal(bus260DirectionForTemplate(REVERSE),"work");
+});
+test("260 inbound timetable uses Citronella departure, not Orbán Balázs arrival",()=>{
+ const d=data();
+ d.trips.push(["260","s","Óbudai rendelőintézet",[
+  ev("ci",8,7),ev("o",8,17),ev("b",8,20),ev("d",8,27)
+ ],"bus"]);
+ const bus=full260Timetable(d,date,"work");
+ const matched=pair260Connections(bus,compute(d,date,{...HOME,startHour:0,endHour:24}),
+  {...HOME,startHour:0,endHour:24});
+ assert.deepEqual(bus.rows.map(x=>hour(x.departMs)),["08:07"]);
+ assert.equal(hour(matched.rows[0].departMs),"08:07");
+ assert.equal(hour(matched.rows[0].leaveMs),"07:59");
+ assert.equal(matched.rows[0].connectionOk,true);
+});
+test("full 260 preserves both directions while excluding opposite terminus",()=>{
+ const d=data();
+ const towardHome=full260Timetable(d,date,"home");
+ const towardWork=full260Timetable(d,date,"work");
+ assert.equal(towardHome.rows.length,1);
+ assert.equal(towardWork.rows.length,0,
+  "Synthetic inbound route missing Bécsi via direction: do not fabricate buses");
+ assert.equal(towardHome.rows[0].headsign,"Harsánylejtő");
+ assert.throws(()=>full260Timetable(d,date,"wrong"));
+});
+
+test("the two Bécsi GTFS platforms do not hide a genuine tram-to-260 match",()=>{
+ const d=data();
+ d.trips=d.trips.filter(x=>x[0]!=="260"||x[2]!=="Harsánylejtő");
+ d.trips.push(["260","s","Harsánylejtő",[
+  ev("b",16,20),ev("t",16,22),ev("o",16,25),ev("ci",16,36)
+ ],"bus"]);
+ const timetable=full260Timetable(d,date,"home");
+ const connections=compute(d,date,{...DEFAULT,startHour:0,endHour:24});
+ const paired=pair260Connections(timetable,connections,DEFAULT);
+ assert.equal(timetable.rows.length,1,"Two platforms are ONE actual bus");
+ assert.equal(timetable.rows[0].platforms.length,2);
+ assert.equal(hour(timetable.rows[0].departMs),"16:22",
+  "Unmatched default is final GTFS boarding platform");
+ assert.equal(paired.rows[0].connectionOk,true);
+ assert.equal(hour(paired.rows[0].departMs),"16:20",
+  "Matched row displays EXACT accessible platform time, not 16:22");
+ assert.equal(paired.rows[0].stopId,"b");
 });

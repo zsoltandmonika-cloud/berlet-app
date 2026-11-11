@@ -127,6 +127,102 @@ function options(data,date,cfg=DEFAULT,clock=Date.now()){
  return {date,rows,matchingCount:rows.filter(r=>r.best).length,
   totalCount:rows.length,source:"BKK Zrt., CC BY 4.0",live:false,config:cfg};
 }
+/* A bus-first, full-service-day timetable for the exact 260 stop and direction.
+ * This is INDEPENDENT of which tram connections pass the user's constraints.
+ * A genuine scheduled bus must never disappear just because no good transfer exists.
+ */
+const BUS_260_DIRECTIONS=Object.freeze({
+ home:Object.freeze({stop:"Bécsi út / Vörösvári út",headsign:"Harsánylejtő",
+  after:"Citronella utca",origin:"Munkahely",destination:"Otthon"}),
+ work:Object.freeze({stop:"Citronella utca",headsign:"Óbudai rendelőintézet",
+  after:"Bécsi út / Vörösvári út",origin:"Otthon",destination:"Munkahely"})
+});
+function bus260DirectionForTemplate(cfg){
+ if(!cfg)return null;
+ if(cfg.id==="monika-home-to-office"||
+  cfg.targetRoute==="260"&&clean(cfg.targetStop)===clean("Citronella utca")&&
+  clean(cfg.targetHeadsign).includes(clean("Óbudai")))return "work";
+ if(cfg.id==="monika-260"||
+  cfg.targetRoute==="260"&&clean(cfg.targetStop)===clean("Bécsi út / Vörösvári út")&&
+  clean(cfg.targetHeadsign).includes(clean("Harsánylejtő")))return "home";
+ return null;
+}
+function full260Timetable(data,date,direction,clock=Date.now()){
+ if(!validate(data,clock))throw Error("A hivatalos BKK-adat hiányzik vagy lejárt.");
+ if(!/^\d{4}-\d{2}-\d{2}$/.test(date)||date<data.feedStart||date>data.feedEnd)
+  throw Error("A kiválasztott nap nem szerepel a hitelesített menetrendben.");
+ const spec=BUS_260_DIRECTIONS[direction];
+ if(!spec)throw Error("Ismeretlen 260-as irány.");
+ const rows=[],dedup=new Set();
+ const yesterday=new Date(date+"T12:00:00Z");yesterday.setUTCDate(yesterday.getUTCDate()-1);
+ const prevDate=yesterday.toISOString().slice(0,10);
+ const dateStart=wallEpoch(date,0),dateEnd=wallEpoch(date,24*60);
+ for(const trip of data.trips){
+  const [line,service,headsign,events,mode]=trip;
+  if(line!=="260"||mode!=="bus"||!clean(headsign).includes(clean(spec.headsign)))continue;
+  for(const serviceDate of [prevDate,date]){
+   if(!active(data.services[service],serviceDate))continue;
+   const candidate=[];
+   for(let i=0;i<events.length-1;i++){
+    if(clean(data.stops[events[i][0]]?.[0])!==clean(spec.stop))continue;
+    // Require progress toward the right side of the 260 route, not merely
+    // an identically named stop/platform traversed in the wrong direction.
+    if(!events.slice(i+1).some(e=>clean(data.stops[e[0]]?.[0])===clean(spec.after)))continue;
+    const dep=wallEpoch(serviceDate,events[i][2]/60);
+    if(dep<dateStart||dep>=dateEnd)continue;
+    candidate.push({departMs:dep,stopId:events[i][0],
+     nextStop:data.stops[events[i+1][0]]?.[0]||"",headsign});
+   }
+   // One trip at the same public stop can pass several same-named platforms.
+   // Select its final valid boarding platform; never count a loop as two buses.
+   const selected=candidate.at(-1);
+   if(!selected)continue;
+   const key=selected.departMs+"|"+headsign;
+   if(dedup.has(key))continue;
+   dedup.add(key);
+   rows.push({line:"260",mode:"bus",...selected,platforms:candidate,stop:spec.stop,direction,
+    serviceDate,scheduled:true});
+  }
+ }
+ rows.sort((a,b)=>a.departMs-b.departMs||a.stopId.localeCompare(b.stopId));
+ return {date,direction,stop:spec.stop,headsign:spec.headsign,rows,
+  source:"BKK Zrt., CC BY 4.0",live:false};
+}
+
+function pair260Connections(timetable,connections,cfg){
+ if(!timetable||!Array.isArray(timetable.rows))throw Error("260-as menetrend nélkül nem kapcsolható csatlakozás.");
+ const rows=connections?.rows||[],dir=timetable.direction;
+ const paired=timetable.rows.map(bus=>{
+  const platforms=bus.platforms?.length?bus.platforms:[bus];
+  const candidates=rows.filter(r=>{
+   if(!r.best)return false;
+   if(cfg.type==="walk"||dir==="home"){
+    // Match the exact platform and time returned by the 17/19/41 transfer
+    // engine, not another GTFS stop sharing the same public display name.
+    return platforms.some(p=>p.departMs===r.departMs&&p.stopId===r.boardingId);
+   }
+   return r.best.feederLine==="260"&&
+    platforms.some(p=>p.departMs===r.best.feederDepartMs);
+  });
+  candidates.sort((a,b)=>{
+   const aw=Math.abs((a.best?.waitMin||0)-2),bw=Math.abs((b.best?.waitMin||0)-2);
+   return aw-bw||a.departMs-b.departMs;
+  });
+  const match=candidates[0]||null;
+  // For a successfully matched connection, the displayed 260 departure must
+  // be the departure at that EXACT safe boarding platform. An unmatched bus
+  // keeps its source-backed default platform, never a fabricated candidate.
+  const board=match&&cfg.type!=="walk"&&dir==="work"?
+   platforms.find(p=>p.departMs===match.best.feederDepartMs):
+   match?platforms.find(p=>p.departMs===match.departMs&&p.stopId===match.boardingId):null;
+  const selected=board||bus;
+  const leaveMs=match?.best?.leaveOfficeMs??(cfg.type==="walk"?
+   selected.departMs-(cfg.originWalkMin+cfg.originSafetyMin)*60000:null);
+  return {...bus,...selected,platforms,match,leaveMs,connectionOk:!!match};
+ });
+ paired.sort((a,b)=>a.departMs-b.departMs||a.stopId.localeCompare(b.stopId));
+ return {...timetable,rows:paired};
+}
 function nextIndex(rows,now=Date.now()){
  return rows.findIndex(r=>r.best&&r.best.leaveOfficeMs>=now);
 }
@@ -195,5 +291,5 @@ function walkOnlyOptions(data,date,cfg=HOME,clock=Date.now()){
 function compute(data,date,cfg,clock=Date.now()){
  return cfg?.type==="walk"?walkOnlyOptions(data,date,cfg,clock):options(data,date,cfg,clock);
 }
-export {DEFAULT,HOME,REVERSE,SAMPLES,clean,dist,validConfig,indexStops,options,
- walkOnlyOptions,compute,nextIndex};
+export {DEFAULT,HOME,REVERSE,SAMPLES,BUS_260_DIRECTIONS,bus260DirectionForTemplate,full260Timetable,pair260Connections,
+ clean,dist,validConfig,indexStops,options,walkOnlyOptions,compute,nextIndex};

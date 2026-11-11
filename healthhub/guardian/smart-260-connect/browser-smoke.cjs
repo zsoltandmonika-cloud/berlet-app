@@ -68,12 +68,15 @@ async function smoke(browser,base,device){
   },{timeout:30000});
   const status=await page.locator("#status").textContent();
   assert.match(status,/✓ BKK GTFS/, "Public GTFS must load and validate: "+status);
-  const total=await page.locator(".timeline-row").count();
-  assert.ok(total>0,"Schedule should render at least one 260 bus entry");
-  const work=await page.locator(".timeline-row:not(.unmatched)").count();
+  const total=await page.locator(".v34-260-row").count();
+  assert.ok(total>20,"Full daily schedule must include morning and afternoon 260 buses");
+  const work=await page.locator(".v34-260-row.v34-matched").count();
   assert.ok(work>0,"At least one 260/tram match should render");
+  assert.ok(total>work,"Unmatched scheduled 260 buses must remain visibly present");
+  assert.equal(await page.locator("#countdownLabel").textContent(),"260-asig");
+  assert.match(await page.locator("#timelineSubtitle").textContent(),/260-as · Bécsi út/);
   assert.equal(await page.locator("#walkMetric").textContent(),"10 + 1 perc");
-  assert.equal(await page.locator("#windowMetric").textContent(),"13:00–19:00");
+  assert.equal(await page.locator("#windowMetric").textContent(),"Teljes nap · 260");
   assert.ok(await page.locator("#ring").isVisible(),"Countdown ring is visible");
   assert.equal(await page.locator("#matchSummary").count(),0,"No verbose summary underneath the timeline");
   const normalHeight=await page.locator("#timeline").evaluate(el=>getComputedStyle(el).maxHeight);
@@ -170,7 +173,7 @@ async function smoke(browser,base,device){
    "Reversed home->work is a true 260-to-tram connection, not Citronella walk-only");
   assert.equal(await page.locator("#headingShort").textContent(),"Otthon → Munkahely");
   assert.equal(await page.locator("#pinTemplateSelect").inputValue(),"monika-home-to-office");
-  await page.waitForFunction(()=>document.getElementById("timelineSubtitle")?.textContent?.includes("17-es · Kolosy tér")&&
+  await page.waitForFunction(()=>document.getElementById("timelineSubtitle")?.textContent?.includes("260-as · Citronella utca")&&
    document.querySelector("#timeline .timeline-row.next"),{timeout:30000});
   const focused=await page.evaluate(()=>{
    const outer=document.getElementById("timeline").getBoundingClientRect();
@@ -198,8 +201,8 @@ async function smoke(browser,base,device){
   assert.equal(await page.locator("#kind").inputValue(),"walk");
   assert.equal(await page.locator("#routeFlow .v2-step").count(),4,
    "The walk-only route must use the same reusable visual journey component");
-  assert.ok(await page.locator(".timeline-row:not(.unmatched)").count()>0,
-   "Citronella 260 has expected real timetable results");
+  assert.ok(await page.locator(".v34-260-row.v34-matched").count()>0,
+   "Citronella full 260 bus list has real timetable results");
   await page.locator("#pinBtn").click();
   await page.waitForFunction(()=>document.body.classList.contains("pinned"));
   assert.equal(await page.locator("#editor").isVisible(),false,"Pinned screen hides form");
@@ -251,8 +254,8 @@ async function guardianPinSmoke(browser,base,device){
    "At 07:53 the Citronella 260 inbound bus must depart at 08:07, not 08:17");
   assert.match(await page.locator("#hhSmartMatchPinNoteV1").textContent(),/07:59/,
    "Separate 6min walking plus 2min buffer as departure FROM HOME");
-  assert.match(await page.locator("#hhSmartMatchPinV1").getAttribute("href"),/id=home-citronella-260/,
-   "Mónika's default must be the actual Citronella bus stop, not the office trip.");
+  assert.match(await page.locator("#hhSmartMatchPinV1").getAttribute("href"),/id=monika-home-to-office/,
+   "Guardian 08:07 bus card must open the COMPLETE home-to-office pinned journey.");
   // Previous rollout stored an incorrect 'office' default. Migrates once,
   // without hijacking a route subsequently pinned by the user.
   await page.evaluate(()=>{
@@ -264,6 +267,24 @@ async function guardianPinSmoke(browser,base,device){
   assert.equal(await page.locator("#hhSmartMatchPinTimeV1").textContent(),"08:07");
   assert.equal(await page.evaluate(()=>localStorage.getItem("sh9-smart-match-active-pin-v1-m")),
    "home-citronella-260","Migrate old default exactly once");
+  // Reproduce the reported bad pinned focus: at 07:53, Guardian's
+  // Citronella card opens the FULL home-to-office route and must show
+  // the real 260 stop time 08:07, never a later office/feeder proposal.
+  await page.locator("#hhSmartMatchPinV1").click();
+  await page.waitForFunction(()=>
+   document.body.classList.contains("pinned")&&
+   document.getElementById("headingShort")?.textContent==="Otthon → Munkahely"&&
+   document.getElementById("heroTime")?.textContent==="08:07",{timeout:30000});
+  assert.equal(await page.locator("#countdownLabel").textContent(),"260-asig");
+  assert.match(await page.locator("#timelineSubtitle").textContent(),/Citronella utca/);
+  assert.ok(await page.locator(".v34-260-row").count()>=20,
+   "Pinned home-to-office must show the COMPLETE Citronella daily timetable");
+  assert.equal(await page.locator("#heroTime").textContent(),
+   await page.locator(".v34-260-row.next .row-time").first().textContent(),
+   "Big focus time must be the 260 stop departure, not the proposed origin departure");
+  await page.screenshot({path:path.join(output,device+"-guardian-full-260-pinned.png"),fullPage:true});
+  await page.goto(fixture,{waitUntil:"domcontentloaded"});
+  await page.waitForFunction(()=>document.getElementById("hhSmartMatchPinV1")?.dataset.state==="ready",{timeout:30000});
   await page.evaluate(()=>document.documentElement.dataset.guardianProfile="z");
   await page.waitForFunction(()=>document.getElementById("hhSmartMatchPinV1")?.dataset.state==="inactive");
   await page.evaluate(()=>document.documentElement.dataset.guardianProfile="m");
