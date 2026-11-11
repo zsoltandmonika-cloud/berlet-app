@@ -297,8 +297,11 @@ def parse_public_api(data,year:int,week:int,now:dt.datetime):
                 # This URL is the site's own food-photo request, verified by
                 # opening its public green photo button. It uses the exact menu
                 # item ID (NOT food.image_id, which is a private DB key).
-                image_url=("https://ia.interfood.hu/api/v1/i?menu_item_id="+
-                           item_id+"&width=425&height=425")
+                # Only entries with an actual Interfood food photo ID receive
+                # the photo URL. The image endpoint serves the selected menu item.
+                has_photo=(str(image_id).isdigit() and int(image_id)>0) if image_id is not None else False
+                image_url=(("https://ia.interfood.hu/api/v1/i?menu_item_id="+
+                           item_id+"&width=425&height=425") if has_photo else None)
                 price=as_number(item.get("price"))
                 cards[key]={
                     "id":"if-"+code.lower()+"-"+menu_date+"-"+item_id,
@@ -310,7 +313,7 @@ def parse_public_api(data,year:int,week:int,now:dt.datetime):
                     "imageId":str(image_id) if image_id is not None else None,
                     "priceFt":int(price) if price is not None else None,
                     "nutritionBasis":"published-per-serving" if all(x is not None for x in macros.values()) else "partial-published",
-                    "imageBasis":"interfood-official-menu-item-image"
+                    "imageBasis":"interfood-official-menu-item-image" if image_url else "no-public-food-photo"
                 }
     items=sorted(cards.values(),key=lambda a:(a["menuDate"],a["category"],a["code"],a["name"]))
     return {"schemaVersion":"healthhub.interfood.live/1",
@@ -333,7 +336,7 @@ def main():
     weights=sum(row["weightGrams"] is not None for row in items)
     photos=sum(bool(row["imageUrl"]) for row in items)
     print("Verified direct API:",count,"unique dated foods,",complete,"full macros,",
-          weights,"measured portion weights,",photos,"confirmed photos")
+          weights,"measured portion weights,",photos,"official photo links")
     print("First verified entries:",[(row["menuDate"],row["code"],row["name"][:35],row["nutrients"])
                                     for row in items[:3]])
     if count<8 or complete<3:
