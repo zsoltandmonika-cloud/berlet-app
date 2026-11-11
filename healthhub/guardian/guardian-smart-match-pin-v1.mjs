@@ -7,10 +7,17 @@ const STORAGE="sh9-smart-match-templates-v1-m";
 const ACTIVE="sh9-smart-match-active-pin-v1-m";
 const CITRONELLA_DEFAULT_APPLIED="hh-smart-match-citronella-default-v2-m";
 const FULL="/berlet-app/healthhub/guardian/smart-260-connect/";
-import {HOME as MONIKA_DEFAULT,compute,bus260DirectionForTemplate,full260Timetable,pair260Connections} from "./smart-260-connect/core.mjs?v=35";
+import {HOME as MONIKA_DEFAULT,DEFAULT as OFFICE_TO_HOME,REVERSE as HOME_TO_OFFICE,compute,bus260DirectionForTemplate,full260Timetable,pair260Connections} from "./smart-260-connect/core.mjs?v=35";
+import {chooseLocation} from "./guardian-smart-location-v1.mjs?v=1";
 const HOST_ID="hhSmartMatchPinV1";
+const AUTO_KEY="sh9-smart-location-switch-v1-m";
+const SWITCH_ID="hhSmartLocationSwitchV1";
 const holder=document.getElementById("hhTransitPanel");
-const state={item:null,id:null,entries:[],day:null,loaded:null,loading:false,visible:false,lastLoadAt:0};
+const state={item:null,id:null,entries:[],day:null,loaded:null,loading:false,visible:false,lastLoadAt:0,
+ autoId:null,autoSince:0,pendingZone:null,pendingAt:0,confirmedZone:null,
+ autoEnabled:true};
+try{state.autoEnabled=localStorage.getItem(AUTO_KEY)!=="off"}catch(_){}
+
 if(holder)start();
 
 function clock(ms){
@@ -48,8 +55,15 @@ function readPin(){
    }
    localStorage.setItem(CITRONELLA_DEFAULT_APPLIED,"1");
   }
+  const desired=state.autoEnabled?state.autoId:null;
+  if(desired){
+   const automatic=items.find(x=>x.id===desired);
+   if(automatic)return automatic;
+   if(desired==="monika-260")return OFFICE_TO_HOME;
+   if(desired==="monika-home-to-office")return HOME_TO_OFFICE;
+  }
   const preferred=active&&items.find(x=>x.id===active);
-  // Mónika normally boards the 260 at Citronella utca toward Óbudai rendelőintézet.
+  // When no reliable fix is available, keep the saved manual selection.
   return preferred||items.find(x=>x.id==="home-citronella-260")||MONIKA_DEFAULT;
  }catch(_){return MONIKA_DEFAULT}
 }
@@ -57,6 +71,65 @@ function stageText(item){
  if(!item)return"Kitűzhető útvonal";
  return (item.title||"Smart Match").replace(/^Mónika\s*·\s*/,"").slice(0,48);
 }
+function switchButton(){
+ const b=document.createElement("button");
+ b.type="button";b.id=SWITCH_ID;b.className="hh-smart-location-switch-v1";
+ b.setAttribute("aria-label","Smart Location automatikus útvonalválasztás");
+ b.setAttribute("aria-pressed",String(state.autoEnabled));
+ b.setAttribute("title","Csak a már hitelesített Family Guard GPS-ből és mentett helyekből választ. Nincs új helymeghatározás.");
+ b.textContent=state.autoEnabled?"📍 Smart Location · BE":"📍 Smart Location · KI";
+ b.addEventListener("click",()=>{
+  state.autoEnabled=!state.autoEnabled;
+  try{localStorage.setItem(AUTO_KEY,state.autoEnabled?"on":"off")}catch(_){}
+  if(!state.autoEnabled){
+   state.autoId=null;state.pendingZone=null;state.confirmedZone=null;
+   refresh({force:true});
+  }else considerLocation();
+  paintSwitch();
+ });
+ return b;
+}
+function paintSwitch(label=""){
+ const b=document.getElementById(SWITCH_ID);if(!b)return;
+ b.setAttribute("aria-pressed",String(state.autoEnabled));
+ b.dataset.mode=state.autoEnabled?"on":"off";
+ const zone=state.confirmedZone==="home"?" · Otthon":
+  state.confirmedZone==="work"?" · Munkahely":"";
+ b.textContent=state.autoEnabled?"📍 Smart Location · BE"+zone:"📍 Smart Location · KI";
+ b.setAttribute("aria-label",state.autoEnabled?
+  "Smart Location bekapcsolva. Kattintás: automatikus irányváltás kikapcsolása.":
+  "Smart Location kikapcsolva. Kattintás: automatikus irányváltás bekapcsolása.");
+ if(label)b.title=label;
+}
+function considerLocation(){
+ if(!state.autoEnabled||!state.visible||document.hidden||activeProfile()!=="monika")return;
+ // Already owner-verified Family Guard fix. This code NEVER reads the GPS
+ // sensor, native relay, cloud API or map camera and never uploads coordinates.
+ const follow=window.HH_GUARDIAN_PROFILE_FOLLOW_V837;
+ const places=window.HH_TRAVEL_FAVORITES_V972?.getSlots?.();
+ const choice=chooseLocation(follow?.latestAuthorizedSelectedFix,places,Date.now());
+ if(!choice){
+  state.pendingZone=null;
+  if(state.autoId&&Date.now()-state.autoSince>5*60*1000){
+   state.autoId=null;state.confirmedZone=null;refresh({force:true});
+  }
+  paintSwitch("BE, de nincs friss, hitelesített GPS vagy egyértelmű mentett Otthon és Munkahely. Kézi séma marad.");
+  return;
+ }
+ if(state.confirmedZone===choice.zone){
+  state.autoSince=Date.now();paintSwitch();return;
+ }
+ if(state.pendingZone!==choice.zone){
+  state.pendingZone=choice.zone;state.pendingAt=Date.now();return;
+ }
+ // Two independent readings separated by 8+ seconds prevent GPS jitter.
+ if(Date.now()-state.pendingAt<8000)return;
+ state.pendingZone=null;state.autoId=choice.routeId;
+ state.confirmedZone=choice.zone;state.autoSince=Date.now();
+ paintSwitch();
+ refresh({force:true});
+}
+
 function createCard(){
  const card=document.createElement("a");
  card.id=HOST_ID;card.className="hh-smart-match-pin-v1";
@@ -72,6 +145,8 @@ function dock(card){
  const bar=holder.querySelector("#hhBkkLiveBarV796");
  if(bar){
   if(card.parentElement!==bar)bar.append(card);
+  const toggle=document.getElementById(SWITCH_ID);
+  if(toggle&&toggle.parentElement!==bar)card.insertAdjacentElement("afterend",toggle);
  }else if(!card.isConnected)holder.prepend(card);
 }
 function setView({time,note,title,status,link}){
@@ -199,8 +274,11 @@ function refresh({force=false}={}){
 }
 function start(){
  const card=createCard();
+ const toggle=switchButton();
  dock(card);
- const themeWatcher=new MutationObserver(()=>refresh({force:true}));
+ card.insertAdjacentElement("afterend",toggle);
+ paintSwitch();
+ const themeWatcher=new MutationObserver(()=>{refresh({force:true});considerLocation()});
  themeWatcher.observe(document.documentElement,{attributes:true,attributeFilter:["data-guardian-profile"]});
  // Existing BKK Live module creates its bar asynchronously. Append without replacing it.
  const observer=new MutationObserver(()=>{if(holder.querySelector("#hhBkkLiveBarV796")){dock(card);observer.disconnect()}});
@@ -210,15 +288,27 @@ function start(){
  if(typeof IntersectionObserver==="function"){
   const io=new IntersectionObserver(entries=>{
    state.visible=entries.some(x=>x.isIntersecting);
-   if(state.visible)refresh({force:true});
+   if(state.visible){refresh({force:true});considerLocation()}
   },{rootMargin:"180px 0px"});
   io.observe(card);
- }else{state.visible=true;refresh({force:true})}
- window.addEventListener("storage",e=>{if(e.key===STORAGE||e.key===ACTIVE)refresh({force:true})});
- window.addEventListener("pageshow",()=>{if(state.visible)refresh({force:true})});
- document.addEventListener("visibilitychange",()=>{
-  if(!document.hidden&&state.visible)refresh({force:false});
+ }else{state.visible=true;refresh({force:true});considerLocation()}
+ window.addEventListener("storage",e=>{
+  if(e.key===AUTO_KEY){
+   state.autoEnabled=e.newValue!=="off";
+   if(!state.autoEnabled){state.autoId=null;state.confirmedZone=null;state.pendingZone=null}
+   paintSwitch();refresh({force:true});if(state.autoEnabled)considerLocation();
+  }
+  if(e.key===STORAGE||e.key===ACTIVE)refresh({force:true});
  });
- window.addEventListener("focus",()=>{if(state.visible)refresh({force:false})});
+ window.addEventListener("pageshow",()=>{if(state.visible){considerLocation();refresh({force:true})}});
+ document.addEventListener("visibilitychange",()=>{
+  if(!document.hidden&&state.visible){considerLocation();refresh({force:false})}
+ });
+ window.addEventListener("focus",()=>{if(state.visible){considerLocation();refresh({force:false})}});
  setInterval(()=>{if(state.visible&&state.item)renderClock()},30000);
+ // Poll only an already cached verified Family Guard fix; no new GPS requests.
+ setInterval(considerLocation,12000);
+ // A local event enables deterministic QA and timely foreground refresh.
+ window.addEventListener("hh-smart-location-check-v1",considerLocation);
+ window.addEventListener("hh-travel-favorites-changed",considerLocation);
 }
