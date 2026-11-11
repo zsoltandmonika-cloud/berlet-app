@@ -328,69 +328,146 @@ def browser_rendered_html() -> str:
             browser.close()
 
 
-def main():
-    headers={"User-Agent":"Mozilla/5.0 (compatible; HealthHubPublicMenuRead/1.0; personal-use)",
-             "Accept":"text/html,application/xhtml+xml","Accept-Language":"hu-HU,hu;q=0.9"}
-    request=urllib.request.Request(SOURCE,headers=headers,method="GET")
-    with urllib.request.urlopen(request,timeout=22) as resp:
-        mime=resp.headers.get("Content-Type","")
-        html=resp.read(3_000_000).decode("utf-8",errors="replace")
-        print("Source HTTP:",resp.status,"content-type:",mime,"bytes:",len(html))
-    if "html" not in mime.lower() or len(html)<1200:
-        raise RuntimeError("Public Interfood HTML unavailable")
-    # Check whether the same anonymous menu JSON is available without
-    # browser execution, so scheduled updates can eventually avoid Playwright.
+
+API = "https://ia.interfood.hu/api/v1/menu"
+PARTS = ("one", "two", "three")
+NUTRI_KEYS = {"kcal":"energy", "protein":"protein", "carbs":"carb", "fat":"fat"}
+
+def as_number(raw):
+    if raw is None or raw == "":return None
     try:
-        public_req=urllib.request.Request(SOURCE+"api/v1/menu",
-            headers={"Accept":"application/json","User-Agent":"Mozilla/5.0"})
-        with urllib.request.urlopen(public_req,timeout=10) as public_resp:
-            data=json.load(public_resp)
-            print("DIRECT ANONYMOUS MENU API:",public_resp.status,
-                  "data groups:",len(data.get("data",{})) if isinstance(data,dict) else "invalid",
-                  "error:",data.get("error") if isinstance(data,dict) else "invalid")
-    except Exception as api_error:
-        print("DIRECT ANONYMOUS MENU API unavailable:",str(api_error)[:180])
+        value=float(str(raw).replace(",","."))
+        return value if value >= 0 and value < 1_000_000 else None
+    except (ValueError,TypeError):return None
+
+def get_public_week(year:int,week:int):
+    """Exact anonymous JSON POST used by the public Interfood ordering site."""
+    body={
+        "year":str(year),"week":str(week),
+        "seek_labels":[],"ignore_labels":[],
+        "seek_ingredients":[],"ignore_ingredients":[],
+        "calorie":{"min":0,"max":9000},"carb":{"min":0,"max":9000},
+        "protein":{"min":0,"max":9000},"fat":{"min":0,"max":9000},
+        "price":{"min":0,"max":9000},
+        "favorites":False,"last_minute":False
+    }
+    req=urllib.request.Request(API,
+        data=json.dumps(body,separators=(",",":")).encode("utf-8"),
+        headers={"Accept":"application/json",
+          "Content-Type":"application/json",
+          "User-Agent":"Mozilla/5.0 (compatible; HealthHubPublicMenuRead/1.0)",
+          "Origin":"https://rendel.interfood.hu"},
+        method="POST")
+    with urllib.request.urlopen(req,timeout=22) as response:
+        if response.status!=200 or "json" not in response.headers.get("Content-Type",""):
+            raise RuntimeError("Interfood public API unexpectedly unavailable")
+        raw=response.read(5_000_000)
+        data=json.loads(raw)
+    if not isinstance(data,dict) or data.get("error") is not False or not isinstance(data.get("data"),dict):
+        raise RuntimeError("Interfood JSON response has unexpected schema")
+    return data
+
+def nutrition_and_weight(item):
+    """Sum separately published components; never infer or estimate nutrients."""
+    active=[]
+    for part in PARTS:
+        label=item.get("food_name_"+part)
+        weight=as_number(item.get("weight_food_"+part))
+        energy=as_number(item.get("energy_portion_food_"+part))
+        if (isinstance(label,str) and label.strip()) or (weight is not None and weight>0) or (energy is not None and energy>0):
+            active.append((part,weight))
+    if not active:
+        active=[("one",as_number(item.get("weight_food_one")))]
+    result={}
+    for key,prefix in NUTRI_KEYS.items():
+        vals=[as_number(item.get(prefix+"_portion_food_"+part)) for part,_ in active]
+        result[key]=round(sum(vals),2) if all(v is not None for v in vals) else None
+        if result[key] is not None and result[key]>(5000 if key=="kcal" else 1000):
+            result[key]=None
+    weights=[weight for _,weight in active]
+    grams=round(sum(weights),2) if all(w is not None and w>0 for w in weights) else None
+    if grams is not None and not 1<=grams<=3000:grams=None
+    return result,grams
+
+def parse_public_api(data,year:int,week:int,now:dt.datetime):
+    """Read official menu data with date+code+name and exact serving nutrition."""
+    if not isinstance(data,dict) or data.get("error") is not False:
+        raise ValueError("Unverified Interfood public JSON")
+    groups=data.get("data")
+    if not isinstance(groups,dict):raise ValueError("Missing public menu groups")
+    cards={}
+    for group in groups.values():
+        if not isinstance(group,dict):continue
+        group_name=str(group.get("name") or "Interfood").strip()[:60]
+        for category in group.get("categories") or []:
+            if not isinstance(category,dict):continue
+            code=str(category.get("code") or "").strip().upper()
+            if not re.fullmatch(r"[A-Z0-9]{1,8}",code):continue
+            label=str(category.get("name") or group_name).strip()[:60]
+            for item in category.get("items") or []:
+                if not isinstance(item,dict):continue
+                menu_date=str(item.get("date") or "")
+                if not re.fullmatch(r"20\d{2}-\d{2}-\d{2}",menu_date):continue
+                try:
+                    when=dt.date.fromisoformat(menu_date)
+                    if when.isocalendar().week!=week or when.isocalendar().year!=year:continue
+                except ValueError:continue
+                food=item.get("food")
+                food_name=food.get("name") if isinstance(food,dict) else None
+                food_display=food.get("display_name") if isinstance(food,dict) else None
+                title=str(food_display or food_name or item.get("food_name_one") or "").strip()
+                if len(title)<2 or len(title)>100:continue
+                item_id=str(item.get("id") or "")
+                if not re.fullmatch(r"\d{1,10}",item_id):continue
+                macros,weight=nutrition_and_weight(item)
+                key=(menu_date,code,item_id)
+                if key in cards:continue
+                image_id=food.get("image_id") if isinstance(food,dict) else None
+                # Numeric database IDs are not public photo URLs. Expose only
+                # a verified source URL after its real file mapping is known.
+                image_url=None
+                price=as_number(item.get("price"))
+                cards[key]={
+                    "id":"if-"+code.lower()+"-"+menu_date+"-"+item_id,
+                    "code":code,"name":title,"category":group_name,
+                    "label":label,"menuDate":menu_date,"week":week,
+                    "weightGrams":weight,"nutrients":macros,
+                    "imageUrl":image_url,"sourceUrl":SOURCE,
+                    "sourceItemId":item_id,
+                    "imageId":str(image_id) if image_id is not None else None,
+                    "priceFt":int(price) if price is not None else None,
+                    "nutritionBasis":"published-per-serving" if all(x is not None for x in macros.values()) else "partial-published",
+                    "imageBasis":"no-verified-photo-url"
+                }
+    items=sorted(cards.values(),key=lambda a:(a["menuDate"],a["category"],a["code"],a["name"]))
+    return {"schemaVersion":"healthhub.interfood.live/1",
+            "updatedAt":now.isoformat(timespec="seconds").replace("+00:00","Z"),
+            "sourceUrl":SOURCE,"week":week,"selectedDate":None,
+            "availableDates":sorted({x["menuDate"] for x in items}),
+            "items":items}
+
+def main():
+    from zoneinfo import ZoneInfo
+    local_now=dt.datetime.now(ZoneInfo("Europe/Budapest"))
+    year,week,_=local_now.isocalendar()
+    print("Interfood Live direct public API:",year,"week",week)
+    data=get_public_week(year,week)
     now=dt.datetime.now(dt.timezone.utc)
-    feed=parse(html,now)
-    if len(feed["items"])<8:
-        # Interfood serves a JavaScript app shell. Browser rendering is required.
-        print("Public HTML is an SPA shell; switching to headless browser reading.")
-        script_urls=re.findall(r'<script[^>]+src=["\']([^"\']+)',html,re.I)
-        print("Public frontend JS bundles:",len(script_urls),
-              [urllib.parse.urlparse(x).path[-70:] for x in script_urls[:9]])
-        html=browser_rendered_html()
-        feed=parse(html,now)
-    n=len(feed["items"])
-    with_nut=sum(x["nutrients"]["kcal"] is not None for x in feed["items"])
-    with_image=sum(x["imageUrl"] is not None for x in feed["items"])
-    print("Extracted:",n,"foods,",with_nut,"complete macro sets,",with_image,
-          "public image URLs; week:",feed["week"],"selected day:",feed["selectedDate"])
-    for x in feed["items"][:3]:
-        print("Sample public item:",x["code"],x["name"][:75],x["nutritionBasis"])
-    for x in [i for i in feed["items"] if i.get("imageUrl")][:5]:
-        print("PHOTO ATTRIBUTION SAMPLE:",x["code"],x["name"][:45],x["imageUrl"][:130])
-    if n<8 or with_nut<3:
-        # Snapshot failure is loud. Previous verified public feed stays untouched.
-        print("DEBUG around food code / serialized page markers:",file=sys.stderr)
-        for needle in ["D9","SP1","__NEXT_DATA__","__NUXT__","application/ld+json"]:
-            idx=html.find(needle)
-            print(needle,"offset:",idx,"preview:",
-                  re.sub(r"\s+"," ",html[max(0,idx-90):idx+400])[:460] if idx>=0 else "",
-                  file=sys.stderr)
-        # Diagnostic structure only; no account, addresses, cookies, or full page stored.
-        dom=BeautifulSoup(html,"html.parser")
-        print("Category codes:",len(dom.select(".category-code")),
-              "Food tiles:",len(dom.select(".category-foods .food")),file=sys.stderr)
-        for tile in dom.select(".category-foods .food")[:2]:
-            print("FOOD HTML SAMPLE:",str(tile)[:3500],file=sys.stderr)
-        for code in dom.select(".category-code")[:2]:
-            print("CATEGORY WRAPPER SAMPLE:",str(code.parent)[:1900],file=sys.stderr)
-        for date in dom.select("[data-date]")[:6]:
-            print("DATE SAMPLE:",str(date)[:500],file=sys.stderr)
-        raise RuntimeError("Interfood menu parsing validation failed; refusing empty/stale publish")
+    feed=parse_public_api(data,year,week,now)
+    items=feed["items"]
+    count=len(items)
+    complete=sum(all(x is not None for x in row["nutrients"].values()) for row in items)
+    weights=sum(row["weightGrams"] is not None for row in items)
+    photos=sum(bool(row["imageUrl"]) for row in items)
+    print("Verified direct API:",count,"unique dated foods,",complete,"full macros,",
+          weights,"measured portion weights,",photos,"confirmed photos")
+    print("First verified entries:",[(row["menuDate"],row["code"],row["name"][:35],row["nutrients"])
+                                    for row in items[:3]])
+    if count<8 or complete<3:
+        raise RuntimeError("Interfood returned incomplete public menu; refusing to publish")
     OUTPUT.parent.mkdir(parents=True,exist_ok=True)
     OUTPUT.write_text(json.dumps(feed,ensure_ascii=False,separators=(",",":"))+"\n",encoding="utf-8")
-    print("Written validated feed:",OUTPUT)
+    print("Written verified public Interfood feed:",OUTPUT)
 
 
 if __name__=="__main__":
