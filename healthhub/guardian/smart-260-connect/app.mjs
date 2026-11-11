@@ -164,7 +164,7 @@ function metrics(item){
  $("windowMetric").textContent=timeField(item.startHour)+"–"+timeField(item.endHour);
  $("waitMetric").textContent=item.type==="walk"?item.originSafetyMin+" perc tartalék":"≤ "+item.maxWaitMin+" perc";
  $("walkMetric").textContent=item.originWalkMin+" + "+item.originSafetyMin+" perc";
- $("heroLabel").textContent=item.type==="walk"?"Következő indulás otthonról":"Következő indulás "+(item.originLabel||"az irodából")+" helyszínről";
+ $("heroLabel").textContent=item.type==="walk"?"Következő indulás otthonról":item.originLabel==="Bécsi Corner"?"Következő indulás az irodából":"Következő indulás innen: "+(item.originLabel||"Indulás");
 }
 function getMode(line){
  // Source-backed mode; the renderer is not hardwired to a bus/tram list.
@@ -192,10 +192,10 @@ function routeFlowStages(item){
   {role:targetMode,label:item.targetRoute,detail:item.targetStop},
   {role:"destination",label:destination,detail:"Érkezés"}
  ]:[
-  {role:"origin",label:original,detail:"Indulás"},
+  {role:"origin",label:original==="Bécsi Corner"?"Iroda":original,detail:original},
   {role:"walk",label:item.originWalkMin+" perc",detail:"Séta"},
-  {role:feederMode,label:feeders.join(" / "),detail:item.originStop},
-  {role:"transfer",label:"Átszállás",detail:item.transferStop},
+  {role:feederMode,label:feeders.join("/"),detail:item.originStop},
+  {role:"transfer",label:"Átszállás",detail:item.transferStop,shortLabel:"Csere"},
   {role:targetMode,label:item.targetRoute,detail:item.targetHeadsign||item.targetStop},
   {role:"destination",label:destination,detail:"Érkezés"}
  ];
@@ -210,10 +210,12 @@ function renderFlow(item){
  for(const step of steps){
   const node=document.createElement("span");
   node.className="v2-step";node.dataset.role=step.role;
+  node.setAttribute("title",[step.label,step.detail].filter(Boolean).join(" · "));
   const pict=document.createElement("span");pict.className="v2-step-icon";
   pict.textContent=icons[step.role]||"📍";
   const label=document.createElement("span");label.className="v2-step-label";
   label.textContent=step.label;
+  if(step.shortLabel)label.dataset.short=step.shortLabel;
   const detail=document.createElement("span");detail.className="v2-step-detail";
   detail.textContent=step.detail||"";
   node.append(pict,label,detail);flow.append(node);
