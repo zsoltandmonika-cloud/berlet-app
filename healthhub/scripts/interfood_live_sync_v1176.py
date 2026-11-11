@@ -463,6 +463,16 @@ def main():
           weights,"measured portion weights,",photos,"confirmed photos")
     print("First verified entries:",[(row["menuDate"],row["code"],row["name"][:35],row["nutrients"])
                                     for row in items[:3]])
+    sample_id=next((row["imageId"] for row in items if row.get("imageId")),None)
+    if sample_id:
+        photo_url="https://ia.interfood.hu/file/"+sample_id
+        try:
+            photo_req=urllib.request.Request(photo_url,method="HEAD")
+            with urllib.request.urlopen(photo_req,timeout=8) as resp:
+                print("PUBLIC PHOTO ID PROBE:",resp.status,resp.headers.get("Content-Type",""),
+                      resp.headers.get("Content-Length",""))
+        except Exception as exc:
+            print("PUBLIC PHOTO ID PROBE NOT VALID:",str(exc)[:130])
     if count<8 or complete<3:
         raise RuntimeError("Interfood returned incomplete public menu; refusing to publish")
     OUTPUT.parent.mkdir(parents=True,exist_ok=True)
