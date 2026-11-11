@@ -170,6 +170,15 @@ async function smoke(browser,base,device){
    "Reversed home->work is a true 260-to-tram connection, not Citronella walk-only");
   assert.equal(await page.locator("#headingShort").textContent(),"Otthon → Munkahely");
   assert.equal(await page.locator("#pinTemplateSelect").inputValue(),"monika-home-to-office");
+  await page.waitForFunction(()=>document.getElementById("timelineSubtitle")?.textContent?.includes("17-es · Kolosy tér")&&
+   document.querySelector("#timeline .timeline-row.next"),{timeout:30000});
+  const focused=await page.evaluate(()=>{
+   const outer=document.getElementById("timeline").getBoundingClientRect();
+   const next=document.querySelector("#timeline .timeline-row.next").getBoundingClientRect();
+   return {outerTop:outer.top,outerBottom:outer.bottom,nextTop:next.top,nextBottom:next.bottom};
+  });
+  assert.ok(focused.nextTop>=focused.outerTop-8&&focused.nextTop<focused.outerBottom-15,
+   "After reversal, NEXT departure tile should actually be visible: "+JSON.stringify(focused));
   assert.equal(await page.locator(".v2-skyline").isVisible(),false);
   assert.ok(await page.locator("#pinnedActions").isVisible());
   await page.screenshot({path:path.join(output,device+"-work-reversed-pinned.png"),fullPage:true});
