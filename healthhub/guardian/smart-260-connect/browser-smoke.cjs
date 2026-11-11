@@ -154,6 +154,27 @@ async function smoke(browser,base,device){
    "Dedicated scenic hero MUST NOT take space in pinned view");
   assert.ok(await page.locator("#pinnedActions").isVisible(),
    "Usual 3-button pinned taskbar remains available");
+  // Pinned reminder is a two-state button; the actual existing 5-minute
+  // alert logic remains connected to the timeline bell.
+  const pinAlert=page.locator("#pinReminder");
+  assert.equal(await pinAlert.getAttribute("aria-pressed"),"false");
+  assert.match(await pinAlert.textContent(),/Emlékeztető KI/);
+  const reminderOffColor=await pinAlert.evaluate(el=>getComputedStyle(el).backgroundImage);
+  await pinAlert.click();
+  assert.equal(await pinAlert.getAttribute("aria-pressed"),"true");
+  assert.match(await pinAlert.textContent(),/Emlékeztető BE/);
+  assert.equal(await page.locator("#remindBtn").getAttribute("aria-pressed"),"true");
+  const reminderOn=await pinAlert.evaluate(el=>({background:getComputedStyle(el).backgroundImage,
+    color:getComputedStyle(el).color}));
+  assert.ok(reminderOn.background.includes("rgb(198, 247, 223)")||reminderOn.background.includes("rgb(84, 217, 161)"),
+   "Active pinned reminder should be mint green: "+JSON.stringify(reminderOn));
+  await pinAlert.click();
+  assert.equal(await pinAlert.getAttribute("aria-pressed"),"false");
+  assert.match(await pinAlert.textContent(),/Emlékeztető KI/);
+  assert.equal(await page.locator("#remindBtn").getAttribute("aria-pressed"),"false");
+  assert.equal(await pinAlert.evaluate(el=>getComputedStyle(el).backgroundImage),reminderOffColor,
+   "OFF should restore the previously approved pink button");
+
   assert.ok(await page.locator("#reverseBtn").isVisible(),
    "Reverse route icon appears beside the pinned title");
   const titleRow=await page.evaluate(()=>{
