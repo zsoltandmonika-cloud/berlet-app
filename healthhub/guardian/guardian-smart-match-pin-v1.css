@@ -74,7 +74,7 @@
 }
 #hhTransitPanel #hhBkkLiveBarV796 #hhBkkFocusV796:not([hidden]){
  /* Preserve the existing button DOM, click event and full ARIA action.
-  * Replace ONLY its visible, overly verbose copy with a 2-state icon. */
+  * Replace ONLY its visible, overly verbose copy with a 2-state ON/OFF badge. */
  box-sizing:border-box!important;
  display:inline-grid!important;place-items:center!important;
  flex:0 0 42px!important;width:42px!important;min-width:42px!important;
@@ -82,12 +82,22 @@
  padding:0!important;border-radius:11px!important;
  font-size:0!important;line-height:1!important;
  overflow:hidden!important;white-space:nowrap!important;
+ /* aria-pressed reflects LIVE VEHICLE VISIBILITY, not BKK API status. */
+ color:#ffffff!important;border-color:#137a44!important;
+ background:linear-gradient(145deg,#24b861,#087740)!important;
+ box-shadow:0 0 0 1px rgba(22,125,62,.18),0 2px 8px rgba(4,94,46,.2)!important;
 }
 #hhTransitPanel #hhBkkLiveBarV796 #hhBkkFocusV796:not([hidden])::before{
- content:"👁️";font-size:22px;line-height:1;
+ content:"ON";display:block;font:900 13px/1 system-ui;
+ color:#fff;letter-spacing:.025em;
+}
+#hhTransitPanel #hhBkkLiveBarV796 #hhBkkFocusV796[aria-pressed="false"]:not([hidden]){
+ background:linear-gradient(145deg,#e95962,#a91930)!important;
+ border-color:#a91930!important;
+ box-shadow:0 0 0 1px rgba(160,17,45,.14),0 2px 8px rgba(117,21,38,.17)!important;
 }
 #hhTransitPanel #hhBkkLiveBarV796 #hhBkkFocusV796[aria-pressed="false"]:not([hidden])::before{
- content:"🙈";
+ content:"OFF";
 }
 #hhTransitPanel #hhBkkLiveBarV796>#hhSmartMatchPinV1{
  flex:0 0 107px!important;width:107px!important;min-width:107px!important;
