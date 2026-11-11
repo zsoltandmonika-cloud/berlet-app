@@ -1,0 +1,207 @@
+/* Smart Match V3 · Clean Full Screen.
+ * Presentation-only overrides; original GTFS calculation and saved templates untouched.
+ * Normal view: separate decorative hero, visible title and selector.
+ * Pinned view: viewport-height layout with a real expandable scrollable timeline.
+ */
+:root{--v3-pin-dock-height:76px}
+main>.v2-skyline{
+ position:relative;z-index:0;top:auto;right:auto;left:auto;bottom:auto;
+ width:100%;height:clamp(116px,20vw,190px);
+ margin:0 0 14px;
+ background-position:center 57%;background-size:cover;
+ border:1px solid rgba(255,168,227,.35);
+ border-radius:20px;
+ box-shadow:0 7px 23px rgba(5,7,28,.22),inset 0 1px rgba(255,217,240,.14);
+ filter:none;
+ overflow:hidden;pointer-events:none;
+}
+main>h1{
+ position:relative;z-index:1;
+ max-width:100%;margin:0 0 11px;
+ text-shadow:0 3px 19px rgba(216,90,185,.22);
+ overflow-wrap:break-word;
+}
+body:not(.pinned) #templates{margin:0 0 14px;gap:8px}
+body:not(.pinned) .template-chip{
+ min-height:46px;padding:9px 13px;border-radius:13px;
+ text-align:left;line-height:1.4;
+ white-space:normal;overflow-wrap:break-word;
+}
+body:not(.pinned) .hero{margin-top:13px}
+.v3-info{
+ font-size:12px;color:#c5cfeb;
+ margin:18px 2px 5px;padding:7px 12px;
+ border:1px solid rgba(209,185,244,.16);
+ border-radius:12px;background:rgba(17,24,56,.35)
+}
+.v3-info summary{cursor:pointer;font-weight:720;color:#c2ceed;list-style-position:inside}
+.v3-info summary:focus-visible{outline:2px solid #90f2d1;outline-offset:4px}
+.v3-info p{margin:10px 0;line-height:1.55}
+.v3-info a{color:#a4e9fa}
+
+/* Fully pinned: retain the actual interface, remove explanatory blocks. */
+body.pinned{
+ height:100dvh;min-height:0;overflow:hidden;
+ display:flex;flex-direction:column;
+}
+body.pinned #pinnedBanner{
+ flex:0 0 auto;
+ display:flex;align-items:center;justify-content:space-between;
+ min-height:32px;padding:3px 12px;margin:0;
+ font-size:10px;letter-spacing:.035em;
+}
+body.pinned #exitPin{
+ min-height:29px;padding:4px 9px;font-size:11px;border-radius:9px;
+}
+body.pinned main{
+ flex:1 1 auto;min-height:0;height:auto;width:min(100%,900px);
+ display:flex;flex-direction:column;gap:0;
+ overflow:hidden;
+ margin:0 auto;padding:7px 12px calc(var(--v3-pin-dock-height) + env(safe-area-inset-bottom));
+}
+body.pinned main>.v2-skyline{
+ flex:0 0 auto;
+ width:100%;height:clamp(50px,8dvh,88px);
+ margin:0 0 6px;border-radius:13px;
+ background-position:center 51%;
+}
+body.pinned main>h1{
+ flex:0 0 auto;max-width:100%;
+ margin:0 0 4px;
+ font-size:clamp(23px,4.3vw,34px);line-height:1.1;
+ white-space:normal;
+}
+body.pinned .hero{
+ flex:0 0 auto;min-width:0;margin:4px 0 5px;
+ padding:10px 12px;
+ border-radius:18px;
+}
+body.pinned .hero-grid{gap:8px;grid-template-columns:minmax(0,1fr) auto}
+body.pinned .hero-label{font-size:12px;line-height:1.2}
+body.pinned .hero-time{
+ font-size:clamp(47px,8vw,71px);line-height:1;
+ margin:4px 0;letter-spacing:-.045em;
+}
+body.pinned .hero-description{
+ font-size:11px;line-height:1.3;
+ display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;
+ overflow:hidden;
+}
+body.pinned .ring{width:80px;height:80px;padding:5px}
+body.pinned .ring-inner b{font-size:17px}
+body.pinned .ring-inner small{font-size:9px}
+body.pinned .flow{
+ margin-top:7px;padding:7px 0 0;gap:2px;
+ border-top-color:rgba(255,205,238,.15);
+}
+body.pinned .flow .v2-step{gap:4px}
+body.pinned .flow .v2-step-icon{width:31px;height:31px;font-size:15px}
+body.pinned .flow .v2-step-label{font-size:9px;line-height:1.15}
+body.pinned .flow .v2-step-label[data-short]:before{font-size:9px}
+body.pinned .flow .v2-step-detail{display:none}
+body.pinned .metrics{
+ flex:0 0 auto;min-height:0;
+ display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+ margin:3px 0 6px;gap:6px;
+}
+body.pinned .metric{padding:6px 7px;border-radius:11px;min-height:42px}
+body.pinned .metric small{font-size:9px;line-height:1.2}
+body.pinned .metric strong{font-size:13px;line-height:1.25}
+body.pinned #status{
+ position:absolute!important;width:1px!important;height:1px!important;
+ padding:0!important;margin:-1px!important;overflow:hidden!important;
+ clip-path:inset(50%)!important;white-space:nowrap!important;
+}
+body.pinned #editor,body.pinned #templates,body.pinned #scheduleInfo,
+body.pinned #matchSummary,body.pinned .notice,body.pinned .footer{display:none!important}
+body.pinned #timelinePanel{
+ flex:1 1 auto;min-height:95px;
+ display:flex;flex-direction:column;overflow:hidden;
+ padding:9px!important;margin:0 0 2px;border-radius:16px;
+}
+body.pinned #timelinePanel>.section-head{
+ flex:0 0 auto;min-height:0;margin:0 0 7px!important;
+ gap:6px;
+}
+body.pinned #timelinePanel h2{font-size:16px;line-height:1.16}
+body.pinned #timelineSubtitle{
+ font-size:10px;display:block;max-width:300px;
+ white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+body.pinned #dayNext,body.pinned #remindBtn{display:none}
+body.pinned #day{font-size:11px;min-height:31px;max-width:132px}
+body.pinned #timelinePanel .progress{flex:0 0 auto;height:4px;margin-bottom:6px}
+body.pinned #timelinePanel .timeline-wrap{
+ flex:1 1 auto;min-height:0;display:flex;flex-direction:column;
+ overflow:hidden;padding:6px 5px;border-radius:13px;
+}
+body.pinned #timeline{
+ flex:1 1 auto;min-height:0;max-height:none!important;
+ width:100%;overflow-y:auto;overscroll-behavior-y:contain;
+ padding:10px 5px 10px 28px;
+}
+body.pinned .timeline-rail:before{left:13px}
+body.pinned .timeline-row{
+ margin-bottom:7px;padding:9px;border-radius:11px;
+}
+body.pinned .timeline-row:before{left:-22px;top:19px;width:11px;height:11px}
+body.pinned .row-top{gap:5px}
+body.pinned .row-time{font-size:21px}
+body.pinned .row-label{font-size:10px}
+body.pinned .match-tag{font-size:10px;padding:3px 6px}
+body.pinned .row-columns{gap:5px;margin-top:8px}
+body.pinned .row-mini{padding:6px 3px;border-radius:8px}
+body.pinned .row-mini b{font-size:15px}
+body.pinned .row-mini small{font-size:9px}
+body.pinned .row-foot{font-size:10px;line-height:1.2;margin-top:6px}
+body.pinned .pinned-actions{
+ left:max(9px,env(safe-area-inset-left));
+ right:max(9px,env(safe-area-inset-right));
+ bottom:max(7px,env(safe-area-inset-bottom));
+ min-height:54px;max-height:66px;
+ padding:7px;gap:7px;border-radius:16px;
+}
+body.pinned .pin-action,
+body.pinned .pin-template-select{min-height:45px;padding:5px 7px}
+body.pinned .now-marker{margin-left:-20px}
+
+/* Prevent a narrow portrait device from pushing the entire page downward. */
+@media(max-width:620px){
+ main>.v2-skyline{height:clamp(110px,32vw,144px);margin-bottom:12px}
+ main>h1{font-size:clamp(25px,6vw,32px)}
+ body.pinned main{padding-left:9px;padding-right:9px}
+ body.pinned main>.v2-skyline{height:clamp(46px,7dvh,71px);margin-bottom:5px}
+ body.pinned main>h1{font-size:clamp(22px,6vw,28px);margin-bottom:3px}
+ body.pinned .hero{padding:9px 10px}
+ body.pinned .hero-time{font-size:clamp(46px,12vw,61px)}
+ body.pinned .ring{width:73px;height:73px}
+ body.pinned .ring-inner b{font-size:15px}
+ body.pinned #timelinePanel>.section-head{margin-bottom:5px!important}
+ body.pinned #timelinePanel h2{font-size:15px}
+}
+@media(max-width:390px){
+ body.pinned main>.v2-skyline{height:48px}
+ body.pinned .hero-time{font-size:45px}
+ body.pinned .flow .v2-step-icon{width:27px;height:27px;font-size:14px}
+ body.pinned .flow .v2-step-label{font-size:8px}
+ body.pinned .flow .v2-step-label[data-short]:before{font-size:8px}
+ body.pinned .metric strong{font-size:12px}
+ body.pinned .pin-action,body.pinned .pin-template-select{font-size:11px}
+}
+@media(max-height:740px){
+ body.pinned main>.v2-skyline{height:42px}
+ body.pinned #pinnedBanner{min-height:27px}
+ body.pinned .hero{padding:7px 9px;margin:2px 0}
+ body.pinned .hero-time{font-size:43px}
+ body.pinned .ring{width:65px;height:65px}
+ body.pinned .metrics{margin:2px 0 4px}
+ body.pinned .metric{min-height:39px;padding:4px 6px}
+ body.pinned #timelinePanel{min-height:80px}
+}
+@media(prefers-reduced-motion:reduce){
+ body.pinned .timeline-rail{scroll-behavior:auto}
+}
+
+/* One clear exit action in the fixed bottom dock. The duplicate toolbar at
+ * the very top served no purpose and stole usable timeline height. */
+body.pinned #pinnedBanner{display:none!important}
