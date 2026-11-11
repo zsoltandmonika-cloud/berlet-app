@@ -18,6 +18,11 @@ const checks=[
  ["/healthhub/guardian/index.html","guardian-bkk-watchlist-v814.js?v=961-always-open"],
  ["/healthhub/guardian/index.html","guardian-bkk-watch-compact-v1.css?v=2"],
  ["/healthhub/guardian/index.html","guardian-bkk-brand-sheet-v1.css?v=1"],
+ ["/healthhub/guardian/index.html","guardian-bkk-hero-v2.css?v=2"],
+ ["/healthhub/guardian/guardian-bkk-hero-v2.css","bkk-live-dashboard-hero-v2.webp"],
+ ["/healthhub/guardian/guardian-bkk-hero-v2.css","grid-template-columns:var(--bkk-hero-brand-w)"],
+ ["/healthhub/guardian/guardian-bkk-hero-v2.css","#hhSmartLocationSwitchV1"],
+ ["/healthhub/guardian/guardian-bkk-hero-v2.css",".hh-bkk-watch-header-v814"],
  ["/healthhub/guardian/index.html","<strong>BKK Watchlist</strong>"],
  ["/healthhub/guardian/guardian-bkk-brand-sheet-v1.css","--hh-bkk-brand:url("],
  ["/healthhub/guardian/guardian-bkk-brand-sheet-v1.css",'content:"LIVE"'],
@@ -59,11 +64,22 @@ async function checkOnce(path,expected){
   throw Error(path+": status "+response.status+", expected marker "+JSON.stringify(expected)+", bytes "+body.length);
  return {path,status:response.status,bytes:body.length};
 }
+async function checkImage(){
+ const path="/healthhub/guardian/assets/bkk-live-dashboard-hero-v2.webp";
+ const response=await fetch(origin+path+"?qa="+Date.now(),{redirect:"error",signal:AbortSignal.timeout(12000)});
+ const bytes=new Uint8Array(await response.arrayBuffer());
+ const ascii=(i,n)=>String.fromCharCode(...bytes.slice(i,i+n));
+ if(response.status!==200||bytes.length<4000||ascii(0,4)!=="RIFF"||ascii(8,4)!=="WEBP")
+  throw Error(path+": public logo not valid WebP; status "+response.status+", bytes "+bytes.length);
+ return {path,status:response.status,bytes:bytes.length,format:"WEBP"};
+}
+
 async function run(){
  for(let attempt=1;attempt<=8;attempt++){
   try{
    const result=[];
    for(const [path,expected] of checks)result.push(await checkOnce(path,expected));
+   result.push(await checkImage());
    console.log("SMART-MATCH-LIVE-PAGES-VERIFIED",JSON.stringify(result));return;
   }catch(error){
    console.error("PAGES-TRY",attempt,error.message);
