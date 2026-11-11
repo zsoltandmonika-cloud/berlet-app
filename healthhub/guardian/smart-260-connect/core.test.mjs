@@ -89,7 +89,8 @@ test("pinned timeline and Smart Trip entrypoint exist without Family Guard modif
  assert.match(app,/requestFullscreen/);
  assert.match(app,/localStorage\.setItem/);
  assert.match(page,/Smart Match Timeline/);
- assert.match(page,/Lapon belüli jelzés/);
+ assert.match(page,/Emlékeztető KI/);
+ assert.doesNotMatch(app,/toast\(state\.reminderEnabled\?/);
 });
 
 
