@@ -250,7 +250,7 @@ html:not([data-sh9-transit="on"]) body .shell>main>#hhTransitPanel.hh-transit-pa
 <link rel="stylesheet" href="./guardian-planner-compact-v856.css?v=856-one-row-saved-predictions">
 <link rel="stylesheet" href="./guardian-planner-time-v939.css?v=939-arrival-departure">
 <link rel="stylesheet" href="./guardian-route-stars-v857.css?v=859-scheduled-trip-clocks">
-<link rel="stylesheet" href="./guardian-bkk-watch-collapse-v858.css?v=858-compact-accordion">
+<link rel="stylesheet" href="./guardian-bkk-watch-collapse-v858.css?v=859-always-open">
 <link rel="stylesheet" href="./guardian-smart-hub-location-v860.css?v=860-device-position-button">
 <link rel="stylesheet" href="./guardian-final-panels-glass-v861.css?v=861-profile-final-sections">
 <link rel="stylesheet" href="./guardian-active-transit-v862.css?v=862-final-boarding-local-family">
@@ -556,13 +556,12 @@ if(hhPackDefault||hhPackPreview.get("devicePack")==="v1053"||
    <div class="hh-transit-body">
     <section id="hhBkkWatchlistV814" class="hh-bkk-watchlist-v814" aria-label="Saját BKK figyelőlista" hidden>
      <div class="hh-bkk-watch-header-v814">
-      <button id="hhBkkWatchToggleV858" class="hh-bkk-watch-toggle-v858" type="button" aria-controls="hhBkkWatchContentV858" aria-expanded="false" aria-label="Saját BKK Watchlist megnyitása">
+      <div id="hhBkkWatchToggleV858" class="hh-bkk-watch-toggle-v858" role="heading" aria-level="3">
        <span class="hh-bkk-watch-toggle-label-v858"><strong>⭐ Saját BKK Watchlist</strong><small id="hhBkkWatchCountV814">Járatok betöltése…</small></span>
-       <span class="hh-bkk-watch-chevron-v858" aria-hidden="true">⌄</span>
-      </button>
+      </div>
       <button id="hhBkkWatchEditV814" class="hh-bkk-watch-edit-v814" type="button" aria-controls="hhBkkCatalogV801" aria-expanded="false">✎ Szerkesztés</button>
      </div>
-     <div id="hhBkkWatchContentV858" class="hh-bkk-watch-content-v858" hidden>
+     <div id="hhBkkWatchContentV858" class="hh-bkk-watch-content-v858">
       <div id="hhBkkWatchRowsV814" class="hh-bkk-watch-rows-v814" aria-live="polite"></div>
       <p class="hh-bkk-watch-note-v814">Járatok keresése, hozzáadása, eltávolítása és sorrendezése · profilonként ezen az eszközön. Élő járműjel csak támogatott vonalakon és friss BKK-adatok esetén.</p>
      </div>
@@ -986,7 +985,7 @@ if(hhPackDefault||hhPackPreview.get("devicePack")==="v1053"||
 <script defer src="./guardian-transit-v791.js?v=961-clean-directions-status"></script>
 <script defer src="./guardian-bkk-catalog-v801.js?v=911-universal-bkk-live"></script>
 <script defer src="./guardian-bkk-extra-route-v912.js?v=913-static-no-auto-popup"></script>
-<script defer src="./guardian-bkk-watchlist-v814.js?v=960-editor-anchors-before-favorites"></script>
+<script defer src="./guardian-bkk-watchlist-v814.js?v=961-always-open"></script>
 <script defer src="./guardian-family-favorites-v972.js?v=972-shared-40-cloud-cache"></script>
 <script defer src="./guardian-place-alert-rules-v2.js?v=2-cloud-alerts"></script>
 <script defer src="../../sh9/notification-center/notification-core-v1.js?v=6-buddy-place-alerts"></script>
