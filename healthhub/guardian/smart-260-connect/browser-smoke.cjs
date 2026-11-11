@@ -317,7 +317,7 @@ async function guardianPinSmoke(browser,base,device){
   await page.evaluate(()=>document.documentElement.dataset.guardianProfile="m");
   await page.waitForFunction(()=>document.getElementById("hhSmartMatchPinV1")?.dataset.state==="ready");
   assert.equal(await page.locator("#hhBkkFocusV796").textContent(),"Ne mutasd élő járműveket");
-  assert.equal(await page.locator("#hhBkkWatchlistV814").textContent(),"BKK Watchlist");
+  assert.equal(await page.locator("#hhBkkWatchToggleV858 strong").textContent(),"BKK Watchlist");
   await page.goto(base+"healthhub/guardian/smart-260-connect/",{waitUntil:"domcontentloaded"});
   await page.waitForFunction(()=>document.getElementById("status")?.textContent?.includes("✓ BKK GTFS"),
    {timeout:30000});
@@ -337,7 +337,7 @@ async function guardianPinSmoke(browser,base,device){
   const href=await page.locator("#hhSmartMatchPinV1").getAttribute("href");
   assert.match(href,/pinned=1&id=monika-260/);
   const rect=await page.locator("#hhSmartMatchPinV1").boundingBox();
-  assert.ok(rect.width>=100&&rect.width<=130&&rect.height>=50,"Compact header chip expected");
+  assert.ok(rect.width>=105&&rect.width<=230&&rect.height>=85,"Enlarged combined Smart Match tile expected");
   await page.screenshot({path:path.join(output,device+"-guardian-smart-match-pin.png"),fullPage:true});
   await page.locator("#hhSmartMatchPinV1").click();
   await page.waitForFunction(()=>document.body.classList.contains("pinned")&&
@@ -387,22 +387,31 @@ async function guardianSmartLocationSmoke(browser,base,device){
    const bar=document.getElementById("hhBkkLiveBarV796");
    const ids=["hhBkkLiveStatusV793","hhBkkFocusV796","hhSmartMatchPinV1","hhSmartLocationSwitchV1"];
    const a=ids.map(id=>document.getElementById(id));
-   const boxes=a.map(x=>x.getBoundingClientRect()),b=bar.getBoundingClientRect();
-   return {ids,centers:boxes.map(x=>(x.top+x.bottom)/2),
-    rights:boxes.map(x=>x.right),barRight:b.right,
-    wraps:getComputedStyle(bar).flexWrap,
-    cardNext:a[2].nextElementSibling?.id,
-    liveLabel:a[1].textContent,
-    liveFont:getComputedStyle(a[1]).fontSize,
+   const boxes=a.map(x=>x.getBoundingClientRect()),bounds=bar.getBoundingClientRect();
+   const header=document.querySelector(".hh-bkk-watch-header-v814").getBoundingClientRect();
+   return {display:getComputedStyle(bar).display,
+    status:{left:boxes[0].left,right:boxes[0].right,top:boxes[0].top},
+    live:{left:boxes[1].left,right:boxes[1].right,top:boxes[1].top},
+    match:{left:boxes[2].left,right:boxes[2].right,top:boxes[2].top,bottom:boxes[2].bottom,width:boxes[2].width},
+    location:{left:boxes[3].left,right:boxes[3].right,top:boxes[3].top,bottom:boxes[3].bottom},
+    watch:{left:header.left,right:header.right,top:header.top},
+    barRight:bounds.right,cardNext:a[2].nextElementSibling?.id,
+    liveLabel:a[1].textContent,liveFont:getComputedStyle(a[1]).fontSize,
     liveIcon:getComputedStyle(a[1],"::before").content};
   });
   assert.equal(sameRow.cardNext,"hhSmartLocationSwitchV1",
    "Location switch must be DIRECTLY after pinned Smart Match card");
-  assert.equal(sameRow.wraps,"nowrap","All four controls must share one row");
-  assert.ok(Math.max(...sameRow.centers)-Math.min(...sameRow.centers)<22,
-   "Row centers should align: "+JSON.stringify(sameRow));
-  assert.ok(Math.max(...sameRow.rights)<sameRow.barRight+2,
-   "No control may overflow the BKK header: "+JSON.stringify(sameRow));
+  assert.equal(sameRow.display,"grid","Hero V2 uses a combined gridded Smart Match/Location card");
+  assert.ok(sameRow.match.left>=sameRow.status.right-2,
+   "Full size BKK logo must have its own left column: "+JSON.stringify(sameRow));
+  assert.ok(sameRow.location.left>=sameRow.match.right-2,
+   "Smart Location must sit to the right inside the top tile: "+JSON.stringify(sameRow));
+  assert.ok(Math.abs(sameRow.location.top-sameRow.match.top)<12,
+   "Smart Match and Smart Location must align: "+JSON.stringify(sameRow));
+  assert.ok(sameRow.watch.top>=sameRow.match.bottom-15&&sameRow.watch.left>=sameRow.status.right-16,
+   "Watchlist/Edit must form the right-hand second tile: "+JSON.stringify(sameRow));
+  assert.ok(sameRow.location.right<=sameRow.barRight+2&&sameRow.watch.right<=sameRow.barRight+10,
+   "Top tile and Watchlist must stay inside mobile panel: "+JSON.stringify(sameRow));
   assert.equal(sameRow.liveFont,"0px","Long BKK text must be replaced VISUALLY by an icon");
   assert.equal(sameRow.liveLabel,"Ne mutasd élő járműveket",
    "Do not modify the existing BKK control's JS, DOM action or text");
@@ -423,14 +432,15 @@ async function guardianSmartLocationSmoke(browser,base,device){
   const crest=await page.evaluate(async()=>{
    const status=document.getElementById("hhBkkLiveStatusV793");
    const image=getComputedStyle(status,"::before").backgroundImage;
-   const url=image.match(/url\(["']?(data:image\/webp;base64,[^"')]+)/)?.[1];
+   const url=image.match(/url\(["']?([^"')]+)["']?\)/)?.[1];
    if(!url)return {ok:false,image:image.slice(0,70)};
    const im=new Image();im.src=url;
-   try{await im.decode();return {ok:true,width:im.naturalWidth,height:im.naturalHeight}}
-   catch(_){return {ok:false,image:"decode failed"}}
+   try{await im.decode();return {ok:true,width:im.naturalWidth,height:im.naturalHeight,
+     source:url.includes("bkk-live-dashboard-hero-v2.webp")?"hero-v2":"other"}}
+   catch(_){return {ok:false,image:"decode failed",source:url.slice(0,90)}}
   });
-  assert.ok(crest.ok&&crest.width>=100&&crest.height>=40,
-   "BKK logo must decode from the user's artwork: "+JSON.stringify(crest));
+  assert.ok(crest.ok&&crest.width>=100&&crest.height>=80&&crest.source==="hero-v2",
+   "Large original BKK ÉLŐ user logo must decode: "+JSON.stringify(crest));
   assert.equal(preview.current.enabled,'"ON"');
   assert.equal(preview.disabled.text,'"OFF"');
   assert.match(preview.current.enabledBg,/36, 184, 97|8, 119, 64/,
@@ -443,14 +453,23 @@ async function guardianSmartLocationSmoke(browser,base,device){
    await page.setViewportSize({width:320,height:730});
    const narrow=await page.evaluate(()=>{
     const bar=document.getElementById("hhBkkLiveBarV796").getBoundingClientRect();
-    const elems=["hhBkkLiveStatusV793","hhBkkFocusV796","hhSmartMatchPinV1",
-     "hhSmartLocationSwitchV1"].map(id=>document.getElementById(id).getBoundingClientRect());
-    return {left:bar.left,right:bar.right,maxRight:Math.max(...elems.map(x=>x.right)),
-     centers:elems.map(x=>(x.top+x.bottom)/2)};
+    const logo=document.getElementById("hhBkkLiveStatusV793").getBoundingClientRect();
+    const match=document.getElementById("hhSmartMatchPinV1").getBoundingClientRect();
+    const loc=document.getElementById("hhSmartLocationSwitchV1").getBoundingClientRect();
+    const watch=document.querySelector(".hh-bkk-watch-header-v814").getBoundingClientRect();
+    const title=document.querySelector("#hhBkkWatchToggleV858 strong").getBoundingClientRect();
+    const edit=document.getElementById("hhBkkWatchEditV814").getBoundingClientRect();
+    return {left:bar.left,right:bar.right,logoRight:logo.right,
+     matchLeft:match.left,matchRight:match.right,locLeft:loc.left,locRight:loc.right,
+     watchLeft:watch.left,watchRight:watch.right,
+     titleRight:title.right,editLeft:edit.left};
    });
-   assert.ok(narrow.maxRight<=narrow.right+2,"Even 320px layout must not overflow: "+JSON.stringify(narrow));
-   assert.ok(Math.max(...narrow.centers)-Math.min(...narrow.centers)<22,
-    "320px must preserve one row: "+JSON.stringify(narrow));
+   assert.ok(narrow.locRight<=narrow.right+2&&narrow.watchRight<=narrow.right+10,
+    "320px Hero controls must not overflow: "+JSON.stringify(narrow));
+   assert.ok(narrow.logoRight<=narrow.matchLeft+3&&narrow.matchRight<=narrow.locLeft+3,
+    "320px BKK logo and combined Smart tile must not overlap: "+JSON.stringify(narrow));
+   assert.ok(narrow.titleRight<=narrow.editLeft+2,
+    "320px Watchlist title and Edit must not overlap: "+JSON.stringify(narrow));
    await page.setViewportSize({width:390,height:844});
   }
   // Synthetic GPS and user favorites: no live phone or account connection.
@@ -515,7 +534,7 @@ async function guardianSmartLocationSmoke(browser,base,device){
   assert.match(await page.locator("#hhSmartLocationSwitchV1").textContent(),/KI/,
    "User OFF preference must persist");
   assert.equal(await page.locator("#hhBkkFocusV796").textContent(),"Ne mutasd élő járműveket");
-  return {device,row:"same",locationDefault:"on",workFromOffice:"passed",
+  return {device,layout:"unified-hero",locationDefault:"on",workFromOffice:"passed",
    workFromHome:"passed",gpsReadOnly:"passed",togglePersists:"passed",bkkLive:"untouched"};
  }finally{await context.close()}
 }

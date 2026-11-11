@@ -1,0 +1,182 @@
+/* Family Guard BKK Hero V2. Layout only; existing GPS, BKK Live and
+ * Smart Match/Location event handlers and storage remain unchanged. */
+#hhTransitPanel{
+ --bkk-hero-brand-w:clamp(82px,28vw,112px);
+ --bkk-hero-fill:linear-gradient(138deg,rgba(231,243,255,.94),rgba(192,222,249,.7));
+ --bkk-hero-edge:rgba(141,194,232,.78);
+ --bkk-hero-shadow:rgba(54,111,169,.12);
+}
+:root[data-guardian-profile="m"] #hhTransitPanel{
+ --bkk-hero-fill:linear-gradient(142deg,rgba(255,232,247,.96),rgba(248,195,228,.72));
+ --bkk-hero-edge:rgba(237,159,215,.88);
+ --bkk-hero-shadow:rgba(165,73,137,.14);
+}
+:root[data-guardian-profile="z"] #hhTransitPanel{
+ --bkk-hero-fill:linear-gradient(142deg,rgba(228,244,255,.95),rgba(182,221,248,.76));
+ --bkk-hero-edge:rgba(135,198,237,.85);
+ --bkk-hero-shadow:rgba(55,113,167,.14);
+}
+/* Existing live bar is now a right-hand combined Smart Match/Location tile,
+ * with the user's enlarged BKK Élő emblem to its left. */
+#hhTransitPanel #hhBkkLiveBarV796{
+ box-sizing:border-box!important;display:grid!important;
+ grid-template-columns:var(--bkk-hero-brand-w) minmax(0,1fr) 54px!important;
+ grid-template-rows:117px!important;gap:7px!important;
+ align-items:stretch!important;
+ position:relative!important;isolation:isolate;
+ min-height:117px!important;overflow:visible!important;
+ padding:0 0 5px!important;margin:0!important;
+ border:0!important;background:transparent!important;box-shadow:none!important;
+}
+#hhTransitPanel #hhBkkLiveBarV796::before{
+ content:"";grid-column:2/4;grid-row:1;position:relative;z-index:0;
+ border:1px solid var(--bkk-hero-edge);border-radius:19px;
+ background:var(--bkk-hero-fill);
+ box-shadow:inset 0 1px rgba(255,255,255,.87),0 4px 12px var(--bkk-hero-shadow);
+ pointer-events:none;
+}
+#hhTransitPanel #hhBkkLiveBarV796 #hhBkkLiveStatusV793{
+ grid-column:1;grid-row:1;align-self:start;
+ display:block!important;position:relative!important;
+ width:100%!important;max-width:none!important;height:117px!important;
+ margin:0!important;padding:0!important;min-width:0!important;
+ overflow:visible!important;font-size:0!important;line-height:0!important;
+}
+#hhTransitPanel #hhBkkLiveBarV796 #hhBkkLiveStatusV793::before{
+ content:""!important;display:block!important;position:absolute!important;
+ left:0;top:0;width:100%!important;min-width:0!important;max-width:none!important;
+ height:117px!important;
+ background:url("./assets/bkk-live-dashboard-hero-v2.webp") center top/contain no-repeat!important;
+ filter:drop-shadow(0 3px 4px rgba(68,31,94,.14));
+}
+#hhTransitPanel #hhBkkLiveBarV796 #hhBkkLiveStatusV793::after{
+ content:none!important;display:none!important;
+}
+/* Keep the original BKK live-vehicle toggle, repositioned under the logo. */
+#hhTransitPanel #hhBkkLiveBarV796 #hhBkkFocusV796:not([hidden]){
+ grid-column:1;grid-row:1;justify-self:center;align-self:end;
+ position:relative!important;z-index:4;top:37px!important;
+ flex:none!important;width:50px!important;min-width:50px!important;
+ max-width:50px!important;height:31px!important;min-height:31px!important;
+ border-radius:11px!important;
+}
+#hhTransitPanel #hhBkkLiveBarV796>#hhSmartMatchPinV1{
+ grid-column:2;grid-row:1;align-self:stretch;position:relative;z-index:1;
+ box-sizing:border-box!important;width:100%!important;min-width:0!important;
+ max-width:none!important;flex:none!important;
+ min-height:105px!important;height:auto!important;
+ margin:5px 0 5px 5px!important;padding:8px 6px!important;
+ border-radius:16px!important;border:1px solid rgba(255,255,255,.82)!important;
+ background:rgba(255,255,255,.33)!important;
+ box-shadow:inset 0 1px rgba(255,255,255,.7)!important;
+ justify-content:center!important;gap:3px!important;
+}
+#hhTransitPanel #hhBkkLiveBarV796>#hhSmartMatchPinV1[data-state="ready"]{
+ background:linear-gradient(145deg,rgba(228,255,245,.94),rgba(173,238,208,.95))!important;
+ border-color:rgba(86,191,150,.82)!important;
+}
+#hhTransitPanel #hhBkkLiveBarV796>#hhSmartMatchPinV1 .hh-smart-match-pin-label{
+ font-size:clamp(8px,2.3vw,10px)!important;letter-spacing:0!important;line-height:1.15!important;
+}
+#hhTransitPanel #hhBkkLiveBarV796>#hhSmartMatchPinV1 strong{
+ font-size:clamp(22px,7vw,29px)!important;line-height:1!important;
+ letter-spacing:-.04em;
+}
+#hhTransitPanel #hhBkkLiveBarV796>#hhSmartMatchPinV1 span{
+ font-size:10px!important;line-height:1.15!important;
+}
+#hhTransitPanel #hhBkkLiveBarV796>#hhSmartLocationSwitchV1:not([hidden]){
+ grid-column:3;grid-row:1;align-self:stretch;justify-self:stretch;
+ position:relative;z-index:1;box-sizing:border-box!important;
+ display:flex!important;flex-direction:column;align-items:center;justify-content:center;
+ flex:none!important;width:auto!important;min-width:0!important;
+ max-width:none!important;height:auto!important;min-height:105px!important;
+ margin:5px 5px 5px 0!important;padding:4px 2px!important;
+ border-radius:16px!important;white-space:pre!important;font-size:0!important;
+ gap:6px!important;
+}
+#hhTransitPanel #hhBkkLiveBarV796>#hhSmartLocationSwitchV1::before{
+ content:"📍\A SMART\A LOCATION";font:800 8px/1.35 system-ui;
+ white-space:pre;text-align:center;color:inherit;
+}
+#hhTransitPanel #hhBkkLiveBarV796>#hhSmartLocationSwitchV1::after{
+ content:"BE";display:block;font:900 13px/1 system-ui;
+ padding:6px 9px;border-radius:99px;
+ background:linear-gradient(135deg,#24bf76,#07895b);color:white;
+ box-shadow:0 2px 7px rgba(18,139,88,.2);
+}
+#hhTransitPanel #hhBkkLiveBarV796>#hhSmartLocationSwitchV1[aria-pressed="false"]::after{
+ content:"KI";background:linear-gradient(135deg,#e994a1,#bb4265);
+ box-shadow:0 2px 7px rgba(155,64,87,.18);
+}
+#hhTransitPanel #hhBkkLiveBarV796>#hhSmartLocationSwitchV1[hidden]{display:none!important}
+#hhTransitPanel #hhBkkLiveBarV796:has(>#hhSmartLocationSwitchV1[hidden])>#hhSmartMatchPinV1{
+ grid-column:2/4;margin-right:5px!important;
+}
+/* Second harmonized tile: real Watchlist heading and its real Edit button.
+ * The favorite route cards stay in their original DOM below. */
+#hhTransitPanel:has(>#hhBkkLiveBarV796) #hhBkkWatchlistV814{position:relative;z-index:1}
+#hhTransitPanel:has(>#hhBkkLiveBarV796) #hhBkkWatchlistV814 .hh-bkk-watch-header-v814{
+ box-sizing:border-box!important;width:calc(100% - var(--bkk-hero-brand-w))!important;
+ margin:1px 0 7px var(--bkk-hero-brand-w)!important;
+ padding:6px!important;min-width:0!important;min-height:57px!important;
+ display:flex!important;align-items:center!important;gap:5px!important;
+ border:1px solid var(--bkk-hero-edge)!important;border-radius:16px!important;
+ background:var(--bkk-hero-fill)!important;
+ box-shadow:inset 0 1px rgba(255,255,255,.86),0 3px 9px var(--bkk-hero-shadow)!important;
+}
+#hhTransitPanel:has(>#hhBkkLiveBarV796) #hhBkkWatchToggleV858{
+ display:flex!important;flex-direction:row!important;
+ flex:1 1 0!important;align-items:center!important;
+ min-height:40px!important;min-width:0!important;
+ margin:0!important;padding:2px!important;
+}
+#hhTransitPanel:has(>#hhBkkLiveBarV796) #hhBkkWatchToggleV858::before{content:none!important;display:none!important}
+#hhTransitPanel:has(>#hhBkkLiveBarV796) #hhBkkWatchToggleV858 .hh-bkk-watch-toggle-label-v858{
+ gap:2px!important;min-width:0!important;
+}
+#hhTransitPanel:has(>#hhBkkLiveBarV796) #hhBkkWatchToggleV858 .hh-bkk-watch-toggle-label-v858 strong{
+ font-size:clamp(11px,3.2vw,14px)!important;line-height:1.12!important;
+ white-space:nowrap!important;
+}
+#hhTransitPanel:has(>#hhBkkLiveBarV796) #hhBkkWatchToggleV858 .hh-bkk-watch-toggle-label-v858 small{
+ font-size:9px!important;line-height:1.2!important;white-space:nowrap!important;
+}
+#hhTransitPanel:has(>#hhBkkLiveBarV796) #hhBkkWatchEditV814{
+ flex:0 0 auto!important;box-sizing:border-box!important;
+ min-height:38px!important;max-width:none!important;
+ margin:0!important;padding:6px 7px!important;
+ border-radius:12px!important;
+ background:rgba(255,255,255,.43)!important;
+ border:1px solid rgba(255,255,255,.82)!important;
+ box-shadow:inset 0 1px rgba(255,255,255,.7)!important;
+ font-size:10px!important;
+}
+#hhTransitPanel:has(>#hhBkkLiveBarV796) #hhBkkWatchContentV858{position:relative;z-index:0;margin-top:0!important}
+@media(max-width:365px){
+ #hhTransitPanel{--bkk-hero-brand-w:clamp(78px,26vw,95px)}
+ #hhTransitPanel #hhBkkLiveBarV796{
+  grid-template-columns:var(--bkk-hero-brand-w) minmax(0,1fr) 46px!important;
+  gap:4px!important;
+ }
+ #hhTransitPanel #hhBkkLiveBarV796>#hhSmartMatchPinV1{
+  padding:6px 3px!important;margin-left:2px!important;
+ }
+ #hhTransitPanel #hhBkkLiveBarV796>#hhSmartMatchPinV1 span{font-size:9px!important}
+ #hhTransitPanel #hhBkkLiveBarV796>#hhSmartLocationSwitchV1:not([hidden]){
+  margin-right:2px!important;
+ }
+ #hhTransitPanel #hhBkkLiveBarV796>#hhSmartLocationSwitchV1::before{font-size:7px}
+ #hhTransitPanel #hhBkkLiveBarV796>#hhSmartLocationSwitchV1::after{
+  padding:6px!important;font-size:12px;
+ }
+ #hhTransitPanel:has(>#hhBkkLiveBarV796) #hhBkkWatchlistV814 .hh-bkk-watch-header-v814{
+  gap:2px!important;padding:4px!important;
+ }
+ #hhTransitPanel:has(>#hhBkkLiveBarV796) #hhBkkWatchToggleV858 .hh-bkk-watch-toggle-label-v858 strong{
+  font-size:10px!important;letter-spacing:-.02em!important;
+ }
+ #hhTransitPanel:has(>#hhBkkLiveBarV796) #hhBkkWatchEditV814{
+  min-height:36px!important;padding:4px!important;font-size:9px!important;
+ }
+}
