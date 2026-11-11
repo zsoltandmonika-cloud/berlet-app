@@ -356,6 +356,137 @@ async function guardianPinSmoke(browser,base,device){
  }finally{await context.close()}
 }
 
+
+async function guardianSmartLocationSmoke(browser,base,device){
+ const mobile=device==="mobile";
+ const context=await browser.newContext({
+  viewport:mobile?{width:390,height:844}:{width:1320,height:890},
+  deviceScaleFactor:mobile?2:1,isMobile:mobile,hasTouch:mobile,
+  serviceWorkers:"block"
+ });
+ const page=await context.newPage();
+ await context.route("**/*",request=>{
+  if(request.request().url().startsWith(base))return request.continue();
+  return request.abort();
+ });
+ try{
+  await page.addInitScript(()=>{
+   Date.now=()=>Date.parse("2026-11-11T06:53:00Z");
+  });
+  const fixture=base+"healthhub/guardian/tests/smart-match-pin-v1-fixture.html";
+  await page.goto(fixture,{waitUntil:"domcontentloaded"});
+  await page.waitForFunction(()=>document.getElementById("hhSmartMatchPinV1")?.dataset.state==="ready",
+   {timeout:30000});
+  const toggle=page.locator("#hhSmartLocationSwitchV1");
+  assert.ok(await toggle.isVisible(),"Smart Location must be visible directly after Smart Match");
+  assert.equal(await toggle.getAttribute("aria-pressed"),"true","Default must be ON");
+  assert.match(await toggle.textContent(),/BE/);
+  assert.equal(await page.evaluate(()=>localStorage.getItem("sh9-smart-location-switch-v1-m")),null,
+   "Default ON does not need a settings or GPS write");
+  const sameRow=await page.evaluate(()=>{
+   const bar=document.getElementById("hhBkkLiveBarV796");
+   const ids=["hhBkkLiveStatusV793","hhBkkFocusV796","hhSmartMatchPinV1","hhSmartLocationSwitchV1"];
+   const a=ids.map(id=>document.getElementById(id));
+   const boxes=a.map(x=>x.getBoundingClientRect()),b=bar.getBoundingClientRect();
+   return {ids,centers:boxes.map(x=>(x.top+x.bottom)/2),
+    rights:boxes.map(x=>x.right),barRight:b.right,
+    wraps:getComputedStyle(bar).flexWrap,
+    cardNext:a[2].nextElementSibling?.id,
+    liveLabel:a[1].textContent,
+    liveFont:getComputedStyle(a[1]).fontSize,
+    liveIcon:getComputedStyle(a[1],"::before").content};
+  });
+  assert.equal(sameRow.cardNext,"hhSmartLocationSwitchV1",
+   "Location switch must be DIRECTLY after pinned Smart Match card");
+  assert.equal(sameRow.wraps,"nowrap","All four controls must share one row");
+  assert.ok(Math.max(...sameRow.centers)-Math.min(...sameRow.centers)<22,
+   "Row centers should align: "+JSON.stringify(sameRow));
+  assert.ok(Math.max(...sameRow.rights)<sameRow.barRight+2,
+   "No control may overflow the BKK header: "+JSON.stringify(sameRow));
+  assert.equal(sameRow.liveFont,"0px","Long BKK text must be replaced VISUALLY by an icon");
+  assert.equal(sameRow.liveLabel,"Ne mutasd élő járműveket",
+   "Do not modify the existing BKK control's JS, DOM action or text");
+  if(mobile){
+   await page.setViewportSize({width:320,height:730});
+   const narrow=await page.evaluate(()=>{
+    const bar=document.getElementById("hhBkkLiveBarV796").getBoundingClientRect();
+    const elems=["hhBkkLiveStatusV793","hhBkkFocusV796","hhSmartMatchPinV1",
+     "hhSmartLocationSwitchV1"].map(id=>document.getElementById(id).getBoundingClientRect());
+    return {left:bar.left,right:bar.right,maxRight:Math.max(...elems.map(x=>x.right)),
+     centers:elems.map(x=>(x.top+x.bottom)/2)};
+   });
+   assert.ok(narrow.maxRight<=narrow.right+2,"Even 320px layout must not overflow: "+JSON.stringify(narrow));
+   assert.ok(Math.max(...narrow.centers)-Math.min(...narrow.centers)<22,
+    "320px must preserve one row: "+JSON.stringify(narrow));
+   await page.setViewportSize({width:390,height:844});
+  }
+  // Synthetic GPS and user favorites: no live phone or account connection.
+  // Same cached GPS fix must not count as two independent readings.
+  await page.evaluate(()=>{
+   const t=Date.parse("2026-11-11T06:53:00Z");
+   window.__testEpoch=t;
+   window.__mockPlace="office";
+   window.__testFix={
+    profile:"monika",source:"HH One Native GPS",lat:47.5101,lng:19.0201,
+    ts:t,accuracy:15
+   };
+   Object.defineProperty(window,"HH_GUARDIAN_PROFILE_FOLLOW_V837",{
+    configurable:true,value:{get latestAuthorizedSelectedFix(){return window.__testFix}}
+   });
+   Object.defineProperty(window,"HH_TRAVEL_FAVORITES_V972",{configurable:true,value:{
+    getSlots(){return [
+     {label:"Otthon",place:{name:"Teszt Otthon",lat:47.55,lng:19.01}},
+     {label:"Munkahely",place:{name:"Teszt Munkahely",lat:47.51,lng:19.02}}
+    ]}
+   }});
+   window.dispatchEvent(new Event("hh-smart-location-check-v1"));
+  });
+  // One fix alone must never switch to work origin.
+  assert.match(await page.locator("#hhSmartMatchPinV1").getAttribute("href"),/id=monika-home-to-office/);
+  await page.evaluate(()=>{
+   Date.now=()=>window.__testEpoch+9000;
+   window.dispatchEvent(new Event("hh-smart-location-check-v1"));
+  });
+  assert.match(await page.locator("#hhSmartMatchPinV1").getAttribute("href"),/id=monika-home-to-office/,
+   "Repeating the identical GPS reading must NOT switch directions");
+  await page.evaluate(()=>{
+   window.__testFix={...window.__testFix,ts:window.__testEpoch+9500};
+   Date.now=()=>window.__testEpoch+10000;
+   window.dispatchEvent(new Event("hh-smart-location-check-v1"));
+  });
+  await page.waitForFunction(()=>document.getElementById("hhSmartMatchPinV1")?.href?.includes("id=monika-260"),
+   {timeout:10000});
+  assert.equal(await toggle.getAttribute("data-zone"),"work",
+   "Office GPS should recommend Munkahely -> Otthon");
+  assert.equal(await page.evaluate(()=>localStorage.getItem("sh9-smart-match-active-pin-v1-m")),
+   "home-citronella-260","Auto switch must NOT overwrite manual saved pin");
+  await page.evaluate(()=>{
+   Date.now=()=>window.__testEpoch+20000;
+   window.__testFix={...window.__testFix,lat:47.5501,lng:19.0101,ts:window.__testEpoch+20000};
+   window.dispatchEvent(new Event("hh-smart-location-check-v1"));
+   Date.now=()=>window.__testEpoch+31000;
+   window.__testFix={...window.__testFix,ts:window.__testEpoch+31000};
+   window.dispatchEvent(new Event("hh-smart-location-check-v1"));
+  });
+  await page.waitForFunction(()=>document.getElementById("hhSmartMatchPinV1")?.href?.includes("id=monika-home-to-office"),
+   {timeout:10000});
+  assert.equal(await toggle.getAttribute("data-zone"),"home",
+   "Home GPS should recommend Otthon -> Munkahely");
+  await page.screenshot({path:path.join(output,device+"-guardian-smart-location-on-one-row.png"),
+   fullPage:true});
+  await toggle.click();
+  assert.equal(await toggle.getAttribute("aria-pressed"),"false");
+  assert.equal(await page.evaluate(()=>localStorage.getItem("sh9-smart-location-switch-v1-m")),"off");
+  await page.reload({waitUntil:"domcontentloaded"});
+  await page.waitForFunction(()=>document.getElementById("hhSmartLocationSwitchV1")?.getAttribute("aria-pressed")==="false");
+  assert.match(await page.locator("#hhSmartLocationSwitchV1").textContent(),/KI/,
+   "User OFF preference must persist");
+  assert.equal(await page.locator("#hhBkkFocusV796").textContent(),"Ne mutasd élő járműveket");
+  return {device,row:"same",locationDefault:"on",workFromOffice:"passed",
+   workFromHome:"passed",gpsReadOnly:"passed",togglePersists:"passed",bkkLive:"untouched"};
+ }finally{await context.close()}
+}
+
 (async()=>{
  await new Promise(resolve=>server.listen(0,"127.0.0.1",resolve));
  const base="http://127.0.0.1:"+server.address().port+"/berlet-app/";
@@ -365,6 +496,7 @@ async function guardianPinSmoke(browser,base,device){
    args:["--no-sandbox","--disable-dev-shm-usage"]});
   for(const device of ["desktop","mobile"])console.log("SMART-MATCH-BROWSER-SMOKE",JSON.stringify(await smoke(browser,base,device)));
   for(const device of ["desktop","mobile"])console.log("GUARDIAN-SMART-MATCH-PIN-SMOKE",JSON.stringify(await guardianPinSmoke(browser,base,device)));
+  for(const device of ["desktop","mobile"])console.log("GUARDIAN-SMART-LOCATION-SMOKE",JSON.stringify(await guardianSmartLocationSmoke(browser,base,device)));
  }finally{
   if(browser)await browser.close();
   server.close();
