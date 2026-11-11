@@ -56,7 +56,7 @@ test('saved cards share existing revision-safe per-profile Nutrition cloud journ
  assert.match(core,/if\(payload\?\.expectedProfile!==active\)throw Error\(/);
  assert.match(core,/source:sourceKey\?'interfood-live':'interfood-user-saved'/);
  assert.match(core,/update\(d=>\{/);
- const portion=core.slice(core.indexOf('saveInterfoodCard:payload=>'),core.indexOf('attachInterfoodCardPhoto:payload=>'));
+ const portion=core.slice(core.indexOf('saveInterfoodCard:payload=>'),core.indexOf('/* v1178 · Smart Lunch:'));
  assert.doesNotMatch(portion,/recordInterfoodMeal|recordInterfoodCard|d\.entries\.push/);
 });
 test('logging a saved card is an explicit one-click action with a source snapshot',()=>{
