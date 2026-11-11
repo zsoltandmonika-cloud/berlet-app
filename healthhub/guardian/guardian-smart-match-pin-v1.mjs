@@ -7,7 +7,7 @@ const STORAGE="sh9-smart-match-templates-v1-m";
 const ACTIVE="sh9-smart-match-active-pin-v1-m";
 const CITRONELLA_DEFAULT_APPLIED="hh-smart-match-citronella-default-v2-m";
 const FULL="/berlet-app/healthhub/guardian/smart-260-connect/";
-import {HOME as MONIKA_DEFAULT,DEFAULT as OFFICE_TO_HOME,REVERSE as HOME_TO_OFFICE,compute,bus260DirectionForTemplate,full260Timetable,pair260Connections} from "./smart-260-connect/core.mjs?v=35";
+import {HOME as MONIKA_DEFAULT,DEFAULT as OFFICE_TO_HOME,REVERSE as HOME_TO_OFFICE,compute,bus260DirectionForTemplate,full260Timetable,pair260Connections} from "./smart-260-connect/core.mjs?v=39-trip-flow-timing";
 import {chooseLocation} from "./guardian-smart-location-v1.mjs?v=1";
 const HOST_ID="hhSmartMatchPinV1";
 const AUTO_KEY="sh9-smart-location-switch-v1-m";
@@ -45,6 +45,18 @@ function readPin(){
    x.profile==="monika"&&typeof x.id==="string"&&/^[\w-]{1,90}$/.test(x.id)&&
    typeof x.title==="string"&&x.title.length<=100&&
    typeof x.targetRoute==="string"&&x.targetRoute.length<=20):[];
+  // Migrate only superseded default walking durations in saved Mónika routes.
+  // Guardian's mini card must agree with the full Smart Match pinned timeline.
+  let travelTimeUpdated=false;
+  for(const item of items){
+   if((item.id==="home-citronella-260"||item.id==="monika-home-to-office")&&item.originWalkMin===6){
+    item.originWalkMin=10;travelTimeUpdated=true;
+   }
+   if(item.id==="monika-260"&&item.destinationWalkMin==null){
+    item.destinationWalkMin=10;travelTimeUpdated=true;
+   }
+  }
+  if(travelTimeUpdated)try{localStorage.setItem(STORAGE,JSON.stringify(a))}catch(_){}
   let active=localStorage.getItem(ACTIVE);
   if(!localStorage.getItem(CITRONELLA_DEFAULT_APPLIED)){
    // Correct the previous rollout's mistaken "office" default exactly once.
