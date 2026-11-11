@@ -1,0 +1,50 @@
+/* BKK Watchlist unified display control · 2026-11-11.
+   Scoped to route rows. Golden V5.5 hero/tiles stay untouched. */
+html body .shell>main>#hhTransitPanel.hh-transit-panel #hhBkkWatchlistV814 .hh-bkk-watch-unified-v1{
+  position:relative!important;
+  display:flex!important;
+  align-items:center!important;justify-content:center!important;
+  box-sizing:border-box!important;
+  flex:0 0 51px!important;width:51px!important;min-width:51px!important;max-width:51px!important;
+  height:35px!important;min-height:35px!important;
+  padding:4px 2px!important;
+  border-radius:10px!important;
+  border:1px solid rgba(239,157,201,.8)!important;
+  background:linear-gradient(145deg,rgba(255,236,243,.96),rgba(247,201,223,.91))!important;
+  box-shadow:inset 0 1px rgba(255,255,255,.83),0 1px 4px rgba(126,50,117,.13)!important;
+  color:#84233e!important;
+  font:850 9px/1.1 system-ui!important;
+  letter-spacing:-.02em!important;
+  white-space:nowrap!important;overflow:visible!important;
+  cursor:pointer;
+}
+html body .shell>main>#hhTransitPanel.hh-transit-panel #hhBkkWatchlistV814 .hh-bkk-watch-unified-v1[data-visible="true"]{
+  border-color:rgba(79,180,139,.72)!important;
+  background:linear-gradient(145deg,#d4fae5,#b4eacf)!important;
+  color:#11543d!important;
+}
+html body .shell>main>#hhTransitPanel.hh-transit-panel #hhBkkWatchlistV814 .hh-bkk-watch-unified-v1:focus-visible{
+  outline:2px solid #7c3493!important;outline-offset:2px!important;
+}
+html body .shell>main>#hhTransitPanel.hh-transit-panel #hhBkkWatchlistV814 .hh-bkk-watch-unified-v1:disabled{
+  opacity:.52!important;cursor:not-allowed!important;
+}
+html body .shell>main>#hhTransitPanel.hh-transit-panel #hhBkkWatchlistV814 .hh-bkk-watch-live-badge-v1{
+  position:absolute!important;
+  top:-6px!important;right:0!important;
+  display:inline-flex!important;align-items:center!important;justify-content:center!important;
+  width:auto!important;min-width:22px!important;height:12px!important;
+  padding:1px 3px!important;margin:0!important;
+  border-radius:7px!important;
+  background:#0c956b!important;border:1px solid #e8fff4!important;
+  color:#fff!important;
+  font:900 7px/1 system-ui!important;
+  letter-spacing:.01em!important;
+  box-shadow:0 1px 3px rgba(4,82,63,.24)!important;
+  pointer-events:none!important;
+}
+@media(max-width:355px){
+  html body .shell>main>#hhTransitPanel.hh-transit-panel #hhBkkWatchlistV814 .hh-bkk-watch-unified-v1{
+    flex-basis:47px!important;width:47px!important;min-width:47px!important;max-width:47px!important;
+  }
+}
