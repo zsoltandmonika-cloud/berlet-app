@@ -230,13 +230,19 @@ async function renderCards(){
   const code=doc.createElement('small');code.textContent=(card.code||'INTERFOOD')+(card.menuDate?' · '+card.menuDate:'');
   const title=doc.createElement('strong');title.textContent=card.name;
   const macro=doc.createElement('p');macro.textContent=numberString(card.nutrients?.kcal)+' kcal · F '+numberString(card.nutrients?.protein)+' g · CH '+numberString(card.nutrients?.carbs)+' g · Zs '+numberString(card.nutrients?.fat)+' g';
+  const orderCount=api()?.getInterfoodSmartOrders?.().filter(x=>x.cardId===card.id).length||0;
+  const rating=api()?.getInterfoodCardRating?.(card.id);
+  const sentiment=doc.createElement('small');sentiment.className='hh-if-smart-reviews-v1178';
+  sentiment.textContent=orderCount?
+   '🍱 '+orderCount+' rendelés'+(rating?.count?' · ⭐ '+numberString(rating.average)+'/5 ('+rating.count+' értékelés)':' · Még nincs értékelés'):
+   'Értékelés: még nincs adat';
   const actions=doc.createElement('div');actions.className='hh-if-card-actions-v1175';
   const edit=doc.createElement('button');edit.type='button';edit.textContent='✎ Kártya';edit.setAttribute('aria-label',card.name+' kártyájának megnyitása');
   edit.addEventListener('click',()=>openEditor(card));
   const log=doc.createElement('button');log.type='button';log.textContent='✓ Napi naplóba';
   log.className='hh-if-log-v1175';log.setAttribute('aria-label',card.name+' egy adag naplózása');
   log.addEventListener('click',()=>logCard(card,log));
-  actions.append(edit,log);info.append(code,title,macro,actions);item.append(frame,info);host.append(item);
+  actions.append(edit,log);info.append(code,title,macro,sentiment,actions);item.append(frame,info);host.append(item);
  }
 }
 function openLibrary(){

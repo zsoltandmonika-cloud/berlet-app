@@ -1,0 +1,27 @@
+name: HealthHub Smart Lunch v1178 · Regression
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - '.github/workflows/smart-lunch-v1178.yml'
+      - 'healthhub/tests/nutrition-smart-lunch-v1178.test.cjs'
+      - 'healthhub/nutrition/hh-interfood-smart-lunch-v1178.js'
+      - 'healthhub/nutrition/hh-interfood-smart-lunch-v1178.css'
+      - 'healthhub/nutrition/nutrition-preview-v592.js'
+      - 'healthhub/nutrition/hh-interfood-diary-v1175.js'
+      - 'healthhub/nutrition/hh-interfood-live-v1176.js'
+      - 'healthhub/nutrition/index.html'
+permissions:
+  contents: read
+jobs:
+  tests:
+    name: 46. heti visszaigazolás, eredeti fotók és naplózás
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Smart Lunch + legacy Interfood compatibility
+        run: node --test healthhub/tests/nutrition-smart-lunch-v1178.test.cjs healthhub/tests/nutrition-interfood-photo-v1177.test.cjs healthhub/tests/nutrition-interfood-live-v1176.test.cjs healthhub/tests/nutrition-interfood-card-library-v1175.test.cjs

@@ -59,7 +59,7 @@ function makeDefaultPreset(profile,afternoon){
  return {milkMl:150,milkType:profile==='monika'?'milklactose':(afternoon?'milk01':'milk15'),sugarCubes:afternoon?3:(profile==='monika'?1:2),cubeGrams:4,cinnamonGrams:afternoon?2:0,ladyCount:afternoon?4:0,ladyGrams:7,meal:afternoon?'Uzsonna':'Reggeli',updatedAt:'1970-01-01T00:00:00Z'};
 }
 function fresh(profile){
- return {schemaVersion:SCHEMA,profileKey:profile,updatedAt:stamp(),entries:[],body:[],catalog:[],units:[],quickRecipes:[],interfoodCards:[],quickRecipeOrder:{ids:[],updatedAt:'1970-01-01T00:00:00Z'},hydrationCounterReset:null,goal:{kcal:null,tolerance:150,updatedAt:'1970-01-01T00:00:00Z'},presets:{morning:makeDefaultPreset(profile,false),afternoon:makeDefaultPreset(profile,true)}};
+ return {schemaVersion:SCHEMA,profileKey:profile,updatedAt:stamp(),entries:[],body:[],catalog:[],units:[],quickRecipes:[],interfoodCards:[],interfoodOrders:[],quickRecipeOrder:{ids:[],updatedAt:'1970-01-01T00:00:00Z'},hydrationCounterReset:null,goal:{kcal:null,tolerance:150,updatedAt:'1970-01-01T00:00:00Z'},presets:{morning:makeDefaultPreset(profile,false),afternoon:makeDefaultPreset(profile,true)}};
 }
 function normalize(x,profile){
  let d=fresh(profile);
@@ -70,7 +70,7 @@ function normalize(x,profile){
  if(hydrationReset&&isDay(hydrationReset.date)&&Number.isFinite(Number(hydrationReset.offsetMl))&&Number(hydrationReset.offsetMl)>=0&&Number(hydrationReset.offsetMl)<=1e9&&typeof hydrationReset.updatedAt==='string'&&Number.isFinite(Date.parse(hydrationReset.updatedAt))){
   d.hydrationCounterReset={date:hydrationReset.date,offsetMl:Number(hydrationReset.offsetMl),updatedAt:hydrationReset.updatedAt};
  }
- ['entries','body','catalog','units','quickRecipes','interfoodCards'].forEach(k=>{if(Array.isArray(x[k]))d[k]=x[k].filter(v=>v&&typeof v.id==='string'&&v.id.length<150).slice(-50000);});
+ ['entries','body','catalog','units','quickRecipes','interfoodCards','interfoodOrders'].forEach(k=>{if(Array.isArray(x[k]))d[k]=x[k].filter(v=>v&&typeof v.id==='string'&&v.id.length<150).slice(-50000);});
  if(x.quickRecipeOrder&&Array.isArray(x.quickRecipeOrder.ids)){d.quickRecipeOrder={ids:[...new Set(x.quickRecipeOrder.ids.filter(v=>typeof v==='string'&&/^quick:[a-z0-9_-]{1,80}$/i.test(v)))].slice(0,250),updatedAt:typeof x.quickRecipeOrder.updatedAt==='string'?x.quickRecipeOrder.updatedAt:'1970-01-01T00:00:00Z'};}
  if(x.goal&&typeof x.goal==='object'){const kcal=x.goal.kcal==null?null:num(x.goal.kcal,800,6000);d.goal={kcal,tolerance:num(x.goal.tolerance,0,1000)??150,updatedAt:x.goal.updatedAt||d.goal.updatedAt};}
  for(const key of ['morning','afternoon'])if(x.presets&&x.presets[key]){
@@ -103,7 +103,7 @@ function mergeRows(a,b){
 }
 function merge(local,remote,profile){
  let l=normalize(local,profile),r=normalize(remote,profile),o=normalize(l,profile);
- for(const key of ['entries','body','catalog','units','quickRecipes','interfoodCards'])o[key]=mergeRows(l[key],r[key]);
+ for(const key of ['entries','body','catalog','units','quickRecipes','interfoodCards','interfoodOrders'])o[key]=mergeRows(l[key],r[key]);
  o.quickRecipeOrder=String(r.quickRecipeOrder.updatedAt||'')>String(l.quickRecipeOrder.updatedAt||'')?r.quickRecipeOrder:l.quickRecipeOrder;
  o.goal=String(r.goal.updatedAt||'')>String(l.goal.updatedAt||'')?r.goal:l.goal;
  for(const key of ['morning','afternoon'])o.presets[key]=String(r.presets[key].updatedAt||'')>String(l.presets[key].updatedAt||'')?r.presets[key]:l.presets[key];
@@ -1099,6 +1099,128 @@ root.HH_NUTRITION_QUICK_API={
   const saved=read(active).interfoodCards.find(x=>x.id===id&&!x.deleted);
   if(!saved)throw Error('Az Interfood kártya nem került mentésre.');
   return {id,profile:active,name:saved.name};
+ },
+ /* v1178 · Smart Lunch: private confirmed-order snapshots and optional 1–5 rating.
+  * This API is a receiver for an explicitly authorized Outlook bridge, not
+  * a pretend browser mailbox connection. No personal orders go into GitHub. */
+ getInterfoodSmartOrders:()=>clone(read(active).interfoodOrders.filter(x=>!x.deleted))
+  .sort((a,b)=>String(b.menuDate).localeCompare(String(a.menuDate))),
+ getInterfoodCardRating:cardId=>{
+  const rated=read(active).interfoodOrders.filter(x=>!x.deleted&&x.cardId===cardId&&
+   x.status==='consumed'&&Number.isInteger(x.rating)&&x.rating>=1&&x.rating<=5);
+  return {count:rated.length,average:rated.length?Number((rated.reduce((n,x)=>n+x.rating,0)/rated.length).toFixed(1)):null};
+ },
+ importConfirmedInterfoodOrder:payload=>{
+  if(payload?.expectedProfile!==active)throw Error('A Nutrition profil megváltozott.');
+  const item=payload.order||{},day=String(item.menuDate||''),
+   code=String(item.code||'').trim().toUpperCase(),
+   name=String(item.name||'').trim().slice(0,80),
+   qty=Number(item.quantity??1);
+  if(!isDay(day)||!/^[A-Z0-9]{1,8}$/.test(code)||name.length<2||
+    !Number.isInteger(qty)||qty<1||qty>10)
+   throw Error('A megerősített Interfood rendelés dátuma, kódja, neve vagy adagja hibás.');
+  const nutrients={};
+  for(const key of ['kcal','protein','carbs','fat']){
+   const v=item.nutrients?.[key],n=v==null||v===''?null:Number(v);
+   if(n!=null&&(!Number.isFinite(n)||n<0||n>(key==='kcal'?5000:1000)))
+    throw Error('Hibás Interfood tápérték: '+key);
+   nutrients[key]=n==null?null:Number(n.toFixed(2));
+  }
+  const weight=item.weightGrams==null?null:Number(item.weightGrams);
+  if(weight!=null&&(!Number.isFinite(weight)||weight<1||weight>3000))
+   throw Error('Hibás Interfood adagsúly.');
+  const rawImage=String(item.imageUrl||'');let imageUrl=null;
+  if(rawImage){
+   try{
+    const url=new URL(rawImage),p=url.searchParams;
+    if(url.protocol==='https:'&&url.hostname==='ia.interfood.hu'&&url.pathname==='/api/v1/i'&&
+     [...p.keys()].sort().join(',')==='height,menu_item_id,width'&&
+     /^[1-9][0-9]{0,9}$/.test(p.get('menu_item_id')||'')&&
+     p.get('width')==='425'&&p.get('height')==='425')imageUrl=url.href;
+   }catch(_){}
+  }
+  const slug=name.normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+   .toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,65);
+  const id='ifsmart:'+day+':'+code+':'+slug,now=stamp();
+  const matched=read(active).interfoodCards.find(x=>!x.deleted&&x.code===code&&
+   String(x.name||'').trim().toLocaleLowerCase('hu-HU')===name.toLocaleLowerCase('hu-HU'));
+  const cardId=matched?.id||'ifcard:'+uid();
+  let duplicate=false;
+  update(d=>{
+   let card=d.interfoodCards.find(x=>x.id===cardId&&!x.deleted);
+   if(!card){
+    card={id:cardId,name,code,meal:'Ebéd',menuDate:day,weightGrams:weight,
+     nutrients,imageRef:null,imageUrl,sourceKey:String(item.sourceKey||'').slice(0,180),
+     category:'Interfood',nutritionBasis:'published-per-serving',
+     source:'interfood-smart-lunch',originUrl:'https://rendel.interfood.hu/',
+     createdAt:now,updatedAt:now,deleted:false};
+    d.interfoodCards.push(card);
+   }else if(!card.imageRef&&!card.imageUrl&&imageUrl){
+    card.imageUrl=imageUrl;card.updatedAt=now;
+   }
+   const old=d.interfoodOrders.find(x=>x.id===id&&!x.deleted);
+   if(old){
+    duplicate=true;
+    // Existing feedback and diary references are immutable on re-import.
+    if(old.status!=='planned')return;
+    // Only enrich a pending snapshot with a newly discovered official image.
+    if(!old.imageUrl&&imageUrl){old.imageUrl=imageUrl;old.updatedAt=now;}
+    return;
+   }
+   d.interfoodOrders.push({id,cardId,code,name,menuDate:day,quantity:qty,
+    nutrients,weightGrams:weight,imageUrl,status:'planned',rating:null,
+    createdAt:now,updatedAt:now,deleted:false});
+  });
+  const saved=read(active).interfoodOrders.find(x=>x.id===id&&!x.deleted);
+  if(!saved)throw Error('Az Interfood rendelés privát mentése nem sikerült.');
+  return {id:saved.id,cardId:saved.cardId,profile:active,duplicate,status:saved.status};
+ },
+ finishInterfoodSmartOrder:payload=>{
+  if(payload?.expectedProfile!==active)throw Error('Profilváltás történt.');
+  const id=String(payload.orderId||''),ate=payload.ate;
+  if(typeof ate!=='boolean')throw Error('Az ebéd elfogyasztásáról egyértelmű döntés szükséges.');
+  const rating=payload.rating==null||payload.rating===0?null:Number(payload.rating);
+  if(rating!=null&&(!Number.isInteger(rating)||rating<1||rating>5))
+   throw Error('Az értékelés csak 1–5 csillag lehet.');
+  const current=read(active).interfoodOrders.find(x=>x.id===id&&!x.deleted);
+  if(!current)throw Error('A megrendelt ebéd nem található.');
+  if(current.menuDate!==localDate())throw Error('Csak a mai rendelés zárható le a Smart Lunch kártyán.');
+  if(current.status!=='planned')return {id,profile:active,status:current.status,
+   rating:current.rating,duplicate:true};
+  const now=stamp(),diaryId='interfood:'+id;
+  update(d=>{
+   const order=d.interfoodOrders.find(x=>x.id===id&&!x.deleted);
+   if(!order||order.status!=='planned')return;
+   if(ate&&!d.entries.some(e=>e.id===diaryId&&!e.deleted)){
+    const nutrients=Object.fromEntries(metrics.map(k=>[k,null]));
+    for(const key of ['kcal','protein','carbs','fat']){
+     const n=order.nutrients?.[key];
+     if(n!=null)nutrients[key]=Number((Number(n)*order.quantity).toFixed(2));
+    }
+    const totalGrams=order.weightGrams==null?null:Number((order.weightGrams*order.quantity).toFixed(2));
+    const card=d.interfoodCards.find(x=>x.id===order.cardId&&!x.deleted);
+    d.entries.push({id:diaryId,createdAt:now,updatedAt:now,date:order.menuDate,time:localTime(),
+     meal:'Ebéd',kind:'food',foodId:'interfood:'+order.code,name:order.name,
+     icon:'🍱',quantity:totalGrams==null?order.quantity:totalGrams,
+     unit:totalGrams==null?'adag':'g',
+     quantityText:(totalGrams==null?'':fmt(totalGrams,2)+' g · ')+
+      fmt(order.quantity,2)+' adag · Interfood Smart Lunch',nutrients,
+     source:'interfood-smart-lunch',
+     interfood:{code:order.code,menuDate:order.menuDate,cardId:order.cardId,
+      orderId:id,portionMultiplier:order.quantity,weightGrams:order.weightGrams,
+      imageUrl:order.imageUrl||card?.imageUrl||null,nutritionBasis:'published-per-serving'}});
+   }
+   order.status=ate?'consumed':'skipped';
+   order.rating=ate?rating:null;
+   order.completedAt=now;order.updatedAt=now;
+  });
+  const saved=read(active).interfoodOrders.find(x=>x.id===id&&!x.deleted);
+  if(!saved||saved.status!==(ate?'consumed':'skipped')||
+    (ate&&!read(active).entries.some(x=>x.id===diaryId&&!x.deleted)))
+   throw Error('A Smart Lunch mentés nem igazolható.');
+  if(ate)success();
+  return {id:saved.id,profile:active,status:saved.status,
+   rating:saved.rating,diaryId:ate?diaryId:null,duplicate:false};
  },
  /* v1176 · Server-verified public menu -> single-click private card.
   * On repeated clicks with the same week/day/code/name, never duplicate or

@@ -202,3 +202,6 @@
  filter:drop-shadow(0 4px 8px rgba(0,0,0,.45))}
 @media(max-width:600px){.hh-if-library-logo-v1175{width:48px;height:39px}}
 @media(max-width:380px){.hh-if-library-logo-v1175{width:36px;height:32px}}
+
+/* v1178: private taste + order history lives on the existing Interfood card. */
+.hh-if-smart-reviews-v1178{display:block;color:#f7cd72;font-size:11px;line-height:1.4;font-weight:750}

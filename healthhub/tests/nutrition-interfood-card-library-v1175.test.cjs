@@ -47,7 +47,7 @@ test('parser reads copied published-serving nutrition and retains unknown number
 });
 test('saved cards share existing revision-safe per-profile Nutrition cloud journal',()=>{
  assert.match(core,/quickRecipes:\[\],interfoodCards:\[\]/);
- assert.match(core,/\['entries','body','catalog','units','quickRecipes','interfoodCards'\]/);
+ assert.match(core,/\['entries','body','catalog','units','quickRecipes','interfoodCards','interfoodOrders'\]/);
  assert.match(core,/getInterfoodCards:\(\)=>clone\(read\(active\)\.interfoodCards/);
  assert.match(core,/saveInterfoodCard:payload=>/);
  assert.match(core,/deleteInterfoodCard:payload=>/);
@@ -56,7 +56,7 @@ test('saved cards share existing revision-safe per-profile Nutrition cloud journ
  assert.match(core,/if\(payload\?\.expectedProfile!==active\)throw Error\(/);
  assert.match(core,/source:sourceKey\?'interfood-live':'interfood-user-saved'/);
  assert.match(core,/update\(d=>\{/);
- const portion=core.slice(core.indexOf('saveInterfoodCard:payload=>'),core.indexOf('attachInterfoodCardPhoto:payload=>'));
+ const portion=core.slice(core.indexOf('saveInterfoodCard:payload=>'),core.indexOf('/* v1178 · Smart Lunch:'));
  assert.doesNotMatch(portion,/recordInterfoodMeal|recordInterfoodCard|d\.entries\.push/);
 });
 test('logging a saved card is an explicit one-click action with a source snapshot',()=>{
