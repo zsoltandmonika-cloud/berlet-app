@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
 import {DEFAULT,HOME,REVERSE,compute,options,walkOnlyOptions,nextIndex,validConfig,full260Timetable,pair260Connections,bus260DirectionForTemplate} from "./core.mjs";
+import {chooseLocation,namedPlaces,meters} from "../guardian-smart-location-v1.mjs";
 const sec=(h,m,s=0)=>h*3600+m*60+s;
 const ev=(id,h,m)=>[id,sec(h,m),sec(h,m)];
 const data=()=>{
@@ -177,4 +178,28 @@ test("the two Bécsi GTFS platforms do not hide a genuine tram-to-260 match",()=
  assert.equal(hour(paired.rows[0].departMs),"16:20",
   "Matched row displays EXACT accessible platform time, not 16:22");
  assert.equal(paired.rows[0].stopId,"b");
+});
+
+
+test("Smart Location reads only fresh, authorized native Monika fix near saved home and work",()=>{
+ const now=Date.parse("2026-11-11T08:00:00Z");
+ // Synthetic fixture coordinates, not either household member's live position.
+ const slots=[
+  {label:"Otthon",place:{name:"Teszt Otthon",lat:47.55,lng:19.01}},
+  {label:"Mónika munkahely",place:{name:"Teszt Munkahely",lat:47.51,lng:19.02}}
+ ];
+ const home={profile:"monika",source:"HH One Native GPS",lat:47.5501,lng:19.0101,accuracy:12,ts:now-1000};
+ const office={...home,lat:47.5101,lng:19.0201};
+ assert.ok(meters(slots[0].place,slots[1].place)>600);
+ assert.equal(chooseLocation(home,slots,now).routeId,"monika-home-to-office");
+ assert.equal(chooseLocation(office,slots,now).routeId,"monika-260");
+ assert.equal(chooseLocation({...home,profile:"zsolt"},slots,now),null);
+ assert.equal(chooseLocation({...home,source:"Family Live"},slots,now),null);
+ assert.equal(chooseLocation({...home,accuracy:90},slots,now),null);
+ assert.equal(chooseLocation({...home,ts:now-76000},slots,now),null);
+ assert.equal(chooseLocation({...home,lat:47.53,lng:19.015},slots,now),null);
+ assert.equal(chooseLocation(home,[...slots,slots[0]],now),null,
+  "Ambiguous home labels must never silently select a GPS route");
+ assert.equal(chooseLocation(home,[],now),null);
+ assert.equal(namedPlaces(slots).home.lat,47.55);
 });
