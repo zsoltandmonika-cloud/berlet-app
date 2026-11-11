@@ -121,9 +121,9 @@ def parse(html: str, now: dt.datetime):
                     ("kcal","protein","carbs","fat")} if macro else
                     {"kcal":None,"protein":None,"carbs":None,"fat":None})
                 item_id=str(tile.get("data-menu-item-id",""))
-                image=image_near(tile)
-                # Exclude status icons from image attribution. Public meal photos
-                # typically appear in a detail/photo modal, not inside the tile.
+                # Food tiles contain dietary/status pictograms, not reliable meal
+                # photos. Never attach those graphics as the meal image.
+                image=None
                 key=(date or "week")+"|"+code+"|"+name.casefold()
                 if key in records:continue
                 price_node=tile.select_one(".food-top-bottom-price")
@@ -223,6 +223,17 @@ def browser_rendered_html() -> str:
                                 if isinstance(value,list):return {"count":len(value),"sample":sample(value[0],depth+1) if value else None}
                                 return str(value)[:65] if isinstance(value,str) else value
                             print("PUBLIC MENU API STRUCTURE:",json.dumps(sample(data),ensure_ascii=False)[:3800])
+                            public=data.get("data",{}) if isinstance(data,dict) else {}
+                            for key in ("25","33"):
+                                sample_group=public.get(key) if isinstance(public,dict) else None
+                                if sample_group:
+                                    def deep(value,depth=0):
+                                        if depth>=8:return type(value).__name__
+                                        if isinstance(value,dict):return {k:deep(v,depth+1) for k,v in list(value.items())[:13]}
+                                        if isinstance(value,list):return {"count":len(value),"sample":deep(value[0],depth+1) if value else None}
+                                        return str(value)[:110] if isinstance(value,str) else value
+                                    print("PUBLIC MENU CODE GROUP",key,json.dumps(deep(sample_group),ensure_ascii=False)[:8500])
+                            print("PUBLIC MENU QUERY KEYS:",[k for k in urllib.parse.parse_qs(u.query).keys()])
                 except Exception:pass
             page.on("response",observe)
             response=page.goto(SOURCE,wait_until="domcontentloaded",timeout=35000)
