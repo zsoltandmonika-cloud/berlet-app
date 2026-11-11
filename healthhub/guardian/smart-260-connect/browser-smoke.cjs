@@ -56,6 +56,8 @@ async function smoke(browser,base,device){
   return r.abort();
  });
  const page=await context.newPage(),failures=[];
+ // Deterministic afternoon (also validates historical official GTFS data).
+ await page.addInitScript(()=>{Date.now=()=>Date.parse("2026-11-11T14:00:00Z")});
  page.on("pageerror",err=>failures.push("pageerror: "+err.message));
  page.on("console",msg=>{if(msg.type()==="error")failures.push("console: "+msg.text())});
  try {
@@ -73,8 +75,8 @@ async function smoke(browser,base,device){
   const work=await page.locator(".v34-260-row.v34-matched").count();
   assert.ok(work>0,"At least one 260/tram match should render");
   assert.ok(total>work,"Unmatched scheduled 260 buses must remain visibly present");
-  assert.equal(await page.locator("#countdownLabel").textContent(),"260-asig");
-  assert.match(await page.locator("#timelineSubtitle").textContent(),/260-as · Bécsi út/);
+  assert.equal(await page.locator("#countdownLabel").textContent(),"irodai indulásig");
+  assert.match(await page.locator("#timelineSubtitle").textContent(),/260-as · Váradi utca/);
   assert.equal(await page.locator("#walkMetric").textContent(),"10 + 1 perc");
   assert.equal(await page.locator("#windowMetric").textContent(),"Teljes nap · 260");
   assert.ok(await page.locator("#ring").isVisible(),"Countdown ring is visible");
@@ -132,10 +134,19 @@ async function smoke(browser,base,device){
   assert.equal(workFlow.length,6,"Route must remain six distinct steps");
   assert.ok(workFlow.every(x=>x.time&&(/^(≈)?\\d{2}:\\d{2}$|^—$/).test(x.time)),
    "Every trip-flow stage must show a valid clock or honest unavailable mark: "+JSON.stringify(workFlow));
-  assert.equal(workFlow[4].time,await page.locator("#heroTime").textContent(),
-   "Work-to-home big 260 departure must also appear under the 260 icon");
+  assert.equal(workFlow[0].time,await page.locator("#heroTime").textContent(),
+   "Homebound hero must show the office departure, not the 260 stop departure");
+  assert.ok(await page.locator(".v34-260-row.next").count(),
+   "A verified future homebound connection must be selected");
   assert.equal(workFlow[5].hint,"+10p séta",
    "Citronella-to-home walk must be visible as a separate final leg");
+  assert.match(await page.locator(".v34-260-row.v34-matched .row-label").first().textContent(),/Váradi utca/,
+   "Homebound matched bus must board at Váradi, not the old Bécsi stop");
+  const timelineChronology=await page.locator(".v34-260-row.v34-matched").first()
+   .locator(".row-mini b").allTextContents();
+  assert.equal(timelineChronology.length,3);
+  assert.deepEqual(timelineChronology,[...timelineChronology].sort(),
+   "A trip card must show office → tram → 260 in strictly ascending time");
   assert.equal(await page.locator("#pinnedBanner").isVisible(),false,"Duplicated top pinned toolbar must remain hidden");
   assert.equal(await page.locator("#scheduleInfo").isVisible(),false,
    "Pinned mode must hide long explanations and source paragraphs");
@@ -233,6 +244,10 @@ async function smoke(browser,base,device){
    "Home-to-work big Citronella 260 departure must also appear under the bus icon");
   assert.equal(reverseFlow[5].hint,"+10p séta",
    "Kolosy-to-office walk must be visible as a final leg");
+  const inboundChronology=await page.locator(".v34-260-row.v34-matched").first()
+   .locator(".row-mini b").allTextContents();
+  assert.deepEqual(inboundChronology,[...inboundChronology].sort(),
+   "Reverse trip card must show home → 260 → tram chronologically");
   await page.waitForFunction(()=>document.getElementById("timelineSubtitle")?.textContent?.includes("260-as · Citronella utca")&&
    document.querySelector("#timeline .timeline-row.next"),{timeout:30000});
   const focused=await page.evaluate(()=>{
@@ -249,6 +264,8 @@ async function smoke(browser,base,device){
   await page.waitForFunction(()=>document.getElementById("headingShort")?.textContent==="Munkahely → Otthon"&&
    document.getElementById("targetRoute")?.value==="260");
   assert.equal(await page.locator("#pinTemplateSelect").inputValue(),"monika-260");
+  assert.equal(await page.locator("#transferStop").inputValue(),"Váradi utca");
+  assert.equal(await page.locator("#boardStop").inputValue(),"Váradi utca");
   await page.locator("#pinEdit").click();
   await page.waitForFunction(()=>!document.body.classList.contains("pinned"));
 
