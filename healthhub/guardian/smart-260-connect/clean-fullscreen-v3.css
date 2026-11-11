@@ -201,3 +201,7 @@ body.pinned .now-marker{margin-left:-20px}
 @media(prefers-reduced-motion:reduce){
  body.pinned .timeline-rail{scroll-behavior:auto}
 }
+
+/* One clear exit action in the fixed bottom dock. The duplicate toolbar at
+ * the very top served no purpose and stole usable timeline height. */
+body.pinned #pinnedBanner{display:none!important}
