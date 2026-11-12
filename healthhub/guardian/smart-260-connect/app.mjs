@@ -12,7 +12,7 @@ const DELETED_SAMPLES_KEY="sh9-smart-match-deleted-samples-v940";
 let selectedFeeders=new Set();
 // v939: isolated favorite-address draft. Existing saved itineraries are immutable until explicit save.
 let favoriteAddressDraft=null;
-const state={items:[],current:null,data:null,manifest:null,catalog:FALLBACK,result:null,full260:null,
+const state={items:[],current:null,data:null,manifest:null,catalog:FALLBACK,stopNames:null,result:null,full260:null,
  reminderEnabled:false,notificationFired:new Set(),lastNext:null,loading:false};
 const timeFmt=new Intl.DateTimeFormat("hu-HU",{timeZone:"Europe/Budapest",hour:"2-digit",minute:"2-digit",hourCycle:"h23"});
 const dateFmt=new Intl.DateTimeFormat("en-GB",{timeZone:"Europe/Budapest",year:"numeric",month:"2-digit",day:"2-digit"});
@@ -59,13 +59,13 @@ function safeLoad(){
    if(item.destinationWalkMin==null){item.destinationWalkMin=10;updated=true;}
    // Prior default mistakenly boarded at Bécsi út / Vörösvári út;
    // migrate only that value, preserving intentionally edited templates.
-   if(item.targetStop==="Bécsi út / Vörösvári út"){
+   if(item.targetRoute==="260"&&item.targetStop==="Bécsi út / Vörösvári út"){
     item.targetStop="Váradi utca";updated=true;
    }
-   if(item.transferStop==="Bécsi út / Vörösvári út"){
+   if(item.targetRoute==="260"&&item.transferStop==="Bécsi út / Vörösvári út"){
     item.transferStop="Váradi utca";updated=true;
    }
-   if(item.targetAfterStop!=="Citronella utca"&&item.targetStop==="Váradi utca"){
+   if(item.targetRoute==="260"&&item.targetAfterStop!=="Citronella utca"&&item.targetStop==="Váradi utca"){
     item.targetAfterStop="Citronella utca";updated=true;
    }
   }
@@ -216,14 +216,40 @@ function renderFeederChecks(selected){
  drawFeederBrowser();
 }
 function populateStops(){
- if(!state.data)return;
- const names=[...new Set(Object.values(state.data.stops).map(s=>s[0]))].sort((a,b)=>a.localeCompare(b,"hu-HU"));
+ if(!state.data&&!state.stopNames)return;
+ const names=state.stopNames||
+  [...new Set(Object.values(state.data.stops).map(s=>s[0]))].sort((a,b)=>a.localeCompare(b,"hu-HU"));
  const list=$("stops");list.replaceChildren();
  for(const name of names){const o=document.createElement("option");o.value=name;list.append(o)}
+}
+async function loadFullStopSuggestions(){
+ if(state.stopNames)return;
+ const source=new URL("../bkk-network-v806.json",import.meta.url);
+ try{
+  const res=await fetch(source,{cache:"force-cache",credentials:"omit"});
+  if(!res.ok||Number(res.headers?.get("content-length")||0)>1500000)
+   throw Error("bkk_network_unavailable");
+  const data=await res.json();
+  if(data.schemaVersion!==1||data.source!=="BKK Zrt., CC BY 4.0"||
+   !Array.isArray(data.routes)||data.routes.length<100||data.routes.length>1200)
+   throw Error("invalid_bkk_network");
+  const names=new Set();
+  for(const route of data.routes)for(const stop of route.stops||[]){
+   const n=String(stop?.[1]||"").trim();
+   if(n.length>1&&n.length<125)names.add(n);
+  }
+  if(names.size<100||names.size>12000)throw Error("incomplete_bkk_network");
+  state.stopNames=[...names].sort((a,b)=>a.localeCompare(b,"hu-HU"));
+  populateStops();
+ }catch(_){
+  const status=$("fleetCoverageV940");
+  if(status)status.title="A teljes megállólista nem elérhető. A megállók kézzel továbbra is megadhatók.";
+ }
 }
 function populateIndex(){
  const lines=availableRoutes(),previous=current()?.targetRoute||"260";
  const sel=$("targetRoute");sel.replaceChildren();
+ const placeholder=document.createElement("option");placeholder.value="";placeholder.textContent="Válassz céljáratot…";sel.append(placeholder);
  for(const entry of state.catalog){
   const o=document.createElement("option");o.value=valueOf(entry.key);o.textContent=fleetLabel(entry);sel.append(o);
  }
@@ -271,6 +297,11 @@ function readForm(){
  if(!routeEntry(next.targetRoute))throw Error("A céljárat nem szerepel a hiteles BKK-katalógusban.");
  if(next.feederRoutes.some(x=>!routeEntry(x)))throw Error("Ismeretlen csatlakozó járat.");
  if(next.feederRoutes.some(x=>keyOf(x)===keyOf(next.targetRoute)))throw Error("Egy járat nem lehet saját csatlakozása.");
+ if(base.targetRoute!==next.targetRoute){
+  next.targetAfterStop="";next.destinationTransitStop="";
+  // Do not reuse the old 260-specific direction after replacing the vehicle.
+  next.feederHeadsign="";
+ }
  if(!next.targetStop)throw Error("Add meg a céljárat pontos BKK-megállóját.");
  if(type==="transfer"&&(!next.originStop||!next.transferStop||!next.feederRoutes.length))
   throw Error("Legalább egy ráhordó járat és mindkét megálló szükséges.");
@@ -892,8 +923,12 @@ function initEvents(){
  });
  $("kind").addEventListener("change",applyFormModes);
  $("targetRoute").addEventListener("change",()=>{
-  selectedFeeders.delete($("targetRoute").value);drawFeederBrowser();
+  selectedFeeders.delete($("targetRoute").value);
+  $("headsign").value="";$("boardStop").value="";
+  drawFeederBrowser();
  });
+ for(const id of ["boardStop","originStop","transferStop"])
+  $(id)?.addEventListener("focus",()=>void loadFullStopSuggestions(),{once:true});
  $("feederSearchV940")?.addEventListener("input",drawFeederBrowser);
  $("feederModeV940")?.addEventListener("change",drawFeederBrowser);
  $("deleteBtn")?.addEventListener("click",removeTemplate);
