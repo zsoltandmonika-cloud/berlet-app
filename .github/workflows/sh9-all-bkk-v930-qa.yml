@@ -7,6 +7,8 @@ on:
       - "healthhub/guardian/guardian-transit-v791.js"
       - "healthhub/guardian/index.html"
       - "healthhub/tests/sh9-bkk-all-v928.test.cjs"
+      - "healthhub/tests/guardian-bkk-smart-delay-v1.test.cjs"
+      - "supabase/functions/hh-bkk-live-v793-preview/index.ts"
       - ".github/workflows/sh9-all-bkk-v930-qa.yml"
   push:
     branches: ["main"]
@@ -16,6 +18,8 @@ on:
       - "healthhub/guardian/guardian-transit-v791.js"
       - "healthhub/guardian/index.html"
       - "healthhub/tests/sh9-bkk-all-v928.test.cjs"
+      - "healthhub/tests/guardian-bkk-smart-delay-v1.test.cjs"
+      - "supabase/functions/hh-bkk-live-v793-preview/index.ts"
       - ".github/workflows/sh9-all-bkk-v930-qa.yml"
   workflow_dispatch:
 permissions:
@@ -32,4 +36,4 @@ jobs:
           node --check healthhub/guardian/guardian-live-pilot-v793.js
           node --check healthhub/guardian/guardian-transit-v791.js
       - name: Isolated all-BKK viewport and verified-marker regression
-        run: node --test healthhub/tests/sh9-bkk-all-v928.test.cjs
+        run: node --test healthhub/tests/sh9-bkk-all-v928.test.cjs healthhub/tests/guardian-bkk-smart-delay-v1.test.cjs
