@@ -52,6 +52,14 @@ function readPin(){
    if((item.id==="home-citronella-260"||item.id==="monika-home-to-office")&&item.originWalkMin===6){
     item.originWalkMin=10;travelTimeUpdated=true;
    }
+   if(item.id==="monika-home-to-office"){
+    // Keep pinned Guardian calculation aligned with Smart Match full screen.
+    if(!Array.isArray(item.targetRoutes)||
+       ["17","19","41"].some(line=>!item.targetRoutes.includes(line))){
+     item.targetRoutes=["17","19","41"];travelTimeUpdated=true;
+    }
+    if(item.maxWaitMin===3){item.maxWaitMin=5;travelTimeUpdated=true;}
+   }
    if(item.id==="monika-260"){
     if(item.destinationWalkMin==null){item.destinationWalkMin=10;travelTimeUpdated=true;}
     if(item.targetStop==="Bécsi út / Vörösvári út"){
