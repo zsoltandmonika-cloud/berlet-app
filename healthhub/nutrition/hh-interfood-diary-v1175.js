@@ -188,8 +188,7 @@ function publicPhotoURL(value){
 /* v1184: never hide a lazy image while waiting for its load event.
  * Failed private image references fall back to exact official meal photos. */
 function normalizeFoodName(name){
- return String(name||'').normalize('NFD').replace(/[\\u0300-\\u036f]/g,'')
-  .toLocaleLowerCase('hu-HU').replace(/[^a-z0-9]+/g,' ').trim();
+ return String(name||'').normalize('NFC').toLocaleLowerCase('hu-HU').trim();
 }
 function verifiedPhotoVariants(card,items){
  if(!card?.menuDate||!card?.code||!card?.name||!Array.isArray(items))return [];
@@ -282,7 +281,8 @@ function showPhoto(src,title){
  // Only exact official HTTPS image URLs or validated private photo data.
  const safe=publicPhotoURL(src);
  const ownBlob=String(src).startsWith('blob:'+String(root.location?.origin||'')+'/');
- const privateData=/^data:image\\/(?:png|jpeg|webp);base64,/.test(src);
+ const privateData=['jpeg','png','webp'].some(type=>
+  String(src).startsWith('data:image/'+type+';base64,'));
  if(!safe&&!ownBlob&&!privateData)return;
  photo.src=safe||src;photo.alt=title+' · Interfood ételfotó';
  caption.textContent=title;
