@@ -230,7 +230,12 @@ async function smoke(browser,base,device){
    "Centered heading must not overlap reverse button: "+JSON.stringify(titleRow));
   await page.screenshot({path:path.join(output,device+"-work-pinned.png"),fullPage:true});
   // Morning commute must be evaluated before the 10+2 minute walk window.
-  await page.evaluate(()=>{Date.now=()=>Date.parse("2026-11-11T06:53:00Z")});
+  await page.evaluate(()=>{
+   // The refreshed official GTFS was generated on Nov 11 at 11:14 UTC.
+   // Travel simulation must not set Date.now() BEFORE that publication.
+   Date.now=()=>Date.parse("2026-11-12T06:53:00Z");
+   document.getElementById("day").value="2026-11-12";
+  });
   await page.locator("#reverseBtn").click();
   await page.waitForFunction(()=>document.getElementById("headingShort")?.textContent?.includes("Otthon → Munkahely")&&
    document.getElementById("targetRoute")?.value==="17"&&
