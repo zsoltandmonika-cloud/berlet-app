@@ -99,3 +99,29 @@ test("official GTFS-RT TripUpdate.delay restores favorites only when explicitly 
  assert.equal(coverage.delayCoverage.tripLevel,12);
  assert.equal(coverage.delayCoverage.withDelay,0);
 });
+
+
+test("GTFS-RT optional timestamp/time/route_id cannot discard a source-backed trip delay",()=>{
+ const src=fs.readFileSync(path.join(root,"../supabase/functions/hh-bkk-live-v793-preview/index.ts"),"utf8");
+ // Official TripDescriptor.route_id is optional when trip_id uniquely identifies
+ // the trip. The companion verified vehicle's route still must match.
+ assert.match(src,/const hasRoute=!!descriptor&&Object\.prototype\.hasOwnProperty\.call\(descriptor,"routeId"\)/);
+ assert.match(src,/if\(!id\|\|id\.length>160\|\|\(hasRoute&&!mapped\)\)continue/);
+ assert.match(src,/routeKey:mapped\?\.routeKey\|\|null/);
+ assert.match(src,/update\.routeKey===null\|\|update\.routeKey===route\.routeKey/);
+ assert.match(src,/const tripId=typeof v\?\.trip\?\.tripId==="string"\?v\.trip\.tripId:""/);
+ assert.match(src,/const update=updates\?\.trips\.get\(tripId\)/);
+ assert.match(src,/Object\.prototype\.hasOwnProperty\.call\(tu,"timestamp"\)/);
+ assert.match(src,/Object\.prototype\.hasOwnProperty\.call\(st\.departure,"time"\)/);
+ assert.match(src,/Object\.prototype\.hasOwnProperty\.call\(st\.arrival,"time"\)/);
+ // Protobuf.js defaults are inherited; absence is different from actual zero.
+ const absent=Object.create({timestamp:0,routeId:"",delay:0});
+ assert.equal(Object.prototype.hasOwnProperty.call(absent,"timestamp"),false);
+ assert.equal(Object.prototype.hasOwnProperty.call(absent,"routeId"),false);
+ assert.equal(Object.prototype.hasOwnProperty.call(absent,"delay"),false);
+ const actual={timestamp:Date.parse("2026-11-12T08:00:00Z")/1000,
+               routeId:"2600",delay:-120};
+ assert.equal(Object.prototype.hasOwnProperty.call(actual,"timestamp"),true);
+ assert.equal(Object.prototype.hasOwnProperty.call(actual,"routeId"),true);
+ assert.equal(Object.prototype.hasOwnProperty.call(actual,"delay"),true);
+});
