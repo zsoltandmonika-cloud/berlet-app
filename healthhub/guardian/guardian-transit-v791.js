@@ -374,7 +374,7 @@ if(new URLSearchParams(w.location.search).get('hhLivePilot')!=='off'){
  for(const file of ['bkk-smart-delay-v1.js','bkk-live-v793.js','bkk-live-map-v793.js','guardian-live-pilot-v793.js']){
   const script=d.createElement('script');
   script.async=false;
-  const url=new URL(file,dir);url.searchParams.set('v',new URLSearchParams(w.location.search).get('sh9Transit')==='1'?'929-sh9-bkk-3d-fix':'914-mini-above-marker');
+  const url=new URL(file,dir);url.searchParams.set('v',new URLSearchParams(w.location.search).get('sh9Transit')==='1'?'930-city-live-visibility':'914-mini-above-marker');
   if(file!=='guardian-live-pilot-v793.js')url.searchParams.set('v','915-smart-delay-v1');
   // A new query token fetches the retired-button behavior immediately, without changing other BKK assets.
   if(file==='guardian-live-pilot-v793.js')url.searchParams.set('ui','963-retire-legacy-live-button');
