@@ -77,5 +77,8 @@ test('favorite draft creates a NEW template only after GTFS form validation, ori
  assert.equal(core.FAMILY_OUTBOUND.destinationFavoriteSlot,7);
  assert.equal(core.FAMILY_OUTBOUND.reverseId,core.FAMILY_RETURN.id);
  assert.equal(core.FAMILY_RETURN.reverseId,core.FAMILY_OUTBOUND.id);
- assert.equal(core.FAMILY_OUTBOUND.targetRoute,'');
+ assert.equal(core.FAMILY_OUTBOUND.targetRoute,'4');
+ assert.equal(core.FAMILY_RETURN.targetRoute,'260');
+ assert.equal(core.FAMILY_OUTBOUND.multiLegDraft,true);
+ assert.equal(core.FAMILY_RETURN.multiLegDraft,true);
 });
