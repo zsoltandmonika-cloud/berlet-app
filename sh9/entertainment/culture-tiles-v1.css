@@ -1,0 +1,50 @@
+/* SHO Smart Entertainment v1188 · 2 new STATIC linked category tiles
+   The approved HD hero is completely unchanged. Culture/events go below the
+   original four tiles and above the dynamic pinned feature. */
+.extra-categories{
+ display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+ gap:clamp(10px,1.8vw,20px);max-width:1100px;
+ margin:16px auto 21px;padding:0 10px;
+}
+.extra-category{
+ --tile-glow:#ffba4e;
+ display:flex;align-items:flex-end;gap:12px;position:relative;isolation:isolate;overflow:hidden;
+ min-height:clamp(154px,15vw,216px);min-width:0;
+ border-radius:22px;padding:15px 16px;
+ border:2px solid var(--tile-glow);
+ background-color:#121423;background-size:cover;background-position:center;
+ box-shadow:0 0 0 1px color-mix(in srgb,var(--tile-glow) 80%,transparent),
+ 0 0 20px color-mix(in srgb,var(--tile-glow) 42%,transparent),inset 0 -13px 14px #ffffff16;
+ transition:transform .18s,box-shadow .18s;
+}
+.extra-category::before{
+ content:"";position:absolute;inset:0;z-index:-1;
+ background:linear-gradient(180deg,#09051206 8%,#06051447 43%,#070410b5 70%,#080817fa 100%);
+}
+.extra-category::after{content:"›";position:absolute;right:10px;bottom:12px;color:white;font-size:32px}
+.extra-category:hover{transform:translateY(-3px);box-shadow:0 0 0 1px var(--tile-glow),0 0 29px color-mix(in srgb,var(--tile-glow) 67%,transparent)}
+.extra-category .tile-icon{font-size:34px;line-height:1.1;filter:drop-shadow(0 0 9px var(--tile-glow));margin-bottom:19px;flex:0 0 auto}
+.extra-category .tile-caption{display:block;min-width:0;margin-right:8px}
+.extra-category b{display:block;font-size:clamp(19px,2.5vw,30px);line-height:1.08;text-shadow:0 2px 10px #000}
+.extra-category small{display:block;margin-top:5px;line-height:1.35;color:#fff4f4;font-size:clamp(11px,1.2vw,13px);text-shadow:0 1px 8px #000}
+.extra-category.culture{--tile-glow:#ffb951;background-image:url('https://images.unsplash.com/photo-1561214115-f2f134cc4912?w=1050&auto=format&fit=crop&q=85')}
+.extra-category.events{--tile-glow:#46cafa;border-right-color:#dc45ff;border-bottom-color:#e650ff;
+ background-image:url('https://images.unsplash.com/photo-1531058020387-3be344556be6?w=1050&auto=format&fit=crop&q=85')}
+@media(max-width:650px){
+ .extra-categories{gap:9px;margin:0 0 12px;padding:11px 10px 6px;max-width:100%}
+ .extra-category{min-height:0;aspect-ratio:1.7;border-width:1.5px;border-radius:17px;
+ padding:8px 8px 11px;gap:5px;background-position:center}
+ .extra-category .tile-icon{font-size:22px;margin-bottom:14px}
+ .extra-category b{font-size:clamp(16px,4.6vw,22px);letter-spacing:-.3px}
+ .extra-category small{font-size:clamp(8.7px,2.4vw,10.5px);line-height:1.26;margin-top:3px}
+ .extra-category::after{font-size:23px;right:5px;bottom:6px}
+ .extra-category .tile-caption{margin-right:4px}
+}
+@media(max-width:360px){
+ .extra-categories{gap:7px;padding-left:7px;padding-right:7px}
+ .extra-category{padding:7px 6px;gap:4px}
+ .extra-category .tile-icon{font-size:19px}
+ .extra-category b{font-size:16px}
+ .extra-category small{font-size:9px}
+}
+@media(prefers-reduced-motion:reduce){.extra-category{transition:none}}
