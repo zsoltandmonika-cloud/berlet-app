@@ -2,7 +2,7 @@
  * Browser-local saves, read-only BKK GTFS, no GPS/Dropbox/Supabase mutation.
  */
 import {readOfficialSnapshot} from "../../../sh9/smart-travel/lena-native/bkk/bkk-feed-client-v1106.mjs";
-import {DEFAULT,HOME,REVERSE,SAMPLES,compute,bus260DirectionForTemplate,full260Timetable,pair260Connections} from "./core.mjs?v=45-multi-tram-5min";
+import {DEFAULT,HOME,REVERSE,SAMPLES,compute,bus260DirectionForTemplate,full260Timetable,pair260Connections} from "./core.mjs?v=939-favorite-guard";
 import {wallEpoch} from "../../../sh9/smart-travel/lena-native/bkk/bkk-gtfs-core-v1105.mjs";
 const $=id=>document.getElementById(id);
 const STORAGE="sh9-smart-match-templates-v1-m";
