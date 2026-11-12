@@ -261,7 +261,7 @@ html:not([data-sh9-transit="on"]) body .shell>main>#hhTransitPanel.hh-transit-pa
 <link rel="stylesheet" href="./guardian-bkk-status-glass-v867.css?v=867-profiled-gtfs-credit">
 <link rel="stylesheet" href="./guardian-theme-final-lock-v868.css?v=869-high-contrast-bkk-credit">
 <link rel="stylesheet" href="./guardian-sh9-transit-v927.css?v=953-compact-title-up">
-<link rel="stylesheet" href="./guardian-sh9-all-bkk-v928.css?v=932-visible-map-status">
+<link rel="stylesheet" href="./guardian-sh9-all-bkk-v928.css?v=935-header-delay-dock">
 <link rel="stylesheet" href="./guardian-smart-hub-clean-space-v954.css?v=954">
 <link rel="stylesheet" href="./guardian-smart-planner-unified-v955.css?v=955-one-surface">
 <link rel="stylesheet" href="./guardian-bkk-control-one-card-v956.css?v=957-firstpaint">
@@ -445,6 +445,16 @@ if(hhPackDefault||hhPackPreview.get("devicePack")==="v1053"||
   <button id="sh9AllVehiclesRefreshV928" type="button">↻ Frissítés</button>
  </div>
  <p id="sh9AllVehiclesStatusV928" role="status" aria-live="polite">Csak a térképen látható járművek · automatikus frissítés 2 percenként.</p>
+  <div id="sh9BkkSmartDelayLegendV931" class="sh9-bkk-delay-legend-v931" hidden role="status" aria-live="polite" aria-label="BKK Smart Delay állapotjelzések">
+   <strong>🚦 BKK Smart Delay</strong>
+   <div class="sh9-bkk-delay-legend-keys-v931">
+    <span data-delay="ontime">● 0p pontos</span>
+    <span data-delay="early">● +p korábban</span>
+    <span data-delay="late">● −p késés</span>
+    <span data-delay="unknown">● — nincs élő adat</span>
+   </div>
+   <small id="sh9BkkSmartDelayCoverageV931">Ellenőrzött késésadatokra várunk…</small>
+  </div>
  <p id="sh9TransitStatusV927" role="status">A meglévő BKK-térkép betöltése…</p>
 </header>
 <div class="shell">
@@ -519,16 +529,6 @@ if(hhPackDefault||hhPackPreview.get("devicePack")==="v1053"||
  </section>
  <section class="map-card" aria-label="Guardian interaktív térkép">
   <div id="guardianMap" role="region" aria-label="Interaktív Budapest térkép, érintéssel nagyítható és mozgatható"></div>
-  <div id="sh9BkkSmartDelayLegendV931" class="sh9-bkk-delay-legend-v931" hidden role="status" aria-live="polite" aria-label="BKK Smart Delay állapotjelzések">
-   <strong>🚦 BKK Smart Delay</strong>
-   <div class="sh9-bkk-delay-legend-keys-v931">
-    <span data-delay="ontime">● 0p pontos</span>
-    <span data-delay="early">● +p korábban</span>
-    <span data-delay="late">● −p késés</span>
-    <span data-delay="unknown">● — nincs élő adat</span>
-   </div>
-   <small id="sh9BkkSmartDelayCoverageV931">Ellenőrzött késésadatokra várunk…</small>
-  </div>
   <div id="guardianMapMessage" class="map-message" hidden role="status"></div>
   <span class="map-label" id="guardianMapLabel" hidden aria-hidden="true"></span>
   <button type="button" id="guardianMapSizeToggleV864" class="hh-map-size-toggle-v864" aria-label="Térkép teljes képernyőre nagyítása" aria-controls="guardianMap" aria-pressed="false" title="Teljes képernyő">
