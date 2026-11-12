@@ -161,3 +161,38 @@ test('v930 visible verified count and empty-area repair remain fail closed and t
  assert.match(live,/if\(sh9AllMode\)\{lastSh9RequestAt=Date\.now\(\);lastSh9Bbox=bbox;\}/);
  assert.doesNotMatch(ui,/watchPosition\(|getCurrentPosition\(|fetch\(/);
 });
+
+test('v931 all-BKK API passes only fresh signed per-trip delays, never guesses on-time',()=>{
+ const ts=fs.readFileSync(path.join(root,'supabase/functions/hh-bkk-live-v793-preview/index.ts'),'utf8');
+ assert.match(ts,/const vehicles=allMode\?chosen\.map/);
+ assert.match(ts,/entry\.delaySeconds=p\.delaySeconds/);
+ assert.match(ts,/entry\.delayObservedAt=p\.delayObservedAt/);
+ assert.match(ts,/Number\.isInteger\(p\.delaySeconds\)/);
+ assert.match(ts,/Date\.now\(\)-at<=90000/);
+ assert.match(ts,/const update=updates\?\.trips\.get\(tripId\)/);
+ assert.doesNotMatch(ts,/delaySeconds\|\|0/);
+});
+test('v931 shared live delay classifier is strictly green zero, amber early, red late, unknown fallback',()=>{
+ const core=require('../guardian/bkk-smart-delay-v1.js');
+ const now=Date.parse('2026-11-12T08:00:00Z'),stamp=new Date(now-1000).toISOString();
+ assert.equal(core.classify(0,stamp,now).status,'ontime');
+ assert.equal(core.classify(-120,stamp,now).status,'early');
+ assert.equal(core.classify(-120,stamp,now).text,'+2p');
+ assert.equal(core.classify(240,stamp,now).status,'late');
+ assert.equal(core.classify(240,stamp,now).text,'−4p');
+ assert.equal(core.classify(undefined,stamp,now).status,'unknown');
+ assert.equal(core.classify(0,'2026-01-01T08:00:00Z',now).status,'unknown');
+});
+test('v931 in-map legend only in SH9, counts verified delays and leaves Family Guard hidden',()=>{
+ const html=read('index.html'),css=read('guardian-sh9-all-bkk-v928.css'),
+  js=read('guardian-sh9-all-bkk-v928.js');
+ assert.match(html,/id="sh9BkkSmartDelayLegendV931"[^>]*hidden/);
+ assert.match(html,/id="sh9BkkSmartDelayCoverageV931"/);
+ assert.match(css,/:root:not\(\[data-sh9-transit="on"\]\) #sh9BkkSmartDelayLegendV931\{display:none!important\}/);
+ assert.match(css,/:root\[data-sh9-transit="on"\] #sh9BkkSmartDelayLegendV931:not\(\[hidden\]\)/);
+ assert.match(js,/if\(legend\)legend\.hidden=false/);
+ assert.match(js,/delay\.classify\(v\.delaySeconds,v\.delayObservedAt\)/);
+ assert.match(js,/verified\+\+/);
+ assert.match(js,/ellenőrzött késésadat/);
+ assert.doesNotMatch(js,/fetch\(|watchPosition\(|getCurrentPosition\(/);
+});
