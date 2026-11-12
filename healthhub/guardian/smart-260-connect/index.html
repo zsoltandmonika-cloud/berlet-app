@@ -13,6 +13,7 @@
 <link rel="stylesheet" href="./smart-delay-v1.css?v=937-fyi-cache">
 <link rel="stylesheet" href="./favorite-route-editor-v939.css?v=939">
 <link rel="stylesheet" href="./fleet-editor-v940.css?v=940">
+<link rel="stylesheet" href="./ring-direction-v941.css?v=941">
 </head>
 <body>
 <div class="banner" id="pinnedBanner">
@@ -39,7 +40,8 @@
     <div class="hero-description" id="heroDetail">Hiteles menetrend betöltése…</div>
     <div id="hhSmartDelayHeroV1" class="smart-delay-hero-v1" hidden role="status" aria-live="polite"></div>
    </div>
-   <div class="ring" id="ring"><div class="ring-inner"><b id="countdown">--:--</b><small id="countdownLabel">indulásig</small></div></div>
+   <div class="ring" id="ring"><div class="ring-inner"><span id="ringDirection" class="ring-direction-v941" aria-label="Útvonal iránya">Munka →
+Otthon</span><b id="countdown">--:--</b><small id="countdownLabel">indulásig</small></div></div>
   </div>
   <div class="flow" id="routeFlow" aria-label="Utazási folyamat"></div>
  </section>
@@ -143,7 +145,7 @@
 <script src="../../central-vault/config.js?v=785-family-live-publishable"></script>
 
 <script src="./favorite-route-editor-v939.js?v=939"></script>
-<script type="module" src="./app.mjs?v=940-full-fleet-editor"></script>
+<script type="module" src="./app.mjs?v=941-active-ring-direction"></script>
 <script type="module" src="./smart-delay-client-v1.mjs?v=938-hero-pill"></script>
 </body>
 </html>
