@@ -51,7 +51,7 @@
 */
 @media(max-width:650px){
  .pixel-extension{
-  --culture-tile-height:31.7vw;
+  --culture-tile-height:35vw; /* visible tile art matches original four (~125px at 390px) */
   --featured-card-height:24.5vw;
   position:relative!important;
   width:100%!important;
