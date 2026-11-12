@@ -96,13 +96,15 @@ function pairedTemplate(item){
  return other?state.items.find(x=>x.id===other)||null:null;
 }
 function shortTitle(item){
- const origin=/otthon/i.test(item.originLabel||"")?"Otthon":
-  /bécsi corner|iroda|munkahely/i.test(item.originLabel||"")?"Munkahely":
-  (item.originLabel||"Indulás");
- const destination=/otthon/i.test(item.destinationLabel||"")?"Otthon":
-  /bécsi corner|iroda|munkahely/i.test(item.destinationLabel||"")?"Munkahely":
-  (item.destinationLabel||"Cél");
- return origin+" → "+destination;
+ // A family label such as "Dávid & Anna Otthona" is NOT our own "Otthon".
+ const summarize=(value,fallback)=>{
+  const name=String(value||"").trim();
+  if(/d[aá]vid/i.test(name)&&/anna/i.test(name))return "Dávidék";
+  if(/^otthon$/i.test(name))return "Otthon";
+  if(/bécsi corner|iroda|munkahely/i.test(name))return "Munkahely";
+  return name||fallback;
+ };
+ return summarize(item.originLabel,"Indulás")+" → "+summarize(item.destinationLabel,"Cél");
 }
 function updateTitle(item){
  $("headingFull").textContent=displayName(item);
