@@ -714,8 +714,8 @@ async function watchlistAlwaysOpenSmoke(browser,base,device){
    "Watchlist left BKK crest must use the supplied cropped artwork");
   assert.equal(await list.locator("article").count(),2);
   const card=page.locator("#hhBkkWatchRowsV814 article").first();
-  assert.equal(await card.locator(".hh-bkk-watch-actions-v814 button").count(),5,
-   "Route controls must include Live, Show, Move up/down and Remove");
+  assert.equal(await card.locator(".hh-bkk-watch-actions-v814 button").count(),4,
+   "Unified route/live toggle plus move up/down and remove must remain available");
   const check=async width=>{
    await page.setViewportSize({width,height:800});
    return page.evaluate(()=>{
