@@ -14,7 +14,9 @@ function paint(){
   card.dataset.fave=String(active);
   const star=card.querySelector('.save');
   if(star){star.setAttribute('aria-pressed',String(active));star.textContent=active?'♥':'♡';star.setAttribute('aria-label',active?'Kedvenc törlése':'Kedvencekhez adás')}
-  card.hidden=only&&!active;if(!card.hidden)visible++;
+  const deadline=card.dataset.end; // hide dated listings automatically after their final day (local browser time)
+  const expired=Boolean(deadline&&Date.now()>new Date(deadline+'T23:59:59').getTime());
+  card.hidden=expired||(only&&!active);if(!card.hidden)visible++;
  }
  if(toggle){toggle.setAttribute('aria-pressed',String(only));toggle.textContent=only?'★ Kedvencek mutatva':'♡ Csak kedvencek'}
  if(empty)empty.classList.toggle('visible',visible===0);
