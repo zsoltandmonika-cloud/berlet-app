@@ -988,7 +988,8 @@ async function start(){
  state.items=safeLoad();
  const params=new URLSearchParams(location.search);
  const chosen=params.get("id");
- state.current=state.items.some(x=>x.id===chosen)?chosen:DEFAULT.id;
+ state.current=state.items.some(x=>x.id===chosen)?chosen:
+  (state.items.find(x=>x.id===DEFAULT.id)?.id||state.items[0]?.id||DEFAULT.id);
  $("day").value=freshDate();
  initEvents();
  if(params.get("pinned")==="1")document.body.classList.add("pinned");
