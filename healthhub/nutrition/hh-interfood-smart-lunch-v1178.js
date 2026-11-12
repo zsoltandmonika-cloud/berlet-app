@@ -8,7 +8,14 @@
 const API=()=>root.HH_NUTRITION_QUICK_API;
 const ID=id=>doc?.getElementById(id);
 const KEYS=['kcal','protein','carbs','fat'];
-const BUDDY='../../sh9/family-hub/assets/family-success-buddy-v881.webp';
+function premiumBuddy(status){
+ const rag=['green','amber','red'].includes(status)?status:'amber';
+ const buddy=text('span','','hh-sl-rag-buddy');
+ buddy.dataset.rag=rag;
+ buddy.setAttribute('role','img');
+ buddy.setAttribute('aria-label',rag==='green'?'Vidám prémium RAG Buddy':rag==='amber'?'Semleges prémium RAG Buddy':'Szomorú prémium RAG Buddy');
+ return buddy;
+}
 let choices=new Map(),busy=new Set(),lastProfile='',finishTimer=null,audioCtx=null;
 /* v1181: tiny original tap sound, plus Android haptics where supported.
  * Mobile browsers may ignore vibrate() or AudioContext; neither is required. */
@@ -132,14 +139,28 @@ function closeResult(){
  const overlay=ID('hhSmartLunchFinishV1178');
  if(overlay){overlay.hidden=true;overlay.replaceChildren();}
 }
+function showFailure(message){
+ const overlay=ID('hhSmartLunchFinishV1178');if(!overlay)return;
+ if(finishTimer)root.clearTimeout(finishTimer);
+ overlay.replaceChildren();overlay.hidden=false;
+ const inner=text('div','','hh-sl-finish-inner');
+ inner.dataset.rag='red';
+ inner.append(premiumBuddy('red'));
+ inner.append(text('strong','Nem sikerült a mentés','hh-sl-tada small'));
+ inner.append(text('p',String(message||'Kérlek, próbáld újra.')));
+ const ok=text('button','Bezárás','hh-sl-keep');
+ ok.type='button';ok.addEventListener('click',closeResult);
+ inner.append(ok);overlay.append(inner);
+ finishTimer=root.setTimeout(closeResult,6000);
+}
 function showResult(order,result){
  const overlay=ID('hhSmartLunchFinishV1178');if(!overlay)return;
  if(finishTimer)root.clearTimeout(finishTimer);
  overlay.replaceChildren();overlay.hidden=false;
  const inner=text('div','','hh-sl-finish-inner');
+ inner.dataset.rag=result.status==='consumed'?'green':'amber';
+ inner.append(premiumBuddy(inner.dataset.rag));
  if(result.status==='consumed'){
-  const img=doc.createElement('img');img.src=BUDDY;img.alt='Vidám Happy Buddy mókus';
-  img.className='hh-sl-buddy';inner.append(img);
   inner.append(text('strong','TADAAA! 🎉','hh-sl-tada'));
   inner.append(text('p','Ebéd a Napi naplóban'+(result.rating?' · '+result.rating+'/5 ⭐':'')));
   if(!result.duplicate){
@@ -159,12 +180,17 @@ function showResult(order,result){
      choices.delete(order.id);render();
      overlay.replaceChildren();
      const done=text('div','','hh-sl-finish-inner');
+     done.dataset.rag='amber';
+     done.append(premiumBuddy('amber'));
      done.append(text('strong','✓ Visszavonva','hh-sl-tada small'));
      done.append(text('p','A napló és az ebédkártya visszaállt. Újra választhatsz.'));
      overlay.append(done);
      if(finishTimer)root.clearTimeout(finishTimer);
      finishTimer=root.setTimeout(closeResult,2300);
     }catch(e){
+     inner.dataset.rag='red';
+     const buddy=inner.querySelector('.hh-sl-rag-buddy');
+     if(buddy){buddy.dataset.rag='red';buddy.setAttribute('aria-label','Szomorú prémium RAG Buddy');}
      const note=text('p','⚠ '+String(e?.message||e),'hh-sl-undo-error');
      inner.append(note);undo.disabled=false;
     }finally{busy.delete(order.id);}
@@ -193,6 +219,7 @@ function finish(order,ate,button){
  }catch(e){
   const status=ID('hhSmartLunchStatusV1178');
   if(status){status.textContent='⚠ '+String(e?.message||e);status.hidden=false;}
+  showFailure(String(e?.message||e));
   button.disabled=false;
  }finally{busy.delete(order.id);}
 }
