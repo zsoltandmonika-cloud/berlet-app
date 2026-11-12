@@ -1,0 +1,78 @@
+/* SHO Smart Entertainment v1194: native-proportion artwork, standard 12px spacing.
+   The approved 4-tile HD hero is intentionally not touched.
+   The 2 new static tiles and the editable featured offer have independent
+   photographic assets to avoid ever stretching baked-in text or people. */
+@media (max-width:650px){
+ .extra-categories{display:none!important}
+ .pixel-extension{
+  --tile-w:calc((100vw - 30px)/2);
+  --tile-h:calc(var(--tile-w)*257/370);
+  --feature-w:calc(100vw - 20px);
+  --feature-h:calc(var(--feature-w)*196/766);
+  --standard-gap:12px;
+  display:block!important;
+  position:relative!important;
+  width:100%!important;max-width:100%!important;
+  height:calc(var(--tile-h) + var(--standard-gap) + var(--feature-h))!important;
+  min-height:0!important;aspect-ratio:auto!important;
+  margin:12px 0 14px!important;padding:0!important;
+  border:0!important;border-radius:0!important;
+  background:none!important;overflow:visible!important;
+ }
+ /* The obsolete vertically scaled combined sprite is completely disabled. */
+ .pixel-extension::before,.pixel-extension::after{
+  display:none!important;content:none!important;
+  background:none!important;
+ }
+ .pixel-extension .pixel-culture,
+ .pixel-extension .pixel-events{
+  display:block!important;position:absolute!important;z-index:2!important;
+  top:0!important;height:var(--tile-h)!important;
+  width:var(--tile-w)!important;
+  border:0!important;border-radius:17px!important;
+  background-position:center!important;
+  background-size:cover!important;
+  background-repeat:no-repeat!important;
+  filter:none!important;opacity:1!important;
+  box-shadow:none!important;
+ }
+ .pixel-extension .pixel-culture{
+  left:10px!important;right:auto!important;
+  background-image:url('./assets/sho-culture-tall-v1194.webp')!important;
+ }
+ .pixel-extension .pixel-events{
+  left:auto!important;right:10px!important;
+  background-image:url('./assets/sho-events-tall-v1194.webp')!important;
+ }
+ .pixel-extension .pixel-culture:hover,
+ .pixel-extension .pixel-events:hover{filter:brightness(1.08)!important}
+ .pixel-extension .pixel-feature-link{
+  display:block!important;
+  position:absolute!important;z-index:2!important;
+  left:10px!important;right:10px!important;
+  top:calc(var(--tile-h) + var(--standard-gap))!important;
+  width:var(--feature-w)!important;height:var(--feature-h)!important;
+  border:0!important;border-radius:16px!important;
+  background-image:url('./assets/sho-feature-proportional-v1194.webp')!important;
+  background-position:center!important;
+  background-size:cover!important;
+  background-repeat:no-repeat!important;
+  box-shadow:none!important;
+ }
+ .pixel-extension .pixel-feature-edit{
+  position:absolute!important;z-index:5!important;
+  top:calc(var(--tile-h) + var(--standard-gap) + var(--feature-h)*.02)!important;
+  left:8%!important;width:10%!important;
+  height:calc(var(--feature-h)*.24)!important;
+ }
+ .pixel-extension .pixel-feature-custom{
+  position:absolute!important;z-index:4!important;
+  left:34.5%!important;width:54%!important;
+  top:calc(var(--tile-h) + var(--standard-gap) + var(--feature-h)*.21)!important;
+  height:calc(var(--feature-h)*.67)!important;
+  padding:2%!important;
+ }
+ .pixel-extension .pixel-region:focus-visible{
+  outline:3px solid #ffe7af!important;outline-offset:-3px!important;
+ }
+}
