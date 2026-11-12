@@ -44,7 +44,7 @@ function validateCatalog(doc){
   routes.push({key,id,mode,name:String(route.name||"").slice(0,70),
    directions:Array.isArray(route.directions)?route.directions.slice(0,20).map(x=>String(x).slice(0,90)):[]});
  }
- if(routes.length<100||!PILOT.values().every(k=>seen.has(k)))
+ if(routes.length<100||![...PILOT].every(k=>seen.has(k)))
   throw Error("incomplete_bkk_route_catalog");
  return routes.sort((a,b)=>{
   const aPilot=PILOT.has(a.key),bPilot=PILOT.has(b.key);
