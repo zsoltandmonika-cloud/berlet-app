@@ -255,8 +255,10 @@ function readForm(){
   transferStop:$("transferStop").value.trim(),
   targetStop:$("boardStop").value.trim(),
   targetRoute:$("targetRoute").value.trim(),
+  targetRoutes:base.targetRoute===$("targetRoute").value.trim()&&Array.isArray(base.targetRoutes)&&
+   base.targetRoutes.includes(base.targetRoute)?[...base.targetRoutes]:[$("targetRoute").value.trim()],
   targetHeadsign:$("headsign").value.trim(),
-  feederRoutes:type==="walk"?[]:[...document.querySelectorAll("#feederLines input:checked")].map(x=>x.value),
+  feederRoutes:type==="walk"?[]:[...selectedFeeders],
   startHour:safeTimeHour($("timeFrom").value),endHour:safeTimeHour($("timeUntil").value),
   originWalkMin:inputInt("walkMin",0,30),originSafetyMin:inputInt("safetyMin",0,10),
   transferWalkMin:type==="walk"?0:inputInt("transferWalk",0,20),
@@ -266,7 +268,9 @@ function readForm(){
   ...(favoriteAddressDraft?{originFavoriteSlot:favoriteAddressDraft.from,
    destinationFavoriteSlot:favoriteAddressDraft.to}:{})
  };
- if(!state.data?.routes.includes(next.targetRoute))throw Error("A céljárat nincs a jelenlegi BKK GTFS-ben.");
+ if(!routeEntry(next.targetRoute))throw Error("A céljárat nem szerepel a hiteles BKK-katalógusban.");
+ if(next.feederRoutes.some(x=>!routeEntry(x)))throw Error("Ismeretlen csatlakozó járat.");
+ if(next.feederRoutes.some(x=>keyOf(x)===keyOf(next.targetRoute)))throw Error("Egy járat nem lehet saját csatlakozása.");
  if(!next.targetStop)throw Error("Add meg a céljárat pontos BKK-megállóját.");
  if(type==="transfer"&&(!next.originStop||!next.transferStop||!next.feederRoutes.length))
   throw Error("Legalább egy ráhordó járat és mindkét megálló szükséges.");
@@ -290,6 +294,27 @@ function save({pin=false,newTemplate=false}={}){
  hydrate();toast(pin?"📌 Kitűzött sablon mentve":"💾 Sablon mentve");
  return true;
 }
+function removeTemplate(){
+ const item=current();if(!item)return;
+ if(state.items.length<2){toast("Legalább egy szerkeszthető sablont tarts meg.");return}
+ if(!window.confirm?.("Biztosan törlöd ezt a mentett Smart Match-sémát?\n\n"+displayName(item)))return;
+ const id=item.id,backup=[...state.items];
+ state.items=state.items.filter(x=>x.id!==id);
+ state.current=state.items.some(x=>x.id===DEFAULT.id)?DEFAULT.id:state.items[0].id;
+ if(!persist()){state.items=backup;state.current=id;return}
+ if(SAMPLES.some(x=>x.id===id)){
+  let removed=[];
+  try{const stored=JSON.parse(localStorage.getItem(DELETED_SAMPLES_KEY)||"[]");
+   if(Array.isArray(stored))removed=stored.filter(x=>SAMPLES.some(t=>t.id===x));
+  }catch(_){}
+  if(!removed.includes(id))removed.push(id);
+  try{localStorage.setItem(DELETED_SAMPLES_KEY,JSON.stringify(removed))}catch(_){
+   toast("⚠️ A mintasablon visszatérhet újratöltéskor: a böngésző nem enged tárolni.");
+  }
+ }
+ try{if(localStorage.getItem(ACTIVE_PIN_KEY)===id)localStorage.removeItem(ACTIVE_PIN_KEY)}catch(_){}
+ hydrate();computeRoute();toast("🗑️ Sablon törölve · a többi útvonal változatlan.");
+}
 function metrics(item){
  $("windowMetric").textContent=timeField(item.startHour)+"–"+timeField(item.endHour);
  $("waitMetric").textContent=item.type==="walk"?item.originSafetyMin+" perc tartalék":"≤ "+item.maxWaitMin+" perc";
@@ -298,7 +323,7 @@ function metrics(item){
 }
 function getMode(line){
  // Source-backed mode; the renderer is not hardwired to a bus/tram list.
- return state.data?.trips.find(t=>t[0]===line)?.[4]||
+ return routeEntry(line)?.mode||state.data?.trips.find(t=>t[0]===line)?.[4]||
   (line==="260"?"bus":"tram");
 }
 function routeFlowStages(item){
@@ -752,17 +777,30 @@ async function loadFeed(){
  if(state.data&&state.manifest)return;
  const v=await readOfficialSnapshot();
  state.data=v.data;state.manifest=v.manifest;
- populateIndex();
+ populateStops();
 }
 async function computeRoute({useForm=false}={}){
  if(state.loading)return;
  state.loading=true;
  $("status").textContent="📡 A BKK hivatalos menetrendi állományának ellenőrzése…";
  try{
-  await loadFeed();
   const item=useForm?readForm():current();
   if(!item)throw Error("Nincs kiválasztott sablon.");
   const date=$("day").value;
+  if(!coverage({targetKey:item.targetRoute,feederKeys:item.feederRoutes,type:item.type==="walk"?"walk":"transfer"})){
+   state.result=null;state.full260=null;state.lastNext=null;
+   updateTitle(item);renderFlow(item);metrics(item);
+   $("timeline").replaceChildren();
+   const empty=document.createElement("div");empty.className="empty";
+   empty.textContent="A kiválasztott járatok szerepelnek a BKK-katalógusban, de ehhez az útvonalhoz még nincs ellenőrzött indulási menetrend.";
+   $("timeline").append(empty);
+   $("timelineSubtitle").textContent=date+" · menetrendi lefedettség bővítés alatt";
+   $("heroTime").textContent="--:--";$("countdown").textContent="--:--";
+   $("heroDetail").textContent="A járatok és címek menthetők; hitelesített indulási idő még nem áll rendelkezésre.";
+   $("status").textContent="ⓘ BKK-katalógus · szerkeszthető útvonal · nincs ellenőrzött Smart Match-menetrend.";
+   return;
+  }
+  await loadFeed();
   const busDir=bus260DirectionForTemplate(item);
   // Apply the existing walk / transfer safety policy to the FULL day,
   // without changing the user's saved preference for reminder windows.
@@ -853,7 +891,12 @@ function initEvents(){
   toast("⭐ Új címpár előkészítve. Add meg a BKK-járatokat és megállókat, majd mentsd új sablonként.");
  });
  $("kind").addEventListener("change",applyFormModes);
- $("targetRoute").addEventListener("change",()=>renderFeederChecks([]));
+ $("targetRoute").addEventListener("change",()=>{
+  selectedFeeders.delete($("targetRoute").value);drawFeederBrowser();
+ });
+ $("feederSearchV940")?.addEventListener("input",drawFeederBrowser);
+ $("feederModeV940")?.addEventListener("change",drawFeederBrowser);
+ $("deleteBtn")?.addEventListener("click",removeTemplate);
  $("calcBtn").addEventListener("click",()=>{
   if(favoriteAddressDraft){try{readForm()}catch(e){toast("⚠️ "+e.message);return}}
   computeRoute({useForm:true});
@@ -914,6 +957,8 @@ async function start(){
  $("day").value=freshDate();
  initEvents();
  if(params.get("pinned")==="1")document.body.classList.add("pinned");
+ try{state.catalog=await loadCatalog()}catch(_){state.catalog=FALLBACK}
+ populateIndex();
  hydrate();
  await computeRoute();
  // Clock updates do not trigger extra BKK/network requests.
