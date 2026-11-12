@@ -1,0 +1,15 @@
+/* Smart Match v940 · full BKK searchable selection, scoped to editor only. */
+#editor .sm-fleet-browser-v940{display:flex;flex-direction:column;gap:9px;min-width:0}
+#editor .sm-fleet-browser-v940>strong{font-size:12px;color:#ffe1f4}
+#editor .sm-fleet-filters{display:grid;grid-template-columns:minmax(0,1fr) minmax(108px,145px);gap:9px}
+#editor .sm-fleet-filters input,#editor .sm-fleet-filters select{width:100%;min-width:0;min-height:42px;background:#141b3b;color:#f9eaff;border:1px solid rgba(208,170,230,.52);border-radius:10px;padding:8px}
+#editor .sm-fleet-browser-v940 .line-choices{max-height:193px;overflow:auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(124px,1fr));gap:7px;border:1px solid rgba(185,171,221,.26);border-radius:12px;padding:8px;background:rgba(12,19,45,.43);scrollbar-width:thin}
+#editor .sm-fleet-browser-v940 .line-choices label{display:flex;align-items:center;flex-direction:row;justify-content:flex-start;gap:8px;margin:0;min-width:0;min-height:42px;padding:7px 8px;border:1px solid rgba(206,167,223,.25);border-radius:9px;background:rgba(38,40,83,.46);cursor:pointer}
+#editor .sm-fleet-browser-v940 .line-choices label.selected{border-color:rgba(255,163,226,.75);background:rgba(139,65,141,.25)}
+#editor .sm-fleet-browser-v940 .line-choices label input{flex:0 0 17px;width:17px;min-height:17px;height:17px;margin:0;accent-color:#ff97d3}
+#editor .sm-fleet-browser-v940 .line-choices label span{overflow-wrap:anywhere;font-size:12px;font-weight:750}
+#editor .sm-fleet-result{font-size:11px;color:#d3c6ed}
+#editor .sm-fleet-coverage{margin:0;color:#ffd5a9;font:650 11px/1.5 system-ui}
+#editor .sm-fleet-coverage[data-supported="true"]{color:#b6efd8}
+#editor #deleteBtn{color:#ffd0dd;border:1px solid rgba(238,142,172,.42)}
+@media(max-width:470px){#editor .sm-fleet-filters{grid-template-columns:minmax(0,1fr) 104px}#editor .sm-fleet-browser-v940 .line-choices{grid-template-columns:repeat(2,minmax(0,1fr))}}
