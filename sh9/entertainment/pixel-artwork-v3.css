@@ -74,25 +74,45 @@
  .upcoming:not(.pixel-reference){margin:9px 10px 22px!important}
  .upcoming:not(.pixel-reference) .pixel-event-detail,.upcoming:not(.pixel-reference) .pixel-event-edit{display:none!important}
  .section{margin:19px 12px 24px!important}
- /* One complete full-width card per swipe (movies, theatres and concerts).
-    Keep the existing photographic aspect ratio: width and height grow together. */
+ /* v1193 mobile carousel layout repair. The old GRID track calculation
+    collapsed cards into thumbnails on Galaxy S24. FLEX gives each slide a
+    definite 100%-viewport basis; explicit proportional height prevents shrinkage.
+    Original image, text, badges, favourites and booking buttons stay in DOM. */
+ .section .row{min-width:0!important;width:100%!important}
  .section .carousel{
-  grid-auto-columns:minmax(0,100%)!important;
-  gap:10px!important;
-  scroll-snap-type:x mandatory!important;
-  scroll-padding-inline:2px;
- }
- .section .carousel .card{
-  box-sizing:border-box;
+  display:flex!important;
+  flex-flow:row nowrap!important;
+  align-items:stretch!important;
+  justify-content:flex-start!important;
   width:100%!important;
   min-width:0!important;
-  min-height:0!important;
-  max-height:none!important;
-  height:auto!important;
+  gap:12px!important;
+  overflow-x:auto!important;
+  overflow-y:hidden!important;
+  scroll-snap-type:x mandatory!important;
+  scroll-padding-inline:0!important;
+  overscroll-behavior-x:contain;
+  -webkit-overflow-scrolling:touch;
+ }
+ .section .carousel > .card{
+  display:block!important;
+  position:relative!important;
+  flex:0 0 100%!important;
+  flex-shrink:0!important;
+  width:100%!important;
+  min-width:100%!important;
+  max-width:100%!important;
+  box-sizing:border-box!important;
   aspect-ratio:1.62!important;
-  scroll-snap-align:start;
+  height:calc((100vw - 24px)/1.62)!important;
+  min-height:calc((100vw - 24px)/1.62)!important;
+  max-height:none!important;
+  overflow:hidden!important;
+  scroll-snap-align:start!important;
   scroll-snap-stop:always;
  }
+ .section .carousel > .card.hidden{display:none!important}
+ .section .row-nav{top:46%!important;transform:translateY(-50%)}
  .section .row-nav.prev{left:5px!important}
  .section .row-nav.next{right:5px!important}
  .foot{margin:0 12px!important;padding-bottom:12px}
