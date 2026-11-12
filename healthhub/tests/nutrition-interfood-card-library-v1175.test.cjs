@@ -14,8 +14,8 @@ const parser=require('../nutrition/hh-interfood-diary-v1175.js');
 test('separate Interfood Ételeim page preserves original Premium tile and official link',()=>{
  assert.match(html,/id="hhInterfoodTileV1173"[^>]+href="https:\/\/rendel\.interfood\.hu\/"/);
  assert.match(html,/interfood-logo-v1174\.webp/);
- assert.match(html,/hh-interfood-diary-v1175\.js\?v=1177-official-photos/);
- assert.match(html,/hh-interfood-diary-v1175\.css\?v=1177-official-photos/);
+ assert.match(html,/hh-interfood-diary-v1175\.js\?v=1184-premium-photo-repair/);
+ assert.match(html,/hh-interfood-diary-v1175\.css\?v=1184-premium-photo-repair/);
  assert.match(ui,/id='hhInterfoodLibraryV1175'/);
  assert.match(ui,/Interfood ételeim/);
  assert.match(ui,/id="hhIfCards1175"/);
@@ -85,4 +85,22 @@ test('page stays scoped, accessible on mobile, and JS parses',()=>{
  assert.match(css,/@media\(max-width:360px\)/);
  assert.match(ui,/setAttribute\('aria-label','Interfood ételeim'\)/);
  assert.match(ui,/aria-live="polite"/);
+});
+
+test('v1184 premium Interfood gallery is compact, has clickable image previews and explicit logging',()=>{
+ assert.ok(ui.includes("frame=doc.createElement('button')"));
+ assert.ok(ui.includes("frame.addEventListener('click'"));
+ assert.ok(ui.includes("photoDlg.id='hhIfPhotoViewerV1184'"));
+ assert.ok(ui.includes('showPhoto(photoSrcById.get(card.id),card.name)'));
+ assert.ok(ui.includes("log.textContent='✓ Naplóba'"));
+ assert.ok(ui.includes("recordInterfoodCard({expectedProfile:owner"));
+ assert.ok(css.includes('v1184 · Smart Lunch-aligned premium Interfood saved-meal gallery'));
+ assert.ok(css.includes('object-fit:contain'));
+ assert.ok(css.includes('aspect-ratio:1/1'));
+ assert.ok(css.includes('hh-if-photo-loaded-v1184'));
+ assert.ok(css.includes('#hhIfPhotoViewerV1184'));
+ assert.ok(css.includes('@media(max-width:365px)'));
+ assert.ok(html.includes('hh-interfood-diary-v1175.js?v=1184-premium-photo-repair'));
+ assert.ok(html.includes('hh-interfood-diary-v1175.css?v=1184-premium-photo-repair'));
+ new vm.Script(ui);
 });
