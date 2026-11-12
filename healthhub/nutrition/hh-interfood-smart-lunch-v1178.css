@@ -81,3 +81,15 @@
 }
 /* The legacy ID selectors set display:flex/grid, which can override UA [hidden]. */
 #hhInterfoodLogV1175[hidden],#hhIfLiveArea1176[hidden]{display:none!important}
+
+/* v1181: short accidental-tap reversal in the TADAAA overlay. */
+.hh-sl-undo-actions{display:grid;grid-template-columns:1.15fr .85fr;
+ gap:10px;width:100%;margin-top:10px}
+.hh-sl-undo-actions button{min-height:46px;border-radius:12px;
+ font:800 14px system-ui;touch-action:manipulation;cursor:pointer}
+.hh-sl-undo{background:linear-gradient(135deg,#ffedc4,#f7c375);
+ color:#342000;border:1px solid #ffe5b4}
+.hh-sl-keep{background:rgba(28,56,69,.88);border:1px solid #8aa9b9;color:#e9f7ff}
+.hh-sl-undo-actions button:focus-visible{outline:3px solid #fff;outline-offset:2px}
+.hh-sl-undo-actions button:disabled{opacity:.55}
+.hh-sl-undo-error{color:#ffb5ad!important;font-weight:750}
