@@ -1,10 +1,10 @@
 {
   "schemaVersion": "1.0",
   "project": "Léna Health Ecosystem / HealthHub",
-  "updatedAt": "2026-10-27",
+  "updatedAt": "2026-11-12",
   "liveBuild": "v380",
-  "currentFocus": "Architecture Grand Design és egységes Admin oldal v745: taskbar Továbbiak→Admin, csoportosított közvetlen Admin Data Hub, Project Control, Recovery, Dropbox Analytics; működő eszközök megtartása, duplikált és információs legacy elemek eltüntetése; a v742 privát Dropbox-ChatGPT E2E működik.",
-  "nextDevelopment": "2026-10-28 KIEMELT: külön Tömegközlekedés oldal három modullal BKK/MÁV/Volán (HH-TRANSIT-001). BKK felhasználó szerint közel 100%, meglévő működést megtartani. MÁV (HH-RAIL-001) és Volán (HH-VOLAN-001) azonos nap fejlesztési fókuszban. Közös BKK+MÁV+Volán routing csak a külön pilotok után (HH-RAIL-002). Más modulok AI Intelligence Core/Guardian, Shopping/Wearables a prioritást nem írják felül.",
+  "currentFocus": "2026-11-12: Outlook kanonikus Dropbox natív GPS-cutover működik és felhasználói oldalról elfogadott; a legacy Gmail nem GPS Health/Activity/Sleep/Digital Wellbeing egyeztetés P0 nyitott. SHO Smart Trip V5 / Smart Match mobil QA; HealthHub Interfood Smart Lunch v1183 és Interfood Ételeim v1184 user-accepted, két Smart Action közös deduplikációja nyitott.",
+  "nextDevelopment": "P0: legacy Gmail → Outlook nem GPS Health/Activity/Sleep adatrekonsziliáció és maradék írók igazolása, biztonságos backup után kivezetés. P1: Family Guard profiljelölő-rerender kéttelefonos QA; Smart Lunch + Ételeim cross-action duplikációvédelem; Smart Trip A terv és kitűzött útvonal e2e; Level 3/Timeline CI hibák külön triázs.",
   "syncStrategy": "Samsung Health → Health Connect → HealthHub Bridge → HealthHub",
   "fallbackStrategy": "Samsung Health ZIP / OMRON CSV csak történeti importhoz, recoveryhez és hibaelhárításhoz",
   "blockers": [
@@ -22,6 +22,21 @@
       "actionId": "HH-CORE-005",
       "label": "Security model",
       "detail": "A lokális/private + Dropbox Vault modell működik; a végleges hosszú távú security modell lezárása még hátra van."
+    },
+    {
+      "actionId": "HH-DBX-202611-02",
+      "label": "Outlook migráció: nem GPS adatok",
+      "detail": "Régi Gmail Vault, Health/Activity/Sleep, Digital Wellbeing rekordok és esetleges Gmail web-írók teljes egyeztetése nem igazolt. Legacy adat/engedély törlés tilos."
+    },
+    {
+      "actionId": "HH-FG-202611-01",
+      "label": "Family Guard térképjelölő",
+      "detail": "A profiljelölők időnként eltűnnek automatikus frissítésnél; manuális frissítésre visszatérnek. Kéttelefonos QA nyitott."
+    },
+    {
+      "actionId": "HH-IF-202611-02",
+      "label": "Interfood dupla naplózás",
+      "detail": "Smart Lunch és mentett ételkártya kettős műveleti útvonalának közös idempotenciája még nincs bizonyítva."
     }
   ],
   "actions": [
@@ -2809,6 +2824,114 @@
       "dependency": "HH-TRANSIT-001",
       "acceptanceCriteria": "Verifiable stops/routes/timetables, source licensing feasibility, provenance, realistic connections, Premium Glass phone QA, safe bounded requests.",
       "notes": "MÁV-val párhuzamosan a következő nap prioritása; megvalósítás még nincs."
+    },
+    {
+      "id": "HH-DBX-202611-01",
+      "epic": "HealthHub Core / Dropbox",
+      "feature": "Outlook canonical native GPS cutover",
+      "title": "Two-profile HH One native GPS moved to verified Outlook canonical Dropbox routing",
+      "acceptanceCriteria": "Both physical devices independently write owner-bound fresh GPS; Family Guard reads Outlook only; old Gmail native GPS stops",
+      "priority": "Critical",
+      "sprint": "November 2026",
+      "milestone": "Outlook migration / native GPS",
+      "status": "Done",
+      "progress": 1,
+      "storyPoints": 5,
+      "owner": "Léna + Zsolt",
+      "dependency": "",
+      "targetDate": "2026-11-10",
+      "actualDone": "2026-11-10",
+      "notes": "2026-11-10 esti ellenőrzés és felhasználói Family Guard elfogadás; a nem GPS Vault adatok külön, nyitott egyeztetés. healthhub/docs/DROPBOX_APP_ACCOUNT_MAPPING_20261110.md"
+    },
+    {
+      "id": "HH-DBX-202611-02",
+      "epic": "HealthHub Core / Dropbox",
+      "feature": "Legacy Health data reconciliation",
+      "title": "Reconcile legacy Gmail vs Outlook non-GPS Vault / Health / Activity / Sleep / Digital Wellbeing safely",
+      "acceptanceCriteria": "Proven full source inventory, record/hash checks, secure durable backup, no lost profile entries, two successful syncs before old writer/grant retirement",
+      "priority": "Critical",
+      "sprint": "Next P0",
+      "milestone": "Outlook migration / complete data",
+      "status": "In Progress",
+      "progress": 0.3,
+      "storyPoints": 8,
+      "owner": "Léna + Zsolt",
+      "dependency": "HH-DBX-202611-01",
+      "targetDate": null,
+      "actualDone": null,
+      "notes": "2026-11-11 felhasználói teszt: alvás/aktivitás hiányos az engedélyellenőrzés és kézi SYNC után; régi Gmail Vault törlése/engedély visszavonása tilos a teljes egyeztetés előtt."
+    },
+    {
+      "id": "HH-FG-202611-01",
+      "epic": "SHO / Family Guard",
+      "feature": "Live map rendering consistency",
+      "title": "Fix intermittent disappearance of both profile markers until manual map refresh",
+      "acceptanceCriteria": "Owner-bound points remain visible and freshness correct through auto-refresh/re-render on both S24 phones; regression + two-phone live test",
+      "priority": "High",
+      "sprint": "Next QA",
+      "milestone": "Family Guard stability",
+      "status": "Ready",
+      "progress": 0,
+      "storyPoints": 3,
+      "owner": "Léna + Zsolt",
+      "dependency": "HH-DBX-202611-01",
+      "targetDate": null,
+      "actualDone": null,
+      "notes": "Jelző eltűnése és kézi frissítés utáni megjelenés felhasználói megfigyelés; adatvesztés nem bizonyított."
+    },
+    {
+      "id": "HH-IF-202611-01",
+      "epic": "HealthHub Nutrition",
+      "feature": "Two Smart Actions / Premium Interfood",
+      "title": "Smart Lunch Outlook-confirmed intake + saved Interfood cards with premium image UX",
+      "acceptanceCriteria": "Private Outlook bridge; official meal image; explicit one-tap diary; optional rating, reversible confirmation, three approved Buddy states; gallery photos functional",
+      "priority": "High",
+      "sprint": "November 2026",
+      "milestone": "Smart Lunch & Interfood v1184",
+      "status": "Done",
+      "progress": 1,
+      "storyPoints": 8,
+      "owner": "Léna + Zsolt",
+      "dependency": "",
+      "targetDate": "2026-11-12",
+      "actualDone": "2026-11-12",
+      "notes": "PR #894–#902, célzott CI sikeres; felhasználói telefonos vizuális elfogadás 2026-11-12. Nem jelenti az átfogó CI teljes sikerét."
+    },
+    {
+      "id": "HH-IF-202611-02",
+      "epic": "HealthHub Nutrition",
+      "feature": "Cross-path idempotency",
+      "title": "Prevent double-logging one ordered lunch via Smart Lunch and saved-card Smart Action",
+      "acceptanceCriteria": "Unique order/date/profile binding + consistent rollback and calorie totals across both logging paths; automated and mobile regression tests",
+      "priority": "High",
+      "sprint": "Next QA",
+      "milestone": "Nutrition accounting guard",
+      "status": "Ready",
+      "progress": 0,
+      "storyPoints": 5,
+      "owner": "Léna + Zsolt",
+      "dependency": "HH-IF-202611-01",
+      "targetDate": null,
+      "actualDone": null,
+      "notes": "2026-11-12 architektúrális kockázat: két külön naplózási útvonal együttállásának deduplikációja még nem igazolt."
+    },
+    {
+      "id": "HH-TRIP-202611-01",
+      "epic": "SHO / Smart Trip",
+      "feature": "A-plan mobile acceptance",
+      "title": "Verify Smart Trip V5 / Smart Match unified door-to-door route timing and pinned route reversals",
+      "acceptanceCriteria": "Official BKK/MÁV/Volán sources, trustworthy departure and transfer buffers, reliable home-origin and reverse icons; two-phone end-to-end QA",
+      "priority": "High",
+      "sprint": "Next QA",
+      "milestone": "Smart Trip / Smart Match",
+      "status": "In Progress",
+      "progress": 0.65,
+      "storyPoints": 8,
+      "owner": "Léna + Zsolt",
+      "dependency": "HH-TRANSIT-001",
+      "targetDate": null,
+      "actualDone": null,
+      "notes": "Google Routes pilot, Smart Match timeline és prémium flow PR-ekkel megvalósult; teljes keresés <30 mp célérték, nem bizonyított SLA. Nov. 11 felhasználói teszt tervezett."
     }
   ],
   "changeLog": [
@@ -3474,9 +3597,45 @@
       "version": "SH9 Tömegközlekedés · BKK/MÁV/Volán hárommodulos oldal",
       "type": "USER APPROVED ARCHITECTURE / PRIORITY · BACKLOG",
       "change": "BKK közel 100% (felhasználói becslés), megtartjuk. 2026-10-28 különálló Tömegközlekedés page + MÁV és Volán egyaránt első prioritás. Későbbi intermodal BKK+MÁV+Volán. Két új Project Control tétel; nem éles implementáció."
+    },
+    {
+      "date": "2026-11-07",
+      "version": "SHO Smart Trip V5 + Smart Match · November checkpoint",
+      "type": "INTEGRATED CODE / PILOT, MOBILE E2E OPEN",
+      "change": "Párhuzamos BKK/MÁV/Volán útvonaljelöltek, elkülönített Google Routes pilot, A-terv és prémium route-flow; Smart Match menetrendi idővonal és kitűzhető sablonok. PR #824, #826, #832, #860. A <30 mp cél és valós mobilos csatlakozási biztonság nem tekinthető általánosan igazoltnak."
+    },
+    {
+      "date": "2026-11-10",
+      "version": "Outlook Dropbox canonical cutover · HH One + Family Guard v1178",
+      "type": "GPS CUTOVER VERIFIED / NON-GPS RECONCILIATION OPEN",
+      "change": "Két fizikai telefon natív, profilhoz kötött GPS írása Outlook kanonikus HealthHub Cloud Vaultba; Family Guard csak Outlook GPS-ből olvas; felhasználó mindkét profilt látta térképen. Régi Gmail GPS írás megszűnt; Gmail account-review szolgáltatás nyugdíjazva. A külön régi App Folder és a teljes Gmail Health/Activity/Sleep/Nutrition/Vault adatkör nem tekinthető automatikusan átálltnak. Forrás: DROPBOX_APP_ACCOUNT_MAPPING_20261110.md, PR #843/#844."
+    },
+    {
+      "date": "2026-11-11",
+      "version": "Outlook migration · non-GPS coverage and GPS marker QA",
+      "type": "USER-REPORTED OPEN ISSUES",
+      "change": "A fizikai GPS cutover után Mónika Health/Activity/Sleep adatok letöltése hiányos maradt engedélyellenőrzés és kézi sync után; időnként a két profil térképjelölője csak manuális frissítésre jelenik meg. Rekordszintű Gmail→Outlook egyeztetés és jelölő-rerender QA nyitott. Gmail adat törlése és utolsó forrásengedély visszavonása nem engedélyezett."
+    },
+    {
+      "date": "2026-11-12",
+      "version": "Smart Lunch v1178–v1183 · Outlook private bridge / RAG Buddy",
+      "type": "MERGED + TARGETED CI PASS + USER ACCEPTED UI",
+      "change": "Nyilvános ellenőrzött Interfood feed, külön privát Outlook Mail.Read rendelésbridge, belépési sor elrejtése és Google Vault SSO a Beállításokban; opcionális csillaghang/haptika, 30 mp-es visszavonási kapu, eredeti 3-állapotú prémium Buddy, jóváhagyott lilás-rózsaszín fotókeret. PR #894–#901. Rendelésbeolvasás ≠ automatikus étkezésnaplózás."
+    },
+    {
+      "date": "2026-11-12",
+      "version": "Interfood Ételeim v1184 · Premium gallery photo repair",
+      "type": "MERGED + TARGETED CI PASS + USER ACCEPTED",
+      "change": "Kompakt, prémium, mobilos privát ételkártyák; rejtett+lazy fotóbetöltési hibajavítás, érintésre nagyítható eredeti fotók és kizárólag pontosan azonosított hivatalos fotó-fallback, tápértékchipek. PR #902. Két Smart Action: rendelésből naplózás és mentettkártyából külön naplózás; kereszttípusú dupla naplózás kizárása még nyitott."
+    },
+    {
+      "date": "2026-11-12",
+      "version": "SHO/HealthHub project logbook catch-up · 2026-10-28–2026-11-12",
+      "type": "DOCUMENTATION / PROJECT CONTROL SYNC",
+      "change": "Október 27. óta elmaradt fejlesztési napló pótlása, külön Outlook Dropbox migrációs checkpoint, Smart Trip/Family Guard és két Interfood Smart Action státusz. Nyitott kockázatok: legacy Gmail nem-GPS adat egyeztetés, Activity/Sleep hiány, marker frissítés, Smart Action dedupe, Level 3 és Timeline QA. Részletes, adatmentes log: healthhub/docs/SHO_HEALTHHUB_PROJECT_LOGBOOK_2026-11-12.md."
     }
   ],
-  "liveBuildNote": "A liveBuild=v380 történeti Project Control gyűjtőcímke, nem tükrözi a 2026-10-21-es v742 ChatGPT Analytics modul jelenlegi életciklusát. Modulfájl-verzió a healthhub/index.html és GitHub commit alapján.",
+  "liveBuildNote": "A liveBuild=v380 történeti Project Control gyűjtőcímke és NEM aktuális globális SHO/HealthHub verzió. 2026-11-12 mérföldkövek: HealthHub Smart Lunch v1183 és Interfood Ételeim v1184 főági PR-merge + user-accepted UI; egyéb modulok saját verziókon. Tényleges deployhoz ellenőrizd a main commitot, HTML script-include-okat és a telefonos használatot. Központi log: healthhub/docs/SHO_HEALTHHUB_PROJECT_LOGBOOK_2026-11-12.md.",
   "architectureMaster": {
     "version": "1.0",
     "updatedAt": "2026-10-21",
@@ -3507,5 +3666,6 @@
       "unattended 24/7 worker",
       "clinical PDFs separate permission model"
     ]
-  }
+  },
+  "latestLogbook": "healthhub/docs/SHO_HEALTHHUB_PROJECT_LOGBOOK_2026-11-12.md"
 }
