@@ -1,0 +1,86 @@
+/* SHO Entertainment v3 · exact user-approved mobile artwork.
+ * The source screenshot is rendered from actual HD WebP files hosted in this repository.
+ * Clickable regions remain semantic HTML anchors, not baked-in image buttons.
+ * Desktop keeps the real photographic category layout; no impact to existing modules.
+ */
+.pixel-mobile-home,.pixel-mobile-heart,.pixel-mobile-bell,.pixel-mobile-favlist,
+.pixel-mobile-sound,.pixel-event-detail,.pixel-event-edit{display:none}
+@media(max-width:650px){
+ .topbar{display:none!important}
+ body{background:#050615}
+ .wrap{padding:0 0 82px!important;max-width:100%!important}
+ .hero{
+  position:relative!important;isolation:isolate;margin:0!important;padding:0!important;
+  border-radius:0!important;width:100%!important;max-width:100%!important;
+  min-height:0!important;height:auto!important;
+  aspect-ratio:885/1230!important;
+  background:#09091c url('./assets/sho-approved-mobile-hero-v3.webp') center top/100% 100% no-repeat!important;
+  box-shadow:none!important;overflow:hidden!important;
+ }
+ .hero::before,.hero::after{display:none!important;content:none!important}
+ .hero-art,.hero-visual{display:none!important}
+ .hero-copy{position:absolute!important;inset:0!important;opacity:0!important;pointer-events:none!important;min-height:0!important;padding:0!important;margin:0!important}
+ .categories{
+  position:absolute!important;z-index:5;left:2.8%!important;right:2.8%!important;top:51.6%!important;bottom:1.4%!important;
+  width:auto!important;height:auto!important;max-width:none!important;margin:0!important;padding:0!important;
+  display:grid!important;grid-template-columns:1fr 1fr!important;grid-template-rows:1fr 1fr!important;
+  column-gap:2.7%!important;row-gap:3.4%!important;
+ }
+ .categories .cat{
+  opacity:0!important;visibility:visible!important;display:block!important;
+  border:0!important;border-radius:18px!important;min-height:0!important;height:100%!important;
+  width:100%!important;margin:0!important;padding:0!important;background:transparent!important;
+  box-shadow:none!important;filter:none!important;transform:none!important;
+  pointer-events:auto!important;touch-action:manipulation;
+ }
+ .categories .cat::before,.categories .cat::after{display:none!important}
+ .categories .cat:focus-visible{opacity:1!important;outline:3px solid #fff5d8!important;outline-offset:-4px!important;background:#ffffff1a!important}
+ .pixel-mobile-home,.pixel-mobile-heart,.pixel-mobile-bell,.pixel-mobile-favlist{
+  position:absolute;display:block;z-index:6;background:transparent;border:0;border-radius:12px;
+  cursor:pointer;touch-action:manipulation;text-decoration:none;
+ }
+ .pixel-mobile-home{left:2.7%;top:0%;width:51%;height:8.4%}
+ .pixel-mobile-heart{left:62.5%;top:0%;width:9.8%;height:8.4%}
+ .pixel-mobile-bell{left:73%;top:0%;width:9%;height:8.4%}
+ .pixel-mobile-favlist{left:82.5%;top:0%;width:15%;height:9%}
+ .pixel-mobile-home:focus-visible,.pixel-mobile-heart:focus-visible,.pixel-mobile-bell:focus-visible,.pixel-mobile-favlist:focus-visible,
+ .pixel-event-detail:focus-visible,.pixel-event-edit:focus-visible{outline:3px solid #ffe3ac!important;outline-offset:-3px!important;background:#fff2!important}
+ .pixel-mobile-sound{
+  position:absolute;display:grid;place-items:center;z-index:8;top:9.5%;right:1.7%;
+  width:28px;height:28px;color:#ffe5ff;background:#1d102dbd;border-radius:50%;border:1px solid #ff78bc8f;
+  box-shadow:0 0 12px #db3e8255;font-size:16px;cursor:pointer;
+ }
+ .pixel-mobile-sound[aria-pressed="true"]{color:#ffd9a4;border-color:#f8cb8c}
+ /* Match the exact approved next-event image when the same programme is selected.
+    The real dynamic programme card is restored for any changed booking. */
+ .upcoming.pixel-reference{
+  display:block!important;position:relative!important;margin:0!important;
+  width:100%!important;min-height:0!important;height:auto!important;
+  aspect-ratio:885/375!important;
+  border:0!important;border-radius:0!important;box-shadow:none!important;
+  padding:0!important;overflow:hidden!important;
+  background:#080b19 url('./assets/sho-approved-next-event-v3.webp') center top/100% 100% no-repeat!important;
+ }
+ .upcoming.pixel-reference::before,.upcoming.pixel-reference::after{display:none!important}
+ .upcoming.pixel-reference > .upcoming-poster,.upcoming.pixel-reference > .upcoming-text{
+  position:absolute!important;inset:0!important;opacity:0!important;pointer-events:none!important;
+ }
+ .upcoming.pixel-reference .pixel-event-detail,.upcoming.pixel-reference .pixel-event-edit{
+  display:block;position:absolute;z-index:10;cursor:pointer;
+  background:transparent;border:0;border-radius:999px;padding:0;
+ }
+ .upcoming.pixel-reference .pixel-event-detail{left:84%;top:33%;width:12%;height:54%}
+ .upcoming.pixel-reference .pixel-event-edit{left:35%;top:12%;width:29%;height:22%}
+ .upcoming:not(.pixel-reference){margin:9px 10px 22px!important}
+ .upcoming:not(.pixel-reference) .pixel-event-detail,.upcoming:not(.pixel-reference) .pixel-event-edit{display:none!important}
+ .section{margin:19px 12px 24px!important}
+ .section .carousel{grid-auto-columns:80%!important}
+ .section .card{min-height:190px!important}
+ .foot{margin:0 12px!important;padding-bottom:12px}
+ body[data-sh9-golden-fallback="on"]{padding-bottom:max(79px,env(safe-area-inset-bottom,0px))}
+}
+@media(max-width:370px){
+ .pixel-mobile-sound{width:24px;height:24px;font-size:14px}
+ .upcoming:not(.pixel-reference){margin:7px 7px 19px!important}
+}
+@media(prefers-reduced-motion:reduce){.categories .cat{transition:none!important}}
