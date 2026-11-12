@@ -38,6 +38,8 @@ jobs:
         run: node --test healthhub/tests/sho-smart-match-favorite-route-v939.test.cjs
       - name: Full-fleet editor, family directions and deletable template regression
         run: node --test healthhub/tests/sho-smart-match-fleet-v940.test.cjs
+      - name: Ring direction always follows selected route pair; countdown unchanged
+        run: node --test healthhub/tests/sho-smart-match-ring-direction-v941.test.cjs
       - name: Scheduled matching, walking and safe-fail regression tests
         run: node --test healthhub/guardian/smart-260-connect/core.test.mjs
       - name: Official public BKK GTFS routing diagnostic
