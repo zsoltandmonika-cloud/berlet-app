@@ -173,6 +173,25 @@ a{color:inherit;text-decoration:none}button{font:inherit;cursor:pointer}button:f
  .cat b{font-size:18px}
  .cat small{font-size:9px}
 }
+
+/* v1197: Entire ETELE VIP card is a real accessible link.
+   Leave separate favourite, pin and official booking CTA functional. */
+.card.etele-featured .etele-card-open{
+ position:absolute;inset:0;z-index:2;display:block;
+ border-radius:inherit;cursor:pointer;background:transparent;
+}
+.card.etele-featured .etele-card-open:focus-visible{
+ outline:3px solid #ffe5ab;outline-offset:-4px;
+ box-shadow:inset 0 0 0 4px #d58d4c88;
+}
+.card.etele-featured .card-body{
+ z-index:3;pointer-events:none;
+}
+.card.etele-featured .card-body .cta{
+ position:relative;z-index:1;pointer-events:auto;
+}
+.card.etele-featured .badge-premiere{pointer-events:none}
+.card.etele-featured .fav,.card.etele-featured .pin-event{z-index:6}
 </style>
 </head>
 <body>
@@ -226,7 +245,7 @@ a{color:inherit;text-decoration:none}button{font:inherit;cursor:pointer}button:f
 <section class="section" id="mozi">
  <div class="section-top"><div><h2><span class="icon-title">🎬</span> Most a mozikban</h2><p>Friss filmek, moziműsor és jegylinkek · hitelesített premier</p></div><a href="https://www.cinemacity.hu/" target="_blank" rel="noopener noreferrer">Összes film ↗</a></div>
  <div class="row"><button class="row-nav prev" data-row="movies" data-dir="-1" aria-label="Mozi előző">‹</button><div class="carousel" id="movies">
-  <article class="card etele-featured" data-id="cinema-etele-premium" style="--img:url('./assets/etele-vip-cinematic-montage-v1196.webp')"><div class="badge-premiere">★ KEDVENC MOZINK · PREMIUM</div><button class="fav" type="button" data-fav="cinema-etele-premium" aria-pressed="true" aria-label="Etele Cinema Premium kedvenc">♥</button><div class="card-body"><b>ETELE Cinema · Premium (VIP)</b><small>Etele Plaza · VIP-élmény · dönthető fotelek</small><div class="card-actions"><span class="source" title="Mesterséges intelligenciával készített kreatív illusztráció, nem hivatalos ETELE Cinema-fotó">AI-fotomontázs · illusztráció</span><a class="cta" href="https://etelecinema.hu/" target="_blank" rel="noopener noreferrer">Műsor & Premium jegyek ↗</a></div></div></article>
+  <article class="card etele-featured" data-id="cinema-etele-premium" style="--img:url('./assets/etele-vip-cinematic-montage-v1196.webp')"><a class="etele-card-open" href="https://etelecinema.hu/" target="_blank" rel="noopener noreferrer" aria-label="ETELE Cinema Premium VIP műsor, filmadatok és jegyfoglalás megnyitása" title="Érintsd meg a VIP-mozi kártyát a műsor és jegyfoglalás megnyitásához"></a><div class="badge-premiere">★ KEDVENC MOZINK · PREMIUM</div><button class="fav" type="button" data-fav="cinema-etele-premium" aria-pressed="true" aria-label="Etele Cinema Premium kedvenc">♥</button><div class="card-body"><b>ETELE Cinema · Premium (VIP)</b><small>Etele Plaza · VIP-élmény · dönthető fotelek</small><div class="card-actions"><span class="source" title="Mesterséges intelligenciával készített kreatív illusztráció, nem hivatalos ETELE Cinema-fotó">AI-fotomontázs · illusztráció</span><a class="cta" href="https://etelecinema.hu/" target="_blank" rel="noopener noreferrer">Műsor & Premium jegyek ↗</a></div></div></article>
   <article class="card" data-id="film-hogyan2" data-event-date="2026-11-12" style="--img:url('https://media.mozipremierek.hu/poster/7061-hogyan-tudnek-elni-nelkuled-2.97120.small.webp')"><div class="badge-premiere">✦ NOV. 12. · PREMIER</div><button class="fav" type="button" data-fav="film-hogyan2" aria-pressed="false" aria-label="Hogyan tudnék élni nélküled 2 kedvenc">♡</button><div class="card-body"><b>Hogyan tudnék élni nélküled? 2.</b><small>2026 · magyar zenés romantikus vígjáték</small><div class="card-actions"><span class="source">Aktuális premier</span><a class="cta" href="https://mozibp.hu/film/hogyan-tudnek-elni-nelkuled-2" target="_blank" rel="noopener noreferrer">Műsor & jegyek ↗</a></div></div></article>
   <article class="card" data-id="cinema-mammut" style="--img:url('https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=760&auto=format&fit=crop&q=82')"><button class="fav" type="button" data-fav="cinema-mammut" aria-pressed="false" aria-label="Mammut mozi kedvenc">♡</button><div class="card-body"><b>Cinema City Mammut</b><small>Budapest · filmek és VIP</small><div class="card-actions"><span class="source">Hivatalos műsor</span><a class="cta" href="https://www.cinemacity.hu/cinemas/Mammut/1144" target="_blank" rel="noopener noreferrer">Műsor & jegyek ↗</a></div></div></article>
   <article class="card" data-id="cinema-allee" style="--img:url('https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?w=760&auto=format&fit=crop&q=82')"><button class="fav" type="button" data-fav="cinema-allee" aria-pressed="false" aria-label="Allee mozi kedvenc">♡</button><div class="card-body"><b>Cinema City Allee</b><small>Budapest · vetítések és premierek</small><div class="card-actions"><span class="source">Hivatalos műsor</span><a class="cta" href="https://www.cinemacity.hu/cinemas/allee/1133" target="_blank" rel="noopener noreferrer">Műsor & jegyek ↗</a></div></div></article>
