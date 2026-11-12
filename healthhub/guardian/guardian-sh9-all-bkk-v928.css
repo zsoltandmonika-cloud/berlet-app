@@ -75,3 +75,14 @@
  }
  #sh9BkkSmartDelayLegendV931 .sh9-bkk-delay-legend-keys-v931{gap:2px 7px}
 }
+
+/* v932: fullscreen map previously obscured/placed the legend at the bottom.
+ * Keep diagnostic always within the map viewport, under the expand button. */
+:root[data-sh9-transit="on"] .map-card #sh9BkkSmartDelayLegendV931:not([hidden]){
+ top:64px!important;bottom:auto!important;left:10px!important;
+ z-index:1200!important;
+}
+:root[data-sh9-transit="on"] .map-card.hh-map-full-v819 #sh9BkkSmartDelayLegendV931:not([hidden]){
+ top:66px!important;bottom:auto!important;left:12px!important;
+ max-width:min(330px,calc(100% - 24px))!important;
+}

@@ -52,7 +52,7 @@ test('v928 overlay creates one clustered GeoJSON source, only in SH9 mode and wi
  const src=read('guardian-sh9-all-bkk-v928.js');
  const html=read('index.html');
  const css=read('guardian-sh9-all-bkk-v928.css');
- assert.match(html,/guardian-sh9-all-bkk-v928\.js\?v=931-delay-legend/);
+ assert.match(html,/guardian-sh9-all-bkk-v928\.js\?v=932-visible-map-status/);
  assert.match(html,/id="sh9AllVehiclesToggleV928"/);
  assert.match(html,/id="sh9AllVehiclesRefreshV928"/);
  assert.match(html,/guardian-sh9-all-bkk-v928\.css/);
@@ -142,8 +142,8 @@ test('v930 city overview waits for ready map and never changes normal Family Gua
  assert.match(live,/if\(!sh9OverviewSet&&activeMap\?\.jumpTo\)/);
  assert.match(live,/activeMap\.jumpTo\(\{center:\[19\.0467,47\.5060\],zoom:11\.6,pitch:0,bearing:0\}\)/);
  assert.match(live,/typeof activeMap\.loaded==='function'&&!activeMap\.loaded\(\)/);
- assert.match(html,/guardian-sh9-all-bkk-v928\.js\?v=931-delay-legend/);
- assert.match(html,/guardian-sh9-all-bkk-v928\.css\?v=931-delay-legend/);
+ assert.match(html,/guardian-sh9-all-bkk-v928\.js\?v=932-visible-map-status/);
+ assert.match(html,/guardian-sh9-all-bkk-v928\.css\?v=932-visible-map-status/);
 });
 test('v930 visible verified count and empty-area repair remain fail closed and throttled',()=>{
  const ui=read('guardian-sh9-all-bkk-v928.js');
@@ -195,4 +195,60 @@ test('v931 in-map legend only in SH9, counts verified delays and leaves Family G
  assert.match(js,/verified\+\+/);
  assert.match(js,/ellenőrzött késésadat/);
  assert.doesNotMatch(js,/fetch\(|watchPosition\(|getCurrentPosition\(/);
+});
+
+
+test('v932 full map makes UNKNOWN delays visibly neutral and never green by default',()=>{
+ const src=read('bkk-live-map-v793.js');
+ const core=require('../guardian/bkk-smart-delay-v1.js');
+ function simulate(query,delay,stamp){
+  const win={location:{search:query},HH_BKK_SMART_DELAY_V1:core};
+  vm.runInNewContext(src,{window:win,URLSearchParams,Date,Number});
+  class El{
+   constructor(){this.children=[];this.dataset={};this.attrs={};this.style={};this.hidden=false;}
+   append(...nodes){this.children.push(...nodes)}
+   appendChild(node){this.children.push(node)}
+   setAttribute(k,v){this.attrs[k]=v}
+  }
+  const doc={createElement:()=>new El()};
+  const car={id:'v1',mode:'bus',routeId:'260',lat:47.5,lng:19.01,
+   ...(delay===undefined?{}:{delaySeconds:delay,delayObservedAt:stamp})};
+  const node=win.HH_BKK_LIVE_MAP_V793.makeMarkerElement(doc,car);
+  const badge=node.children[0].children[0];
+  return {node,delta:badge.children.find(x=>x.className==='hh-bkk-smart-delay-v1')};
+ }
+ const fresh=new Date().toISOString();
+ const unknown=simulate('?sh9Transit=1',undefined,undefined);
+ assert.equal(unknown.delta.hidden,false);
+ assert.equal(unknown.delta.dataset.delay,'unknown');
+ assert.equal(unknown.delta.textContent,'—');
+ assert.match(unknown.node.attrs['aria-label'],/késésadat nem elérhető/);
+ const stale=simulate('?sh9Transit=1',0,'2020-01-01T00:00:00Z');
+ assert.equal(stale.delta.dataset.delay,'unknown');
+ assert.equal(stale.delta.textContent,'—');
+ const exact=simulate('?sh9Transit=1',0,fresh);
+ assert.equal(exact.delta.dataset.delay,'ontime');
+ assert.equal(exact.delta.textContent,'0p');
+ const early=simulate('?sh9Transit=1',-120,fresh);
+ assert.equal(early.delta.dataset.delay,'early');
+ assert.equal(early.delta.textContent,'+2p');
+ const late=simulate('?sh9Transit=1',240,fresh);
+ assert.equal(late.delta.dataset.delay,'late');
+ assert.equal(late.delta.textContent,'−4p');
+ const guardian=simulate('',undefined,undefined);
+ assert.equal(guardian.delta.hidden,true);
+});
+test('v932 legend stays on-screen in fullscreen and labels GPS lamp separately',()=>{
+ const css=read('guardian-sh9-all-bkk-v928.css');
+ const glass=read('bkk-live-glass-v800.css');
+ const marker=read('bkk-live-map-v793.js');
+ const html=read('index.html');
+ assert.match(css,/\.map-card\.hh-map-full-v819 #sh9BkkSmartDelayLegendV931:not\(\[hidden\]\)/);
+ assert.match(css,/top:66px!important/);
+ assert.match(css,/z-index:1200!important/);
+ assert.match(glass,/data-delay="unknown"/);
+ assert.match(marker,/a színes pont csak az élő járműpozíciót jelzi/);
+ assert.match(html,/bkk-live-glass-v800\.css\?v=932-neutral-status/);
+ assert.match(html,/guardian-sh9-all-bkk-v928\.css\?v=932-visible-map-status/);
+ assert.match(html,/guardian-transit-v791\.js\?v=966-sh9-neutral-status/);
 });
