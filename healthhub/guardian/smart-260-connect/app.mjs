@@ -44,6 +44,20 @@ function safeLoad(){
  // personal edits intact. Keep the user's saved templates compatible.
  let updated=false;
  for(const item of saved){
+  // Upgrade ONLY untouched v941 family address shells to the verified
+  // v943 stop sequence. Never replace a customized or deleted route.
+  const verified=SAMPLES.find(x=>x.id===item.id&&x.multiLegDraft===true);
+  if(verified&&item.favoriteRoute===true&&
+   !String(item.targetRoute||"").trim()&&
+   !String(item.originStop||"").trim()&&
+   !String(item.transferStop||"").trim()){
+   const originalTitle=String(item.title||"").trim();
+   Object.assign(item,clone(verified));
+   if(originalTitle&&originalTitle!==verified.title&&
+     !/^(Otthon → Dávid|Dávid & Anna otthona → Otthon)/i.test(originalTitle))
+    item.title=originalTitle;
+   updated=true;
+  }
   if((item.id==="home-citronella-260"||item.id==="monika-home-to-office")&&item.originWalkMin===6){
    item.originWalkMin=10;updated=true;
   }
@@ -185,12 +199,15 @@ function availableRoutes(){return state.catalog.map(entry=>valueOf(entry.key));}
 function routeEntry(value){return state.catalog.find(entry=>valueOf(entry.key)===value)||null;}
 function showFleetCoverage(){
  const target=keyOf($("targetRoute").value);
- const supported=coverage({targetKey:target,feederKeys:[...selectedFeeders],type:$("kind").value});
+ const family=current()?.multiLegDraft===true;
+ const supported=!family&&coverage({targetKey:target,feederKeys:[...selectedFeeders],type:$("kind").value});
  const el=$("fleetCoverageV940");if(!el)return;
  el.dataset.supported=String(supported);
- el.textContent=supported?
-  "✓ Ellenőrzött BKK GTFS-menetrend · Smart Match kalkuláció elérhető":
-  "ⓘ A teljes flotta szerkeszthető, de ehhez a járatkombinációhoz még nincs hitelesített Smart Match-menetrend.";
+ el.textContent=family?
+  "🧭 Családi útvonal: hiteles megállósorrend, de a három járat menetrendi összehangolása még nem aktív.":
+  supported?
+   "✓ Ellenőrzött BKK GTFS-menetrend · Smart Match kalkuláció elérhető":
+   "ⓘ A teljes flotta szerkeszthető, de ehhez a járatkombinációhoz még nincs hitelesített Smart Match-menetrend.";
 }
 function drawFeederBrowser(){
  const host=$("feederLines");host.replaceChildren();
@@ -850,17 +867,29 @@ async function computeRoute({useForm=false}={}){
   const item=useForm?readForm():current();
   if(!item)throw Error("Nincs kiválasztott sablon.");
   const date=$("day").value;
-  if(!coverage({targetKey:item.targetRoute,feederKeys:item.feederRoutes,type:item.type==="walk"?"walk":"transfer"})){
+  // The family itinerary is a verified 3-vehicle stop sequence, but the
+  // existing matcher handles TWO legs only. Never present fake GTFS ETAs.
+  const multiLeg=item.multiLegDraft===true;
+  if(multiLeg||!coverage({targetKey:item.targetRoute,feederKeys:item.feederRoutes,type:item.type==="walk"?"walk":"transfer"})){
    state.result=null;state.full260=null;state.lastNext=null;
    updateTitle(item);renderFlow(item);metrics(item);
    $("timeline").replaceChildren();
    const empty=document.createElement("div");empty.className="empty";
-   empty.textContent="A kiválasztott járatok szerepelnek a BKK-katalógusban, de ehhez az útvonalhoz még nincs ellenőrzött indulási menetrend.";
+   empty.textContent=multiLeg?
+    "260 → 17/19 → 4/6 · valós BKK-megállók. A három járat összehangolt menetrendi keresése még nem aktív.":
+    "A kiválasztott járatok szerepelnek a BKK-katalógusban, de ehhez az útvonalhoz még nincs ellenőrzött indulási menetrend.";
    $("timeline").append(empty);
-   $("timelineSubtitle").textContent=date+" · menetrendi lefedettség bővítés alatt";
+   $("timelineSubtitle").textContent=date+(multiLeg?
+    " · családi útvonal · három járat":
+    " · menetrendi lefedettség bővítés alatt");
    $("heroTime").textContent="--:--";$("countdown").textContent="--:--";
-   $("heroDetail").textContent="A járatok és címek menthetők; hitelesített indulási idő még nem áll rendelkezésre.";
-   $("status").textContent="ⓘ BKK-katalógus · szerkeszthető útvonal · nincs ellenőrzött Smart Match-menetrend.";
+   $("heroDetail").textContent=multiLeg?
+    "✓ Ellenőrzött BKK-megállók és járatsorrend · még nincs hitelesített indulási idő.":
+    "A járatok és címek menthetők; hitelesített indulási idő még nem áll rendelkezésre.";
+   $("status").textContent=multiLeg?
+    "🧭 Smart Match · Otthon ⇄ Dávidék · megállók ellenőrizve, háromjáratos számítás fejlesztés alatt.":
+    "ⓘ BKK-katalógus · szerkeszthető útvonal · nincs ellenőrzött Smart Match-menetrend.";
+   $("ring").style.setProperty("--progress","0%");
    return;
   }
   await loadFeed();
