@@ -1,0 +1,23 @@
+/* Smart Match v941 · ONLY the active route-pair direction inside existing green ring.
+ * No size/layout changes to hero, ring circumference or countdown timer.
+ */
+#ring .ring-inner{min-width:0}
+#ring .ring-direction-v941{
+ display:block;max-width:100%;min-width:0;box-sizing:border-box;
+ margin:0 auto 2px;padding:0 3px;
+ white-space:pre-line;overflow-wrap:normal;word-break:normal;
+ text-align:center;font:800 10px/1.08 system-ui,sans-serif;
+ letter-spacing:0;color:#aafbd8;
+ text-shadow:0 0 7px rgba(94,255,176,.48);
+}
+#ring .ring-inner #countdown{display:block;line-height:1.08}
+#ring .ring-inner #countdownLabel{display:block;margin-top:1px;line-height:1.08}
+body.pinned #ring .ring-direction-v941{font-size:8.4px;line-height:1.02;margin-bottom:2px;padding-inline:1px}
+body.pinned #ring .ring-inner #countdown{line-height:1.04}
+@media(max-width:390px){
+ #ring .ring-direction-v941{font-size:8.5px;line-height:1.02;padding-inline:1px}
+ body.pinned #ring .ring-direction-v941{font-size:7.5px;margin-bottom:1px}
+}
+@media(max-height:740px){
+ body.pinned #ring .ring-direction-v941{font-size:7.2px;line-height:1;margin-bottom:1px}
+}
