@@ -130,3 +130,29 @@ test("real BKK snapshot full-day 260 bus departures must be complete and directi
  assert.ok(homeMatches.rows.every(r=>r.headsign.includes("Óbudai")));
  assert.ok(officeMatches.rows.every(r=>r.headsign.includes("Harsánylejtő")));
 });
+
+test("Citronella 08:07 -> 260 to Bécsi 08:20 -> 19 at 08:25 -> Kolosy 08:32",t=>{
+ const d=JSON.parse(readFileSync(new URL("../../../sh9/smart-travel/lena-native/bkk/data/bkk-selected-routes-v1106.json",import.meta.url),"utf8"));
+ const date="2026-11-12";
+ if(date<d.feedStart||date>d.feedEnd||!validate(d)){
+  t.skip("The static official feed was replaced, check the refreshed snapshot separately");return;
+ }
+ const cfg={...REVERSE,startHour:0,endHour:24};
+ const board=full260Timetable(d,date,"work");
+ const paired=pair260Connections(board,compute(d,date,cfg),cfg);
+ const fmt=ms=>new Intl.DateTimeFormat("en-GB",{timeZone:"Europe/Budapest",hour:"2-digit",minute:"2-digit",hourCycle:"h23"}).format(new Date(ms));
+ const bus=paired.rows.find(r=>fmt(r.departMs)==="08:07");
+ assert.ok(bus,"Official 260 Citronella departure at 08:07 must be retained");
+ assert.equal(bus.stop,"Citronella utca");
+ assert.equal(bus.headsign,"Óbudai rendelőintézet");
+ assert.equal(bus.connectionOk,true,"08:07 must be a safe, valid 260-to-tram connection");
+ assert.equal(fmt(bus.leaveMs),"07:55","Home departure is 10 min walk plus 2 min buffer");
+ assert.equal(fmt(bus.match.best.feederArriveMs),"08:20","This is Bécsi stop ARRIVAL, not 260 departure");
+ assert.equal(bus.match.line,"19","The route must consider 19 as the valid tram");
+ assert.equal(fmt(bus.match.departMs),"08:25");
+ assert.equal(fmt(bus.match.arriveAtDestinationMs),"08:32");
+ assert.equal(bus.match.best.transferWalkMin,2);
+ assert.equal(bus.match.best.waitMin,3);
+ assert.equal(paired.rows.some(r=>fmt(r.departMs)==="08:17"),false,
+  "Orbán Balázs 08:17 arrival must never be shown as Citronella bus departure");
+});
