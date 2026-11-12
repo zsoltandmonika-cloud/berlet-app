@@ -379,8 +379,19 @@ Deno.serve(async req=>{
    }
    return entry;
   }):chosen;
-  const predictions=shareMatch?
-   ((payload.stopPredictions||[]) as DelayRow[]).filter(p=>matchRoutes.has(p.routeKey)).slice(0,3500):
+  const predictions=shareMatch?(()=>{
+    // Keep the scarce 260 and each connector line represented, not only the
+    // first high-frequency tram updates in an upstream feed ordering.
+    const counts=new Map<string,number>();
+    return ((payload.stopPredictions||[]) as DelayRow[])
+     .filter(p=>matchRoutes.has(p.routeKey)&&Number.isFinite(p.predictedMs))
+     .sort((a,b)=>(a.predictedMs||0)-(b.predictedMs||0))
+     .filter(p=>{
+      const n=counts.get(p.routeKey)||0;
+      if(n>=400)return false;
+      counts.set(p.routeKey,n+1);return true;
+     }).slice(0,1600);
+   })():
    predictionMode&&!allMode&&stops.size?
    ((payload.stopPredictions||[]) as DelayRow[]).filter(p=>allowed.has(p.routeKey)&&stops.has(p.stopId)).slice(0,700):[];
   // Authenticated aggregate diagnostics: count which source type the BKK
