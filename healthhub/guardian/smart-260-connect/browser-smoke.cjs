@@ -236,7 +236,19 @@ async function smoke(browser,base,device){
    document.getElementById("targetRoute")?.value==="17"&&
    document.getElementById("timelineSubtitle")?.textContent?.includes("260-as · Citronella utca")&&
    document.getElementById("status")?.textContent?.includes("✓ BKK GTFS")&&
-   document.querySelectorAll(".v34-260-row").length>0);
+   document.querySelectorAll(".v34-260-row").length>0).catch(async err=>{
+     const diag=await page.evaluate(()=>({
+      heading:document.getElementById("headingShort")?.textContent,
+      route:document.getElementById("targetRoute")?.value,
+      subtitle:document.getElementById("timelineSubtitle")?.textContent,
+      status:document.getElementById("status")?.textContent,
+      rows:document.querySelectorAll(".v34-260-row").length,
+      matched:document.querySelectorAll(".v34-260-row.v34-matched").length,
+      wait:document.getElementById("waitMetric")?.textContent,
+      currentId:document.getElementById("pinTemplateSelect")?.value
+     }));
+     throw Error("Reverse planner state: "+JSON.stringify(diag)+"; "+err.message);
+    });
   assert.equal(await page.locator("#kind").inputValue(),"transfer",
    "Reversed home->work is a true 260-to-tram connection, not Citronella walk-only");
   assert.equal(await page.locator("#headingShort").textContent(),"Otthon → Munkahely");
