@@ -159,6 +159,10 @@ function init(w,d){
   if(!enabled){message('Az összes jármű megjelenítése és frissítése kikapcsolva.');return}
   if(!last){message('📡 Élő BKK-járműadatokra várunk · a Family Live belépésnek aktívnak kell lennie.');return}
   const at=lastAt?new Date(lastAt).toLocaleTimeString('hu-HU'):'—';
+  if(last.features.length>0&&!map?.getSource?.(ID)){
+   message('⚠️ '+last.features.length+' BKK-jármű adata megérkezett, de a térképréteg még nem áll készen · '+at);
+   return;
+  }
   if(last.features.length===0){
    message('⚪ 0 ellenőrzött jármű ebben a térképrészben · '+at+' · távolíts a térképen, majd koppints a Frissítésre.');return;
   }
