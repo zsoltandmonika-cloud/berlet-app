@@ -12,6 +12,8 @@ const core=read('nutrition-preview-v592.js');
 const css=read('hh-interfood-live-v1176.css');
 const html=read('index.html');
 const lib=require('../nutrition/hh-interfood-live-v1176.js');
+const savedLib=require('../nutrition/hh-interfood-diary-v1175.js');
+const officialFeed=JSON.parse(read('interfood-live-feed-v1176.json'));
 const official='https://ia.interfood.hu/api/v1/i?menu_item_id=40004&width=425&height=425';
 test('interfood official menu photo URL is accepted without a file extension',()=>{
  assert.equal(lib.validPhotoURL(official),official);
@@ -67,4 +69,33 @@ test('original hero and one-click, separate conscious diary logging remain',()=>
  const method=core.slice(core.indexOf('importInterfoodLiveCard:payload=>'),core.indexOf('attachInterfoodCardPhoto:payload=>'));
  assert.doesNotMatch(method,/recordInterfoodMeal\(\{|entries\.push/);
  for(const js of [live,saved,core])new vm.Script(js);
+});
+
+test('v1184 uses verified alternate official food photo with identical original image ID',()=>{
+ const e4k=officialFeed.items.find(x=>x.code==='E4K'&&x.menuDate==='2026-11-13');
+ assert.ok(e4k);
+ assert.equal(e4k.name,'Currys pulyka sárgabarackkal, mazsolás jázmin rizs');
+ const card={id:'test-card',code:e4k.code,name:e4k.name,menuDate:e4k.menuDate};
+ const photos=savedLib.verifiedPhotoVariants(card,officialFeed.items);
+ assert.equal(photos.length,2);
+ assert.equal(photos[0],e4k.imageUrl);
+ assert.ok(photos.some(u=>u.includes('menu_item_id=40018')));
+ assert.ok(photos.some(u=>u.includes('menu_item_id=40023')));
+ assert.deepEqual(savedLib.verifiedPhotoVariants({...card,name:'Másik étel'},officialFeed.items),[]);
+ assert.deepEqual(savedLib.verifiedPhotoVariants({...card,menuDate:'2026-11-18'},officialFeed.items),[]);
+ assert.deepEqual(savedLib.verifiedPhotoVariants({...card,code:'F2K'},officialFeed.items),[]);
+});
+test('v1184 image loader uses layout-visible fetch; never replaces failed photos with generated food',()=>{
+ assert.ok(saved.includes("img.hidden=false;"));
+ assert.ok(saved.includes("img.classList.remove('hh-if-photo-loaded-v1184')"));
+ assert.ok(saved.includes("img.classList.add('hh-if-photo-loaded-v1184')"));
+ const loader=saved.slice(saved.indexOf('function loadPhotoSrc('),saved.indexOf('function loadPublicPhoto('));
+ assert.ok(loader.indexOf('img.hidden=false;') < loader.indexOf('img.src=src;'));
+ assert.ok(saved.includes('const items=await officialPhotos()'));
+ assert.ok(saved.includes('verifiedPhotoVariants(card,items)'));
+ assert.ok(saved.includes("fallback.textContent='Hivatalos fotó nem elérhető'"));
+ assert.ok(saved.includes("img.loading='eager'"));
+ assert.ok(!saved.includes("loading='lazy';img.decoding='async'"));
+ assert.ok(!saved.includes('api.openai'));
+ new vm.Script(saved);
 });
