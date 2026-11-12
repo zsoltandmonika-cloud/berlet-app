@@ -259,13 +259,13 @@ function render(){
   const kcal=text('div','','hh-sl-kcal');
   const flame=text('span','♨','hh-sl-kcal-icon');
   flame.setAttribute('aria-hidden','true');
-  kcal.append(flame,text('strong',fmt(order.nutrients?.kcal*order.quantity)+' kcal'));
+  kcal.append(flame,text('strong',fmt(order.nutrients?.kcal==null?null:order.nutrients.kcal*order.quantity)+' kcal'));
   metrics.append(kcal);
   const macros=text('div','','hh-sl-macro-row');
   for(const [key,label,title] of [
    ['protein','F','Fehérje'],['carbs','CH','Szénhidrát'],['fat','Zs','Zsír']
   ]){
-   const chip=text('small',label+' '+fmt(order.nutrients?.[key]*order.quantity)+' g','hh-sl-macro-chip');
+   const chip=text('small',label+' '+fmt(order.nutrients?.[key]==null?null:order.nutrients[key]*order.quantity)+' g','hh-sl-macro-chip');
    chip.title=title;macros.append(chip);
   }
   metrics.append(macros);
