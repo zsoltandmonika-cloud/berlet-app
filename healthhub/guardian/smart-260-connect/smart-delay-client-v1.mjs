@@ -10,22 +10,24 @@ const localDay=()=>{const p=Object.fromEntries(new Intl.DateTimeFormat("en-GB",{
 }).formatToParts(new Date()).map(x=>[x.type,x.value]));return [p.year,p.month,p.day].join("-")};
 const time=ms=>new Intl.DateTimeFormat("hu-HU",{timeZone:"Europe/Budapest",
  hour:"2-digit",minute:"2-digit",hourCycle:"h23"}).format(new Date(ms));
-let client=null,busy=false,dirty=false,lastRequest=0;
+let busy=false,dirty=false,lastRequest=0;
 const schedule=()=>$("timeline");
 function neutral(){
  const hero=$("hhSmartDelayHeroV1");
  if(hero){hero.dataset.delay="unknown";hero.textContent="⚪ Élő eltérés: nincs ellenőrzött adat";}
  for(const el of document.querySelectorAll(".hh-smart-delay-row-v1"))el.remove();
 }
-function supa(){
- if(client)return client;
- const cfg=window.HH_CENTRAL_VAULT;
- if(!cfg?.enabled||!cfg.supabaseUrl||!cfg.publishableKey||!window.supabase?.createClient)return null;
- client=window.supabase.createClient(cfg.supabaseUrl,cfg.publishableKey,{
-  auth:{storageKey:"hh-guardian-family-auth-v785",persistSession:true,
-   autoRefreshToken:true,detectSessionInUrl:false,flowType:"implicit"}
- });
- return client;
+function familyLiveToken(){
+ // Same-origin, existing Family Live login. No new SDK/OAuth flow, no token logs.
+ // Never send an expired token; show neutral until Guardian refreshes the session.
+ try{
+  const cfg=window.HH_CENTRAL_VAULT;
+  if(!cfg?.enabled||!cfg.supabaseUrl||!cfg.publishableKey)return null;
+  const session=JSON.parse(localStorage.getItem("hh-guardian-family-auth-v785")||"null");
+  const expires=Number(session?.expires_at);
+  return typeof session?.access_token==="string"&&session.access_token.length>80&&
+   Number.isFinite(expires)&&expires*1000>Date.now()+60000?session.access_token:null;
+ }catch(_){return null;}
 }
 function chip(pred,label,at,planned){
  const status=delay().classify(pred.delaySeconds,pred.asOf,Date.now());
@@ -76,9 +78,8 @@ async function refresh(force=false){
  if(!force&&Date.now()-lastRequest<25000)return;
  busy=true;lastRequest=Date.now();
  try{
-  const api=supa();if(!api){neutral();return;}
-  const {data:{session}}=await api.auth.getSession();
-  if(!session?.access_token){neutral();return;}
+  const token=familyLiveToken();
+  if(!token){neutral();return;}
   const stops=new Set();
   for(const el of rows){
    if(el.dataset.bkkStopId)stops.add(el.dataset.bkkStopId);
@@ -90,7 +91,7 @@ async function refresh(force=false){
    predictions:"1",stops:[...stops].slice(0,30).join(",")});
   const res=await fetch(cfg.supabaseUrl.replace(/\/$/,"")+
    "/functions/v1/hh-bkk-live-v793-preview?"+params.toString(),{
-    cache:"no-store",headers:{Authorization:"Bearer "+session.access_token,
+    cache:"no-store",headers:{Authorization:"Bearer "+token,
      apikey:cfg.publishableKey,Accept:"application/json"}});
   if(!res.ok)throw Error("bkk-live-unavailable");
   const payload=await res.json();
