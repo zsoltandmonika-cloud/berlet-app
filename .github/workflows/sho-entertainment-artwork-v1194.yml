@@ -1,0 +1,39 @@
+name: SHO Entertainment v1194 · proportion-safe culture artwork
+
+on:
+  push:
+    paths:
+      - 'sh9/entertainment/generate-tall-tiles-v1194.py'
+      - '.github/workflows/sho-entertainment-artwork-v1194.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  artwork:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install image library
+        run: python -m pip install --disable-pip-version-check 'pillow==11.3.0'
+      - name: Render three retina artwork assets
+        run: python sh9/entertainment/generate-tall-tiles-v1194.py
+      - name: Commit only the generated artwork files
+        run: |
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+          git add -f sh9/entertainment/assets/sho-culture-tall-v1194.webp
+          git add -f sh9/entertainment/assets/sho-events-tall-v1194.webp
+          git add -f sh9/entertainment/assets/sho-feature-proportional-v1194.webp
+          if ! git diff --cached --quiet; then
+            git commit -m "assets(entertainment): proportion-safe v1194 culture, events, featured panels"
+            git push origin HEAD:main
+          else
+            echo "Artwork is already current."
+          fi
