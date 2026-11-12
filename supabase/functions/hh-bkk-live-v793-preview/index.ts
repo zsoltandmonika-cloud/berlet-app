@@ -224,8 +224,11 @@ async function getUpdates(key:string,mapping:RouteMap):Promise<DelayPayload|null
     rows.push(row);
     // Boarding verification requires an explicit departure update, not an
     // arrival-only delay copied into a scheduled stop departure.
-    if(dep!==null&&Number.isFinite(depAt)&&depAt>=now-180&&depAt<=now+14400&&departures.length<8000)
-     departures.push({...row,scheduledMs:(depAt-dep)*1000,predictedMs:depAt*1000,delaySeconds:dep});
+    // A uniquely paired official GTFS minute schedule also supports an approximate
+    // departure label. Arrival-only updates must never be used for boarding.
+    const departureKnown=dep!==null||inferred?.kind==="departure";
+    if(departureKnown&&Number.isFinite(depAt)&&depAt>=now-180&&depAt<=now+14400&&departures.length<8000)
+     departures.push({...row,scheduledMs:(depAt-delaySeconds)*1000,predictedMs:depAt*1000,delaySeconds});
    }
    if(rows.length||tripDelaySeconds!==null)trips.set(id,{routeKey:mapped?.routeKey||null,
     startDate:typeof descriptor?.startDate==="string"?descriptor.startDate:"",rows,tripDelaySeconds});
@@ -329,6 +332,10 @@ Deno.serve(async req=>{
  const query=new URL(req.url).searchParams;
  const selected=query.get("routes");
  const predictionMode=query.get("predictions")==="1";
+ // v937: piggyback public Smart Match departure updates onto the ALREADY
+ // authenticated Family Guard BKK request. No extra upstream polling.
+ const shareMatch=predictionMode&&query.get("smartMatch")==="1";
+ const matchRoutes=new Set(["bus:260","tram:17","tram:19","tram:41"]);
  const stopParam=query.get("stops")||"";
  const stops=predictionMode&&stopParam.length<=1000?
   new Set(stopParam.split(",").map(safeStop).filter((x):x is string=>!!x).slice(0,32)):new Set<string>();
@@ -372,7 +379,9 @@ Deno.serve(async req=>{
    }
    return entry;
   }):chosen;
-  const predictions=predictionMode&&!allMode&&stops.size?
+  const predictions=shareMatch?
+   ((payload.stopPredictions||[]) as DelayRow[]).filter(p=>matchRoutes.has(p.routeKey)).slice(0,3500):
+   predictionMode&&!allMode&&stops.size?
    ((payload.stopPredictions||[]) as DelayRow[]).filter(p=>allowed.has(p.routeKey)&&stops.has(p.stopId)).slice(0,700):[];
   // Authenticated aggregate diagnostics: count which source type the BKK
   // supplied and how many matched THIS requested map/favorite scope.
