@@ -21,9 +21,14 @@ let current=read(),restoreFocus=null;
 function read(){
  try{
   const stored=window.localStorage.getItem(STORAGE);
-  if(stored===null)return Object.assign({},initial); // first visit default: a plan, not a claimed booking
+  if(stored===null)return null; // no default stale event; the featured card now has a timeless editorial fallback
   const item=JSON.parse(stored);
-  if(item&&typeof item==='object'&&typeof item.title==='string'&&typeof item.date==='string')return item;
+  if(item&&typeof item==='object'&&typeof item.title==='string'&&typeof item.date==='string'){
+   const end=new Date(item.date).getTime();
+   // A past event is retained in local storage for history but no longer shown as upcoming.
+   if(!Number.isFinite(end)||end<Date.now()-3*60*60*1000)return null;
+   return item;
+  }
   return null;
  }catch(_){return Object.assign({},initial)}
 }
