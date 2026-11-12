@@ -110,3 +110,150 @@
 .hh-sl-undo-actions button:focus-visible{outline:3px solid #fff;outline-offset:2px}
 .hh-sl-undo-actions button:disabled{opacity:.55}
 .hh-sl-undo-error{color:#ffb5ad!important;font-weight:750}
+
+/* v1183 · approved Smart Lunch premium-glass facelift.
+ * Presentation-only; no edits to source photo, profile, orders or diary. */
+#hhSmartLunchV1178{
+ position:relative;isolation:isolate;overflow:hidden;
+ margin:14px 0 12px;padding:clamp(14px,3.8vw,20px);
+ border-radius:23px;border:1px solid rgba(248,176,226,.82);
+ background:
+  radial-gradient(ellipse 65% 55% at 99% 86%,rgba(173,77,151,.23),transparent 80%),
+  radial-gradient(ellipse 53% 44% at 1% 0%,rgba(255,194,226,.09),transparent 80%),
+  linear-gradient(145deg,rgba(30,42,67,.98),rgba(20,33,56,.99) 55%,rgba(49,30,66,.97));
+ box-shadow:0 12px 32px rgba(4,10,26,.37),
+  0 0 15px rgba(244,142,215,.12),inset 0 1px 0 rgba(255,255,255,.14);
+}
+#hhSmartLunchV1178::before{
+ content:"";position:absolute;inset:0;pointer-events:none;z-index:-1;
+ background:linear-gradient(126deg,rgba(255,255,255,.035),transparent 40%);
+}
+#hhSmartLunchV1178 .hh-sl-head{
+ gap:8px;align-items:center;margin-bottom:13px;padding-bottom:11px;
+ border-bottom:1px solid rgba(214,160,211,.23);
+ color:#f6bce2;font-size:clamp(9px,2.6vw,12px);letter-spacing:.11em;
+}
+#hhSmartLunchV1178 .hh-sl-head span{min-width:0;line-height:1.35}
+#hhSmartLunchV1178 .hh-sl-head small{
+ text-align:right;line-height:1.35;
+ font-size:clamp(9px,2.4vw,11px);letter-spacing:.04em;
+ color:#cfdbed;white-space:nowrap;
+}
+#hhSmartLunchV1178 .hh-sl-hero{
+ grid-template-columns:minmax(0,1fr) minmax(112px,39%);
+ align-items:center;gap:clamp(9px,2.5vw,16px);
+}
+#hhSmartLunchV1178 .hh-sl-info{gap:10px;min-width:0}
+#hhSmartLunchV1178 .hh-sl-kicker{
+ display:inline-flex;align-items:center;max-width:100%;width:max-content;
+ padding:5px 11px;border-radius:999px;
+ border:1px solid rgba(246,172,223,.63);
+ background:linear-gradient(115deg,rgba(222,127,192,.25),rgba(215,155,231,.13));
+ color:#ffd1ef;font-size:clamp(10px,2.55vw,12px);font-weight:850;
+ line-height:1.2;letter-spacing:.02em;
+}
+#hhSmartLunchV1178 .hh-sl-info h3{
+ margin:0;font-size:clamp(17px,4.4vw,25px);
+ font-weight:900;line-height:1.2;letter-spacing:-.026em;
+ color:#fff;overflow-wrap:anywhere;
+ text-shadow:0 2px 12px rgba(1,7,23,.2);
+}
+#hhSmartLunchV1178 .hh-sl-metrics{
+ width:100%;min-width:0;display:flex;
+ flex-direction:column;align-items:flex-start;gap:8px;
+}
+#hhSmartLunchV1178 .hh-sl-kcal{
+ display:inline-flex;align-items:center;gap:8px;
+ max-width:100%;width:max-content;padding:7px 12px 7px 10px;
+ border-radius:999px;border:1.5px solid rgba(255,189,225,.91);
+ background:linear-gradient(116deg,rgba(172,95,153,.29),rgba(112,83,143,.16));
+ box-shadow:0 0 13px rgba(238,139,206,.25),inset 0 1px 0 rgba(255,255,255,.15);
+ white-space:nowrap;
+}
+#hhSmartLunchV1178 .hh-sl-kcal-icon{
+ color:#ff9dcb;font-size:clamp(17px,4.3vw,24px);
+ line-height:1;filter:drop-shadow(0 0 5px rgba(243,123,181,.48));
+}
+#hhSmartLunchV1178 .hh-sl-kcal strong{
+ color:#fff;font-size:clamp(19px,5.15vw,27px);
+ font-weight:900;line-height:1.15;letter-spacing:-.025em;
+}
+#hhSmartLunchV1178 .hh-sl-macro-row{
+ display:flex;align-items:center;flex-wrap:wrap;
+ gap:5px;max-width:100%;min-width:0;
+}
+#hhSmartLunchV1178 .hh-sl-macro-chip,
+#hhSmartLunchV1178 .hh-sl-weight-chip{
+ display:inline-flex;align-items:center;
+ width:max-content;max-width:100%;box-sizing:border-box;
+ margin:0;padding:5px 7px;border:1px solid rgba(177,193,218,.53);
+ border-radius:999px;background:rgba(13,29,53,.48);
+ color:#e4edfa;font-size:clamp(9px,2.4vw,11px);
+ font-weight:600;white-space:nowrap;line-height:1.16;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.035);
+}
+#hhSmartLunchV1178 .hh-sl-weight-chip{
+ padding:5px 10px;font-size:clamp(10px,2.7vw,12px);
+ border-color:rgba(198,197,230,.57);
+}
+#hhSmartLunchV1178 .hh-sl-image{
+ width:100%;min-width:0;aspect-ratio:1/1;min-height:0;
+ overflow:hidden;border-radius:20px;
+ border:2px solid rgba(255,184,230,.92);
+ background:linear-gradient(135deg,rgba(239,210,227,.3),rgba(18,31,54,.95));
+ box-shadow:0 0 0 1px rgba(190,129,221,.22),0 0 19px rgba(247,133,216,.43),
+  0 8px 19px rgba(4,8,28,.27),inset 0 0 10px rgba(255,219,241,.14);
+}
+#hhSmartLunchV1178 .hh-sl-image img{height:100%;width:100%;object-fit:cover}
+#hhSmartLunchV1178 .hh-sl-card h4{
+ margin:15px 0 7px;text-align:center;
+ font-size:clamp(17px,4.35vw,22px);font-weight:900;
+ line-height:1.3;letter-spacing:-.015em;
+}
+#hhSmartLunchV1178 .hh-sl-card h4::before{
+ content:"";display:block;height:1px;margin:0 0 16px;
+ background:linear-gradient(90deg,transparent,rgba(244,175,226,.64),transparent);
+}
+#hhSmartLunchV1178 .hh-sl-optional{
+ margin:3px 0 5px;color:#bfcce2;font-size:12px;
+}
+#hhSmartLunchV1178 .hh-sl-stars{
+ justify-content:space-evenly;gap:3px;padding:6px 3px 15px;
+}
+#hhSmartLunchV1178 .hh-sl-star{
+ flex:0 1 50px;min-width:0;min-height:46px;
+ font-size:clamp(28px,7.4vw,40px);color:#a0abc3;
+ text-shadow:0 2px 7px rgba(6,13,32,.35);
+}
+#hhSmartLunchV1178 .hh-sl-star.chosen{
+ color:#ffcf70;text-shadow:0 0 16px rgba(255,207,112,.57);
+}
+#hhSmartLunchV1178 .hh-sl-actions{gap:10px}
+#hhSmartLunchV1178 .hh-sl-actions button{
+ min-height:52px;border-radius:15px;font-size:clamp(15px,4vw,19px);
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.14);
+}
+#hhSmartLunchV1178 .hh-sl-yes{
+ border:1px solid #b8ffe0;color:#06271a;
+ background:linear-gradient(125deg,#bbffe0,#64dcaa 65%,#45ca98);
+ box-shadow:0 0 15px rgba(102,230,172,.21),inset 0 1px 0 rgba(255,255,255,.36);
+}
+#hhSmartLunchV1178 .hh-sl-no{
+ border:1px solid rgba(193,211,234,.61);color:#f5f8ff;
+ background:linear-gradient(125deg,rgba(38,56,84,.9),rgba(27,40,66,.8));
+}
+@media(max-width:380px){
+ #hhSmartLunchV1178{padding:12px;border-radius:20px}
+ #hhSmartLunchV1178 .hh-sl-hero{
+  grid-template-columns:minmax(0,1fr) minmax(104px,38%);gap:9px;
+ }
+ #hhSmartLunchV1178 .hh-sl-info{gap:8px}
+ #hhSmartLunchV1178 .hh-sl-image{border-radius:15px}
+ #hhSmartLunchV1178 .hh-sl-kcal{gap:5px;padding:6px 9px}
+ #hhSmartLunchV1178 .hh-sl-macro-row{gap:3px}
+ #hhSmartLunchV1178 .hh-sl-macro-chip{padding:4px 5px;font-size:9px}
+ #hhSmartLunchV1178 .hh-sl-head{letter-spacing:.06em}
+}
+@media(prefers-reduced-motion:reduce){
+ #hhSmartLunchV1178 .hh-sl-image{transition:none}
+}

@@ -253,12 +253,26 @@ function render(){
   const hero=text('div','','hh-sl-hero'),info=text('div','','hh-sl-info');
   info.append(text('small',order.code+' · '+order.quantity+' adag','hh-sl-kicker'));
   info.append(text('h3',order.name));
+  // v1183 premium facelift: presentation only. All values remain derived
+  // from the same verified per-serving order snapshot; no changed journal flow.
   const metrics=text('div','','hh-sl-metrics');
-  metrics.append(text('strong',fmt(order.nutrients?.kcal*order.quantity)+' kcal'));
-  metrics.append(text('small','F '+fmt(order.nutrients?.protein*order.quantity)+
-   ' g · CH '+fmt(order.nutrients?.carbs*order.quantity)+
-   ' g · Zs '+fmt(order.nutrients?.fat*order.quantity)+' g'));
-  if(order.weightGrams)metrics.append(text('small',fmt(order.weightGrams*order.quantity)+' g'));
+  const kcal=text('div','','hh-sl-kcal');
+  const flame=text('span','♨','hh-sl-kcal-icon');
+  flame.setAttribute('aria-hidden','true');
+  kcal.append(flame,text('strong',fmt(order.nutrients?.kcal==null?null:order.nutrients.kcal*order.quantity)+' kcal'));
+  metrics.append(kcal);
+  const macros=text('div','','hh-sl-macro-row');
+  for(const [key,label,title] of [
+   ['protein','F','Fehérje'],['carbs','CH','Szénhidrát'],['fat','Zs','Zsír']
+  ]){
+   const chip=text('small',label+' '+fmt(order.nutrients?.[key]==null?null:order.nutrients[key]*order.quantity)+' g','hh-sl-macro-chip');
+   chip.title=title;macros.append(chip);
+  }
+  metrics.append(macros);
+  if(order.weightGrams){
+   const grams=text('small','⚖ '+fmt(order.weightGrams*order.quantity)+' g','hh-sl-weight-chip');
+   grams.title='Adagsúly';metrics.append(grams);
+  }
   info.append(metrics);hero.append(info,cardImage(order));card.append(hero);
   card.append(text('h4',(profile==='monika'?'Mónika, ':'')+'megetted a mai ebéded?'));
   card.append(text('p','Mennyire ízlett? · Opcionális','hh-sl-optional'));
