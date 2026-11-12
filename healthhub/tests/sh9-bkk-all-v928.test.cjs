@@ -39,7 +39,7 @@ test('v928 backend only accepts bounded viewport and leaves old favorites untouc
  assert.match(client,/const sh9AllMode=new URLSearchParams/);
  assert.match(client,/sh9AllMode\?'all=1&bbox='\+encodeURIComponent\(bbox\)/);
  assert.match(client,/sh9AllMode\?validator\.validate\(data,Date\.now\(\),3500\):validator\.validate\(data\)/);
- assert.match(client,/sh9AllMode\?120000:15000/);
+ assert.match(client,/sh9AllMode\?60000:15000/);
  assert.match(client,/lastSh9RequestAt<45000/);
  assert.match(client,/if\(sh9AllMode\)\{lastSh9RequestAt=Date\.now\(\);lastSh9Bbox=bbox;\}/);
  assert.match(client,/if\(sh9AllMode\|\|d\.hidden\)return/);
@@ -248,7 +248,7 @@ test('v932 legend stays on-screen in fullscreen and labels GPS lamp separately',
  assert.match(css,/z-index:1200!important/);
  assert.match(glass,/data-delay="unknown"/);
  assert.match(marker,/a színes pont csak az élő járműpozíciót jelzi/);
- assert.match(html,/bkk-live-glass-v800\.css\?v=933-favorites-delay/);
+ assert.match(html,/bkk-live-glass-v800\.css\?v=934-static-time-compare/);
  assert.match(html,/guardian-sh9-all-bkk-v928\.css\?v=932-visible-map-status/);
  assert.match(html,/guardian-transit-v791\.js\?v=967-trip-delay-restore/);
 });
