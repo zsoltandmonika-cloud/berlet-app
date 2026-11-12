@@ -82,7 +82,7 @@ test('database is service-role-only with RLS, no raw message content stored',()=
  assert.match(edge,/profile_key:"monika",code:meal\.code,name:meal\.name/);
 });
 test('one premium tile, safe Vault receiver; no browser-side Outlook credentials',()=>{
- assert.match(html,/hh-interfood-outlook-bridge-v1179\\.js/);
+ assert.ok(html.includes('hh-interfood-outlook-bridge-v1179.js'));
  assert.match(html,/central-vault\/daily-health-sync\.js/);
  assert.match(html,/hh-interfood-smart-lunch-v1178\.js/);
  assert.match(app,/v\.stream\(ENDPOINT,\{action\}\)/);
