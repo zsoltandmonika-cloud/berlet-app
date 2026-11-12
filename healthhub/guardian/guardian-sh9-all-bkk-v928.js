@@ -37,6 +37,20 @@ function init(w,d){
  let verifiedVehicles=[],domMarkers=new Map(),lastDrawn=0;
  const $=id=>d.getElementById(id),toggle=$('sh9AllVehiclesToggleV928'),refresh=$('sh9AllVehiclesRefreshV928'),status=$('sh9AllVehiclesStatusV928');
  if(!toggle||!refresh||!status)return;
+ const legend=$('sh9BkkSmartDelayLegendV931'),coverage=$('sh9BkkSmartDelayCoverageV931');
+ if(legend)legend.hidden=false;
+ const updateCoverage=()=>{
+  if(!coverage)return;
+  if(!enabled){coverage.textContent='Teljes BKK megjelenítés kikapcsolva.';return}
+  if(!last){coverage.textContent='Ellenőrzött késésadatokra várunk…';return}
+  const delay=w.HH_BKK_SMART_DELAY_V1;
+  let verified=0;
+  const validIds=new Set(last.features.map(f=>f.properties.id));
+  if(delay&&typeof delay.classify==='function')
+   for(const v of verifiedVehicles)if(validIds.has(v.id)&&delay.classify(v.delaySeconds,v.delayObservedAt).status!=='unknown')verified++;
+  coverage.textContent=last.features.length+' friss BKK-jármű · '+verified+
+   ' ellenőrzött késésadat · a többi ismeretlen';
+ };
  const mapApi=()=>w.HH_GUARDIAN_V761?.map||null;
  const message=s=>{status.textContent=s};
  function clearDom(){
@@ -156,6 +170,7 @@ function init(w,d){
   refresh.disabled=!enabled;
  }
  function showCount(){
+  updateCoverage();
   if(!enabled){message('Az összes jármű megjelenítése és frissítése kikapcsolva.');return}
   if(!last){message('📡 Élő BKK-járműadatokra várunk · a Family Live belépésnek aktívnak kell lennie.');return}
   const at=lastAt?new Date(lastAt).toLocaleTimeString('hu-HU'):'—';
@@ -196,10 +211,11 @@ function init(w,d){
   const data=fromVerified(e.detail);
   if(!data){last=null;applyData();message('Nem kaptunk ellenőrizhető, friss BKK-járműadatot.');return}
   last=data;verifiedVehicles=e.detail.vehicles.slice();lastAt=e.detail.generatedAt;truncated=e.detail.truncated===true;
+  updateCoverage();
   start();applyData();showCount();
  });
  w.addEventListener('hh-sh9-all-live-clear-v928',()=>{
-  last=null;verifiedVehicles=[];truncated=false;lastAt=null;clearDom();applyData();
+  last=null;verifiedVehicles=[];truncated=false;lastAt=null;clearDom();applyData();updateCoverage();
   if(enabled)message('Járműadatok szünetelnek, vagy új frissítés szükséges.');
  });
  w.addEventListener('pagehide',()=>{last=null;verifiedVehicles=[];clearDom();applyData()});

@@ -200,7 +200,8 @@ async function poll(force=false){
   const movedFromEmpty=force&&lastSh9WasEmpty&&bbox!==lastSh9Bbox&&
    Date.now()-lastSh9RequestAt>=8000;
   if(!movedFromEmpty){
-   status('takarékos mód: a következő frissítés legfeljebb 45 másodperc múlva kérhető');return;
+   const remaining=Math.max(1,Math.ceil((45000-(Date.now()-lastSh9RequestAt))/1000));
+   status('takarékos mód: új BKK-lekérdezés '+remaining+' mp múlva · a térképen az utolsó ellenőrzött pozíciók maradnak');return;
   }
  }
  if(sh9AllMode){lastSh9RequestAt=Date.now();lastSh9Bbox=bbox;}
