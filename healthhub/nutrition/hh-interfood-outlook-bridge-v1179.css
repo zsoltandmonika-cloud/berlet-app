@@ -1,0 +1,14 @@
+/* One compact, non-tile Outlook status line below the Smart Lunch card.
+ * It stays out of the approved Interfood Premium hero. */
+#hhIfOutlookBridge1179{
+ display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:9px;
+ margin:7px 0 10px;padding:7px 11px;
+ background:rgba(18,37,59,.7);border:1px solid rgba(131,193,212,.24);
+ color:#bfd7e6;border-radius:11px;font-size:11px;line-height:1.5;
+}
+#hhIfOutlookBridge1179[hidden],#hhIfOutlookAction1179[hidden]{display:none!important}
+#hhIfOutlookMessage1179{flex:1 1 160px}
+#hhIfOutlookAction1179{border:1px solid rgba(244,169,220,.68);
+ border-radius:10px;background:rgba(63,42,74,.82);color:#ffe5f5;
+ font-size:11px;font-weight:800;padding:7px 11px;min-height:36px;cursor:pointer}
+#hhIfOutlookAction1179:focus-visible{outline:2px solid #ffe5f5;outline-offset:2px}
