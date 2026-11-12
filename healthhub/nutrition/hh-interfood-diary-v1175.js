@@ -281,7 +281,9 @@ function showPhoto(src,title){
  if(!photo||!caption)return;
  // Only exact official HTTPS image URLs or validated private photo data.
  const safe=publicPhotoURL(src);
- if(!safe&&!/^data:image\\/(?:png|jpeg|webp);base64,/.test(src))return;
+ const ownBlob=String(src).startsWith('blob:'+String(root.location?.origin||'')+'/');
+ const privateData=/^data:image\\/(?:png|jpeg|webp);base64,/.test(src);
+ if(!safe&&!ownBlob&&!privateData)return;
  photo.src=safe||src;photo.alt=title+' · Interfood ételfotó';
  caption.textContent=title;
  if(!dlg.open)dlg.showModal();
