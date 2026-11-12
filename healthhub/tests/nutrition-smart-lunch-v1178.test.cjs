@@ -10,6 +10,7 @@ const ui=read('hh-interfood-smart-lunch-v1178.js');
 const css=read('hh-interfood-smart-lunch-v1178.css');
 const html=read('index.html');
 const live=read('hh-interfood-live-v1176.js');
+const approvedRag=read('hh-buddy-rag-fullbody-v1141.css');
 const example=[
 '2026-11-09 Hétfő',
 '**I** 1 adag Sárgabarackos gombóc*: 860 FT (860 FT)',
@@ -62,8 +63,8 @@ test('one card is on Bevitel below premium tile; the duplicate launcher and larg
  assert.match(ui,/render\(\);showResult\(order,result\)/);
  assert.match(live,/area\.hidden=true/);
  assert.match(live,/duplicateLauncher\.hidden=true/);
- assert.match(html,/hh-interfood-smart-lunch-v1178\.js\?v=1181-undo-feedback/);
- assert.match(html,/hh-interfood-smart-lunch-v1178\.css\?v=1181-undo-feedback/);
+ assert.ok(html.includes('hh-interfood-smart-lunch-v1178.js?v=1182-premium-rag'));
+ assert.ok(html.includes('hh-interfood-smart-lunch-v1178.css?v=1182-premium-rag'));
  assert.match(css,/\.hh-sl-hero/);
 });
 test('diary and feedback are profile-private, explicit and idempotent',()=>{
@@ -80,7 +81,7 @@ test('diary and feedback are profile-private, explicit and idempotent',()=>{
 test('only authentic Interfood photos; no private orders, OAuth secrets or invented images in the repo',()=>{
  for(const src of [ui,core,live])new vm.Script(src);
  assert.doesNotMatch(ui,/localStorage\.setItem|client_secret|access_token|puter|api\.openai/i);
- assert.match(ui,/const BUDDY='\.\.\/\.\.\/sh9\/family-hub\/assets\/family-success-buddy-v881\.webp'/);
+ assert.ok(ui.includes('function premiumBuddy(status)'));
  assert.match(core,/url\.hostname==='ia\.interfood\.hu'/);
  assert.doesNotMatch(ui,/monika\.lorincz@|zsolt\.monika@|customer_id|delivery_address/i);
 });
@@ -188,4 +189,26 @@ test('v1181: feedback is optional browser capability; undo is not a mere visual 
  assert.ok(core.includes('stampAfter(current.updatedAt,entry.updatedAt)'));
  assert.ok(html.includes('undo=1181'));
  assert.ok(css.includes('.hh-sl-undo-actions'));
+});
+
+test('v1182 premium RAG Buddy reuses original approved sprite for every Smart Lunch outcome',()=>{
+ assert.ok(html.includes('hh-buddy-rag-fullbody-v1141.css?v=1182-shared-premium-rag'));
+ assert.ok(approvedRag.includes('--hh-premium-rag-sprite:url("data:image/webp;base64,'));
+ assert.equal(approvedRag.split('data:image/webp;base64,').length-1,1);
+ assert.ok(approvedRag.includes('background-image:var(--hh-premium-rag-sprite)'));
+ assert.ok(css.includes('background-image:var(--hh-premium-rag-sprite)'));
+ for(const pair of [
+  ['green','center top'],['amber','center center'],['red','center bottom']
+ ]){
+  assert.ok(css.includes('.hh-sl-rag-buddy[data-rag="'+pair[0]+'"]'));
+  assert.ok(css.includes('background-position:'+pair[1]));
+ }
+ assert.ok(ui.includes("inner.dataset.rag=result.status==='consumed'?'green':'amber'"));
+ assert.ok(ui.includes("inner.append(premiumBuddy(inner.dataset.rag))"));
+ assert.ok(ui.includes("done.append(premiumBuddy('amber'))"));
+ assert.ok(ui.includes("inner.dataset.rag='red'"));
+ assert.ok(ui.includes("showFailure(String(e?.message||e))"));
+ assert.ok(!ui.includes('family-success-buddy-v881.webp'));
+ assert.ok(!css.includes('.hh-sl-buddy{'));
+ new vm.Script(ui);
 });
