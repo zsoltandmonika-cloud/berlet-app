@@ -57,7 +57,7 @@ async function smoke(browser,base,device){
  });
  const page=await context.newPage(),failures=[];
  // Deterministic afternoon (also validates historical official GTFS data).
- await page.addInitScript(()=>{Date.now=()=>Date.parse("2026-11-11T14:00:00Z")});
+ await page.addInitScript(()=>{Date.now=()=>Date.parse("2026-11-12T14:00:00Z")});
  page.on("pageerror",err=>failures.push("pageerror: "+err.message));
  page.on("console",msg=>{if(msg.type()==="error")failures.push("console: "+msg.text())});
  try {
@@ -371,8 +371,8 @@ async function guardianPinSmoke(browser,base,device){
   return request.abort();
  });
  const page=await context.newPage();
- // Fixed 07:53 Budapest on 2026-11-11 to catch the original 08:07 vs 08:17 bug.
- await page.addInitScript(()=>{Date.now=()=>Date.parse("2026-11-11T06:53:00Z")});
+ // Fixed 07:53 Budapest on 2026-11-12 to catch the original 08:07 vs 08:17 bug.
+ await page.addInitScript(()=>{Date.now=()=>Date.parse("2026-11-12T06:53:00Z")});
  try{
   const fixture=base+"healthhub/guardian/tests/smart-match-pin-v1-fixture.html";
   await page.goto(fixture,{waitUntil:"domcontentloaded"});
@@ -387,13 +387,13 @@ async function guardianPinSmoke(browser,base,device){
   // At 09:15 the mini card must show the ACTUAL NEXT 260 bus, not the old
   // 15:12 matched recommendation observed in production.
   const scheduleAudit=await page.evaluate(async()=>{
-   Date.now=()=>Date.parse("2026-11-11T08:15:00Z");
+   Date.now=()=>Date.parse("2026-11-12T08:15:00Z");
    const {readOfficialSnapshot}=await import("/berlet-app/sh9/smart-travel/lena-native/bkk/bkk-feed-client-v1106.mjs");
    const {HOME,compute,full260Timetable,pair260Connections}=await import("/berlet-app/healthhub/guardian/smart-260-connect/core.mjs?v=39-trip-flow-timing");
    const {data}=await readOfficialSnapshot();
    const cfg={...HOME,startHour:0,endHour:24};
-   const full=full260Timetable(data,"2026-11-11","work");
-   const paired=pair260Connections(full,compute(data,"2026-11-11",cfg),cfg);
+   const full=full260Timetable(data,"2026-11-12","work");
+   const paired=pair260Connections(full,compute(data,"2026-11-12",cfg),cfg);
    const bus=paired.rows.find(x=>x.departMs>=Date.now());
    if(!bus)throw Error("Expected a genuine upcoming Citronella 260 departure.");
    const expected=new Intl.DateTimeFormat("hu-HU",{timeZone:"Europe/Budapest",hour:"2-digit",minute:"2-digit",hourCycle:"h23"}).format(new Date(bus.departMs));
@@ -407,7 +407,7 @@ async function guardianPinSmoke(browser,base,device){
   assert.ok(scheduleAudit.expected<"12:00","09:15 next 260 must not be an afternoon-only connection: "+JSON.stringify(scheduleAudit));
   assert.match(await page.locator(".hh-smart-match-pin-label").textContent(),/CITRONELLA/);
   await page.evaluate(()=>{
-   Date.now=()=>Date.parse("2026-11-11T06:53:00Z");
+   Date.now=()=>Date.parse("2026-11-12T06:53:00Z");
    window.dispatchEvent(new Event("focus"));
   });
   await page.waitForFunction(()=>document.getElementById("hhSmartMatchPinTimeV1")?.textContent==="08:07");
@@ -509,7 +509,7 @@ async function guardianSmartLocationSmoke(browser,base,device){
  });
  try{
   await page.addInitScript(()=>{
-   Date.now=()=>Date.parse("2026-11-11T06:53:00Z");
+   Date.now=()=>Date.parse("2026-11-12T06:53:00Z");
   });
   const fixture=base+"healthhub/guardian/tests/smart-match-pin-v1-fixture.html";
   await page.goto(fixture,{waitUntil:"domcontentloaded"});
@@ -613,7 +613,7 @@ async function guardianSmartLocationSmoke(browser,base,device){
   // Synthetic GPS and user favorites: no live phone or account connection.
   // Same cached GPS fix must not count as two independent readings.
   await page.evaluate(()=>{
-   const t=Date.parse("2026-11-11T06:53:00Z");
+   const t=Date.parse("2026-11-12T06:53:00Z");
    window.__testEpoch=t;
    window.__mockPlace="office";
    window.__testFix={
