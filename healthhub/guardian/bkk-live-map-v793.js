@@ -8,6 +8,8 @@
 })(typeof window!=='undefined'?window:null,function(root){
  'use strict';
  const ID='hh-bkk-live-v793';
+ const delayCore=root?.HH_BKK_SMART_DELAY_V1||(typeof require==='function'?require('./bkk-smart-delay-v1.js'):null);
+ const liveDelay=v=>delayCore?.classify?.(v?.delaySeconds,v?.delayObservedAt)||{status:'unknown',text:'',description:''};
  const COLORS={260:'#148ee0',17:'#e4ab00',19:'#e4ab00',1:'#e4ab00',41:'#e4ab00'};
  const EMPTY={type:'FeatureCollection',features:[]};
  function toFeatureCollection(vehicles){
@@ -87,6 +89,12 @@
   // The GTFS-RT VehiclePositions snapshot does not always carry a destination.
   // Don't waste space with an invented or repeated placeholder.
   if(info.headsign){destination.textContent='▶ '+info.headsign;top.append(destination);}
+  const delay=liveDelay(vehicle);
+  if(delay.status!=='unknown'){
+   const delta=doc.createElement('span');delta.className='hh-bkk-smart-delay-v1';
+   delta.dataset.delay=delay.status;delta.textContent=delay.text;
+   delta.setAttribute('aria-label',delay.description);top.append(delta);
+  }
   card.append(top);
   const details=doc.createElement('div');details.className='hh-bkk-vehicle-details-v913';
   if(info.vehicleCode){
@@ -141,6 +149,17 @@
   number.className='hh-bkk-glass-number-v800';
   number.textContent=route;
   badge.append(icon,lamp,number);
+  const delta=doc.createElement('span');
+  delta.className='hh-bkk-smart-delay-v1';
+  function applyDelay(v){
+   const info=liveDelay(v),valid=info.status!=='unknown';
+   delta.hidden=!valid;delta.textContent=valid?info.text:'';
+   delta.dataset.delay=valid?info.status:'unknown';
+   delta.title=valid?info.description:'';
+   wrapper.setAttribute('aria-label','Élő '+route+' · friss BKK-pozíció'+
+    (valid?' · '+info.description:' · késésadat nem elérhető'));
+  }
+  badge.append(delta);applyDelay(vehicle);
   const pin=doc.createElement('span');
   pin.className='hh-bkk-glass-pin-v800';
   pin.setAttribute('aria-hidden','true');
@@ -149,7 +168,7 @@
   if(doc&&typeof wrapper.addEventListener==='function'&&root?.maplibregl?.Popup){
    wrapper.setAttribute('tabindex','0');wrapper.setAttribute('role','button');
    let newest=vehicle;
-   wrapper.hhSetVehicle=(v)=>{if(v&&v.id===vehicle.id)newest=v};
+   wrapper.hhSetVehicle=(v)=>{if(v&&v.id===vehicle.id){newest=v;applyDelay(v);}};
    const details=()=>{
     const m=root.HH_GUARDIAN_V761?.map;
     if(!m||!Number.isFinite(newest.lng)||!Number.isFinite(newest.lat))return;
