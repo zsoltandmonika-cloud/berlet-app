@@ -198,6 +198,15 @@ a{color:inherit;text-decoration:none}button{font:inherit;cursor:pointer}button:f
   else location.assign('../../healthhub/index.html?sh9nav=admin&sh9cfg=asklena');
  });
  try{document.documentElement.dataset.profile=localStorage.getItem('hh-profile')==='m'?'m':'z'}catch(e){}
+ // The MediaRadar domain has separate browser storage. Hand off the SHO profile
+ // explicitly so the Golden Standard dock keeps Zsolt blue / Mónika pink.
+ document.querySelectorAll('.cat.home-media').forEach(function(a){
+  a.addEventListener('click',function(){
+   var profile='z';
+   try{profile=localStorage.getItem('hh-profile')==='m'?'m':'z'}catch(_){}
+   a.href='https://mediaradar.pages.dev/?profile='+profile;
+  });
+ });
  paint();
 })();
 </script>
