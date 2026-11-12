@@ -143,7 +143,7 @@ test('v930 city overview waits for ready map and never changes normal Family Gua
  assert.match(live,/activeMap\.jumpTo\(\{center:\[19\.0467,47\.5060\],zoom:11\.6,pitch:0,bearing:0\}\)/);
  assert.match(live,/typeof activeMap\.loaded==='function'&&!activeMap\.loaded\(\)/);
  assert.match(html,/guardian-sh9-all-bkk-v928\.js\?v=934-static-time-compare/);
- assert.match(html,/guardian-sh9-all-bkk-v928\.css\?v=932-visible-map-status/);
+ assert.match(html,/guardian-sh9-all-bkk-v928\.css\?v=935-header-delay-dock/);
 });
 test('v930 visible verified count and empty-area repair remain fail closed and throttled',()=>{
  const ui=read('guardian-sh9-all-bkk-v928.js');
@@ -183,13 +183,19 @@ test('v931 shared live delay classifier is strictly green zero, amber early, red
  assert.equal(core.classify(undefined,stamp,now).status,'unknown');
  assert.equal(core.classify(0,'2026-01-01T08:00:00Z',now).status,'unknown');
 });
-test('v931 in-map legend only in SH9, counts verified delays and leaves Family Guard hidden',()=>{
+test('v935 Smart Delay legend in SH9 header, counts verified delays and leaves Family Guard hidden',()=>{
  const html=read('index.html'),css=read('guardian-sh9-all-bkk-v928.css'),
   js=read('guardian-sh9-all-bkk-v928.js');
  assert.match(html,/id="sh9BkkSmartDelayLegendV931"[^>]*hidden/);
  assert.match(html,/id="sh9BkkSmartDelayCoverageV931"/);
  assert.match(css,/:root:not\(\[data-sh9-transit="on"\]\) #sh9BkkSmartDelayLegendV931\{display:none!important\}/);
- assert.match(css,/:root\[data-sh9-transit="on"\] #sh9BkkSmartDelayLegendV931:not\(\[hidden\]\)/);
+ assert.match(css,/#sh9TransitHeaderV927 > #sh9BkkSmartDelayLegendV931:not\(\[hidden\]\)/);
+ const header=html.indexOf('<header id="sh9TransitHeaderV927"');
+ const legend=html.indexOf('id="sh9BkkSmartDelayLegendV931"');
+ const endHeader=html.indexOf('</header>',header);
+ const map=html.indexOf('<section class="map-card"',header);
+ assert.ok(header>=0&&legend>header&&legend<endHeader&&map>endHeader);
+ assert.equal((html.match(/id="sh9BkkSmartDelayLegendV931"/g)||[]).length,1);
  assert.match(js,/if\(legend\)legend\.hidden=false/);
  assert.match(js,/delay\.classify\(v\.delaySeconds,v\.delayObservedAt\)/);
  assert.match(js,/verified\+\+/);
@@ -238,17 +244,18 @@ test('v932 full map makes UNKNOWN delays visibly neutral and never green by defa
  const guardian=simulate('',undefined,undefined);
  assert.equal(guardian.delta.hidden,false);assert.equal(guardian.delta.textContent,'—');
 });
-test('v932 legend stays on-screen in fullscreen and labels GPS lamp separately',()=>{
+test('v935 mobile/fullscreen maps are no longer covered by the delay legend',()=>{
  const css=read('guardian-sh9-all-bkk-v928.css');
  const glass=read('bkk-live-glass-v800.css');
  const marker=read('bkk-live-map-v793.js');
  const html=read('index.html');
- assert.match(css,/\.map-card\.hh-map-full-v819 #sh9BkkSmartDelayLegendV931:not\(\[hidden\]\)/);
- assert.match(css,/top:66px!important/);
- assert.match(css,/z-index:1200!important/);
+ assert.match(css,/#sh9TransitHeaderV927 > #sh9BkkSmartDelayLegendV931:not\(\[hidden\]\)/);
+ assert.match(css,/:root\[data-sh9-transit="on"\] \.map-card #sh9BkkSmartDelayLegendV931\{display:none!important\}/);
+ assert.doesNotMatch(css,/top:66px!important|z-index:1200!important/);
+ assert.match(css,/@media\(max-width:460px\)/);
  assert.match(glass,/data-delay="unknown"/);
  assert.match(marker,/a színes pont csak az élő járműpozíciót jelzi/);
  assert.match(html,/bkk-live-glass-v800\.css\?v=934-static-time-compare/);
- assert.match(html,/guardian-sh9-all-bkk-v928\.css\?v=932-visible-map-status/);
+ assert.match(html,/guardian-sh9-all-bkk-v928\.css\?v=935-header-delay-dock/);
  assert.match(html,/guardian-transit-v791\.js\?v=934-static-time-compare/);
 });
