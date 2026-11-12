@@ -41,7 +41,18 @@
    }
    vehicles.push(entry);
   }
-  return {ok:true,reason:null,generatedAt:snapshot.generatedAt,vehicles};
+  // Optional, authenticated diagnostic counts are aggregate-only.  Reject
+  // invalid/missing counters rather than showing a fake 100% punctuality.
+  const raw=snapshot.delayCoverage;
+  const count=x=>Number.isInteger(x)&&x>=0&&x<=100000?x:null;
+  const coverage=raw&&typeof raw.feedAvailable==='boolean'&&
+   count(raw.shown)!==null&&count(raw.withDelay)!==null&&
+   count(raw.tripLevel)!==null&&count(raw.stopLevel)!==null&&
+   raw.withDelay<=raw.shown?{
+    feedAvailable:raw.feedAvailable,shown:raw.shown,withDelay:raw.withDelay,
+    tripLevel:raw.tripLevel,stopLevel:raw.stopLevel
+   }:null;
+  return {ok:true,reason:null,generatedAt:snapshot.generatedAt,vehicles,delayCoverage:coverage};
  }
  return {validate,MAX_AGE_MS};
 });
