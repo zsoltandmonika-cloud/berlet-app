@@ -1,0 +1,14 @@
+/* Optional, source-backed Smart Delay chips. A schedule stays neutral without RT. */
+.smart-delay-hero-v1{display:flex;align-items:center;gap:5px;margin-top:7px;font:750 12px/1.4 system-ui;color:#cbd5e9;min-height:19px}
+.hh-smart-delay-chip-v1{display:inline-flex;align-items:center;justify-content:center;gap:3px;
+ border:1px solid rgba(255,255,255,.19);border-radius:8px;padding:3px 6px;
+ font:850 11px/1.3 system-ui;font-variant-numeric:tabular-nums;white-space:nowrap}
+.hh-smart-delay-chip-v1[data-delay="ontime"]{color:#deffe9;background:#146849;border-color:#44c291}
+.hh-smart-delay-chip-v1[data-delay="early"]{color:#fff5dc;background:#92580c;border-color:#e9b651}
+.hh-smart-delay-chip-v1[data-delay="late"]{color:#ffe9ee;background:#a5253c;border-color:#fa748c}
+.hh-smart-delay-chip-v1[data-delay="unknown"]{color:#c4cada;background:#424853;border-color:#747b89}
+.v34-260-row .hh-smart-delay-row-v1{display:flex;flex-wrap:wrap;align-items:center;gap:5px;margin-top:6px}
+.smart-delay-hero-v1[data-delay="early"]{color:#ffcf7c}
+.smart-delay-hero-v1[data-delay="late"]{color:#ff9cae}
+.smart-delay-hero-v1[data-delay="ontime"]{color:#7ce8ad}
+@media(max-width:640px){.hh-smart-delay-chip-v1{font-size:10px;padding:2px 5px}}
