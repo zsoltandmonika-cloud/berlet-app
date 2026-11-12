@@ -4,6 +4,7 @@
 import {readOfficialSnapshot} from "../../../sh9/smart-travel/lena-native/bkk/bkk-feed-client-v1106.mjs";
 import {DEFAULT,HOME,REVERSE,SAMPLES,compute,bus260DirectionForTemplate,full260Timetable,pair260Connections} from "./core.mjs?v=939-favorite-guard";
 import {wallEpoch} from "../../../sh9/smart-travel/lena-native/bkk/bkk-gtfs-core-v1105.mjs";
+import {ringDirection} from "./ring-direction-v941.mjs";
 import {FALLBACK,loadCatalog,keyOf,valueOf,label as fleetLabel,norm,coverage} from "./fleet-catalog-v940.mjs";
 const $=id=>document.getElementById(id);
 const STORAGE="sh9-smart-match-templates-v1-m";
@@ -401,7 +402,21 @@ function routeFlowStages(item){
   {role:"destination",label:/bécsi corner/i.test(destination)?"Iroda":destination,detail:destination}
  ];
 }
+function updateRingDirection(item){
+ // One truth for every saved template, reverse pair and unsaved calculation preview.
+ // The countdown itself keeps its existing source-backed 1-second update loop.
+ const ring=$("ring"),node=$("ringDirection");
+ if(!ring||!node)return;
+ const direction=ringDirection(item);
+ node.textContent=direction.short;
+ node.title=direction.full;
+ node.setAttribute("aria-label","Útvonal iránya: "+direction.full);
+ ring.dataset.direction=direction.full;
+ ring.title="Smart Match · "+direction.full;
+ $("countdownLabel").textContent="indulásig";
+}
 function renderFlow(item){
+ updateRingDirection(item);
  const icons={origin:"🏢",walk:"🚶",tram:"🚋",bus:"🚌",metro:"🚇",
   train:"🚆",ferry:"⛴️",transfer:"⇄",destination:"🏠"};
  const steps=routeFlowStages(item),flow=$("routeFlow");
