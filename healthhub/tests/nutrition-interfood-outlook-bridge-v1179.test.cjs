@@ -82,12 +82,25 @@ test('database is service-role-only with RLS, no raw message content stored',()=
  assert.match(edge,/profile_key:"monika",code:meal\.code,name:meal\.name/);
 });
 test('one premium tile, safe Vault receiver; no browser-side Outlook credentials',()=>{
- assert.match(html,/hh-interfood-outlook-bridge-v1179\.js/);
+ assert.ok(html.includes('hh-interfood-outlook-bridge-v1179.js'));
  assert.match(html,/central-vault\/daily-health-sync\.js/);
  assert.match(html,/hh-interfood-smart-lunch-v1178\.js/);
  assert.match(app,/v\.stream\(ENDPOINT,\{action\}\)/);
  assert.match(app,/importConfirmedInterfoodOrder\(\{expectedProfile:profile,order:meal\}\)/);
  assert.match(app,/cloud\(\)\?\.connected\(\)/);
  assert.doesNotMatch(app,/client_secret|refresh_token|localStorage\.setItem/);
+ new vm.Script(app);
+});
+
+
+test('v1180 keeps mobile sign-in out of Interfood, offers existing Google SSO in settings',()=>{
+ assert.ok(html.includes('central-vault/google-login-v882.js?v=1180-nutrition-sso'));
+ assert.ok(html.includes('id="hhNutritionSettingsV1180"'));
+ assert.ok(html.includes('v=1180-vault-settings-login'));
+ assert.ok(app.includes('function installVaultControls()'));
+ assert.ok(app.includes('function hideBridge()'));
+ assert.ok(app.includes('hideBridge();setVaultControls(true);return;'));
+ assert.ok(app.includes('setVaultControls(false);'));
+ assert.ok(!app.includes('Outlook Smart Lunch: egyszeri bejelentkezés szükséges'));
  new vm.Script(app);
 });

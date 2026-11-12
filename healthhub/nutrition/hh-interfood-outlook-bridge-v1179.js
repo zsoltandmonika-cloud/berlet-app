@@ -25,6 +25,41 @@ function show(message,action){
  button.textContent=action?.text||'';
  button.onclick=action?.click||null;
 }
+/* v1180: Keep private Vault login in the existing collapsed Nutrition settings.
+ * Never imply the device is authorized merely because the Outlook server is connected. */
+function hideBridge(){
+ const bar=ID('hhIfOutlookBridge1179');
+ if(bar)bar.hidden=true;
+}
+function installVaultControls(){
+ const settings=ID('hhNutritionSettingsV1180');
+ if(!settings||ID('hhIfVaultSettingsV1180'))return;
+ const row=doc.createElement('div');
+ row.id='hhIfVaultSettingsV1180';
+ row.className='hh-if-vault-settings-v1180';
+ row.hidden=true;
+ row.style.cssText='margin:10px 0;padding:10px;border:1px solid rgba(160,203,234,.3);border-radius:12px;font-size:12px;line-height:1.5';
+ const info=doc.createElement('span');
+ info.id='hhIfVaultInfoV1180';
+ const button=doc.createElement('button');
+ button.type='button';
+ button.id='hhIfVaultLoginV1180';
+ button.className='mini';
+ button.textContent='🔐 Google-belépés';
+ button.style.marginLeft='8px';
+ button.addEventListener('click',openLogin);
+ row.append(info,button);
+ settings.insertBefore(row,settings.children[1]||null);
+}
+function setVaultControls(visible,message='Ezen a készüléken jelentkezz be a Központi Health Vaultba a Google-fiókoddal.',login=true){
+ const row=ID('hhIfVaultSettingsV1180');
+ if(!row)return;
+ row.hidden=!visible||!monika();
+ const info=ID('hhIfVaultInfoV1180');
+ if(info)info.textContent=message;
+ const button=ID('hhIfVaultLoginV1180');
+ if(button)button.hidden=!login;
+}
 async function send(action){
  const v=vault();
  if(!v?.stream)throw Error('Központi Health Vault kapcsolat nem érhető el.');
@@ -35,7 +70,7 @@ async function send(action){
 }
 function openLogin(){
  if(vault()?.openLogin)vault().openLogin();
- else show('🔒 Jelentkezz be a Központi Health Vaultba.');
+ else setVaultControls(true,'A Health Vault bejelentkezési modul nem érhető el.',false);
 }
 function errorText(error){
  const code=String(error?.message||error);
@@ -70,17 +105,20 @@ async function importOrders(){
  return {added,seen,errors};
 }
 async function refresh({afterConnect=false}={}){
- if(running||!monika())return;
+ if(running)return;
+ if(!monika()){hideBridge();setVaultControls(false);return;}
  running=true;
  try{
   if(!vault()?.getStatus?.()?.authenticated){
-   show('🔒 Outlook Smart Lunch: egyszeri bejelentkezés szükséges.',
-    {text:'🔐 Bejelentkezés',click:openLogin});return;
+   // Only a device-specific session is missing. Do not crowd Smart Lunch.
+   hideBridge();setVaultControls(true);return;
   }
   if(!authorized()){
-   show('🔐 Mónika Health Vault-jogosultságát ellenőrizzük.');
+   hideBridge();
+   setVaultControls(true,'Mónika Health Vault-jogosultságának ellenőrzése folyamatban.',false);
    return;
   }
+  setVaultControls(false);
   const status=await send('status');
   configured=status.configured===true;connected=status.connected===true;
   lastSync=status.lastSyncAt||null;lastError=status.lastError||'';
@@ -135,6 +173,7 @@ function install(){
  const line=doc.createElement('span');line.id='hhIfOutlookMessage1179';
  const btn=doc.createElement('button');btn.type='button';btn.id='hhIfOutlookAction1179';btn.hidden=true;
  bar.append(line,btn);anchor.insertAdjacentElement('afterend',bar);
+ installVaultControls();
  const success=new URLSearchParams(root.location.search).get('outlook_bridge');
  if(success){
   try{const u=new URL(root.location.href);u.searchParams.delete('outlook_bridge');
