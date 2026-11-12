@@ -416,6 +416,14 @@ function renderFull260Row(bus,item,index){
  a.className="timeline-row v34-260-row"+(bus.connectionOk?" v34-matched":" v34-scheduled");
  a.dataset.index=String(index);
  a.dataset.busDeparture=String(bus.departMs);
+ // Only source-backed stop IDs and exact planned times may identify a live
+ // BKK TripUpdates prediction. A line number alone is NEVER sufficient.
+ if(bus.stopId)a.dataset.bkkStopId=bus.stopId;
+ if(bus.match?.line&&bus.match?.boardingId&&Number.isFinite(bus.match.departMs)){
+  a.dataset.bkkTramLine=bus.match.line;
+  a.dataset.bkkTramStopId=bus.match.boardingId;
+  a.dataset.bkkTramDeparture=String(bus.match.departMs);
+ }
  if(Number.isFinite(bus.leaveMs))a.dataset.leave=String(bus.leaveMs);
  const top=document.createElement("div");top.className="row-top";
  const title=document.createElement("div");
