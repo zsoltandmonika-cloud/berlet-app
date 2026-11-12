@@ -1,118 +1,112 @@
-/* SHO Smart Match Smart Delay v1.
- * Optional, authenticated, read-only BKK GTFS-RT add-on.
- * Never modifies scheduled 260/17/19/41 matching or any GPS/health data.
+/* SHO Smart Match Smart Delay v937 · FYI only.
+ * Zero fetch/API calls. Reads only fresh, sanitized, publicly shareable BKK
+ * stop predictions cached by Family Guard's existing authenticated BKK Live poll.
+ * No trip recalculation, no GPS, no auth tokens, no background live poller.
  */
 import "../bkk-smart-delay-v1.js";
 const $=id=>document.getElementById(id);
+const KEY="hh-bkk-smart-match-fyi-v937";
 const delay=()=>window.HH_BKK_SMART_DELAY_V1;
+const ROUTES=new Set(["bus:260","tram:17","tram:19","tram:41"]);
 const localDay=()=>{const p=Object.fromEntries(new Intl.DateTimeFormat("en-GB",{
  timeZone:"Europe/Budapest",year:"numeric",month:"2-digit",day:"2-digit"
 }).formatToParts(new Date()).map(x=>[x.type,x.value]));return [p.year,p.month,p.day].join("-")};
 const time=ms=>new Intl.DateTimeFormat("hu-HU",{timeZone:"Europe/Budapest",
  hour:"2-digit",minute:"2-digit",hourCycle:"h23"}).format(new Date(ms));
-let busy=false,dirty=false,lastRequest=0;
-const schedule=()=>$("timeline");
+function snapshot(now=Date.now()){
+ try{
+  const doc=JSON.parse(localStorage.getItem(KEY)||"null");
+  if(!doc||doc.schemaVersion!==1||doc.source!=="BKK Zrt., CC BY 4.0"||
+     !Array.isArray(doc.rows)||doc.rows.length>1800)return null;
+  const generated=Date.parse(doc.generatedAt||"");
+  if(!Number.isFinite(generated)||generated>now+10000||now-generated>90000)return null;
+  // Never accept expired, mismatched or unbounded local cache entries.
+  const rows=doc.rows.filter(p=>p&&ROUTES.has(p.routeKey)&&
+   typeof p.stopId==="string"&&/^(?:BKK_)?[A-Za-z0-9_-]{2,30}$/.test(p.stopId)&&
+   Number.isSafeInteger(p.scheduledMs)&&Number.isSafeInteger(p.predictedMs)&&
+   Number.isInteger(p.delaySeconds)&&p.delaySeconds>=-1800&&p.delaySeconds<=7200&&
+   Math.abs(p.predictedMs-p.scheduledMs-p.delaySeconds*1000)<=30000&&
+   p.predictedMs>=now-180000&&p.predictedMs<=now+7200000&&
+   p.asOf===doc.generatedAt&&
+   (p.delayPrecision===undefined||p.delayPrecision==="minute"));
+  return rows.length?rows:null;
+ }catch(_){return null}
+}
 function neutral(){
  const hero=$("hhSmartDelayHeroV1");
- if(hero){hero.dataset.delay="unknown";hero.textContent="⚪ Élő eltérés: nincs ellenőrzött adat";}
+ if(hero){hero.hidden=true;hero.dataset.delay="unknown";hero.textContent="";}
  for(const el of document.querySelectorAll(".hh-smart-delay-row-v1"))el.remove();
 }
-function familyLiveToken(){
- // Same-origin, existing Family Live login. No new SDK/OAuth flow, no token logs.
- // Never send an expired token; show neutral until Guardian refreshes the session.
- try{
-  const cfg=window.HH_CENTRAL_VAULT;
-  if(!cfg?.enabled||!cfg.supabaseUrl||!cfg.publishableKey)return null;
-  const session=JSON.parse(localStorage.getItem("hh-guardian-family-auth-v785")||"null");
-  const expires=Number(session?.expires_at);
-  return typeof session?.access_token==="string"&&session.access_token.length>80&&
-   Number.isFinite(expires)&&expires*1000>Date.now()+60000?session.access_token:null;
- }catch(_){return null;}
+function chip(pred,label,planned){
+ const status=delay()?.classify(pred.delaySeconds,pred.asOf,Date.now());
+ if(!status||status.status==="unknown")return null;
+ const estimated=pred.delayPrecision==="minute";
+ const visualStatus=estimated&&status.status==="ontime"?"estimated":status.status;
+ const visualText=(estimated?"≈":"")+status.text;
+ const node=document.createElement("span");node.className="hh-smart-delay-chip-v1";
+ node.dataset.delay=visualStatus;node.textContent=label+" "+visualText;
+ node.title=label+" · "+status.description+(estimated?" · körülbelüli, menetrendi összevetés":"")+
+  " · menetrend "+time(planned)+" · BKK várható "+time(pred.predictedMs);
+ node.setAttribute("aria-label",node.title);
+ return {node,status,estimated};
 }
-function chip(pred,label,at,planned){
- const status=delay().classify(pred.delaySeconds,pred.asOf,Date.now());
- if(status.status==="unknown")return null;
- const chip=document.createElement("span");chip.className="hh-smart-delay-chip-v1";
- chip.dataset.delay=status.status;chip.textContent=label+" "+status.text;
- chip.setAttribute("aria-label",label+" · "+status.description+
-  " · menetrend "+time(planned)+" · BKK várható "+time(pred.predictedMs));
- chip.title=chip.getAttribute("aria-label");
- return {chip,status};
+function getMatch(predictions,routeKey,stopId,scheduledMs){
+ if(!ROUTES.has(routeKey)||!stopId||!Number.isFinite(scheduledMs))return null;
+ return delay()?.matchStopPrediction(predictions,routeKey,stopId,scheduledMs,Date.now())||null;
 }
-function apply(rows,predictions,stamp){
- if(rows.some(r=>!r.isConnected))return;
- for(const el of document.querySelectorAll(".hh-smart-delay-row-v1"))el.remove();
- let heroStatus=null;
- for(const el of rows){
-  const bus=Number(el.dataset.busDeparture),stop=el.dataset.bkkStopId;
-  const match=delay().matchStopPrediction(predictions,"bus:260",stop,bus,Date.now());
+function render(){
+ const timeline=$("timeline"),rows=[...timeline?.querySelectorAll(".timeline-row")||[]];
+ if(!rows.length||!delay()||$("day")?.value!==localDay()){neutral();return}
+ const predictions=snapshot();
+ if(!predictions){neutral();return}
+ for(const node of document.querySelectorAll(".hh-smart-delay-row-v1"))node.remove();
+ let lead=null;
+ for(const row of rows){
   const host=document.createElement("div");host.className="hh-smart-delay-row-v1";
-  if(match){
-   const out=chip(match,"🚌 260",match.predictedMs,bus);
-   if(out){host.append(out.chip);if(el.classList.contains("next"))heroStatus={
-    ...out.status,predictedMs:match.predictedMs};
-   }
+  const busMs=Number(row.dataset.busDeparture),busStop=row.dataset.bkkStopId;
+  const bus=busStop&&Number.isFinite(busMs)?getMatch(predictions,"bus:260",busStop,busMs):null;
+  if(bus){
+   const out=chip(bus,"🚌 260",busMs);
+   if(out){host.append(out.node);if(row.classList.contains("next"))lead={...out,pred:bus,label:"260"};}
   }
-  const tramLine=el.dataset.bkkTramLine,tramStop=el.dataset.bkkTramStopId,
-   tramMs=Number(el.dataset.bkkTramDeparture);
-  if(tramLine&&tramStop&&Number.isFinite(tramMs)){
-   const tram=delay().matchStopPrediction(predictions,"tram:"+tramLine,tramStop,tramMs,Date.now());
-   if(tram){const out=chip(tram,"🚋 "+tramLine,tram.predictedMs,tramMs);if(out)host.append(out.chip);}
+  const tramMs=Number(row.dataset.bkkTramDeparture),tramLine=row.dataset.bkkTramLine,
+   tramStop=row.dataset.bkkTramStopId;
+  const tram=tramLine&&tramStop&&Number.isFinite(tramMs)?
+   getMatch(predictions,"tram:"+tramLine,tramStop,tramMs):null;
+  if(tram){
+   const out=chip(tram,"🚋 "+tramLine,tramMs);
+   if(out){host.append(out.node);if(row.classList.contains("next")&&!lead)lead={...out,pred:tram,label:tramLine};}
   }
-  if(host.children.length)el.append(host);
+  // Generic Smart Match timeline (walk/transfer templates), not only full 260.
+  const mainMs=Number(row.dataset.bkkDeparture),mainKey=row.dataset.bkkRouteKey;
+  const main=mainKey&&row.dataset.bkkStopId&&Number.isFinite(mainMs)?
+   getMatch(predictions,mainKey,row.dataset.bkkStopId,mainMs):null;
+  if(main){
+   const out=chip(main,(mainKey.startsWith("tram:")?"🚋 ":"🚌 ")+mainKey.split(":")[1],mainMs);
+   if(out){host.append(out.node);if(row.classList.contains("next"))lead={...out,pred:main,label:mainKey.split(":")[1]};}
+  }
+  if(host.children.length)row.append(host);
  }
  const hero=$("hhSmartDelayHeroV1");
- if(hero&&heroStatus){
-  hero.dataset.delay=heroStatus.status;
-  hero.textContent="BKK élő 260 · "+heroStatus.description+" · várható "+
-   time(heroStatus.predictedMs)+
-   (heroStatus.status==="early"?" · korábbi érkezés kockázata":
-    heroStatus.status==="late"?" · csatlakozás ellenőrzendő":"");
- }else if(hero){hero.dataset.delay="unknown";hero.textContent="⚪ Élő eltérés: nincs ellenőrzött adat";}
-}
-async function refresh(force=false){
- const host=schedule(),rows=[...host?.querySelectorAll(".v34-260-row[data-bkk-stop-id]")||[]];
- if(!rows.length||document.hidden||!delay()){neutral();return;}
- if($("day")?.value!==localDay()){neutral();return;}
- if(busy){if(force)dirty=true;return;}
- if(!force&&Date.now()-lastRequest<25000)return;
- busy=true;lastRequest=Date.now();
- try{
-  const token=familyLiveToken();
-  if(!token){neutral();return;}
-  const stops=new Set();
-  for(const el of rows){
-   if(el.dataset.bkkStopId)stops.add(el.dataset.bkkStopId);
-   if(el.dataset.bkkTramStopId)stops.add(el.dataset.bkkTramStopId);
-  }
-  if(!stops.size){neutral();return;}
-  const cfg=window.HH_CENTRAL_VAULT;
-  const params=new URLSearchParams({routes:"bus:260,tram:17,tram:19,tram:41",
-   predictions:"1",stops:[...stops].slice(0,30).join(",")});
-  const res=await fetch(cfg.supabaseUrl.replace(/\/$/,"")+
-   "/functions/v1/hh-bkk-live-v793-preview?"+params.toString(),{
-    cache:"no-store",headers:{Authorization:"Bearer "+token,
-     apikey:cfg.publishableKey,Accept:"application/json"}});
-  if(!res.ok)throw Error("bkk-live-unavailable");
-  const payload=await res.json();
-  if(payload?.source!=="BKK Zrt., CC BY 4.0"||
-   payload?.feedType!=="GTFS-RT VehiclePositions"||
-   !Array.isArray(payload.stopPredictions))throw Error("invalid-feed");
-  if($("day")?.value!==localDay()){neutral();return;}
-  apply(rows,payload.stopPredictions,payload.delayGeneratedAt);
- }catch(_){neutral();}
- finally{busy=false;if(dirty){dirty=false;void refresh(true);}}
+ if(!hero)return;
+ if(!lead){hero.hidden=true;hero.textContent="";hero.dataset.delay="unknown";return;}
+ hero.hidden=false;hero.dataset.delay=lead.node.dataset.delay;
+ hero.textContent="BKK FYI · "+lead.label+" · "+(lead.estimated?"≈":"")+lead.status.text+
+  " · várható "+time(lead.pred.predictedMs)+" · a Smart Match menetrend változatlan";
 }
 function boot(){
- const host=schedule();if(!host)return;
+ const host=$("timeline");if(!host)return;
+ neutral();
  new MutationObserver(records=>{
   if(records.some(m=>m.target===host&&[...m.addedNodes,...m.removedNodes].some(n=>
-   n.nodeType===1&&n.classList?.contains("v34-260-row"))))void refresh(true);
+   n.nodeType===1&&n.classList?.contains("timeline-row"))))render();
  }).observe(host,{childList:true});
- void refresh(true);
- setInterval(()=>{if(!document.hidden)void refresh()},30000);
- document.addEventListener("visibilitychange",()=>{if(!document.hidden)void refresh(true)});
- $("day")?.addEventListener("change",()=>{neutral();void refresh(true)});
+ render();
+ // UI-only expiry check. NO network call, even on visibility or refresh.
+ setInterval(()=>{if(!document.hidden)render()},20000);
+ document.addEventListener("visibilitychange",()=>{if(!document.hidden)render()});
+ window.addEventListener("storage",e=>{if(e.key===KEY)render()});
+ $("day")?.addEventListener("change",neutral);
 }
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",boot);
 else boot();
