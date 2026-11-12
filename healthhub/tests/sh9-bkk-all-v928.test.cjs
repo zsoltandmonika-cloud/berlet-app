@@ -236,7 +236,7 @@ test('v932 full map makes UNKNOWN delays visibly neutral and never green by defa
  assert.equal(late.delta.dataset.delay,'late');
  assert.equal(late.delta.textContent,'−4p');
  const guardian=simulate('',undefined,undefined);
- assert.equal(guardian.delta.hidden,true);
+ assert.equal(guardian.delta.hidden,false);assert.equal(guardian.delta.textContent,'—');
 });
 test('v932 legend stays on-screen in fullscreen and labels GPS lamp separately',()=>{
  const css=read('guardian-sh9-all-bkk-v928.css');
@@ -248,7 +248,7 @@ test('v932 legend stays on-screen in fullscreen and labels GPS lamp separately',
  assert.match(css,/z-index:1200!important/);
  assert.match(glass,/data-delay="unknown"/);
  assert.match(marker,/a színes pont csak az élő járműpozíciót jelzi/);
- assert.match(html,/bkk-live-glass-v800\.css\?v=932-neutral-status/);
+ assert.match(html,/bkk-live-glass-v800\.css\?v=933-favorites-delay/);
  assert.match(html,/guardian-sh9-all-bkk-v928\.css\?v=932-visible-map-status/);
- assert.match(html,/guardian-transit-v791\.js\?v=966-sh9-neutral-status/);
+ assert.match(html,/guardian-transit-v791\.js\?v=967-trip-delay-restore/);
 });
