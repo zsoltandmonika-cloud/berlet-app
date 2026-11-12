@@ -12,3 +12,9 @@
 .smart-delay-hero-v1[data-delay="late"]{color:#ff9cae}
 .smart-delay-hero-v1[data-delay="ontime"]{color:#7ce8ad}
 @media(max-width:640px){.hh-smart-delay-chip-v1{font-size:10px;padding:2px 5px}}
+
+/* v937: FYI badges only. Neutral amber for GTFS-minute estimated zero. */
+.hh-smart-delay-chip-v1[data-delay="estimated"]{color:#fff3d7;background:#78621e;border-color:#d8b15d}
+.timeline-row .hh-smart-delay-row-v1{display:flex;flex-wrap:wrap;align-items:center;gap:5px;margin-top:6px}
+.smart-delay-hero-v1[data-delay="estimated"]{color:#eed08d}
+.smart-delay-hero-v1[hidden]{display:none!important}
