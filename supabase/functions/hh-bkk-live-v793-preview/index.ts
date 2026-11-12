@@ -77,6 +77,13 @@ function unixSeconds(value:unknown):number{
 const BKK_UPDATES="https://go.bkk.hu/api/query/v1/ws/gtfs-rt/full/TripUpdates.pb";
 const safeStop=(x:unknown)=>typeof x==="string"&&/^(?:BKK_)?[A-Za-z0-9_-]{2,30}$/.test(x)?x.replace(/^BKK_/,""):null;
 const signedDelay=(x:unknown)=>Number.isInteger(x)&&Number(x)>=-1800&&Number(x)<=7200?Number(x):null;
+// protobuf.js may expose optional int32 delay=0 through the message prototype,
+// even when the realtime feed DID NOT include it.  Own-property presence is
+// mandatory: only an explicitly transmitted 0 seconds warrants green 0p.
+function explicitDelay(event:any):number|null{
+ if(!event||typeof event!=="object"||!Object.prototype.hasOwnProperty.call(event,"delay"))return null;
+ return signedDelay(event.delay);
+}
 type DelayRow={routeKey:string,stopId:string,stopSequence:number,scheduledMs:number|null,predictedMs:number|null,delaySeconds:number,asOf:string};
 type DelayPayload={trips:Map<string,{routeKey:string,startDate:string,rows:DelayRow[]}>,departures:DelayRow[],asOf:string};
 async function getUpdates(key:string,mapping:RouteMap):Promise<DelayPayload|null>{
@@ -99,7 +106,9 @@ async function getUpdates(key:string,mapping:RouteMap):Promise<DelayPayload|null
    if(Number.isFinite(time)&&(time>now+10||now-time>MAX_AGE_S))continue;
    const rows:DelayRow[]=[];
    for(const st of (Array.isArray(tu?.stopTimeUpdate)?tu.stopTimeUpdate:[])){
-    const stopId=safeStop(st?.stopId),dep=signedDelay(st?.departure?.delay),arr=signedDelay(st?.arrival?.delay);
+    // SKIPPED and NO_DATA do not supply a valid prediction for this stop.
+    if(st?.scheduleRelationship===1||st?.scheduleRelationship===2)continue;
+    const stopId=safeStop(st?.stopId),dep=explicitDelay(st?.departure),arr=explicitDelay(st?.arrival);
     if(!stopId||(dep===null&&arr===null))continue;
     const delaySeconds=dep??arr!;
     const depAt=unixSeconds(st?.departure?.time),arrAt=unixSeconds(st?.arrival?.time);
