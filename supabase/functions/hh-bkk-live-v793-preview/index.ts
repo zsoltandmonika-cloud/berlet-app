@@ -230,8 +230,22 @@ Deno.serve(async req=>{
   const cap=allMode?3500:1200;
   const chosen=matched.slice(0,cap);
   const vehicles=allMode?chosen.map(v=>{
-   const p=v as {id:string,routeId:string,routeKey:string,mode:string,lat:number,lng:number,timestamp:string};
-   return {id:p.id,routeId:p.routeId,routeKey:p.routeKey,mode:p.mode,lat:p.lat,lng:p.lng,timestamp:p.timestamp};
+   const p=v as {id:string,routeId:string,routeKey:string,mode:string,lat:number,lng:number,timestamp:string,
+    delaySeconds?:number,delayObservedAt?:string,delayStopId?:string};
+   const entry:{id:string,routeId:string,routeKey:string,mode:string,lat:number,lng:number,timestamp:string,
+    delaySeconds?:number,delayObservedAt?:string,delayStopId?:string}={
+    id:p.id,routeId:p.routeId,routeKey:p.routeKey,mode:p.mode,lat:p.lat,lng:p.lng,timestamp:p.timestamp};
+   // Previously the all-BKK response discarded every TripUpdates value.
+   // Keep ONLY authenticated, source-verified, fresh signed trip-specific delay.
+   // Never derive "0p" from the absence of a delay or from the vehicle GPS.
+   const at=typeof p.delayObservedAt==="string"?Date.parse(p.delayObservedAt):NaN;
+   if(Number.isInteger(p.delaySeconds)&&Number(p.delaySeconds)>=-1800&&Number(p.delaySeconds)<=7200
+    &&Number.isFinite(at)&&at<=Date.now()+10000&&Date.now()-at<=90000){
+    entry.delaySeconds=p.delaySeconds;
+    entry.delayObservedAt=p.delayObservedAt;
+    if(typeof p.delayStopId==="string"&&safeStop(p.delayStopId))entry.delayStopId=p.delayStopId;
+   }
+   return entry;
   }):chosen;
   const predictions=predictionMode&&!allMode&&stops.size?
    ((payload.stopPredictions||[]) as DelayRow[]).filter(p=>allowed.has(p.routeKey)&&stops.has(p.stopId)).slice(0,700):[];
