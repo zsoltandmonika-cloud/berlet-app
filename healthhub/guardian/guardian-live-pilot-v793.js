@@ -262,7 +262,7 @@ async function poll(force=false){
  }catch(_){clear();status('az adatkapcsolat pillanatnyilag nem elérhető')}
  finally{inFlight=false;sh9Abort=null}
 }
-function start(){if(polling!==null)return;poll();polling=w.setInterval(poll,sh9AllMode?120000:15000)}
+function start(){if(polling!==null)return;poll();polling=w.setInterval(poll,sh9AllMode?60000:15000)}
 function stop(){
  if(sh9AllMode){try{sh9Abort?.abort()}catch(_){ }sh9Abort=null;}
  if(polling!==null){w.clearInterval(polling);polling=null}
