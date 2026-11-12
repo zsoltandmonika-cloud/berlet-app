@@ -9,7 +9,16 @@
  'use strict';
  const ID='hh-bkk-live-v793';
  const delayCore=root?.HH_BKK_SMART_DELAY_V1||(typeof require==='function'?require('./bkk-smart-delay-v1.js'):null);
- const liveDelay=v=>delayCore?.classify?.(v?.delaySeconds,v?.delayObservedAt)||{status:'unknown',text:'',description:''};
+ const liveDelay=v=>{
+  const result=delayCore?.classify?.(v?.delaySeconds,v?.delayObservedAt)||
+   {status:'unknown',text:'',description:''};
+  if(result.status==='unknown'||v?.delayPrecision!=='minute')return result;
+  // Minute-rounded static GTFS is useful but does NOT establish exact punctuality.
+  if(v.delaySeconds===0)return {status:'estimated',text:'≈0p',
+   description:'Közelítő menetrendi összevetés · a pontos indulás nem igazolt'};
+  return {...result,text:'≈'+result.text,
+   description:result.description+' · menetrendből becsült, körülbelül ±1 perc'};
+ };
  const COLORS={260:'#148ee0',17:'#e4ab00',19:'#e4ab00',1:'#e4ab00',41:'#e4ab00'};
  const EMPTY={type:'FeatureCollection',features:[]};
  function toFeatureCollection(vehicles){
