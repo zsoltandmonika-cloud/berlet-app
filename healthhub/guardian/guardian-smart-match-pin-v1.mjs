@@ -216,15 +216,19 @@ function renderClock(){
  const reachable=future.match&&future.leaveMs!=null&&(!isToday||future.leaveMs>=now);
  const note=future.dir==="work"&&leave?
   (isToday?"":"Holnap · ")+from+" "+leave+
+   (future.tramLine&&Number.isFinite(future.tramDepartMs)?
+    " · 🚋 "+future.tramLine+" "+clock(future.tramDepartMs):"")+
    (future.leaveMs<now&&isToday?" · késő":""):
   reachable?(isToday?"":"Holnap · ")+from+" "+leave:
    (isToday?"":"Holnap · ")+"Csatlakozás nélkül";
  const stop=future.stop||"260-as megálló";
  const title="Smart Match · "+stageText(state.item)+
   " · 260-as "+stop+" · menetrend szerinti indulás "+time+
-  (reachable?" · ajánlott indulás "+from.toLowerCase()+" "+leave:
+  (reachable?" · ajánlott indulás "+from.toLowerCase()+" "+leave+
+   (future.tramLine&&Number.isFinite(future.tramDepartMs)?
+    " · "+future.tramLine+"-es villamos "+clock(future.tramDepartMs):""):
    future.dir==="work"&&leave?" · "+from.toLowerCase()+" "+leave:
-   " · nincs igazolt, legfeljebb 3 perces csatlakozás");
+   " · nincs igazolt, legfeljebb "+(state.item?.maxWaitMin??3)+" perces csatlakozás");
  const label=document.getElementById(HOST_ID)?.querySelector(".hh-smart-match-pin-label");
  if(label)label.textContent=future.dir==="work"?"🚌 260 · CITRONELLA":
   future.dir==="home"?"🚌 260 · BÉCSI ÚT":"📌 SMART MATCH";
@@ -258,7 +262,9 @@ async function updateSchedule({force=false}={}){
     const paired=pair260Connections(full,connections,expanded);
     for(const bus of paired.rows){
      out.push({date,displayMs:bus.departMs,leaveMs:Number.isFinite(bus.leaveMs)?bus.leaveMs:null,
-      stop:bus.stop,dir,match:bus.connectionOk});
+      stop:bus.stop,dir,match:bus.connectionOk,
+      tramLine:dir==="work"&&bus.connectionOk?bus.match?.line:null,
+      tramDepartMs:dir==="work"&&bus.connectionOk?bus.match?.departMs:null});
     }
    }
   }else{
