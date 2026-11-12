@@ -72,5 +72,10 @@ test('favorite draft creates a NEW template only after GTFS form validation, ori
  assert.equal(core.bus260DirectionForTemplate(core.DEFAULT),'home');
  assert.equal(core.bus260DirectionForTemplate(core.REVERSE),'work');
  assert.equal(core.bus260DirectionForTemplate({...core.DEFAULT,originFavoriteSlot:0,destinationFavoriteSlot:7}),null);
- assert.equal(core.SAMPLES.length,3);
+ assert.equal(core.SAMPLES.length,5);
+ assert.equal(core.FAMILY_OUTBOUND.originFavoriteSlot,0);
+ assert.equal(core.FAMILY_OUTBOUND.destinationFavoriteSlot,7);
+ assert.equal(core.FAMILY_OUTBOUND.reverseId,core.FAMILY_RETURN.id);
+ assert.equal(core.FAMILY_RETURN.reverseId,core.FAMILY_OUTBOUND.id);
+ assert.equal(core.FAMILY_OUTBOUND.targetRoute,'');
 });
