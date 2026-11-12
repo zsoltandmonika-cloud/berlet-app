@@ -9,6 +9,7 @@
 <link rel="icon" href="../sho-preview/favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="../shared/sh9-golden-bottom-nav-v924.css?v=1184-entertainment">
 <link rel="stylesheet" href="./cinema-hero-v2.css?v=1185-cinematic">
+<link rel="stylesheet" href="./pixel-artwork-v3.css?v=1186-approved-hd">
 <style>
 :root{color-scheme:dark;--pink:#fa398e;--pink2:#ff89d1;--blue:#45c1ff;--white:#fff8ff;--sub:#c9c4df;--bg:#070915;--surface:#111329;--line:rgba(239,203,255,.17);--glow:0 0 29px rgba(244,38,165,.24)}
 *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:radial-gradient(ellipse 65% 55% at 15% 5%,#321232 0%,transparent 65%),radial-gradient(ellipse 55% 45% at 90% 15%,#071e4c,transparent 80%),#070915;color:var(--white);font:15px/1.42 Inter,system-ui,-apple-system,"Segoe UI",Arial,sans-serif}
@@ -178,6 +179,11 @@ a{color:inherit;text-decoration:none}button{font:inherit;cursor:pointer}button:f
 </header>
 <main class="wrap">
 <section class="hero" aria-label="Smart Entertainment ajánló">
+ <a class="pixel-mobile-home" href="../" aria-label="SHO kezdőlap"></a>
+ <button type="button" class="pixel-mobile-heart" id="pixelHeart" aria-label="Kedvencek mutatása"></button>
+ <a class="pixel-mobile-bell" id="pixelBell" href="../notification-center/" aria-label="SHO értesítések"></a>
+ <button type="button" class="pixel-mobile-favlist" id="pixelFavlist" aria-label="Kedvenc listák megnyitása"></button>
+ <button type="button" class="pixel-mobile-sound" id="pixelSound" aria-pressed="false" aria-label="Hangeffektek bekapcsolása">♪</button>
  <div class="hero-art" aria-hidden="true"><div class="hero-panel"></div><div class="hero-panel"></div><div class="hero-panel"></div><div class="hero-panel"></div></div>
  <div class="hero-visual reel" aria-hidden="true">🎞️</div><div class="hero-visual masks" aria-hidden="true">🎭</div><div class="hero-visual music" aria-hidden="true">🎸</div><div class="hero-visual remote" aria-hidden="true">📺</div>
  <div class="hero-copy"><span class="eyebrow">SHO · élményközpont</span><h1><em><span>Smart</span> <span>Entertainment</span></em></h1><p>Filmek · Sorozatok · Színház · Koncertek · Otthoni szórakozás</p></div>
@@ -189,6 +195,8 @@ a{color:inherit;text-decoration:none}button{font:inherit;cursor:pointer}button:f
  </div>
 </section>
 <section class="upcoming" id="upcoming" aria-label="Kitűzött következő program">
+ <a class="pixel-event-detail" id="pixelEventDetail" href="https://ramart.hu/elvalt-nok-klubja/" target="_blank" rel="noopener noreferrer" aria-label="Következő program részletei"></a>
+ <button type="button" class="pixel-event-edit" id="pixelEventEdit" aria-label="Következő program szerkesztése"></button>
  <div class="upcoming-poster" id="upPoster" aria-hidden="true"></div>
  <div class="upcoming-text">
   <div class="upcoming-eyebrow">📌 KÖVETKEZŐ PROGRAMUNK <span class="upcoming-state" id="upState">Tervezett program</span></div>
@@ -324,6 +332,7 @@ a{color:inherit;text-decoration:none}button{font:inherit;cursor:pointer}button:f
 </script>
 <script defer src="../../healthhub/chatgpt-project-shortcut-v712.js?v=756-central-open"></script>
 <script defer src="./upcoming-event-v1.js?v=1183"></script>
+<script defer src="./pixel-artwork-v3.js?v=1186-approved-hd"></script>
 <script defer src="../shared/sh9-golden-bottom-nav-v924.js?v=1184-entertainment"></script>
 </body>
 </html>
