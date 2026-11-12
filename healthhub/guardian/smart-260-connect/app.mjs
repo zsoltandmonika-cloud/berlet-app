@@ -148,6 +148,15 @@ function applyFormModes(){
 function hydrate(){
  favoriteAddressDraft=null;
  const item=current();if(!item)return;
+ // Incomplete built-in family drafts follow the actual shared favorite aliases
+ // by slot, without copying private coordinates into the public route schema.
+ if(item.favoriteRoute&&!item.targetRoute){
+  const saved=window.SHO_SMART_MATCH_FAVORITE_EDITOR_V939?.readLocal?.()||[];
+  const a=saved.find(x=>x.slot===item.originFavoriteSlot);
+  const b=saved.find(x=>x.slot===item.destinationFavoriteSlot);
+  if(a&&b){item.originLabel=a.label;item.destinationLabel=b.label;
+   item.title=(a.label+" → "+b.label).slice(0,80)}
+ }
  updateTitle(item);
  $("titleInput").value=item.title||"";
  $("kind").value=item.type==="walk"?"walk":"transfer";
@@ -358,6 +367,12 @@ function getMode(line){
   (line==="260"?"bus":"tram");
 }
 function routeFlowStages(item){
+ if(item.favoriteRoute&&!item.targetRoute)return [
+  {role:"origin",label:item.originLabel||"Kedvenc indulási cím",detail:"Közös családi kedvenc"},
+  {role:"walk",label:"Megálló",detail:"Beállítandó"},
+  {role:"transfer",label:"BKK-járatok",detail:"Szerkesztés szükséges"},
+  {role:"destination",label:item.destinationLabel||"Kedvenc célcím",detail:"Közös családi kedvenc"}
+ ];
  // Future Smart Trip results may provide arbitrary validated travel stages.
  // Render them as data, without extending today's 4-line routing coverage.
  if(Array.isArray(item.flowSteps)&&item.flowSteps.length>=2&&item.flowSteps.length<=12){
