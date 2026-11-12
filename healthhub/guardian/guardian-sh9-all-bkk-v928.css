@@ -23,3 +23,19 @@
 .sh9-bkk-popup-v928 strong{font-size:19px;color:#0d4880}
 .sh9-bkk-popup-v928 small{font:600 10px/1.4 system-ui;color:#547189}
 @media(max-width:350px){#sh9AllVehiclesControlsV928{gap:5px}#sh9AllVehiclesControlsV928 button{font-size:10px;padding:7px 6px}}
+
+/* v930 repair: live BKK diagnostics must be VISIBLE on the all-vehicles page.
+   v930 deliberately screen-reader-clipped both status lines, leaving a
+   perfectly empty map with no reason or user action.  Keep this one compact. */
+:root[data-sh9-transit="on"] #sh9AllVehiclesStatusV928{
+ position:static!important;width:auto!important;height:auto!important;
+ margin:8px 1px 10px!important;padding:6px 8px!important;
+ overflow:visible!important;clip:auto!important;clip-path:none!important;
+ white-space:normal!important;pointer-events:auto!important;
+ border:1px solid rgba(139,210,254,.24)!important;border-radius:10px!important;
+ background:rgba(8,31,65,.36)!important;line-height:1.5!important;
+ min-height:22px!important;display:block!important;
+}
+:root[data-sh9-transit="on"][data-guardian-profile="m"] #sh9AllVehiclesStatusV928{
+ border-color:rgba(255,176,235,.29)!important;
+}
