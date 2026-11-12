@@ -88,8 +88,10 @@ test('Smart Match cards remain static GTFS and chips are compact FYI only',()=>{
  assert.match(app,/article\.dataset\.bkkRouteKey=row\.mode\+":"\+row\.line/);
  assert.match(app,/a\.dataset\.busDeparture=String\(bus\.departMs\)/);
  assert.match(client,/\.v34-260-row|querySelectorAll\("\.timeline-row"\)/);
- assert.match(html,/smart-delay-client-v1\.mjs\?v=937-fyi-cache/);
+ assert.match(html,/smart-delay-client-v1\.mjs\?v=938-hero-pill/);
  assert.match(html,/hhSmartDelayHeroV1" class="smart-delay-hero-v1" hidden/);
  assert.match(css,/data-delay="estimated"/);
- assert.match(client,/menetrend változatlan/);
+ assert.match(client,/hero\.replaceChildren\(lead\.node\.cloneNode\(true\)\)/);
+ assert.doesNotMatch(client,/BKK FYI · /);
+ assert.doesNotMatch(client,/menetrend változatlan/);
 });
