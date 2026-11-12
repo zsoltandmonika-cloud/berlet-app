@@ -4,6 +4,8 @@ on:
     paths:
       - "healthhub/guardian/smart-260-connect/**"
       - "sh9/smart-travel/public-transport/smart-trip/index.html"
+      - "sh9/smart-travel/public-transport/smart-trip/smart-trip-smart-match-promo-v942.css"
+      - "healthhub/tests/sho-smart-trip-smart-match-promo-v942.test.cjs"
       - ".github/workflows/sho-smart-match-v1.yml"
   push:
     branches:
@@ -12,6 +14,8 @@ on:
     paths:
       - "healthhub/guardian/smart-260-connect/**"
       - "sh9/smart-travel/public-transport/smart-trip/index.html"
+      - "sh9/smart-travel/public-transport/smart-trip/smart-trip-smart-match-promo-v942.css"
+      - "healthhub/tests/sho-smart-trip-smart-match-promo-v942.test.cjs"
       - ".github/workflows/sho-smart-match-v1.yml"
   workflow_dispatch:
 permissions:
@@ -44,6 +48,8 @@ jobs:
         run: node --test healthhub/guardian/smart-260-connect/core.test.mjs
       - name: Official public BKK GTFS routing diagnostic
         run: node --test healthhub/guardian/smart-260-connect/real-feed.test.mjs
+      - name: Premium Smart Match card remains link-safe and visually scoped
+        run: node --test healthhub/tests/sho-smart-trip-smart-match-promo-v942.test.cjs
       - name: Validate isolated Smart Trip AI navigation
         run: |
           grep -q '/berlet-app/healthhub/guardian/smart-260-connect/' sh9/smart-travel/public-transport/smart-trip/index.html
