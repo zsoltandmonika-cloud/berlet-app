@@ -63,8 +63,8 @@ test('one card is on Bevitel below premium tile; the duplicate launcher and larg
  assert.match(ui,/render\(\);showResult\(order,result\)/);
  assert.match(live,/area\.hidden=true/);
  assert.match(live,/duplicateLauncher\.hidden=true/);
- assert.ok(html.includes('hh-interfood-smart-lunch-v1178.js?v=1182-premium-rag'));
- assert.ok(html.includes('hh-interfood-smart-lunch-v1178.css?v=1182-premium-rag'));
+ assert.ok(html.includes('hh-interfood-smart-lunch-v1178.js?v=1183-premium-glass-lilac-frame'));
+ assert.ok(html.includes('hh-interfood-smart-lunch-v1178.css?v=1183-premium-glass-lilac-frame'));
  assert.match(css,/\.hh-sl-hero/);
 });
 test('diary and feedback are profile-private, explicit and idempotent',()=>{
@@ -210,5 +210,33 @@ test('v1182 premium RAG Buddy reuses original approved sprite for every Smart Lu
  assert.ok(ui.includes("showFailure(String(e?.message||e))"));
  assert.ok(!ui.includes('family-success-buddy-v881.webp'));
  assert.ok(!css.includes('.hh-sl-buddy{'));
+ new vm.Script(ui);
+});
+
+test('v1183 approved premium-glass facelift uses authentic Interfood photo and responsive lilac frame',()=>{
+ assert.ok(html.includes('hh-interfood-smart-lunch-v1178.css?v=1183-premium-glass-lilac-frame'));
+ assert.ok(html.includes('hh-interfood-smart-lunch-v1178.js?v=1183-premium-glass-lilac-frame'));
+ for(const item of [
+  "const kcal=text('div','','hh-sl-kcal')",
+  "const macros=text('div','','hh-sl-macro-row')",
+  "'hh-sl-macro-chip'",
+  "'hh-sl-weight-chip'",
+  "info.append(metrics);hero.append(info,cardImage(order));card.append(hero)",
+  "img.src=order.imageUrl",
+  "root.HH_INTERFOOD_SMART_LUNCH_V1178=Object.freeze"
+ ])assert.ok(ui.includes(item),item);
+ for(const item of [
+  'v1183 · approved Smart Lunch premium-glass facelift',
+  '.hh-sl-kicker', '.hh-sl-kcal', '.hh-sl-macro-row',
+  '.hh-sl-macro-chip', '.hh-sl-weight-chip',
+  '.hh-sl-image', 'rgba(255,184,230,.92)',
+  '@media(max-width:380px)'
+ ])assert.ok(css.includes(item),item);
+ assert.ok(ui.includes("fmt(order.nutrients?.kcal==null?null:order.nutrients.kcal*order.quantity)"));
+ assert.ok(ui.includes("fmt(order.nutrients?.[key]==null?null:order.nutrients[key]*order.quantity)"));
+ assert.ok(ui.includes("undoInterfoodSmartOrder({expectedProfile:profile,orderId:order.id})"));
+ assert.ok(ui.includes("starFeedback()"));
+ assert.ok(ui.includes("inner.append(premiumBuddy(inner.dataset.rag))"));
+ assert.ok(!ui.includes('localStorage.setItem'));
  new vm.Script(ui);
 });
