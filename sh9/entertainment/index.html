@@ -9,7 +9,7 @@
 <link rel="icon" href="../sho-preview/favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="../shared/sh9-golden-bottom-nav-v924.css?v=1184-entertainment">
 <link rel="stylesheet" href="./cinema-hero-v2.css?v=1185-cinematic">
-<link rel="stylesheet" href="./pixel-artwork-v3.css?v=1186-approved-hd">
+<link rel="stylesheet" href="./pixel-artwork-v3.css?v=1192-fullwidth">
 <link rel="stylesheet" href="./culture-tiles-v1.css?v=1188-linked">
 <link rel="stylesheet" href="./pixel-extension-v1189.css?v=1191-height-matched">
 <style>
@@ -338,7 +338,15 @@ a{color:inherit;text-decoration:none}button{font:inherit;cursor:pointer}button:f
  updateTopBell();
  document.querySelectorAll('.row-nav').forEach(function(b){b.addEventListener('click',function(){
   var row=document.getElementById(b.dataset.row);if(!row)return;
-  row.scrollBy({left:Number(b.dataset.dir)*Math.max(230,row.clientWidth*.74),behavior:'smooth'});
+  var dir=Number(b.dataset.dir);
+  if(window.matchMedia('(max-width:650px)').matches){
+   // Advance precisely one whole card; no cut-off next slide at mobile widths.
+   var card=row.querySelector('.card:not(.hidden)');
+   var gap=parseFloat(getComputedStyle(row).columnGap)||0;
+   row.scrollBy({left:dir*(card?card.getBoundingClientRect().width+gap:row.clientWidth),behavior:'smooth'});
+  }else{
+   row.scrollBy({left:dir*Math.max(230,row.clientWidth*.74),behavior:'smooth'});
+  }
  })});
  document.getElementById('askLena').addEventListener('click',function(){
   var api=window.HH_CHATGPT_PROJECT_SHORTCUT_V712;
