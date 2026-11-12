@@ -157,10 +157,10 @@ function init(w,d){
  }
  function showCount(){
   if(!enabled){message('Az összes jármű megjelenítése és frissítése kikapcsolva.');return}
-  if(!last){message('A kiválasztott térképrész friss BKK-adataira várunk. Ha nincs adat, az adatkapcsolat állapotát fent láthatod.');return}
+  if(!last){message('📡 Élő BKK-járműadatokra várunk · a Family Live belépésnek aktívnak kell lennie.');return}
   const at=lastAt?new Date(lastAt).toLocaleTimeString('hu-HU'):'—';
   if(last.features.length===0){
-   message('0 jármű a lekért térképrészben · '+at+' · próbálj távolítani, majd Frissítés.');return;
+   message('⚪ 0 ellenőrzött jármű ebben a térképrészben · '+at+' · távolíts a térképen, majd koppints a Frissítésre.');return;
   }
   const count=lastDrawn?' · '+lastDrawn+' ikon a térképen':' · térképréteg/csoportok';
   message(last.features.length+' ellenőrzött jármű'+count+' · '+at+
@@ -205,6 +205,11 @@ function init(w,d){
   if(enabled&&last){
    applyData();showCount();
    if(last.features.length>0)message(status.textContent+' · új területhez Frissítés');
+   else {
+    // Empty view recovery: after a deliberate map move, request this NEW
+    // viewport. The existing BKK Live controller enforces the 8/45 s saver.
+    emit('hh-sh9-all-live-refresh-v928');
+   }
   }
  });
  // Ready handshake replays an earlier, already validated response without a
