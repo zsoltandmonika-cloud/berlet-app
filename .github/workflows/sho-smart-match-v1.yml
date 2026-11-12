@@ -7,6 +7,7 @@ on:
       - ".github/workflows/sho-smart-match-v1.yml"
   push:
     branches:
+      - "main"
       - "feature/guardian-smart-260-connect"
     paths:
       - "healthhub/guardian/smart-260-connect/**"
@@ -27,6 +28,7 @@ jobs:
           node --check healthhub/guardian/smart-260-connect/core.mjs
           node --check healthhub/guardian/smart-260-connect/app.mjs
           node --check healthhub/guardian/smart-260-connect/favorite-route-editor-v939.js
+          node --check healthhub/guardian/smart-260-connect/fleet-catalog-v940.mjs
           node --check healthhub/guardian/smart-260-connect/smart-delay-client-v1.mjs
           node --check healthhub/guardian/bkk-smart-delay-v1.js
           node --check healthhub/guardian/bkk-live-map-v793.js
@@ -34,6 +36,8 @@ jobs:
         run: node --test healthhub/tests/guardian-bkk-smart-delay-v1.test.cjs
       - name: Read-only family favorites and preservation of legacy Smart Match routes
         run: node --test healthhub/tests/sho-smart-match-favorite-route-v939.test.cjs
+      - name: Full-fleet editor, family directions and deletable template regression
+        run: node --test healthhub/tests/sho-smart-match-fleet-v940.test.cjs
       - name: Scheduled matching, walking and safe-fail regression tests
         run: node --test healthhub/guardian/smart-260-connect/core.test.mjs
       - name: Official public BKK GTFS routing diagnostic
