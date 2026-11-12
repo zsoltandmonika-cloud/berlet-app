@@ -11,6 +11,7 @@
 <link rel="stylesheet" href="./cinema-hero-v2.css?v=1185-cinematic">
 <link rel="stylesheet" href="./pixel-artwork-v3.css?v=1186-approved-hd">
 <link rel="stylesheet" href="./culture-tiles-v1.css?v=1188-linked">
+<link rel="stylesheet" href="./pixel-extension-v1189.css?v=1189-approved">
 <style>
 :root{color-scheme:dark;--pink:#fa398e;--pink2:#ff89d1;--blue:#45c1ff;--white:#fff8ff;--sub:#c9c4df;--bg:#070915;--surface:#111329;--line:rgba(239,203,255,.17);--glow:0 0 29px rgba(244,38,165,.24)}
 *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:radial-gradient(ellipse 65% 55% at 15% 5%,#321232 0%,transparent 65%),radial-gradient(ellipse 55% 45% at 90% 15%,#071e4c,transparent 80%),#070915;color:var(--white);font:15px/1.42 Inter,system-ui,-apple-system,"Segoe UI",Arial,sans-serif}
@@ -203,7 +204,14 @@ a{color:inherit;text-decoration:none}button{font:inherit;cursor:pointer}button:f
   <span class="tile-icon" aria-hidden="true">🎟️</span><span class="tile-caption"><b>Rendezvények</b><small>Fesztiválok · Vásárok · Programok</small></span>
  </a>
 </section>
-<section class="upcoming" id="upcoming" aria-label="Kitűzött következő program">
+<section class="pixel-extension" aria-label="Kultúra, rendezvények és kiemelt programok">
+ <a class="pixel-region pixel-culture" href="./kultura/" aria-label="Kultúra: múzeumok, kiállítások és galériák"><span class="sr-only">Kultúra</span></a>
+ <a class="pixel-region pixel-events" href="./rendezvenyek/" aria-label="Rendezvények: fesztiválok, vásárok, kiemelt programok"><span class="sr-only">Rendezvények</span></a>
+ <a class="pixel-region pixel-feature-link" id="pixelFeatureLink" href="#mozi" aria-label="Kiemelt ajánlatunk: premierek és különleges programok"><span class="sr-only">Kiemelt ajánlatunk</span></a>
+ <button type="button" class="pixel-feature-edit" id="pixelFeatureEdit" aria-label="Kiemelt ajánlat szerkesztése" title="Kiemelt ajánlat szerkesztése"></button>
+ <div class="pixel-feature-custom" id="pixelFeatureCustom" aria-live="polite"><span id="pixelFeatureKicker" class="feature-kicker">📌 KIEMELT AJÁNLATUNK</span><strong id="pixelFeatureTitle"></strong><small id="pixelFeatureNote"></small></div>
+</section>
+<section class="upcoming empty-pin" id="upcoming" aria-label="Kitűzött következő program">
  <a class="pixel-event-detail" id="pixelEventDetail" href="https://ramart.hu/elvalt-nok-klubja/" target="_blank" rel="noopener noreferrer" aria-label="Következő program részletei"></a>
  <button type="button" class="pixel-event-edit" id="pixelEventEdit" aria-label="Következő program szerkesztése"></button>
  <div class="upcoming-poster" id="upPoster" aria-hidden="true"></div>
@@ -257,6 +265,17 @@ a{color:inherit;text-decoration:none}button{font:inherit;cursor:pointer}button:f
   <div class="editor-actions"><button type="submit" class="primary">📌 Kitűzés mentése</button><button type="button" id="cancelBooking">Mégse</button><button type="button" id="clearBooking" class="danger">Kitűzés törlése</button></div>
  </form>
 </div>
+<dialog id="shoFeatureDialog" aria-labelledby="shoFeatureDialogTitle">
+ <form id="shoFeatureForm">
+  <h2 id="shoFeatureDialogTitle">📌 Kiemelt ajánlatunk</h2>
+  <p>A kiemelt program személyre szabható. A hat kategóriacsempe változatlan marad.</p>
+  <label>Kiemelt ajánlat címe<input id="featureTitleInput" required maxlength="85" autocomplete="off" placeholder="Például: Őszi színházi premier"></label>
+  <label>Rövid leírás<input id="featureNoteInput" maxlength="100" autocomplete="off" placeholder="Részletek · Jegyek · Különleges program"></label>
+  <label>Programoldal (HTTPS)<input id="featureUrlInput" type="url" inputmode="url" placeholder="https://..."></label>
+  <p>Az ajánlatot ebben a böngészőben mentjük. Üres URL esetén a moziajánló nyílik meg.</p>
+  <div class="actions"><button type="submit" class="save" id="shoFeatureSave">📌 Mentés</button><button type="button" id="shoFeatureCancel">Mégse</button><button type="button" class="remove" id="shoFeatureClear">Alaphelyzet</button></div>
+ </form>
+</dialog>
 <script>
 (function(){
  'use strict';
@@ -340,7 +359,8 @@ a{color:inherit;text-decoration:none}button{font:inherit;cursor:pointer}button:f
 })();
 </script>
 <script defer src="../../healthhub/chatgpt-project-shortcut-v712.js?v=756-central-open"></script>
-<script defer src="./upcoming-event-v1.js?v=1183"></script>
+<script defer src="./upcoming-event-v1.js?v=1189-no-stale"></script>
+<script defer src="./feature-pin-v1189.js?v=1189-approved"></script>
 <script defer src="./pixel-artwork-v3.js?v=1186-approved-hd"></script>
 <script defer src="../shared/sh9-golden-bottom-nav-v924.js?v=1184-entertainment"></script>
 </body>
