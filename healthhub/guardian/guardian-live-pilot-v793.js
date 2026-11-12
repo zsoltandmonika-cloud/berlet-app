@@ -59,6 +59,44 @@ let sh9OverviewSet=false,lastSh9Bbox=null,lastSh9WasEmpty=false;
 let lastVehicles=[];
 let lastVerified=null;
 let lastSourceSnapshot=null; // validated, UNFILTERED BKK response; redraw never refetches
+
+const SMART_MATCH_FYI_KEY='hh-bkk-smart-match-fyi-v937';
+// Only public BKK stop predictions cross the same-origin page boundary.
+// Never store a token, phone/GPS coordinates or another person's travel plan.
+function shareSmartMatchPredictions(payload){
+ try{
+  const stored=w.localStorage;
+  if(!stored)return;
+  const stamp=Date.parse(payload?.delayGeneratedAt||'');
+  const now=Date.now();
+  if(!Number.isFinite(stamp)||stamp>now+10000||now-stamp>90000||
+     !Array.isArray(payload?.stopPredictions)){
+   stored.removeItem(SMART_MATCH_FYI_KEY);return;
+  }
+  const keys=new Set(['bus:260','tram:17','tram:19','tram:41']);
+  const valid=[];
+  for(const p of payload.stopPredictions){
+   if(!p||!keys.has(p.routeKey)||typeof p.stopId!=='string'||
+    !/^(?:BKK_)?[A-Za-z0-9_-]{2,30}$/.test(p.stopId)||
+    !Number.isSafeInteger(p.scheduledMs)||!Number.isSafeInteger(p.predictedMs)||
+    !Number.isInteger(p.delaySeconds)||p.delaySeconds< -1800||p.delaySeconds>7200||
+    p.predictedMs<now-180000||p.predictedMs>now+7200000||
+    Math.abs(p.predictedMs-p.scheduledMs-p.delaySeconds*1000)>30000||
+    p.asOf!==payload.delayGeneratedAt||
+    (p.delayPrecision!==undefined&&p.delayPrecision!=='minute'))continue;
+   valid.push({routeKey:p.routeKey,stopId:p.stopId,scheduledMs:p.scheduledMs,
+    predictedMs:p.predictedMs,delaySeconds:p.delaySeconds,asOf:p.asOf,
+    ...(p.delayPrecision==='minute'?{delayPrecision:'minute'}:{})});
+   if(valid.length>=1800)break;
+  }
+  if(!valid.length){stored.removeItem(SMART_MATCH_FYI_KEY);return}
+  stored.setItem(SMART_MATCH_FYI_KEY,JSON.stringify({
+   schemaVersion:1,source:'BKK Zrt., CC BY 4.0',
+   generatedAt:payload.delayGeneratedAt,rows:valid
+  }));
+ }catch(_){/* Storage blocked/full: Smart Match remains purely scheduled. */}
+}
+
 // Live map visibility is a presentation toggle, not a change to BKK polling.
 let liveVisible=true;
 function updateLiveButton(){
@@ -223,7 +261,7 @@ async function poll(force=false){
   }
   showLogin(false);
   const url=cfg.supabaseUrl.replace(/\/$/,'')+'/functions/v1/hh-bkk-live-v793-preview?'+
-   (sh9AllMode?'all=1&bbox='+encodeURIComponent(bbox):'routes='+encodeURIComponent(favoriteKeys().join(',')));
+   (sh9AllMode?'all=1&bbox='+encodeURIComponent(bbox):'routes='+encodeURIComponent(favoriteKeys().join(',')))+'&predictions=1&smartMatch=1';
   const abort=sh9AllMode&&w.AbortController?new w.AbortController():null;
   if(abort)sh9Abort=abort;
   const res=await w.fetch(url,{method:'GET',cache:'no-store',...(abort?{signal:abort.signal}:{}),headers:{
@@ -233,6 +271,7 @@ async function poll(force=false){
   if(!res.ok){if(res.status===401)showLogin(true);clear();status(res.status===503?'BKK-adat jelenleg nem elérhető':res.status===401?'Bejelentkezés szükséges':'Kapcsolati hiba ('+res.status+')');return}
   const parsed=sh9AllMode?validator.validate(data,Date.now(),3500):validator.validate(data);
   if(!parsed.ok){clear();status('az élő adat elavult vagy nem ellenőrizhető');return}
+  shareSmartMatchPredictions(data);
   if(sh9AllMode){
    if(!sh9AllEnabled||d.hidden)return;
    // A dedicated clustered MapLibre source draws every verified BKK vehicle
