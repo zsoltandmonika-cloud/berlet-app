@@ -40,7 +40,7 @@ test('Green ring keeps countdown and source-backed clock while showing route dir
  assert.match(html,/id="ringDirection" class="ring-direction-v941"/);
  assert.match(html,/id="countdown">--:--<\/b><small id="countdownLabel">indulásig<\/small>/);
  assert.match(html,/ring-direction-v941\.css\?v=941/);
- assert.match(html,/app\.mjs\?v=941-active-ring-direction/);
+ assert.match(html,/app\.mjs\?v=943-verified-family-trip/);
  assert.match(app,/import \{ringDirection\} from "\.\/ring-direction-v941\.mjs"/);
  assert.match(app,/function updateRingDirection\(item\)/);
  assert.match(app,/function renderFlow\(item\)\{\n updateRingDirection\(item\)/);
