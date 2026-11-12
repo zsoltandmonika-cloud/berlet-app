@@ -29,7 +29,11 @@ function validConfig(c,allowed=[]){
    !c.transferStop.trim()||!c.targetRoute.trim())return false;
  const lines=new Set(allowed.length?allowed:[...c.feederRoutes,c.targetRoute]);
  if(["targetAfterStop","feederHeadsign"].some(k=>c[k]!=null&&(typeof c[k]!=="string"||c[k].length>120)))return false;
- if(!lines.has(c.targetRoute)||c.feederRoutes.some(r=>!lines.has(r)||r===c.targetRoute))return false;
+ const targetRoutes=c.targetRoutes??[c.targetRoute];
+ if(!Array.isArray(targetRoutes)||targetRoutes.length<1||targetRoutes.length>12||
+   targetRoutes.some(r=>typeof r!=="string"||!lines.has(r))||
+   !targetRoutes.includes(c.targetRoute)||new Set(targetRoutes).size!==targetRoutes.length||
+   c.feederRoutes.some(r=>!lines.has(r)||targetRoutes.includes(r)))return false;
  const ranges={
   startHour:[0,23],endHour:[1,24],originWalkMin:[0,30],originSafetyMin:[0,10],
   transferWalkMin:[0,20],transferSafetyMin:[0,10],maxWaitMin:[1,10],maxTransferMeters:[40,600]
@@ -59,11 +63,12 @@ function options(data,date,cfg=DEFAULT,clock=Date.now()){
  if(!origins.size||!transfers.size||!boarding.size)
   throw Error("A sablon egyik megállója nem szerepel a kiválasztott BKK-adatforrásban.");
  const min=wallEpoch(date,cfg.startHour*60),max=wallEpoch(date,cfg.endHour*60);
- const feeders=[],targets=[],feedLines=new Set(cfg.feederRoutes.map(normalizeLine));
+ const feeders=[],targets=[],feedLines=new Set(cfg.feederRoutes.map(normalizeLine)),
+  targetLines=new Set((cfg.targetRoutes??[cfg.targetRoute]).map(normalizeLine));
  for(const trip of data.trips){
   const [line,service,headsign,events,mode]=trip;
   if(!active(data.services[service],date))continue;
-  if(line===cfg.targetRoute&&(!cfg.targetHeadsign||clean(headsign).includes(clean(cfg.targetHeadsign)))){
+  if(targetLines.has(line)&&(!cfg.targetHeadsign||clean(headsign).includes(clean(cfg.targetHeadsign)))){
    // One GTFS trip can serve multiple platforms with the SAME public stop name.
    // Keep all boarding choices for matching, but create only ONE bus opportunity.
    const boardingOptions=[];
@@ -255,12 +260,12 @@ const REVERSE=Object.freeze({
  reverseId:"monika-260",type:"transfer",
  title:"Mónika · Otthon → Munkahely",originLabel:"Otthon",destinationLabel:"Bécsi Corner",
  originStop:"Citronella utca",transferStop:"Bécsi út / Vörösvári út",
- targetStop:"Bécsi út / Vörösvári út",targetRoute:"17",targetHeadsign:"",
+ targetStop:"Bécsi út / Vörösvári út",targetRoute:"17",targetRoutes:["17","19","41"],targetHeadsign:"",
  targetAfterStop:"Kolosy tér",
  feederRoutes:["260"],feederHeadsign:"Óbudai rendelőintézet",
  startHour:6,endHour:19,
  originWalkMin:10,originSafetyMin:2,transferWalkMin:2,transferSafetyMin:1,
- maxWaitMin:3,maxTransferMeters:350,destinationWalkMin:10
+ maxWaitMin:5,maxTransferMeters:350,destinationWalkMin:10
 });
 const SAMPLES=Object.freeze([DEFAULT,HOME,REVERSE]);
 function walkOnlyOptions(data,date,cfg=HOME,clock=Date.now()){

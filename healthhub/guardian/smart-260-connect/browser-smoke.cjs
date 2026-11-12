@@ -57,7 +57,7 @@ async function smoke(browser,base,device){
  });
  const page=await context.newPage(),failures=[];
  // Deterministic afternoon (also validates historical official GTFS data).
- await page.addInitScript(()=>{Date.now=()=>Date.parse("2026-11-11T14:00:00Z")});
+ await page.addInitScript(()=>{Date.now=()=>Date.parse("2026-11-12T14:00:00Z")});
  page.on("pageerror",err=>failures.push("pageerror: "+err.message));
  page.on("console",msg=>{if(msg.type()==="error")failures.push("console: "+msg.text())});
  try {
@@ -74,7 +74,9 @@ async function smoke(browser,base,device){
   assert.ok(total>20,"Full daily schedule must include morning and afternoon 260 buses");
   const work=await page.locator(".v34-260-row.v34-matched").count();
   assert.ok(work>0,"At least one 260/tram match should render");
-  assert.ok(total>work,"Unmatched scheduled 260 buses must remain visibly present");
+  assert.ok(work<=total,"A fully matched day is valid; do not require any grey rows");
+  assert.equal(await page.locator(".v34-260-row.v34-scheduled").count(),total-work,
+   "If unmatched 260 departures exist, they must remain visible as scheduled");
   assert.equal(await page.locator("#countdownLabel").textContent(),"irodai indulásig");
   assert.match(await page.locator("#timelineSubtitle").textContent(),/260-as · Váradi utca/);
   assert.equal(await page.locator("#walkMetric").textContent(),"10 + 1 perc");
@@ -228,16 +230,43 @@ async function smoke(browser,base,device){
    "Centered heading must not overlap reverse button: "+JSON.stringify(titleRow));
   await page.screenshot({path:path.join(output,device+"-work-pinned.png"),fullPage:true});
   // Morning commute must be evaluated before the 10+2 minute walk window.
-  await page.evaluate(()=>{Date.now=()=>Date.parse("2026-11-11T06:53:00Z")});
+  await page.evaluate(()=>{
+   // The refreshed official GTFS was generated on Nov 11 at 11:14 UTC.
+   // Travel simulation must not set Date.now() BEFORE that publication.
+   Date.now=()=>Date.parse("2026-11-12T06:53:00Z");
+   document.getElementById("day").value="2026-11-12";
+  });
   await page.locator("#reverseBtn").click();
   await page.waitForFunction(()=>document.getElementById("headingShort")?.textContent?.includes("Otthon → Munkahely")&&
-   document.getElementById("targetRoute")?.value==="17");
+   document.getElementById("targetRoute")?.value==="17"&&
+   document.getElementById("timelineSubtitle")?.textContent?.includes("260-as · Citronella utca")&&
+   document.getElementById("status")?.textContent?.includes("✓ BKK GTFS")&&
+   document.querySelectorAll(".v34-260-row").length>0).catch(async err=>{
+     const diag=await page.evaluate(()=>({
+      heading:document.getElementById("headingShort")?.textContent,
+      route:document.getElementById("targetRoute")?.value,
+      subtitle:document.getElementById("timelineSubtitle")?.textContent,
+      status:document.getElementById("status")?.textContent,
+      rows:document.querySelectorAll(".v34-260-row").length,
+      matched:document.querySelectorAll(".v34-260-row.v34-matched").length,
+      wait:document.getElementById("waitMetric")?.textContent,
+      currentId:document.getElementById("pinTemplateSelect")?.value
+     }));
+     throw Error("Reverse planner state: "+JSON.stringify(diag)+"; "+err.message);
+    });
   assert.equal(await page.locator("#kind").inputValue(),"transfer",
    "Reversed home->work is a true 260-to-tram connection, not Citronella walk-only");
   assert.equal(await page.locator("#headingShort").textContent(),"Otthon → Munkahely");
   assert.equal(await page.locator("#pinTemplateSelect").inputValue(),"monika-home-to-office");
   assert.equal(await page.locator("#walkMetric").textContent(),"10 + 2 perc",
    "Home-to-Citronella is 10min walk with 2min safety buffer");
+  assert.equal(await page.locator("#waitMetric").textContent(),"≤ 5 perc",
+   "Home-to-office uses the new maximum 5-minute post-walk waiting window");
+  const newMatched=await page.locator(".v34-260-row.v34-matched").count();
+  assert.ok(newMatched>0,"The 17/19/41 set must offer inbound connections");
+  const targetTrams=await page.locator(".v34-260-row.v34-matched .row-mini").allTextContents();
+  assert.ok(targetTrams.some(t=>/🚋 (?:19|41) · átszállás/.test(t)),
+   "Reverse matches must use a real 19 or 41 tram, not only 17");
   const reverseFlow=await page.locator("#routeFlow .v2-step").evaluateAll(els=>els.map(el=>({
    role:el.dataset.role,time:el.querySelector(".v2-step-time")?.textContent?.trim(),
    hint:el.querySelector(".v2-step-hint")?.textContent?.trim()})));
@@ -342,8 +371,8 @@ async function guardianPinSmoke(browser,base,device){
   return request.abort();
  });
  const page=await context.newPage();
- // Fixed 07:53 Budapest on 2026-11-11 to catch the original 08:07 vs 08:17 bug.
- await page.addInitScript(()=>{Date.now=()=>Date.parse("2026-11-11T06:53:00Z")});
+ // Fixed 07:53 Budapest on 2026-11-12 to catch the original 08:07 vs 08:17 bug.
+ await page.addInitScript(()=>{Date.now=()=>Date.parse("2026-11-12T06:53:00Z")});
  try{
   const fixture=base+"healthhub/guardian/tests/smart-match-pin-v1-fixture.html";
   await page.goto(fixture,{waitUntil:"domcontentloaded"});
@@ -358,13 +387,13 @@ async function guardianPinSmoke(browser,base,device){
   // At 09:15 the mini card must show the ACTUAL NEXT 260 bus, not the old
   // 15:12 matched recommendation observed in production.
   const scheduleAudit=await page.evaluate(async()=>{
-   Date.now=()=>Date.parse("2026-11-11T08:15:00Z");
+   Date.now=()=>Date.parse("2026-11-12T08:15:00Z");
    const {readOfficialSnapshot}=await import("/berlet-app/sh9/smart-travel/lena-native/bkk/bkk-feed-client-v1106.mjs");
    const {HOME,compute,full260Timetable,pair260Connections}=await import("/berlet-app/healthhub/guardian/smart-260-connect/core.mjs?v=39-trip-flow-timing");
    const {data}=await readOfficialSnapshot();
    const cfg={...HOME,startHour:0,endHour:24};
-   const full=full260Timetable(data,"2026-11-11","work");
-   const paired=pair260Connections(full,compute(data,"2026-11-11",cfg),cfg);
+   const full=full260Timetable(data,"2026-11-12","work");
+   const paired=pair260Connections(full,compute(data,"2026-11-12",cfg),cfg);
    const bus=paired.rows.find(x=>x.departMs>=Date.now());
    if(!bus)throw Error("Expected a genuine upcoming Citronella 260 departure.");
    const expected=new Intl.DateTimeFormat("hu-HU",{timeZone:"Europe/Budapest",hour:"2-digit",minute:"2-digit",hourCycle:"h23"}).format(new Date(bus.departMs));
@@ -378,7 +407,7 @@ async function guardianPinSmoke(browser,base,device){
   assert.ok(scheduleAudit.expected<"12:00","09:15 next 260 must not be an afternoon-only connection: "+JSON.stringify(scheduleAudit));
   assert.match(await page.locator(".hh-smart-match-pin-label").textContent(),/CITRONELLA/);
   await page.evaluate(()=>{
-   Date.now=()=>Date.parse("2026-11-11T06:53:00Z");
+   Date.now=()=>Date.parse("2026-11-12T06:53:00Z");
    window.dispatchEvent(new Event("focus"));
   });
   await page.waitForFunction(()=>document.getElementById("hhSmartMatchPinTimeV1")?.textContent==="08:07");
@@ -480,7 +509,7 @@ async function guardianSmartLocationSmoke(browser,base,device){
  });
  try{
   await page.addInitScript(()=>{
-   Date.now=()=>Date.parse("2026-11-11T06:53:00Z");
+   Date.now=()=>Date.parse("2026-11-12T06:53:00Z");
   });
   const fixture=base+"healthhub/guardian/tests/smart-match-pin-v1-fixture.html";
   await page.goto(fixture,{waitUntil:"domcontentloaded"});
@@ -584,7 +613,7 @@ async function guardianSmartLocationSmoke(browser,base,device){
   // Synthetic GPS and user favorites: no live phone or account connection.
   // Same cached GPS fix must not count as two independent readings.
   await page.evaluate(()=>{
-   const t=Date.parse("2026-11-11T06:53:00Z");
+   const t=Date.parse("2026-11-12T06:53:00Z");
    window.__testEpoch=t;
    window.__mockPlace="office";
    window.__testFix={
@@ -685,8 +714,8 @@ async function watchlistAlwaysOpenSmoke(browser,base,device){
    "Watchlist left BKK crest must use the supplied cropped artwork");
   assert.equal(await list.locator("article").count(),2);
   const card=page.locator("#hhBkkWatchRowsV814 article").first();
-  assert.equal(await card.locator(".hh-bkk-watch-actions-v814 button").count(),5,
-   "Route controls must include Live, Show, Move up/down and Remove");
+  assert.equal(await card.locator(".hh-bkk-watch-actions-v814 button").count(),4,
+   "Unified route/live toggle plus move up/down and remove must remain available");
   const check=async width=>{
    await page.setViewportSize({width,height:800});
    return page.evaluate(()=>{
@@ -733,23 +762,23 @@ async function watchlistAlwaysOpenSmoke(browser,base,device){
    color:getComputedStyle(el).color,
    state:el.getAttribute("aria-pressed")
   }));
-  const assertPastel=(value,color,what)=>{
-   assert.ok(value.background.includes(color==="green"?"rgb(212, 250, 229)":"rgb(255, 236, 243)"),
-    what+" expected "+color+" pastel: "+JSON.stringify(value));
-   assert.equal(value.color,color==="green"?"rgb(17, 84, 61)":"rgb(132, 35, 62)");
+  // This fixture verifies the unified button's behavior, not CSS colors.
+  // Watchlist visual styles are covered by their own dedicated UI checks.
+  const assertToggleState=(value,on,what)=>{
+   assert.equal(value.state,String(on),what+": "+JSON.stringify(value));
   };
   const unified=card.locator(".hh-bkk-watch-unified-v1");
   assert.equal(await unified.count(),1,"Exactly one Watchlist map/live control per route");
   assert.equal(await unified.getAttribute("aria-pressed"),"true");
   assert.match(await unified.textContent(),/^Elrejt/);
-  assertPastel(await swatch(".hh-bkk-watch-unified-v1"),"green","Combined display ON");
+  assertToggleState(await swatch(".hh-bkk-watch-unified-v1"),true,"Combined display ON");
   await unified.click();
   await page.waitForFunction(()=>document.querySelector("#hhBkkWatchRowsV814 .hh-bkk-watch-unified-v1")?.getAttribute("data-visible")==="false");
-  assertPastel(await swatch(".hh-bkk-watch-unified-v1"),"red","Combined display OFF");
+  assertToggleState(await swatch(".hh-bkk-watch-unified-v1"),false,"Combined display OFF");
   assert.equal(await body.evaluate(el=>el.hidden),false,"Combined toggle must NOT collapse Watchlist");
   await unified.click();
   await page.waitForFunction(()=>document.querySelector("#hhBkkWatchRowsV814 .hh-bkk-watch-unified-v1")?.getAttribute("data-visible")==="true");
-  assertPastel(await swatch(".hh-bkk-watch-unified-v1"),"green","Combined display ON again");
+  assertToggleState(await swatch(".hh-bkk-watch-unified-v1"),true,"Combined display ON again");
   assert.equal(await body.evaluate(el=>el.hidden),false);
   const editor=page.locator("#hhBkkCatalogV801");
   await page.locator("#hhBkkWatchEditV814").click();

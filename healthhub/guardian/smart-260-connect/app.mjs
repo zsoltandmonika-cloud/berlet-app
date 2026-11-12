@@ -2,7 +2,7 @@
  * Browser-local saves, read-only BKK GTFS, no GPS/Dropbox/Supabase mutation.
  */
 import {readOfficialSnapshot} from "../../../sh9/smart-travel/lena-native/bkk/bkk-feed-client-v1106.mjs";
-import {DEFAULT,HOME,REVERSE,SAMPLES,compute,bus260DirectionForTemplate,full260Timetable,pair260Connections} from "./core.mjs?v=41-varadi-boarding";
+import {DEFAULT,HOME,REVERSE,SAMPLES,compute,bus260DirectionForTemplate,full260Timetable,pair260Connections} from "./core.mjs?v=45-multi-tram-5min";
 import {wallEpoch} from "../../../sh9/smart-travel/lena-native/bkk/bkk-gtfs-core-v1105.mjs";
 const $=id=>document.getElementById(id);
 const STORAGE="sh9-smart-match-templates-v1-m";
@@ -35,6 +35,15 @@ function safeLoad(){
  for(const item of saved){
   if((item.id==="home-citronella-260"||item.id==="monika-home-to-office")&&item.originWalkMin===6){
    item.originWalkMin=10;updated=true;
+  }
+  if(item.id==="monika-home-to-office"){
+   // One-time migration of the former 17-only, 3-minute local preference.
+   // Respect a deliberately customized wait value other than the old default.
+   if(!Array.isArray(item.targetRoutes)||
+     ["17","19","41"].some(line=>!item.targetRoutes.includes(line))){
+    item.targetRoutes=["17","19","41"];updated=true;
+   }
+   if(item.maxWaitMin===3){item.maxWaitMin=5;updated=true;}
   }
   if(item.id==="monika-260"){
    if(item.destinationWalkMin==null){item.destinationWalkMin=10;updated=true;}
@@ -263,7 +272,7 @@ function routeFlowStages(item){
   {role:"walk",label:item.originWalkMin+" perc",detail:"Séta"},
   {role:feederMode,label:feeders.join("/"),detail:item.originStop},
   {role:"transfer",label:"Csere",detail:item.transferStop},
-  {role:targetMode,label:item.targetRoute,detail:item.targetHeadsign||item.targetStop},
+  {role:targetMode,label:(item.targetRoutes?.length>1?item.targetRoutes.join("/"):item.targetRoute),detail:item.targetHeadsign||item.targetStop},
   {role:"destination",label:/bécsi corner/i.test(destination)?"Iroda":destination,detail:destination}
  ];
 }
@@ -340,6 +349,10 @@ function updateFlowTimes(item,trip=null){
   const label=nodes[2].querySelector(".v2-step-label");
   if(label)label.textContent=trip?.connected&&trip?.feederLine?
    String(trip.feederLine):String((item.feederRoutes||[]).join("/"));
+  const targetLabel=nodes[4]?.querySelector(".v2-step-label");
+  if(targetLabel)targetLabel.textContent=trip?.connected&&trip?.targetLine?
+   String(trip.targetLine):String(item.targetRoutes?.length>1?
+    item.targetRoutes.join("/"):item.targetRoute);
  }
 }
 function renderPinnedSelector(){
@@ -504,6 +517,7 @@ function updateFull260Timeline(now=Date.now(),redraw=false){
  updateFlowTimes(cfg,connection?{
   connected:true,direction:bus.direction,leaveMs:bus.leaveMs,
   feederLine:connection.best.feederLine,
+  targetLine:goingToWork?connection.line:bus.line,
   feederDepartMs:connection.best.feederDepartMs,
   feederArriveMs:connection.best.feederArriveMs,
   targetDepartMs:goingToWork?connection.departMs:bus.departMs,

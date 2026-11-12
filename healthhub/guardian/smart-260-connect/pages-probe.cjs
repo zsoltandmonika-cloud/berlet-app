@@ -8,7 +8,7 @@ const checks=[
  ["/healthhub/guardian/smart-260-connect/index.html","Smart Match Timeline"],
  ["/healthhub/guardian/index.html","guardian-smart-match-pin-v1.mjs"],
  ["/healthhub/guardian/guardian-smart-match-pin-v1.mjs","MONIKA_DEFAULT"],
- ["/healthhub/guardian/index.html","guardian-smart-match-pin-v1.mjs?v=4"],
+ ["/healthhub/guardian/index.html","guardian-smart-match-pin-v1.mjs?v=7-multi-tram-5min"],
  ["/healthhub/guardian/guardian-smart-match-pin-v1.mjs","const dir=bus260DirectionForTemplate(item);"],
  ["/healthhub/guardian/guardian-smart-match-pin-v1.mjs","const full=full260Timetable(data,date,dir);"],
  ["/healthhub/guardian/guardian-smart-match-pin-v1.mjs","CITRONELLA_DEFAULT_APPLIED"],

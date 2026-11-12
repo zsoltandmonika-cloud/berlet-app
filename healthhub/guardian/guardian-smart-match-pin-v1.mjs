@@ -7,7 +7,7 @@ const STORAGE="sh9-smart-match-templates-v1-m";
 const ACTIVE="sh9-smart-match-active-pin-v1-m";
 const CITRONELLA_DEFAULT_APPLIED="hh-smart-match-citronella-default-v2-m";
 const FULL="/berlet-app/healthhub/guardian/smart-260-connect/";
-import {HOME as MONIKA_DEFAULT,DEFAULT as OFFICE_TO_HOME,REVERSE as HOME_TO_OFFICE,compute,bus260DirectionForTemplate,full260Timetable,pair260Connections} from "./smart-260-connect/core.mjs?v=43-varadi-safe";
+import {HOME as MONIKA_DEFAULT,DEFAULT as OFFICE_TO_HOME,REVERSE as HOME_TO_OFFICE,compute,bus260DirectionForTemplate,full260Timetable,pair260Connections} from "./smart-260-connect/core.mjs?v=45-multi-tram-5min";
 import {chooseLocation} from "./guardian-smart-location-v1.mjs?v=1";
 const HOST_ID="hhSmartMatchPinV1";
 const AUTO_KEY="sh9-smart-location-switch-v1-m";
@@ -51,6 +51,14 @@ function readPin(){
   for(const item of items){
    if((item.id==="home-citronella-260"||item.id==="monika-home-to-office")&&item.originWalkMin===6){
     item.originWalkMin=10;travelTimeUpdated=true;
+   }
+   if(item.id==="monika-home-to-office"){
+    // Keep pinned Guardian calculation aligned with Smart Match full screen.
+    if(!Array.isArray(item.targetRoutes)||
+       ["17","19","41"].some(line=>!item.targetRoutes.includes(line))){
+     item.targetRoutes=["17","19","41"];travelTimeUpdated=true;
+    }
+    if(item.maxWaitMin===3){item.maxWaitMin=5;travelTimeUpdated=true;}
    }
    if(item.id==="monika-260"){
     if(item.destinationWalkMin==null){item.destinationWalkMin=10;travelTimeUpdated=true;}
