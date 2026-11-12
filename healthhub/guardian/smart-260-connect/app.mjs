@@ -7,6 +7,8 @@ import {wallEpoch} from "../../../sh9/smart-travel/lena-native/bkk/bkk-gtfs-core
 const $=id=>document.getElementById(id);
 const STORAGE="sh9-smart-match-templates-v1-m";
 const ACTIVE_PIN_KEY="sh9-smart-match-active-pin-v1-m";
+// v939: isolated favorite-address draft. Existing saved itineraries are immutable until explicit save.
+let favoriteAddressDraft=null;
 const state={items:[],current:null,data:null,manifest:null,result:null,full260:null,
  reminderEnabled:false,notificationFired:new Set(),lastNext:null,loading:false};
 const timeFmt=new Intl.DateTimeFormat("hu-HU",{timeZone:"Europe/Budapest",hour:"2-digit",minute:"2-digit",hourCycle:"h23"});
@@ -136,6 +138,7 @@ function applyFormModes(){
  $("waitMetric").textContent=walking?"2 perc ráhagyás":"≤ "+$("maxWait").value+" perc";
 }
 function hydrate(){
+ favoriteAddressDraft=null;
  const item=current();if(!item)return;
  updateTitle(item);
  $("titleInput").value=item.title||"";
@@ -192,7 +195,9 @@ function inputInt(id,min,max){
  return value;
 }
 function readForm(){
- const base=current()||clone(DEFAULT);
+ const base=favoriteAddressDraft?
+  {...clone(DEFAULT),targetAfterStop:"",destinationTransitStop:"",reverseId:null}:
+  current()||clone(DEFAULT);
  const type=$("kind").value;
  const next={...base,
   type,
@@ -210,7 +215,9 @@ function readForm(){
   transferWalkMin:type==="walk"?0:inputInt("transferWalk",0,20),
   maxWaitMin:type==="walk"?3:inputInt("maxWait",1,10),
   transferSafetyMin:type==="walk"?0:(base.transferSafetyMin??1),
-  maxTransferMeters:base.maxTransferMeters??350
+  maxTransferMeters:base.maxTransferMeters??350,
+  ...(favoriteAddressDraft?{originFavoriteSlot:favoriteAddressDraft.from,
+   destinationFavoriteSlot:favoriteAddressDraft.to}:{})
  };
  if(!state.data?.routes.includes(next.targetRoute))throw Error("A céljárat nincs a jelenlegi BKK GTFS-ben.");
  if(!next.targetStop)throw Error("Add meg a céljárat pontos BKK-megállóját.");
@@ -753,6 +760,10 @@ function updatePinReminderUi(){
  button.title=enabled?"Emlékeztető BE · indulás előtt 5 perccel, csak nyitott lapon":"Emlékeztető KI · bekapcsolás";
 }
 function enterPinned(){
+ if(favoriteAddressDraft){
+  toast('⚠️ Előbb válaszd ki a BKK-járatot és a megállókat, majd mentsd az új sablont.');
+  return;
+ }
  if(!save({pin:true}))return;
  document.body.classList.add("pinned");
  history.replaceState(null,"","?pinned=1&id="+encodeURIComponent(state.current));
@@ -770,11 +781,38 @@ function stepDay(n){
  $("day").value=pushDay(x,n);computeRoute();
 }
 function initEvents(){
+ window.addEventListener("hh-smart-match-address-draft-v939",event=>{
+  const x=event.detail;
+  if(!x||!Number.isInteger(x.from?.slot)||!Number.isInteger(x.to?.slot)||
+   x.from.slot<0||x.from.slot>=40||x.to.slot<0||x.to.slot>=40||
+   x.from.slot===x.to.slot)return;
+  const origin=String(x.from.label||"").trim().slice(0,80);
+  const destination=String(x.to.label||"").trim().slice(0,80);
+  if(!origin||!destination)return;
+  favoriteAddressDraft={from:x.from.slot,to:x.to.slot};
+  $("titleInput").value=(origin+" → "+destination).slice(0,80);
+  $("fromLabel").value=origin;
+  $("toLabel").value=destination;
+  $("headsign").value="";
+  $("boardStop").value="";
+  $("originStop").value="";
+  $("transferStop").value="";
+  $("kind").value="transfer";
+  $("timeFrom").value="06:00";
+  $("timeUntil").value="22:00";
+  $("targetRoute").value="";
+  renderFeederChecks([]);
+  applyFormModes();
+  toast("⭐ Új címpár előkészítve. Add meg a BKK-járatokat és megállókat, majd mentsd új sablonként.");
+ });
  $("kind").addEventListener("change",applyFormModes);
  $("targetRoute").addEventListener("change",()=>renderFeederChecks([]));
- $("calcBtn").addEventListener("click",()=>computeRoute({useForm:true}));
+ $("calcBtn").addEventListener("click",()=>{
+  if(favoriteAddressDraft){try{readForm()}catch(e){toast("⚠️ "+e.message);return}}
+  computeRoute({useForm:true});
+ });
  $("saveBtn").addEventListener("click",()=>{
-  try{if(save())computeRoute();}catch(e){toast("⚠️ "+e.message)}
+  try{if(save({newTemplate:!!favoriteAddressDraft}))computeRoute();}catch(e){toast("⚠️ "+e.message)}
  });
  $("newBtn").addEventListener("click",()=>{
   try{if(save({newTemplate:true}))computeRoute();}catch(e){toast("⚠️ "+e.message)}
