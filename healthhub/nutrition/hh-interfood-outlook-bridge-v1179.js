@@ -104,6 +104,13 @@ async function refresh({afterConnect=false}={}){
     (imported.added?' · '+imported.added+' új':'')+'.');
   }
   if(imported?.errors)show('⚠ '+imported.errors+' étel ellenőrzést igényel; nem készült hibás kártya.');
+  else if(connected&&!imported?.skipped){
+   // No persistent technical row when automation is healthy: one premium tile
+   // and the conditional daily Smart Lunch card only.
+   root.setTimeout(()=>{const bar=ID('hhIfOutlookBridge1179'),btn=ID('hhIfOutlookAction1179');
+    if(bar&&btn?.hidden&&connected&&monika())bar.hidden=true;
+   },4000);
+  }
  }catch(err){
   show(errorText(err),{text:'↻ Újrapróbálás',click:()=>refresh()});
  }finally{lastQuery=Date.now();running=false;}
