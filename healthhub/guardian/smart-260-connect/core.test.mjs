@@ -212,3 +212,45 @@ test("Smart Location reads only fresh, authorized native Monika fix near saved h
  assert.equal(chooseLocation(home,[],now),null);
  assert.equal(namedPlaces(slots).home.lat,47.55);
 });
+
+test("home-to-office default uses three genuine tram lines and five minutes, without changing reverse route",()=>{
+ assert.deepEqual(REVERSE.targetRoutes,["17","19","41"]);
+ assert.equal(REVERSE.targetRoute,"17","Legacy single target remains compatible with editor");
+ assert.equal(REVERSE.maxWaitMin,5);
+ assert.equal(DEFAULT.maxWaitMin,3,"Office-to-home preference must remain unchanged");
+ assert.equal(validConfig(REVERSE,data().routes),true);
+});
+test("home-to-office 19 and 41 both recover grey 260 departures using safe verified transfer",()=>{
+ const d=data();
+ // A real inbound bus arriving at Bécsi at 08:20, then either of two
+ // other trams towards Kolosy. Existing 17 does not serve this moment.
+ d.trips.push(
+  ["260","s","Óbudai rendelőintézet",[ev("ci",8,8),ev("b",8,20),ev("d",8,48)],"bus"],
+  ["19","s","Kelenföld vasútállomás",[ev("t",8,25),ev("k",8,41)],"tram"],
+  ["41","s","Kamaraerdei Ifjúsági Park",[ev("t",8,24),ev("k",8,42)],"tram"]
+ );
+ const old=options(d,date,{...REVERSE,targetRoutes:undefined,maxWaitMin:3});
+ assert.equal(old.matchingCount,0,"17-only previously had no connection");
+ const now=options(d,date,REVERSE);
+ assert.equal(now.matchingCount,2);
+ assert.deepEqual(new Set(now.rows.filter(r=>r.best).map(r=>r.line)),new Set(["19","41"]));
+ const paired=pair260Connections(full260Timetable(d,date,"work"),now,REVERSE);
+ assert.equal(paired.rows.filter(r=>r.connectionOk).length,1,
+  "One 260 bus opportunity is not duplicated by two connecting trams");
+ assert.ok(paired.rows[0].match.best.waitMin>=1&&paired.rows[0].match.best.waitMin<=5);
+});
+test("five-minute window accepts +5 but never bypasses transfer walking and safety",()=>{
+ const d=data();
+ d.trips.push(
+  ["260","s","Óbudai rendelőintézet",[ev("ci",8,8),ev("b",8,20),ev("d",8,48)],"bus"],
+  ["17","s","Savoya Park",[ev("t",8,27),ev("k",8,41)],"tram"],
+  ["19","s","Kelenföld vasútállomás",[ev("t",8,22),ev("k",8,41)],"tram"]
+ );
+ const old=options(d,date,{...REVERSE,maxWaitMin:3});
+ assert.equal(old.matchingCount,0,"07-minute gross gap exceeds the previous max 3-minute waiting window");
+ const now=options(d,date,REVERSE);
+ assert.equal(now.matchingCount,1);
+ assert.equal(now.rows.find(r=>r.best)?.best.waitMin,5);
+ assert.equal(now.rows.find(r=>r.line==="19")?.best,null,
+  "Zero remaining safety time after walking must not be marked valid");
+});
