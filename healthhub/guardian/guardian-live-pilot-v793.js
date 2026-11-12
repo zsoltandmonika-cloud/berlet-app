@@ -112,7 +112,7 @@ function status(message){
   if(head)head.textContent='BKK-adatkapcsolat · '+message;
   // SH9 v930 intentionally reveals the compact data-status line. Preserve
   // verified vehicle counts written by the overlay; only explain blockers.
-  if(/bejelentkezés|nem érhető el|nem elérhető|hiba|elavult|térképre várunk|takarékos mód|nem ellenőrizhető/i.test(message)){
+  if(/bejelentkezés|nem érhető el|nem elérhető|hiba|elavult|takarékos mód|nem ellenőrizhető/i.test(message)){
    const visible=d.getElementById('sh9AllVehiclesStatusV928');
    if(visible)visible.textContent='⚠️ BKK Live · '+message;
   }
@@ -197,7 +197,7 @@ function visibleBBox(){
 async function poll(force=false){
  if(inFlight||d.hidden||(sh9AllMode&&!sh9AllEnabled))return;
  const bbox=sh9AllMode?visibleBBox():null;
- if(sh9AllMode&&!bbox){status('térképre várunk · nincs felesleges szerverlekérdezés');return;}
+ if(sh9AllMode&&!bbox)return; // Initial MapLibre layout has no viewport yet; do not show a warning or poll.
  // Bound even repeated manual taps to ONE server request per 45 seconds.
  if(sh9AllMode&&Date.now()-lastSh9RequestAt<45000){
   // A previous EMPTY viewport must not trap the user in the old area.
