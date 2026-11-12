@@ -41,7 +41,7 @@ test('Fleet editor supports changing target 260 and searching complete feeder fl
  assert.ok(app.includes('const shown=[...chosen,...other.slice(0,needle?60:24)]'));
  assert.ok(app.includes('targetRoutes:base.targetRoute===$("targetRoute").value.trim()'));
  assert.ok(app.includes('if(base.targetRoute!==next.targetRoute)'));
- assert.ok(app.includes('if(!coverage({targetKey:item.targetRoute'));
+ assert.ok(app.includes('if(multiLeg||!coverage({targetKey:item.targetRoute'));
  assert.ok(app.includes('nem jelenítünk meg')||app.includes('nincs ellenőrzött indulási menetrend'));
  assert.ok(app.includes('loadFullStopSuggestions'));
  assert.ok(style.includes('.sm-fleet-browser-v940'));
@@ -63,8 +63,12 @@ test('Two verified-favorite-index family templates can be edited, reversed, or r
  assert.deepEqual([a.originFavoriteSlot,a.destinationFavoriteSlot],[0,7]);
  assert.deepEqual([b.originFavoriteSlot,b.destinationFavoriteSlot],[7,0]);
  assert.equal(a.reverseId,b.id);assert.equal(b.reverseId,a.id);
- assert.equal(a.targetRoute,'');assert.equal(b.targetRoute,'');
- assert.deepEqual(a.feederRoutes,[]);
+ assert.equal(a.targetRoute,'4');assert.equal(b.targetRoute,'260');
+ assert.equal(a.multiLegDraft,true);assert.equal(b.multiLegDraft,true);
+ assert.deepEqual(a.feederRoutes,['260','17','19']);
+ assert.deepEqual(b.feederRoutes,['4','6','17','19']);
+ assert.deepEqual(a.targetRoutes,['4','6']);
+ assert.equal(a.flowSteps.length,6);assert.equal(b.flowSteps.length,6);
  assert.ok(m.SAMPLES.includes(a)&&m.SAMPLES.includes(b));
  assert.equal(m.bus260DirectionForTemplate({...m.DEFAULT,targetRoute:'19',targetRoutes:['19']}),null);
  assert.equal(m.bus260DirectionForTemplate(m.DEFAULT),'home');
