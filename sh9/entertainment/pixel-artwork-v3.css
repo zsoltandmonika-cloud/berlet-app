@@ -74,8 +74,27 @@
  .upcoming:not(.pixel-reference){margin:9px 10px 22px!important}
  .upcoming:not(.pixel-reference) .pixel-event-detail,.upcoming:not(.pixel-reference) .pixel-event-edit{display:none!important}
  .section{margin:19px 12px 24px!important}
- .section .carousel{grid-auto-columns:80%!important}
- .section .card{min-height:190px!important}
+ /* One complete full-width card per swipe (movies, theatres and concerts).
+    Keep the existing photographic aspect ratio: width and height grow together. */
+ .section .carousel{
+  grid-auto-columns:minmax(0,100%)!important;
+  gap:10px!important;
+  scroll-snap-type:x mandatory!important;
+  scroll-padding-inline:2px;
+ }
+ .section .carousel .card{
+  box-sizing:border-box;
+  width:100%!important;
+  min-width:0!important;
+  min-height:0!important;
+  max-height:none!important;
+  height:auto!important;
+  aspect-ratio:1.62!important;
+  scroll-snap-align:start;
+  scroll-snap-stop:always;
+ }
+ .section .row-nav.prev{left:5px!important}
+ .section .row-nav.next{right:5px!important}
  .foot{margin:0 12px!important;padding-bottom:12px}
  body[data-sh9-golden-fallback="on"]{padding-bottom:max(79px,env(safe-area-inset-bottom,0px))}
 }
