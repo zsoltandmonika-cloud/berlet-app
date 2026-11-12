@@ -4,12 +4,15 @@
 import {readOfficialSnapshot} from "../../../sh9/smart-travel/lena-native/bkk/bkk-feed-client-v1106.mjs";
 import {DEFAULT,HOME,REVERSE,SAMPLES,compute,bus260DirectionForTemplate,full260Timetable,pair260Connections} from "./core.mjs?v=939-favorite-guard";
 import {wallEpoch} from "../../../sh9/smart-travel/lena-native/bkk/bkk-gtfs-core-v1105.mjs";
+import {FALLBACK,loadCatalog,keyOf,valueOf,label as fleetLabel,norm,coverage} from "./fleet-catalog-v940.mjs";
 const $=id=>document.getElementById(id);
 const STORAGE="sh9-smart-match-templates-v1-m";
 const ACTIVE_PIN_KEY="sh9-smart-match-active-pin-v1-m";
+const DELETED_SAMPLES_KEY="sh9-smart-match-deleted-samples-v940";
+let selectedFeeders=new Set();
 // v939: isolated favorite-address draft. Existing saved itineraries are immutable until explicit save.
 let favoriteAddressDraft=null;
-const state={items:[],current:null,data:null,manifest:null,result:null,full260:null,
+const state={items:[],current:null,data:null,manifest:null,catalog:FALLBACK,result:null,full260:null,
  reminderEnabled:false,notificationFired:new Set(),lastNext:null,loading:false};
 const timeFmt=new Intl.DateTimeFormat("hu-HU",{timeZone:"Europe/Budapest",hour:"2-digit",minute:"2-digit",hourCycle:"h23"});
 const dateFmt=new Intl.DateTimeFormat("en-GB",{timeZone:"Europe/Budapest",year:"numeric",month:"2-digit",day:"2-digit"});
@@ -30,7 +33,12 @@ function safeLoad(){
   typeof x.id==="string"&&x.id.length<90&&x.profile==="monika").slice(0,24);}
  catch(_){}
  const ids=new Set(saved.map(i=>i.id));
- for(const sample of SAMPLES)if(!ids.has(sample.id))saved.push(clone(sample));
+ let dismissed=[];
+ try{const raw=JSON.parse(localStorage.getItem(DELETED_SAMPLES_KEY)||"[]");
+  if(Array.isArray(raw))dismissed=raw.filter(id=>SAMPLES.some(item=>item.id===id));
+ }catch(_){}
+ const hidden=new Set(dismissed);
+ for(const sample of SAMPLES)if(!ids.has(sample.id)&&!hidden.has(sample.id))saved.push(clone(sample));
  // Update only the old default 6-minute walk settings; leave other
  // personal edits intact. Keep the user's saved templates compatible.
  let updated=false;
@@ -41,8 +49,8 @@ function safeLoad(){
   if(item.id==="monika-home-to-office"){
    // One-time migration of the former 17-only, 3-minute local preference.
    // Respect a deliberately customized wait value other than the old default.
-   if(!Array.isArray(item.targetRoutes)||
-     ["17","19","41"].some(line=>!item.targetRoutes.includes(line))){
+   if(item.targetRoute==="17"&&(!Array.isArray(item.targetRoutes)||
+     ["17","19","41"].some(line=>!item.targetRoutes.includes(line)))){
     item.targetRoutes=["17","19","41"];updated=true;
    }
    if(item.maxWaitMin===3){item.maxWaitMin=5;updated=true;}
@@ -160,29 +168,68 @@ function hydrate(){
  applyFormModes();chipButtons();renderPinnedSelector();renderFlow(item);metrics(item);
  $("timelineSubtitle").textContent=displayName(item)+" · menetrend szerint";
 }
-function availableRoutes(){
- return state.data?.routes?.length?state.data.routes:["17","19","41","260"];
+// The 374 official routes are editable; only four have a verified timetable.
+function availableRoutes(){return state.catalog.map(entry=>valueOf(entry.key));}
+function routeEntry(value){return state.catalog.find(entry=>valueOf(entry.key)===value)||null;}
+function showFleetCoverage(){
+ const target=keyOf($("targetRoute").value);
+ const supported=coverage({targetKey:target,feederKeys:[...selectedFeeders],type:$("kind").value});
+ const el=$("fleetCoverageV940");if(!el)return;
+ el.dataset.supported=String(supported);
+ el.textContent=supported?
+  "✓ Ellenőrzött BKK GTFS-menetrend · Smart Match kalkuláció elérhető":
+  "ⓘ A teljes flotta szerkeszthető, de ehhez a járatkombinációhoz még nincs hitelesített Smart Match-menetrend.";
+}
+function drawFeederBrowser(){
+ const host=$("feederLines");host.replaceChildren();
+ const target=keyOf($("targetRoute").value);
+ const needle=norm($("feederSearchV940")?.value||"").trim();
+ const mode=$("feederModeV940")?.value||"";
+ const matches=state.catalog.filter(x=>x.key!==target&&(!mode||x.mode===mode)&&
+  (!needle||norm(x.id+" "+x.name+" "+x.directions.join(" ")).includes(needle)));
+ const chosen=matches.filter(x=>selectedFeeders.has(valueOf(x.key)));
+ const other=matches.filter(x=>!selectedFeeders.has(valueOf(x.key)));
+ const shown=[...chosen,...other.slice(0,needle?60:24)];
+ for(const entry of shown){
+  const val=valueOf(entry.key);
+  const wrapper=document.createElement("label");
+  wrapper.className="sm-fleet-choice"+(selectedFeeders.has(val)?" selected":"");
+  const input=document.createElement("input");input.type="checkbox";
+  input.value=val;input.checked=selectedFeeders.has(val);
+  input.addEventListener("change",()=>{
+   if(input.checked){
+    if(selectedFeeders.size>=12){input.checked=false;toast("Legfeljebb 12 csatlakozó járat választható.");return}
+    selectedFeeders.add(val);
+   }else selectedFeeders.delete(val);
+   drawFeederBrowser();showFleetCoverage();
+  });
+  const label=document.createElement("span");label.textContent=fleetLabel(entry);
+  wrapper.append(input,label);host.append(wrapper);
+ }
+ const count=$("fleetResultV940");
+ if(count)count.textContent=selectedFeeders.size+" kiválasztva · "+matches.length+
+  " találat"+(shown.length<matches.length?" · szűkítsd a keresést":"");
+ showFleetCoverage();
 }
 function renderFeederChecks(selected){
- const host=$("feederLines");host.replaceChildren();
- for(const line of availableRoutes()){
-  if(line===$("targetRoute").value)continue;
-  const wrapper=document.createElement("label");
-  const input=document.createElement("input");
-  input.type="checkbox";input.value=line;input.checked=selected.includes(line);
-  const text=document.createTextNode(" "+line+"-es");
-  wrapper.append(input,text);host.append(wrapper);
- }
+ selectedFeeders=new Set((Array.isArray(selected)?selected:[]).filter(v=>!!routeEntry(v)));
+ drawFeederBrowser();
 }
-function populateIndex(){
- const lines=availableRoutes(),previous=$("targetRoute").value||current()?.targetRoute||"260";
- const sel=$("targetRoute");sel.replaceChildren();
- for(const line of lines){const o=document.createElement("option");o.value=line;o.textContent=line+"-es járat";sel.append(o)}
- sel.value=lines.includes(previous)?previous:lines[0];
+function populateStops(){
+ if(!state.data)return;
  const names=[...new Set(Object.values(state.data.stops).map(s=>s[0]))].sort((a,b)=>a.localeCompare(b,"hu-HU"));
  const list=$("stops");list.replaceChildren();
  for(const name of names){const o=document.createElement("option");o.value=name;list.append(o)}
- $("scopeLabel").textContent="BKK GTFS · "+lines.join(" / ")+" vonalak";
+}
+function populateIndex(){
+ const lines=availableRoutes(),previous=current()?.targetRoute||"260";
+ const sel=$("targetRoute");sel.replaceChildren();
+ for(const entry of state.catalog){
+  const o=document.createElement("option");o.value=valueOf(entry.key);o.textContent=fleetLabel(entry);sel.append(o);
+ }
+ sel.value=lines.includes(previous)?previous:lines[0];
+ $("scopeLabel").textContent="BKK · "+state.catalog.length+" járat · 4 menetrendi";
+ populateStops();
  renderFeederChecks(current()?.feederRoutes||[]);
 }
 function safeTimeHour(value){
