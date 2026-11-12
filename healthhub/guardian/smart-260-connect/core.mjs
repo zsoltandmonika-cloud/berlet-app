@@ -284,27 +284,65 @@ const REVERSE=Object.freeze({
  originWalkMin:10,originSafetyMin:2,transferWalkMin:2,transferSafetyMin:1,
  maxWaitMin:5,maxTransferMeters:350,destinationWalkMin:10
 });
-/* Family route pair v941: two ready-to-edit templates bound to the existing
- * saved family favorite slot indexes. No personal coordinates in public code.
- * No guessed stops/vehicles/times: explicitly DRAFT until validated in editor.
+/* Family route pair v943: verified static stop sequence from BKK route network.
+ * Family favorite slots only, no private addresses / coordinates in public code.
+ * Deliberately DRAFT: the existing 2-leg GTFS matcher cannot validate 3 vehicles.
+ * No timetable, real-time claim or calculated ETA may be generated from this.
  */
 const FAMILY_OUTBOUND=Object.freeze({
  schema:"sh9.smart-match.template/1",id:"family-home-to-david-anna",profile:"monika",
- reverseId:"family-david-anna-to-home",type:"transfer",favoriteRoute:true,
+ reverseId:"family-david-anna-to-home",type:"transfer",favoriteRoute:true,multiLegDraft:true,
  title:"Otthon → Dávid & Anna otthona",
  originLabel:"Otthon",destinationLabel:"Dávid & Anna Otthona",
  originFavoriteSlot:0,destinationFavoriteSlot:7,
- originStop:"",transferStop:"",targetStop:"",targetRoute:"",targetRoutes:[],
- targetHeadsign:"",feederRoutes:[],startHour:6,endHour:22,
- originWalkMin:10,originSafetyMin:2,transferWalkMin:2,transferSafetyMin:1,
- maxWaitMin:5,maxTransferMeters:350
+ originStop:"Citronella utca",
+ transferStop:"Bécsi út / Vörösvári út",
+ targetStop:"Margit híd, budai hídfő H",
+ targetRoute:"4",targetRoutes:["4","6"],
+ targetAfterStop:"Boráros tér H",destinationTransitStop:"Boráros tér H",
+ targetHeadsign:"",feederRoutes:["260","17","19"],
+ startHour:6,endHour:22,
+ originWalkMin:10,originSafetyMin:2,
+ transferWalkMin:2,transferSafetyMin:2,maxWaitMin:6,maxTransferMeters:350,
+ destinationWalkMin:9,
+ routePriority:"260_departure_first",routeSource:"BKK static route network v806",
+ walkEstimate:"Boráros tér H → célcím: légvonal ~400 m; utcai gyalogút nincs validálva",
+ optionalLastBusRoutes:["54","55"],
+ optionalLastBusStop:"Haller utca / Soroksári út",
+ optionalShortWalkTrams:["51","51A"],
+ flowSteps:[
+  {role:"origin",label:"Otthon",detail:"Citronella utca · indulás"},
+  {role:"bus",label:"260",detail:"Citronella → Bécsi út / Vörösvári út"},
+  {role:"tram",label:"17 / 19",detail:"Bécsi út → Margit híd, budai hídfő"},
+  {role:"tram",label:"4 / 6",detail:"Margit híd → Boráros tér"},
+  {role:"walk",label:"≈ 8–10p",detail:"Boráros tér → családi kedvenc"},
+  {role:"destination",label:"Dávidék",detail:"Dávid & Anna otthona"}
+ ]
 });
 const FAMILY_RETURN=Object.freeze({
- ...FAMILY_OUTBOUND,id:"family-david-anna-to-home",
+ ...FAMILY_OUTBOUND,
+ id:"family-david-anna-to-home",
  reverseId:"family-home-to-david-anna",
  title:"Dávid & Anna otthona → Otthon",
  originLabel:"Dávid & Anna Otthona",destinationLabel:"Otthon",
- originFavoriteSlot:7,destinationFavoriteSlot:0
+ originFavoriteSlot:7,destinationFavoriteSlot:0,
+ originStop:"Boráros tér H",
+ transferStop:"Bécsi út / Vörösvári út",
+ targetStop:"Bécsi út / Vörösvári út",
+ targetRoute:"260",targetRoutes:["260"],
+ targetAfterStop:"Citronella utca",destinationTransitStop:"Citronella utca",
+ targetHeadsign:"Harsánylejtő",feederRoutes:["4","6","17","19"],
+ originWalkMin:9,originSafetyMin:2,destinationWalkMin:10,
+ routePriority:"260_connection_backwards",
+ walkEstimate:"Célcím → Boráros tér H: légvonal ~400 m; utcai gyalogút nincs validálva",
+ flowSteps:[
+  {role:"origin",label:"Dávidék",detail:"Boráros tér H felé"},
+  {role:"walk",label:"≈ 8–10p",detail:"Családi kedvenc → Boráros tér"},
+  {role:"tram",label:"4 / 6",detail:"Boráros tér → Margit híd"},
+  {role:"tram",label:"17 / 19",detail:"Margit híd → Bécsi út / Vörösvári út"},
+  {role:"bus",label:"260",detail:"Bécsi út → Citronella utca · Harsánylejtő felé"},
+  {role:"destination",label:"Otthon",detail:"Citronella utca"}
+ ]
 });
 const SAMPLES=Object.freeze([DEFAULT,HOME,REVERSE,FAMILY_OUTBOUND,FAMILY_RETURN]);
 function walkOnlyOptions(data,date,cfg=HOME,clock=Date.now()){
