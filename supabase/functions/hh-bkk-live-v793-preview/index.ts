@@ -85,7 +85,7 @@ function explicitDelay(event:any):number|null{
  return signedDelay(event.delay);
 }
 type DelayRow={routeKey:string,stopId:string,stopSequence:number,scheduledMs:number|null,predictedMs:number|null,delaySeconds:number,asOf:string};
-type DelayTrip={routeKey:string,startDate:string,rows:DelayRow[],tripDelaySeconds:number|null};
+type DelayTrip={routeKey:string|null,startDate:string,rows:DelayRow[],tripDelaySeconds:number|null};
 type DelayPayload={trips:Map<string,DelayTrip>,departures:DelayRow[],asOf:string,
  stats:{stopLevel:number,tripLevel:number,missingDelay:number}};
 async function getUpdates(key:string,mapping:RouteMap):Promise<DelayPayload|null>{
@@ -103,8 +103,12 @@ async function getUpdates(key:string,mapping:RouteMap):Promise<DelayPayload|null
   for(const e of (Array.isArray(feed?.entity)?feed.entity:[])){
    const tu=e?.tripUpdate,descriptor=tu?.trip;
    const id=typeof descriptor?.tripId==="string"?descriptor.tripId:"";
-   const mapped=typeof descriptor?.routeId==="string"?mapping.get(descriptor.routeId):null;
-   if(!id||id.length>160||!mapped)continue;
+   // A GTFS-RT TripDescriptor may omit route_id when trip_id identifies it.
+   // The exact paired VehiclePosition supplies independently validated route.
+   const hasRoute=!!descriptor&&Object.prototype.hasOwnProperty.call(descriptor,"routeId")
+    &&typeof descriptor.routeId==="string"&&descriptor.routeId.length>0;
+   const mapped=hasRoute?mapping.get(descriptor.routeId):null;
+   if(!id||id.length>160||(hasRoute&&!mapped))continue;
    // Trip delay is a separate, official GTFS-RT field.  The earlier
    // StopTimeEvent-only filter dropped this valid source completely.
    // A trip with no static schedule (cancelled, new, unscheduled, etc.) is
@@ -112,18 +116,23 @@ async function getUpdates(key:string,mapping:RouteMap):Promise<DelayPayload|null
    const relation=descriptor?.scheduleRelationship;
    if(relation!==undefined&&relation!==0)continue;
    const tripDelaySeconds=explicitDelay(tu);
-   if(tripDelaySeconds!==null)stats.tripLevel++;
-   const time=unixSeconds(tu?.timestamp);
+   // Optional timestamp inherits protobuf default 0 when absent.
+   const time=tu&&Object.prototype.hasOwnProperty.call(tu,"timestamp")?unixSeconds(tu.timestamp):NaN;
    if(Number.isFinite(time)&&(time>now+10||now-time>MAX_AGE_S))continue;
+   if(tripDelaySeconds!==null)stats.tripLevel++;
    const rows:DelayRow[]=[];
    for(const st of (Array.isArray(tu?.stopTimeUpdate)?tu.stopTimeUpdate:[])){
     // SKIPPED and NO_DATA do not supply a valid prediction for this stop.
     if(st?.scheduleRelationship===1||st?.scheduleRelationship===2)continue;
     const stopId=safeStop(st?.stopId),dep=explicitDelay(st?.departure),arr=explicitDelay(st?.arrival);
-    if(!stopId||(dep===null&&arr===null))continue;
+    if(!mapped||!stopId||(dep===null&&arr===null))continue;
     const delaySeconds=dep??arr!;
     stats.stopLevel++;
-    const depAt=unixSeconds(st?.departure?.time),arrAt=unixSeconds(st?.arrival?.time);
+    // Time is optional. A protobuf inherited 0 is NOT a prediction in 1970.
+    const depAt=st?.departure&&Object.prototype.hasOwnProperty.call(st.departure,"time")?
+     unixSeconds(st.departure.time):NaN;
+    const arrAt=st?.arrival&&Object.prototype.hasOwnProperty.call(st.arrival,"time")?
+     unixSeconds(st.arrival.time):NaN;
     const predicted=Number.isFinite(depAt)?depAt:arrAt;
     if(Number.isFinite(predicted)&&(predicted<now-180||predicted>now+14400))continue;
     const row:DelayRow={routeKey:mapped.routeKey,stopId,
@@ -136,7 +145,7 @@ async function getUpdates(key:string,mapping:RouteMap):Promise<DelayPayload|null
     if(dep!==null&&Number.isFinite(depAt)&&depAt>=now-180&&depAt<=now+14400&&departures.length<8000)
      departures.push({...row,scheduledMs:(depAt-dep)*1000,predictedMs:depAt*1000,delaySeconds:dep});
    }
-   if(rows.length||tripDelaySeconds!==null)trips.set(id,{routeKey:mapped.routeKey,
+   if(rows.length||tripDelaySeconds!==null)trips.set(id,{routeKey:mapped?.routeKey||null,
     startDate:typeof descriptor?.startDate==="string"?descriptor.startDate:"",rows,tripDelaySeconds});
    else stats.missingDelay++;
   }
@@ -190,7 +199,7 @@ async function fetchLive():Promise<Record<string,unknown>>{
   if(plate)entry.licensePlate=plate;
   const tripId=typeof v?.trip?.tripId==="string"?v.trip.tripId:"";
   const update=updates?.trips.get(tripId);
-  if(update&&update.routeKey===route.routeKey&&
+  if(update&&(update.routeKey===null||update.routeKey===route.routeKey)&&
    (!update.startDate||!v?.trip?.startDate||update.startDate===v.trip.startDate)){
    const seq=Number.isInteger(v?.currentStopSequence)?Number(v.currentStopSequence):null;
    const next=update.rows.find(p=>(seq===null||p.stopSequence<0||p.stopSequence>=seq)&&
