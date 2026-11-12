@@ -193,6 +193,8 @@ A részletes reprodukciós és recovery forgatókönyvek a [Runbookban](./HEALTH
 
 ### Változásnapló
 
+- **2026-11-12 · Projektlogbook pótlása / Project Control checkpoint:** [SHO / HealthHub logbook 2026-10-28–11-12](./SHO_HEALTHHUB_PROJECT_LOGBOOK_2026-11-12.md), benne a külön kezelt Outlook kanonikus natív GPS-cutover és nyitott nem GPS Dropbox-adataudit; Smart Trip V5, Smart Match, Family Guard; Interfood Smart Lunch v1183 és Ételeim v1184, két naplózási Smart Action, QA és kockázatok. A korábbi v742 bizonyíték- és adatvédelmi szerződések változatlanok. A korábbi `liveBuild=v380` történeti adat, nem aktuális univerzális verzió.
+
 - 2026-10-21 · Blueprint 1.0 · Első egységes, verziózott topológia, adatfolyam, modulindex, evidenciatérkép, DevOps/QA és recovery hivatkozások. Minden új jelentős PR hozzáadja a saját változását.
 
 

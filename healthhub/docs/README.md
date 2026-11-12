@@ -1,7 +1,15 @@
 # HealthHub · Living Architecture & Development Documentation
-**Utolsó karbantartás: 2026-10-22** · **Architecture Grand Design v1.0** · minden műszaki dokumentum nyilvános, betegadat és token nélkül.
+**Utolsó karbantartás: 2026-11-12** · **Architecture Grand Design v1.0** · minden műszaki dokumentum nyilvános, betegadat és token nélkül.
 
 **Golden Standard UX alapelv:** [Csendes prémium: a minőség nem reklámfelirat](./GOLDEN-STANDARD-RULE.md#quiet-prestige--the-golden-standard-must-not-advertise-itself-2026-10-29). Minden HH/SH9 fejlesztésnél kötelező ellenőrzési pont.
+
+## 2026. november 12. · Aktuális átadás / projektlogbook
+
+- **[SHO / HealthHub 2026-10-28 – 2026-11-12 · Központi projektlogbook](./SHO_HEALTHHUB_PROJECT_LOGBOOK_2026-11-12.md):** a november 10-i Outlook Dropbox / natív GPS migráció, a még nyitott Health/Activity/Sleep adategyeztetés, Smart Trip V5, Smart Match, Family Guard és a két Smart Action teljes, PR-hivatkozásos változásnaplója.
+- **[Project Control · központi master](../project-control.json):** a `changeLog` és az új migrációs/Smart Action QA-tételek 2026-11-12-ig szinkronizálva. A régi `liveBuild=v380` változatlan, történeti gyűjtőcímke, nem jelenlegi éles buildszám.
+- **Nyitott P0:** régi Gmail nem GPS Vault-fájljainak teljes egyeztetése, tartós backup, Activity/Sleep forráshiány vizsgálata; nincs engedélyezett automatikus legacy-adattörlés. A Smart Lunch és az Interfood Ételeim mobilfelülete a felhasználó által jóváhagyott, a teljes Level 3/Timeline CI még nyitott.
+
+---
 
 ## 🏛️ A rendszer jelenlegi műszaki kiindulópontja
 - **[Universal AI Intelligence Core · Golden Standard v1](./SH9_AI_INTELLIGENCE_CORE_GOLDEN_STANDARD_V1.md)**: minden új projekt AI / Usage / Reporting / Self-Health / Self-Healing / Self-Improvement alapja, Lite/Standard/Critical. Backlog.
