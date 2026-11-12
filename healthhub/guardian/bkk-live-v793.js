@@ -38,6 +38,7 @@
     Number.isFinite(delayAt)&&delayAt<=now+10000&&now-delayAt<=MAX_AGE_MS){
     entry.delaySeconds=v.delaySeconds;entry.delayObservedAt=v.delayObservedAt;
     entry.delayStopId=clean(v.delayStopId,32);
+    if(v.delayPrecision==="minute")entry.delayPrecision="minute";
    }
    vehicles.push(entry);
   }
