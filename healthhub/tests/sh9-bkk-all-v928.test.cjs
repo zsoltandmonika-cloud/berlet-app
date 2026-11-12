@@ -257,7 +257,7 @@ test('v935 mobile/fullscreen maps are no longer covered by the delay legend',()=
  assert.match(marker,/a színes pont csak az élő járműpozíciót jelzi/);
  assert.match(html,/bkk-live-glass-v800\.css\?v=934-static-time-compare/);
  assert.match(html,/guardian-sh9-all-bkk-v928\.css\?v=936-quiet-map-init/);
- assert.match(html,/guardian-transit-v791\.js\?v=936-quiet-map-init/);
+ assert.match(html,/guardian-transit-v791\.js\?v=937-smart-match-fyi/);
 });
 
 
