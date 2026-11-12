@@ -44,3 +44,24 @@ test("backend joins by tripId and never infers delay from vehicle GPS or a whole
  assert.match(html,/smart-delay-client-v1\.mjs/);
  assert.match(html,/hhSmartDelayHeroV1/);
 });
+
+
+test("protobuf optional delay absent is NOT on-time, even when its prototype defaults to 0",()=>{
+ const source=fs.readFileSync(path.join(root,"../supabase/functions/hh-bkk-live-v793-preview/index.ts"),"utf8");
+ const match=source.match(/(const signedDelay=.+\n[\s\S]*?function explicitDelay\(event:any\):number\|null\{[\s\S]*?\n\})/);
+ assert.ok(match,"Test the actual backend helper, not an independent reimplementation");
+ const js=match[1].replace("(x:unknown)","(x)").replace("(event:any):number|null","(event)");
+ const vm=require("node:vm");
+ const explicit=vm.runInNewContext(js+"\nexplicitDelay");
+ const inheritedZero=Object.create({delay:0}); // protobuf.js prototype default
+ assert.equal(explicit(inheritedZero),null,"Inherited 0 must NEVER mean verified punctuality");
+ assert.equal(explicit(Object.create(null)),null);
+ assert.equal(explicit({time:1794480000}),null,"Absolute prediction time alone does not certify schedule difference");
+ assert.equal(explicit({delay:0}),0,"Explicitly supplied 0 is on time");
+ assert.equal(explicit({delay:-120}),-120);
+ assert.equal(explicit({delay:240}),240);
+ assert.equal(explicit({delay:null}),null);
+ assert.equal(explicit({delay:9000}),null);
+ assert.match(source,/dep=explicitDelay\(st\?\.departure\),arr=explicitDelay\(st\?\.arrival\)/);
+ assert.match(source,/scheduleRelationship===1\|\|st\?\.scheduleRelationship===2/);
+});
