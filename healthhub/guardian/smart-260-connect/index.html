@@ -11,6 +11,7 @@
 <link rel="stylesheet" href="./clean-fullscreen-v3.css?v=42-ring-label-fit">
 <link rel="stylesheet" href="./full-260-v34.css?v=34">
 <link rel="stylesheet" href="./smart-delay-v1.css?v=937-fyi-cache">
+<link rel="stylesheet" href="./favorite-route-editor-v939.css?v=939">
 </head>
 <body>
 <div class="banner" id="pinnedBanner">
@@ -49,6 +50,19 @@
 
  <section class="panel glass" id="editor" aria-label="Smart Match sablonszerkesztő">
   <div class="section-head"><h2>⚙️ Sablon szerkesztése</h2><span class="muted" id="scopeLabel">BKK · 17 / 19 / 41 / 260</span></div>
+  <section id="smFavPanelV939" aria-label="Smart Match útvonal a meglévő családi kedvencekből">
+   <div class="sm-fav-title"><strong>⭐ Új útvonal családi kedvencekből</strong><small>Csak olvasás · a régi sablonok változatlanok</small></div>
+   <div class="sm-fav-grid">
+    <label for="smFavFromV939">Indulási cím<select id="smFavFromV939" aria-label="Indulási családi kedvenc hely"></select></label>
+    <button id="smFavReverseV939" class="sm-fav-switch" type="button" aria-label="Indulási és célcím felcserélése" title="Iránycsere">⇄</button>
+    <label for="smFavToV939">Célcím<select id="smFavToV939" aria-label="Cél családi kedvenc hely"></select></label>
+   </div>
+   <div class="sm-fav-actions">
+    <button id="smFavUseV939" type="button">＋ Új címpár előkészítése</button>
+    <button id="smFavReloadV939" type="button">☁ Közös kedvencek frissítése</button>
+   </div>
+   <p id="smFavStatusV939" role="status" aria-live="polite">Mentett családi helyek betöltése…</p>
+  </section>
   <div class="form-grid">
    <label class="wide">Sablon neve<input id="titleInput" type="text" maxlength="80" placeholder="Pl. Mónika · Munkahely → Otthon"></label>
    <label>Csatlakozás típusa
@@ -114,7 +128,8 @@
 <div id="toast" role="alert" hidden></div>
 <script src="../../central-vault/config.js?v=785-family-live-publishable"></script>
 
-<script type="module" src="./app.mjs?v=937-fyi-cache"></script>
+<script src="./favorite-route-editor-v939.js?v=939"></script>
+<script type="module" src="./app.mjs?v=939-favorite-draft-safe"></script>
 <script type="module" src="./smart-delay-client-v1.mjs?v=938-hero-pill"></script>
 </body>
 </html>
