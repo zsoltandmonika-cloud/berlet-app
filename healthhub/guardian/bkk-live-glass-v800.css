@@ -232,6 +232,7 @@
 .hh-bkk-smart-delay-v1[hidden]{display:none!important}
 .hh-bkk-smart-delay-v1[data-delay="ontime"]{background:#126f4b!important;color:#e1fff0!important}
 .hh-bkk-smart-delay-v1[data-delay="early"]{background:#ad6909!important;color:#fff6dd!important}
+.hh-bkk-smart-delay-v1[data-delay="estimated"]{background:#78681d!important;color:#fff8e4!important}
 .hh-bkk-smart-delay-v1[data-delay="late"]{background:#ab2a39!important;color:#fff2f3!important}
 .hh-bkk-vehicle-top-v913 .hh-bkk-smart-delay-v1{
  display:inline-flex;align-items:center;justify-content:center;
