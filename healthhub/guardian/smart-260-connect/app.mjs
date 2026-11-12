@@ -376,6 +376,13 @@ function timelineRow(row,item,index){
  article.className="timeline-row"+(row.best?"":" unmatched");
  article.dataset.leave=String(row.best?.leaveOfficeMs||row.departMs);
  article.dataset.index=String(index);
+ // Presentation-only identity/time, never modifies journey calculations.
+ if(row.boardingId&&Number.isFinite(row.departMs)&&
+    ["bus","tram"].includes(row.mode)&&typeof row.line==="string"){
+  article.dataset.bkkStopId=row.boardingId;
+  article.dataset.bkkRouteKey=row.mode+":"+row.line;
+  article.dataset.bkkDeparture=String(row.departMs);
+ }
  const top=document.createElement("div");top.className="row-top";
  const title=document.createElement("div");
  const t=document.createElement("div");t.className="row-time";t.textContent=clockFmt(row.departMs);
