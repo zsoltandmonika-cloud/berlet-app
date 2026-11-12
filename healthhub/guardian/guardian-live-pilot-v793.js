@@ -112,7 +112,7 @@ function status(message){
   if(head)head.textContent='BKK-adatkapcsolat · '+message;
   // SH9 v930 intentionally reveals the compact data-status line. Preserve
   // verified vehicle counts written by the overlay; only explain blockers.
-  if(/bejelentkezés|nem érhető el|hiba|elavult|térképre várunk|takarékos mód|nem ellenőrizhető/i.test(message)){
+  if(/bejelentkezés|nem érhető el|nem elérhető|hiba|elavult|térképre várunk|takarékos mód|nem ellenőrizhető/i.test(message)){
    const visible=d.getElementById('sh9AllVehiclesStatusV928');
    if(visible)visible.textContent='⚠️ BKK Live · '+message;
   }
