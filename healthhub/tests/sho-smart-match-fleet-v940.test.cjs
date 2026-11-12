@@ -35,7 +35,7 @@ test('Fleet editor supports changing target 260 and searching complete feeder fl
  assert.ok(html.includes('id="targetRoute"'));
  assert.ok(html.includes('id="deleteBtn"'));
  assert.ok(html.includes('fleet-editor-v940.css?v=940'));
- assert.ok(html.includes('app.mjs?v=940-full-fleet-editor'));
+ assert.ok(html.includes('app.mjs?v=941-active-ring-direction'));
  assert.ok(app.includes('state.catalog=await loadCatalog()'));
  assert.ok(app.includes('selectedFeeders=new Set'));
  assert.ok(app.includes('const shown=[...chosen,...other.slice(0,needle?60:24)]'));
