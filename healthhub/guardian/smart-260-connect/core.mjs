@@ -333,6 +333,7 @@ const FAMILY_RETURN=Object.freeze({
  targetAfterStop:"Citronella utca",destinationTransitStop:"Citronella utca",
  targetHeadsign:"Harsánylejtő",feederRoutes:["4","6","17","19"],
  originWalkMin:9,originSafetyMin:2,destinationWalkMin:10,
+ transferSafetyMin:3,maxWaitMin:8,
  routePriority:"260_connection_backwards",
  walkEstimate:"Célcím → Boráros tér H: légvonal ~400 m; utcai gyalogút nincs validálva",
  flowSteps:[
