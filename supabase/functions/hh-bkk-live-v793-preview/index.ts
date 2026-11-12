@@ -281,7 +281,18 @@ Deno.serve(async req=>{
   }):chosen;
   const predictions=predictionMode&&!allMode&&stops.size?
    ((payload.stopPredictions||[]) as DelayRow[]).filter(p=>allowed.has(p.routeKey)&&stops.has(p.stopId)).slice(0,700):[];
-  return reply(req,200,{...payload,stopPredictions:predictions,vehicles,truncated:matched.length>vehicles.length});
+  // Authenticated aggregate diagnostics: count which source type the BKK
+  // supplied and how many matched THIS requested map/favorite scope.
+  // No trip IDs, vehicle coordinates, OAuth tokens or API keys are logged.
+  const rawCoverage=payload.delayCoverage as {
+   feedAvailable?:boolean,stopLevel?:number,tripLevel?:number
+  }|undefined;
+  const coverage={feedAvailable:rawCoverage?.feedAvailable===true,
+   stopLevel:Number(rawCoverage?.stopLevel)||0,tripLevel:Number(rawCoverage?.tripLevel)||0,
+   shown:vehicles.length,
+   withDelay:vehicles.filter(v=>typeof (v as {delaySeconds?:number}).delaySeconds==="number").length};
+  return reply(req,200,{...payload,delayCoverage:coverage,
+   stopPredictions:predictions,vehicles,truncated:matched.length>vehicles.length});
  }
  catch(e){const reason=e instanceof Error&&/^(route-map-|bkk-)/.test(e.message)?e.message:"live-unavailable";
   return reply(req,503,{ok:false,reason,vehicles:[]})}
