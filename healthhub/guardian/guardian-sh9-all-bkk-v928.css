@@ -40,49 +40,43 @@
  border-color:rgba(255,176,235,.29)!important;
 }
 
-/* v931: source-backed Smart Delay keys, anchored inside the existing BKK map.
- * Only SH9's read-only full BKK view. Guardian family maps remain unchanged. */
+/* v935: Smart Delay now belongs to the SH9 status panel ABOVE the map.
+ * Keep the whole MapLibre canvas unobstructed. Do not change Family Guard. */
 :root:not([data-sh9-transit="on"]) #sh9BkkSmartDelayLegendV931{display:none!important}
-:root[data-sh9-transit="on"] .map-card{position:relative}
-:root[data-sh9-transit="on"] #sh9BkkSmartDelayLegendV931:not([hidden]){
- position:absolute;z-index:19;left:10px;bottom:37px;
- display:flex;flex-direction:column;gap:3px;
- width:max-content;max-width:min(355px,calc(100% - 24px));
- border-radius:12px;border:1px solid rgba(188,213,250,.44);
- background:linear-gradient(135deg,rgba(16,37,69,.86),rgba(24,24,57,.86));
- -webkit-backdrop-filter:blur(12px) saturate(145%);
- backdrop-filter:blur(12px) saturate(145%);
- box-shadow:0 3px 14px rgba(0,0,0,.28);padding:7px 9px;
+:root[data-sh9-transit="on"] #sh9TransitHeaderV927 > #sh9BkkSmartDelayLegendV931:not([hidden]){
+ position:static!important;inset:auto!important;z-index:auto!important;
+ display:grid!important;grid-template-columns:max-content minmax(0,1fr);
+ align-items:center;gap:4px 9px;
+ width:calc(100% - 2px)!important;max-width:none!important;
+ margin:-4px 1px 6px;padding:7px 9px;
+ border-radius:10px;border:1px solid rgba(188,213,250,.35);
+ background:linear-gradient(135deg,rgba(16,37,69,.58),rgba(24,24,57,.58));
+ box-shadow:inset 0 1px rgba(255,255,255,.08);
  color:#f6fbff;font:650 10px/1.35 system-ui;
- pointer-events:none;user-select:none;
+ pointer-events:none;user-select:none;box-sizing:border-box;
 }
-:root[data-sh9-transit="on"][data-guardian-profile="m"] #sh9BkkSmartDelayLegendV931{
- border-color:rgba(255,188,232,.5);
- background:linear-gradient(135deg,rgba(74,31,72,.86),rgba(39,24,61,.86));
+:root[data-sh9-transit="on"][data-guardian-profile="m"] #sh9TransitHeaderV927 > #sh9BkkSmartDelayLegendV931{
+ border-color:rgba(255,188,232,.43);
+ background:linear-gradient(135deg,rgba(74,31,72,.54),rgba(39,24,61,.55));
 }
-#sh9BkkSmartDelayLegendV931 strong{font:800 11px/1.3 system-ui}
+#sh9BkkSmartDelayLegendV931 strong{font:800 10px/1.3 system-ui;white-space:nowrap}
 #sh9BkkSmartDelayLegendV931 .sh9-bkk-delay-legend-keys-v931{
- display:flex;flex-wrap:wrap;gap:4px 9px;align-items:center;
+ display:flex;flex-wrap:wrap;gap:3px 8px;align-items:center;
+ min-width:0;
 }
 #sh9BkkSmartDelayLegendV931 [data-delay="ontime"]{color:#81edb5}
 #sh9BkkSmartDelayLegendV931 [data-delay="early"]{color:#ffcf77}
 #sh9BkkSmartDelayLegendV931 [data-delay="late"]{color:#ff8b98}
 #sh9BkkSmartDelayLegendV931 [data-delay="unknown"]{color:#c4d3e4}
-#sh9BkkSmartDelayLegendV931 small{font:580 9px/1.3 system-ui;color:#d3e1f0}
+#sh9BkkSmartDelayLegendV931 small{
+ grid-column:1/-1;font:580 9px/1.4 system-ui;color:#d3e1f0;
+}
 @media(max-width:460px){
- :root[data-sh9-transit="on"] #sh9BkkSmartDelayLegendV931:not([hidden]){
-  left:7px;bottom:37px;max-width:calc(100% - 14px);padding:6px 8px;
+ :root[data-sh9-transit="on"] #sh9TransitHeaderV927 > #sh9BkkSmartDelayLegendV931:not([hidden]){
+  grid-template-columns:1fr;row-gap:3px;padding:6px 8px;
  }
  #sh9BkkSmartDelayLegendV931 .sh9-bkk-delay-legend-keys-v931{gap:2px 7px}
 }
-
-/* v932: fullscreen map previously obscured/placed the legend at the bottom.
- * Keep diagnostic always within the map viewport, under the expand button. */
-:root[data-sh9-transit="on"] .map-card #sh9BkkSmartDelayLegendV931:not([hidden]){
- top:64px!important;bottom:auto!important;left:10px!important;
- z-index:1200!important;
-}
-:root[data-sh9-transit="on"] .map-card.hh-map-full-v819 #sh9BkkSmartDelayLegendV931:not([hidden]){
- top:66px!important;bottom:auto!important;left:12px!important;
- max-width:min(330px,calc(100% - 24px))!important;
-}
+/* Defensive rule for any stale cached map markup: never float a legend on top
+ * of a vehicle, the map-follow buttons or the full-screen map. */
+:root[data-sh9-transit="on"] .map-card #sh9BkkSmartDelayLegendV931{display:none!important}
