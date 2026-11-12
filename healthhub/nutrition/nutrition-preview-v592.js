@@ -55,6 +55,12 @@ const pkey=()=>{const main=root.localStorage.getItem('hh-profile');const saved=r
 const profileName=k=>k==='monika'?'Mónika':'Zsolt';
 const clone=x=>JSON.parse(JSON.stringify(x));
 function stamp(){return new Date().toISOString();}
+/* The Nutrition journal merges remote/local rows by updatedAt. Every undo or
+ * re-confirmation must have a strictly newer timestamp than its predecessor. */
+function stampAfter(...dates){
+ const timestamps=dates.map(x=>Date.parse(x||'')).filter(Number.isFinite);
+ return new Date(Math.max(Date.now(),...timestamps.map(x=>x+1))).toISOString();
+}
 function makeDefaultPreset(profile,afternoon){
  return {milkMl:150,milkType:profile==='monika'?'milklactose':(afternoon?'milk01':'milk15'),sugarCubes:afternoon?3:(profile==='monika'?1:2),cubeGrams:4,cinnamonGrams:afternoon?2:0,ladyCount:afternoon?4:0,ladyGrams:7,meal:afternoon?'Uzsonna':'Reggeli',updatedAt:'1970-01-01T00:00:00Z'};
 }
@@ -1187,7 +1193,9 @@ root.HH_NUTRITION_QUICK_API={
   if(current.menuDate!==localDate())throw Error('Csak a mai rendelés zárható le a Smart Lunch kártyán.');
   if(current.status!=='planned')return {id,profile:active,status:current.status,
    rating:current.rating,duplicate:true};
-  const now=stamp(),diaryId='interfood:'+id;
+  const diaryId='interfood:'+id;
+  const previous=read(active).entries.find(x=>x.id===diaryId);
+  const now=stampAfter(current.updatedAt,previous?.updatedAt);
   update(d=>{
    const order=d.interfoodOrders.find(x=>x.id===id&&!x.deleted);
    if(!order||order.status!=='planned')return;
@@ -1199,7 +1207,8 @@ root.HH_NUTRITION_QUICK_API={
     }
     const totalGrams=order.weightGrams==null?null:Number((order.weightGrams*order.quantity).toFixed(2));
     const card=d.interfoodCards.find(x=>x.id===order.cardId&&!x.deleted);
-    d.entries.push({id:diaryId,createdAt:now,updatedAt:now,date:order.menuDate,time:localTime(),
+    const existing=d.entries.find(e=>e.id===diaryId);
+    const recorded={id:diaryId,createdAt:existing?.createdAt||now,updatedAt:now,deleted:false,date:order.menuDate,time:localTime(),
      meal:'Ebéd',kind:'food',foodId:'interfood:'+order.code,name:order.name,
      icon:'🍱',quantity:totalGrams==null?order.quantity:totalGrams,
      unit:totalGrams==null?'adag':'g',
@@ -1208,7 +1217,10 @@ root.HH_NUTRITION_QUICK_API={
      source:'interfood-smart-lunch',
      interfood:{code:order.code,menuDate:order.menuDate,cardId:order.cardId,
       orderId:id,portionMultiplier:order.quantity,weightGrams:order.weightGrams,
-      imageUrl:order.imageUrl||card?.imageUrl||null,nutritionBasis:'published-per-serving'}});
+      imageUrl:order.imageUrl||card?.imageUrl||null,nutritionBasis:'published-per-serving'}};
+    // Restore the tombstoned row after undo instead of making a duplicate ID.
+    if(existing)Object.assign(existing,recorded);
+    else d.entries.push(recorded);
    }
    order.status=ate?'consumed':'skipped';
    order.rating=ate?rating:null;
@@ -1221,6 +1233,42 @@ root.HH_NUTRITION_QUICK_API={
   if(ate)success();
   return {id:saved.id,profile:active,status:saved.status,
    rating:saved.rating,diaryId:ate?diaryId:null,duplicate:false};
+ },
+ /* v1181: One-tap mistake reversal for the freshly confirmed lunch.
+  * Revert status, optional rating and associated diary row atomically, using
+  * a tombstone so the next Dropbox reconciliation cannot resurrect calories. */
+ undoInterfoodSmartOrder:payload=>{
+  if(payload?.expectedProfile!==active)throw Error('Profilváltás történt. A visszavonás megszakadt.');
+  const id=String(payload?.orderId||'');
+  const data=read(active),current=data.interfoodOrders.find(x=>x.id===id&&!x.deleted);
+  if(!current||current.status!=='consumed')
+   throw Error('Csak az imént elfogyasztottnak jelölt ebéd vonható vissza.');
+  if(current.menuDate!==localDate())throw Error('Csak a mai ebéd döntése vonható vissza.');
+  const age=Date.now()-Date.parse(current.completedAt||'');
+  if(!Number.isFinite(age)||age< -5000||age>30000)
+   throw Error('A 30 másodperces visszavonási idő lejárt.');
+  const diaryId='interfood:'+id,entry=data.entries.find(e=>e.id===diaryId&&!e.deleted);
+  if(!entry||entry.source!=='interfood-smart-lunch'||entry.interfood?.orderId!==id)
+   throw Error('Nem található a visszavonható Smart Lunch naplóbejegyzés.');
+  const now=stampAfter(current.updatedAt,entry.updatedAt);
+  update(d=>{
+   const order=d.interfoodOrders.find(x=>x.id===id&&!x.deleted);
+   const logged=d.entries.find(e=>e.id===diaryId&&!e.deleted);
+   if(!order||order.status!=='consumed'||!logged||
+    logged.source!=='interfood-smart-lunch'||logged.interfood?.orderId!==id)
+    throw Error('Az ebéd döntése időközben megváltozott.');
+   logged.deleted=true;
+   logged.updatedAt=now;
+   order.status='planned';
+   order.rating=null;
+   order.completedAt=null;
+   order.updatedAt=now;
+  });
+  const verified=read(active);
+  if(verified.interfoodOrders.find(x=>x.id===id&&!x.deleted)?.status!=='planned'||
+   verified.entries.some(x=>x.id===diaryId&&!x.deleted))
+   throw Error('A visszavonás nem igazolható.');
+  return {id,profile:active,status:'planned',diaryId};
  },
  /* v1176 · Server-verified public menu -> single-click private card.
   * On repeated clicks with the same week/day/code/name, never duplicate or

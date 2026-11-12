@@ -62,8 +62,8 @@ test('one card is on Bevitel below premium tile; the duplicate launcher and larg
  assert.match(ui,/render\(\);showResult\(order,result\)/);
  assert.match(live,/area\.hidden=true/);
  assert.match(live,/duplicateLauncher\.hidden=true/);
- assert.match(html,/hh-interfood-smart-lunch-v1178\.js\?v=1178-one-card/);
- assert.match(html,/hh-interfood-smart-lunch-v1178\.css\?v=1178-one-card/);
+ assert.match(html,/hh-interfood-smart-lunch-v1178\.js\?v=1181-undo-feedback/);
+ assert.match(html,/hh-interfood-smart-lunch-v1178\.css\?v=1181-undo-feedback/);
  assert.match(css,/\.hh-sl-hero/);
 });
 test('diary and feedback are profile-private, explicit and idempotent',()=>{
@@ -144,4 +144,48 @@ test('runtime: save once, diary once, optional stars, profile separation, feedba
  assert.equal(api.getInterfoodSmartOrders().length,0);
  assert.equal(api.getInterfoodCards().length,0);
  assert.throws(()=>api.finishInterfoodSmartOrder({expectedProfile:'monika',orderId:first.id,ate:true}),/Profilváltás/);
+});
+
+test('v1181: undo restores planned status, removes calories and rating, and re-confirms without duplicate IDs',()=>{
+ const {api,select}=fakeJournal(),day=localIsoDay();
+ const meal={menuDate:day,code:'E2K',name:'Húsos, juhtúrós rakott karfiol',
+  quantity:1,weightGrams:300,nutrients:{kcal:378,protein:29.4,carbs:15.3,fat:21.9}};
+ const order=api.importConfirmedInterfoodOrder({expectedProfile:'monika',order:meal});
+ assert.equal(api.finishInterfoodSmartOrder({expectedProfile:'monika',
+  orderId:order.id,ate:true,rating:4}).status,'consumed');
+ assert.equal(api.getData().entries.filter(x=>!x.deleted).length,1);
+ assert.equal(api.getInterfoodCardRating(order.cardId).average,4);
+ const undone=api.undoInterfoodSmartOrder({expectedProfile:'monika',orderId:order.id});
+ assert.equal(undone.status,'planned');
+ let data=api.getData();
+ assert.equal(data.entries.filter(x=>!x.deleted).length,0);
+ assert.equal(data.entries[0].deleted,true);
+ assert.equal(data.interfoodOrders[0].rating,null);
+ assert.equal(data.interfoodOrders[0].completedAt,null);
+ assert.equal(api.getInterfoodCardRating(order.cardId).count,0);
+ assert.throws(()=>api.undoInterfoodSmartOrder({expectedProfile:'monika',orderId:order.id}),/Csak az imént/);
+ assert.equal(api.importConfirmedInterfoodOrder({expectedProfile:'monika',order:meal}).duplicate,true);
+ assert.equal(api.getData().interfoodOrders[0].status,'planned');
+ const confirmed=api.finishInterfoodSmartOrder({expectedProfile:'monika',
+  orderId:order.id,ate:true,rating:2});
+ assert.equal(confirmed.status,'consumed');
+ data=api.getData();
+ assert.equal(data.entries.filter(x=>!x.deleted).length,1);
+ assert.equal(data.entries.length,1); // old tombstone revived, never a duplicate diary ID
+ assert.equal(data.entries[0].deleted,false);
+ assert.equal(data.entries[0].nutrients.kcal,378);
+ assert.equal(api.getInterfoodCardRating(order.cardId).average,2);
+ select('zsolt');
+ assert.throws(()=>api.undoInterfoodSmartOrder({expectedProfile:'monika',orderId:order.id}),/Profilváltás/);
+});
+test('v1181: feedback is optional browser capability; undo is not a mere visual deletion',()=>{
+ assert.ok(ui.includes('navigator?.vibrate'));
+ assert.ok(ui.includes('AudioContext||root.webkitAudioContext'));
+ assert.ok(ui.includes('undoInterfoodSmartOrder({expectedProfile:profile,orderId:order.id})'));
+ assert.ok(ui.includes('Visszavonás'));
+ assert.ok(core.includes('logged.deleted=true'));
+ assert.ok(core.includes("order.status='planned'"));
+ assert.ok(core.includes('stampAfter(current.updatedAt,entry.updatedAt)'));
+ assert.ok(html.includes('undo=1181'));
+ assert.ok(css.includes('.hh-sl-undo-actions'));
 });

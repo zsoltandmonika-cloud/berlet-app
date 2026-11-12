@@ -9,7 +9,27 @@ const API=()=>root.HH_NUTRITION_QUICK_API;
 const ID=id=>doc?.getElementById(id);
 const KEYS=['kcal','protein','carbs','fat'];
 const BUDDY='../../sh9/family-hub/assets/family-success-buddy-v881.webp';
-let choices=new Map(),busy=new Set(),lastProfile='',finishTimer=null;
+let choices=new Map(),busy=new Set(),lastProfile='',finishTimer=null,audioCtx=null;
+/* v1181: tiny original tap sound, plus Android haptics where supported.
+ * Mobile browsers may ignore vibrate() or AudioContext; neither is required. */
+function starFeedback(){
+ try{root.navigator?.vibrate?.(14)}catch(_){}
+ try{
+  const Audio=root.AudioContext||root.webkitAudioContext;
+  if(!Audio)return;
+  if(!audioCtx)audioCtx=new Audio();
+  if(audioCtx.state==='suspended')audioCtx.resume?.().catch?.(()=>{});
+  const now=audioCtx.currentTime,osc=audioCtx.createOscillator(),gain=audioCtx.createGain();
+  osc.type='sine';
+  osc.frequency.setValueAtTime(850,now);
+  osc.frequency.exponentialRampToValueAtTime(1150,now+.05);
+  gain.gain.setValueAtTime(.0001,now);
+  gain.gain.exponentialRampToValueAtTime(.018,now+.009);
+  gain.gain.exponentialRampToValueAtTime(.0001,now+.065);
+  osc.connect(gain);gain.connect(audioCtx.destination);
+  osc.start(now);osc.stop(now+.07);
+ }catch(_){/* Audio policy or unsupported browser: stars still work. */}
+}
 function today(){
  return new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/Budapest',year:'numeric',
   month:'2-digit',day:'2-digit'}).format(new Date());
@@ -101,12 +121,20 @@ function refreshRating(order,container){
  container.replaceChildren();
  const selected=choices.get(order.id)||0;
  for(let n=1;n<=5;n++)container.append(starButton(n,selected,()=>{
+  starFeedback();
   choices.set(order.id,selected===n?0:n);
   refreshRating(order,container);
  }));
 }
+function closeResult(){
+ if(finishTimer)root.clearTimeout(finishTimer);
+ finishTimer=null;
+ const overlay=ID('hhSmartLunchFinishV1178');
+ if(overlay){overlay.hidden=true;overlay.replaceChildren();}
+}
 function showResult(order,result){
  const overlay=ID('hhSmartLunchFinishV1178');if(!overlay)return;
+ if(finishTimer)root.clearTimeout(finishTimer);
  overlay.replaceChildren();overlay.hidden=false;
  const inner=text('div','','hh-sl-finish-inner');
  if(result.status==='consumed'){
@@ -114,13 +142,43 @@ function showResult(order,result){
   img.className='hh-sl-buddy';inner.append(img);
   inner.append(text('strong','TADAAA! 🎉','hh-sl-tada'));
   inner.append(text('p','Ebéd a Napi naplóban'+(result.rating?' · '+result.rating+'/5 ⭐':'')));
+  if(!result.duplicate){
+   const actions=text('div','','hh-sl-undo-actions');
+   const undo=text('button','↶ Visszavonás','hh-sl-undo');
+   undo.type='button';undo.setAttribute('aria-label','Téves ebédnaplózás visszavonása');
+   undo.addEventListener('click',()=>{
+    if(busy.has(order.id)||undo.disabled)return;
+    busy.add(order.id);undo.disabled=true;
+    try{
+     const api=API(),profile=api?.getProfile?.();
+     if(profile!==result.profile)throw Error('Profilváltás történt. Nyisd meg újra a napi ebédet.');
+     if(!api?.undoInterfoodSmartOrder)throw Error('A visszavonás még nem elérhető.');
+     const reverted=api.undoInterfoodSmartOrder({expectedProfile:profile,orderId:order.id});
+     if(reverted.profile!==profile||reverted.status!=='planned')
+      throw Error('A visszavonás nem igazolható.');
+     choices.delete(order.id);render();
+     overlay.replaceChildren();
+     const done=text('div','','hh-sl-finish-inner');
+     done.append(text('strong','✓ Visszavonva','hh-sl-tada small'));
+     done.append(text('p','A napló és az ebédkártya visszaállt. Újra választhatsz.'));
+     overlay.append(done);
+     if(finishTimer)root.clearTimeout(finishTimer);
+     finishTimer=root.setTimeout(closeResult,2300);
+    }catch(e){
+     const note=text('p','⚠ '+String(e?.message||e),'hh-sl-undo-error');
+     inner.append(note);undo.disabled=false;
+    }finally{busy.delete(order.id);}
+   });
+   const keep=text('button','Rendben','hh-sl-keep');
+   keep.type='button';keep.addEventListener('click',closeResult);
+   actions.append(undo,keep);inner.append(actions);
+  }
  }else{
   inner.append(text('strong','Rendben, nem naplóztuk.','hh-sl-tada small'));
   inner.append(text('p','Az ételkártya megmarad a gyűjteményben.'));
  }
  overlay.append(inner);
- if(finishTimer)root.clearTimeout(finishTimer);
- finishTimer=root.setTimeout(()=>{overlay.hidden=true;overlay.replaceChildren();},2300);
+ finishTimer=root.setTimeout(closeResult,result.status==='consumed'?10000:2300);
 }
 function finish(order,ate,button){
  const api=API(),profile=api?.getProfile?.();
