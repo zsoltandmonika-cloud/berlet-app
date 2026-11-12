@@ -2,6 +2,7 @@
    Source: user-approved visual, stored in this repository as an HD WebP.
    The original four-tile hero stays untouched. Real transparent hit areas
    and a separate editable feature ensure the artwork isn't a dead screenshot. */
+.extra-categories{display:none!important} /* exact artwork replaces duplicate photo tiles */
 .pixel-extension{position:relative;isolation:isolate;width:min(100%,1030px);aspect-ratio:790/383;margin:4px auto 16px;background:#050717 url('./assets/sho-approved-culture-feature-v1189.webp') center center/100% 100% no-repeat;border:0;overflow:visible}
 .pixel-extension .pixel-region{position:absolute;z-index:2;display:block;background:transparent;border:0;border-radius:16px;color:transparent;touch-action:manipulation;cursor:pointer}
 .pixel-extension .pixel-region:hover{background:#ffffff08}
@@ -36,11 +37,10 @@
  .pixel-feature-custom .feature-kicker{font-size:clamp(8px,2.1vw,11px)}
  .pixel-feature-custom strong{font-size:clamp(12px,3.7vw,17px)}
  .pixel-feature-custom small{font-size:clamp(8px,2.4vw,11px)}
- .upcoming.empty-pin{display:none!important}
- .upcoming:not(.empty-pin){margin:10px 11px 18px!important}
+ .upcoming{display:none!important} /* pinned event, when present, is projected into the feature panel */
 }
 @media(min-width:651px){
- .pixel-extension{display:none}
+ .pixel-extension{display:block}
  .upcoming.empty-pin{display:none!important}
 }
 @media(prefers-reduced-motion:reduce){.pixel-extension *{transition:none!important}}
