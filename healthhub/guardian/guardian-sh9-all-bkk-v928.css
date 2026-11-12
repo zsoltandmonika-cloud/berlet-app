@@ -80,3 +80,6 @@
 /* Defensive rule for any stale cached map markup: never float a legend on top
  * of a vehicle, the map-follow buttons or the full-screen map. */
 :root[data-sh9-transit="on"] .map-card #sh9BkkSmartDelayLegendV931{display:none!important}
+
+/* v936: no blank waiting strip during MapLibre initialization. */
+:root[data-sh9-transit="on"] #sh9AllVehiclesStatusV928:empty{display:none!important}
