@@ -74,7 +74,9 @@ async function smoke(browser,base,device){
   assert.ok(total>20,"Full daily schedule must include morning and afternoon 260 buses");
   const work=await page.locator(".v34-260-row.v34-matched").count();
   assert.ok(work>0,"At least one 260/tram match should render");
-  assert.ok(total>work,"Unmatched scheduled 260 buses must remain visibly present");
+  assert.ok(work<=total,"A fully matched day is valid; do not require any grey rows");
+  assert.equal(await page.locator(".v34-260-row.v34-scheduled").count(),total-work,
+   "If unmatched 260 departures exist, they must remain visible as scheduled");
   assert.equal(await page.locator("#countdownLabel").textContent(),"irodai indulásig");
   assert.match(await page.locator("#timelineSubtitle").textContent(),/260-as · Váradi utca/);
   assert.equal(await page.locator("#walkMetric").textContent(),"10 + 1 perc");
@@ -238,6 +240,13 @@ async function smoke(browser,base,device){
   assert.equal(await page.locator("#pinTemplateSelect").inputValue(),"monika-home-to-office");
   assert.equal(await page.locator("#walkMetric").textContent(),"10 + 2 perc",
    "Home-to-Citronella is 10min walk with 2min safety buffer");
+  assert.equal(await page.locator("#waitMetric").textContent(),"≤ 5 perc",
+   "Home-to-office uses the new maximum 5-minute post-walk waiting window");
+  const newMatched=await page.locator(".v34-260-row.v34-matched").count();
+  assert.ok(newMatched>0,"The 17/19/41 set must offer inbound connections");
+  const targetTrams=await page.locator(".v34-260-row.v34-matched .row-mini").allTextContents();
+  assert.ok(targetTrams.some(t=>/🚋 (?:19|41) · átszállás/.test(t)),
+   "Reverse matches must use a real 19 or 41 tram, not only 17");
   const reverseFlow=await page.locator("#routeFlow .v2-step").evaluateAll(els=>els.map(el=>({
    role:el.dataset.role,time:el.querySelector(".v2-step-time")?.textContent?.trim(),
    hint:el.querySelector(".v2-step-hint")?.textContent?.trim()})));
