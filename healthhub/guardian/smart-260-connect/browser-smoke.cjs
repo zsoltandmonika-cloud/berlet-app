@@ -233,7 +233,10 @@ async function smoke(browser,base,device){
   await page.evaluate(()=>{Date.now=()=>Date.parse("2026-11-11T06:53:00Z")});
   await page.locator("#reverseBtn").click();
   await page.waitForFunction(()=>document.getElementById("headingShort")?.textContent?.includes("Otthon → Munkahely")&&
-   document.getElementById("targetRoute")?.value==="17");
+   document.getElementById("targetRoute")?.value==="17"&&
+   document.getElementById("timelineSubtitle")?.textContent?.includes("260-as · Citronella utca")&&
+   document.getElementById("status")?.textContent?.includes("✓ BKK GTFS")&&
+   document.querySelectorAll(".v34-260-row").length>0);
   assert.equal(await page.locator("#kind").inputValue(),"transfer",
    "Reversed home->work is a true 260-to-tram connection, not Citronella walk-only");
   assert.equal(await page.locator("#headingShort").textContent(),"Otthon → Munkahely");
