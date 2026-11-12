@@ -44,12 +44,14 @@ function init(w,d){
   if(!enabled){coverage.textContent='Teljes BKK megjelenítés kikapcsolva.';return}
   if(!last){coverage.textContent='Ellenőrzött késésadatokra várunk…';return}
   const delay=w.HH_BKK_SMART_DELAY_V1;
-  let verified=0;
+  let verified=0,estimated=0;
   const validIds=new Set(last.features.map(f=>f.properties.id));
   if(delay&&typeof delay.classify==='function')
-   for(const v of verifiedVehicles)if(validIds.has(v.id)&&delay.classify(v.delaySeconds,v.delayObservedAt).status!=='unknown')verified++;
+   for(const v of verifiedVehicles)if(validIds.has(v.id)&&delay.classify(v.delaySeconds,v.delayObservedAt).status!=='unknown'){
+    verified++;if(v.delayPrecision==='minute')estimated++;
+   }
   coverage.textContent=last.features.length+' friss BKK-jármű · '+verified+
-   ' ellenőrzött késésadat · a többi ismeretlen';
+   ' ellenőrzött késésadat ('+estimated+' közelítő ≈) · a többi ismeretlen';
  };
  const mapApi=()=>w.HH_GUARDIAN_V761?.map||null;
  const message=s=>{status.textContent=s};
