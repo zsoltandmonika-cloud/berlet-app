@@ -44,6 +44,7 @@ test('Green ring keeps countdown and source-backed clock while showing route dir
  assert.match(app,/import \{ringDirection\} from "\.\/ring-direction-v941\.mjs"/);
  assert.match(app,/function updateRingDirection\(item\)/);
  assert.match(app,/function renderFlow\(item\)\{\n updateRingDirection\(item\)/);
+ assert.match(app,/if\(\/d\[aá\]vid\/i\.test\(name\)\&\&\/anna\/i\.test\(name\)\)return "Dávidék"/);
  assert.match(app,/node\.textContent=direction\.short/);
  assert.match(app,/node\.setAttribute\("aria-label","Útvonal iránya: "\+direction\.full\)/);
  assert.match(app,/\$\("countdown"\)\.textContent=/);
