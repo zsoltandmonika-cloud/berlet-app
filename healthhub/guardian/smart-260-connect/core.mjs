@@ -153,11 +153,16 @@ function bus260DirectionForTemplate(cfg){
  // office/home 260 corridor, even when it happens to use route 260.
  // Keep the special, complete 260 timetable for existing known templates.
  if(Number.isInteger(cfg.originFavoriteSlot)||Number.isInteger(cfg.destinationFavoriteSlot))return null;
- if(cfg.id==="monika-home-to-office"||
-  cfg.targetRoute==="260"&&clean(cfg.targetStop)===clean("Citronella utca")&&
+ // Built-in templates remain eligible only while their original route is intact.
+ // Editing 260 into any other line MUST never force the legacy full-bus view.
+ if(cfg.id==="monika-home-to-office"&&cfg.targetRoute==="17"&&
+  (cfg.targetRoutes??["17"]).every(x=>["17","19","41"].includes(x)))return "work";
+ if(cfg.targetRoute!=="260")return null;
+ if(cfg.id==="monika-260"&&clean(cfg.targetStop)===clean("Váradi utca")&&
+  clean(cfg.targetHeadsign).includes(clean("Harsánylejtő")))return "home";
+ if(clean(cfg.targetStop)===clean("Citronella utca")&&
   clean(cfg.targetHeadsign).includes(clean("Óbudai")))return "work";
- if(cfg.id==="monika-260"||
-  cfg.targetRoute==="260"&&clean(cfg.targetStop)===clean("Váradi utca")&&
+ if(clean(cfg.targetStop)===clean("Váradi utca")&&
   clean(cfg.targetHeadsign).includes(clean("Harsánylejtő")))return "home";
  return null;
 }
