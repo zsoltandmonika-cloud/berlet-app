@@ -149,6 +149,10 @@ const BUS_260_DIRECTIONS=Object.freeze({
 });
 function bus260DirectionForTemplate(cfg){
  if(!cfg)return null;
+ // v939: A newly selected family-address pair is NOT the original
+ // office/home 260 corridor, even when it happens to use route 260.
+ // Keep the special, complete 260 timetable for existing known templates.
+ if(Number.isInteger(cfg.originFavoriteSlot)||Number.isInteger(cfg.destinationFavoriteSlot))return null;
  if(cfg.id==="monika-home-to-office"||
   cfg.targetRoute==="260"&&clean(cfg.targetStop)===clean("Citronella utca")&&
   clean(cfg.targetHeadsign).includes(clean("Óbudai")))return "work";
