@@ -267,6 +267,25 @@ async function smoke(browser,base,device){
   const targetTrams=await page.locator(".v34-260-row.v34-matched .row-mini").allTextContents();
   assert.ok(targetTrams.some(t=>/🚋 (?:19|41) · átszállás/.test(t)),
    "Reverse matches must use a real 19 or 41 tram, not only 17");
+  const exact807=await page.locator(".v34-260-row").evaluateAll(rows=>{
+   const fmt=ms=>new Intl.DateTimeFormat("en-GB",{timeZone:"Europe/Budapest",
+    hour:"2-digit",minute:"2-digit",hourCycle:"h23"}).format(new Date(ms));
+   const row=rows.find(el=>fmt(Number(el.dataset.busDeparture))==="08:07");
+   return row?{matched:row.classList.contains("v34-matched"),
+    home:row.querySelector(".row-time")?.textContent?.trim(),
+    label:row.querySelector(".row-label")?.textContent?.trim(),
+    stages:[...row.querySelectorAll(".row-mini")].map(el=>el.textContent?.trim()),
+    detail:row.querySelector(".row-foot")?.textContent?.trim()}:null;
+  });
+  assert.ok(exact807?.matched,"08:07 Citronella bus must be a green verified connection");
+  assert.equal(exact807.home,"07:55","Do not confuse home departure with bus departure");
+  assert.match(exact807.label,/260 indulás 08:07 · Citronella utca/);
+  assert.ok(exact807.stages.some(x=>x.includes("08:07")&&x.includes("260")));
+  assert.ok(exact807.stages.some(x=>x.includes("08:25")&&x.includes("19")));
+  assert.match(exact807.detail,/Bécsi út \/ Vörösvári út 08:20/);
+  assert.match(exact807.detail,/Kolosy tér 08:32/);
+  assert.match(await page.locator("#heroDetail").textContent(),/260 Citronella 08:07 · 🚋 19 08:25/,
+   "The actionable pinned hero must also show the actual Citronella bus and matching tram");
   const reverseFlow=await page.locator("#routeFlow .v2-step").evaluateAll(els=>els.map(el=>({
    role:el.dataset.role,time:el.querySelector(".v2-step-time")?.textContent?.trim(),
    hint:el.querySelector(".v2-step-hint")?.textContent?.trim()})));
@@ -490,6 +509,8 @@ async function guardianPinSmoke(browser,base,device){
   assert.match(await page.locator("#hhSmartMatchPinV1").getAttribute("href"),/id=monika-home-to-office/);
   assert.equal(await page.locator("#hhSmartMatchPinTimeV1").textContent(),"08:07",
    "After reversal the Guardian card must focus the selected direction's next real 260");
+  assert.match(await page.locator("#hhSmartMatchPinNoteV1").textContent(),/🚋 19 08:25/,
+   "The Guardian 08:07 card must show its source-backed 19 tram connection");
   return {device,cardTime:time,guardianCard:"passed",opensPinned:"passed",bkkGuard:"unchanged"};
  }finally{await context.close()}
 }

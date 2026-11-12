@@ -427,8 +427,8 @@ function renderFull260Row(bus,item,index){
  const label=document.createElement("div");label.className="row-label";
  label.textContent=connected?
   (homebound?"🏢 Irodai indulás":"🏠 Otthoni indulás")+
-    " · 🚌 260 "+clockFmt(bus.departMs)+" · "+bus.stop:
-  "🚌 260 "+bus.stop+" · kizárólag menetrendi indulás";
+    " · 🚌 260 indulás "+clockFmt(bus.departMs)+" · "+bus.stop:
+  "🚌 260 indulás · "+bus.stop+" · kizárólag menetrendi adat";
  title.append(when,label);
  const tag=document.createElement("span");tag.className="match-tag";
  tag.textContent=connected?(item.type==="walk"?
@@ -461,9 +461,16 @@ function renderFull260Row(bus,item,index){
  const foot=document.createElement("div");foot.className="row-foot";
  foot.textContent=connected?(item.type==="walk"?
   item.originWalkMin+" perc séta + "+item.originSafetyMin+" perc tartalék":
-  "Villamos érkezése "+clockFmt(bus.match.best.feederArriveMs)+
-   " · átszállás: "+bus.match.best.transferWalkMin+
-   " perc séta, "+bus.match.best.waitMin+" perc várakozás · menetrend"):
+  (homebound?
+   "🚋 Villamos érkezése "+clockFmt(bus.match.best.feederArriveMs)+
+    " · átszállás: "+bus.match.best.transferWalkMin+
+    " perc séta, "+bus.match.best.waitMin+" perc várakozás · menetrend":
+   "🚌 260 érkezés Bécsi út / Vörösvári út "+clockFmt(bus.match.best.feederArriveMs)+
+    " · 🚋 "+bus.match.line+" indulás "+clockFmt(bus.match.departMs)+
+    (Number.isFinite(bus.match.arriveAtDestinationMs)?
+     " · Kolosy tér "+clockFmt(bus.match.arriveAtDestinationMs):"")+
+    " · "+bus.match.best.transferWalkMin+" perc séta + "+
+    bus.match.best.waitMin+" perc várakozás · menetrend")):
   "CSAK MENETREND. Ehhez a 260-ashoz nincs igazolt csatlakozás; ne ez alapján indulj el.";
  a.append(foot);
  return a;
@@ -536,7 +543,8 @@ function updateFull260Timeline(now=Date.now(),redraw=false){
     " · 🚌 260-as "+clockFmt(bus.departMs)+" (menetrend)":
    "🏠 Otthon "+clockFmt(focusMs)+
     " · 🚶 "+cfg.originWalkMin+" perc séta + "+cfg.originSafetyMin+"p tartalék"+
-    " · 🚌 260 "+clockFmt(bus.departMs)+" (menetrend)";
+    " · 🚌 260 Citronella "+clockFmt(bus.departMs)+
+    " · 🚋 "+bus.match.line+" "+clockFmt(bus.match.departMs)+" (menetrend)";
   const remain=Math.max(0,Math.floor((focusMs-now)/1000));
   const hr=Math.floor(remain/3600),mn=Math.floor(remain%3600/60),sec=remain%60;
   $("countdown").textContent=(hr?String(hr).padStart(2,"0")+":":"")+
