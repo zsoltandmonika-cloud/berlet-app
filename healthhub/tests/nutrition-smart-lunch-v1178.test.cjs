@@ -179,13 +179,13 @@ test('v1181: undo restores planned status, removes calories and rating, and re-c
  assert.throws(()=>api.undoInterfoodSmartOrder({expectedProfile:'monika',orderId:order.id}),/Profilváltás/);
 });
 test('v1181: feedback is optional browser capability; undo is not a mere visual deletion',()=>{
- assert.match(ui,/navigator\\?\\.vibrate/);
- assert.match(ui,/AudioContext\\|\\|root\\.webkitAudioContext/);
- assert.match(ui,/undoInterfoodSmartOrder\\(\\{expectedProfile:profile,orderId:order\\.id\\}\\)/);
- assert.match(ui,/Visszavonás/);
- assert.match(core,/logged\\.deleted=true/);
- assert.match(core,/order\\.status='planned'/);
- assert.match(core,/stampAfter\\(current\\.updatedAt,entry\\.updatedAt\\)/);
+ assert.ok(ui.includes('navigator?.vibrate'));
+ assert.ok(ui.includes('AudioContext||root.webkitAudioContext'));
+ assert.ok(ui.includes('undoInterfoodSmartOrder({expectedProfile:profile,orderId:order.id})'));
+ assert.ok(ui.includes('Visszavonás'));
+ assert.ok(core.includes('logged.deleted=true'));
+ assert.ok(core.includes("order.status='planned'"));
+ assert.ok(core.includes('stampAfter(current.updatedAt,entry.updatedAt)'));
  assert.ok(html.includes('undo=1181'));
- assert.match(css,/\\.hh-sl-undo-actions/);
+ assert.ok(css.includes('.hh-sl-undo-actions'));
 });
