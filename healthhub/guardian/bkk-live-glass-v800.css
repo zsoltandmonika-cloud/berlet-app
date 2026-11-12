@@ -220,3 +220,21 @@
  .hh-bkk-vehicle-popup-v913 .maplibregl-popup-content{background:#24344f}
  :root[data-guardian-profile="m"] .hh-bkk-vehicle-popup-v913 .maplibregl-popup-content{background:#4c2d53}
 }
+
+/* Smart Delay v1: attached only to the verified live vehicle's own capsule. */
+.hh-bkk-glass-capsule-v800 .hh-bkk-smart-delay-v1{
+ display:inline-flex;align-items:center;justify-content:center;
+ min-width:27px;padding:3px 4px;border-radius:7px;
+ font:850 10px/1.1 system-ui,-apple-system,"Segoe UI",sans-serif;
+ font-variant-numeric:tabular-nums;white-space:nowrap;color:#fff;
+ text-shadow:none;border:1px solid rgba(255,255,255,.24);
+}
+.hh-bkk-smart-delay-v1[hidden]{display:none!important}
+.hh-bkk-smart-delay-v1[data-delay="ontime"]{background:#126f4b!important;color:#e1fff0!important}
+.hh-bkk-smart-delay-v1[data-delay="early"]{background:#ad6909!important;color:#fff6dd!important}
+.hh-bkk-smart-delay-v1[data-delay="late"]{background:#ab2a39!important;color:#fff2f3!important}
+.hh-bkk-vehicle-top-v913 .hh-bkk-smart-delay-v1{
+ display:inline-flex;align-items:center;justify-content:center;
+ margin-left:auto;padding:2px 4px;border-radius:6px;font:800 10px/1.2 system-ui
+}
+@media(max-width:640px){.hh-bkk-glass-capsule-v800:has(.hh-bkk-smart-delay-v1:not([hidden])){padding-inline:7px;gap:3px}}
