@@ -141,7 +141,7 @@ test('v930 city overview waits for ready map and never changes normal Family Gua
  assert.match(live,/if\(!sh9AllMode\)return null/);
  assert.match(live,/if\(!sh9OverviewSet&&activeMap\?\.jumpTo\)/);
  assert.match(live,/activeMap\.jumpTo\(\{center:\[19\.0467,47\.5060\],zoom:11\.6,pitch:0,bearing:0\}\)/);
- assert.match(live,/typeof activeMap\.loaded==='function'&& !activeMap\.loaded\(\)/.source==='x' ? /nevermind/ : /typeof activeMap\.loaded==='function'&&!activeMap\.loaded\(\)/);
+ assert.match(live,/typeof activeMap\.loaded==='function'&&!activeMap\.loaded\(\)/);
  assert.match(html,/guardian-sh9-all-bkk-v928\.js\?v=930-visible-status-city/);
  assert.match(html,/guardian-sh9-all-bkk-v928\.css\?v=930-visible-status-city/);
 });
