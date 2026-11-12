@@ -1,0 +1,63 @@
+/* SHO Smart Trip · Smart Match feature card v942
+   Visual-only, scoped to this one promo. Preserves destination link and all planner controls.
+*/
+.st22-match-promo{
+ position:relative;isolation:isolate;overflow:hidden;
+ margin:16px 0 10px;padding:18px 17px 17px;
+ border:1px solid rgba(238,170,236,.57);border-radius:21px;
+ background:
+  radial-gradient(ellipse at 3% 0%,rgba(243,119,227,.27),transparent 57%),
+  radial-gradient(ellipse at 100% 97%,rgba(78,133,251,.24),transparent 57%),
+  linear-gradient(128deg,rgba(83,39,115,.91),rgba(34,43,99,.95) 68%,rgba(26,46,84,.96));
+ box-shadow:0 14px 34px rgba(10,13,43,.25),inset 0 1px 0 rgba(255,255,255,.16),0 0 23px rgba(203,102,226,.09);
+ color:#fff;
+}
+.st22-match-promo::before{
+ content:"";position:absolute;inset:0;pointer-events:none;z-index:0;
+ background:linear-gradient(145deg,rgba(255,255,255,.08),transparent 38%);
+}
+.st22-match-promo::after{
+ content:"";position:absolute;left:20px;right:20px;bottom:0;height:1px;
+ background:linear-gradient(90deg,transparent,rgba(253,169,238,.8),rgba(115,162,255,.4),transparent);
+ pointer-events:none;
+}
+.st22-match-promo__body{position:relative;z-index:1;max-width:620px}
+.st22-match-promo__eyebrow{display:flex;align-items:center;gap:8px;min-height:19px;margin-bottom:8px;color:#ffcfef;font:850 10px/1.2 system-ui,sans-serif;letter-spacing:.12em}
+.st22-match-promo__symbol{font-size:16px;color:#ffb8e7;text-shadow:0 0 12px rgba(255,146,226,.55)}
+.st22-match-promo__new{letter-spacing:.08em;font-size:9px;padding:4px 7px;border-radius:999px;color:#fceeff;background:rgba(233,158,238,.15);border:1px solid rgba(252,195,245,.42)}
+.st22-match-promo h2{margin:0 0 7px!important;max-width:23ch;font:850 clamp(19px,4.9vw,23px)/1.19 system-ui,sans-serif!important;letter-spacing:-.025em;color:#fff!important;text-shadow:0 1px 13px rgba(255,210,250,.11)}
+.st22-match-promo p{margin:0 0 15px!important;max-width:43ch;font:500 12.5px/1.55 system-ui,sans-serif!important;color:#e3ddfb!important}
+.st22-match-promo__cta{
+ display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:47px;
+ padding:11px 17px;border-radius:13px;max-width:100%;box-sizing:border-box;
+ border:1px solid rgba(255,224,250,.95);
+ background:linear-gradient(114deg,#ffbde9 0%,#f4a6ed 52%,#bd9cff 100%);
+ color:#2c1742!important;text-decoration:none!important;
+ font:850 13px/1.3 system-ui,sans-serif!important;
+ box-shadow:0 7px 21px rgba(211,104,231,.28),inset 0 1px 0 rgba(255,255,255,.52);
+ transition:transform .16s ease,box-shadow .16s ease,filter .16s ease;
+}
+.st22-match-promo__cta:hover{transform:translateY(-1px);filter:brightness(1.04);box-shadow:0 10px 25px rgba(219,114,242,.35)}
+.st22-match-promo__cta:focus-visible{outline:3px solid #b5ffe9;outline-offset:3px}
+.st22-match-promo__cta:active{transform:translateY(1px)}
+.st22-match-promo__cta-arrow{font-size:17px;line-height:1;color:#543264}
+.st22-match-promo__art{position:absolute;right:21px;top:22px;width:110px;height:85px;z-index:0;opacity:.74;pointer-events:none;transform:rotate(-10deg)}
+.st22-match-promo__art::before{content:"";position:absolute;left:19px;top:31px;width:77px;height:38px;border-top:2px solid rgba(246,166,240,.7);border-right:2px solid rgba(137,198,255,.65);border-radius:0 19px 0 0;box-shadow:0 -7px 21px rgba(232,142,243,.13)}
+.st22-match-promo__node{position:absolute;width:14px;height:14px;border-radius:50%;border:3px solid #ffd1f7;background:#aa78d7;box-shadow:0 0 12px rgba(255,158,248,.6)}
+.st22-match-promo__node--one{left:10px;top:24px}
+.st22-match-promo__node--two{left:54px;top:24px;width:12px;height:12px;background:#705cb5;border-color:#b5a8ff}
+.st22-match-promo__node--three{right:2px;bottom:11px;border-color:#a7f5e3;background:#54bbab;box-shadow:0 0 15px rgba(119,246,221,.42)}
+@media(max-width:480px){
+ .st22-match-promo{padding:17px 15px 16px;border-radius:19px}
+ .st22-match-promo__art{right:9px;top:18px;transform:rotate(-10deg) scale(.82);transform-origin:top right;opacity:.35}
+ .st22-match-promo h2{max-width:18ch}
+ .st22-match-promo p{max-width:36ch}
+ .st22-match-promo__cta{min-height:46px;padding:10px 13px;font-size:12.5px!important}
+}
+@media(max-width:345px){
+ .st22-match-promo{padding:15px 12px}
+ .st22-match-promo__art{opacity:.22}
+ .st22-match-promo h2{font-size:19px!important}
+ .st22-match-promo__cta{width:100%;gap:7px;font-size:12px!important}
+}
+@media(prefers-reduced-motion:reduce){.st22-match-promo__cta{transition:none}}
