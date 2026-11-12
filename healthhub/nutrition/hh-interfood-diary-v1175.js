@@ -12,6 +12,8 @@ const vault=()=>root.HH_NUTRITION_IMAGE_V641;
 const shared=()=>root.HH_SHARED_FOOD_LIBRARY_V1118;
 const profileName=p=>p==='monika'?'Mónika':'Zsolt';
 let owner='',editing=null,photoData=null,busy=false,previousOverflow='',statusTimer=null;
+let officialPhotoPromise=null; // only the public verified Interfood menu feed
+const photoSrcById=new Map();
 const numberString=x=>x==null?'—':Number(x).toLocaleString('hu-HU',{maximumFractionDigits:2});
 function makeId(){
  return (root.crypto?.randomUUID?.()||Date.now().toString(36)+Math.random().toString(36).slice(2))
@@ -135,13 +137,11 @@ function resetEditor(card=null){
  by('hhIfEditHeading1175').textContent=card?'Interfood ételkártya':'Új Interfood ételkártya';
  notice(card?'A meglévő kártyát szerkeszted.':'A kártya mentése nem rögzít automatikusan ebédet.');
  updatePreview();
- if(card?.imageRef)loadImage(by('hhIfCardPhoto1175'),card.imageRef,owner,()=>{
-  by('hhIfCardPlaceholder1175').hidden=true;
-  by('hhIfCardPhoto1175').hidden=false;
- });
- else if(card?.imageUrl)loadPublicPhoto(by('hhIfCardPhoto1175'),card.imageUrl,()=>{
-  by('hhIfCardPlaceholder1175').hidden=true;
- });
+ if(card){
+  loadCardPhoto(by('hhIfCardPhoto1175'),card,owner,()=>{
+   by('hhIfCardPlaceholder1175').hidden=true;
+  });
+ }
 }
 async function preparePhoto(){
  const file=by('hhIfPhoto1175').files?.[0];
@@ -185,23 +185,106 @@ function publicPhotoURL(value){
  }catch(_){}
  return null;
 }
-function loadPublicPhoto(img,url,ready){
- const safe=publicPhotoURL(url);if(!safe)return;
- img.referrerPolicy='no-referrer';img.loading='lazy';img.decoding='async';
- img.onerror=()=>{img.hidden=true;};
- img.onload=()=>{img.hidden=false;if(ready)ready();};
- img.src=safe;
+/* v1184: never hide a lazy image while waiting for its load event.
+ * Failed private image references fall back to exact official meal photos. */
+function normalizeFoodName(name){
+ return String(name||'').normalize('NFD').replace(/[\\u0300-\\u036f]/g,'')
+  .toLocaleLowerCase('hu-HU').replace(/[^a-z0-9]+/g,' ').trim();
+}
+function verifiedPhotoVariants(card,items){
+ if(!card?.menuDate||!card?.code||!card?.name||!Array.isArray(items))return [];
+ const name=normalizeFoodName(card.name);
+ const matches=items.filter(x=>x?.menuDate===card.menuDate&&
+  normalizeFoodName(x.name)===name&&publicPhotoURL(x.imageUrl)&&
+  /^[1-9][0-9]*$/.test(String(x.imageId||'')));
+ const original=matches.find(x=>x.code===card.code);
+ if(!original)return [];
+ const same=matches.filter(x=>String(x.imageId)===String(original.imageId));
+ return [...new Set([original,...same].map(x=>publicPhotoURL(x.imageUrl)).filter(Boolean))];
+}
+function officialPhotos(){
+ if(officialPhotoPromise)return officialPhotoPromise;
+ if(typeof root.fetch!=='function')return Promise.resolve([]);
+ officialPhotoPromise=root.fetch('./interfood-live-feed-v1176.json?photos=1184',{
+  credentials:'omit',cache:'no-cache'
+ }).then(r=>{if(!r.ok)throw Error('Interfood étlap nem érhető el');return r.json()})
+  .then(data=>{
+   if(data?.schemaVersion!=='healthhub.interfood.live/1'||
+    !Array.isArray(data.items)||data.items.length>5000||
+    data.items.length<8||!Number.isFinite(Date.parse(data.updatedAt)))return [];
+   return data.items;
+  }).catch(()=>[]);
+ return officialPhotoPromise;
+}
+function loadPhotoSrc(img,src,profile,ready){
+ return new Promise(resolve=>{
+  if(!src||!img?.isConnected||api()?.getProfile?.()!==profile){resolve(false);return;}
+  img.referrerPolicy='no-referrer';
+  img.loading='eager';img.decoding='async';
+  img.classList.remove('hh-if-photo-loaded-v1184');
+  // Keep in layout; CSS opacity masks until onload, never display:none.
+  img.hidden=false;
+  img.onload=()=>{
+   if(!img.isConnected||api()?.getProfile?.()!==profile){img.hidden=true;resolve(false);return;}
+   img.classList.add('hh-if-photo-loaded-v1184');
+   if(ready)ready(img.src);
+   resolve(true);
+  };
+  img.onerror=()=>{
+   img.classList.remove('hh-if-photo-loaded-v1184');
+   img.hidden=true;resolve(false);
+  };
+  img.src=src;
+ });
+}
+function loadPublicPhoto(img,url,ready,profile=owner){
+ const safe=publicPhotoURL(url);
+ return safe?loadPhotoSrc(img,safe,profile,ready):Promise.resolve(false);
 }
 async function loadImage(img,ref,profile,ready){
  const v=vault();
- if(!v?.refValid?.(profile,ref)||!v.load)return;
+ if(!v?.refValid?.(profile,ref)||!v.load)return false;
  const key=String(ref.sha256||'');
  img.dataset.photoKey=key;
  try{
   const src=await v.load(profile,ref);
-  if(img.dataset.photoKey!==key||!img.isConnected||api()?.getProfile?.()!==profile)return;
-  img.src=src;img.hidden=false;if(ready)ready();
- }catch(_){/* photo can be missing while offline; the saved card stays intact */}
+  if(img.dataset.photoKey!==key||!img.isConnected||api()?.getProfile?.()!==profile)return false;
+  return await loadPhotoSrc(img,src,profile,ready);
+ }catch(_){return false;}
+}
+async function loadCardPhoto(img,card,profile,ready){
+ if(!card?.id||!img)return false;
+ const seen=new Set();
+ if(card.imageRef&&await loadImage(img,card.imageRef,profile,ready))return true;
+ const attempt=async candidate=>{
+  const safe=publicPhotoURL(candidate);
+  if(!safe||seen.has(safe)||!img.isConnected||
+   api()?.getProfile?.()!==profile)return false;
+  seen.add(safe);
+  return loadPublicPhoto(img,safe,ready,profile);
+ };
+ if(await attempt(card.imageUrl))return true;
+ const items=await officialPhotos();
+ if(!img.isConnected||api()?.getProfile?.()!==profile)return false;
+ for(const candidate of verifiedPhotoVariants(card,items)){
+  if(await attempt(candidate))return true;
+ }
+ img.hidden=true;
+ const fallback=img.parentNode?.querySelector('.hh-if-photo-placeholder-v1184');
+ if(fallback)fallback.textContent='Hivatalos fotó nem elérhető';
+ return false;
+}
+function showPhoto(src,title){
+ const dlg=by('hhIfPhotoViewerV1184');
+ if(!dlg||!src)return;
+ const photo=by('hhIfPhotoViewerImageV1184'),caption=by('hhIfPhotoViewerNameV1184');
+ if(!photo||!caption)return;
+ // Only exact official HTTPS image URLs or validated private photo data.
+ const safe=publicPhotoURL(src);
+ if(!safe&&!/^data:image\\/(?:png|jpeg|webp);base64,/.test(src))return;
+ photo.src=safe||src;photo.alt=title+' · Interfood ételfotó';
+ caption.textContent=title;
+ if(!dlg.open)dlg.showModal();
 }
 function cards(){return api()?.getInterfoodCards?.()||[];}
 async function renderCards(){
@@ -219,17 +302,30 @@ async function renderCards(){
  }
  for(const card of all){
   const item=doc.createElement('article');item.className='hh-if-food-card-v1175';
-  const frame=doc.createElement('div');frame.className='hh-if-food-art-v1175';
-  const emoji=doc.createElement('span');emoji.textContent=card.sourceKey?'Interfood':'🍱';frame.append(emoji);
-  if(card.imageRef||card.imageUrl){
-   const img=doc.createElement('img');img.alt='';img.hidden=true;img.loading='lazy';frame.append(img);
-   if(card.imageRef)loadImage(img,card.imageRef,owner);
-   else loadPublicPhoto(img,card.imageUrl);
-  }
+  const frame=doc.createElement('button');frame.type='button';
+  frame.className='hh-if-food-art-v1175';frame.disabled=true;
+  frame.title='Ételkép megnyitása';
+  frame.setAttribute('aria-label',card.name+' ételfotójának megnyitása');
+  const placeholder=doc.createElement('span');placeholder.className='hh-if-photo-placeholder-v1184';
+  placeholder.textContent='Fotó betöltése…';frame.append(placeholder);
+  const img=doc.createElement('img');img.alt='';img.hidden=true;frame.append(img);
+  photoSrcById.delete(card.id);
+  frame.addEventListener('click',()=>{
+   if(frame.disabled||api()?.getProfile?.()!==owner)return;
+   showPhoto(photoSrcById.get(card.id),card.name);
+  });
   const info=doc.createElement('div');info.className='hh-if-food-info-v1175';
-  const code=doc.createElement('small');code.textContent=(card.code||'INTERFOOD')+(card.menuDate?' · '+card.menuDate:'');
+  const code=doc.createElement('small');code.className='hh-if-card-kicker-v1184';
+  code.textContent=(card.code||'INTERFOOD')+(card.menuDate?' · '+card.menuDate:'');
   const title=doc.createElement('strong');title.textContent=card.name;
-  const macro=doc.createElement('p');macro.textContent=numberString(card.nutrients?.kcal)+' kcal · F '+numberString(card.nutrients?.protein)+' g · CH '+numberString(card.nutrients?.carbs)+' g · Zs '+numberString(card.nutrients?.fat)+' g';
+  const macro=doc.createElement('div');macro.className='hh-if-macro-wrap-v1184';
+  const cal=doc.createElement('strong');cal.className='hh-if-kcal-v1184';
+  cal.textContent=numberString(card.nutrients?.kcal)+' kcal';macro.append(cal);
+  for(const [key,label] of [['protein','F'],['carbs','CH'],['fat','Zs']]){
+   const chip=doc.createElement('span');chip.className='hh-if-macro-v1184';
+   chip.textContent=label+' '+numberString(card.nutrients?.[key])+' g';
+   macro.append(chip);
+  }
   const orderCount=api()?.getInterfoodSmartOrders?.().filter(x=>x.cardId===card.id).length||0;
   const rating=api()?.getInterfoodCardRating?.(card.id);
   const sentiment=doc.createElement('small');sentiment.className='hh-if-smart-reviews-v1178';
@@ -239,10 +335,15 @@ async function renderCards(){
   const actions=doc.createElement('div');actions.className='hh-if-card-actions-v1175';
   const edit=doc.createElement('button');edit.type='button';edit.textContent='✎ Kártya';edit.setAttribute('aria-label',card.name+' kártyájának megnyitása');
   edit.addEventListener('click',()=>openEditor(card));
-  const log=doc.createElement('button');log.type='button';log.textContent='✓ Napi naplóba';
+  const log=doc.createElement('button');log.type='button';log.textContent='✓ Naplóba';
   log.className='hh-if-log-v1175';log.setAttribute('aria-label',card.name+' egy adag naplózása');
   log.addEventListener('click',()=>logCard(card,log));
   actions.append(edit,log);info.append(code,title,macro,sentiment,actions);item.append(frame,info);host.append(item);
+  // Attach after the card enters the DOM: image visibility/loading needs layout.
+  loadCardPhoto(img,card,owner,src=>{
+   placeholder.hidden=true;frame.disabled=false;
+   photoSrcById.set(card.id,src);
+  });
  }
 }
 function openLibrary(){
@@ -398,6 +499,16 @@ function init(){
   <div id="hhIfCards1175" class="hh-if-card-grid-v1175"></div>
  </div>`;
  doc.body.append(page);
+ const photoDlg=doc.createElement('dialog');
+ photoDlg.id='hhIfPhotoViewerV1184';
+ photoDlg.setAttribute('aria-label','Interfood ételfotó nagyítása');
+ photoDlg.innerHTML='<div class="hh-if-photo-viewer-body-v1184">'+
+  '<button type="button" id="hhIfPhotoViewerCloseV1184" aria-label="Fotó bezárása">✕</button>'+
+  '<img id="hhIfPhotoViewerImageV1184" alt="">'+
+  '<strong id="hhIfPhotoViewerNameV1184"></strong></div>';
+ doc.body.append(photoDlg);
+ by('hhIfPhotoViewerCloseV1184').addEventListener('click',()=>photoDlg.close());
+ photoDlg.addEventListener('close',()=>{by('hhIfPhotoViewerImageV1184').removeAttribute('src');});
  const dlg=doc.createElement('dialog');dlg.id='hhInterfoodDialogV1175';dlg.setAttribute('aria-labelledby','hhIfEditHeading1175');
  dlg.innerHTML=`<div class="hh-if-shell-v1175">
   <header><div><small>HEALTHHUB × INTERFOOD</small><h2 id="hhIfEditHeading1175">Új Interfood ételkártya</h2>
@@ -461,5 +572,6 @@ if(doc){
  else init();
 }
 root.HH_INTERFOOD_DIARY_V1175=Object.freeze({parseMenuCopy,scale,openLibrary,refreshCards:renderCards});
-if(typeof module!=='undefined'&&module.exports)module.exports={parseMenuCopy,scale};
+if(typeof module!=='undefined'&&module.exports)
+ module.exports={parseMenuCopy,scale,verifiedPhotoVariants};
 })(typeof window!=='undefined'?window:{},typeof document!=='undefined'?document:null);
