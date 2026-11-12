@@ -45,6 +45,7 @@ jobs:
           retention-days: 7
 
   live-pages-probe:
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
