@@ -164,7 +164,7 @@ function bus260DirectionForTemplate(cfg){
   clean(cfg.targetAfterStop)===clean("Kolosy tér"))return "work";
  if(cfg.targetRoute!=="260")return null;
  if(cfg.id==="monika-260"&&clean(cfg.targetStop)===clean("Váradi utca")&&
-  clean(cfg.targetHeadsign).includes(clean("Harsánylejtő")&&
+  clean(cfg.targetHeadsign).includes(clean("Harsánylejtő"))&&
   clean(cfg.transferStop)===clean("Váradi utca")&&
   clean(cfg.originStop)===clean("Kolosy tér")&&
   Array.isArray(cfg.feederRoutes)&&cfg.feederRoutes.some(x=>["17","19","41"].includes(x)))return "home";
