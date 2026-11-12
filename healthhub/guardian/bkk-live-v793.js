@@ -27,10 +27,19 @@
    seen.add(v.id);
    // Public GTFS-RT vehicle descriptors, not arbitrary marker/entity IDs.
    const clean=(value,max)=>typeof value==='string'?value.trim().slice(0,max):'';
-   vehicles.push({id:v.id,routeId:v.routeId,routeKey:key,mode:key.split(':')[0],
+   const entry={id:v.id,routeId:v.routeId,routeKey:key,mode:key.split(':')[0],
     lat:v.lat,lng:v.lng,timestamp:v.timestamp,headsign:clean(v.headsign,120),
     vehicleLabel:clean(v.vehicleLabel,64),vehicleNumber:clean(v.vehicleNumber,64),
-    licensePlate:clean(v.licensePlate,32)});
+    licensePlate:clean(v.licensePlate,32)};
+   // Keep live delay only for a fresh signed GTFS-RT update on this vehicle;
+   // do not infer delay from its current GPS position or route number.
+   const delayAt=Date.parse(v.delayObservedAt||'');
+   if(Number.isInteger(v.delaySeconds)&&v.delaySeconds>=-1800&&v.delaySeconds<=7200&&
+    Number.isFinite(delayAt)&&delayAt<=now+10000&&now-delayAt<=MAX_AGE_MS){
+    entry.delaySeconds=v.delaySeconds;entry.delayObservedAt=v.delayObservedAt;
+    entry.delayStopId=clean(v.delayStopId,32);
+   }
+   vehicles.push(entry);
   }
   return {ok:true,reason:null,generatedAt:snapshot.generatedAt,vehicles};
  }

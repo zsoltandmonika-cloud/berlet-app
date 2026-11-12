@@ -26,6 +26,11 @@ jobs:
           node --version
           node --check healthhub/guardian/smart-260-connect/core.mjs
           node --check healthhub/guardian/smart-260-connect/app.mjs
+          node --check healthhub/guardian/smart-260-connect/smart-delay-client-v1.mjs
+          node --check healthhub/guardian/bkk-smart-delay-v1.js
+          node --check healthhub/guardian/bkk-live-map-v793.js
+      - name: Shared BKK Smart Delay classification and exact-stop contract
+        run: node --test healthhub/tests/guardian-bkk-smart-delay-v1.test.cjs
       - name: Scheduled matching, walking and safe-fail regression tests
         run: node --test healthhub/guardian/smart-260-connect/core.test.mjs
       - name: Official public BKK GTFS routing diagnostic

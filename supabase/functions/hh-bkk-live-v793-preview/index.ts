@@ -71,11 +71,63 @@ function unixSeconds(value:unknown):number{
  const n=Number(typeof value==="object"&&"toString" in value?value.toString():value);
  return Number.isSafeInteger(n)?n:NaN;
 }
+
+/* BKK GTFS-RT TripUpdates, fetched alongside vehicle positions.  Missing,
+ * stale or ambiguous updates never create a "punctual" badge. */
+const BKK_UPDATES="https://go.bkk.hu/api/query/v1/ws/gtfs-rt/full/TripUpdates.pb";
+const safeStop=(x:unknown)=>typeof x==="string"&&/^(?:BKK_)?[A-Za-z0-9_-]{2,30}$/.test(x)?x.replace(/^BKK_/,""):null;
+const signedDelay=(x:unknown)=>Number.isInteger(x)&&Number(x)>=-1800&&Number(x)<=7200?Number(x):null;
+type DelayRow={routeKey:string,stopId:string,stopSequence:number,scheduledMs:number|null,predictedMs:number|null,delaySeconds:number,asOf:string};
+type DelayPayload={trips:Map<string,{routeKey:string,startDate:string,rows:DelayRow[]}>,departures:DelayRow[],asOf:string};
+async function getUpdates(key:string,mapping:RouteMap):Promise<DelayPayload|null>{
+ try{
+  const u=new URL(BKK_UPDATES);u.searchParams.set("key",key);
+  const res=await fetch(u.href,{signal:AbortSignal.timeout(6500),headers:{Accept:"application/x-protobuf"}});
+  if(!res.ok)return null;
+  const bytes=new Uint8Array(await res.arrayBuffer());
+  if(!bytes.length||bytes.length>12000000)return null;
+  const feed:any=(Gtfs as any).transit_realtime.FeedMessage.decode(bytes);
+  const stamp=unixSeconds(feed?.header?.timestamp),now=Math.floor(Date.now()/1000);
+  if(!Number.isFinite(stamp)||stamp>now+10||now-stamp>MAX_AGE_S)return null;
+  const asOf=new Date(stamp*1000).toISOString(),trips=new Map<string,{routeKey:string,startDate:string,rows:DelayRow[]}>(),departures:DelayRow[]=[];
+  for(const e of (Array.isArray(feed?.entity)?feed.entity:[])){
+   const tu=e?.tripUpdate,descriptor=tu?.trip;
+   const id=typeof descriptor?.tripId==="string"?descriptor.tripId:"";
+   const mapped=typeof descriptor?.routeId==="string"?mapping.get(descriptor.routeId):null;
+   if(!id||id.length>160||!mapped)continue;
+   const time=unixSeconds(tu?.timestamp);
+   if(Number.isFinite(time)&&(time>now+10||now-time>MAX_AGE_S))continue;
+   const rows:DelayRow[]=[];
+   for(const st of (Array.isArray(tu?.stopTimeUpdate)?tu.stopTimeUpdate:[])){
+    const stopId=safeStop(st?.stopId),dep=signedDelay(st?.departure?.delay),arr=signedDelay(st?.arrival?.delay);
+    if(!stopId||(dep===null&&arr===null))continue;
+    const delaySeconds=dep??arr!;
+    const depAt=unixSeconds(st?.departure?.time),arrAt=unixSeconds(st?.arrival?.time);
+    const predicted=Number.isFinite(depAt)?depAt:arrAt;
+    if(Number.isFinite(predicted)&&(predicted<now-180||predicted>now+14400))continue;
+    const row:DelayRow={routeKey:mapped.routeKey,stopId,
+     stopSequence:Number.isInteger(st?.stopSequence)?Number(st.stopSequence):-1,
+     scheduledMs:Number.isFinite(predicted)?(predicted-delaySeconds)*1000:null,
+     predictedMs:Number.isFinite(predicted)?predicted*1000:null,delaySeconds,asOf};
+    rows.push(row);
+    // Boarding verification requires an explicit departure update, not an
+    // arrival-only delay copied into a scheduled stop departure.
+    if(dep!==null&&Number.isFinite(depAt)&&depAt>=now-180&&depAt<=now+14400&&departures.length<8000)
+     departures.push({...row,scheduledMs:(depAt-dep)*1000,predictedMs:depAt*1000,delaySeconds:dep});
+   }
+   if(rows.length)trips.set(id,{routeKey:mapped.routeKey,
+    startDate:typeof descriptor?.startDate==="string"?descriptor.startDate:"",rows});
+  }
+  return {trips,departures,asOf};
+ }catch(_){return null}
+}
+
 async function fetchLive():Promise<Record<string,unknown>>{
  if(feedCache&&Date.now()-feedCache.at<12500)return feedCache.payload;
  const key=Deno.env.get("BKK_API_KEY");
  if(!key)throw new Error("bkk-key-unconfigured");
  const mapping=await routeMap();
+ const updatesPromise=getUpdates(key,mapping);
  const url=new URL(BKK_VEHICLES);
  url.searchParams.set("key",key);
  let res:Response;
@@ -90,6 +142,7 @@ async function fetchLive():Promise<Record<string,unknown>>{
  const timestamp=unixSeconds(feed?.header?.timestamp);
  const now=Math.floor(Date.now()/1000);
  if(!Number.isFinite(timestamp)||timestamp<now-MAX_AGE_S||timestamp>now+10)throw new Error("bkk-feed-stale");
+ const updates=await updatesPromise;
  const seen=new Set<string>();
  const vehicles=[];
  for(const entity of (Array.isArray(feed?.entity)?feed.entity:[])){
@@ -113,10 +166,20 @@ async function fetchLive():Promise<Record<string,unknown>>{
   if(label)entry.vehicleLabel=label;
   if(number)entry.vehicleNumber=number;
   if(plate)entry.licensePlate=plate;
+  const tripId=typeof v?.trip?.tripId==="string"?v.trip.tripId:"";
+  const update=updates?.trips.get(tripId);
+  if(update&&update.routeKey===route.routeKey&&
+   (!update.startDate||!v?.trip?.startDate||update.startDate===v.trip.startDate)){
+   const seq=Number.isInteger(v?.currentStopSequence)?Number(v.currentStopSequence):null;
+   const next=update.rows.find(p=>(seq===null||p.stopSequence<0||p.stopSequence>=seq)&&
+     (p.predictedMs===null||p.predictedMs>=Date.now()-120000));
+   if(next){entry.delaySeconds=next.delaySeconds;entry.delayStopId=next.stopId;entry.delayObservedAt=next.asOf;}
+  }
   vehicles.push(entry);
  }
  const payload={schemaVersion:1,source:SOURCE,feedType:"GTFS-RT VehiclePositions",
-  generatedAt:new Date(timestamp*1000).toISOString(),vehicles};
+  generatedAt:new Date(timestamp*1000).toISOString(),vehicles,
+  delayGeneratedAt:updates?.asOf||null,stopPredictions:updates?.departures||[]};
  feedCache={at:Date.now(),payload};
  return payload;
 }
@@ -141,6 +204,10 @@ Deno.serve(async req=>{
  // bounded, single-request all-vehicle mode. No second BKK upstream poller.
  const query=new URL(req.url).searchParams;
  const selected=query.get("routes");
+ const predictionMode=query.get("predictions")==="1";
+ const stopParam=query.get("stops")||"";
+ const stops=predictionMode&&stopParam.length<=1000?
+  new Set(stopParam.split(",").map(safeStop).filter((x):x is string=>!!x).slice(0,32)):new Set<string>();
  const allMode=query.get("all")==="1"&&selected===null;
  const bbox=allMode?sh9Bounds(query.get("bbox")):null;
  if(allMode&&!bbox)return reply(req,400,{ok:false,reason:"invalid-sh9-viewport"});
@@ -166,7 +233,9 @@ Deno.serve(async req=>{
    const p=v as {id:string,routeId:string,routeKey:string,mode:string,lat:number,lng:number,timestamp:string};
    return {id:p.id,routeId:p.routeId,routeKey:p.routeKey,mode:p.mode,lat:p.lat,lng:p.lng,timestamp:p.timestamp};
   }):chosen;
-  return reply(req,200,{...payload,vehicles,truncated:matched.length>vehicles.length});
+  const predictions=predictionMode&&!allMode&&stops.size?
+   ((payload.stopPredictions||[]) as DelayRow[]).filter(p=>allowed.has(p.routeKey)&&stops.has(p.stopId)).slice(0,700):[];
+  return reply(req,200,{...payload,stopPredictions:predictions,vehicles,truncated:matched.length>vehicles.length});
  }
  catch(e){const reason=e instanceof Error&&/^(route-map-|bkk-)/.test(e.message)?e.message:"live-unavailable";
   return reply(req,503,{ok:false,reason,vehicles:[]})}
