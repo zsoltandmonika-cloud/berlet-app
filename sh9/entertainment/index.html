@@ -80,7 +80,8 @@ a{color:inherit;text-decoration:none}button{font:inherit;cursor:pointer}button:f
    Every existing programme, favourite and booking flow stays unchanged. */
 .top-bell{display:grid;place-items:center;flex:0 0 auto;width:30px;height:36px;color:#f7e8fa;position:relative}
 .top-bell svg{width:23px;height:23px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
-.top-bell:after{content:"";position:absolute;right:2px;top:4px;width:7px;height:7px;border-radius:50%;background:#ed4189;border:1px solid #e1a5c5}
+.top-bell:after{content:"";display:none;position:absolute;right:2px;top:4px;width:7px;height:7px;border-radius:50%;background:#ed4189;border:1px solid #e1a5c5}
+.top-bell[data-unread="true"]:after{display:block}
 .fav-hub{display:none;position:relative;flex:0 0 auto;color:white;border:1px solid #fd619a;border-radius:50%;width:62px;height:62px;background:radial-gradient(circle at 70% 10%,#ff82ac,#b4175e 55%,#410c4c);box-shadow:inset 0 1px 2px #ffb9d9,0 0 20px #d4398a51;font-weight:750;font-size:10px;line-height:1.18;text-align:center}
 .fav-sparkle{position:absolute;top:6px;right:10px;color:#ffe9a5;font-size:14px}
 .hero h1 em span{display:inline}
@@ -102,7 +103,8 @@ a{color:inherit;text-decoration:none}button{font:inherit;cursor:pointer}button:f
  .top-bell svg{width:25px;height:25px}
  .fav-hub{display:grid;place-items:center;width:55px;height:55px;font-size:10px}
  #askLena{display:none}
- #soundToggle{display:none}
+ #soundToggle{display:grid;place-items:center;position:absolute;top:81px;right:14px;z-index:55;width:31px;height:31px;padding:0;border-radius:50%;font-size:18px;box-shadow:0 0 12px #bd4a9b50;background:#170c28bd}
+ #soundToggle span{display:none}
  .wrap{padding:0 7px 90px}
  .hero{min-height:0;margin:0 0 20px;border-radius:0 0 20px 20px;overflow:hidden;background:#090918;box-shadow:0 14px 33px #000b}
  .hero-art{inset:0 0 auto;height:318px;grid-template-columns:1fr 1fr;grid-template-rows:repeat(2,1fr);z-index:-2;opacity:1;overflow:hidden}
@@ -282,6 +284,20 @@ a{color:inherit;text-decoration:none}button{font:inherit;cursor:pointer}button:f
  })});
  toggle.addEventListener('click',function(){filter=!filter;paint()});
  document.getElementById('favHub').addEventListener('click',function(){if(!filter)toggle.click();document.getElementById('mozi').scrollIntoView({behavior:'smooth',block:'start'});});
+ // Only show an unread bell when the actual SHO Notification Core reports unread items.
+ function updateTopBell(){
+  var bell=document.querySelector('.top-bell');if(!bell)return;
+  var api=window.SHO_NOTIFICATION_CORE_V1;
+  var owner='z';try{owner=localStorage.getItem('hh-profile')==='m'?'m':'z'}catch(e){}
+  var unread=Number(api&&api.state&&api.state(owner)?.unread)||0;
+  bell.dataset.unread=unread>0?'true':'false';
+  bell.setAttribute('aria-label',unread>0?'Értesítések: '+unread+' olvasatlan':'SHO értesítések megnyitása');
+ }
+ window.addEventListener('sho:notifications-changed',updateTopBell);
+ window.addEventListener('pageshow',updateTopBell);
+ window.addEventListener('focus',updateTopBell);
+ setTimeout(updateTopBell,1800);
+ updateTopBell();
  document.querySelectorAll('.row-nav').forEach(function(b){b.addEventListener('click',function(){
   var row=document.getElementById(b.dataset.row);if(!row)return;
   row.scrollBy({left:Number(b.dataset.dir)*Math.max(230,row.clientWidth*.74),behavior:'smooth'});
