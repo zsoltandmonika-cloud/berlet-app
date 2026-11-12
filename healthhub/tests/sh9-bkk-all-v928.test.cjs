@@ -52,7 +52,7 @@ test('v928 overlay creates one clustered GeoJSON source, only in SH9 mode and wi
  const src=read('guardian-sh9-all-bkk-v928.js');
  const html=read('index.html');
  const css=read('guardian-sh9-all-bkk-v928.css');
- assert.match(html,/guardian-sh9-all-bkk-v928\.js\?v=930-visible-status-city/);
+ assert.match(html,/guardian-sh9-all-bkk-v928\.js\?v=931-delay-legend/);
  assert.match(html,/id="sh9AllVehiclesToggleV928"/);
  assert.match(html,/id="sh9AllVehiclesRefreshV928"/);
  assert.match(html,/guardian-sh9-all-bkk-v928\.css/);
@@ -142,8 +142,8 @@ test('v930 city overview waits for ready map and never changes normal Family Gua
  assert.match(live,/if\(!sh9OverviewSet&&activeMap\?\.jumpTo\)/);
  assert.match(live,/activeMap\.jumpTo\(\{center:\[19\.0467,47\.5060\],zoom:11\.6,pitch:0,bearing:0\}\)/);
  assert.match(live,/typeof activeMap\.loaded==='function'&&!activeMap\.loaded\(\)/);
- assert.match(html,/guardian-sh9-all-bkk-v928\.js\?v=930-visible-status-city/);
- assert.match(html,/guardian-sh9-all-bkk-v928\.css\?v=930-visible-status-city/);
+ assert.match(html,/guardian-sh9-all-bkk-v928\.js\?v=931-delay-legend/);
+ assert.match(html,/guardian-sh9-all-bkk-v928\.css\?v=931-delay-legend/);
 });
 test('v930 visible verified count and empty-area repair remain fail closed and throttled',()=>{
  const ui=read('guardian-sh9-all-bkk-v928.js');
