@@ -241,7 +241,7 @@
 
 /* v932: an unavailable delay is a neutral unknown, NOT a green on-time.
  * SH9-only marker text (the live-position lamp retains its original role). */
-:root[data-sh9-transit="on"] .hh-bkk-glass-capsule-v800 .hh-bkk-smart-delay-v1[data-delay="unknown"]:not([hidden]){
+.hh-bkk-glass-capsule-v800 .hh-bkk-smart-delay-v1[data-delay="unknown"]:not([hidden]){
  display:inline-flex;align-items:center;justify-content:center;
  min-width:15px;padding:3px 4px;background:rgba(100,113,131,.78)!important;
  border:1px solid rgba(212,222,239,.4)!important;

@@ -166,7 +166,12 @@ function renderLiveFromSnapshot(parsed){
  }else if(!active.vehicles.length){
   status([...wanted].join(', ')+' · nincs friss, ellenőrzött járműpozíció. Az adatkapcsolat működik, de nem rajzolunk kitalált buszokat.');
  }else{
-  status(active.vehicles.length+' friss, ellenőrzött jármű · '+new Date(parsed.generatedAt).toLocaleTimeString('hu-HU'));
+  const count=active.vehicles.filter(v=>Number.isInteger(v.delaySeconds)).length;
+  const source=parsed.delayCoverage;
+  const hint=source&&!source.feedAvailable?' · BKK késésadat-forrás nem elérhető':
+   source&&count===0?' · a BKK nem adott párosítható késésadatot':'';
+  status(active.vehicles.length+' friss jármű · '+count+' ellenőrzött késésjelzés'+hint+
+   ' · '+new Date(parsed.generatedAt).toLocaleTimeString('hu-HU'));
  }
 }
 function visibleBBox(){
@@ -236,7 +241,8 @@ async function poll(force=false){
    lastSh9WasEmpty=parsed.vehicles.length===0;
    if(!d.hidden&&typeof w.CustomEvent==='function')
     w.dispatchEvent(new w.CustomEvent('hh-sh9-all-live-v928',{
-     detail:{generatedAt:parsed.generatedAt,vehicles:parsed.vehicles,truncated:data.truncated===true}
+     detail:{generatedAt:parsed.generatedAt,vehicles:parsed.vehicles,
+      delayCoverage:parsed.delayCoverage,truncated:data.truncated===true}
     }));
    status(parsed.vehicles.length+' hiteles, friss jármű · SH9 teljes térképréteg'+
     (data.truncated===true?' · korlátozott adatcsomag':'')+' · '+

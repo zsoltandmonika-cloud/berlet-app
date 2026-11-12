@@ -65,3 +65,37 @@ test("protobuf optional delay absent is NOT on-time, even when its prototype def
  assert.match(source,/dep=explicitDelay\(st\?\.departure\),arr=explicitDelay\(st\?\.arrival\)/);
  assert.match(source,/scheduleRelationship===1\|\|st\?\.scheduleRelationship===2/);
 });
+
+
+test("official GTFS-RT TripUpdate.delay restores favorites only when explicitly transmitted",()=>{
+ const backend=fs.readFileSync(path.join(root,"../supabase/functions/hh-bkk-live-v793-preview/index.ts"),"utf8");
+ assert.match(backend,/const tripDelaySeconds=explicitDelay\(tu\)/);
+ assert.match(backend,/if\(rows\.length\|\|tripDelaySeconds!==null\)trips\.set/);
+ assert.match(backend,/else if\(update\.tripDelaySeconds!==null\)/);
+ assert.match(backend,/entry\.delaySeconds=update\.tripDelaySeconds/);
+ assert.match(backend,/if\(next\)\{[\s\S]*?entry\.delaySeconds=next\.delaySeconds;[\s\S]*?\}else if\(update\.tripDelaySeconds!==null\)/);
+ assert.match(backend,/relation!==undefined&&relation!==0/);
+ assert.match(backend,/delayCoverage:\{feedAvailable:!!updates/);
+ assert.match(backend,/withDelay:vehicles\.filter/);
+ const helper=backend.match(/const signedDelay=.+\n[\s\S]*?function explicitDelay\(event:any\):number\|null\{[\s\S]*?\n\}/);
+ assert.ok(helper,"the backend's actual protobuf helper must be found");
+ const vm=require("node:vm");
+ const js=helper[0].replace("(x:unknown)","(x)").replace("(event:any):number|null","(event)");
+ const explicit=vm.runInNewContext(js+"\nexplicitDelay");
+ assert.equal(explicit(Object.create({delay:0})),null,
+  "a protobuf defaulted zero is NOT explicit on-time");
+ assert.equal(explicit({time:1794480000}),null,
+  "a time-only ETA is not a proven schedule deviation");
+ assert.equal(explicit({delay:0}),0);
+ assert.equal(explicit({delay:-120}),-120);
+ assert.equal(explicit({delay:180}),180);
+ const stamp=new Date(now).toISOString();
+ const coverage=validate({
+  schemaVersion:1,source:"BKK Zrt., CC BY 4.0",feedType:"GTFS-RT VehiclePositions",
+  generatedAt:stamp,vehicles:[],
+  delayCoverage:{feedAvailable:true,shown:0,withDelay:0,tripLevel:12,stopLevel:0}
+ },now);
+ assert.equal(coverage.ok,true);
+ assert.equal(coverage.delayCoverage.tripLevel,12);
+ assert.equal(coverage.delayCoverage.withDelay,0);
+});

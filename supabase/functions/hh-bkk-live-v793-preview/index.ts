@@ -85,7 +85,9 @@ function explicitDelay(event:any):number|null{
  return signedDelay(event.delay);
 }
 type DelayRow={routeKey:string,stopId:string,stopSequence:number,scheduledMs:number|null,predictedMs:number|null,delaySeconds:number,asOf:string};
-type DelayPayload={trips:Map<string,{routeKey:string,startDate:string,rows:DelayRow[]}>,departures:DelayRow[],asOf:string};
+type DelayTrip={routeKey:string,startDate:string,rows:DelayRow[],tripDelaySeconds:number|null};
+type DelayPayload={trips:Map<string,DelayTrip>,departures:DelayRow[],asOf:string,
+ stats:{stopLevel:number,tripLevel:number,missingDelay:number}};
 async function getUpdates(key:string,mapping:RouteMap):Promise<DelayPayload|null>{
  try{
   const u=new URL(BKK_UPDATES);u.searchParams.set("key",key);
@@ -96,12 +98,21 @@ async function getUpdates(key:string,mapping:RouteMap):Promise<DelayPayload|null
   const feed:any=(Gtfs as any).transit_realtime.FeedMessage.decode(bytes);
   const stamp=unixSeconds(feed?.header?.timestamp),now=Math.floor(Date.now()/1000);
   if(!Number.isFinite(stamp)||stamp>now+10||now-stamp>MAX_AGE_S)return null;
-  const asOf=new Date(stamp*1000).toISOString(),trips=new Map<string,{routeKey:string,startDate:string,rows:DelayRow[]}>(),departures:DelayRow[]=[];
+  const asOf=new Date(stamp*1000).toISOString(),trips=new Map<string,DelayTrip>(),departures:DelayRow[]=[];
+  const stats={stopLevel:0,tripLevel:0,missingDelay:0};
   for(const e of (Array.isArray(feed?.entity)?feed.entity:[])){
    const tu=e?.tripUpdate,descriptor=tu?.trip;
    const id=typeof descriptor?.tripId==="string"?descriptor.tripId:"";
    const mapped=typeof descriptor?.routeId==="string"?mapping.get(descriptor.routeId):null;
    if(!id||id.length>160||!mapped)continue;
+   // Trip delay is a separate, official GTFS-RT field.  The earlier
+   // StopTimeEvent-only filter dropped this valid source completely.
+   // A trip with no static schedule (cancelled, new, unscheduled, etc.) is
+   // never treated as punctual relative to a scheduled departure.
+   const relation=descriptor?.scheduleRelationship;
+   if(relation!==undefined&&relation!==0)continue;
+   const tripDelaySeconds=explicitDelay(tu);
+   if(tripDelaySeconds!==null)stats.tripLevel++;
    const time=unixSeconds(tu?.timestamp);
    if(Number.isFinite(time)&&(time>now+10||now-time>MAX_AGE_S))continue;
    const rows:DelayRow[]=[];
@@ -111,6 +122,7 @@ async function getUpdates(key:string,mapping:RouteMap):Promise<DelayPayload|null
     const stopId=safeStop(st?.stopId),dep=explicitDelay(st?.departure),arr=explicitDelay(st?.arrival);
     if(!stopId||(dep===null&&arr===null))continue;
     const delaySeconds=dep??arr!;
+    stats.stopLevel++;
     const depAt=unixSeconds(st?.departure?.time),arrAt=unixSeconds(st?.arrival?.time);
     const predicted=Number.isFinite(depAt)?depAt:arrAt;
     if(Number.isFinite(predicted)&&(predicted<now-180||predicted>now+14400))continue;
@@ -124,10 +136,11 @@ async function getUpdates(key:string,mapping:RouteMap):Promise<DelayPayload|null
     if(dep!==null&&Number.isFinite(depAt)&&depAt>=now-180&&depAt<=now+14400&&departures.length<8000)
      departures.push({...row,scheduledMs:(depAt-dep)*1000,predictedMs:depAt*1000,delaySeconds:dep});
    }
-   if(rows.length)trips.set(id,{routeKey:mapped.routeKey,
-    startDate:typeof descriptor?.startDate==="string"?descriptor.startDate:"",rows});
+   if(rows.length||tripDelaySeconds!==null)trips.set(id,{routeKey:mapped.routeKey,
+    startDate:typeof descriptor?.startDate==="string"?descriptor.startDate:"",rows,tripDelaySeconds});
+   else stats.missingDelay++;
   }
-  return {trips,departures,asOf};
+  return {trips,departures,asOf,stats};
  }catch(_){return null}
 }
 
@@ -182,13 +195,23 @@ async function fetchLive():Promise<Record<string,unknown>>{
    const seq=Number.isInteger(v?.currentStopSequence)?Number(v.currentStopSequence):null;
    const next=update.rows.find(p=>(seq===null||p.stopSequence<0||p.stopSequence>=seq)&&
      (p.predictedMs===null||p.predictedMs>=Date.now()-120000));
-   if(next){entry.delaySeconds=next.delaySeconds;entry.delayStopId=next.stopId;entry.delayObservedAt=next.asOf;}
+   if(next){
+    // Stop-specific deviation has precedence over trip-level deviation.
+    entry.delaySeconds=next.delaySeconds;entry.delayStopId=next.stopId;entry.delayObservedAt=next.asOf;
+   }else if(update.tripDelaySeconds!==null){
+    // Only a real, explicitly present TripUpdate.delay is accepted.
+    // Never substitute protobuf's inherited zero, nor infer from GPS.
+    entry.delaySeconds=update.tripDelaySeconds;entry.delayObservedAt=updates!.asOf;
+   }
   }
   vehicles.push(entry);
  }
  const payload={schemaVersion:1,source:SOURCE,feedType:"GTFS-RT VehiclePositions",
   generatedAt:new Date(timestamp*1000).toISOString(),vehicles,
-  delayGeneratedAt:updates?.asOf||null,stopPredictions:updates?.departures||[]};
+  delayGeneratedAt:updates?.asOf||null,stopPredictions:updates?.departures||[],
+  delayCoverage:{feedAvailable:!!updates,stopLevel:updates?.stats.stopLevel||0,
+   tripLevel:updates?.stats.tripLevel||0,
+   withDelay:vehicles.filter(v=>typeof v.delaySeconds==="number").length}};
  feedCache={at:Date.now(),payload};
  return payload;
 }
@@ -258,7 +281,18 @@ Deno.serve(async req=>{
   }):chosen;
   const predictions=predictionMode&&!allMode&&stops.size?
    ((payload.stopPredictions||[]) as DelayRow[]).filter(p=>allowed.has(p.routeKey)&&stops.has(p.stopId)).slice(0,700):[];
-  return reply(req,200,{...payload,stopPredictions:predictions,vehicles,truncated:matched.length>vehicles.length});
+  // Authenticated aggregate diagnostics: count which source type the BKK
+  // supplied and how many matched THIS requested map/favorite scope.
+  // No trip IDs, vehicle coordinates, OAuth tokens or API keys are logged.
+  const rawCoverage=payload.delayCoverage as {
+   feedAvailable?:boolean,stopLevel?:number,tripLevel?:number
+  }|undefined;
+  const coverage={feedAvailable:rawCoverage?.feedAvailable===true,
+   stopLevel:Number(rawCoverage?.stopLevel)||0,tripLevel:Number(rawCoverage?.tripLevel)||0,
+   shown:vehicles.length,
+   withDelay:vehicles.filter(v=>typeof (v as {delaySeconds?:number}).delaySeconds==="number").length};
+  return reply(req,200,{...payload,delayCoverage:coverage,
+   stopPredictions:predictions,vehicles,truncated:matched.length>vehicles.length});
  }
  catch(e){const reason=e instanceof Error&&/^(route-map-|bkk-)/.test(e.message)?e.message:"live-unavailable";
   return reply(req,503,{ok:false,reason,vehicles:[]})}
