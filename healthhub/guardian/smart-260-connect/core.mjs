@@ -276,7 +276,29 @@ const REVERSE=Object.freeze({
  originWalkMin:10,originSafetyMin:2,transferWalkMin:2,transferSafetyMin:1,
  maxWaitMin:5,maxTransferMeters:350,destinationWalkMin:10
 });
-const SAMPLES=Object.freeze([DEFAULT,HOME,REVERSE]);
+/* Family route pair v941: two ready-to-edit templates bound to the existing
+ * saved family favorite slot indexes. No personal coordinates in public code.
+ * No guessed stops/vehicles/times: explicitly DRAFT until validated in editor.
+ */
+const FAMILY_OUTBOUND=Object.freeze({
+ schema:"sh9.smart-match.template/1",id:"family-home-to-david-anna",profile:"monika",
+ reverseId:"family-david-anna-to-home",type:"transfer",favoriteRoute:true,
+ title:"Otthon → Dávid & Anna otthona",
+ originLabel:"Otthon",destinationLabel:"Dávid & Anna Otthona",
+ originFavoriteSlot:0,destinationFavoriteSlot:7,
+ originStop:"",transferStop:"",targetStop:"",targetRoute:"",targetRoutes:[],
+ targetHeadsign:"",feederRoutes:[],startHour:6,endHour:22,
+ originWalkMin:10,originSafetyMin:2,transferWalkMin:2,transferSafetyMin:1,
+ maxWaitMin:5,maxTransferMeters:350
+});
+const FAMILY_RETURN=Object.freeze({
+ ...FAMILY_OUTBOUND,id:"family-david-anna-to-home",
+ reverseId:"family-home-to-david-anna",
+ title:"Dávid & Anna otthona → Otthon",
+ originLabel:"Dávid & Anna Otthona",destinationLabel:"Otthon",
+ originFavoriteSlot:7,destinationFavoriteSlot:0
+});
+const SAMPLES=Object.freeze([DEFAULT,HOME,REVERSE,FAMILY_OUTBOUND,FAMILY_RETURN]);
 function walkOnlyOptions(data,date,cfg=HOME,clock=Date.now()){
  if(!validate(data,clock))throw Error("A hiteles BKK-menetrend hiányzik vagy lejárt.");
  if(!/^\d{4}-\d{2}-\d{2}$/.test(date)||date<data.feedStart||date>data.feedEnd)
@@ -314,5 +336,5 @@ function walkOnlyOptions(data,date,cfg=HOME,clock=Date.now()){
 function compute(data,date,cfg,clock=Date.now()){
  return cfg?.type==="walk"?walkOnlyOptions(data,date,cfg,clock):options(data,date,cfg,clock);
 }
-export {DEFAULT,HOME,REVERSE,SAMPLES,BUS_260_DIRECTIONS,bus260DirectionForTemplate,full260Timetable,pair260Connections,
+export {DEFAULT,HOME,REVERSE,FAMILY_OUTBOUND,FAMILY_RETURN,SAMPLES,BUS_260_DIRECTIONS,bus260DirectionForTemplate,full260Timetable,pair260Connections,
  clean,dist,validConfig,indexStops,options,walkOnlyOptions,compute,nextIndex};
