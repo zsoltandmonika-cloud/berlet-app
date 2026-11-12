@@ -379,7 +379,7 @@ if(new URLSearchParams(w.location.search).get('hhLivePilot')!=='off'){
   // A new query token fetches the retired-button behavior immediately, without changing other BKK assets.
   if(file==='guardian-live-pilot-v793.js')url.searchParams.set('ui','963-retire-legacy-live-button');
   // Refresh all BKK modules in favorites and full-map views.
-  url.searchParams.set('rt','936-quiet-map-init');
+  url.searchParams.set('rt','937-smart-match-fyi');
   script.src=url.href;
   script.onerror=function(){
    const holder=d.getElementById('hhTransitPanel');
