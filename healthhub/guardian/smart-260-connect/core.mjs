@@ -156,10 +156,18 @@ function bus260DirectionForTemplate(cfg){
  // Built-in templates remain eligible only while their original route is intact.
  // Editing 260 into any other line MUST never force the legacy full-bus view.
  if(cfg.id==="monika-home-to-office"&&cfg.targetRoute==="17"&&
-  (cfg.targetRoutes??["17"]).every(x=>["17","19","41"].includes(x)))return "work";
+  (cfg.targetRoutes??["17"]).every(x=>["17","19","41"].includes(x))&&
+  clean(cfg.originStop)===clean("Citronella utca")&&
+  clean(cfg.transferStop)===clean("Bécsi út / Vörösvári út")&&
+  clean(cfg.targetStop)===clean("Bécsi út / Vörösvári út")&&
+  Array.isArray(cfg.feederRoutes)&&cfg.feederRoutes.includes("260")&&
+  clean(cfg.targetAfterStop)===clean("Kolosy tér"))return "work";
  if(cfg.targetRoute!=="260")return null;
  if(cfg.id==="monika-260"&&clean(cfg.targetStop)===clean("Váradi utca")&&
-  clean(cfg.targetHeadsign).includes(clean("Harsánylejtő")))return "home";
+  clean(cfg.targetHeadsign).includes(clean("Harsánylejtő")&&
+  clean(cfg.transferStop)===clean("Váradi utca")&&
+  clean(cfg.originStop)===clean("Kolosy tér")&&
+  Array.isArray(cfg.feederRoutes)&&cfg.feederRoutes.some(x=>["17","19","41"].includes(x)))return "home";
  if(clean(cfg.targetStop)===clean("Citronella utca")&&
   clean(cfg.targetHeadsign).includes(clean("Óbudai")))return "work";
  if(clean(cfg.targetStop)===clean("Váradi utca")&&
