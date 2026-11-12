@@ -41,6 +41,38 @@ a{color:inherit;text-decoration:none}button{font:inherit;cursor:pointer}button:f
 .sound-toggle[aria-pressed="true"]{color:#fff;border-color:#f69ed4;box-shadow:0 0 16px #d9338f77}
 .cat:active,.card:active{transform:scale(.99)}
 @media(max-width:650px){.sound-toggle{padding:5px 8px;font-size:15px}.sound-toggle span{display:none}.card.featured .card-body b{font-size:19px}}
+
+/* Golden Standard: upcoming event pin, deliberately separate from favourites */
+.upcoming{--highlight:#f6b858;position:relative;isolation:isolate;display:flex;align-items:stretch;gap:0;min-height:150px;overflow:hidden;border-radius:20px;border:1px solid #efb966ad;background:radial-gradient(ellipse at 8% 60%,#9c3a6280,transparent 48%),linear-gradient(115deg,#24152c,#12132c 58%,#101529);box-shadow:0 0 21px #d0678555,inset 0 1px 1px #ffe9ba55,0 11px 28px #0009;margin:0 0 26px}
+.upcoming-poster{flex:0 0 25%;max-width:320px;background-image:var(--upimg);background-size:cover;background-position:50% 35%;box-shadow:inset -50px 0 35px #131027bf;min-height:153px;position:relative}
+.upcoming-poster:after{content:"";inset:0;position:absolute;background:linear-gradient(90deg,transparent 10%,#1a0d27a8)}
+.upcoming-text{padding:15px clamp(14px,2.2vw,32px);display:flex;flex-direction:column;justify-content:center;min-width:0}
+.upcoming-eyebrow{font-size:11px;letter-spacing:1.6px;font-weight:850;color:#ffdf99;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.upcoming-state{letter-spacing:.1px;font-size:10px;color:#ffdcfa;background:#702d599c;border:1px solid #ffb5de64;border-radius:50px;padding:3px 9px}
+.upcoming-state.booked{color:#d3ffdb;border-color:#74dba7;background:#19482c9e}
+.upcoming h2{font-size:clamp(20px,2.4vw,29px);margin:7px 0 0;line-height:1.1}
+.upcoming-where{color:#e4d7e8;font-size:12px;margin:8px 0 0}
+.upcoming-action-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:11px}
+.upcoming-count{color:#ffd68b;font-size:12px;font-weight:750}
+.upcoming-action,.upcoming-edit{display:inline-block;padding:7px 12px;border-radius:99px;color:#fff;background:#621a55a1;border:1px solid #ff8ab780;font-size:11px;font-weight:750}
+.upcoming-action:hover,.upcoming-edit:hover{background:#98256e}
+.upcoming-edit{cursor:pointer}
+.pin-event{position:absolute;top:9px;right:43px;z-index:4;width:29px;height:29px;border-radius:50%;font-size:14px;color:#fff;border:1px solid #f5c98a9c;background:#180a1aaf;display:grid;place-items:center}
+.pin-event[aria-pressed="true"]{background:#bc6442;color:#fff2b5;box-shadow:0 0 13px #f6bc5daa}
+.upcoming-editor{position:fixed;z-index:200;inset:0;padding:16px;background:#050614cc;backdrop-filter:blur(9px);display:grid;place-items:center}
+.upcoming-editor[hidden]{display:none}
+.upcoming-dialog{width:min(100%,520px);max-height:min(90dvh,850px);overflow:auto;padding:20px;border-radius:21px;background:linear-gradient(145deg,#28152d,#10192f);border:1px solid #ff9fbc9c;box-shadow:0 14px 70px #000b,0 0 40px #b5208c42}
+.upcoming-dialog h2{margin:0 0 6px;font-size:23px}
+.upcoming-dialog p{color:#d6c6dd;margin:0 0 15px;font-size:12px}
+.upcoming-dialog label{display:grid;gap:5px;margin:10px 0;font-size:12px;color:#f7d9ed;font-weight:700}
+.upcoming-dialog input,.upcoming-dialog select{width:100%;border-radius:10px;padding:11px;border:1px solid #ac6b9f9c;background:#0e1023;color:white;font:inherit}
+.upcoming-dialog input:focus,.upcoming-dialog select:focus{outline:2px solid #f179b2}
+.upcoming-dialog .editor-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:16px}
+.upcoming-dialog button{border-radius:99px;padding:9px 16px;color:white;border:1px solid #c47fad;background:#402044}
+.upcoming-dialog button.primary{background:linear-gradient(110deg,#d22478,#7c0a4d);border-color:#fb72aa}
+.upcoming-dialog button.danger{color:#ffb6a3;border-color:#ba4c64}
+.upcoming.empty-pin .upcoming-poster{background-image:linear-gradient(135deg,#351942,#172b55)!important}
+@media(max-width:650px){.upcoming{min-height:155px;border-radius:15px}.upcoming-poster{flex-basis:24%;min-width:85px}.upcoming-text{padding:11px}.upcoming h2{font-size:19px}.upcoming-where{font-size:11px}.upcoming-action-row{gap:7px}.upcoming-count{width:100%}.upcoming-eyebrow{font-size:10px;letter-spacing:.6px}.upcoming-state{font-size:9px}.upcoming-action,.upcoming-edit{padding:6px 9px}.pin-event{top:45px;right:9px}}
 </style>
 </head>
 <body>
@@ -59,10 +91,19 @@ a{color:inherit;text-decoration:none}button{font:inherit;cursor:pointer}button:f
   <a class="cat home-media" href="https://mediaradar.pages.dev/" target="_blank" rel="noopener noreferrer"><span class="cat-icon">📺</span><span><b>Home Media</b><small>MediaRadar megnyitása</small></span></a>
  </div>
 </section>
+<section class="upcoming" id="upcoming" aria-label="Kitűzött következő program">
+ <div class="upcoming-poster" id="upPoster" aria-hidden="true"></div>
+ <div class="upcoming-text">
+  <div class="upcoming-eyebrow">📌 KÖVETKEZŐ PROGRAMUNK <span class="upcoming-state" id="upState">Tervezett program</span></div>
+  <h2 id="upTitle">Elvált nők klubja · PREMIER</h2>
+  <p class="upcoming-where"><span id="upVenue">RaM-ArT Színház · Budapest</span> <span aria-hidden="true">·</span> <time id="upDate" datetime="2026-11-13T19:00">november 13., péntek 19:00</time></p>
+  <div class="upcoming-action-row"><span class="upcoming-count" id="upCountdown"></span><a id="upDetails" class="upcoming-action" href="https://ramart.hu/elvalt-nok-klubja/" target="_blank" rel="noopener noreferrer">Részletek ↗</a><a class="upcoming-action" href="../smart-travel/">🧭 Smart Trip</a><button type="button" class="upcoming-edit" id="upEdit">✎ Szerkesztés</button></div>
+ </div>
+</section>
 <section class="section" id="mozi">
  <div class="section-top"><div><h2><span class="icon-title">🎬</span> Most a mozikban</h2><p>Friss filmek, moziműsor és jegylinkek · hitelesített premier</p></div><a href="https://www.cinemacity.hu/" target="_blank" rel="noopener noreferrer">Összes film ↗</a></div>
  <div class="row"><button class="row-nav prev" data-row="movies" data-dir="-1" aria-label="Mozi előző">‹</button><div class="carousel" id="movies">
-  <article class="card etele-featured" data-id="cinema-etele-premium" style="--img:url('https://www.proidea.hu/referenciak-7/magyar-premium-moziszekek-stulwerk-etele-plaza-20846/a_100_d_11_1665498225030_stulwerk_moziszekek_vip.jpg')"><div class="badge-premiere">★ KEDVENC MOZINK · PREMIUM</div><button class="fav" type="button" data-fav="cinema-etele-premium" aria-pressed="true" aria-label="Etele Cinema Premium kedvenc">♥</button><div class="card-body"><b>ETELE Cinema · Premium</b><small>Etele Plaza · dönthető fotelek · prémium moziélmény</small><div class="card-actions"><a class="source" href="https://www.proidea.hu/referenciak-7/magyar-premium-moziszekek-stulwerk-etele-plaza-20846.shtml" target="_blank" rel="noopener noreferrer" title="Képforrás: Stulwerk / Proidea">Fotó: Stulwerk</a><a class="cta" href="https://etelecinema.hu/" target="_blank" rel="noopener noreferrer">Műsor & Premium jegyek ↗</a></div></div></article>
+  <article class="card etele-featured" data-id="cinema-etele-premium" style="--img:url('https://www.proidea.hu/referenciak-7/magyar-premium-moziszekek-stulwerk-etele-plaza-20846/a_100_d_11_1665498225030_stulwerk_moziszekek_vip.jpg')"><div class="badge-premiere">★ KEDVENC MOZINK · PREMIUM</div><button class="fav" type="button" data-fav="cinema-etele-premium" aria-pressed="true" aria-label="Etele Cinema Premium kedvenc">♥</button><div class="card-body"><b>ETELE Cinema · Premium (VIP)</b><small>Etele Plaza · VIP-élmény · dönthető fotelek</small><div class="card-actions"><a class="source" href="https://www.proidea.hu/referenciak-7/magyar-premium-moziszekek-stulwerk-etele-plaza-20846.shtml" target="_blank" rel="noopener noreferrer" title="Képforrás: Stulwerk / Proidea">Fotó: Stulwerk</a><a class="cta" href="https://etelecinema.hu/" target="_blank" rel="noopener noreferrer">Műsor & Premium jegyek ↗</a></div></div></article>
   <article class="card" data-id="film-hogyan2" data-event-date="2026-11-12" style="--img:url('https://media.mozipremierek.hu/poster/7061-hogyan-tudnek-elni-nelkuled-2.97120.small.webp')"><div class="badge-premiere">✦ NOV. 12. · PREMIER</div><button class="fav" type="button" data-fav="film-hogyan2" aria-pressed="false" aria-label="Hogyan tudnék élni nélküled 2 kedvenc">♡</button><div class="card-body"><b>Hogyan tudnék élni nélküled? 2.</b><small>2026 · magyar zenés romantikus vígjáték</small><div class="card-actions"><span class="source">Aktuális premier</span><a class="cta" href="https://mozibp.hu/film/hogyan-tudnek-elni-nelkuled-2" target="_blank" rel="noopener noreferrer">Műsor & jegyek ↗</a></div></div></article>
   <article class="card" data-id="cinema-mammut" style="--img:url('https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=760&auto=format&fit=crop&q=82')"><button class="fav" type="button" data-fav="cinema-mammut" aria-pressed="false" aria-label="Mammut mozi kedvenc">♡</button><div class="card-body"><b>Cinema City Mammut</b><small>Budapest · filmek és VIP</small><div class="card-actions"><span class="source">Hivatalos műsor</span><a class="cta" href="https://www.cinemacity.hu/cinemas/Mammut/1144" target="_blank" rel="noopener noreferrer">Műsor & jegyek ↗</a></div></div></article>
   <article class="card" data-id="cinema-allee" style="--img:url('https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?w=760&auto=format&fit=crop&q=82')"><button class="fav" type="button" data-fav="cinema-allee" aria-pressed="false" aria-label="Allee mozi kedvenc">♡</button><div class="card-body"><b>Cinema City Allee</b><small>Budapest · vetítések és premierek</small><div class="card-actions"><span class="source">Hivatalos műsor</span><a class="cta" href="https://www.cinemacity.hu/cinemas/allee/1133" target="_blank" rel="noopener noreferrer">Műsor & jegyek ↗</a></div></div></article>
@@ -89,6 +130,19 @@ a{color:inherit;text-decoration:none}button{font:inherit;cursor:pointer}button:f
 </section>
 <footer class="foot"><span class="tag">Működő program- és jegyoldalak</span><span>Az árak, időpontok és szabad helyek mindig a hivatalos oldalon ellenőrizhetők. Egyes kártyák eredeti műsorplakátokat, mások hangulatképeket használnak. Az első körben az ajánlók szerkesztett listából származnak.</span><a href="../smart-travel/">🧭 Smart Trip ↗</a><a href="../">← Vissza a SHO-hoz</a></footer>
 </main>
+<div id="upcomingEditor" class="upcoming-editor" hidden role="presentation">
+ <form id="upcomingForm" class="upcoming-dialog" role="dialog" aria-modal="true" aria-labelledby="upcomingEditorTitle">
+  <h2 id="upcomingEditorTitle">📌 Következő program kitűzése</h2>
+  <p>A kitűzött program megjelenik a Smart Entertainment kezdőoldalán. A „Jegy megvan” státuszt csak te állíthatod be.</p>
+  <label>Program címe <input id="bookingTitle" name="title" required maxlength="130" autocomplete="off"></label>
+  <label>Időpont <input id="bookingDate" name="date" type="datetime-local" required></label>
+  <label>Helyszín <input id="bookingVenue" name="venue" maxlength="160" autocomplete="off"></label>
+  <label>Állapot <select id="bookingStatus" name="status"><option value="planned">Tervezett program</option><option value="booked">Jegy megvan ✓</option></select></label>
+  <label>Programoldal / jegy (nyilvános URL) <input id="bookingUrl" name="url" type="url" placeholder="https://..." inputmode="url"></label>
+  <p>🔒 A mentés jelenleg csak ebben a böngészőben történik. Nem csatlakozik jegy- vagy foglalási rendszerhez.</p>
+  <div class="editor-actions"><button type="submit" class="primary">📌 Kitűzés mentése</button><button type="button" id="cancelBooking">Mégse</button><button type="button" id="clearBooking" class="danger">Kitűzés törlése</button></div>
+ </form>
+</div>
 <script>
 (function(){
  'use strict';
@@ -148,5 +202,6 @@ a{color:inherit;text-decoration:none}button{font:inherit;cursor:pointer}button:f
 })();
 </script>
 <script defer src="../../healthhub/chatgpt-project-shortcut-v712.js?v=756-central-open"></script>
+<script defer src="./upcoming-event-v1.js?v=1183"></script>
 </body>
 </html>
