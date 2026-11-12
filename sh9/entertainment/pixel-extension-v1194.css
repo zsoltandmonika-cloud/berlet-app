@@ -76,3 +76,27 @@
   outline:3px solid #ffe7af!important;outline-offset:-3px!important;
  }
 }
+
+/* v1195 · proportional photo-zoom. The original v1194 370x257 image has
+   a large empty margin above its baked-in labels. Zooming the bitmap uniformly,
+   centering it horizontally and anchoring it slightly higher increases
+   the photo AND label size without stretching either axis.  The transparent
+   clickable regions remain in their original 2-column slots. */
+@media(max-width:650px){
+ .pixel-extension .pixel-culture,
+ .pixel-extension .pixel-events{
+  background-size:auto 125%!important;
+  background-position:center calc(100% - 4px)!important;
+  background-color:#080a18!important;
+  border:1.5px solid transparent!important;
+  overflow:hidden!important;
+ }
+ .pixel-extension .pixel-culture{
+  border-color:#ffcb72!important;
+  box-shadow:0 0 0 1px #8b511b,0 0 11px #f4a92b6b!important;
+ }
+ .pixel-extension .pixel-events{
+  border-color:#50d6ff!important;
+  box-shadow:0 0 0 1px #9942e5,0 0 11px #9d3fffff!important;
+ }
+}
