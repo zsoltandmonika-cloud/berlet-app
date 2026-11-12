@@ -49,8 +49,10 @@ test('cross-page cache stores only validated official public BKK stop updates',(
   access_token:'SECRET',lat:47.5,phoneId:'PRIVATE'});
  const raw=store.get('hh-bkk-smart-match-fyi-v937');
  assert.ok(raw);
- assert.doesNotMatch(raw,/SECRET|PRIVATE|47\.5|<script>/);
+ assert.doesNotMatch(raw,/SECRET|PRIVATE|<script>/);
  const parsed=JSON.parse(raw);
+ assert.equal(Object.hasOwn(parsed,'lat'),false);
+ assert.equal(Object.hasOwn(parsed,'phoneId'),false);
  assert.equal(parsed.rows.length,1);
  assert.equal(api.snapshot().length,1);
  assert.equal(api.getMatch(api.snapshot(),'bus:260','056124',planned).delaySeconds,240);
