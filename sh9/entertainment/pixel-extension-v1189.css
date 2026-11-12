@@ -43,4 +43,58 @@
  .pixel-extension{display:block}
  .upcoming.empty-pin{display:none!important}
 }
+/* v1190 · Match the new static category tiles' HEIGHT to the four original
+   hero tiles on mobile. Keep the approved visual, editable featured banner and
+   exact hero bitmap, and enlarge ONLY the culture/event row.
+   The original image is split into two independent CSS sprite windows:
+   top = the two static linked categories; bottom = pinned feature.
+*/
+@media(max-width:650px){
+ .pixel-extension{
+  --culture-tile-height:31.7vw;
+  --featured-card-height:24.5vw;
+  position:relative!important;
+  width:100%!important;
+  height:calc(var(--culture-tile-height) + var(--featured-card-height))!important;
+  min-height:0!important;
+  aspect-ratio:auto!important;
+  background:none!important;
+  overflow:visible!important;
+ }
+ .pixel-extension::before,.pixel-extension::after{
+  content:"";position:absolute;left:0;right:0;width:100%;z-index:0;
+  display:block;pointer-events:none;
+  background-image:url('./assets/sho-approved-culture-feature-v1189.webp');
+  background-repeat:no-repeat;
+ }
+ .pixel-extension::before{
+  top:0;height:var(--culture-tile-height);
+  background-size:100% 215%;
+  background-position:center top;
+ }
+ .pixel-extension::after{
+  top:var(--culture-tile-height);height:var(--featured-card-height);
+  background-size:100% 200%;
+  background-position:center bottom;
+ }
+ .pixel-extension .pixel-culture,
+ .pixel-extension .pixel-events{
+  top:0!important;height:var(--culture-tile-height)!important;
+  border-radius:17px!important;
+ }
+ .pixel-extension .pixel-feature-link{
+  top:var(--culture-tile-height)!important;
+  height:var(--featured-card-height)!important;
+ }
+ .pixel-extension .pixel-feature-edit{
+  top:calc(var(--culture-tile-height) + var(--featured-card-height)*.025)!important;
+  height:calc(var(--featured-card-height)*.23)!important;
+ }
+ .pixel-extension .pixel-feature-custom{
+  top:calc(var(--culture-tile-height) + var(--featured-card-height)*.21)!important;
+  height:calc(var(--featured-card-height)*.64)!important;
+  left:34.5%!important;width:54%!important;
+ }
+}
+
 @media(prefers-reduced-motion:reduce){.pixel-extension *{transition:none!important}}
