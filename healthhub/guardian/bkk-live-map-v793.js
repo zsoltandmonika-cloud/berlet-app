@@ -153,12 +153,10 @@
   delta.className='hh-bkk-smart-delay-v1';
   function applyDelay(v){
    const info=liveDelay(v),valid=info.status!=='unknown';
-   // An unknown GTFS-RT delay is NOT punctual. In the SH9 all-BKK map show
-   // a neutral dash so missing data is visible rather than looking broken.
-   // The normal Guardian favorites retain their existing compact markers.
-   const allBkk=new URLSearchParams(root?.location?.search||'').get('sh9Transit')==='1';
-   delta.hidden=!valid&&!allBkk;
-   delta.textContent=valid?info.text:(allBkk?'—':'');
+   // The selected favorites need the same honest neutral state as the
+   // full BKK map. A missing official delay is NOT a punctual vehicle.
+   delta.hidden=false;
+   delta.textContent=valid?info.text:'—';
    delta.dataset.delay=valid?info.status:'unknown';
    delta.title=valid?info.description:'Nincs ellenőrzött késésadat · a színes pont csak az élő járműpozíciót jelzi';
    wrapper.setAttribute('aria-label','Élő '+route+' · friss BKK-pozíció'+
