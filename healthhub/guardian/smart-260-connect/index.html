@@ -12,6 +12,7 @@
 <link rel="stylesheet" href="./full-260-v34.css?v=34">
 <link rel="stylesheet" href="./smart-delay-v1.css?v=937-fyi-cache">
 <link rel="stylesheet" href="./favorite-route-editor-v939.css?v=939">
+<link rel="stylesheet" href="./fleet-editor-v940.css?v=940">
 </head>
 <body>
 <div class="banner" id="pinnedBanner">
@@ -75,10 +76,22 @@
    <label>Céljárat felszállóhelye<input id="boardStop" type="text" list="stops" maxlength="120"></label>
    <label class="forTransfer">Ráhordó járat induló megállója<input id="originStop" type="text" list="stops" maxlength="120"></label>
    <label class="forTransfer">Ráhordó járat érkezési megállója<input id="transferStop" type="text" list="stops" maxlength="120"></label>
-   <div class="wide forTransfer">
-    <strong style="font-size:12px;color:#dbe1fa">Villamosok / buszok, amelyekkel a céljáratot elérnénk</strong>
-    <div class="line-choices" id="feederLines" role="group" aria-label="Ráhordó járatok"></div>
+   <div class="wide forTransfer sm-fleet-browser-v940">
+    <strong>🚋 Csatlakozó BKK-járatok · teljes flotta</strong>
+    <div class="sm-fleet-filters">
+     <input id="feederSearchV940" type="search" placeholder="Járatszám vagy végállomás keresése…" aria-label="BKK csatlakozó járatok keresése" autocomplete="off">
+     <select id="feederModeV940" aria-label="Járműtípus szűrése">
+      <option value="">Összes típus</option><option value="bus">🚌 Busz</option><option value="tram">🚋 Villamos</option>
+      <option value="trolley">🚎 Trolibusz</option><option value="metro">🚇 Metró</option>
+      <option value="hev">🚈 HÉV</option><option value="other">Egyéb</option>
+     </select>
+    </div>
+    <small id="fleetResultV940" class="sm-fleet-result">A hivatalos járatkatalógus betöltése…</small>
+    <div class="line-choices" id="feederLines" role="group" aria-label="Ráhordó BKK-járatok, kereshető teljes flotta"></div>
    </div>
+   <p id="fleetCoverageV940" class="wide sm-fleet-coverage" data-supported="false" role="status" aria-live="polite">
+    A hivatalos BKK-katalógus betöltése…
+   </p>
    <label>Kezdő időpont<input id="timeFrom" type="time" step="3600" value="13:00"></label>
    <label>Záró időpont<input id="timeUntil" type="time" step="3600" value="19:00"></label>
    <label>Gyaloglás induláskor, perc<input id="walkMin" type="number" min="0" max="30" step="1" value="10"></label>
@@ -91,6 +104,7 @@
    <button class="btn" id="calcBtn" type="button">🔄 Csatlakozások újraszámítása</button>
    <button class="btn secondary" id="saveBtn" type="button">💾 Sablon mentése</button>
    <button class="btn ghost" id="newBtn" type="button">＋ Új sablon</button>
+   <button class="btn ghost" id="deleteBtn" type="button">🗑️ Sablon törlése</button>
    <button class="btn" id="pinBtn" type="button">📌 Kitűzés teljes képernyőre</button>
   </div>
   <p class="sub" style="font-size:11px;margin-top:13px">A sablon jelenleg profilonként ebben a böngészőben mentődik. Másik eszközre még nem szinkronizálódik automatikusan. A GPS-hez, Family Guardhoz és Dropboxhoz nem nyúl.</p>
@@ -129,7 +143,7 @@
 <script src="../../central-vault/config.js?v=785-family-live-publishable"></script>
 
 <script src="./favorite-route-editor-v939.js?v=939"></script>
-<script type="module" src="./app.mjs?v=939-favorite-draft-safe"></script>
+<script type="module" src="./app.mjs?v=940-full-fleet-editor"></script>
 <script type="module" src="./smart-delay-client-v1.mjs?v=938-hero-pill"></script>
 </body>
 </html>
