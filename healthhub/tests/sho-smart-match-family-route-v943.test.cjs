@@ -41,6 +41,8 @@ test('Family return reverses stop order and anchors the scarce homebound 260',as
  assert.ok(ordered('260','bus','Bécsi út / Vörösvári út','Citronella utca'));
  assert.deepEqual(b.flowSteps.map(x=>x.role),['origin','walk','tram','tram','bus','destination']);
  assert.equal(b.routePriority,'260_connection_backwards');
+ assert.equal(b.transferSafetyMin,3);
+ assert.equal(b.maxWaitMin,8);
 });
 test('Verified last-bus 54/55 alternatives are optional, not compulsory transfers',async()=>{
  const {FAMILY_OUTBOUND:a}=await core();
