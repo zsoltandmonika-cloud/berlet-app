@@ -55,6 +55,7 @@ if(!validator||!renderer||!mapApi||!auth||!cfg||!cfg.supabaseUrl){
 let polling=null;
 let sh9AllEnabled=true;
 let inFlight=false,sh9Abort=null,lastSh9RequestAt=0;
+let sh9OverviewSet=false,lastSh9Bbox=null,lastSh9WasEmpty=false;
 let lastVehicles=[];
 let lastVerified=null;
 let lastSourceSnapshot=null; // validated, UNFILTERED BKK response; redraw never refetches
@@ -109,6 +110,12 @@ function status(message){
  if(sh9AllMode){
   const head=d.getElementById('sh9TransitStatusV927');
   if(head)head.textContent='BKK-adatkapcsolat · '+message;
+  // SH9 v930 intentionally reveals the compact data-status line. Preserve
+  // verified vehicle counts written by the overlay; only explain blockers.
+  if(/bejelentkezés|nem érhető el|nem elérhető|hiba|elavult|térképre várunk|takarékos mód|nem ellenőrizhető/i.test(message)){
+   const visible=d.getElementById('sh9AllVehiclesStatusV928');
+   if(visible)visible.textContent='⚠️ BKK Live · '+message;
+  }
  }
 }
 function showLogin(needed){if(loginButton)loginButton.hidden=!needed;}
@@ -164,7 +171,16 @@ function renderLiveFromSnapshot(parsed){
 }
 function visibleBBox(){
  if(!sh9AllMode)return null;
- const bounds=mapApi.map?.getBounds?.();
+ const activeMap=mapApi.map;
+ // The normal Family Guard starts with a close-up map.  SH9's "ALL BKK"
+ // entrance needs a CITY overview; a tiny 400-metre bbox is often empty.
+ // Only on the dedicated SH9 route, once, after MapLibre is ready.
+ if(!sh9OverviewSet&&activeMap?.jumpTo){
+  if(typeof activeMap.loaded==='function'&&!activeMap.loaded())return null;
+  sh9OverviewSet=true;
+  activeMap.jumpTo({center:[19.0467,47.5060],zoom:11.6,pitch:0,bearing:0});
+ }
+ const bounds=activeMap?.getBounds?.();
  if(!bounds)return null;
  const west=Number(bounds.getWest?.()),east=Number(bounds.getEast?.());
  const south=Number(bounds.getSouth?.()),north=Number(bounds.getNorth?.());
@@ -173,15 +189,21 @@ function visibleBBox(){
  if(values[0]>=values[2]||values[1]>=values[3])return null;
  return values.map(v=>v.toFixed(5)).join(',');
 }
-async function poll(){
+async function poll(force=false){
  if(inFlight||d.hidden||(sh9AllMode&&!sh9AllEnabled))return;
  const bbox=sh9AllMode?visibleBBox():null;
  if(sh9AllMode&&!bbox){status('térképre várunk · nincs felesleges szerverlekérdezés');return;}
  // Bound even repeated manual taps to ONE server request per 45 seconds.
  if(sh9AllMode&&Date.now()-lastSh9RequestAt<45000){
-  status('takarékos mód: az előző lekérdezés után legalább 45 másodpercet várunk');return;
+  // A previous EMPTY viewport must not trap the user in the old area.
+  // One user-initiated refresh of a DIFFERENT bbox is allowed after 8 s.
+  const movedFromEmpty=force&&lastSh9WasEmpty&&bbox!==lastSh9Bbox&&
+   Date.now()-lastSh9RequestAt>=8000;
+  if(!movedFromEmpty){
+   status('takarékos mód: a következő frissítés legfeljebb 45 másodperc múlva kérhető');return;
+  }
  }
- if(sh9AllMode)lastSh9RequestAt=Date.now();
+ if(sh9AllMode){lastSh9RequestAt=Date.now();lastSh9Bbox=bbox;}
  inFlight=true;
  try{
   const client=auth.getClient&&auth.getClient();
@@ -210,6 +232,7 @@ async function poll(){
    // A dedicated clustered MapLibre source draws every verified BKK vehicle
    // using the SAME authenticated snapshot. Never change normal Watchlist markers.
    lastSourceSnapshot=parsed;
+   lastSh9WasEmpty=parsed.vehicles.length===0;
    if(!d.hidden&&typeof w.CustomEvent==='function')
     w.dispatchEvent(new w.CustomEvent('hh-sh9-all-live-v928',{
      detail:{generatedAt:parsed.generatedAt,vehicles:parsed.vehicles,truncated:data.truncated===true}
@@ -261,7 +284,7 @@ if(sh9AllMode)w.addEventListener('hh-sh9-all-live-enabled-v928',e=>{
 });
 // User-only refresh; moving/zooming never creates another network request.
 if(sh9AllMode)w.addEventListener('hh-sh9-all-live-refresh-v928',()=>{
- if(!d.hidden&&sh9AllEnabled)poll();
+ if(!d.hidden&&sh9AllEnabled)poll(true);
 });
 // The map UI may mount after the first authenticated response.
 // Replay the in-memory verified snapshot, never fetch again just to repaint.

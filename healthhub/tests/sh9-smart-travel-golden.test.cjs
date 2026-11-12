@@ -344,9 +344,9 @@ test('v929 BKK 3D marker fix changes only SH9 assets and retains old Family Guar
  const loader=fs.readFileSync(path.join(root,'healthhub/guardian/guardian-transit-v791.js'),'utf8');
  const live=fs.readFileSync(path.join(root,'healthhub/guardian/guardian-live-pilot-v793.js'),'utf8');
  const render=fs.readFileSync(path.join(root,'healthhub/guardian/guardian-sh9-all-bkk-v928.js'),'utf8');
- assert.match(html,/guardian-sh9-all-bkk-v928\.js\?v=929-visible-3d-vehicles/);
- assert.match(html,/guardian-transit-v791\.js\?v=963-retire-legacy-live-button/);
- assert.match(loader,/get\('sh9Transit'\)==='1'\?'929-sh9-bkk-3d-fix':'914-mini-above-marker'/);
+ assert.match(html,/guardian-sh9-all-bkk-v928\.js\?v=930-visible-status-city/);
+ assert.match(html,/guardian-transit-v791\.js\?v=965-sh9-city-overview/);
+ assert.match(loader,/get\('sh9Transit'\)==='1'\?'930-city-live-visibility':'914-mini-above-marker'/);
  assert.match(live,/hh-sh9-all-live-ready-v929/);
  assert.match(render,/makeMarkerElement\(d,vehicle\)/);
  assert.match(render,/if\(source\?\.setData\)source\.setData/);
@@ -371,7 +371,7 @@ test('v930 Golden Glass header visually hides only the three user-marked paragra
    assert.match(guardian,new RegExp('id="'+id+'" role="status"'));
  assert.match(guardian,/id="sh9AllVehiclesToggleV928"/);
  assert.match(guardian,/id="sh9AllVehiclesRefreshV928"/);
- assert.match(guardian,/guardian-sh9-all-bkk-v928\.js\?v=929-visible-3d-vehicles/);
+ assert.match(guardian,/guardian-sh9-all-bkk-v928\.js\?v=930-visible-status-city/);
  assert.match(original,/class="transport-visual"/);
 });
 

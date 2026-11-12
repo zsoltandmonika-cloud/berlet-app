@@ -41,7 +41,7 @@ test('v928 backend only accepts bounded viewport and leaves old favorites untouc
  assert.match(client,/sh9AllMode\?validator\.validate\(data,Date\.now\(\),3500\):validator\.validate\(data\)/);
  assert.match(client,/sh9AllMode\?120000:15000/);
  assert.match(client,/lastSh9RequestAt<45000/);
- assert.match(client,/if\(sh9AllMode\)lastSh9RequestAt=Date\.now\(\)/);
+ assert.match(client,/if\(sh9AllMode\)\{lastSh9RequestAt=Date\.now\(\);lastSh9Bbox=bbox;\}/);
  assert.match(client,/if\(sh9AllMode\|\|d\.hidden\)return/);
  assert.match(client,/hh-sh9-all-live-enabled-v928/);
  assert.match(client,/hh-sh9-all-live-refresh-v928/);
@@ -52,7 +52,7 @@ test('v928 overlay creates one clustered GeoJSON source, only in SH9 mode and wi
  const src=read('guardian-sh9-all-bkk-v928.js');
  const html=read('index.html');
  const css=read('guardian-sh9-all-bkk-v928.css');
- assert.match(html,/guardian-sh9-all-bkk-v928\.js\?v=929-visible-3d-vehicles/);
+ assert.match(html,/guardian-sh9-all-bkk-v928\.js\?v=930-visible-status-city/);
  assert.match(html,/id="sh9AllVehiclesToggleV928"/);
  assert.match(html,/id="sh9AllVehiclesRefreshV928"/);
  assert.match(html,/guardian-sh9-all-bkk-v928\.css/);
@@ -132,4 +132,32 @@ test('v929 shows real server errors instead of stale movement instructions',()=>
  assert.match(ui,/A térkép elmozdult|új területhez Frissítés/);
  assert.match(ui,/makeMarkerElement\(d,vehicle\)/);
  assert.doesNotMatch(ui,/fetch\(|setInterval\(|watchPosition\(|getCurrentPosition\(/);
+});
+
+
+test('v930 city overview waits for ready map and never changes normal Family Guard',()=>{
+ const live=read('guardian-live-pilot-v793.js');
+ const html=read('index.html');
+ assert.match(live,/if\(!sh9AllMode\)return null/);
+ assert.match(live,/if\(!sh9OverviewSet&&activeMap\?\.jumpTo\)/);
+ assert.match(live,/activeMap\.jumpTo\(\{center:\[19\.0467,47\.5060\],zoom:11\.6,pitch:0,bearing:0\}\)/);
+ assert.match(live,/typeof activeMap\.loaded==='function'&&!activeMap\.loaded\(\)/);
+ assert.match(html,/guardian-sh9-all-bkk-v928\.js\?v=930-visible-status-city/);
+ assert.match(html,/guardian-sh9-all-bkk-v928\.css\?v=930-visible-status-city/);
+});
+test('v930 visible verified count and empty-area repair remain fail closed and throttled',()=>{
+ const ui=read('guardian-sh9-all-bkk-v928.js');
+ const css=read('guardian-sh9-all-bkk-v928.css');
+ const live=read('guardian-live-pilot-v793.js');
+ assert.match(css,/:root\[data-sh9-transit="on"\] #sh9AllVehiclesStatusV928\{/);
+ assert.match(css,/clip-path:none!important/);
+ assert.match(css,/position:static!important/);
+ assert.match(ui,/0 ellenőrzött jármű ebben a térképrészben/);
+ assert.match(ui,/if\(last\.features\.length>0\)/);
+ assert.match(ui,/emit\('hh-sh9-all-live-refresh-v928'\)/);
+ assert.match(live,/lastSh9WasEmpty&&bbox!==lastSh9Bbox/);
+ assert.match(live,/Date\.now\(\)-lastSh9RequestAt>=8000/);
+ assert.match(live,/Date\.now\(\)-lastSh9RequestAt<45000/);
+ assert.match(live,/if\(sh9AllMode\)\{lastSh9RequestAt=Date\.now\(\);lastSh9Bbox=bbox;\}/);
+ assert.doesNotMatch(ui,/watchPosition\(|getCurrentPosition\(|fetch\(/);
 });
