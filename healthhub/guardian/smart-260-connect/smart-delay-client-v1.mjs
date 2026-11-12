@@ -89,10 +89,14 @@ function render(){
  }
  const hero=$("hhSmartDelayHeroV1");
  if(!hero)return;
- if(!lead){hero.hidden=true;hero.textContent="";hero.dataset.delay="unknown";return;}
- hero.hidden=false;hero.dataset.delay=lead.node.dataset.delay;
- hero.textContent="BKK FYI · "+lead.label+" · "+(lead.estimated?"≈":"")+lead.status.text+
-  " · várható "+time(lead.pred.predictedMs)+" · a Smart Match menetrend változatlan";
+ if(!lead){
+  hero.hidden=true;hero.dataset.delay="unknown";hero.replaceChildren();return;
+ }
+ // The hero shows the exact same validated pill as the selected timeline row.
+ // Clone instead of moving: both cards retain their own badge and rich tooltip.
+ hero.replaceChildren(lead.node.cloneNode(true));
+ hero.dataset.delay=lead.node.dataset.delay;
+ hero.hidden=false;
 }
 function boot(){
  const host=$("timeline");if(!host)return;
