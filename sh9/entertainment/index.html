@@ -7,6 +7,7 @@
 <meta name="description" content="SHO Smart Entertainment – mozi, színház, koncertek és MediaRadar egy helyen.">
 <title>SHO · Smart Entertainment</title>
 <link rel="icon" href="../sho-preview/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../shared/sh9-golden-bottom-nav-v924.css?v=1184-entertainment">
 <style>
 :root{color-scheme:dark;--pink:#fa398e;--pink2:#ff89d1;--blue:#45c1ff;--white:#fff8ff;--sub:#c9c4df;--bg:#070915;--surface:#111329;--line:rgba(239,203,255,.17);--glow:0 0 29px rgba(244,38,165,.24)}
 *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:radial-gradient(ellipse 65% 55% at 15% 5%,#321232 0%,transparent 65%),radial-gradient(ellipse 55% 45% at 90% 15%,#071e4c,transparent 80%),#070915;color:var(--white);font:15px/1.42 Inter,system-ui,-apple-system,"Segoe UI",Arial,sans-serif}
@@ -73,22 +74,114 @@ a{color:inherit;text-decoration:none}button{font:inherit;cursor:pointer}button:f
 .upcoming-dialog button.danger{color:#ffb6a3;border-color:#ba4c64}
 .upcoming.empty-pin .upcoming-poster{background-image:linear-gradient(135deg,#351942,#172b55)!important}
 @media(max-width:650px){.upcoming{min-height:155px;border-radius:15px}.upcoming-poster{flex-basis:24%;min-width:85px}.upcoming-text{padding:11px}.upcoming h2{font-size:19px}.upcoming-where{font-size:11px}.upcoming-action-row{gap:7px}.upcoming-count{width:100%}.upcoming-eyebrow{font-size:10px;letter-spacing:.6px}.upcoming-state{font-size:9px}.upcoming-action,.upcoming-edit{padding:6px 9px}.pin-event{top:45px;right:9px}}
+
+/* SHO v1184 · phone-first cinematic photo montage matching the approved concept.
+   Interactive categories are real anchors; no text is baked into the images.
+   Every existing programme, favourite and booking flow stays unchanged. */
+.top-bell{display:grid;place-items:center;flex:0 0 auto;width:30px;height:36px;color:#f7e8fa;position:relative}
+.top-bell svg{width:23px;height:23px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.top-bell:after{content:"";position:absolute;right:2px;top:4px;width:7px;height:7px;border-radius:50%;background:#ed4189;border:1px solid #e1a5c5}
+.fav-hub{display:none;position:relative;flex:0 0 auto;color:white;border:1px solid #fd619a;border-radius:50%;width:62px;height:62px;background:radial-gradient(circle at 70% 10%,#ff82ac,#b4175e 55%,#410c4c);box-shadow:inset 0 1px 2px #ffb9d9,0 0 20px #d4398a51;font-weight:750;font-size:10px;line-height:1.18;text-align:center}
+.fav-sparkle{position:absolute;top:6px;right:10px;color:#ffe9a5;font-size:14px}
+.hero h1 em span{display:inline}
+.cat{isolation:isolate}
+.cat > span{position:relative;z-index:2}
+@media(max-width:650px){
+ body{background:radial-gradient(ellipse 88% 48% at 50% 12%,#20122c,transparent 78%),#050817}
+ .topbar{position:relative;min-height:72px;padding:7px 9px;gap:5px;background:linear-gradient(160deg,#080818ee,#0a0c1cef);border-bottom:0}
+ .brand{gap:7px;font-size:18px;letter-spacing:-.5px}
+ .brand-dot{width:35px;height:35px;font-size:15px;background:linear-gradient(145deg,#fd6d90,#df1e84 72%,#6e1655);box-shadow:0 0 16px #d81a8266}
+ .brand-divider{margin:0 1px;height:23px}
+ .brand-sub{font-size:clamp(10.6px,3.15vw,13px);letter-spacing:-.4px;max-width:146px}
+ .top-actions{margin-left:auto;gap:8px}
+ .city{display:none}
+ #favoritesToggle{display:inline-grid;place-items:center;width:28px;height:34px;min-width:28px;font-size:0;padding:0}
+ #favoritesToggle:before{font-size:29px;font-weight:300;line-height:1;content:'♡'}
+ #favoritesToggle[aria-pressed="true"]:before{content:'♥';color:#ff78b8}
+ .top-bell{width:26px;height:31px}
+ .top-bell svg{width:25px;height:25px}
+ .fav-hub{display:grid;place-items:center;width:55px;height:55px;font-size:10px}
+ #askLena{display:none}
+ #soundToggle{display:none}
+ .wrap{padding:0 7px 90px}
+ .hero{min-height:0;margin:0 0 20px;border-radius:0 0 20px 20px;overflow:hidden;background:#090918;box-shadow:0 14px 33px #000b}
+ .hero-art{inset:0 0 auto;height:318px;grid-template-columns:1fr 1fr;grid-template-rows:repeat(2,1fr);z-index:-2;opacity:1;overflow:hidden}
+ .hero-panel{background-size:cover;background-position:center;filter:saturate(1.45) contrast(1.1)}
+ .hero-panel:nth-child(1){background-image:url('https://images.unsplash.com/photo-1440404653325-ab127d49abc1?w=740&auto=format&fit=crop&q=85');background-position:50% 40%}
+ .hero-panel:nth-child(2){background-image:url('https://images.unsplash.com/photo-1503095396549-807759245b35?w=740&auto=format&fit=crop&q=85');background-position:53% 38%}
+ .hero-panel:nth-child(3){background-image:url('https://images.unsplash.com/photo-1459749411175-04bf5292ceea?w=740&auto=format&fit=crop&q=85');background-position:48% 50%}
+ .hero-panel:nth-child(4){background-image:url('https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?w=740&auto=format&fit=crop&q=85');background-position:50% 55%}
+ .hero:before{z-index:-1;inset:0 0 auto;height:327px;background:radial-gradient(ellipse 75% 28% at 50% 44%,#080818bc,transparent 100%),linear-gradient(180deg,#05071538 0%,#090714b3 29%,#160a25a6 51%,#09071662 76%,#050713 99%)}
+ .hero-copy{position:relative;height:303px;min-height:0;display:flex;flex-direction:column;justify-content:flex-start;align-items:center;gap:0;padding:29px 8px 0;text-align:center}
+ .hero-copy:before{content:'🎬';position:absolute;top:52px;left:15px;font-size:44px;filter:drop-shadow(0 0 12px #f3aa56)}
+ .hero-copy:after{content:'🎭';position:absolute;top:46px;right:19px;font-size:43px;filter:drop-shadow(0 0 12px #f6ad5f)}
+ .eyebrow{font-size:10px;letter-spacing:1.4px;padding:5px 12px;color:#ffe7b5;border-color:#f7d17eaa;background:#070814d6;box-shadow:0 0 10px #efaf6970}
+ .hero h1{font-size:clamp(39px,10.5vw,49px);letter-spacing:-1.9px;line-height:.93;margin:21px 0 12px;max-width:100%;font-weight:900}
+ .hero h1 em{font-style:normal;display:block;background:none;color:unset}
+ .hero h1 em span{display:block;line-height:.96}
+ .hero h1 em span:first-child{color:#fff;text-shadow:0 3px 12px #03020ccf,0 0 12px #e9dbff75}
+ .hero h1 em span:last-child{background:linear-gradient(180deg,#fff5d6 0%,#ffdf90 54%,#e59e4b 92%);background-clip:text;-webkit-background-clip:text;color:transparent;text-shadow:none;filter:drop-shadow(0 2px 3px #000b)}
+ .hero p{font-size:clamp(11px,3vw,13px);line-height:1.46;max-width:330px;margin:1px auto 0;color:#fff8fb;text-shadow:0 2px 7px #000,0 0 11px #030413}
+ .categories{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:-1px auto 0;padding:0 9px 20px;max-width:100%}
+ .cat{display:flex;flex-direction:row;align-items:flex-end;gap:7px;min-height:134px;height:clamp(126px,35vw,155px);padding:11px 10px 13px;border-radius:19px;background-position:center;background-size:cover;backdrop-filter:none;overflow:hidden;box-shadow:0 0 0 1px var(--accent),inset 0 -10px 16px #ffffff0b,0 0 21px color-mix(in srgb,var(--accent) 55%,transparent)}
+ .cat:before{content:'';inset:0;position:absolute;z-index:0;background:linear-gradient(180deg,#03030c08 0%,#05040c1c 25%,#07041397 60%,#080415fa 100%);pointer-events:none}
+ .cat:after{content:'›';position:absolute;right:8px;bottom:9px;z-index:2;font-size:22px;color:#fff;opacity:.9;margin:0}
+ .cat:hover{transform:translateY(-2px)}
+ .cat .cat-icon{z-index:2;align-self:flex-end;font-size:25px;line-height:1.1;margin-bottom:25px;filter:drop-shadow(0 0 8px var(--accent))}
+ .cat span:nth-child(2){display:flex;flex-direction:column;justify-content:flex-end;min-width:0;gap:3px}
+ .cat b{font-size:clamp(17px,5.05vw,23px);line-height:1.1;letter-spacing:-.6px;white-space:normal;text-shadow:0 2px 9px #000d}
+ .cat small{font-size:clamp(9px,2.55vw,11px);line-height:1.35;max-width:128px;color:#fff2f8;min-height:27px;text-shadow:0 1px 5px #000}
+ .cat.cinema{--accent:#ff438f;background-image:linear-gradient(180deg,#24011d08 10%,#0b031c65 60%,#160511bf),url('https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=700&auto=format&fit=crop&q=85');background-position:center 48%}
+ .cat.theatre{--accent:#ffb257;background-image:linear-gradient(180deg,#2c090413,#450e204f 58%,#140712cb),url('https://images.unsplash.com/photo-1503095396549-807759245b35?w=700&auto=format&fit=crop&q=85');background-position:center 43%}
+ .cat.concert{--accent:#dc50ff;background-image:linear-gradient(180deg,#10033400,#0e052c4a 45%,#0f0525da),url('https://images.unsplash.com/photo-1459749411175-04bf5292ceea?w=700&auto=format&fit=crop&q=85');background-position:center 58%}
+ .cat.home-media{--accent:#36c8ff;background-image:linear-gradient(180deg,#071b3322,#0311285b 55%,#031020e8),url('https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?w=700&auto=format&fit=crop&q=85');background-position:center 56%}
+ .cat.home-media b{font-size:clamp(16px,4.55vw,21px)}
+ .upcoming{display:grid;grid-template-columns:30% minmax(0,1fr);align-items:stretch;gap:0;padding-top:40px;margin:0 7px 24px;border-radius:18px;min-height:220px;border:1px solid #f6ba6c;box-shadow:0 0 0 1px #ff328a80,0 0 26px #e96b9b6e,inset 0 0 22px #fb529a1c;background:radial-gradient(ellipse at 93% 77%,#2f123651,transparent 55%),linear-gradient(125deg,#281529,#13152b 67%,#11142d)}
+ .upcoming:before{content:'📅  KÖVETKEZŐ PROGRAMUNK';display:flex;align-items:center;position:absolute;top:0;left:0;right:0;height:40px;padding:0 14px;background:linear-gradient(90deg,#482038a6,#161b31aa);border-bottom:1px solid #fac28f28;color:#ffd69d;font-weight:900;letter-spacing:.2px;font-size:clamp(12px,3.5vw,15px)}
+ .upcoming-poster{grid-column:1;grid-row:1;max-width:none;min-width:0;min-height:176px;box-shadow:none;margin:10px 0 11px 11px;border-radius:12px;border:1px solid #f3c78f99;background-position:center 34%;background-size:cover}
+ .upcoming-poster:after{display:none}
+ .upcoming-text{grid-column:2;grid-row:1;min-width:0;padding:10px 12px 10px 16px;display:flex;flex-direction:column;justify-content:center;gap:3px}
+ .upcoming-eyebrow{font-size:0;gap:0;letter-spacing:0;margin:0 0 3px}
+ .upcoming-state{font-size:10px;padding:5px 8px;background:linear-gradient(115deg,#c53c88,#8d205b);color:white;border:1px solid #ff80b0;line-height:1.2}
+ .upcoming h2{font-size:clamp(17px,4.7vw,22px);line-height:1.12;margin:4px 0 2px;overflow-wrap:anywhere}
+ .upcoming-where{display:flex;flex-wrap:wrap;gap:2px 4px;margin:2px 0 0;color:#eadce8;font-size:clamp(10px,2.65vw,12px);line-height:1.35}
+ .upcoming-where [aria-hidden="true"]{display:none}
+ #upDate{display:block;flex:1 1 100%;color:#ffd7ea}
+ .upcoming-action-row{gap:5px;margin-top:5px}
+ .upcoming-count{font-size:10px;flex:1 1 100%}
+ .upcoming-action,.upcoming-edit{font-size:10px;padding:5px 8px}
+ .section{scroll-margin-top:20px}
+ .row-nav{top:43%}
+}
+@media(max-width:370px){
+ .brand-sub{font-size:10px}
+ .fav-hub{width:49px;height:49px;font-size:9px}
+ .top-actions{gap:4px}
+ .hero-copy{height:277px;padding-top:25px}
+ .hero-art{height:285px}
+ .hero:before{height:295px}
+ .hero h1{font-size:39px}
+ .cat{min-height:120px;padding:9px 8px}
+ .cat .cat-icon{font-size:22px}
+ .cat b{font-size:18px}
+ .cat small{font-size:9px}
+}
 </style>
 </head>
 <body>
 <header class="topbar">
  <a class="brand" href="../" aria-label="Vissza a SHO kezdőlapra"><span class="brand-dot">▶</span><strong>SHO</strong><span class="brand-divider"></span><span class="brand-sub">Smart Entertainment</span></a>
- <div class="top-actions"><span class="city">Budapest</span><button type="button" id="favoritesToggle" class="text-link" aria-pressed="false" title="Kedvencek mutatása">♡ Kedvencek</button><button type="button" id="soundToggle" class="sound-toggle" aria-pressed="false" aria-label="Hangeffektek bekapcsolása" title="Hangeffektek, alapból kikapcsolva">♪ <span>Hang: ki</span></button><button type="button" id="askLena" class="btn">🎙 Kérdezd Lénát</button></div>
+ <div class="top-actions"><span class="city">Budapest</span><button type="button" id="favoritesToggle" class="text-link" aria-pressed="false" title="Kedvencek mutatása">♡ Kedvencek</button><button type="button" id="soundToggle" class="sound-toggle" aria-pressed="false" aria-label="Hangeffektek bekapcsolása" title="Hangeffektek, alapból kikapcsolva">♪ <span>Hang: ki</span></button><a class="top-bell" href="../notification-center/" aria-label="SHO értesítések megnyitása" title="Értesítések"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 17h12l-2-3V9a4 4 0 0 0-8 0v5zM10 20a2 2 0 0 0 4 0"/></svg></a><button type="button" id="favHub" class="fav-hub" aria-label="Kedvenc listák megnyitása"><span class="fav-sparkle" aria-hidden="true">✦</span><span>Kedvenc<br>listák</span></button><button type="button" id="askLena" class="btn">🎙 Kérdezd Lénát</button></div>
 </header>
 <main class="wrap">
 <section class="hero" aria-label="Smart Entertainment ajánló">
  <div class="hero-art" aria-hidden="true"><div class="hero-panel"></div><div class="hero-panel"></div><div class="hero-panel"></div><div class="hero-panel"></div></div>
- <div class="hero-copy"><span class="eyebrow">SHO · élményközpont</span><h1><em>Smart Entertainment</em></h1><p>Filmek · Színház · Koncertek · Otthoni szórakozás. Egy helyen.</p></div>
+ <div class="hero-copy"><span class="eyebrow">SHO · élményközpont</span><h1><em><span>Smart</span> <span>Entertainment</span></em></h1><p>Filmek · Sorozatok · Színház · Koncertek · Otthoni szórakozás</p></div>
  <div class="categories">
-  <a class="cat cinema" href="#mozi"><span class="cat-icon">🎬</span><span><b>Mozi</b><small>Premierek, műsor, jegyek</small></span></a>
-  <a class="cat theatre" href="#szinhaz"><span class="cat-icon">🎭</span><span><b>Színház</b><small>Előadások és jegyek</small></span></a>
-  <a class="cat concert" href="#koncert"><span class="cat-icon">♫</span><span><b>Koncertek</b><small>Élőzene és programok</small></span></a>
-  <a class="cat home-media" href="https://mediaradar.pages.dev/" target="_blank" rel="noopener noreferrer"><span class="cat-icon">📺</span><span><b>Home Media</b><small>MediaRadar megnyitása</small></span></a>
+  <a class="cat cinema" href="#mozi"><span class="cat-icon">🎬</span><span><b>Mozi</b><small>Premierek · Vetítések · VIP élmény</small></span></a>
+  <a class="cat theatre" href="#szinhaz"><span class="cat-icon">🎭</span><span><b>Színház</b><small>Előadások · Bérletek · Jegyek</small></span></a>
+  <a class="cat concert" href="#koncert"><span class="cat-icon">♫</span><span><b>Koncertek</b><small>Élőzene · Turnék · Jegyvásárlás</small></span></a>
+  <a class="cat home-media" href="https://mediaradar.pages.dev/" target="_blank" rel="noopener noreferrer"><span class="cat-icon">📺</span><span><b>Home Media</b><small>Filmek · Sorozatok · Streaming ajánló</small></span></a>
  </div>
 </section>
 <section class="upcoming" id="upcoming" aria-label="Kitűzött következő program">
@@ -188,6 +281,7 @@ a{color:inherit;text-decoration:none}button{font:inherit;cursor:pointer}button:f
   paint();
  })});
  toggle.addEventListener('click',function(){filter=!filter;paint()});
+ document.getElementById('favHub').addEventListener('click',function(){if(!filter)toggle.click();document.getElementById('mozi').scrollIntoView({behavior:'smooth',block:'start'});});
  document.querySelectorAll('.row-nav').forEach(function(b){b.addEventListener('click',function(){
   var row=document.getElementById(b.dataset.row);if(!row)return;
   row.scrollBy({left:Number(b.dataset.dir)*Math.max(230,row.clientWidth*.74),behavior:'smooth'});
@@ -212,5 +306,6 @@ a{color:inherit;text-decoration:none}button{font:inherit;cursor:pointer}button:f
 </script>
 <script defer src="../../healthhub/chatgpt-project-shortcut-v712.js?v=756-central-open"></script>
 <script defer src="./upcoming-event-v1.js?v=1183"></script>
+<script defer src="../shared/sh9-golden-bottom-nav-v924.js?v=1184-entertainment"></script>
 </body>
 </html>
