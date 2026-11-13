@@ -3,7 +3,7 @@
 ## 2026-10-24 · Direct Outlook Agenda v11
 
 - The **DÁTUM / NÉVNAP** info tile remains a direct Outlook **monthly** browser link.
-- The **NAPTÁR** info tile now opens the actual Outlook **Agenda** at `https://outlook.live.com/calendar/0/view/agenda` in **one tap**, in a new browser tab rather than first displaying the SH9 custom Agenda panel. This is a real anchor link even if JavaScript fails.
+- The **NAPTÁR** info tile opens the actual Outlook **Agenda** at `https://outlook.live.com/calendar/0/view/agenda` in **one tap**. Its real link now uses **same-frame navigation** (`target="_self"`) so Android WebView hands it to the external system browser instead of silently swallowing an unsupported `target="_blank"` new-window request. The link works without JavaScript.
 - On HH One unified Android's SH9 WebView, the external HTTPS URL uses the existing Android host's `Intent.ACTION_VIEW` handoff to the system browser. A **new APK is not required** for this web update.
 - The existing internal SH9 Agenda remains accessible via Admin → Cloud és AI → **Microsoft Calendar · beállítások** (the `?sh9calendar=1` route), for account setup, connection diagnostics and the read-only 14-day preview.
 - The Outlook-hosted page may use Microsoft's own view/account preferences, which the SH9 site cannot override. No Microsoft tokens, private events, Dropbox data, or device identifiers are copied to Outlook by this navigation.
