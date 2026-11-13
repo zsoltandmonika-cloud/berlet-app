@@ -868,6 +868,20 @@ async function dualProfileSmoke(browser,base,device){
   assert.equal(interview.item.targetRoute,"tram:1");
   assert.deepEqual(interview.item.feederRoutes,["260"]);
   assert.equal(interview.item.arrivalTargetTime,"13:40");
+  // For any CI machine's current day, select the actual interview date:
+  // the pinned hero must show a usable plan instead of --:--.
+  await page.locator("#day").fill("2026-11-13");
+  await page.locator("#day").dispatchEvent("change");
+  await page.waitForFunction(()=>document.getElementById("heroTime")?.textContent==="12:05");
+  assert.equal(await page.locator("#heroTime").textContent(),"12:05");
+  const routeRows=await page.locator("#timeline .sm-interview-row").allTextContents();
+  assert.equal(routeRows.length,4,"260/1 planning timeline must replace giant empty-message card");
+  assert.match(routeRows[0],/12:05/);assert.match(routeRows[1],/12:22/);
+  assert.match(routeRows[2],/1-ES VILLAMOS/);assert.match(routeRows[3],/13:40/);
+  assert.ok(await page.locator("#timeline .sm-interview-bkk").isVisible(),
+   "There must be a direct route to checking current BKK times");
+  assert.match(await page.locator("#routeFlow .v2-step").last().locator(".v2-step-icon").textContent(),/🏢/,
+   "Morgan Stanley destination is an office building, not a house");
   assert.match(interview.search,/profile=z/);
   assert.match(interview.search,/pinned=1/);
   assert.doesNotMatch(interview.search,/pin=1/);
