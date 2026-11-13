@@ -6,6 +6,7 @@ function compactPlace(value){
  const place=String(value??"").trim();
  if(!place)return "Hely";
  if(/d[aá]vid/i.test(place)&&/anna/i.test(place))return "Dávidék";
+ if(/morgan\s+stanley/i.test(place))return "Morgan";
  if(/\botthon\b|\bhaza\b/i.test(place))return "Otthon";
  if(/munkahely|iroda|b[eé]csi\s*corner/i.test(place))return "Munka";
  const letters=Array.from(place);
