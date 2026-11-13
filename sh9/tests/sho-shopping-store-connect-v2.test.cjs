@@ -30,6 +30,21 @@ test('real product handoff preserves basket operations and no artificial prices'
   assert.match(app,/SHOP_CONNECTORS_V2\.search\(code\)/);
   assert.match(connect,/SHOPPING_V1/);
 });
+test('visual-first cards retain authentic product photos and honest sorting',()=>{
+ const visual=fs.readFileSync(path.join(base,'shopping','visual-cards-v3.css'),'utf8');
+ assert.match(html,/visual-cards-v3\.css/);
+ assert.match(html,/id="shoCatalogSort"/);
+ assert.match(html,/value="priceAsc" disabled/);
+ assert.match(html,/value="priceDesc" disabled/);
+ assert.match(connect,/sho-product-visual/);
+ assert.match(connect,/sho-store-brand/);
+ assert.match(connect,/www\.google\.com\/s2\/favicons/);
+ assert.match(connect,/sort==="popular"/);
+ assert.match(connect,/state\.visible=6/);
+ assert.match(connect,/sho-product-skeleton/);
+ assert.match(visual,/\.sho-product-visual/);
+ assert.match(visual,/\.sho-store-logo/);
+});
 test('scripts, slots and presentation are wired',()=>{
   for(const id of ['shoStoreConnect','shoStoreGrid','shoProducts','shoCatalogStatus','shoConnectMessage'])assert.ok(html.includes('id="'+id+'"'),id);
   assert.ok(html.indexOf('central-vault/config.js')<html.indexOf('shopping.js?v=shop-v2'));
