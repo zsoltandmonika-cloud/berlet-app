@@ -5,7 +5,7 @@ import {readOfficialSnapshot} from "../../../sh9/smart-travel/lena-native/bkk/bk
 import {DEFAULT,HOME,REVERSE,FAMILY_OUTBOUND,FAMILY_RETURN,SAMPLES,compute,bus260DirectionForTemplate,full260Timetable,pair260Connections} from "./core.mjs?v=943-family-verified-stops";
 import {wallEpoch} from "../../../sh9/smart-travel/lena-native/bkk/bkk-gtfs-core-v1105.mjs";
 import {ringDirection} from "./ring-direction-v941.mjs";
-import {FALLBACK,loadCatalog,keyOf,valueOf,label as fleetLabel,norm,coverage} from "./fleet-catalog-v940.mjs";
+import {FALLBACK,loadCatalog,keyOf,valueOf,label as fleetLabel,norm,coverage} from "./fleet-catalog-v940.mjs?v=946-temporary-4-6-tram";
 const $=id=>document.getElementById(id);
 const storedProfile=()=>{try{const p=localStorage.getItem("hh-profile");return p==="z"?"zsolt":p==="m"?"monika":null}catch(_){return null}};
 // The explicit profile in a pinned Family Guard link is intentional.
