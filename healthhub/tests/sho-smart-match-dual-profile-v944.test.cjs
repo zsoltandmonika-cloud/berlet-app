@@ -111,7 +111,7 @@ test('Family Guard uses profile-specific pinned route and does not fake a depart
  assert.match(guardian,/if\(state\.item\.multiLegDraft===true\)/);
  assert.match(guardian,/3 járatos útvonal · menetrendi párosítás még nincs/);
  assert.match(guardian,/b\.hidden=activeProfile\(\)!=="monika"/);
- assert.match(guardianHtml,/guardian-smart-match-pin-v1\.mjs\?v=944-dual-profile-zsolt-pin/);
+ assert.match(guardianHtml,/guardian-smart-match-pin-v1\.mjs\?v=948-tram1-morgan-target1340/);
 });
 
 test('Interview day uses actual 260 and tram 1, 13:40 goal is NOT claimed as computed ETA',()=>{
