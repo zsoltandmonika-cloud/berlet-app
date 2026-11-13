@@ -42,7 +42,9 @@ test('native Android handles external Outlook HTTPS in existing system browser',
  assert.doesNotMatch(agenda,/searchParams\.set\('sh9external','calendar'\)/);
 });
 test('local private SH9 Agenda is retained but Admin direct shortcut bypasses its failing WebView route',()=>{
- assert.match(admin,/w\.location\.assign\('https:\/\/outlook\.live\.com\/calendar\/0\/view\/agenda'\)/);
+ assert.match(admin,/sh9external=calendar/);
+ assert.match(admin,/sh9calendar=1/);
+ assert.match(admin,/w\.location\.assign\(page\.href\)/);
  assert.match(agenda,/if\(new URLSearchParams\(w\.location\.search\)\.get\('sh9calendar'\)==='1'\)show\(\)/);
  assert.match(html,/id="sh9AgendaDialog"/);
  assert.match(html,/href="https:\/\/outlook\.live\.com\/calendar\/0\/view\/agenda" target="_blank" rel="noopener noreferrer external">Outlook Agenda megnyitása/);
