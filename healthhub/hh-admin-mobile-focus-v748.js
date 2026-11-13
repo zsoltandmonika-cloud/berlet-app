@@ -311,11 +311,12 @@ function mount(){
   actions.appendChild(dropboxReview);
   // Keep the existing six category cards. One direct Calendar settings link
   // appears only in Cloud & AI; authentication stays in the first-party browser.
-  const outlook=el('button','', '📅 Microsoft Calendar · beállítások');
+  const outlook=el('button','', '📅 Outlook-naptár megnyitása');
   outlook.type='button';outlook.id='hhAdminMicrosoftCalendarV2';outlook.hidden=true;
   outlook.addEventListener('click',()=>{
-   const page=new URL('../sh9/?sh9calendar=1',w.location.href);
-   w.location.assign(page.href);
+   // Launch the tested Outlook site directly. Avoid the separate SH9 SPA
+   // auth view inside Android WebView, which can show a blank dark screen.
+   w.location.assign('https://outlook.live.com/calendar/0/view/agenda');
   });
   actions.appendChild(outlook);
   panel.appendChild(actions);
