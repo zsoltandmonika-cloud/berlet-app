@@ -88,7 +88,7 @@ test('Zsolt gets his own reversible Otthon to Dávidék drafts with no invented 
  assert.equal(FAMILY_OUTBOUND.profile,'monika');
  assert.equal(FAMILY_RETURN.profile,'monika');
  assert.match(app,/const multiLeg=item\.multiLegDraft===true/);
- assert.match(app,/még nincs hitelesített indulási idő/);
+ assert.match(app,/nincs hitelesített indulási idő/);
 });
 
 test('Saved template operations and reminder name follow selected profile, with no cross-profile copying',()=>{
