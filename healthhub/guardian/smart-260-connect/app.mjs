@@ -192,6 +192,7 @@ function shortTitle(item){
   if(/d[aá]vid/i.test(name)&&/anna/i.test(name))return "Dávidék";
   if(/^otthon$/i.test(name))return "Otthon";
   if(/bécsi corner|iroda|munkahely/i.test(name))return "Munkahely";
+  if(/morgan stanley/i.test(name))return "Morgan Stanley";
   return name||fallback;
  };
  return summarize(item.originLabel,"Indulás")+" → "+summarize(item.destinationLabel,"Cél");
