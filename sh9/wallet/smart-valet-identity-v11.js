@@ -12,7 +12,7 @@ const names={license:['Jogosítvány','Driving licence'],personal:['Személyi ig
  taj:['TAJ-kártya','TAJ health card'],tax:['Lakcímkártya','Address card']};
 const label=type=>names[type]?.[hu()?0:1]||type;
 const make=(tag,cls,value)=>{const x=d.createElement(tag);if(cls)x.className=cls;if(value!==undefined)x.textContent=value;return x};
-let client,records=new Map(),kind='',item=null,storedProfile='',side='front',viewSide='front',zoom=1;
+let client,records=new Map(),loadedProfile='',kind='',item=null,storedProfile='',side='front',viewSide='front',zoom=1;
 let draft={front:null,back:null},previews={front:'',back:''},decrypted={front:'',back:''},activeKey=null;
 let pendingSource=null,pendingSide='',pendingURL='',media=null,inCamera=false,busy=false,request=0;
 const allURLs=new Set(),tileURLs=new Map();
@@ -198,9 +198,11 @@ async function loadTilePreviews(p,id,c){
 }
 async function refresh(){
  const id=++request,p=profile();
- clearTilePreviews();
- // Never retain previous-profile permissions while authorization refreshes.
- records=new Map();updateTiles();
+ // A temporary network/auth failure must not erase already loaded ID tiles.
+ // But on a REAL profile switch, never show the old person's protected metadata.
+ if(loadedProfile!==p){
+  clearTilePreviews();records=new Map();loadedProfile=p;updateTiles();
+ }
  try{
   const c=await authorized(p);
   const result=await c.from(TABLE).select(
@@ -208,11 +210,22 @@ async function refresh(){
    .eq('profile_key',p).limit(12);
   if(result.error)throw result.error;
   if(id!==request||p!==profile())return;
+  // The cloud list has been verified; swap as a unit to avoid empty flashes.
+  clearTilePreviews();
   records=new Map((result.data||[]).filter(x=>TYPES.includes(x.doc_type)).map(x=>[x.doc_type,x]));
   updateTiles();
+  pilotNotice();
   await loadTilePreviews(p,id,c);
   w.dispatchEvent(new CustomEvent('sho-valet-identity-ready',{detail:{profile:p}}));
- }catch(_){if(id!==request)return;records=new Map();updateTiles()}
+ }catch(e){
+  if(id!==request||p!==profile())return;
+  // Preserve same-profile previously verified cards and their pins.
+  const node=$('svIdNoticeV10');
+  if(node)node.textContent='⚠️ '+human(e)+' '+
+    text('Az elmentett igazolványok a felhőben maradnak. A kártyákat újraellenőrzés után töltjük be.',
+         'Saved IDs remain in private cloud. Retry to load the card gallery.');
+  updateTiles();
+ }
 }
 function refreshPinButton(){
  const btn=$('svIdPinV13');if(!btn)return;
