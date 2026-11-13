@@ -136,6 +136,8 @@ test('Cloud lookup null or temporary auth failure NEVER unpins a saved identity'
 test('Cloud card refresh preserves verified same-profile data and warns on authentication failures',()=>{
  const extraJS=read('sh9/wallet/smart-valet-extra-v15.js');
  assert.match(idJS,/loadedProfile!==p/);
+ assert.match(idJS,/if\(e\?\.message==='NO_LOGIN'\|\|e\?\.message==='NO_ACCESS'\)/,
+  'Hard auth/access denial must still clear protected ID metadata');
  assert.match(idJS,/if\(id!==request\|\|p!==profile\(\)\)return/);
  assert.match(idJS,/Az elmentett igazolványok a felhőben maradnak/);
  assert.match(extraJS,/const changing=loadedProfile!==p\|\|loadedCategory!==cat/);
