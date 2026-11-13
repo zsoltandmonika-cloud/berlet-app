@@ -18,6 +18,7 @@
  const TRUST_KEY='sh9-ms-calendar-prior-approval-v2',SILENT_ATTEMPT_KEY='sh9-ms-calendar-silent-attempt-v2';
  const PERSIST=w.SH9_OUTLOOK_PERSISTENCE_V2;
  const SILENT_RETRY_MS=4*60*60*1000;
+ const ADMIN_PREVIEW=new URLSearchParams(w.location.search).get('sh9calendar')==='1';
  const NATIVE=new URLSearchParams(w.location.search).get('sh9native')==='1';
  const ID_RE=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
  const AUTHORITY='https://login.microsoftonline.com/consumers/oauth2/v2.0/';
@@ -347,20 +348,25 @@
    void handleCallback().then(()=>setupState());
   }else{
    void (async()=>{
-    if(!cfg){setCard('Nincs összekötve','Koppints: Outlook Agenda','pending');return}
+    if(!cfg){setCard('Outlook Agenda','Megnyitás a böngészőben ›','pending');return}
     if(tokenReady()||await getAccessToken())await sync(true);
     else{
      setCard('Kapcsolat megújítása','Microsoft munkamenet ellenőrzése','pending');
-     // After 24h a first-party Microsoft SSO visit may avoid any password entry.
-     if(!await silentlyResumeMicrosoft()){
+     // Keep the SHO home page stable: never redirect it into Microsoft SSO.
+     // The official Outlook Agenda link works with the browser's own session.
+     // Automatic SSO resume is confined to the explicit Admin calendar preview.
+     if(!ADMIN_PREVIEW){
+      setCard('Outlook Agenda','Megnyitás a böngészőben ›','pending');
+     }else if(!await silentlyResumeMicrosoft()){
       setCard('Kapcsolat megújítása','Koppints: Microsoft-belépés','pending');
       setupState();
      }
     }
    })();
   }
-  w.setInterval(()=>{if(!d.hidden)void sync(false)},10*60*1000);
-  d.addEventListener('visibilitychange',()=>{if(!d.hidden)void sync(false)});
+  // No background reconnect requests from the launcher after a session expires.
+  w.setInterval(()=>{if(!d.hidden&&(ADMIN_PREVIEW||tokenReady()))void sync(false)},10*60*1000);
+  d.addEventListener('visibilitychange',()=>{if(!d.hidden&&(ADMIN_PREVIEW||tokenReady()))void sync(false)});
   // Direct links from the SH9 Android shell bring up the existing, private
   // browser session without copying credentials into a native WebView.
   if(new URLSearchParams(w.location.search).get('sh9calendar')==='1')show();
