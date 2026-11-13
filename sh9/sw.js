@@ -1,7 +1,7 @@
 /* SH9 installable launcher: narrow, network-first shell only.
    No OAuth callbacks, Dropbox content, HealthHub patient data, or other modules
    are cached by this service worker. Scope is /berlet-app/sh9/ only. */
-const CACHE='sh9-install-shell-v2-sho-fancy';
+const CACHE='sh9-install-shell-v3-calendar-handoff';
 const ROOT=new URL('./',self.registration.scope);
 const ALLOWED=new Set([
   ROOT.href,
