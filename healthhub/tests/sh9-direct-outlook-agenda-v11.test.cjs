@@ -34,7 +34,8 @@ test('no extra custom modal click needed; official link is real even without Jav
  assert.match(html,/outlook-agenda-v1\.css\?v=8-date-time-first/);
 });
 test('native Android handles external Outlook HTTPS in existing system browser',()=>{
- assert.match(agenda,/if\(NATIVE\)\{\s*card\.addEventListener\('click',e=>\{\s*e\.preventDefault\(\);\s*w\.location\.assign\(OUTLOOK_AGENDA\)/);
+ assert.match(agenda,/if\(NATIVE\)sub\.textContent='Outlook Agenda ›'/);
+ assert.doesNotMatch(agenda,/card\.addEventListener\('click',e=>\{\s*e\.preventDefault\(\)/);
  assert.match(native,/if \(request\.isForMainFrame && u\.scheme == "https"\)/);
  assert.match(native,/Intent\(Intent\.ACTION_VIEW, u\)/);
  assert.match(light,/new Intent\(Intent\.ACTION_VIEW, uri\)/);
