@@ -43,13 +43,13 @@ const MORGAN_OUTBOUND=Object.freeze({
  title:"Zsolt · Otthon → Morgan Stanley",
  originLabel:"Otthon",destinationLabel:"Morgan Stanley · Millennium III",
  originStop:"Citronella utca",transferStop:"Bécsi út / Vörösvári út",
- targetStop:"Margit híd, budai hídfő H",targetRoute:"4",targetRoutes:["4","6"],
+ targetStop:"Margit híd, budai hídfő H",targetRoute:"tram:4-6",targetRoutes:["tram:4-6"],
  targetAfterStop:"Boráros tér H",destinationTransitStop:"Boráros tér H",
  targetHeadsign:"",feederRoutes:["260","17","19"],
  startHour:6,endHour:22,originWalkMin:10,originSafetyMin:2,
  transferWalkMin:2,transferSafetyMin:2,maxWaitMin:6,maxTransferMeters:350,
  destinationWalkMin:9,routePriority:"few_transfers_one_final_walk",
- routeSource:"Morgan Stanley official 1095 Budapest address; BKK route network; draft only",
+ routeSource:"Morgan Stanley official 1095 Budapest address; BKK 4-6 tram reroute valid through 2026-11-22; draft only",
  walkEstimate:"Boráros tér H → Lechner Ödön fasor 8: becsült 8–10 perc gyalog, pontos útvonal ellenőrizendő",
  optionalLastBusRoutes:[],optionalLastBusStop:null,optionalShortWalkTrams:[],
  flowSteps:[
@@ -57,7 +57,7 @@ const MORGAN_OUTBOUND=Object.freeze({
   {role:"walk",label:"≈ 10p",detail:"Otthon → Citronella utca (becslés)"},
   {role:"bus",label:"260",detail:"Citronella utca → Bécsi út / Vörösvári út"},
   {role:"tram",label:"17 / 19",detail:"Bécsi út → Margit híd, budai hídfő H"},
-  {role:"tram",label:"4 / 6",detail:"Margit híd → Boráros tér H"},
+  {role:"tram",label:"4-6",detail:"Margit híd → Boráros tér H (2026.11.22-ig)"},
   {role:"walk",label:"≈ 8–10p",detail:"Boráros tér → Lechner Ödön fasor 8 (becslés)"},
   {role:"destination",label:"Morgan Stanley",detail:"Millennium Tower III · Lechner Ödön fasor 8."}
  ]
@@ -72,17 +72,17 @@ const MORGAN_RETURN=Object.freeze({
  originStop:"Boráros tér H",transferStop:"Bécsi út / Vörösvári út",
  targetStop:"Bécsi út / Vörösvári út",targetRoute:"260",targetRoutes:["260"],
  targetAfterStop:"Citronella utca",destinationTransitStop:"Citronella utca",
- targetHeadsign:"Harsánylejtő",feederRoutes:["4","6","17","19"],
+ targetHeadsign:"Harsánylejtő",feederRoutes:["tram:4-6","17","19"],
  startHour:6,endHour:22,originWalkMin:9,originSafetyMin:2,
  transferWalkMin:2,transferSafetyMin:3,maxWaitMin:8,maxTransferMeters:350,
  destinationWalkMin:10,routePriority:"260_connection_backwards",
- routeSource:"Morgan Stanley official 1095 Budapest address; BKK route network; draft only",
+ routeSource:"Morgan Stanley official 1095 Budapest address; BKK 4-6 tram reroute valid through 2026-11-22; draft only",
  walkEstimate:"Lechner Ödön fasor 8 → Boráros tér H: becsült 8–10 perc gyalog, pontos útvonal ellenőrizendő",
  optionalLastBusRoutes:[],optionalLastBusStop:null,optionalShortWalkTrams:[],
  flowSteps:[
   {role:"origin",label:"Morgan Stanley",detail:"Millennium Tower III · Lechner Ödön fasor 8."},
   {role:"walk",label:"≈ 8–10p",detail:"Lechner Ödön fasor 8 → Boráros tér H (becslés)"},
-  {role:"tram",label:"4 / 6",detail:"Boráros tér H → Margit híd, budai hídfő H"},
+  {role:"tram",label:"4-6",detail:"Boráros tér H → Margit híd, budai hídfő H (2026.11.22-ig)"},
   {role:"tram",label:"17 / 19",detail:"Margit híd → Bécsi út / Vörösvári út"},
   {role:"bus",label:"260",detail:"Bécsi út → Citronella utca · Harsánylejtő felé"},
   {role:"walk",label:"≈ 10p",detail:"Citronella utca → Otthon (becslés)"},
@@ -954,11 +954,11 @@ async function computeRoute({useForm=false}={}){
    $("timeline").replaceChildren();
    const empty=document.createElement("div");empty.className="empty";
    empty.textContent=multiLeg?
-    "260 → 17/19 → 4/6 · valós BKK-megállók. A három járat összehangolt menetrendi keresése még nem aktív.":
+    "Az útvonal állomásai megjelennek, de a három járat menetrendi összehangolása még nem aktív.":
     "A kiválasztott járatok szerepelnek a BKK-katalógusban, de ehhez az útvonalhoz még nincs ellenőrzött indulási menetrend.";
    $("timeline").append(empty);
    $("timelineSubtitle").textContent=date+(multiLeg?
-    " · családi útvonal · három járat":
+    " · többjáratos útvonal · időpont-illesztés nélkül":
     " · menetrendi lefedettség bővítés alatt");
    $("heroTime").textContent="--:--";$("countdown").textContent="--:--";
    $("heroDetail").textContent=multiLeg?
