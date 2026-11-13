@@ -110,10 +110,10 @@ test('one top-level SSO redirect can reuse Microsoft cookie, but must not loop',
  assert.equal((html.match(/data-nav="/g)||[]).length,5);
 });
 
-test('Cloud Admin exposes a single direct Calendar connection shortcut without handling credentials',()=>{
+test('Cloud Admin opens official Outlook without handling calendar credentials',()=>{
  assert.match(admin,/hhAdminMicrosoftCalendarV2/);
  assert.match(admin,/selected!=='cloud'/);
- assert.match(admin,/\.\.\/sh9\/\?sh9calendar=1/);
+ assert.match(admin,/w\.location\.assign\('https:\/\/outlook\.live\.com\/calendar\/0\/view\/agenda'\)/);
  assert.match(healthHub,/hh-admin-mobile-focus-v748\.js\?v=748&outlook=2/);
  assert.doesNotMatch(admin,/refreshToken|client_secret|access_token/);
  assert.match(readme,/## Outlook Persistent Sign-In v2/);
