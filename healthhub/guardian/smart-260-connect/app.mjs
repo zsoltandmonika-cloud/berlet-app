@@ -18,7 +18,7 @@ const DELETED_SAMPLES_KEY=PROFILE==="monika"?"sh9-smart-match-deleted-samples-v9
 let selectedFeeders=new Set();
 // v939: isolated favorite-address draft. Existing saved itineraries are immutable until explicit save.
 let favoriteAddressDraft=null;
-const state={items:[],current:null,data:null,manifest:null,catalog:FALLBACK,stopNames:null,result:null,full260:null,
+const state={items:[],current:null,data:null,manifest:null,catalog:FALLBACK,stopNames:null,result:null,full260:null,morganPlan:null,
  reminderEnabled:false,notificationFired:new Set(),lastNext:null,loading:false};
 const timeFmt=new Intl.DateTimeFormat("hu-HU",{timeZone:"Europe/Budapest",hour:"2-digit",minute:"2-digit",hourCycle:"h23"});
 const dateFmt=new Intl.DateTimeFormat("en-GB",{timeZone:"Europe/Budapest",year:"numeric",month:"2-digit",day:"2-digit"});
@@ -555,7 +555,7 @@ function renderFlow(item){
   node.setAttribute("title",[step.role==="transfer"?"Átszállás":step.label,step.detail].filter(Boolean).join(" · "));
   const pict=document.createElement("span");pict.className="v2-step-icon";
   pict.textContent=step.role==="origin"&&/otthon/i.test(item.originLabel||"")?"🏠":
-   step.role==="destination"&&/bécsi corner|iroda|munkahely/i.test(item.destinationLabel||"")?"🏢":
+   step.role==="destination"&&/bécsi corner|iroda|munkahely|morgan stanley/i.test(item.destinationLabel||"")?"🏢":
    icons[step.role]||"📍";
   const label=document.createElement("span");label.className="v2-step-label";
   label.textContent=step.label;
@@ -867,6 +867,7 @@ function updateFull260Timeline(now=Date.now(),redraw=false){
 }
 
 function updateTimeline(now=Date.now(),redraw=false){
+ if(state.morganPlan){updateMorganClock(now);return}
  if(!state.result)return;
  if(state.full260){updateFull260Timeline(now,redraw);return;}
  const result=state.result,rows=result.rows,day=result.date;
@@ -966,6 +967,93 @@ async function loadFeed(){
  state.data=v.data;state.manifest=v.manifest;
  populateStops();
 }
+// V950: Plan only. 12:05 is a conservative HOME departure suggestion based on
+// the published 12:22 Citronella departure. 13:40 is a GOAL, never an ETA.
+function updateMorganClock(now=Date.now()){
+ const p=state.morganPlan;
+ if(!p||current()?.id!=="zsolt-home-to-morgan-stanley")return;
+ const seconds=Math.max(0,Math.floor((p.leaveMs-now)/1000));
+ const h=Math.floor(seconds/3600),m=Math.floor(seconds%3600/60),sec=seconds%60;
+ $("countdown").textContent=seconds>0?
+  (h?String(h).padStart(2,"0")+":":"")+String(m).padStart(2,"0")+":"+String(sec).padStart(2,"0"):"00:00";
+ $("countdownLabel").textContent=seconds>0?"tervezett indulásig":"tervezett indulás lejárt";
+ const elapsed=100-(p.leaveMs-now)/3600000*100;
+ $("ring").style.setProperty("--progress",Math.max(0,Math.min(100,elapsed)).toFixed(1)+"%");
+}
+function stampMorganFlow(p){
+ const steps=$("routeFlow").querySelectorAll(".v2-step");
+ const values=[
+  ["≈12:05","Tervezett otthoni indulás"],
+  ["≈12:15","Becsült megérkezés a Citronella utcai megállóhoz"],
+  ["12:22",p.verified?"BKK statikus menetrend, nem élő indulás":"Publikált menetrend, még nem igazolt BKK GTFS"],
+  ["—","Az 1-es villamos menetrendi csatlakozása nincs számítva"],
+  ["—","Közvágóhíd érkezése nincs számítva"],
+  ["🎯13:40","Célérkezés, nem számított ETA"]];
+ steps.forEach((step,i)=>{
+  const stamp=step.querySelector(".v2-step-time"),value=values[i];if(!stamp||!value)return;
+  stamp.textContent=value[0];stamp.title=value[1];
+  stamp.setAttribute("aria-label",value[1]);
+  stamp.classList.toggle("is-empty",value[0]==="—");
+  stamp.classList.toggle("is-estimated",i!==2&&value[0]!=="—");
+  stamp.removeAttribute("datetime");
+ });
+}
+function showMorganInterview(item,date){
+ const previous=state.morganPlan?.date===date?state.morganPlan:null;
+ const p=state.morganPlan=previous||{
+  date,leaveMs:wallEpoch(date,12*60+5),busMs:wallEpoch(date,12*60+22),
+  verified:false,attempted:false,checkFailed:false
+ };
+ state.result=null;state.full260=null;state.lastNext=null;
+ updateTitle(item);renderFlow(item);metrics(item);
+ $("heroLabel").textContent="Tervezett indulás otthonról";
+ $("heroTime").textContent="12:05";
+ $("heroTime").title="Javasolt otthoni indulás, nem élő BKK-indulási adat";
+ $("heroDetail").textContent="🚌 260: 12:22 ("+(p.verified?"hivatalos BKK statikus GTFS":"publikált menetrend")+
+  ") → 🚋 1-es villamos Közvágóhíd felé. 🎯 Érkezési cél: 13:40. A villamos ideje nincs ellenőrizve.";
+ $("timelineSubtitle").textContent=date+" · 260 → 1 · célérkezés 13:40";
+ const rail=$("timeline");rail.replaceChildren();
+ const rows=[
+  ["OTTHONRÓL INDULÁS · TERV","12:05","10 perc séta + 2 perc tartalék a 260-ashoz"],
+  ["260 · CITRONELLA UTCA","12:22",p.verified?
+   "✓ BKK GTFS · hivatalos statikus menetrend, nem élő járműadat":
+   p.checkFailed?"⚠️ Jelenlegi BKK-adatban nem igazolt, ellenőrizd BudapestGO-ban":
+   "Publikált menetrend · a helyi BKK-adatok ellenőrzése folyamatban"],
+  ["1-ES VILLAMOS","Csatlakozás ellenőrzendő","Bécsi út / Vörösvári út → Közvágóhíd H"],
+  ["MORGAN STANLEY","🎯 13:40","Cél, nem garantált érkezési idő · Közvágóhíd után kb. 4–6 perc séta"]
+ ];
+ for(const [name,time,note] of rows){
+  const div=document.createElement("div");div.className="sm-interview-row";
+  const label=document.createElement("strong");label.textContent=name;
+  const value=document.createElement("b");value.textContent=time;
+  const help=document.createElement("small");help.textContent=note;
+  div.append(label,value,help);rail.append(div);
+ }
+ const verify=document.createElement("a");verify.className="sm-interview-bkk";
+ verify.href="https://bkk.hu/budapestgo/";verify.target="_blank";verify.rel="noopener noreferrer external";
+ verify.textContent="🔎 Friss menetrend ellenőrzése · BudapestGO ↗";rail.append(verify);
+ $("status").textContent=(p.verified?
+  "✓ 260-as 12:22 · BKK hivatalos statikus menetrend":
+  "ⓘ 260-as 12:22 · publikált, nem élőben igazolt menetrend")+
+  " · az 1-es villamos csatlakozási ideje nem számított.";
+ stampMorganFlow(p);
+ updateMorganClock();
+ if(!p.attempted){
+  p.attempted=true;
+  // Nonblocking read of the EXISTING public 260 GTFS. No new private API or GPS.
+  // Render the actionable plan before the 4.6 MB public feed is downloaded.
+  void loadFeed().then(()=>{
+   if(state.morganPlan!==p||current()?.id!==item.id||$("day").value!==date)return;
+   const published=full260Timetable(state.data,date,"work");
+   p.verified=published.some(row=>row.departMs===p.busMs&&row.scheduled===true);
+   p.checkFailed=!p.verified;
+   showMorganInterview(item,date);
+  }).catch(()=>{
+   if(state.morganPlan!==p||current()?.id!==item.id)return;
+   p.checkFailed=true;showMorganInterview(item,date);
+  });
+ }
+}
 async function computeRoute({useForm=false}={}){
  if(state.loading)return;
  state.loading=true;
@@ -974,6 +1062,11 @@ async function computeRoute({useForm=false}={}){
   const item=useForm?readForm():current();
   if(!item)throw Error("Nincs kiválasztott sablon.");
   const date=$("day").value;
+  // The 1-es tram lies outside the existing 4-line GTFS connection matcher.
+  // Give Zsolt a usable planning clock and source-check the 260 separately.
+  if(PROFILE==="zsolt"&&item.id==="zsolt-home-to-morgan-stanley"&&
+     date===item.arrivalTargetDate){showMorganInterview(item,date);return}
+  state.morganPlan=null;
   // The family itinerary is a verified 3-vehicle stop sequence, but the
   // existing matcher handles TWO legs only. Never present fake GTFS ETAs.
   const multiLeg=item.multiLegDraft===true;
