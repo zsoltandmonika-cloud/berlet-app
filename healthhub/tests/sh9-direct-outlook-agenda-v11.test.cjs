@@ -19,7 +19,7 @@ test('one tap on DÁTUM opens month, one tap on NAPTÁR opens official Outlook A
  assert.ok(date&&calendar);
  assert.match(date,/href="https:\/\/outlook\.live\.com\/calendar\/0\/view\/month"/);
  assert.match(calendar,/href="https:\/\/outlook\.live\.com\/calendar\/0\/view\/agenda"/);
- assert.match(calendar,/target="_blank"/);
+ assert.match(calendar,/target="_self"/);
  assert.match(calendar,/rel="noopener noreferrer external"/);
  assert.match(calendar,/data-calendar-view="agenda"/);
  assert.doesNotMatch(calendar,/aria-haspopup="dialog"|aria-controls="sh9AgendaDialog"/);
