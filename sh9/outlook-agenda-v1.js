@@ -301,13 +301,10 @@
  // The private SH9 read-only Agenda remains reachable from Admin using
  // ?sh9calendar=1, including settings/renewal.
  const OUTLOOK_AGENDA='https://outlook.live.com/calendar/0/view/agenda';
- if(NATIVE){
-  card.addEventListener('click',e=>{
-   e.preventDefault();
-   w.location.assign(OUTLOOK_AGENDA);
-  });
-  sub.textContent='Outlook Agenda ›';
- }
+ // Let the real same-frame anchor navigate on both Android WebView and browsers.
+ // Android WebView's shouldOverrideUrlLoading opens external HTTPS in the system browser.
+ // Do not preventDefault here; an intercepted new-window or JS-only click can do nothing.
+ if(NATIVE)sub.textContent='Outlook Agenda ›';
  card.setAttribute('aria-label','Outlook Agenda megnyitása közvetlenül');
  close.addEventListener('click',hide);
  modal.addEventListener('click',e=>{if(e.target===modal)hide()});
