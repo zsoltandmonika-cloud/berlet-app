@@ -72,11 +72,11 @@ function paintStores(){
 function sortedProducts(){
  const rows=state.products.slice();
  if(state.sort==="name")rows.sort((a,b)=>a.name.localeCompare(b.name,"hu"));
- if(state.sort==="popular")rows.sort((a,b)=>{
-  const popularity=(p)=>Number.isFinite(Number(p.popularity))&&Number(p.popularity)>0?Number(p.popularity):
-   (Number.isFinite(Number(p.scanCount))&&Number(p.scanCount)>0?Number(p.scanCount):0);
-  return popularity(b)-popularity(a);
- });
+ if(state.sort==="popular"){
+  const hasPopularity=rows.some(p=>Number(p.popularity)>0);
+  const popularity=p=>hasPopularity?(Number(p.popularity)||0):(Number(p.scanCount)||0);
+  rows.sort((a,b)=>popularity(b)-popularity(a));
+ }
  return rows;
 }
 function paintSkeleton(){
