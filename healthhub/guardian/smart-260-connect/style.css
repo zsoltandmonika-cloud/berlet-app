@@ -124,3 +124,28 @@ body[data-smart-match-profile="z"] .pill{color:#c8ecff;background:rgba(70,150,21
 body[data-smart-match-profile="z"] .eyebrow,body[data-smart-match-profile="z"] .hero-label{color:#c4e7ff}
 body[data-smart-match-profile="z"] .template-chip.active{background:linear-gradient(100deg,#b2ddff,#7ba9fc);color:#0b284c;border-color:#d8edff;box-shadow:0 3px 21px rgba(104,169,240,.24)}
 body[data-smart-match-profile="z"] .btn:not(.ghost):not(.secondary){background:linear-gradient(120deg,#c2e8ff,#83bfff);border-color:#b0dcff;color:#132e52}
+
+/* V950: actionable Zsolt interview timeline. Static timetable != live BKK ETA. */
+body[data-smart-match-profile="z"] .sm-interview-row{
+ display:grid;grid-template-columns:1fr auto;align-items:baseline;gap:5px 12px;
+ padding:13px 14px;margin:0 0 9px;border:1px solid rgba(124,191,252,.4);
+ border-radius:14px;background:linear-gradient(125deg,rgba(30,63,103,.65),rgba(32,48,81,.48));
+}
+body[data-smart-match-profile="z"] .sm-interview-row strong{
+ color:#c0e5ff;font:800 11px/1.3 system-ui;letter-spacing:.02em
+}
+body[data-smart-match-profile="z"] .sm-interview-row b{
+ color:#fff;font:850 clamp(13px,3.7vw,18px)/1.3 system-ui;text-align:right
+}
+body[data-smart-match-profile="z"] .sm-interview-row small{
+ grid-column:1/-1;color:#d0e1fa;font:570 11px/1.45 system-ui
+}
+body[data-smart-match-profile="z"] .sm-interview-bkk{
+ display:block;min-height:44px;margin:12px 0 2px;padding:12px;
+ border:1px solid #88caff;border-radius:12px;background:rgba(31,93,153,.55);
+ color:#eaf7ff;text-align:center;font:750 12px/1.4 system-ui;text-decoration:none
+}
+body[data-smart-match-profile="z"] .hero-description{line-height:1.35}
+body[data-smart-match-profile="z"] #routeFlow .v2-step[data-role="destination"] .v2-step-icon{
+ background:linear-gradient(135deg,#91dbff,#3667ae)
+}
