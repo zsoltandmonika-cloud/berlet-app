@@ -18,23 +18,23 @@ test('one tap on DÁTUM opens month, one tap on NAPTÁR opens official Outlook A
  const calendar=strip.match(/<a id="sh9CalendarCell"[^>]*>/)?.[0];
  assert.ok(date&&calendar);
  assert.match(date,/href="https:\/\/outlook\.live\.com\/calendar\/0\/view\/month"/);
- assert.match(calendar,/href="https:\/\/outlook\.live\.com\/calendar\/0\/view\/agenda"/);
+ assert.match(calendar,/href="https:\/\/outlook\.live\.com\/calendar\/0\/view\/month"/);
  assert.match(calendar,/target="_self"/);
  assert.match(calendar,/rel="noopener noreferrer external"/);
- assert.match(calendar,/data-calendar-view="agenda"/);
+ assert.match(calendar,/data-calendar-view="month"/);
  assert.doesNotMatch(calendar,/aria-haspopup="dialog"|aria-controls="sh9AgendaDialog"/);
  assert.doesNotMatch(strip,/<button id="sh9CalendarCell"/);
 });
 test('no extra custom modal click needed; official link is real even without JavaScript',()=>{
- assert.match(agenda,/const OUTLOOK_AGENDA='https:\/\/outlook\.live\.com\/calendar\/0\/view\/agenda'/);
+ assert.match(agenda,/const OUTLOOK_CALENDAR='https:\/\/outlook\.live\.com\/calendar\/0\/view\/month'/);
  assert.doesNotMatch(agenda,/card\.addEventListener\('click',show\)/);
  assert.doesNotMatch(agenda,/card\.addEventListener\('click',openPanel\)/);
  assert.match(css,/#sh9CalendarCell\.sh9-calendar-click-target\{[\s\S]*?text-decoration:none/);
- assert.match(html,/outlook-agenda-v1\.js\?v=7-direct-agenda/);
+ assert.match(html,/outlook-agenda-v1\.js\?v=20261113-outlook-month-repeatable-self-v2/);
  assert.match(html,/outlook-agenda-v1\.css\?v=8-date-time-first/);
 });
 test('native Android handles external Outlook HTTPS in existing system browser',()=>{
- assert.match(agenda,/if\(NATIVE\)sub\.textContent='Outlook Agenda ›'/);
+ assert.match(agenda,/if\(NATIVE\)sub\.textContent='Outlook Naptár ›'/);
  assert.doesNotMatch(agenda,/card\.addEventListener\('click',e=>\{\s*e\.preventDefault\(\)/);
  assert.match(native,/if \(request\.isForMainFrame && u\.scheme == "https"\)/);
  assert.match(native,/Intent\(Intent\.ACTION_VIEW, u\)/);
@@ -47,7 +47,7 @@ test('local private SH9 Agenda is retained but Admin direct shortcut bypasses it
  assert.match(admin,/w\.location\.assign\(page\.href\)/);
  assert.match(agenda,/if\(new URLSearchParams\(w\.location\.search\)\.get\('sh9calendar'\)==='1'\)show\(\)/);
  assert.match(html,/id="sh9AgendaDialog"/);
- assert.match(html,/href="https:\/\/outlook\.live\.com\/calendar\/0\/view\/agenda" target="_self" rel="noopener noreferrer external">Outlook Agenda megnyitása/);
+ assert.match(html,/href="https:\/\/outlook\.live\.com\/calendar\/0\/view\/month" target="_self" rel="noopener noreferrer external">Outlook naptár megnyitása/);
  assert.match(agenda,/offline_access User\.Read Calendars\.Read/);
  assert.equal([...html.matchAll(/<(?:button|a) class="tile" (?:type="button" |href="[^"]+" )?data-name="/g)].length,9);
  assert.equal((html.match(/data-nav="/g)||[]).length,5);
