@@ -142,6 +142,20 @@ test('Morgan Stanley presets are never labeled as the unrelated Dávidék family
  assert.match(app,/Lechner Ödön fasor 8/);
 });
 
+test('Explicit Zsolt interview link pins and persists the Morgan route without touching Monika',()=>{
+ assert.match(app,/function pinInterviewLink\(\)/);
+ assert.match(app,/if\(PROFILE!=="zsolt"\|\|item\?\.id!=="zsolt-home-to-morgan-stanley"\)return false/);
+ assert.match(app,/item\.pinned=true/);
+ assert.match(app,/if\(!persist\(\)\)/);
+ assert.match(app,/localStorage\.setItem\(ACTIVE_PIN_KEY,item\.id\)/);
+ assert.match(app,/history\.replaceState\(null,"",pinnedRouteUrl\(true\)\)/);
+ assert.match(app,/params\.get\("pin"\)==="1"/);
+ assert.match(app,/params\.get\("profile"\)==="z"/);
+ assert.match(app,/params\.get\("id"\)==="zsolt-home-to-morgan-stanley"/);
+ assert.match(app,/url\.searchParams\.set\("profile",PROFILE==="zsolt"\?"z":"m"\)/);
+ assert.match(app,/url\.searchParams\.delete\("pin"\)/);
+});
+
 test('Zsolt is blue, Mónika styling remains untouched, and app is cache-busted',()=>{
  assert.match(html,/id="smProfileBadgeV944"/);
  assert.match(html,/app\.mjs\?v=947-morgan-stanley-260-tram1-arrival1340/);
