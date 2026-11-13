@@ -158,7 +158,7 @@ test('Explicit Zsolt interview link pins and persists the Morgan route without t
 
 test('Zsolt is blue, Mónika styling remains untouched, and app is cache-busted',()=>{
  assert.match(html,/id="smProfileBadgeV944"/);
- assert.match(html,/app\.mjs\?v=947-morgan-stanley-260-tram1-arrival1340/);
+ assert.match(html,/app\.mjs\?v=949-morgan-one-click-pin-1340/);
  assert.match(html,/style\.css\?v=944-zsolt-blue-glass/);
  assert.match(css,/body\[data-smart-match-profile="z"\]\{--pink:#79bfff/);
  assert.doesNotMatch(css,/body\[data-smart-match-profile="m"\]/);
