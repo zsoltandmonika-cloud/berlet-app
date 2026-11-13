@@ -311,12 +311,15 @@ function mount(){
   actions.appendChild(dropboxReview);
   // Keep the existing six category cards. One direct Calendar settings link
   // appears only in Cloud & AI; authentication stays in the first-party browser.
-  const outlook=el('button','', '📅 Outlook-naptár megnyitása');
+  const outlook=el('button','', '📅 Microsoft Calendar · beállítások');
   outlook.type='button';outlook.id='hhAdminMicrosoftCalendarV2';outlook.hidden=true;
   outlook.addEventListener('click',()=>{
-   // Launch the tested Outlook site directly. Avoid the separate SH9 SPA
-   // auth view inside Android WebView, which can show a blank dark screen.
-   w.location.assign('https://outlook.live.com/calendar/0/view/agenda');
+   // The explicit external-calendar route is handled by HH One's Android shell:
+   // it opens the SHO calendar settings in the *system browser*, with the
+   // browser-owned Microsoft session. On a normal browser, sh9calendar=1
+   // still opens the same settings dialog without requiring a native handler.
+   const page=new URL('../sh9/?sh9calendar=1&sh9external=calendar',w.location.href);
+   w.location.assign(page.href);
   });
   actions.appendChild(outlook);
   panel.appendChild(actions);
