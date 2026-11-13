@@ -147,3 +147,10 @@
 #hhSleepPage .hhSleepFactorsV432 .hhSleepOxygenV432>span{font-size:12px;font-weight:750;flex:1;min-width:118px}
 #hhSleepPage .hhSleepFactorsV432 .hhSleepOxygenV432>strong{color:#225a84;font-size:17px;font-variant-numeric:tabular-nums}
 #hhSleepPage .hhSleepFactorsV432 .hhSleepOxygenV432>small{font-size:10px;color:#68829a;line-height:1.3;width:100%}
+
+/* v1154 · Explain when multiple Sleep views reference the same measured night. */
+#hhSleepPage .hh428SameDataNote{
+ margin:6px 4px 10px;color:#b3d9f7;font-size:11px;line-height:1.45;
+ letter-spacing:0;overflow-wrap:anywhere
+}
+html[data-hh-sleep-profile="m"] #hhSleepPage .hh428SameDataNote{color:#efc9df}
