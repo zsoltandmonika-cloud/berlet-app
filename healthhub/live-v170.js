@@ -9,10 +9,10 @@ var helper={ctx:null,source:null,gain:null,timer:null,endAt:0,wake:null,raf:null
 
 function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
 function activeProfileCode(){
- try{
-  if(typeof cur!=='undefined'&&(cur==='m'||cur==='z'))return cur;
- }catch(e){}
- return localStorage.getItem('hh-profile')==='m'?'m':'z';
+ // A profile flip updates localStorage before older global "cur" integrations.
+ try{var code=localStorage.getItem('hh-profile');if(code==='m'||code==='z')return code}catch(e){}
+ try{if(typeof cur!=='undefined'&&(cur==='m'||cur==='z'))return cur}catch(e){}
+ return 'z';
 }
 function pkey(){return activeProfileCode()==='m'?'monika':'zsolt'}
 function pname(){return pkey()==='monika'?'Mónika':'Zsolt'}
@@ -124,7 +124,8 @@ async function sleepSessions(profile){
     req.onsuccess=function(){
      var cur=req.result;if(!cur){resolve();return}
      var i=cur.value;
-     if(i&&i.profile===profile&&i.bundle&&i.bundle.records){
+     if(i&&i.profile===profile&&i.bundle&&i.bundle.records&&
+         (!i.bundle.profile||i.bundle.profile===profile)){ 
       addRows(i.bundle.records.sleepSessions,i.importedAt);
       var endValues=(i.bundle.records.sleepSessions||[]).map(function(s){return Date.parse(s&&s.endTime)}).filter(Number.isFinite);
       var newest=endValues.length?Math.max.apply(null,endValues):-Infinity;
@@ -499,7 +500,7 @@ async function render(profileOverride){
  var renderId=++sleepRenderSeq,requestedProfile=profileOverride||pkey();
  page.innerHTML=heroHtml()+'<div class="surface hhSleepSurface"><div class="hhSleepTop"><div><small>HEALTH CONNECT · <span id="hhSleepSourceLabel">ALVÁS</span></small><h2>Alvás és regeneráció</h2></div><button class="hhSleepProfile" onclick="hhSleepToggleProfile(event)" aria-label="Váltás '+esc(otherName())+' profiljára">'+esc(pname())+'</button></div><div class="hhSleepCard hhSleepLoading"><div class="hhSleepSpinner"></div><b>Alvásadatok betöltése…</b><small>Health Connect adatok feldolgozása</small></div></div>'+bottomNav();
  var rows=await sleepSessions(requestedProfile);
- if(renderId!==sleepRenderSeq)return;
+ if(renderId!==sleepRenderSeq||pkey()!==requestedProfile)return;
  var latest=rows[rows.length-1]||null,night=latest?hhLatestNight(rows):null,period=filtered(rows),total=latest?durMin(latest.startTime,latest.endTime):0;var srcLabel=(window.hhSleepDataSource||'Health Connect').toUpperCase();
  // Sleep v433 Golden Standard is the default for both profiles.
  // Display-only fallback remains available at ?hh_sleep_v428_preview=0;
