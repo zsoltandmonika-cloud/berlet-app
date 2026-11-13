@@ -40,7 +40,9 @@ function style(){
  // 2x3 on phones, one column on tiny viewports, and 3 columns on desktops.
  css.push('#'+ID+' .hhQuickDirectV748{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;align-items:stretch;width:100%;min-width:0;margin-top:12px}');
  css.push('#'+ID+' .hhQuickDirectV748 button{box-sizing:border-box;display:flex;align-items:center;justify-content:flex-start;width:100%;max-width:100%;min-width:0;min-height:84px;padding:13px 11px;white-space:normal;overflow-wrap:anywhere;hyphens:auto;text-align:left;font-size:13px;line-height:1.35;border:1px solid #9eb5d2;background:linear-gradient(135deg,#1b2f4b,#29344f)}');
- css.push('#'+ID+' .hhQuickDirectV748 button[hidden]{display:none!important}');
+ css.push('#'+ID+' .hhQuickDirectV748 button[hidden],#'+ID+' .hhQuickDirectV748 a[hidden]{display:none!important}');
+ css.push('#'+ID+' .hhQuickDirectV748 a.hhQuickStatusLinkV748{box-sizing:border-box;display:flex;align-items:center;width:100%;min-height:84px;padding:13px 11px;border-radius:13px;border:1px solid #86bacf;background:linear-gradient(135deg,#143b52,#24445c);color:#f8fbff;text-decoration:none;font:750 13px/1.35 system-ui;overflow-wrap:anywhere;touch-action:manipulation}');
+ css.push('#'+ID+' .hhQuickDirectV748 a.hhQuickStatusLinkV748:focus-visible{outline:2px solid #e7f7ff;outline-offset:2px}');
  css.push('@media(max-width:350px){#'+ID+' .hhQuickDirectV748{grid-template-columns:minmax(0,1fr)}#'+ID+' .hhQuickDirectV748 button{min-height:60px}}');
  css.push('@media(min-width:720px){#'+ID+' .hhQuickDirectV748{grid-template-columns:repeat(3,minmax(0,1fr))}}');
  css.push('#'+ID+' #hhUsageOpenV870{display:block;width:100%;margin-top:12px;min-height:56px;padding:13px 16px;background:linear-gradient(115deg,#073452,#173656,#34265c);border:1px solid #43abed;box-shadow:inset 0 1px #ffffff22,0 6px 18px #082a4b66;color:#f5fbff;font-weight:850;font-size:14px}');
@@ -128,6 +130,8 @@ function apply(){
  // Central settings shortcut, never read or expose Outlook credentials in Admin.
  const calendar=q('hhAdminMicrosoftCalendarV2');
  if(calendar)calendar.hidden=selected!=='cloud';
+ const microsoftStatus=q('hhAdminMicrosoftStatusV1');
+ if(microsoftStatus)microsoftStatus.hidden=selected!=='cloud';
  help(CATEGORIES.find(x=>x.id===selected).note);
  registryNotice();
 }
@@ -322,6 +326,15 @@ function mount(){
    w.location.assign(page.href);
   });
   actions.appendChild(outlook);
+  // Read-only external status link: no credentials, polling or connection changes.
+  const microsoftStatus=el('a','hhQuickStatusLinkV748','🌐 Microsoft 365 · szolgáltatásállapot');
+  microsoftStatus.id='hhAdminMicrosoftStatusV1';
+  microsoftStatus.href='https://status.cloud.microsoft/';
+  microsoftStatus.target='_self'; // HH One Android WebView opens external HTTPS in the system browser.
+  microsoftStatus.rel='noopener noreferrer external';
+  microsoftStatus.hidden=true;
+  microsoftStatus.setAttribute('aria-label','Microsoft szolgáltatásállapot megnyitása');
+  actions.appendChild(microsoftStatus);
   panel.appendChild(actions);
   const note=el('p','hhQuickHelpV748');note.id=ID+'Help';panel.appendChild(note);
   root.appendChild(panel);
