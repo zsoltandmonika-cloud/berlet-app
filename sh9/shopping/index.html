@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="hu">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#080c1e">
+<meta name="description" content="SHO Smart Shopping: bevásárlólista, kedvencek, árösszehasonlítás és célárfigyelés a családnak.">
+<title>SHO · Smart Shopping</title>
+<link rel="icon" type="image/svg+xml" href="../sho-preview/favicon.svg">
+<link rel="stylesheet" href="./shopping.css?v=shop-v1">
+</head>
+<body>
+<div class="app">
+<header class="topbar">
+  <a class="brand" href="../" aria-label="SHO kezdőlap"><span class="brand-mark">▶</span><b>SHO</b><span class="brand-divider"></span><strong>Smart Shopping</strong></a>
+  <div class="head-actions"><button type="button" id="favoritesOpen" class="icon-btn" aria-label="Kedvencek">♡</button><a href="../" class="icon-btn" aria-label="SHO kezdőlap és értesítések">♧</a><button type="button" id="listsOpen" class="fav-round">✦<span>Kedvenc<br>Listák</span></button></div>
+</header>
+<main>
+<section class="hero" aria-label="Smart Shopping családi főképe">
+  <img class="hero-image" src="./assets/hero-approved.avif" width="1602" height="982" alt="SHO Smart Shopping: Mónika és Zsolt a bevásárlóközpontban, Buddy a bevásárlólista mellett" fetchpriority="high">
+  <div class="hero-title"><span>SHO · VÁSÁRLÁSI KÖZPONT</span><h1>Smart <em>Shopping</em></h1><p>Minden, amire szükségetek van, egy helyen.</p></div>
+</section>
+<form class="search-bar" id="searchForm" role="search"><label for="searchInput" class="sr">Termék keresése</label><span aria-hidden="true" class="star">✦</span><input id="searchInput" type="search" autocomplete="off" placeholder="Terméket, üzletet vagy akciót keresel?"><button type="button" class="search-voice" id="voiceBtn" aria-label="Hangos keresés">🎙</button><button type="button" class="search-scan" id="scanBtn" aria-label="Vonalkód beolvasása">▥</button><button type="submit" class="search-submit" aria-label="Keresés">⌕</button></form>
+<section aria-label="Vásárlási kategóriák" class="categories" id="categoryGrid">
+  <button type="button" data-category="Élelmiszer" class="cat pink"><img src="./assets/elelmiszer.avif" alt="Élelmiszer" loading="lazy"><span class="sr">Élelmiszer</span></button>
+  <button type="button" data-category="Elektronika" class="cat blue"><img src="./assets/elektronika.avif" alt="Elektronika" loading="lazy"><span class="sr">Elektronika</span></button>
+  <button type="button" data-category="Divat & Stílus" class="cat pink"><img src="./assets/divat.avif" alt="Divat és stílus" loading="lazy"><span class="sr">Divat és stílus</span></button>
+  <button type="button" data-category="Drogéria & Szépség" class="cat cyan"><img src="./assets/drogeria.avif" alt="Drogéria és szépség" loading="lazy"><span class="sr">Drogéria és szépség</span></button>
+  <button type="button" data-category="Otthon & Háztartás" class="cat gold"><img src="./assets/otthon.avif" alt="Otthon és háztartás" loading="lazy"><span class="sr">Otthon és háztartás</span></button>
+  <button type="button" data-category="Akciók & Árfigyelés" class="cat magenta"><img src="./assets/akciok.avif" alt="Akciók és árfigyelés" loading="lazy"><span class="sr">Akciók és árfigyelés</span></button>
+</section>
+<section class="quick-panel" aria-label="Gyors műveletek"><h2>⚡ Gyors műveletek</h2><div class="quick-grid">
+<button data-view="basket" type="button"><span>🛒</span><strong>Smart Basket</strong><small>Bevásárlólista</small></button>
+<button data-view="wishlist" type="button"><span>♡</span><strong>Wishlist</strong><small>Kedvenceim</small></button>
+<button data-view="radar" type="button"><span>▥</span><strong>Price Radar</strong><small>Árfigyelés</small></button>
+<button data-view="orders" type="button"><span>♧</span><strong>Rendeléseim</strong><small>Követés · Előzmény</small></button>
+</div></section>
+<section id="workspace" class="workspace" aria-live="polite"><div class="workspace-head"><div><span class="eyebrow" id="viewEyebrow">SHO · SMART ACTION</span><h2 id="viewTitle">Smart Basket</h2></div><button type="button" id="addProduct" class="main-add">＋ Hozzáadás</button></div><p id="viewIntro" class="subtle">Közös bevásárlólista és intelligens kosártervezés</p><div id="viewContents"></div></section>
+<section class="retailer-area"><h2>Áruházak <small>Hivatalos oldalak</small></h2><div class="retailers" id="retailerLinks"></div><p>Az áruházi linkek nem jelentenek élő árkapcsolatot. A Price Radar kizárólag a rögzített ajánlatokból számol.</p></section>
+<div class="bottom-space" aria-hidden="true"></div>
+</main>
+<nav class="bottomnav" aria-label="SHO Golden Standard navigáció"><a href="../"><span>⌂</span>Kezdőlap</a><button data-view="search" type="button"><span>⌕</span>Keresés</button><button data-view="basket" type="button" class="current"><span>🛒</span>Smart Basket</button><a href="../"><span>←</span>Vissza</a><a href="../" title="SHO főoldal / Admin"><span>⚙</span>Admin</a></nav>
+</div>
+<div id="dialogBackdrop" class="backdrop" hidden><section class="dialog" role="dialog" aria-modal="true" aria-labelledby="dialogTitle"><header><h2 id="dialogTitle">Szerkesztés</h2><button id="dialogClose" type="button" class="close" aria-label="Bezárás">×</button></header><div id="dialogBody"></div></section></div>
+<div id="scannerBackdrop" class="backdrop" hidden><section class="dialog" role="dialog" aria-modal="true" aria-label="Vonalkódolvasó"><header><h2>📷 Vonalkódolvasó</h2><button id="scannerClose" class="close" type="button">×</button></header><video id="scannerVideo" autoplay muted playsinline></video><p id="scannerStatus" class="subtle">Kamera elindítása…</p></section></div>
+<div class="toast" id="toast" role="status" hidden></div>
+<script defer src="./shopping.js?v=shop-v1"></script>
+</body>
+</html>
