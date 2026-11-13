@@ -23,5 +23,5 @@ assert.equal(data.toString('ascii',8,12),'WEBP');
 assert.match(css,/background-size:100% 300%/);
 for(const name of ['green','amber','red'])assert.ok(css.includes('[data-rag="'+name+'"]'));
 assert.match(index,/sleep-rag-buddy-v1146\.css\?v=1146-fullbody-night-rag/);
-assert.match(index,/live-v170\.js\?v=1146-fullbody-rag-buddy/);
+assert.match(index,/live-v170\.js\?v=1154-sleep-data-audit/);
 console.log('Sleep v1146 Buddy: existing nightly RAG, profile isolation, transparent sprite and entrypoints OK');
