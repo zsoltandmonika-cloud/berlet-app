@@ -127,8 +127,8 @@ test('Daily nameday, weather reading, calendar entry are pink; alerts retain the
 
 test('native SH9 browser handoff opens private calendar through trusted native host, not false native sync',()=>{
  assert.match(html,/outlook-agenda-v1\.js\?v=7-direct-agenda/);
- assert.match(script,/if\(NATIVE\)\{[\s\S]*?card\.addEventListener\('click',/);
- assert.match(script,/w\.location\.assign\(OUTLOOK_AGENDA\)/);
+ assert.match(script,/if\(NATIVE\)sub\.textContent='Outlook Agenda ›'/);
+ assert.doesNotMatch(script,/card\.addEventListener\('click',e=>\{\s*e\.preventDefault\(\)/);
  assert.match(script,/const OUTLOOK_AGENDA='https:\/\/outlook\.live\.com\/calendar\/0\/view\/agenda'/);
  assert.match(script,/if\(new URLSearchParams\(w\.location\.search\)\.get\('sh9calendar'\)==='1'\)show\(\)/);
  assert.match(script,/setCard\('Outlook Agenda','Megnyitás a böngészőben ›','pending'\)/);
