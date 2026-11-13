@@ -1,0 +1,36 @@
+/* SHO Smart Shopping · Store Connect v2. Keeps the approved Hero and category artwork unchanged. */
+.shop-connect{margin:6px 10px 16px;padding:15px 11px;border:1px solid #ee77d1a8;border-radius:19px;background:radial-gradient(circle at 92% 0%,#7d246048,transparent 42%),linear-gradient(145deg,#22152e,#0e1429);box-shadow:0 0 15px #d837a12d, inset 0 1px #ffffff26;scroll-margin-top:10px}
+.shop-connect-head{display:flex;gap:10px;align-items:center;justify-content:space-between}
+.shop-connect .shop-title{font-size:18px;line-height:1.2;font-weight:850;margin:0;color:#fff4fb}
+.shop-connect .shop-kicker{display:block;font-size:9px;letter-spacing:1.1px;color:#fba8d6;font-weight:850;margin-bottom:3px}
+.shop-connect .shop-sub{font-size:11px;color:#c7b9d7;line-height:1.45;margin:6px 0 11px}
+.shop-connect .sho-actions{display:flex;flex-wrap:wrap;gap:7px;margin:10px 0}
+.shop-connect .sho-actions button{border:1px solid #a45ca6;border-radius:12px;background:#412345;color:#ffeafb;padding:8px 10px;font-size:11px;font-weight:760;min-height:39px}
+.shop-connect .sho-actions button:first-child{background:linear-gradient(115deg,#e63c9b,#9a3fd1);border-color:#ffb4e5;color:white}
+.shop-connect .sho-store-count{font-size:10px;color:#c7b1d0;margin:5px 0 12px}
+.shop-connect .sho-store-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.shop-connect .sho-store{min-width:0;background:linear-gradient(145deg,#24182e,#101b2e);border:1px solid #705276;border-radius:12px;padding:10px;box-shadow:inset 0 1px #ffffff16}
+.shop-connect .sho-store-top{display:flex;justify-content:space-between;gap:5px;align-items:center;flex-wrap:wrap;margin-bottom:9px}
+.shop-connect .sho-store-top strong{font-size:14px;color:#fff}
+.shop-connect .sho-store-top span{font-size:9px;color:#d0a4d1}
+.shop-connect .sho-store-actions{display:flex;flex-wrap:wrap;gap:6px}
+.shop-connect .sho-store-actions a{border:1px solid #93618e;background:#2a2140;color:#ffe5f6;border-radius:10px;padding:8px 9px;font-size:10px;font-weight:720;min-height:36px;display:inline-flex;align-items:center;justify-content:center;flex:1}
+.shop-connect .sho-store-actions .sho-store-find{background:#1e3653;border-color:#5aa9da;color:#c4eeff}
+.shop-connect .sho-store-actions a:active{transform:scale(.985)}
+.shop-connect .sho-catalog-head{margin:17px 0 8px;padding-top:13px;border-top:1px solid #9871a844}
+.shop-connect .sho-catalog-head strong{display:block;font-size:14px}
+.shop-connect .sho-catalog-head small{display:block;margin-top:3px;font-size:10px;line-height:1.4;color:#c4b8d1}
+.shop-connect .sho-products{display:flex;flex-direction:column;gap:9px}
+.shop-connect .sho-product{display:flex;align-items:center;gap:11px;min-width:0;border:1px solid #644a72;border-radius:14px;background:#12192c;padding:9px}
+.shop-connect .sho-product-image{width:76px;height:88px;flex:0 0 76px;border-radius:11px;overflow:hidden;background:#28203c;display:grid;place-items:center;font-size:27px}
+.shop-connect .sho-product-image img{width:100%;height:100%;object-fit:contain;background:#fff}
+.shop-connect .sho-product-body{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
+.shop-connect .sho-product-body strong{font-size:12px;line-height:1.28;overflow-wrap:anywhere}
+.shop-connect .sho-product-body small{font-size:10px;line-height:1.3;color:#c6b4cd;overflow-wrap:anywhere}
+.shop-connect .sho-product-code{color:#b6dbfa!important}
+.shop-connect .sho-product-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:5px;align-items:center}
+.shop-connect .sho-product-add,.shop-connect .sho-product-link{border:1px solid #df80bd;background:#5c2c62;color:#ffebf9;border-radius:9px;padding:7px 9px;font-size:10px;font-weight:750;text-align:center}
+.shop-connect .sho-product-link{background:#192a42;border-color:#5473a2}
+.shop-connect .sho-catalog-note{font-size:10px;line-height:1.45;color:#bfb0c9;margin:12px 0 0}
+@media(max-width:360px){.shop-connect .sho-store-grid{gap:6px}.shop-connect .sho-store{padding:8px}.shop-connect .sho-store-actions a{padding:7px 5px;font-size:9px}.shop-connect .sho-product-image{width:64px;flex-basis:64px;height:76px}}
+@media(prefers-reduced-motion:reduce){.shop-connect .sho-store-actions a:active{transform:none}}
