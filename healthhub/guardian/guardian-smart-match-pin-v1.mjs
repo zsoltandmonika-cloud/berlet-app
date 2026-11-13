@@ -253,6 +253,18 @@ function renderClock(){
 }
 async function updateSchedule({force=false}={}){
  if(!state.item||state.loading||!state.visible)return;
+ // Save-only profile card: tram 1 is outside the current verified GTFS pilot.
+ // The goal 13:40 is a desired arrival, not an actual bus/tram departure or ETA.
+ if(state.item.targetRoute==="tram:1"||
+    (state.item.feederRoutes||[]).includes("tram:1")){
+  state.entries=[];state.loaded=null;
+  const target=state.item.arrivalTargetTime;
+  setView({time:target?"🎯 "+target:"260 / 1",
+   note:target?"Érkezési cél · 260-as busz + 1-es villamos":"1-es villamos ↔ 260 · menetrend ellenőrzendő",
+   title:stageText(state.item)+" · 260 / 1 · BKK indulások ellenőrzendők",
+   status:"inactive",link:currentLink(state.item)});
+  return;
+ }
  // Zsolt's three-leg family routes are saved drafts, not computed timetables.
  // Never fabricate a departure or download BKK just to display a draft.
  if(state.item.multiLegDraft===true){
