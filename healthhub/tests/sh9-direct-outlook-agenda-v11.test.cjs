@@ -47,7 +47,7 @@ test('local private SH9 Agenda is retained but Admin direct shortcut bypasses it
  assert.match(admin,/w\.location\.assign\(page\.href\)/);
  assert.match(agenda,/if\(new URLSearchParams\(w\.location\.search\)\.get\('sh9calendar'\)==='1'\)show\(\)/);
  assert.match(html,/id="sh9AgendaDialog"/);
- assert.match(html,/href="https:\/\/outlook\.live\.com\/calendar\/0\/view\/agenda" target="_blank" rel="noopener noreferrer external">Outlook Agenda megnyitása/);
+ assert.match(html,/href="https:\/\/outlook\.live\.com\/calendar\/0\/view\/agenda" target="_self" rel="noopener noreferrer external">Outlook Agenda megnyitása/);
  assert.match(agenda,/offline_access User\.Read Calendars\.Read/);
  assert.equal([...html.matchAll(/<(?:button|a) class="tile" (?:type="button" |href="[^"]+" )?data-name="/g)].length,9);
  assert.equal((html.match(/data-nav="/g)||[]).length,5);
