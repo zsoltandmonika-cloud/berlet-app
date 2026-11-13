@@ -30,13 +30,73 @@ const timeField=hour=>String(hour).padStart(2,"0")+":00";
 const clone=obj=>JSON.parse(JSON.stringify(obj));
 // Zsolt starts with his own reversible family route pair and optional verified
 // 260 walk-to-stop sample. Three-leg family drafts NEVER claim timetable ETAs.
+// Millennium Tower III · Lechner Ödön fasor 8, 1095 Budapest.
+// Morgan Stanley's official address is verified; the 260 → 17/19 → 4/6
+// connection TIMES are not verified by today's two-leg Smart Match engine.
+// Boráros tér H to the office is an approximate, not GPS-verified 8–10 minute walk.
+// No 2/2B/23 shortcut: BKK reports a closure north of Boráros tér on 2026-11-13.
+const MORGAN_OUTBOUND=Object.freeze({
+ ...clone(FAMILY_OUTBOUND),
+ id:"zsolt-home-to-morgan-stanley",reverseId:"zsolt-morgan-stanley-to-home",
+ profile:"zsolt",type:"transfer",favoriteRoute:false,
+ originFavoriteSlot:null,destinationFavoriteSlot:null,multiLegDraft:true,
+ title:"Zsolt · Otthon → Morgan Stanley",
+ originLabel:"Otthon",destinationLabel:"Morgan Stanley · Millennium III",
+ originStop:"Citronella utca",transferStop:"Bécsi út / Vörösvári út",
+ targetStop:"Margit híd, budai hídfő H",targetRoute:"4",targetRoutes:["4","6"],
+ targetAfterStop:"Boráros tér H",destinationTransitStop:"Boráros tér H",
+ targetHeadsign:"",feederRoutes:["260","17","19"],
+ startHour:6,endHour:22,originWalkMin:10,originSafetyMin:2,
+ transferWalkMin:2,transferSafetyMin:2,maxWaitMin:6,maxTransferMeters:350,
+ destinationWalkMin:9,routePriority:"few_transfers_one_final_walk",
+ routeSource:"Morgan Stanley official 1095 Budapest address; BKK route network; draft only",
+ walkEstimate:"Boráros tér H → Lechner Ödön fasor 8: becsült 8–10 perc gyalog, pontos útvonal ellenőrizendő",
+ optionalLastBusRoutes:[],optionalLastBusStop:null,optionalShortWalkTrams:[],
+ flowSteps:[
+  {role:"origin",label:"Otthon",detail:"Citronella utca felé"},
+  {role:"walk",label:"≈ 10p",detail:"Otthon → Citronella utca (becslés)"},
+  {role:"bus",label:"260",detail:"Citronella utca → Bécsi út / Vörösvári út"},
+  {role:"tram",label:"17 / 19",detail:"Bécsi út → Margit híd, budai hídfő H"},
+  {role:"tram",label:"4 / 6",detail:"Margit híd → Boráros tér H"},
+  {role:"walk",label:"≈ 8–10p",detail:"Boráros tér → Lechner Ödön fasor 8 (becslés)"},
+  {role:"destination",label:"Morgan Stanley",detail:"Millennium Tower III · Lechner Ödön fasor 8."}
+ ]
+});
+const MORGAN_RETURN=Object.freeze({
+ ...clone(FAMILY_RETURN),
+ id:"zsolt-morgan-stanley-to-home",reverseId:"zsolt-home-to-morgan-stanley",
+ profile:"zsolt",type:"transfer",favoriteRoute:false,
+ originFavoriteSlot:null,destinationFavoriteSlot:null,multiLegDraft:true,
+ title:"Zsolt · Morgan Stanley → Otthon",
+ originLabel:"Morgan Stanley · Millennium III",destinationLabel:"Otthon",
+ originStop:"Boráros tér H",transferStop:"Bécsi út / Vörösvári út",
+ targetStop:"Bécsi út / Vörösvári út",targetRoute:"260",targetRoutes:["260"],
+ targetAfterStop:"Citronella utca",destinationTransitStop:"Citronella utca",
+ targetHeadsign:"Harsánylejtő",feederRoutes:["4","6","17","19"],
+ startHour:6,endHour:22,originWalkMin:9,originSafetyMin:2,
+ transferWalkMin:2,transferSafetyMin:3,maxWaitMin:8,maxTransferMeters:350,
+ destinationWalkMin:10,routePriority:"260_connection_backwards",
+ routeSource:"Morgan Stanley official 1095 Budapest address; BKK route network; draft only",
+ walkEstimate:"Lechner Ödön fasor 8 → Boráros tér H: becsült 8–10 perc gyalog, pontos útvonal ellenőrizendő",
+ optionalLastBusRoutes:[],optionalLastBusStop:null,optionalShortWalkTrams:[],
+ flowSteps:[
+  {role:"origin",label:"Morgan Stanley",detail:"Millennium Tower III · Lechner Ödön fasor 8."},
+  {role:"walk",label:"≈ 8–10p",detail:"Lechner Ödön fasor 8 → Boráros tér H (becslés)"},
+  {role:"tram",label:"4 / 6",detail:"Boráros tér H → Margit híd, budai hídfő H"},
+  {role:"tram",label:"17 / 19",detail:"Margit híd → Bécsi út / Vörösvári út"},
+  {role:"bus",label:"260",detail:"Bécsi út → Citronella utca · Harsánylejtő felé"},
+  {role:"walk",label:"≈ 10p",detail:"Citronella utca → Otthon (becslés)"},
+  {role:"destination",label:"Otthon",detail:"Testvérhegy"}
+ ]
+});
 const ZS_SAMPLES=Object.freeze([
  {...clone(FAMILY_OUTBOUND),id:"zsolt-home-to-david-anna",reverseId:"zsolt-david-anna-to-home",
   profile:"zsolt",title:"Zsolt · Otthon → Dávidék"},
  {...clone(FAMILY_RETURN),id:"zsolt-david-anna-to-home",reverseId:"zsolt-home-to-david-anna",
   profile:"zsolt",title:"Zsolt · Dávidék → Otthon"},
  {...clone(HOME),id:"zsolt-home-citronella-260",profile:"zsolt",
-  title:"Zsolt · Otthon → Citronella utca"}
+  title:"Zsolt · Otthon → Citronella utca"},
+ clone(MORGAN_OUTBOUND),clone(MORGAN_RETURN)
 ]);
 const PROFILE_SAMPLES=PROFILE==="monika"?SAMPLES:ZS_SAMPLES;
 const freshDate=()=>{
@@ -904,7 +964,7 @@ async function computeRoute({useForm=false}={}){
     "✓ Ellenőrzött BKK-megállók és járatsorrend · még nincs hitelesített indulási idő.":
     "A járatok és címek menthetők; hitelesített indulási idő még nem áll rendelkezésre.";
    $("status").textContent=multiLeg?
-    "🧭 Smart Match · Otthon ⇄ Dávidék · megállók ellenőrizve, háromjáratos számítás fejlesztés alatt.":
+    "🧭 Smart Match · "+shortTitle(item)+" · járatsorrend mentve, a teljes menetrendi párosítás még nem aktív.":
     "ⓘ BKK-katalógus · szerkeszthető útvonal · nincs ellenőrzött Smart Match-menetrend.";
    $("ring").style.setProperty("--progress","0%");
    return;
