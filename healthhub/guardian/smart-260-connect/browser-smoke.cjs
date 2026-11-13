@@ -819,6 +819,44 @@ async function watchlistAlwaysOpenSmoke(browser,base,device){
  }finally{await context.close()}
 }
 
+
+async function dualProfileSmoke(browser,base,device){
+ const mobile=device==="mobile";
+ const context=await browser.newContext({viewport:mobile?{width:390,height:844}:{width:1320,height:890},
+  deviceScaleFactor:mobile?2:1,isMobile:mobile,hasTouch:mobile,serviceWorkers:"block"});
+ await context.route("**/*",req=>req.request().url().startsWith(base)?req.continue():req.abort());
+ const page=await context.newPage();
+ await page.addInitScript(()=>{try{localStorage.setItem("hh-profile","z")}catch(_){}});
+ try{
+  await page.goto(base+"healthhub/guardian/smart-260-connect/?profile=z",{waitUntil:"domcontentloaded"});
+  await page.waitForFunction(()=>document.querySelectorAll("#templates button").length>=3&&
+   document.getElementById("smProfileBadgeV944")?.textContent==="SHO · ZSOLT");
+  const names=await page.locator("#templates button").allTextContents();
+  assert.ok(names.some(x=>x.includes("Otthon → Dávidék"))&&names.some(x=>x.includes("Dávidék → Otthon")));
+  await page.locator("#pinBtn").click();
+  await page.waitForFunction(()=>document.body.classList.contains("pinned"));
+  const stored=await page.evaluate(()=>({z:JSON.parse(localStorage.getItem("sh9-smart-match-templates-v1-z")),
+   zPin:localStorage.getItem("sh9-smart-match-active-pin-v1-z"),
+   m:localStorage.getItem("sh9-smart-match-templates-v1-m"),
+   mPin:localStorage.getItem("sh9-smart-match-active-pin-v1-m")}));
+  assert.ok(stored.z.length>=3&&stored.z.every(x=>x.profile==="zsolt"));
+  assert.equal(stored.zPin,"zsolt-home-to-david-anna");
+  assert.equal(stored.m,null,"Zsolt pin must not create Monika saved routes");
+  assert.equal(stored.mPin,null,"Zsolt pin must not touch Monika active pin");
+  await page.locator("#reverseBtn").click();
+  await page.waitForFunction(()=>localStorage.getItem("sh9-smart-match-active-pin-v1-z")==="zsolt-david-anna-to-home");
+  assert.match(await page.locator("#headingShort").textContent(),/Dávidék → Otthon/);
+  assert.equal(await page.locator("#heroTime").textContent(),"--:--",
+   "Three-leg family draft must not invent a departure");
+  await page.goto(base+"healthhub/guardian/smart-260-connect/?profile=m",{waitUntil:"domcontentloaded"});
+  await page.waitForFunction(()=>document.getElementById("smProfileBadgeV944")?.textContent==="SHO · MÓNIKA");
+  assert.ok((await page.locator("#templates button").allTextContents()).some(x=>x.includes("Mónika")));
+  assert.equal(await page.evaluate(()=>localStorage.getItem("sh9-smart-match-active-pin-v1-z")),
+   "zsolt-david-anna-to-home","Monika profile must not reset Zsolt pinned direction");
+  return {device,zsoltOwnTemplates:true,independentPins:true,reverse:true,monikaUnaffected:true};
+ }finally{await context.close()}
+}
+
 (async()=>{
  await new Promise(resolve=>server.listen(0,"127.0.0.1",resolve));
  const base="http://127.0.0.1:"+server.address().port+"/berlet-app/";
@@ -827,6 +865,7 @@ async function watchlistAlwaysOpenSmoke(browser,base,device){
   browser=await chromium.launch({headless:true,executablePath:findChrome(),
    args:["--no-sandbox","--disable-dev-shm-usage"]});
   for(const device of ["desktop","mobile"])console.log("SMART-MATCH-BROWSER-SMOKE",JSON.stringify(await smoke(browser,base,device)));
+  for(const device of ["desktop","mobile"])console.log("SMART-MATCH-DUAL-PROFILE-SMOKE",JSON.stringify(await dualProfileSmoke(browser,base,device)));
   for(const device of ["desktop","mobile"])console.log("GUARDIAN-SMART-MATCH-PIN-SMOKE",JSON.stringify(await guardianPinSmoke(browser,base,device)));
   for(const device of ["desktop","mobile"])console.log("GUARDIAN-SMART-LOCATION-SMOKE",JSON.stringify(await guardianSmartLocationSmoke(browser,base,device)));
   for(const device of ["desktop","mobile"])console.log("BKK-WATCHLIST-ALWAYS-OPEN-COMPACT-SMOKE",JSON.stringify(await watchlistAlwaysOpenSmoke(browser,base,device)));
