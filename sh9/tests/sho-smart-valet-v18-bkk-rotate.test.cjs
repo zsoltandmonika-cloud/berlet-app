@@ -8,7 +8,7 @@ const css=fs.readFileSync(path.join(root,'sh9/wallet/smart-valet-bkk-fullscreen-
 test('90-degree rotation is accessible in the existing full-screen photo viewer',()=>{
  assert.match(page,/id="svBkkRotateV18"/);
  assert.match(page,/aria-label="Bérletkép elforgatása 90 fokkal"/);
- assert.match(page,/smart-valet-bkk-fullscreen-v17\.js\?v=20-auto-inspect/);
+ assert.match(page,/smart-valet-bkk-fullscreen-v17\.js\?v=23-keep-cloud-pass-list/);
  assert.match(page,/smart-valet-bkk-fullscreen-v17\.css\?v=18-rotate-fit/);
  assert.match(src,/rotation=\(rotation\+90\)%360/);
  assert.match(src,/rotate\('\+rotation\+'deg\)/);
