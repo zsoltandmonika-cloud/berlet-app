@@ -111,7 +111,7 @@ async function search(term){
  state.query=q;paintStores();showPanel();
  const status=$("shoCatalogStatus");
  if(!q){if(status)status.textContent="Írj be egy terméket a felső keresőbe.";state.products=[];paintProducts();return}
- if(state.category&&state.category!=="Élelmiszer"){
+ if(state.category&&state.category!=="Élelmiszer"&&!/^[0-9]{8,14}$/.test(q)){
   state.products=[];paintProducts();
   if(status)status.textContent="Ebben a kategóriában a bolti webkeresés használható, közvetlen termék-API még nincs.";
   feedback("A "+state.category+" kategóriában válassz áruházat és nyisd meg a keresést.");
