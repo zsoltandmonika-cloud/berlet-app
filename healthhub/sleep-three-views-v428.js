@@ -233,8 +233,11 @@ function timebar(rows,start,end,label){
   ticks+'</div>';
 }
 function activeProfile(){
+ // Follow the same canonical profile source as the Sleep renderer, not a
+ // possibly stale global left over from another module's profile switch.
+ try{var p=localStorage.getItem('hh-profile');if(p==='m'||p==='z')return p==='m'?'monika':'zsolt'}catch(e){}
  try{if(typeof window.cur==='string'&&(window.cur==='m'||window.cur==='z'))return window.cur==='m'?'monika':'zsolt'}catch(e){}
- return localStorage.getItem('hh-profile')==='m'?'monika':'zsolt';
+ return 'zsolt';
 }
 function top(rows,profile){
  if(!enabled||['zsolt','monika'].indexOf(profile)<0)return '';
