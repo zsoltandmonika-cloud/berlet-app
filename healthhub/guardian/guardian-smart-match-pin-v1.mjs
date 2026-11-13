@@ -46,7 +46,7 @@ function readPin(){
    const raw=localStorage.getItem(Z_STORAGE),all=JSON.parse(raw||"null");
    if(!Array.isArray(all))return null;
    const items=all.filter(x=>x&&typeof x==="object"&&x.profile==="zsolt"&&
-    typeof x.id==="string"&&/^[\\w-]{1,90}$/.test(x.id)&&
+    typeof x.id==="string"&&/^[\w-]{1,90}$/.test(x.id)&&
     typeof x.title==="string"&&x.title.length<=100&&
     typeof x.targetRoute==="string"&&x.targetRoute.length<=20);
    const active=localStorage.getItem(Z_ACTIVE);
