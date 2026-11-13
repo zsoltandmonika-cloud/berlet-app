@@ -214,7 +214,10 @@ async function refresh(){
   clearTilePreviews();
   records=new Map((result.data||[]).filter(x=>TYPES.includes(x.doc_type)).map(x=>[x.doc_type,x]));
   updateTiles();
-  pilotNotice();
+  const notice=$('svIdNoticeV10');
+  if(notice)notice.textContent=text(
+    '🔐 Az igazolványok ellenőrzött felhőrekordjai betöltve.',
+    '🔐 Verified private ID records loaded.');
   await loadTilePreviews(p,id,c);
   w.dispatchEvent(new CustomEvent('sho-valet-identity-ready',{detail:{profile:p}}));
  }catch(e){
