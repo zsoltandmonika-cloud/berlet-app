@@ -12,6 +12,7 @@ const REAL_ROUTES=Object.freeze({
  'Biztonság':HH+'guardian/',
  'Utazás':SH9+'smart-travel/',
  'Szórakozás':SH9+'entertainment/',
+ 'Bevásárlás':SH9+'shopping/',
  'Sport':SH9+'sport/',
  'Táplálkozás':HH+'nutrition/',
  'Aktivitás':HH+'activity-one/?source=sho',
