@@ -8,6 +8,7 @@
 <title>SHO · Smart Shopping</title>
 <link rel="icon" type="image/svg+xml" href="../sho-preview/favicon.svg">
 <link rel="stylesheet" href="./shopping.css?v=shop-v1">
+<link rel="stylesheet" href="./store-connect-v2.css?v=shop-v2">
 </head>
 <body>
 <div class="app">
@@ -29,6 +30,16 @@
   <button type="button" data-category="Otthon & Háztartás" class="cat gold"><img src="./assets/otthon.avif" alt="Otthon és háztartás" loading="lazy"><span class="sr">Otthon és háztartás</span></button>
   <button type="button" data-category="Akciók & Árfigyelés" class="cat magenta"><img src="./assets/akciok.avif" alt="Akciók és árfigyelés" loading="lazy"><span class="sr">Akciók és árfigyelés</span></button>
 </section>
+<section class="shop-connect" id="shoStoreConnect" aria-label="Áruházkapcsolatok és valódi termékkeresés">
+ <header class="shop-connect-head"><div><span class="shop-kicker">SHO · STORE CONNECT V2</span><h2 class="shop-title">🛍️ Boltok &amp; valódi termékek</h2></div><span aria-hidden="true">✦</span></header>
+ <p class="shop-sub" id="shoConnectMessage">Válassz áruházat, vagy keress valódi termékeket. A vásárlást a kiválasztott bolt oldalán hagyjátok jóvá.</p>
+ <div class="sho-actions"><button type="button" data-sho-connect-refresh>⌕ Termékek keresése</button><button type="button" data-sho-connect-reset>Minden áruház</button></div>
+ <p class="sho-store-count" id="shoStoreSummary">Áruházak betöltése…</p>
+ <div class="sho-store-grid" id="shoStoreGrid"></div>
+ <div class="sho-catalog-head"><strong>🔎 Valódi termékkatalógus</strong><small id="shoCatalogStatus" role="status" aria-live="polite">Élelmiszer: írd be a termék nevét, majd nyomd meg a Keresés gombot.</small></div>
+ <div class="sho-products" id="shoProducts"></div>
+ <p class="sho-catalog-note">Termékadatok: Open Food Facts (ODbL; képek: CC BY-SA). A katalógus nem áruház, nem mutat bolti árat vagy készletet. A bolti „Termék keresése” külső webkeresést nyit a kiválasztott áruház hivatalos oldalára szűkítve. A rendelést a bolt saját oldalán lehet leadni.</p>
+</section>
 <section class="quick-panel" aria-label="Gyors műveletek"><h2>⚡ Gyors műveletek</h2><div class="quick-grid">
 <button data-view="basket" type="button"><span>🛒</span><strong>Smart Basket</strong><small>Bevásárlólista</small></button>
 <button data-view="wishlist" type="button"><span>♡</span><strong>Wishlist</strong><small>Kedvenceim</small></button>
@@ -44,6 +55,8 @@
 <div id="dialogBackdrop" class="backdrop" hidden><section class="dialog" role="dialog" aria-modal="true" aria-labelledby="dialogTitle"><header><h2 id="dialogTitle">Szerkesztés</h2><button id="dialogClose" type="button" class="close" aria-label="Bezárás">×</button></header><div id="dialogBody"></div></section></div>
 <div id="scannerBackdrop" class="backdrop" hidden><section class="dialog" role="dialog" aria-modal="true" aria-label="Vonalkódolvasó"><header><h2>📷 Vonalkódolvasó</h2><button id="scannerClose" class="close" type="button">×</button></header><video id="scannerVideo" autoplay muted playsinline></video><p id="scannerStatus" class="subtle">Kamera elindítása…</p></section></div>
 <div class="toast" id="toast" role="status" hidden></div>
-<script defer src="./shopping.js?v=shop-v1"></script>
+<script defer src="../../healthhub/central-vault/config.js"></script>
+<script defer src="./shopping.js?v=shop-v2"></script>
+<script defer src="./store-connect-v2.js?v=shop-v2"></script>
 </body>
 </html>
