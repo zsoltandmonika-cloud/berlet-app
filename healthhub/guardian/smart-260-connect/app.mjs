@@ -2,14 +2,19 @@
  * Browser-local saves, read-only BKK GTFS, no GPS/Dropbox/Supabase mutation.
  */
 import {readOfficialSnapshot} from "../../../sh9/smart-travel/lena-native/bkk/bkk-feed-client-v1106.mjs";
-import {DEFAULT,HOME,REVERSE,SAMPLES,compute,bus260DirectionForTemplate,full260Timetable,pair260Connections} from "./core.mjs?v=943-family-verified-stops";
+import {DEFAULT,HOME,REVERSE,FAMILY_OUTBOUND,FAMILY_RETURN,SAMPLES,compute,bus260DirectionForTemplate,full260Timetable,pair260Connections} from "./core.mjs?v=943-family-verified-stops";
 import {wallEpoch} from "../../../sh9/smart-travel/lena-native/bkk/bkk-gtfs-core-v1105.mjs";
 import {ringDirection} from "./ring-direction-v941.mjs";
 import {FALLBACK,loadCatalog,keyOf,valueOf,label as fleetLabel,norm,coverage} from "./fleet-catalog-v940.mjs";
 const $=id=>document.getElementById(id);
-const STORAGE="sh9-smart-match-templates-v1-m";
-const ACTIVE_PIN_KEY="sh9-smart-match-active-pin-v1-m";
-const DELETED_SAMPLES_KEY="sh9-smart-match-deleted-samples-v940";
+const storedProfile=()=>{try{const p=localStorage.getItem("hh-profile");return p==="z"?"zsolt":p==="m"?"monika":null}catch(_){return null}};
+// The explicit profile in a pinned Family Guard link is intentional.
+const requestedProfile=new URLSearchParams(location.search).get("profile");
+const PROFILE=requestedProfile==="z"?"zsolt":requestedProfile==="m"?"monika":storedProfile()||"monika";
+// Keep all existing Mónika storage and preferences unchanged.
+const STORAGE=PROFILE==="monika"?"sh9-smart-match-templates-v1-m":"sh9-smart-match-templates-v1-z";
+const ACTIVE_PIN_KEY=PROFILE==="monika"?"sh9-smart-match-active-pin-v1-m":"sh9-smart-match-active-pin-v1-z";
+const DELETED_SAMPLES_KEY=PROFILE==="monika"?"sh9-smart-match-deleted-samples-v940":"sh9-smart-match-deleted-samples-v940-z";
 let selectedFeeders=new Set();
 // v939: isolated favorite-address draft. Existing saved itineraries are immutable until explicit save.
 let favoriteAddressDraft=null;
@@ -23,6 +28,17 @@ const budapestDay=now=>{const p=parts(now);return [p.year,p.month,p.day].join("-
 const pushDay=(str,n)=>{const d=new Date(str+"T12:00:00Z");d.setUTCDate(d.getUTCDate()+n);return d.toISOString().slice(0,10)};
 const timeField=hour=>String(hour).padStart(2,"0")+":00";
 const clone=obj=>JSON.parse(JSON.stringify(obj));
+// Zsolt starts with his own reversible family route pair and optional verified
+// 260 walk-to-stop sample. Three-leg family drafts NEVER claim timetable ETAs.
+const ZS_SAMPLES=Object.freeze([
+ {...clone(FAMILY_OUTBOUND),id:"zsolt-home-to-david-anna",reverseId:"zsolt-david-anna-to-home",
+  profile:"zsolt",title:"Zsolt · Otthon → Dávidék"},
+ {...clone(FAMILY_RETURN),id:"zsolt-david-anna-to-home",reverseId:"zsolt-home-to-david-anna",
+  profile:"zsolt",title:"Zsolt · Dávidék → Otthon"},
+ {...clone(HOME),id:"zsolt-home-citronella-260",profile:"zsolt",
+  title:"Zsolt · Otthon → Citronella utca"}
+]);
+const PROFILE_SAMPLES=PROFILE==="monika"?SAMPLES:ZS_SAMPLES;
 const freshDate=()=>{
  const day=budapestDay(Date.now()),minutes=Number(timeFmt.format(new Date()).split(":")[0])*60+
   Number(timeFmt.format(new Date()).split(":")[1]);
@@ -31,22 +47,22 @@ const freshDate=()=>{
 function safeLoad(){
  let saved=[];
  try{const s=JSON.parse(localStorage.getItem(STORAGE));if(Array.isArray(s))saved=s.filter(x=>x&&typeof x==="object"&&
-  typeof x.id==="string"&&x.id.length<90&&x.profile==="monika").slice(0,24);}
+  typeof x.id==="string"&&x.id.length<90&&x.profile===PROFILE).slice(0,24);}
  catch(_){}
  const ids=new Set(saved.map(i=>i.id));
  let dismissed=[];
  try{const raw=JSON.parse(localStorage.getItem(DELETED_SAMPLES_KEY)||"[]");
-  if(Array.isArray(raw))dismissed=raw.filter(id=>SAMPLES.some(item=>item.id===id));
+  if(Array.isArray(raw))dismissed=raw.filter(id=>PROFILE_SAMPLES.some(item=>item.id===id));
  }catch(_){}
  const hidden=new Set(dismissed);
- for(const sample of SAMPLES)if(!ids.has(sample.id)&&!hidden.has(sample.id))saved.push(clone(sample));
+ for(const sample of PROFILE_SAMPLES)if(!ids.has(sample.id)&&!hidden.has(sample.id))saved.push(clone(sample));
  // Update only the old default 6-minute walk settings; leave other
  // personal edits intact. Keep the user's saved templates compatible.
  let updated=false;
  for(const item of saved){
   // Upgrade ONLY untouched v941 family address shells to the verified
   // v943 stop sequence. Never replace a customized or deleted route.
-  const verified=SAMPLES.find(x=>x.id===item.id&&x.multiLegDraft===true);
+  const verified=PROFILE_SAMPLES.find(x=>x.id===item.id&&x.multiLegDraft===true);
   if(verified&&item.favoriteRoute===true&&
    !String(item.targetRoute||"").trim()&&
    !String(item.originStop||"").trim()&&
@@ -302,6 +318,7 @@ function readForm(){
   current()||clone(DEFAULT);
  const type=$("kind").value;
  const next={...base,
+  profile:PROFILE,
   type,
   title:$("titleInput").value.trim()||"Új Smart Match séma",
   originLabel:$("fromLabel").value.trim()||"Indulás",
@@ -360,12 +377,12 @@ function removeTemplate(){
  if(!window.confirm?.("Biztosan törlöd ezt a mentett Smart Match-sémát?\n\n"+displayName(item)))return;
  const id=item.id,backup=[...state.items];
  state.items=state.items.filter(x=>x.id!==id);
- state.current=state.items.some(x=>x.id===DEFAULT.id)?DEFAULT.id:state.items[0].id;
+ state.current=state.items.some(x=>x.id===(PROFILE==="monika"?DEFAULT.id:ZS_SAMPLES[0].id))?(PROFILE==="monika"?DEFAULT.id:ZS_SAMPLES[0].id):state.items[0].id;
  if(!persist()){state.items=backup;state.current=id;return}
- if(SAMPLES.some(x=>x.id===id)){
+ if(PROFILE_SAMPLES.some(x=>x.id===id)){
   let removed=[];
   try{const stored=JSON.parse(localStorage.getItem(DELETED_SAMPLES_KEY)||"[]");
-   if(Array.isArray(stored))removed=stored.filter(x=>SAMPLES.some(t=>t.id===x));
+   if(Array.isArray(stored))removed=stored.filter(x=>PROFILE_SAMPLES.some(t=>t.id===x));
   }catch(_){}
   if(!removed.includes(id))removed.push(id);
   try{localStorage.setItem(DELETED_SAMPLES_KEY,JSON.stringify(removed))}catch(_){
@@ -748,7 +765,7 @@ function updateFull260Timeline(now=Date.now(),redraw=false){
    const remaining=recommended.leaveMs-now,id=day+"/260/"+recommended.leaveMs;
    if(remaining>0&&remaining<=5*60000&&!state.notificationFired.has(id)){
     state.notificationFired.add(id);
-    const msg="Mónika, indulás "+clockFmt(recommended.leaveMs)+
+    const msg=(PROFILE==="monika"?"Mónika":"Zsolt")+", indulás "+clockFmt(recommended.leaveMs)+
      " · 260-as busz "+clockFmt(recommended.departMs)+"!";
     toast("🔔 "+msg);
     if(typeof Notification!=="undefined"&&Notification.permission==="granted"){
@@ -830,7 +847,7 @@ function updateTimeline(now=Date.now(),redraw=false){
   const id=day+"/"+row.best.leaveOfficeMs;
   if(ms>0&&ms<=5*60000&&!state.notificationFired.has(id)){
    state.notificationFired.add(id);
-   const msg="Mónika, "+clockFmt(row.best.leaveOfficeMs)+"-kor indulj! "+row.line+"-as busz: "+clockFmt(row.departMs);
+   const msg=(PROFILE==="monika"?"Mónika":"Zsolt")+", "+clockFmt(row.best.leaveOfficeMs)+"-kor indulj! "+row.line+"-as busz: "+clockFmt(row.departMs);
    toast("🔔 "+msg);
    if(typeof Notification!=="undefined"&&Notification.permission==="granted"){
     try{new Notification("SHO Smart Match · indulás 5 perc múlva",{body:msg,tag:"smart-match-"+id})}catch(_){}
@@ -1046,11 +1063,13 @@ function initEvents(){
  });
 }
 async function start(){
+ document.body.dataset.smartMatchProfile=PROFILE==="monika"?"m":"z";
+ const badge=$("smProfileBadgeV944");if(badge)badge.textContent="SHO · "+(PROFILE==="monika"?"MÓNIKA":"ZSOLT");
  state.items=safeLoad();
  const params=new URLSearchParams(location.search);
  const chosen=params.get("id");
  state.current=state.items.some(x=>x.id===chosen)?chosen:
-  (state.items.find(x=>x.id===DEFAULT.id)?.id||state.items[0]?.id||DEFAULT.id);
+  (state.items.find(x=>x.id===(PROFILE==="monika"?DEFAULT.id:ZS_SAMPLES[0].id))?.id||state.items[0]?.id);
  $("day").value=freshDate();
  initEvents();
  if(params.get("pinned")==="1")document.body.classList.add("pinned");
@@ -1061,5 +1080,15 @@ async function start(){
  // Clock updates do not trigger extra BKK/network requests.
  setInterval(()=>updateTimeline(Date.now()),1000);
  document.addEventListener("visibilitychange",()=>{if(!document.hidden)updateTimeline(Date.now(),true)});
+ // Same-origin profile switches in another SHO tab reload with the correct library.
+ window.addEventListener("storage",e=>{
+  if(e.key==="hh-profile"&&storedProfile()&&storedProfile()!==PROFILE){
+   const url=new URL(location.href);url.searchParams.delete("profile");location.replace(url.href);
+  }
+ });
+ window.addEventListener("pageshow",()=>{
+  if(!new URLSearchParams(location.search).has("profile")&&storedProfile()&&storedProfile()!==PROFILE)
+   location.reload();
+ });
 }
 start();
