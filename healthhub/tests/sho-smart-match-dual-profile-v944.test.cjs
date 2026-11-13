@@ -63,19 +63,26 @@ test('Zsolt gets his own reversible Otthon to Dávidék drafts with no invented 
  assert.equal(fromMorgan.reverseId,toMorgan.id);
  assert.equal(toMorgan.destinationLabel,'Morgan Stanley · Millennium III');
  assert.equal(fromMorgan.originLabel,'Morgan Stanley · Millennium III');
- assert.equal(toMorgan.targetAfterStop,'Boráros tér H');
- assert.equal(toMorgan.targetRoute,'tram:4-6');
- assert.deepEqual(Array.from(toMorgan.targetRoutes),['tram:4-6']);
+ assert.equal(toMorgan.destinationTransitStop,'Közvágóhíd H');
+ assert.equal(toMorgan.targetStop,'Közvágóhíd H');
+ assert.equal(toMorgan.targetRoute,'tram:1');
+ assert.deepEqual(Array.from(toMorgan.targetRoutes),['tram:1']);
+ assert.equal(toMorgan.arrivalTargetDate,'2026-11-13');
+ assert.equal(toMorgan.arrivalTargetTime,'13:40');
+ assert.equal(toMorgan.recommendedBusDeparture,'12:22');
+ assert.equal(toMorgan.recommendedBusStatus,'published_timetable_recheck');
  assert.equal(fromMorgan.targetAfterStop,'Citronella utca');
- assert.deepEqual(Array.from(fromMorgan.feederRoutes),['tram:4-6','17','19']);
- assert.deepEqual(Array.from(toMorgan.flowSteps).map(x=>x.label),['Otthon','≈ 10p','260','17 / 19','4-6','≈ 8–10p','Morgan Stanley']);
- assert.deepEqual(Array.from(fromMorgan.flowSteps).map(x=>x.label),['Morgan Stanley','≈ 8–10p','4-6','17 / 19','260','≈ 10p','Otthon']);
+ assert.deepEqual(Array.from(fromMorgan.feederRoutes),['tram:1']);
+ assert.equal(fromMorgan.originStop,'Közvágóhíd H');
+ assert.deepEqual(Array.from(toMorgan.flowSteps).map(x=>x.label),['Otthon','≈ 10p','260','1','≈ 4–6p','Morgan Stanley']);
+ assert.deepEqual(Array.from(fromMorgan.flowSteps).map(x=>x.label),['Morgan Stanley','≈ 4–6p','1','260','≈ 10p','Otthon']);
  for(const item of [toMorgan,fromMorgan]){
   assert.equal(item.profile,'zsolt');
   assert.equal(item.favoriteRoute,false,'Never mistake Morgan Stanley for family favorite slot 7');
   assert.equal(item.destinationFavoriteSlot,null);
   assert.equal(item.originFavoriteSlot,null);
-  assert.equal(item.multiLegDraft,true,'Never claim unverified timed 3-line connections');
+  assert.equal(item.multiLegDraft,false,'Two lines, never mislabel as 3-line calculation');
+  assert.equal(item.type,'transfer');
   assert.ok(item.flowSteps.every(s=>typeof s.detail==='string'&&s.detail.length<=120));
  }
  assert.equal(FAMILY_OUTBOUND.profile,'monika');
@@ -107,12 +114,24 @@ test('Family Guard uses profile-specific pinned route and does not fake a depart
  assert.match(guardianHtml,/guardian-smart-match-pin-v1\.mjs\?v=944-dual-profile-zsolt-pin/);
 });
 
-test('Morgan Stanley live-day route uses the actual BKK 4-6 line instead of suspended 4 and 6',()=>{
+test('Interview day uses actual 260 and tram 1, 13:40 goal is NOT claimed as computed ETA',()=>{
  const BKK=require('../guardian/bkk-catalog-v801.json');
- assert.ok(BKK.routes.some(x=>x.id==='4-6'&&x.mode==='tram'));
- assert.match(app,/targetRoute:"tram:4-6",targetRoutes:\["tram:4-6"\]/);
- assert.match(app,/label:"4-6"/);
- assert.doesNotMatch(app,/const MORGAN_OUTBOUND[\s\S]*?label:"4 \/ 6"/);
+ assert.ok(BKK.routes.some(x=>x.id==='1'&&x.mode==='tram'));
+ assert.match(app,/targetRoute:"tram:1",targetRoutes:\["tram:1"\]/);
+ assert.match(app,/arrivalTargetDate:"2026-11-13",arrivalTargetTime:"13:40"/);
+ assert.match(app,/recommendedBusDeparture:"12:22"/);
+ assert.match(app,/recommendedBusStatus:"published_timetable_recheck"/);
+ assert.match(app,/A mai indulások nem élőben ellenőrzöttek/);
+ assert.match(app,/Érkezési cél 13:40/);
+ assert.match(app,/Cél: "\+item\.arrivalTargetTime/);
+ assert.match(app,/if\(multiLeg\|\|!coverage\(/);
+});
+test('Saved Morgan starter templates migrate only when old 4-6 route is untouched',()=>{
+ assert.match(app,/item\.routeSource\?\.includes\("BKK 4-6 tram reroute"\)/);
+ assert.match(app,/const oldFeeder=going\?\["260","17","19"\]:\["tram:4-6","17","19"\]/);
+ assert.match(app,/JSON\.stringify\(item\.feederRoutes\)===JSON\.stringify\(oldFeeder\)/);
+ assert.match(app,/if\(!untouched\)continue/);
+ assert.match(app,/const pinned=item\.pinned===true,title=item\.title/);
 });
 
 test('Morgan Stanley presets are never labeled as the unrelated Dávidék family route',()=>{
