@@ -128,6 +128,22 @@ assert.match(assessment,/4 ó 45 p/,'Léna considers the de-duplicated 24h total
 assert.match(assessment,/nem diagnózis/,'Review never claims to diagnose');
 assert.doesNotMatch(sleep.lenaComment([night,nap],'monika'),/Zsolt/,
  'Léna narration must use the currently selected profile only');
+// v1154: three same-looking summaries can legitimately represent ONE night.
+const sameNightCards=sleep.top([night],'zsolt');
+assert.ok(sameNightCards.includes('hh428SameDataNote'));
+assert.ok(sameNightCards.includes('három egyforma érték ugyanabból az egy mért éjszakából'));
+assert.ok(sameNightCards.includes('ugyanaz a rekord'));
+const staleNight=rec('2026-10-11T23:00:00Z','2026-10-12T04:30:00Z',
+ [[4,'2026-10-11T23:00:00Z','2026-10-12T04:30:00Z']],'old-night');
+const staleTop=sleep.top([staleNight],'monika');
+assert.ok(staleTop.includes('Az elmúlt 24 órában nincs szinkronizált alvásrekord'));
+assert.ok(staleTop.includes('hh428Value">—</strong>'),'No 24h record must display a dash');
+assert.ok(!staleTop.includes('három egyforma érték'));
+const rendererProfileSafety=fs.readFileSync('healthhub/live-v170.js','utf8');
+assert.ok(rendererProfileSafety.includes('i.bundle.profile===profile'),
+ 'Local fallback must reject another profile inside the imported bundle');
+assert.ok(rendererProfileSafety.includes('renderId!==sleepRenderSeq||pkey()!==requestedProfile'),
+ 'Stale asynchronous Sleep renders must not overwrite the switched profile');
 const sameSession=sleep.recentTimelines([night],'zsolt');
 assert.match(sameSession,/ugyanahhoz az alvásrekordhoz/,
  'When last sleep is also the main night, explain the duplicate view');
