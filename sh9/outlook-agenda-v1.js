@@ -349,12 +349,12 @@
     if(tokenReady()||await getAccessToken())await sync(true);
     else{
      setCard('Kapcsolat megújítása','Microsoft munkamenet ellenőrzése','pending');
-     // Keep the SHO home page stable: never redirect it into Microsoft SSO.
-     // The official Outlook Agenda link works with the browser's own session.
-     // Automatic SSO resume is confined to the explicit Admin calendar preview.
+     // Never automatically navigate away from the launcher or Admin preview.
+     // Microsoft sign-in must be an explicit tap on the visible Connect button;
+     // otherwise a stale SPA session can unexpectedly replace the preview.
      if(!ADMIN_PREVIEW){
       setCard('Outlook Agenda','Megnyitás a böngészőben ›','pending');
-     }else if(!await silentlyResumeMicrosoft()){
+     }else{
       setCard('Kapcsolat megújítása','Koppints: Microsoft-belépés','pending');
       setupState();
      }
