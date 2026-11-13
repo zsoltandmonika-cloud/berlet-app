@@ -54,7 +54,7 @@ test('four real ID cards have visible static sibling pin buttons, never nested i
  const pins=[...section.matchAll(/data-pin-for="([^"]+)"/g)].map(m=>m[1]);
  assert.deepEqual(pins,types);
  assert.match(html,/smart-valet-smart-access-v13\.css\?v=13-universal-pin-v14-visible/);
- assert.match(html,/smart-valet-identity-v11\.js\?v=12-optional-password-lakcim-v14-visible/);
+ assert.match(html,/smart-valet-identity-v11\.js\?v=23-recover-cloud-id-tiles/);
  assert.match(theme,/\.sv-id-pin-wrap-v14>/);
  assert.match(theme,/\.sv-id-tile-pin-v14:disabled/);
  assert.match(theme,/data-sh9-golden-profile="z"/);
