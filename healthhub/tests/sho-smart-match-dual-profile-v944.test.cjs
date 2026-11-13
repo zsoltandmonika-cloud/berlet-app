@@ -156,6 +156,38 @@ test('Explicit Zsolt interview link pins and persists the Morgan route without t
  assert.match(app,/url\.searchParams\.delete\("pin"\)/);
 });
 
+test('Interview timeline shows 12:05 planning departure and 12:22 bus without faking tram 1 arrival',()=>{
+ assert.match(app,/function showMorganInterview\(item,date\)/);
+ assert.match(app,/date===item\.arrivalTargetDate\)\{showMorganInterview\(item,date\);return\}/);
+ assert.match(app,/leaveMs:wallEpoch\(date,12\*60\+5\),busMs:wallEpoch\(date,12\*60\+22\)/);
+ assert.match(app,/\["OTTHONRÓL INDULÁS · TERV","12:05"/);
+ assert.match(app,/\["260 · CITRONELLA UTCA","12:22"/);
+ assert.match(app,/\["1-ES VILLAMOS","Csatlakozás ellenőrzendő"/);
+ assert.match(app,/\["MORGAN STANLEY","🎯 13:40"/);
+ assert.match(app,/void loadFeed\(\)\.then\(\(\)=>/);
+ assert.match(app,/full260Timetable\(state\.data,date,"work"\)/);
+ assert.match(app,/p\.verified=published\.some\(row=>row\.departMs===p\.busMs&&row\.scheduled===true\)/);
+ assert.match(app,/state\.morganPlan\)\{updateMorganClock\(now\);return\}/);
+ assert.match(app,/morgan stanley\/i\.test\(item\.destinationLabel/);
+});
+test('Interview countdown is from suggested home departure, not unverified tram ETA',()=>{
+ const begin=app.indexOf('function updateMorganClock(now=Date.now()){');
+ const end=app.indexOf('function stampMorganFlow(p){',begin);
+ assert.ok(begin>0&&end>begin);
+ const nodes=new Map();
+ const $=id=>{if(!nodes.has(id))nodes.set(id,{style:{setProperty(){}}});return nodes.get(id)};
+ const home=Date.parse('2026-11-13T11:05:00Z');
+ const state={morganPlan:{leaveMs:home}};
+ const source=app.slice(begin,end)+'; updateMorganClock;';
+ const fn=vm.runInNewContext(source,{state,$,current:()=>({id:'zsolt-home-to-morgan-stanley'}),Date,Math});
+ fn(Date.parse('2026-11-13T08:09:00Z'));
+ assert.equal(nodes.get('countdown').textContent,'02:56:00');
+ assert.equal(nodes.get('countdownLabel').textContent,'indulásig');
+ fn(Date.parse('2026-11-13T11:06:00Z'));
+ assert.equal(nodes.get('countdown').textContent,'00:00');
+ assert.equal(nodes.get('countdownLabel').textContent,'terv lejárt');
+});
+
 test('Zsolt is blue, Mónika styling remains untouched, and app is cache-busted',()=>{
  assert.match(html,/id="smProfileBadgeV944"/);
  assert.match(html,/app\.mjs\?v=950-morgan-usable-timeline/);
