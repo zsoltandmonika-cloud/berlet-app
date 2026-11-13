@@ -5,6 +5,9 @@
  */
 const STORAGE="sh9-smart-match-templates-v1-m";
 const ACTIVE="sh9-smart-match-active-pin-v1-m";
+// Zsolt has an independent local library and pin; never read Mónika keys for him.
+const Z_STORAGE="sh9-smart-match-templates-v1-z";
+const Z_ACTIVE="sh9-smart-match-active-pin-v1-z";
 const CITRONELLA_DEFAULT_APPLIED="hh-smart-match-citronella-default-v2-m";
 const FULL="/berlet-app/healthhub/guardian/smart-260-connect/";
 import {HOME as MONIKA_DEFAULT,DEFAULT as OFFICE_TO_HOME,REVERSE as HOME_TO_OFFICE,compute,bus260DirectionForTemplate,full260Timetable,pair260Connections} from "./smart-260-connect/core.mjs?v=45-multi-tram-5min";
@@ -38,7 +41,19 @@ function activeProfile(){
  return document.documentElement.dataset.guardianProfile==="m"?"monika":"zsolt";
 }
 function readPin(){
- if(activeProfile()!=="monika")return null;
+ if(activeProfile()==="zsolt"){
+  try{
+   const raw=localStorage.getItem(Z_STORAGE),all=JSON.parse(raw||"null");
+   if(!Array.isArray(all))return null;
+   const items=all.filter(x=>x&&typeof x==="object"&&x.profile==="zsolt"&&
+    typeof x.id==="string"&&/^[\\w-]{1,90}$/.test(x.id)&&
+    typeof x.title==="string"&&x.title.length<=100&&
+    typeof x.targetRoute==="string"&&x.targetRoute.length<=20);
+   const active=localStorage.getItem(Z_ACTIVE);
+   return items.find(x=>x.id===active)||items.find(x=>x.pinned===true)||null;
+  }catch(_){return null}
+ }
+ // Retain Mónika's original first-run migration and all manual pin choices.
  try{
   const raw=localStorage.getItem(STORAGE),a=JSON.parse(raw||"null");
   const items=Array.isArray(a)?a.filter(x=>x&&typeof x==="object"&&
@@ -98,7 +113,7 @@ function readPin(){
 }
 function stageText(item){
  if(!item)return"Kitűzhető útvonal";
- return (item.title||"Smart Match").replace(/^Mónika\s*·\s*/,"").slice(0,48);
+ return (item.title||"Smart Match").replace(/^(?:Mónika|Zsolt)\s*·\s*/,"").slice(0,48);
 }
 function switchButton(){
  const b=document.createElement("button");
@@ -193,7 +208,9 @@ function setView({time,note,title,status,link}){
 function currentLink(item){
  // The Guardian HOME bus preview opens the complete home-to-work commute,
  // not the separate walk-only sample that has no reverse title button.
- const target=item?.id==="home-citronella-260"?"monika-home-to-office":item?.id;
+ const profile=activeProfile();
+ const target=profile==="monika"&&item?.id==="home-citronella-260"?"monika-home-to-office":item?.id;
+ if(profile==="zsolt")return target?FULL+"?profile=z&pinned=1&id="+encodeURIComponent(target):FULL+"?profile=z";
  return target?FULL+"?pinned=1&id="+encodeURIComponent(target):FULL;
 }
 function renderClock(){
@@ -236,6 +253,15 @@ function renderClock(){
 }
 async function updateSchedule({force=false}={}){
  if(!state.item||state.loading||!state.visible)return;
+ // Zsolt's three-leg family routes are saved drafts, not computed timetables.
+ // Never fabricate a departure or download BKK just to display a draft.
+ if(state.item.multiLegDraft===true){
+  state.entries=[];state.loaded=null;
+  setView({time:"—",note:"3 járatos útvonal · menetrendi párosítás még nincs",
+   title:"Smart Match · "+stageText(state.item)+" · a menetrendi illesztés fejlesztés alatt",
+   status:"inactive",link:currentLink(state.item)});
+  return;
+ }
  const now=Date.now(),day=budapestDay(now);
  if(!force&&state.loaded&&state.day===day&&now-state.lastLoadAt<4*3600000){
   renderClock();return;
@@ -299,8 +325,10 @@ function refresh({force=false}={}){
  const item=readPin();
  if(!item){
   state.item=null;state.id=null;state.entries=[];state.loaded=null;
-  setView({time:"Smart Match",note:"Mónika-profilban aktív ↗",status:"inactive",
-   title:"Smart Match · Mónika útvonala",link:FULL});
+  const z=activeProfile()==="zsolt";
+  setView({time:"Smart Match",note:z?"Zsolt · saját útvonal beállítása ↗":"Mónika-profilban aktív ↗",status:"inactive",
+   title:z?"Smart Match · Zsolt saját útvonalai":"Smart Match · Mónika útvonala",
+   link:z?FULL+"?profile=z":FULL});
   return;
  }
  const change=state.id!==item.id||JSON.stringify(state.item)!==JSON.stringify(item);
@@ -315,7 +343,7 @@ function start(){
  dock(card);
  card.insertAdjacentElement("afterend",toggle);
  paintSwitch();
- const themeWatcher=new MutationObserver(()=>{refresh({force:true});considerLocation()});
+ const themeWatcher=new MutationObserver(()=>{state.autoId=null;state.confirmedZone=null;paintSwitch();refresh({force:true});considerLocation()});
  themeWatcher.observe(document.documentElement,{attributes:true,attributeFilter:["data-guardian-profile"]});
  // Existing BKK Live module creates its bar asynchronously. Append without replacing it.
  const observer=new MutationObserver(()=>{if(holder.querySelector("#hhBkkLiveBarV796")){dock(card);observer.disconnect()}});
@@ -335,7 +363,7 @@ function start(){
    if(!state.autoEnabled){state.autoId=null;state.confirmedZone=null;state.pendingZone=null;state.pendingFixTs=0}
    paintSwitch();refresh({force:true});if(state.autoEnabled)considerLocation();
   }
-  if(e.key===STORAGE||e.key===ACTIVE)refresh({force:true});
+  if(e.key===STORAGE||e.key===ACTIVE||e.key===Z_STORAGE||e.key===Z_ACTIVE)refresh({force:true});
  });
  window.addEventListener("pageshow",()=>{if(state.visible){considerLocation();refresh({force:true})}});
  document.addEventListener("visibilitychange",()=>{
