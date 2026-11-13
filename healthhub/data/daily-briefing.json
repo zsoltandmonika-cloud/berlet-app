@@ -1,70 +1,70 @@
 {
   "schemaVersion": 1,
-  "date": "2026-11-12",
-  "generatedAt": "2026-11-12T13:50:19+01:00",
-  "headline": "A reggel fő témái: 'No light, no water, no heat': Ukrainians struggle with blackouts as Russia hits power grid; New York City building collapse kills several people",
+  "date": "2026-11-13",
+  "generatedAt": "2026-11-13T13:18:29+01:00",
+  "headline": "A reggel fő témái: What we know about the global Microsoft outage; Watch: How Microsoft services went down around the world",
   "sections": [
     {
       "id": "executive",
       "title": "Vezetői összefoglaló",
       "items": [
-        "BBC World: 'No light, no water, no heat': Ukrainians struggle with blackouts as Russia hits power grid",
-        "BBC World: New York City building collapse kills several people",
-        "BBC World: Democrat Scott Colom makes history as Mississippi's first black senator since 19th Century",
-        "BBC World: Israeli strike on Gaza hospital kills six Palestinians, health ministry says"
+        "BBC World: What we know about the global Microsoft outage",
+        "BBC World: Watch: How Microsoft services went down around the world",
+        "BBC World: Ex-Nvidia CEO Jensen Huang summoned to testify before Congress about affair with alleged Chinese spy",
+        "BBC World: Zelensky welcomes US bringing Europe into Russia-Ukraine peace talks"
       ]
     },
     {
       "id": "overnight",
       "title": "Éjszakai fejlemények",
       "items": [
-        "BBC World: 'No light, no water, no heat': Ukrainians struggle with blackouts as Russia hits power grid",
-        "BBC World: New York City building collapse kills several people",
-        "BBC World: Democrat Scott Colom makes history as Mississippi's first black senator since 19th Century"
+        "BBC World: What we know about the global Microsoft outage",
+        "BBC World: Watch: How Microsoft services went down around the world",
+        "BBC World: Ex-Nvidia CEO Jensen Huang summoned to testify before Congress about affair with alleged Chinese spy"
       ]
     },
     {
       "id": "geopolitics",
       "title": "Külpolitika / Geopolitika",
       "items": [
-        "BBC World: 'No light, no water, no heat': Ukrainians struggle with blackouts as Russia hits power grid",
-        "BBC World: New York City building collapse kills several people",
-        "BBC World: Democrat Scott Colom makes history as Mississippi's first black senator since 19th Century"
+        "BBC World: What we know about the global Microsoft outage",
+        "BBC World: Watch: How Microsoft services went down around the world",
+        "BBC World: Ex-Nvidia CEO Jensen Huang summoned to testify before Congress about affair with alleged Chinese spy"
       ]
     },
     {
       "id": "hungary",
       "title": "Magyarország",
       "items": [
-        "Vajdaság MA: Magyar Péter: A kormány kezdeményezi az Isztambuli Egyezmény ratifikálását - Vajdaság MA",
-        "Magyarország Kormánya: Átfogó intézkedéscsomagot kezdeményez a kormány a nők elleni erőszak visszaszorításáért, a magyar nők biztonságáért és méltóságáért - Magyarország Kormánya",
-        "Qubit: A folyamatosan növekvő mezőgazdasági birtokkoncentráció miatt egyre kiszolgáltatottabbá válik Magyarország - Qubit"
+        "hun-ren.hu: Magyarország megerősítette helyét a második kvantumforradalomban - hun-ren.hu",
+        "Portfolio.hu: EU-zászló alatt toboroznának hadsereget az európaiak – Magyarország kétharmaddal vágna bele - Portfolio.hu",
+        "MédiaKlikk: Magyarország 2000, Kolozsvár - MédiaKlikk"
       ]
     },
     {
       "id": "economy",
       "title": "Gazdaság / Piacok",
       "items": [
-        "BBC Business: Who could replace Jensen Huang as Nvidia's chief executive?",
-        "BBC Business: UK economy grows at fastest rate for more than two years",
-        "BBC Business: Some under-25s should get fewer benefits, Milburn review to say"
+        "BBC Business: What we know about the global Microsoft outage",
+        "BBC Business: Ex-Nvidia CEO Jensen Huang summoned to testify before Congress about affair with alleged Chinese spy",
+        "BBC Business: The rise of 'housefishing' - when does using AI go from enhancing to misleading?"
       ]
     },
     {
       "id": "technology",
       "title": "Technológia / AI",
       "items": [
-        "BBC Technology: Who could replace Jensen Huang as Nvidia's chief executive?",
-        "BBC Technology: What we know as pressure builds on embattled Nvidia CEO Jensen Huang",
-        "BBC Technology: Lego marketplace BrickLink offline after 'unusual activity' detected"
+        "BBC Technology: What we know about the global Microsoft outage",
+        "BBC Technology: Courts, spies and MPs: How the Microsoft outage has been felt around the world",
+        "BBC Technology: What we know so far about the Microsoft outage"
       ]
     },
     {
       "id": "risks",
       "title": "Mai kockázatok",
       "items": [
-        "Figyelmi pont: Israeli strike on Gaza hospital kills six Palestinians, health ministry says (BBC World).",
-        "Figyelmi pont: Clashes erupt in Barcelona after thousands join Spain general strike (BBC World).",
+        "Figyelmi pont: Hegseth awards medal to war memorial guard who reprimanded him and group (BBC World).",
+        "Figyelmi pont: Russian warship hit by Ukrainian drone in Gulf of Finland (BBC World).",
         "Figyelmi pont: UK economy grows at fastest rate for more than two years (BBC Business)."
       ]
     },
@@ -72,112 +72,136 @@
       "id": "watch",
       "title": "Mi számít igazán / Figyelmi szint",
       "items": [
-        "BBC World: 'No light, no water, no heat': Ukrainians struggle with blackouts as Russia hits power grid",
-        "BBC World: New York City building collapse kills several people"
+        "BBC World: What we know about the global Microsoft outage",
+        "BBC World: Watch: How Microsoft services went down around the world"
       ]
     }
   ],
   "sources": [
     {
-      "title": "'No light, no water, no heat': Ukrainians struggle with blackouts as Russia hits power grid",
+      "title": "What we know about the global Microsoft outage",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cr1ewpd95d21o?at_medium=RSS&at_campaign=rss",
+      "url": "https://www.bbc.co.uk/news/articles/cwvg238zrnm5o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-13"
+    },
+    {
+      "title": "Watch: How Microsoft services went down around the world",
+      "publisher": "BBC World",
+      "url": "https://www.bbc.co.uk/news/videos/cwm2591k27e2o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-13"
+    },
+    {
+      "title": "Ex-Nvidia CEO Jensen Huang summoned to testify before Congress about affair with alleged Chinese spy",
+      "publisher": "BBC World",
+      "url": "https://www.bbc.co.uk/news/articles/cmq5vd1wdgz6o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-13"
+    },
+    {
+      "title": "Zelensky welcomes US bringing Europe into Russia-Ukraine peace talks",
+      "publisher": "BBC World",
+      "url": "https://www.bbc.co.uk/news/articles/ckn80j9jv3jxo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-13"
+    },
+    {
+      "title": "North Korean hackers used fake video calls in $400m crypto hack, says FBI",
+      "publisher": "BBC World",
+      "url": "https://www.bbc.co.uk/news/articles/cqdj1ellpd70o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-13"
+    },
+    {
+      "title": "African Miss Universe beauty queens in limbo as US visa restrictions bite",
+      "publisher": "BBC World",
+      "url": "https://www.bbc.co.uk/news/articles/cklyw3neqg2wo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-13"
+    },
+    {
+      "title": "Hegseth awards medal to war memorial guard who reprimanded him and group",
+      "publisher": "BBC World",
+      "url": "https://www.bbc.co.uk/news/articles/cmvg2r3dq7xno?at_medium=RSS&at_campaign=rss",
       "publishedAt": "2026-11-12"
     },
     {
-      "title": "New York City building collapse kills several people",
+      "title": "Russian warship hit by Ukrainian drone in Gulf of Finland",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/c8zx964glvwxo?at_medium=RSS&at_campaign=rss",
+      "url": "https://www.bbc.co.uk/news/articles/cmn0d33zz34zo?at_medium=RSS&at_campaign=rss",
       "publishedAt": "2026-11-12"
     },
     {
-      "title": "Democrat Scott Colom makes history as Mississippi's first black senator since 19th Century",
-      "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cw7vppyr80eeo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-12"
+      "title": "Magyarország megerősítette helyét a második kvantumforradalomban - hun-ren.hu",
+      "publisher": "hun-ren.hu",
+      "url": "https://news.google.com/rss/articles/CBMiqwFBVV95cUxQSjJ4OGdLWkNJX2Vnb0Niemc1dVVfWEw5SGFwYndQckJ6QWNVZHVENFFiQ0g1ZHgwRFlxWWtEbHhDemI2R0E3ejA0Y2c1YjIyRHFrWE1MTDFaQ0hHTWFpTWpsN0Z5WTRVZVZ1dFZ1LVRKdkdfQ0dtVGdvRkNlMGJpOF84ZUV3dW5OQ3FBZUZtZTFqU1RIU3UwNFIxcGhMRVFGR18xbjZXd3JpZkE?oc=5",
+      "publishedAt": "2026-11-13"
     },
     {
-      "title": "Israeli strike on Gaza hospital kills six Palestinians, health ministry says",
-      "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/ckzd9p7e4eqeo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-12"
+      "title": "EU-zászló alatt toboroznának hadsereget az európaiak – Magyarország kétharmaddal vágna bele - Portfolio.hu",
+      "publisher": "Portfolio.hu",
+      "url": "https://news.google.com/rss/articles/CBMi3gFBVV95cUxQYnNJNnJkeldNN1JHcWlHQkpQN0huUDZVRWM4QjNuQ3ZtZk1iQ3RYOXpjam1yaWo0RnJjWk1BbFR0bk1oR0MtaUpUcTVSNjFON3Fha3BtZkhOZGpfOVdSOUtsYnlwSGY5LWYtMk9EQlFLUmJySHUtS2JyQzhBa0VycHpyRUpQT19NN0Z6UHpfbXc5OVdwOXNwT1IzZkZGYmoxNWk5eDVMTnR0aUVQMVhPbjE5UVYwbG9DS1Z4UzNrNE9Tb0FTOG9oUjJDTmdZODZYdW1EdGhsbFJBUEtvYnfSAeMBQVVfeXFMTklrYVZBdDQ3V2FVMDF4OEhNZzE1YnFqTjhlZDc2aUxNMzRMcHdSQ0xFdmVOTFpmdzBIdDh4d2dnel9XZTlJSHhsRFZuc09za3N6Zk1pZGVnUDlhdEp1cHdtUzk2Y3I1WXRsZE1rUE4wY0RUZ1E1RUtmQk9kWTBGTU9KLXZHbG9zdGl6b0tsNzZYSHdkMDc5UkVEb05pbU1EcFpLMUdGSWMzVVRYNy1rXzBoYnFIZEx2UTQ4Si0tWGUtdnlHOXdpMW1Jb1FqYlRnZ1lFN1R3M29WTlJPaUtKN2JfS00?oc=5",
+      "publishedAt": "2026-11-13"
     },
     {
-      "title": "Ukraine says military Starlink disrupted again as US envoys meet Putin in Moscow",
-      "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cwrkgmymk55zo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-12"
+      "title": "Magyarország 2000, Kolozsvár - MédiaKlikk",
+      "publisher": "MédiaKlikk",
+      "url": "https://news.google.com/rss/articles/CBMihAFBVV95cUxPaWhvUUFiUklkVHBQV1VOa3JxYjJYNzJtU1BwRFNJX294cTFVZjVkdDhnN29LVFNoVU52bVBSZ1J6ZW13SlBhWEZJY2plRC10U2haNnB2aFZDdXNuVzNkZzJrX21aRmJBTnMwaWQzQkwyWHBaQzhVei1tZHNaSmRVd0hVV2g?oc=5",
+      "publishedAt": "2026-11-13"
     },
     {
-      "title": "Oranges investigated after four girls die in suspected Uganda school poisoning",
-      "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/ck9d71wyn7wwo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-12"
-    },
-    {
-      "title": "British woman missing from cruise ship in Atlantic",
-      "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cmy0enrkwkklo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-12"
-    },
-    {
-      "title": "Clashes erupt in Barcelona after thousands join Spain general strike",
-      "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cwvg25nypmrvo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-11"
-    },
-    {
-      "title": "Magyar Péter: A kormány kezdeményezi az Isztambuli Egyezmény ratifikálását - Vajdaság MA",
+      "title": "Mit vállal Magyarország az isztambuli egyezmény ratifikálásával? - Vajdaság MA",
       "publisher": "Vajdaság MA",
-      "url": "https://news.google.com/rss/articles/CBMiwwFBVV95cUxQd0w4RmR6MnVGNXN4aU5RQTE3MnppOVJob2V1UmZRRjdnVWN1VjFpWlM1N0x5blVrcHZ6MkdsNFIyam5pVU5iR2VhTTZaMk8xU0ZaREE4N2h1NHFETHBFdnpXVWRGeWd3TWRHaEVPMGV5eUU5b3lNa0l4RTFjUWxKc19aR2dvU01PZV9sY3RHLVZRRHFDYi1TQ200MUpjT3NCVjlhaFJDTm9QOHYxNFVJSS1nN2JFZXM4S2tHUk9NeHhiek0?oc=5",
+      "url": "https://news.google.com/rss/articles/CBMiqwFBVV95cUxPMS0wM1hVQ09xREZHa3FUZXBoYmlXLVdHSGZwUFQ4czI4WmlfZjMzQlFOc3lBTldfMk5MaXZQVDM0NmdIb1FXaGlzRTZ4MWVoWFVlNy0wNWFYVWFwVDc4bnJ3eC1YZDJQbURWLUF6MGZFTTNubU9CRWFQRXpIYWhWWllaWGZYdXdsNjUwQ0xJYlJnNDNIa1JwbWxYbFRhcEM3UlY1OUhtcVZSR2M?oc=5",
+      "publishedAt": "2026-11-13"
+    },
+    {
+      "title": "Jó hír a grúzoknak, figyelmeztetés a magyaroknak: Mikautadze visszatért - nb1.hu",
+      "publisher": "nb1.hu",
+      "url": "https://news.google.com/rss/articles/CBMie0FVX3lxTE01d1NGOG9BU1R4MjFaTjhGN0ZvUWNxYnlKTUNhZHUySC1jZnd3elk2ZFJFaXVDazMyR0k2dzhXZkRvWEZRMms4RzBKTi1ZS1NFd3p2SURyNEVPWGZ0VHhmVnZya05XZUdTTThFZk9MVE5yeThoeUwxNE9hSQ?oc=5",
+      "publishedAt": "2026-11-13"
+    },
+    {
+      "title": "Galéria » Strandkézilabda: Magyarország - Brazília elődöntő (2026.11.12.) - Magyar Olimpiai Bizottság",
+      "publisher": "Magyar Olimpiai Bizottság",
+      "url": "https://news.google.com/rss/articles/CBMigwFBVV95cUxOSlg3NVViRFBpVEpyc3NTNG40OTFVY2daTEhNR3A5Y2NjQW5NUEE4aEpIazlGZjNOQ0RjUVhobUN2d1dxY1FNSmRhNkk2QXg4cVhRelpGVTBJemdGSjBLb3FRRmRwbFpxYnBrOUZ3VENIRVNZUHRKUUd5T25xMlBiQjU2WQ?oc=5",
       "publishedAt": "2026-11-12"
     },
     {
-      "title": "Átfogó intézkedéscsomagot kezdeményez a kormány a nők elleni erőszak visszaszorításáért, a magyar nők biztonságáért és méltóságáért - Magyarország Kormánya",
-      "publisher": "Magyarország Kormánya",
-      "url": "https://news.google.com/rss/articles/CBMi6wFBVV95cUxNQ1pmd1hScHpQY25iS1pWM2pzUDZZZkQ1VTRKZzhYTkprZlhUVDE0U1lWSUhOLU03WHB1b1VvWEJ3WVR1VVVsVWhuWll3SVBLMXd4RGM3enpTU1J0MTBkNDZGREkzVWJXV1JESERwRUp1UFdVbHpNaE5IRGUxWGJ5N01lTWlmb0VteC1mU3FpX1o5T08wSmFqLTN5NDl2dXp6WVBSeWYxQXpmUGtsNHFMc1Y3SU1EZUdfM0xPVHhGYTlRSEpucFUzc1p0TnNFbWhvN0o2ckFrRFhkRWhfaWI4MjJudWdYdkltNjk4?oc=5",
+      "title": "Debrecenben tárgyaltak az Új, Ennivaló Magyarország és közétkeztetés fejlesztésének terveiről - Dehir",
+      "publisher": "Dehir",
+      "url": "https://news.google.com/rss/articles/CBMinwFBVV95cUxNS0dESWtoSklMQnVMLXhoZjRFVUZoMFZyYWlGVEhnU05xSDViSTZRdkd4WWo5bXdZSTd5YjBUYzJDZ0ZGWlhrSzVQT2N2cFZXTTBfeHR3SjN1SXEybjZ5Zl9xN0Z0aWkzejAtb1pUbktiT1Q5bXdaSzFmOGoxaXhBS28yeUNuU3RVT0tiTXhpbmZmVzZBcHVFbndQU3BQREU?oc=5",
       "publishedAt": "2026-11-12"
     },
     {
-      "title": "A folyamatosan növekvő mezőgazdasági birtokkoncentráció miatt egyre kiszolgáltatottabbá válik Magyarország - Qubit",
-      "publisher": "Qubit",
-      "url": "https://news.google.com/rss/articles/CBMi0wFBVV95cUxOTkNlQTF2cF9mUjdfS1FqVm1WSi1fUEdmZV81a1NlbXdUalRSdmoxQjNmRmtPTDJrZlpwTWR2eWlEVWRIbHFEbHBNRkVQZ1FNYTF6N1N5QlczLXlsc3FSUzdNaG9BbWdfMm5LM3hfdVl0VmFORVF4V0JLVkhjMEh4Yzh6ZVdHQkZMTXFIdlVWNVdJLTJaR3RhQ01peGZWTFQwR3N6WmNwZ1NVVmsxdXMzQkF1VkRISXpsS3JvRV8tczN0Y0ZERDdmV1lRbkFod05mSkM0?oc=5",
+      "title": "Magyarország kilóg Európából, de Ursula von der Leyennek választania kell az Izrael-ellenesek és a gazdaság között - Economx.hu",
+      "publisher": "Economx.hu",
+      "url": "https://news.google.com/rss/articles/CBMiqwFBVV95cUxPcmFNVGc5TTFLb0JDZmhjTGFvaE9zNm4tdkxvM25rVzhUeTduNzRkTm9FVlR3WkNtZGpoZnE1TktGdXJ0bDZOQ2dEaDM2Nlh3a05EeVVvdWhCZWY3b1FtUkRxQnFMWWtiQ2JPLXBHeEQyV2lScE52SUs4M29rcjl2VlljdEZJZXFpOVpfSDZWRmF2MXV4X05ibXZLU1o2T1Z4aF9vTFJvSUVRTmc?oc=5",
       "publishedAt": "2026-11-12"
     },
     {
-      "title": "Átfogó felújítás elé nézhet Magyarország első fedett sportcélokra épült csarnoka - Magyar Építők",
-      "publisher": "Magyar Építők",
-      "url": "https://news.google.com/rss/articles/CBMivAFBVV95cUxQTEhEVHZHbnNVeEZmMXMxMGdDRzV1bHgzX1A1Znprc1F3RWJ3YXlRb0VUdEZISjVOeGhvaVV0NFc5ekN1SnpHdnRmY3hOX3NMcnd5eTVtYlFQSjBUUzVEanRlWHZNQzdxbVIzWHFCMG8zY0xhYWdfTEpFTFNjbjdzdC1hUzhRTEtwdXViSXdrU3VqbUJWdHhBdGtfQnp2YWFpSkhmekpXWXpUV3VnRnYyakl3WGZjWHVIMVN5NA?oc=5",
-      "publishedAt": "2026-11-12"
+      "title": "The rise of 'housefishing' - when does using AI go from enhancing to misleading?",
+      "publisher": "BBC Business",
+      "url": "https://www.bbc.co.uk/news/articles/cm62y0wrnz9zo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-13"
     },
     {
-      "title": "Print Hetilap | Magyarország 7 nap - | hvg.hu",
-      "publisher": "| hvg.hu",
-      "url": "https://news.google.com/rss/articles/CBMiZEFVX3lxTFBaNlNzaTNjSERNdnlackJnMTJNWlhpYWVHbjkyWW1nQVBjWXU1Uy1oWGpCZmxXWEN3QmtEb0Jtb2dwWjhmTlczN3Z2R0JXdnI3QjVISDgtbWRoZkNPcV9HVGVGUlc?oc=5",
-      "publishedAt": "2026-11-12"
+      "title": "Burnham says 'win-win' deal can be agreed between UK and EU",
+      "publisher": "BBC Business",
+      "url": "https://www.bbc.co.uk/news/articles/cm2l5n07l87vo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-13"
     },
     {
-      "title": "Tudta? Zalaegerszeget is érinti Magyarország leghosszabb buszjárata - Egerszegi Hírek",
-      "publisher": "Egerszegi Hírek",
-      "url": "https://news.google.com/rss/articles/CBMipAFBVV95cUxOSnZ0MXhoS2VRN1U3amRSY08xbVJEUWpNYmZLSjhvRExmaFI0VVRFT0Y5VmJaZi1XYzJFVGxnMXVVVHNRNjZ0VGtWLXY5d3RSNmVodW41cjRob0ZWTExmUTVUWTd6YVJPTFhFMmhxbjhyYlh0eUVXNW9ob0dycmZod2UwaVhBWTN6YmFrOFk2THZBR2NxRWxqaUI1QmlLR3g5RW5rUw?oc=5",
-      "publishedAt": "2026-11-12"
+      "title": "Heat pumps: How much heat does your home really need?",
+      "publisher": "BBC Business",
+      "url": "https://www.bbc.co.uk/news/articles/cqy43zk3kk04o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-13"
     },
     {
-      "title": "Aktív Magyarország: tervek, új feladatok - Turizmus Online",
-      "publisher": "Turizmus Online",
-      "url": "https://news.google.com/rss/articles/CBMioAFBVV95cUxOVi1FdFZvUXAzYUF4cWNWOFpZMzNjbW9fODFuRVJIdTcyQklFVWFZRUJmWmh3WERGTWxubmczX0k5STBnUDJXbXJMOGhRZUJSTVkyZHRuRGEyaHhJOTJvMl9zR1k0X1Jqb3pzdFAzMHFKRzFHOU04bzQwdk4zT2k4R2dWaENVSEZIc2RIT1ZQQmFTWVBqT2dsRWE5SVBvWkkw?oc=5",
-      "publishedAt": "2026-11-12"
-    },
-    {
-      "title": "Történelmi pillanatok: Magyarország kezdeményezi az Isztambuli Egyezmény ratifikálását - REFRESHER.hu",
-      "publisher": "REFRESHER.hu",
-      "url": "https://news.google.com/rss/articles/CBMimwFBVV95cUxPeTloY28wSUNiWDNfaWNEVzdVWjhOdzF3YU5vM3FsbFN6YTBlTnk0WFJjbnByNGtVcnFTRUV2YzMyNGpxa3JDTk96WU91Rk1pRm5DUEQwWnhINnU5VTRaeXVaNUdXaTZUT2dCR1g5Z1dPbnRTVEwzaGcwdjQyNVpLTlNIRFViZlNYendYbTNGdm9pMFdzbzFfYWpVaw?oc=5",
-      "publishedAt": "2026-11-12"
-    },
-    {
-      "title": "Who could replace Jensen Huang as Nvidia's chief executive?",
+      "title": "Who is Nvidia's interim CEO Colette Kress - and who could take over permanently?",
       "publisher": "BBC Business",
       "url": "https://www.bbc.co.uk/news/articles/cqgm37dv20e8o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-12"
+    },
+    {
+      "title": "Faisal Islam: Why the UK economy is surprisingly resilient",
+      "publisher": "BBC Business",
+      "url": "https://www.bbc.co.uk/news/articles/cj62p32k90wyo?at_medium=RSS&at_campaign=rss",
       "publishedAt": "2026-11-12"
     },
     {
@@ -187,40 +211,16 @@
       "publishedAt": "2026-11-12"
     },
     {
-      "title": "Some under-25s should get fewer benefits, Milburn review to say",
-      "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/cwn70l1628l0o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-12"
-    },
-    {
-      "title": "Poundland set for more time to secure a rescue deal as emergency talks continue",
-      "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/c3702jjkez4ko?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-12"
-    },
-    {
-      "title": "Office buildings emptied out but are filling up again - as homes",
-      "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/cm89ze7qepvyo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-12"
-    },
-    {
-      "title": "Christmas toy rush being driven by squishies and building sets",
-      "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/cx5ynyg6j375o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-11"
-    },
-    {
-      "title": "What we know as pressure builds on embattled Nvidia CEO Jensen Huang",
+      "title": "Courts, spies and MPs: How the Microsoft outage has been felt around the world",
       "publisher": "BBC Technology",
-      "url": "https://www.bbc.co.uk/news/articles/ckgel338xql3o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-12"
+      "url": "https://www.bbc.co.uk/news/articles/cqp9d58eldlro?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-13"
     },
     {
-      "title": "Lego marketplace BrickLink offline after 'unusual activity' detected",
+      "title": "What we know so far about the Microsoft outage",
       "publisher": "BBC Technology",
-      "url": "https://www.bbc.co.uk/news/articles/c6rmgw8zynr4o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-11"
+      "url": "https://www.bbc.co.uk/news/videos/cqzjr903n01po?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-13"
     }
   ]
 }
