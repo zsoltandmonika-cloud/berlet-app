@@ -122,7 +122,7 @@ test('Interview day uses actual 260 and tram 1, 13:40 goal is NOT claimed as com
  assert.match(app,/recommendedBusDeparture:"12:22"/);
  assert.match(app,/recommendedBusStatus:"published_timetable_recheck"/);
  assert.match(app,/A mai indulások nem élőben ellenőrzöttek/);
- assert.match(app,/Érkezési cél 13:40/);
+ assert.match(app,/érkezési cél 13:40/);
  assert.match(app,/Cél: "\+item\.arrivalTargetTime/);
  assert.match(app,/if\(multiLeg\|\|!coverage\(/);
 });
