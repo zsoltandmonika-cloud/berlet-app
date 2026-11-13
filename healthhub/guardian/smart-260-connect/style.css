@@ -114,3 +114,13 @@ body.pinned .hero{margin-top:8px}
  .row-columns{gap:3px}.row-mini{padding:8px 3px}
 }
 @media(prefers-reduced-motion:reduce){html,.timeline-rail{scroll-behavior:auto}.timeline-row{transition:none}}
+
+/* V944 · isolated Zsolt Premium Glass theme. Mónika's pink palette is unchanged. */
+body[data-smart-match-profile="z"]{--pink:#79bfff;--hot:#67b4fa;
+ background:radial-gradient(ellipse at 90% -5%,rgba(43,116,191,.35),transparent 45%),
+ radial-gradient(ellipse at 2% 28%,rgba(51,94,180,.33),transparent 51%),
+ linear-gradient(155deg,#08172f 3%,#142e4c 65%,#090e1d)}
+body[data-smart-match-profile="z"] .pill{color:#c8ecff;background:rgba(70,150,218,.15);border-color:rgba(132,198,255,.55)}
+body[data-smart-match-profile="z"] .eyebrow,body[data-smart-match-profile="z"] .hero-label{color:#c4e7ff}
+body[data-smart-match-profile="z"] .template-chip.active{background:linear-gradient(100deg,#b2ddff,#7ba9fc);color:#0b284c;border-color:#d8edff;box-shadow:0 3px 21px rgba(104,169,240,.24)}
+body[data-smart-match-profile="z"] .btn:not(.ghost):not(.secondary){background:linear-gradient(120deg,#c2e8ff,#83bfff);border-color:#b0dcff;color:#132e52}
