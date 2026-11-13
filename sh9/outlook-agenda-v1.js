@@ -305,11 +305,11 @@
  // Android WebView's shouldOverrideUrlLoading opens external HTTPS in the system browser.
  // Do not preventDefault here; an intercepted new-window or JS-only click can do nothing.
  if(NATIVE)sub.textContent='Outlook Naptár ›';
- // Native HH One WebView needs same-frame handoff to Android ACTION_VIEW;
- // regular browser and installed PWA open Outlook in a separate browser tab.
+ // Same-frame navigation avoids blocked/reused popup tabs on repeat clicks.
+ // HH One WebView forwards external HTTPS to the system browser as before.
  // Also refresh the href when an older SH9 HTML shell is cached.
  card.setAttribute('href',OUTLOOK_CALENDAR);
- card.setAttribute('target',NATIVE?'_self':'_blank');
+ card.setAttribute('target','_self');
  card.setAttribute('rel','noopener noreferrer external');
  card.setAttribute('aria-label','Outlook havi naptár megnyitása böngészőben');
  close.addEventListener('click',hide);
