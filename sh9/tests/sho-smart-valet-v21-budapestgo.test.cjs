@@ -66,7 +66,7 @@ test('BudapestGO tile appears within the existing Bérletek category with indepe
  assert.match(demo,/const hasGo=appendBudapestGo\(host,search\)/);
  assert.match(page,/smart-valet-budapestgo-v21\.js\?v=21-official-app-launcher/);
  assert.match(page,/smart-valet-budapestgo-v21\.css\?v=21-go-launcher-pin/);
- assert.match(page,/smart-valet-smart-access-v13\.js\?v=21-app-pin-provider/);
+ assert.match(page,/smart-valet-smart-access-v13\.js\?v=23-keep-cloud-pins/);
  assert.match(css,/sv-go-card-v21/);
 });
 test('Android launcher only targets confirmed official BKK package, not a fabricated widget deep link',()=>{
