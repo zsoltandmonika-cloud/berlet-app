@@ -318,7 +318,7 @@
 <script defer src="./smart-valet-optical-v16.js?v=17-pass-no-crop"></script>
 <script defer src="./smart-valet-budapestgo-v21.js?v=21-official-app-launcher"></script>
 <script defer src="./smart-valet-v1.js?v=10-coupons-id-subgroups-lakcim-v13-pin-v21-go"></script>
-<script defer src="./smart-valet-smart-access-v13.js?v=21-app-pin-provider"></script>
+<script defer src="./smart-valet-smart-access-v13.js?v=23-keep-cloud-pins"></script>
 <script>
 (function(){
   // v8: private originals are generally available after authenticated setup.
@@ -337,8 +337,8 @@
         // Smart Access loads independently via defer above, not from this
         // external CDN chain. Authenticated originals still require Supabase.
         load('./smart-valet-private-v7.js?v=10-coupon-gallery-v13-visibility',function(){
-          load('./smart-valet-identity-v11.js?v=12-optional-password-lakcim-v14-visible',function(){
-            load('./smart-valet-extra-v15.js?v=20-auto-inspect',function(){window.SHO_VALET_CLOUD_STATUS_V22?.refresh?.()});
+          load('./smart-valet-identity-v11.js?v=23-recover-cloud-id-tiles',function(){
+            load('./smart-valet-extra-v15.js?v=23-keep-cloud-pass-list',function(){window.SHO_VALET_CLOUD_STATUS_V22?.refresh?.()});
           });
         });
       });
