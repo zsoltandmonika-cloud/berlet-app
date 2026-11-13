@@ -10,7 +10,10 @@ const FALLBACK=Object.freeze([
  {id:"260",mode:"bus",name:"",directions:["Harsánylejtő","Óbudai rendelőintézet"]},
  {id:"17",mode:"tram",name:"",directions:[]},
  {id:"19",mode:"tram",name:"",directions:[]},
- {id:"41",mode:"tram",name:"",directions:[]}
+ {id:"41",mode:"tram",name:"",directions:[]},
+ // Official temporary 4-6 tram runs in place of 4 and 6 through 2026-11-22.
+ // Catalog-only; the pilot matcher does NOT fabricate timetable coverage.
+ {id:"4-6",mode:"tram",name:"",directions:["Széll Kálmán tér M","Újbuda-központ M"]}
 ].map(entry=>Object.freeze({...entry,key:entry.mode+":"+entry.id})));
 function norm(value){return String(value||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLocaleLowerCase("hu-HU")}
 function keyOf(value){
