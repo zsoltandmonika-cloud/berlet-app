@@ -49,7 +49,7 @@ test('full date/nameday tile opens the actual Outlook monthly link rather than S
  assert.match(tile,/data-calendar-view="month"/);
  assert.match(tile,/class="sh9-info-heading" data-i18n="info.date">DÁTUM<\/span>/);
  assert.match(tile,/<span id="sh9Date6"[^>]*>[^<]+<\/span><span id="sh9Nameday6"/);
- assert.doesNotMatch(tile,/view\/month|sh9AgendaDialog|DÁTUM · NÉVNAP/);
+ assert.doesNotMatch(tile,/view\/agenda|sh9AgendaDialog|DÁTUM · NÉVNAP/);
  const calendar=html.match(/<a id="sh9CalendarCell"[\s\S]*?<\/a>/);
  assert.ok(calendar);
  assert.match(calendar[0],/href="https:\/\/outlook\.live\.com\/calendar\/0\/view\/month"/);
