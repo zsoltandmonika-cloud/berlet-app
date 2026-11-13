@@ -853,7 +853,30 @@ async function dualProfileSmoke(browser,base,device){
   assert.ok((await page.locator("#templates button").allTextContents()).some(x=>x.includes("Mónika")));
   assert.equal(await page.evaluate(()=>localStorage.getItem("sh9-smart-match-active-pin-v1-z")),
    "zsolt-david-anna-to-home","Monika profile must not reset Zsolt pinned direction");
-  return {device,zsoltOwnTemplates:true,independentPins:true,reverse:true,monikaUnaffected:true};
+  // One click on the explicit invitation URL must persist the selected interview
+  // journey, open its pinned view and keep the full 13:40 travel goal intact.
+  await page.goto(base+"healthhub/guardian/smart-260-connect/?profile=z&id=zsolt-home-to-morgan-stanley&pin=1",
+   {waitUntil:"domcontentloaded"});
+  await page.waitForFunction(()=>document.body.classList.contains("pinned")&&
+   localStorage.getItem("sh9-smart-match-active-pin-v1-z")==="zsolt-home-to-morgan-stanley");
+  const interview=await page.evaluate(()=>{
+   const all=JSON.parse(localStorage.getItem("sh9-smart-match-templates-v1-z"));
+   const item=all.find(x=>x.id==="zsolt-home-to-morgan-stanley");
+   return {item,search:location.search,monikaPin:localStorage.getItem("sh9-smart-match-active-pin-v1-m")};
+  });
+  assert.equal(interview.item.pinned,true,"One-click interview shortcut must persist pin");
+  assert.equal(interview.item.targetRoute,"tram:1");
+  assert.deepEqual(interview.item.feederRoutes,["260"]);
+  assert.equal(interview.item.arrivalTargetTime,"13:40");
+  assert.match(interview.search,/profile=z/);
+  assert.match(interview.search,/pinned=1/);
+  assert.doesNotMatch(interview.search,/pin=1/);
+  assert.equal(interview.monikaPin,null);
+  await page.locator("#pinEdit").click();
+  assert.equal(new URL(await page.url()).searchParams.get("profile"),"z",
+   "Edit link must retain Zsolt profile");
+  return {device,zsoltOwnTemplates:true,independentPins:true,reverse:true,
+   monikaUnaffected:true,interviewOneClickPin:true,arrivalGoal:"13:40"};
  }finally{await context.close()}
 }
 
