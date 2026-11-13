@@ -283,7 +283,7 @@ d.querySelectorAll('[data-module]').forEach(el=>el.onclick=()=>navModule(el.data
 d.querySelectorAll('[data-demo]').forEach(el=>el.onclick=()=>{
  const kind=el.dataset.demo;
  if(kind==='date')w.open('https://outlook.live.com/calendar/0/view/month','_blank','noopener,noreferrer');
- if(kind==='calendar')w.open('https://outlook.live.com/calendar/0/view/agenda','_blank','noopener,noreferrer');
+ if(kind==='calendar')w.location.assign('https://outlook.live.com/calendar/0/view/agenda');
  if(kind==='weather')w.open('https://www.meteoblue.com/en/weather/week/budapest_hungary_3054643','_blank','noopener,noreferrer');
 });
 $('home').onclick=top;$('ask').onclick=openAsk;$('back').onclick=back;
