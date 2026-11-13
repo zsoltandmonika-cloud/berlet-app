@@ -53,3 +53,10 @@
 @keyframes sho-sheen{from{background-position:180% 0}to{background-position:-180% 0}}
 @media(max-width:365px){.shop-connect .sho-store{min-height:150px;padding:8px}.shop-connect .sho-store-logo{width:49px;height:49px;flex-basis:49px}.shop-connect .sho-store-logo img{width:40px;height:40px}.shop-connect .sho-product-visual{height:190px}}
 @media(prefers-reduced-motion:reduce){.shop-connect .sho-product-skeleton>*{animation:none}.shop-connect .sho-store{transition:none}}
+
+/* Product photos remain identifiable after one-tap Smart Basket addition. */
+.workspace .sho-basket-thumb{width:61px;height:67px;flex:0 0 61px;object-fit:contain;background:#f4edf2;border:1px solid #ca96c8;border-radius:10px;padding:3px}
+.workspace .item:has(.sho-basket-thumb){align-items:center;gap:8px}
+.workspace .item:has(.sho-basket-thumb) .item-actions{max-width:88px}
+.workspace .item:has(.sho-basket-thumb) .item-title{font-size:12px}
+@media(max-width:370px){.workspace .sho-basket-thumb{width:47px;height:58px;flex-basis:47px}}
