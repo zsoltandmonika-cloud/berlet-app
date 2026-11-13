@@ -222,7 +222,11 @@ async function refresh(){
   w.dispatchEvent(new CustomEvent('sho-valet-identity-ready',{detail:{profile:p}}));
  }catch(e){
   if(id!==request||p!==profile())return;
-  // Preserve same-profile previously verified cards and their pins.
+  // Never expose private metadata after explicit sign-out or denied access.
+  // Temporary fetch failures keep same-profile records; auth failures do not.
+  if(e?.message==='NO_LOGIN'||e?.message==='NO_ACCESS'){
+   clearTilePreviews();records=new Map();
+  }
   const node=$('svIdNoticeV10');
   if(node)node.textContent='⚠️ '+human(e)+' '+
     text('Az elmentett igazolványok a felhőben maradnak. A kártyákat újraellenőrzés után töltjük be.',
