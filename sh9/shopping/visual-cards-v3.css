@@ -60,3 +60,6 @@
 .workspace .item:has(.sho-basket-thumb) .item-actions{max-width:88px}
 .workspace .item:has(.sho-basket-thumb) .item-title{font-size:12px}
 @media(max-width:370px){.workspace .sho-basket-thumb{width:47px;height:58px;flex-basis:47px}}
+
+/* Duplicate legacy plain-text store links are superseded by the branded Store Connect cards. */
+.app .retailer-area{display:none}
