@@ -241,7 +241,18 @@ function top(rows,profile){
  var now=Date.now(),s=summary(rows,now),last=s.last,night=s.night;
  var lastDetail=last?dateFull(t(last.endTime))+' · '+clock(t(last.startTime))+'–'+clock(t(last.endTime)):'Nincs szinkronizált alvásadat.';
  var nightDetail=night?dateFull(t(night.endTime))+' · '+clock(t(night.startTime))+'–'+clock(t(night.endTime)):'Nincs azonosítható éjjeli alvás.';
- var dailyDetail=s.inWindow.length?s.inWindow.length+' alvásrekord · gördülő 24 óra':'Nincs 24 órán belüli mért alvás.';
+ var sameNight=Boolean(night&&last&&night.sessions.some(function(row){
+  return row===last||(row.startTime===last.startTime&&row.endTime===last.endTime);
+ }));
+ // One recorded night can legitimately be the last, main night and 24h total.
+ var singleNight24h=sameNight&&s.inWindow.length===1&&s.daily!=null&&s.nightActual!=null&&
+  Math.abs(s.daily-s.nightActual)<MINUTE;
+ var dailyDetail=!s.inWindow.length?'Az elmúlt 24 órában nincs szinkronizált alvásrekord.':
+  singleNight24h?'Ugyanaz az egy éjszakai rekord · nem külön mérés':
+  s.inWindow.length+' alvásrekord · gördülő 24 óra';
+ var singleNote=singleNight24h?
+  '<p class="hh428SameDataNote">ℹ️ A három egyforma érték ugyanabból az egy mért éjszakából származik. A három nézet nem három külön mérés.</p>':
+  sameNight?'<p class="hh428SameDataNote">ℹ️ Az utolsó alvás és az éjjeli fő alvás ugyanaz a rekord. A 24 órás összesítés külön időablakból számol.</p>':'';
  /* Nonclinical visual cue: actual measured nightly sleep, never time-in-bed. */
  var measured=s.nightActual,rag=measured==null||!Number.isFinite(measured)?'unknown':
   measured<5*60*MINUTE?'red':measured<7*60*MINUTE?'amber':'green';
@@ -252,10 +263,10 @@ function top(rows,profile){
  '<div class="hh428Head"><span class="hh428Eyebrow">🌙 SLEEP · GYORS ÁTTEKINTÉS</span><span class="hhSleepRag569" title="'+esc(ragHint)+'" aria-label="Alvásidő jelzés: '+esc(ragLabel)+'"><i class="hhSleepRag569Dot" aria-hidden="true"></i>'+esc(ragLabel)+'</span><h3>A pihenésed három nézetben</h3>'+
  '<p>Éjszakai alvás és nappali szunyókálás külön, valódi Health Connect-adatokból.</p></div>'+
  '<div class="hh428Cards">'+
- card(1,'Utolsó alvás',minText(s.lastActual),lastDetail,'last','legfrissebb')+
+ card(1,'Utolsó alvás',minText(s.lastActual),lastDetail,'last',sameNight?'ugyanaz a rekord':'legfrissebb')+
  card(2,'Éjjeli alvás',minText(s.nightActual),nightDetail,'night','fő pihenés')+
- card(3,'Elmúlt 24 óra',minText(s.daily),dailyDetail,'day','összesen')+
- '</div><div class="hh428ChartCard"><div class="hh428ChartHeader"><b>⏱️ Az elmúlt 24 óra alvásai</b><small>Éjjel + nappal</small></div>'+
+ card(3,'Elmúlt 24 óra',s.inWindow.length?minText(s.daily):'—',dailyDetail,'day','összesen')+
+ '</div>'+singleNote+'<div class="hh428ChartCard"><div class="hh428ChartHeader"><b>⏱️ Az elmúlt 24 óra alvásai</b><small>Éjjel + nappal</small></div>'+
  timebar(s.inWindow,s.from,s.to,'Az elmúlt 24 órában rögzített alvásfázisok idővonala')+legend()+note+'</div></section>';
 }
 /* v431: both real sleep timelines are part of the main review, before
