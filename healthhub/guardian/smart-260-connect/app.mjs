@@ -1047,6 +1047,33 @@ function updatePinReminderUi(){
  button.setAttribute("aria-label",enabled?"Emlékeztető BE. Kikapcsoláshoz nyomd meg.":"Emlékeztető KI. Bekapcsoláshoz nyomd meg.");
  button.title=enabled?"Emlékeztető BE · indulás előtt 5 perccel, csak nyitott lapon":"Emlékeztető KI · bekapcsolás";
 }
+// Keep the explicit profile in a deep link; dropping it can switch to Mónika
+// when the SHO profile in another tab differs from this pinned Zsolt journey.
+function pinnedRouteUrl(pinned){
+ const url=new URL(location.href);
+ url.searchParams.set("profile",PROFILE==="zsolt"?"z":"m");
+ url.searchParams.set("id",state.current);
+ url.searchParams.delete("pin");
+ if(pinned)url.searchParams.set("pinned","1");
+ else url.searchParams.delete("pinned");
+ return url.pathname+url.search+url.hash;
+}
+// Explicit one-tap link for the 2026-11-13 interview journey only.
+// Store EXACTLY the selected source template, never reconstruct from form fields:
+// target, 13:40 arrival goal, 260/1 service and walking details stay intact.
+function pinInterviewLink(){
+ const item=current();
+ if(PROFILE!=="zsolt"||item?.id!=="zsolt-home-to-morgan-stanley")return false;
+ const previouslyPinned=item.pinned===true;
+ item.pinned=true;
+ if(!persist()){item.pinned=previouslyPinned;return false}
+ try{localStorage.setItem(ACTIVE_PIN_KEY,item.id)}catch(_){
+  toast("⚠️ A kitűzött sablon mentve, de az aktív választás nem írható.")}
+ document.body.classList.add("pinned");
+ history.replaceState(null,"",pinnedRouteUrl(true));
+ chipButtons();
+ return true;
+}
 function enterPinned(){
  if(favoriteAddressDraft){
   toast('⚠️ Előbb válaszd ki a BKK-járatot és a megállókat, majd mentsd az új sablont.');
@@ -1054,14 +1081,14 @@ function enterPinned(){
  }
  if(!save({pin:true}))return;
  document.body.classList.add("pinned");
- history.replaceState(null,"","?pinned=1&id="+encodeURIComponent(state.current));
+ history.replaceState(null,"",pinnedRouteUrl(true));
  computeRoute();
  // Fullscreen API may be restricted by a device; the app layout is full-viewport regardless.
  try{document.documentElement.requestFullscreen?.().catch(()=>{})}catch(_){}
 }
 function leavePinned(){
  document.body.classList.remove("pinned");
- history.replaceState(null,"","?id="+encodeURIComponent(state.current));
+ history.replaceState(null,"",pinnedRouteUrl(false));
  if(document.fullscreenElement)document.exitFullscreen?.().catch(()=>{});
 }
 function stepDay(n){
@@ -1170,6 +1197,11 @@ async function start(){
  try{state.catalog=await loadCatalog()}catch(_){state.catalog=FALLBACK}
  populateIndex();
  hydrate();
+ // Only this explicit, profile-bound link pins automatically.
+ // Normal ?pinned=1&id=... navigation remains a read-only view.
+ if(params.get("pin")==="1"&&params.get("profile")==="z"&&
+    params.get("id")==="zsolt-home-to-morgan-stanley"&&PROFILE==="zsolt")
+  pinInterviewLink();
  await computeRoute();
  // Clock updates do not trigger extra BKK/network requests.
  setInterval(()=>updateTimeline(Date.now()),1000);
