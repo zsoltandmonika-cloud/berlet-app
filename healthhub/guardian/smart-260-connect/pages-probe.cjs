@@ -40,7 +40,7 @@ const checks=[
  ["/healthhub/guardian/guardian-smart-match-pin-v1.css",'content:"OFF"'],
  ["/healthhub/guardian/smart-260-connect/app.mjs","sh9-smart-match-templates-v1-m"],
  ["/healthhub/guardian/smart-260-connect/app.mjs","sh9-smart-match-templates-v1-z"],
- ["/healthhub/guardian/smart-260-connect/index.html","app.mjs?v=947-morgan-stanley-260-tram1-arrival1340"],
+ ["/healthhub/guardian/smart-260-connect/index.html","app.mjs?v=949-morgan-one-click-pin-1340"],
  ["/healthhub/guardian/guardian-smart-match-pin-v1.mjs","sh9-smart-match-active-pin-v1-z"],
  ["/healthhub/guardian/smart-260-connect/core.mjs","sh9.smart-match.template/1"],
  ["/healthhub/guardian/smart-260-connect/style.css","SH9 Smart Match"],
