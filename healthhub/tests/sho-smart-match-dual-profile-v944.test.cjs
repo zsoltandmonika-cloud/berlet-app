@@ -46,7 +46,7 @@ test('Zsolt gets his own reversible Otthon to Dávidék drafts with no invented 
  assert.ok(start>0&&end>start);
  const out=vm.runInNewContext(app.slice(start,end)+';ZS_SAMPLES',
   {HOME,FAMILY_OUTBOUND,FAMILY_RETURN,PROFILE:'zsolt'});
- assert.equal(out.length,3);
+ assert.equal(out.length,5);
  assert.ok(out.every(x=>x.profile==='zsolt'));
  const outbound=out.find(x=>x.id==='zsolt-home-to-david-anna');
  const back=out.find(x=>x.id==='zsolt-david-anna-to-home');
@@ -56,6 +56,25 @@ test('Zsolt gets his own reversible Otthon to Dávidék drafts with no invented 
  assert.equal(back.destinationLabel,'Otthon');
  assert.equal(outbound.multiLegDraft,true);
  assert.equal(back.multiLegDraft,true);
+ const toMorgan=out.find(x=>x.id==='zsolt-home-to-morgan-stanley');
+ const fromMorgan=out.find(x=>x.id==='zsolt-morgan-stanley-to-home');
+ assert.ok(toMorgan&&fromMorgan,'Zsolt must have a real Morgan Stanley roundtrip pair');
+ assert.equal(toMorgan.reverseId,fromMorgan.id);
+ assert.equal(fromMorgan.reverseId,toMorgan.id);
+ assert.equal(toMorgan.destinationLabel,'Morgan Stanley · Millennium III');
+ assert.equal(fromMorgan.originLabel,'Morgan Stanley · Millennium III');
+ assert.equal(toMorgan.targetAfterStop,'Boráros tér H');
+ assert.equal(fromMorgan.targetAfterStop,'Citronella utca');
+ assert.deepEqual(Array.from(toMorgan.flowSteps).map(x=>x.label),['Otthon','≈ 10p','260','17 / 19','4 / 6','≈ 8–10p','Morgan Stanley']);
+ assert.deepEqual(Array.from(fromMorgan.flowSteps).map(x=>x.label),['Morgan Stanley','≈ 8–10p','4 / 6','17 / 19','260','≈ 10p','Otthon']);
+ for(const item of [toMorgan,fromMorgan]){
+  assert.equal(item.profile,'zsolt');
+  assert.equal(item.favoriteRoute,false,'Never mistake Morgan Stanley for family favorite slot 7');
+  assert.equal(item.destinationFavoriteSlot,null);
+  assert.equal(item.originFavoriteSlot,null);
+  assert.equal(item.multiLegDraft,true,'Never claim unverified timed 3-line connections');
+  assert.ok(item.flowSteps.every(s=>typeof s.detail==='string'&&s.detail.length<=120));
+ }
  assert.equal(FAMILY_OUTBOUND.profile,'monika');
  assert.equal(FAMILY_RETURN.profile,'monika');
  assert.match(app,/const multiLeg=item\.multiLegDraft===true/);
@@ -83,6 +102,14 @@ test('Family Guard uses profile-specific pinned route and does not fake a depart
  assert.match(guardian,/3 járatos útvonal · menetrendi párosítás még nincs/);
  assert.match(guardian,/b\.hidden=activeProfile\(\)!=="monika"/);
  assert.match(guardianHtml,/guardian-smart-match-pin-v1\.mjs\?v=944-dual-profile-zsolt-pin/);
+});
+
+test('Morgan Stanley presets are never labeled as the unrelated Dávidék family route',()=>{
+ assert.doesNotMatch(app,/Smart Match · Otthon ⇄ Dávidék · megállók ellenőrizve/);
+ assert.match(app,/Smart Match · "\+shortTitle\(item\)\+" · járatsorrend mentve/);
+ assert.match(app,/const MORGAN_OUTBOUND=Object\.freeze/);
+ assert.match(app,/const MORGAN_RETURN=Object\.freeze/);
+ assert.match(app,/Lechner Ödön fasor 8/);
 });
 
 test('Zsolt is blue, Mónika styling remains untouched, and app is cache-busted',()=>{
