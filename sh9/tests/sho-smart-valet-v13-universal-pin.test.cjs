@@ -119,6 +119,29 @@ test('showcase does not read, decode, download or generate previews for password
  assert.equal(art.children[0].textContent,'🔒');
  assert.equal(ui.host.children[0].children[1].textContent,'Személyi igazolvány');
 });
+test('Cloud lookup null or temporary auth failure NEVER unpins a saved identity',async()=>{
+ const {api,win,memory}=harness();
+ win.SHO_VALET_IDENTITY_V13={resolvePinned:async()=>null};
+ assert.equal(api.toggle({source:'identity',id:'personal'}),true);
+ assert.equal(api.renderFeatured(),true);await settle();
+ assert.deepEqual(JSON.parse(memory.get('sho-smart-valet-quick-access-v13:zsolt')),
+  {source:'identity',id:'personal'});
+ assert.equal(api.isPinned('identity','personal'),true);
+ win.SHO_VALET_IDENTITY_V13.resolvePinned=async()=>{throw Error('NO_LOGIN')};
+ assert.equal(api.renderFeatured(),true);await settle();
+ assert.equal(api.current().id,'personal','Temporary login failure must not erase the pin');
+ assert.doesNotMatch(js,/if\(!entry\)\{[\s\S]*?w\.localStorage\.removeItem\(storeKey\(p\)\)/,
+  'No silent destructive fallback after null RLS response');
+});
+test('Cloud card refresh preserves verified same-profile data and warns on authentication failures',()=>{
+ const extraJS=read('sh9/wallet/smart-valet-extra-v15.js');
+ assert.match(idJS,/loadedProfile!==p/);
+ assert.match(idJS,/if\(id!==request\|\|p!==profile\(\)\)return/);
+ assert.match(idJS,/Az elmentett igazolványok a felhőben maradnak/);
+ assert.match(extraJS,/const changing=loadedProfile!==p\|\|loadedCategory!==cat/);
+ assert.match(extraJS,/if\(local\.length\|\|changing\)/);
+ assert.match(extraJS,/A mentett felhőkártyák nem törlődtek/);
+});
 test('private image pins use genuine authorized provider Blob, not public links',async()=>{
  const {api,win,ui,createCount}=harness();
  const id='22222222-2222-4222-8222-222222222222';
