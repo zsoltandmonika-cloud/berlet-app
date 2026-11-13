@@ -3,6 +3,9 @@ on:
   pull_request:
     paths:
       - "healthhub/guardian/smart-260-connect/**"
+      - "healthhub/guardian/guardian-smart-match-pin-v1.mjs"
+      - "healthhub/guardian/index.html"
+      - "healthhub/tests/sho-smart-match-dual-profile-v944.test.cjs"
       - "sh9/smart-travel/public-transport/smart-trip/index.html"
       - "sh9/smart-travel/public-transport/smart-trip/smart-trip-smart-match-promo-v942.css"
       - "healthhub/tests/sho-smart-trip-smart-match-promo-v942.test.cjs"
@@ -13,6 +16,9 @@ on:
       - "feature/guardian-smart-260-connect"
     paths:
       - "healthhub/guardian/smart-260-connect/**"
+      - "healthhub/guardian/guardian-smart-match-pin-v1.mjs"
+      - "healthhub/guardian/index.html"
+      - "healthhub/tests/sho-smart-match-dual-profile-v944.test.cjs"
       - "sh9/smart-travel/public-transport/smart-trip/index.html"
       - "sh9/smart-travel/public-transport/smart-trip/smart-trip-smart-match-promo-v942.css"
       - "healthhub/tests/sho-smart-trip-smart-match-promo-v942.test.cjs"
@@ -46,6 +52,8 @@ jobs:
         run: node --test healthhub/tests/sho-smart-match-ring-direction-v941.test.cjs
       - name: Source-backed three-vehicle family route order, optional last bus, no fake ETA
         run: node --test healthhub/tests/sho-smart-match-family-route-v943.test.cjs
+      - name: Zsolt and Monika profile isolation, pinned links, blue theme and safe family drafts
+        run: node --test healthhub/tests/sho-smart-match-dual-profile-v944.test.cjs
       - name: Scheduled matching, walking and safe-fail regression tests
         run: node --test healthhub/guardian/smart-260-connect/core.test.mjs
       - name: Official public BKK GTFS routing diagnostic
