@@ -12,7 +12,7 @@ const dom=(tag,cls,txt)=>{const n=d.createElement(tag);if(cls)n.className=cls;if
 const validId=id=>/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id||'');
 const decode=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
 const encode=a=>{let s='';for(let i=0;i<a.length;i+=8192)s+=String.fromCharCode(...a.slice(i,i+8192));return btoa(s)};
-let client,category='',rows=[],busy=false,active=null,profileAtOpen='',serial=0;
+let client,category='',rows=[],loadedProfile='',loadedCategory='',busy=false,active=null,profileAtOpen='',serial=0;
 let files={front:null,back:null},viewURLs=[],previewURLs={front:'',back:''},flip='front',zoom=1,autoInspect=false;
 /* Device-bound, non-extractable AES key. Mirrors the ID wallet's optional password mode. */
 const EXTRA_KEY_DB='sho-valet-extra-device-v16',EXTRA_KEY_STORE='keys';
@@ -313,9 +313,12 @@ function renderCategory(){
 }
 async function refresh(){
  const p=profile(),cat=category,id=++serial;
- rows=[];renderGallery();
+ const changing=loadedProfile!==p||loadedCategory!==cat;
+ // Never carry sensitive card metadata into a different profile/category.
+ // But do not blank verified same-profile cards on every slow token refresh.
+ if(changing){rows=[];loadedProfile=p;loadedCategory=cat;renderGallery();}
  if(!['health','card','pass'].includes(cat))return;
- status(t('Kártyák betöltése…','Loading cards…'));
+ status(t('Kártyák ellenőrzése…','Checking saved cards…'));
  try{
   const c=await authorized(p);
   const {data,error}=await c.from(TABLE).select('id,profile_key,category,title,issuer,last_four,created_at')
@@ -328,19 +331,27 @@ async function refresh(){
   renderGallery();status('');
   w.dispatchEvent(new CustomEvent('sho-valet-extra-ready',{detail:{profile:p}}));
  }catch(e){
-  if(id!==serial)return;
+  if(id!==serial||cat!==category||p!==profile())return;
   if(cat==='pass'){
    try{
     const local=await passCache('list',p,'');
     if(id!==serial||p!==profile()||cat!==category)return;
-    rows=local.sort((a,b)=>String(b.created_at||'').localeCompare(String(a.created_at||'')));
-    renderGallery();$('svCount').textContent=String(rows.length);
-    status(rows.length?t('Offline: a titkosított bérletmásolat elérhető.','Offline: encrypted pass copy available.'):human(e),!rows.length);
+    // Offline cache can be empty on a new browser: do not replace a verified
+    // on-screen list with an empty local array just because cloud timed out.
+    if(local.length||changing){
+     rows=local.sort((a,b)=>String(b.created_at||'').localeCompare(String(a.created_at||'')));
+     renderGallery();
+    }
+    $('svCount').textContent=String(rows.length);
+    status(rows.length?t('⚠️ Felhő nem elérhető; a korábban betöltött vagy helyi bérleteket látod.',
+     'Cloud offline; keeping already loaded or local passes.'):human(e),!rows.length);
     return;
    }catch(_){}
   }
-  status(human(e),true);
-  $('svCount').textContent='0';
+  // In the SAME category leave previously authenticated rows on screen.
+  status(human(e)+t(' · A mentett felhőkártyák nem törlődtek.',
+    ' · Saved cloud records were not deleted.'),true);
+  if(changing)$('svCount').textContent='0';
  }
 }
 function togglePinButton(rec){
