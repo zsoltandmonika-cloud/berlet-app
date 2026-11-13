@@ -112,6 +112,9 @@ test('one top-level SSO redirect can reuse Microsoft cookie, but must not loop',
 
 test('Cloud Admin opens official Outlook without handling calendar credentials',()=>{
  assert.match(admin,/hhAdminMicrosoftCalendarV2/);
+ assert.match(admin,/hhAdminMicrosoftStatusV1/);
+ assert.match(admin,/https:\/\/status\.cloud\.microsoft\//);
+ assert.match(admin,/microsoftStatus\.hidden=selected!=='cloud'/);
  assert.match(admin,/selected!=='cloud'/);
  assert.match(admin,/sh9external=calendar/);
  assert.match(admin,/sh9calendar=1/);
