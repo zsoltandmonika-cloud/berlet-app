@@ -976,7 +976,7 @@ function updateMorganClock(now=Date.now()){
  const h=Math.floor(seconds/3600),m=Math.floor(seconds%3600/60),sec=seconds%60;
  $("countdown").textContent=seconds>0?
   (h?String(h).padStart(2,"0")+":":"")+String(m).padStart(2,"0")+":"+String(sec).padStart(2,"0"):"00:00";
- $("countdownLabel").textContent=seconds>0?"tervezett indulásig":"tervezett indulás lejárt";
+ $("countdownLabel").textContent=seconds>0?"indulásig":"terv lejárt";
  const elapsed=100-(p.leaveMs-now)/3600000*100;
  $("ring").style.setProperty("--progress",Math.max(0,Math.min(100,elapsed)).toFixed(1)+"%");
 }
@@ -1009,8 +1009,8 @@ function showMorganInterview(item,date){
  $("heroLabel").textContent="Tervezett indulás otthonról";
  $("heroTime").textContent="12:05";
  $("heroTime").title="Javasolt otthoni indulás, nem élő BKK-indulási adat";
- $("heroDetail").textContent="🚌 260: 12:22 ("+(p.verified?"hivatalos BKK statikus GTFS":"publikált menetrend")+
-  ") → 🚋 1-es villamos Közvágóhíd felé. 🎯 Érkezési cél: 13:40. A villamos ideje nincs ellenőrizve.";
+ $("heroDetail").textContent="🚌 260 · 12:22 ("+(p.verified?"BKK GTFS":"menetrend")+
+  ") → 🚋 1 · Közvágóhíd. 🎯 13:40 célérkezés, nem ETA.";
  $("timelineSubtitle").textContent=date+" · 260 → 1 · célérkezés 13:40";
  const rail=$("timeline");rail.replaceChildren();
  const rows=[
