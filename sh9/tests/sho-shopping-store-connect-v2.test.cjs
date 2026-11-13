@@ -20,7 +20,7 @@ test('ten official merchant handoffs and separate product metadata source',()=>{
   assert.match(connect,/google\.com\/search/);
   assert.match(connect,/sho-shopping-products-v1/);
   assert.match(connect,/prices/);
-  assert.match(html,/Külső webkeresést/);
+  assert.match(html,/külső webkeresést/i);
   assert.match(html,/Open Food Facts \(ODbL/);
 });
 test('real product handoff preserves basket operations and no artificial prices',()=>{
