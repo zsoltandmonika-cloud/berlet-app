@@ -211,7 +211,7 @@ function currentLink(item){
  const profile=activeProfile();
  const target=profile==="monika"&&item?.id==="home-citronella-260"?"monika-home-to-office":item?.id;
  if(profile==="zsolt")return target?FULL+"?profile=z&pinned=1&id="+encodeURIComponent(target):FULL+"?profile=z";
- return target?FULL+"?pinned=1&id="+encodeURIComponent(target):FULL;
+ return target?FULL+"?pinned=1&id="+encodeURIComponent(target)+"&profile=m":FULL+"?profile=m";
 }
 function renderClock(){
  if(!state.item)return;
