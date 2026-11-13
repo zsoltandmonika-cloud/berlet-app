@@ -125,7 +125,7 @@ test('Morgan Stanley presets are never labeled as the unrelated Dávidék family
 
 test('Zsolt is blue, Mónika styling remains untouched, and app is cache-busted',()=>{
  assert.match(html,/id="smProfileBadgeV944"/);
- assert.match(html,/app\.mjs\?v=945-morgan-stanley-roundtrip/);
+ assert.match(html,/app\.mjs\?v=946-morgan-stanley-4-6-interview/);
  assert.match(html,/style\.css\?v=944-zsolt-blue-glass/);
  assert.match(css,/body\[data-smart-match-profile="z"\]\{--pink:#79bfff/);
  assert.doesNotMatch(css,/body\[data-smart-match-profile="m"\]/);
