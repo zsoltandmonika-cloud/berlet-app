@@ -182,9 +182,15 @@ function renderFeatured(){
    const entry=await resolve(pin,p);
    if(serial!==renderSerial||p!==profile()||!isPinned(pin.source,pin.id))return;
    if(!entry){
-    // Confirmed deletion: restore the beautiful sample card, keeping originals untouched.
-    try{w.localStorage.removeItem(storeKey(p))}catch(_){}
-    emit();return;
+    // A missing row in an authenticated lookup is NOT proof of deletion:
+    // login expiry, RLS or sync delays may hide intact cloud records.
+    // Preserve the local pin and never invoke a destructive fallback here.
+    ui.title.textContent=t('Mentett kártya · ideiglenesen nem elérhető',
+      'Saved card · temporarily unavailable');
+    ui.meta.textContent=t('A kitűzés megmaradt. Ellenőrizd a felhőkapcsolatot és a profilt.',
+      'Pin preserved. Check cloud sign-in and profile.');
+    ui.open.disabled=true;
+    return;
    }
    ui.title.textContent=String(entry.title||t('Mentett kártya','Saved card')).slice(0,150);
    ui.meta.textContent=entry.subtitle||(
