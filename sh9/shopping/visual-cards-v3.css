@@ -1,0 +1,55 @@
+
+/* SHO Smart Shopping Visual Cards v3 · 2026 visual-first UI */
+.shop-connect .shop-title{font-size:20px;letter-spacing:-.45px}
+.shop-connect .sho-store-grid{gap:12px}
+.shop-connect .sho-store{display:flex;flex-direction:column;justify-content:space-between;gap:8px;min-height:164px;border-radius:17px;border:1px solid #a868a9;padding:11px;background:radial-gradient(circle at 12% 5%,#582c5c85,transparent 57%),linear-gradient(145deg,#26172e,#11192d);box-shadow:inset 0 1px #ffffff38,0 7px 18px #0006,0 0 12px #e354b522;transition:transform .16s,box-shadow .16s}
+.shop-connect .sho-store:hover{transform:translateY(-2px);box-shadow:inset 0 1px #ffffff38,0 10px 27px #0008,0 0 18px #ef5bc34b}
+.shop-connect .sho-store-brand{display:flex;align-items:center;gap:11px;min-height:75px;color:#fff;text-decoration:none}
+.shop-connect .sho-store-logo{display:grid;place-items:center;width:61px;height:61px;flex:0 0 61px;border:1px solid #e0bfd18e;border-radius:14px;background:linear-gradient(145deg,#ffffff,#dfe5f1);box-shadow:0 4px 15px #0007;overflow:hidden;color:#4d2555}
+.shop-connect .sho-store-logo img{width:48px;height:48px;object-fit:contain}
+.shop-connect .sho-store-logo strong{font-size:21px}
+.shop-connect .sho-store-top{display:flex;flex-direction:column;align-items:flex-start;gap:5px;justify-content:center;margin:0}
+.shop-connect .sho-store-top strong{font-size:clamp(14px,4vw,17px);font-weight:850;line-height:1.1}
+.shop-connect .sho-store-top span{font-size:9px;line-height:1.2;color:#e7badf}
+.shop-connect .sho-store-actions{display:flex;flex-direction:column;gap:7px;margin-top:auto}
+.shop-connect .sho-store-actions a{min-width:0;min-height:37px;font-size:10.5px;font-weight:750;display:grid;place-items:center;background:#2a2544}
+.shop-connect .sho-store-actions .sho-store-open{border-color:#e577bb7b}
+.shop-connect .sho-store-actions .sho-store-find{background:#133659;border-color:#6ed3ff91}
+.shop-connect .sho-result-tools{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;padding:10px;margin:9px 0 8px;border:1px solid #7d5c92;border-radius:14px;background:#151c35}
+.shop-connect .sho-sort-label{display:flex;flex-direction:column;gap:5px;flex:1;min-width:190px;color:#fce5f5;font-size:11px;font-weight:750}
+.shop-connect .sho-sort-label select{appearance:auto;color:#fff;background:#312242;border:1px solid #d47cbd;border-radius:11px;padding:10px 9px;min-height:43px;width:100%;max-width:100%;font-size:12px}
+.shop-connect .sho-sort-label select option:disabled{color:#93899b}
+.shop-connect .sho-count{color:#ffda9c;font-size:11px;font-weight:800}
+.shop-connect .sho-result-help{font-size:10px;line-height:1.5;color:#cab8d0;margin:4px 2px 13px}
+.shop-connect .sho-products{display:flex;flex-direction:column;gap:14px}
+.shop-connect .sho-product{display:flex;flex-direction:column;align-items:stretch;gap:0;padding:0;border-radius:20px;overflow:hidden;border:1px solid #d386c198;background:linear-gradient(165deg,#271c39,#12172d);box-shadow:0 10px 31px #0008,inset 0 1px #ffe6ff55}
+.shop-connect .sho-product-visual{display:grid;place-items:center;position:relative;width:100%;height:clamp(196px,56vw,255px);overflow:hidden;background:radial-gradient(ellipse at 50% 65%,#f6e8e7,#d2dbe8);border-bottom:1px solid #ffffff30}
+.shop-connect .sho-product-visual img{max-width:100%;max-height:100%;width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 10px 11px #0003);transition:transform .17s}
+.shop-connect .sho-product-visual:hover img{transform:scale(1.025)}
+.shop-connect .sho-no-photo{color:#4a345e;font-size:14px;font-weight:850;text-align:center}
+.shop-connect .sho-product-body{display:flex;flex-direction:column;gap:6px;padding:14px 14px 16px;min-width:0}
+.shop-connect .sho-product-label{display:flex;align-items:center;gap:6px;color:#98ecd9;font-size:9px;font-weight:780;letter-spacing:.3px}
+.shop-connect .sho-verified-dot{color:#70d8ba}
+.shop-connect .sho-product-name{font-size:18px;font-weight:870;letter-spacing:-.45px;line-height:1.22;color:#fff9ff}
+.shop-connect .sho-product-brand{font-size:12px;color:#e2c7de}
+.shop-connect .sho-product-code{font-size:10px;color:#a9c7e8}
+.shop-connect .sho-product-popularity{font-size:10px;color:#a9dec1}
+.shop-connect .sho-product-price{display:flex;align-items:center;justify-content:space-between;gap:9px;padding:11px;margin:6px 0 3px;background:#281b35;border:1px solid #a5799f;border-radius:12px}
+.shop-connect .sho-product-price span{font-size:9px;letter-spacing:1px;font-weight:850;color:#e6bcd8}
+.shop-connect .sho-product-price strong{font-size:12px;font-weight:760;color:#ffd3a0;text-align:right}
+.shop-connect .sho-product-actions{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:5px}
+.shop-connect .sho-product-add,.shop-connect .sho-product-link{display:grid;place-items:center;min-height:45px;border-radius:13px;font-size:12px;font-weight:800;padding:7px}
+.shop-connect .sho-product-add{background:linear-gradient(110deg,#ec398e,#9e39a1);border-color:#ffa8d4;color:#fff}
+.shop-connect .sho-product-link{background:#1a3154;border-color:#6aafe9;color:#d1edff}
+.shop-connect .sho-product-merchants{padding-top:11px;margin-top:8px;border-top:1px solid #ffffff27}
+.shop-connect .sho-product-merchants-title{display:block;font-size:9px;letter-spacing:1px;color:#c8c3d9;font-weight:850}
+.shop-connect .sho-product-merchant-links{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.shop-connect .sho-product-merchant{padding:7px 9px;border:1px solid #6f90b2;background:#182c46;color:#cde9ff;border-radius:9px;font-size:10px;font-weight:750}
+.shop-connect .sho-catalog-more{border:1px solid #ea80c4;background:#3b2048;color:#fff;border-radius:13px;min-height:47px;font-size:13px;font-weight:820}
+.shop-connect .sho-product-skeleton{padding:13px;min-height:280px;gap:14px}
+.shop-connect .sho-skeleton-photo{height:170px;width:100%;border-radius:13px;background:#42304d}
+.shop-connect .sho-skeleton-info{height:62px;width:85%;border-radius:12px;background:#4c3a5c}
+.shop-connect .sho-product-skeleton>*{background-image:linear-gradient(95deg,transparent,#ffffff21,transparent);background-size:200% 100%;animation:sho-sheen 1.3s ease-in-out infinite}
+@keyframes sho-sheen{from{background-position:180% 0}to{background-position:-180% 0}}
+@media(max-width:365px){.shop-connect .sho-store{min-height:150px;padding:8px}.shop-connect .sho-store-logo{width:49px;height:49px;flex-basis:49px}.shop-connect .sho-store-logo img{width:40px;height:40px}.shop-connect .sho-product-visual{height:190px}}
+@media(prefers-reduced-motion:reduce){.shop-connect .sho-product-skeleton>*{animation:none}.shop-connect .sho-store{transition:none}}
