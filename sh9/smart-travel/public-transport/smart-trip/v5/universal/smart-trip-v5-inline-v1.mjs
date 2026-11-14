@@ -7,6 +7,7 @@
  * Google Cloud may bill for each intentional search; server logs usage.
  */
 import {buildV5Intake} from "./smart-trip-v5-intake.mjs";
+import {googleMapsHandoff} from "./universal-request.mjs";
 import {renderPremiumRoutes} from "./smart-trip-v5-premium-render-v1.mjs";
 const HOST="https://vhsrupphzcjkdrusonzh.supabase.co";
 const ENDPOINT=HOST+"/functions/v1/hh-smart-trip-universal-v1";
@@ -42,6 +43,23 @@ const refs=()=>({
  status:$("st22Status"),search:$("st22Search")
 });
 let active=null,serial=0,client=null;
+function setMapAlternative(query){
+ const {container}=refs();
+ if(!container)return;
+ let link=$("st22MapAlternativeV1150");
+ if(!link){
+  link=document.createElement("a");
+  link.id="st22MapAlternativeV1150";
+  link.className="st22-v5-live-map-link";
+  link.target="_blank";link.rel="noopener noreferrer";
+  link.textContent="🗺️ Friss tömegközlekedési útvonal a Google Térképen";
+  link.setAttribute("aria-label","Útvonaltervezés megnyitása a Google Térképen, külön lapon");
+  container.append(link);
+ }
+ const url=query?googleMapsHandoff(query):null;
+ if(url){link.href=url;link.hidden=false}
+ else{link.removeAttribute("href");link.hidden=true}
+}
 function credentials(){
  const cfg=globalThis.HH_CENTRAL_VAULT;
  if(!cfg?.enabled||typeof cfg.publishableKey!=="string"||
@@ -123,6 +141,7 @@ function open(payload){
   return {status:"unavailable",message:"A Smart Trip beépített eredménynézete hiányzik."};
  if(active)return {status:"started"}; // Ignore double click, never double-bill.
  const token=++serial;
+ setMapAlternative(prepared.query);
  const controller=new AbortController();active=controller;
  nodes.container.hidden=false;
  nodes.rows.replaceChildren();
@@ -144,6 +163,7 @@ function init(){
  };
  provider?.addEventListener("change",()=>{
   if(provider.value!=="google_api_v5"){
+   setMapAlternative(null);
    const {rows,container,source}=refs();
    if(rows?.querySelector(".st22-v5-inline-route")){
     rows.replaceChildren();container.hidden=true;
