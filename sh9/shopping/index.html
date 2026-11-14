@@ -9,7 +9,7 @@
 <link rel="icon" type="image/svg+xml" href="../sho-preview/favicon.svg">
 <link rel="stylesheet" href="./shopping.css?v=shop-v10-20261114">
 <link rel="stylesheet" href="./store-connect-v2.css?v=shop-v2">
-<link rel="stylesheet" href="./visual-cards-v3.css?v=shop-v3">
+<link rel="stylesheet" href="./visual-cards-v3.css?v=shop-v12-20261114">
 </head>
 <body>
 <div class="app">
@@ -28,12 +28,14 @@
   <button type="button" data-category="Otthon & Háztartás" class="cat gold"><img src="./assets/otthon.avif" alt="Otthon és háztartás" loading="lazy"><span class="sr">Otthon és háztartás</span></button>
   <button type="button" data-category="Akciók & Árfigyelés" class="cat magenta"><img src="./assets/akciok.avif" alt="Akciók és árfigyelés" loading="lazy"><span class="sr">Akciók és árfigyelés</span></button>
 </section>
-<section class="shop-connect" id="shoStoreConnect" aria-label="Áruházkapcsolatok és valódi termékkeresés">
+<section class="shop-connect store-screen" id="shoStoreConnect" aria-label="Áruházak">
  <header class="shop-connect-head"><div><span class="shop-kicker">SHO · STORE CONNECT V2</span><h2 class="shop-title">🛍️ Boltok &amp; valódi termékek</h2></div><span aria-hidden="true">✦</span></header>
  <p class="sr" id="shoConnectMessage" role="status" aria-live="polite"></p>
  <div class="sho-actions"><button type="button" data-sho-connect-refresh>⌕ Termékek keresése</button></div>
  <p class="sho-store-count" id="shoStoreSummary">Áruházak betöltése…</p>
  <div class="sho-store-grid" id="shoStoreGrid"></div>
+</section>
+<section class="shop-connect sho-catalog-panel" id="shoCatalogPanel" aria-label="Valódi termékkatalógus">
  <div class="sho-catalog-head"><strong>🔎 Valódi termékkatalógus</strong><small id="shoCatalogStatus" role="status" aria-live="polite">Élelmiszer: írd be a termék nevét, majd nyomd meg a Keresés gombot.</small></div>
  <div class="sho-result-tools" role="group" aria-label="Terméklista rendezése"><label class="sho-sort-label" for="shoCatalogSort">↕ Rendezés <select id="shoCatalogSort"><option value="relevance">Ajánlott sorrend</option><option value="popular">Népszerűség (OFF szkennelés)</option><option value="name">Név A–Z</option><option value="priceAsc" disabled>Ár növekvő (áradat szükséges)</option><option value="priceDesc" disabled>Ár csökkenő (áradat szükséges)</option></select></label><span class="sho-count" id="shoCatalogCount">Termékek</span></div><p class="sho-result-help">Az árrendezéshez ellenőrzött bolti ár kell. A népszerűség a közösségi szkennelési aktivitásból származik, nem eladási rangsor.</p><div class="sho-products" id="shoProducts"></div>
  <p class="sho-catalog-note">Termékadatok: Open Food Facts (ODbL; képek: CC BY-SA). A katalógus nem áruház, nem mutat bolti árat vagy készletet. A bolti „Termék keresése” külső webkeresést nyit a kiválasztott áruház hivatalos oldalára szűkítve. A rendelést a bolt saját oldalán lehet leadni.</p>
@@ -55,6 +57,6 @@
 <div class="toast" id="toast" role="status" hidden></div>
 <script defer src="../../healthhub/central-vault/config.js"></script>
 <script defer src="./shopping.js?v=shop-v2"></script>
-<script defer src="./store-connect-v2.js?v=shop-v11-20261114"></script>
+<script defer src="./store-connect-v2.js?v=shop-v12-20261114"></script>
 </body>
 </html>
