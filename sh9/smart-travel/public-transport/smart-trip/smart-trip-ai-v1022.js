@@ -559,6 +559,27 @@
   const field=fields.find(f=>f.key===e.detail?.key);
   if(field){abort(field.key);close(field)}
  });
+ // v1140: favorites are grey hints, never implicit input values.
+ const SEARCH_PLACEHOLDERS={origin:'Indulási hely vagy megálló',destination:'Célállomás vagy cím'};
+ function refreshFavoritePlaceholders(){
+  const favorites=favoriteItems('');
+  const first=favorites[0],second=favorites.find(x=>x.name!==first?.name);
+  for(const field of fields){
+   const suggestion=field.key==='origin'?first:second||first;
+   field.input.placeholder=suggestion?'Pl. '+suggestion.name:SEARCH_PLACEHOLDERS[field.key];
+  }
+ }
+ function clearImplicitInitialValues(){
+  for(const field of fields){
+   // Browser-restored text cannot masquerade as an explicitly chosen favorite.
+   if(local[field.key]===null){
+    field.input.value='';
+    delete field.input.dataset.st22Chosen;
+   }
+  }
+  refreshFavoritePlaceholders();
+ }
+ clearImplicitInitialValues();
  // v1031: refresh an open suggestion list after the shared 40 places sync.
  w.addEventListener('hh-travel-favorites-changed',()=>{
   fields.forEach(field=>{
@@ -566,6 +587,7 @@
    const q=field.input.value.trim();
    const fav=q?suggestions(q):favoriteItems('');
    if(fav.length)render(field,fav.slice(0,8));
+   refreshFavoritePlaceholders();
   });
  });
  d.querySelectorAll('[data-st22-mode]').forEach(btn=>btn.addEventListener('click',()=>updateMode(btn.dataset.st22Mode)));
@@ -607,7 +629,7 @@
   try{w.localStorage.setItem('hh-profile',profile()==='m'?'z':'m')}catch(_){say('A profilváltás nem menthető a böngészőben.');return}
   profileChanged(true);
  });
- w.addEventListener('pageshow',()=>profileChanged(false));
+ w.addEventListener('pageshow',e=>{profileChanged(false);if(!e.persisted)clearImplicitInitialValues()});
  w.addEventListener('storage',e=>{if(e.key==='hh-profile')profileChanged(true)});
  profileChanged(false);
  updateMode('now');
