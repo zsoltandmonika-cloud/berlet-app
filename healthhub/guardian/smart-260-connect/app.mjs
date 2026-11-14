@@ -193,6 +193,18 @@ function safeLoad(){
  if(updated)try{localStorage.setItem(STORAGE,JSON.stringify(saved))}catch(_){}
  return saved;
 }
+// v1140: user-triggered real-search handoff, not an invented GTFS timetable.
+function searchFamilyJourney(item){
+ const forward=/^(family-home-to-david-anna|zsolt-home-to-david-anna)$/.test(item?.id||"");
+ const reverse=/^(family-david-anna-to-home|zsolt-david-anna-to-home)$/.test(item?.id||"");
+ if(!forward&&!reverse){toast("Ez nem a Dávidék családi útvonalpár.");return}
+ const packet={schema:"sh9.smart-trip.family-handoff/1",profile:PROFILE==="monika"?"m":"z",
+  from:forward?"Otthon":"Dávid & Anna Otthona",
+  to:forward?"Dávid & Anna Otthona":"Otthon",sentAt:Date.now()};
+ try{sessionStorage.setItem("sh9-smart-trip-family-handoff-v1140",JSON.stringify(packet))}
+ catch(_){toast("Az útvonal átadása nem sikerült. Próbáld a Smart Trip keresőt.");return}
+ location.assign("/berlet-app/sh9/smart-travel/public-transport/smart-trip/");
+}
 function toast(msg){
  const t=$("toast");t.textContent=msg;t.hidden=false;
  clearTimeout(toast.timer);toast.timer=setTimeout(()=>{t.hidden=true},5500);
@@ -1080,6 +1092,14 @@ async function computeRoute({useForm=false}={}){
     multiLeg?"Az útvonal állomásai láthatók, de a többjáratos menetrendi összehangolás még nem aktív.":
     "A kiválasztott járatok szerepelnek a BKK-katalógusban, de ehhez az útvonalhoz még nincs ellenőrzött indulási menetrend.";
    $("timeline").append(empty);
+   if(multiLeg){
+    const actual=document.createElement("button");actual.type="button";
+    actual.className="btn secondary";
+    actual.textContent="🔎 Valódi útvonal keresése";
+    actual.setAttribute("aria-label","Dávidék útvonalának keresése a Smart Trip tervezőben, a kiválasztott irányban");
+    actual.addEventListener("click",()=>searchFamilyJourney(item));
+    $("timeline").append(actual);
+   }
    $("timelineSubtitle").textContent=date+(item.arrivalTargetTime&&date===item.arrivalTargetDate?
     " · érkezési cél "+item.arrivalTargetTime+" · 260 / 1":
     multiLeg?" · többjáratos útvonal · időpont-illesztés nélkül":
