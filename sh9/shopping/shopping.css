@@ -30,3 +30,30 @@
 .hero-title{border-top:0;border-bottom:2px solid #e645c48c;padding:8px 10px 9px}
 .hero-title h1{margin:1px 0;text-align:left}
 .hero-image{width:100%;display:block;height:auto}
+
+/* SHO Shopping v8: S24 Ultra six-category above-fold compact view */
+.topbar{height:41px;padding:5px 10px;display:flex;align-items:center}
+.hero-title{height:50px;min-height:50px;padding:2px 10px 3px;border-top:0;border-bottom:2px solid #e645c48c;display:flex;align-items:center;justify-content:space-between;gap:5px}
+.hero-title h1{flex:1;min-width:0;margin:0;white-space:nowrap;text-align:left;font-size:clamp(25px,7vw,39px);line-height:1;letter-spacing:-1.6px}
+.hero-title .head-actions{display:flex;align-items:center;gap:3px;flex:0 0 auto}
+.hero-title .icon-btn{width:26px;height:35px;font-size:25px}
+.hero-title .fav-round{display:flex;align-items:center;justify-content:center;flex-direction:column;width:45px;height:45px;padding:0;font-size:9px;line-height:1}
+.hero-image{width:100%;height:min(52vw,28dvh);max-height:272px;aspect-ratio:auto;object-fit:cover;object-position:center 43%;display:block}
+.search-bar{margin-top:7px;margin-bottom:10px;height:51px}
+.categories{gap:8px;padding-bottom:9px}
+.cat{aspect-ratio:2.25}
+@media(max-width:370px){
+ .topbar{height:39px;padding:4px 8px}
+ .hero-title{height:47px;min-height:47px;padding:2px 8px}
+ .hero-title h1{font-size:clamp(23px,6.9vw,27px);letter-spacing:-1.3px}
+ .hero-title .head-actions{gap:1px}
+ .hero-title .icon-btn{width:21px;height:32px;font-size:22px}
+ .hero-title .fav-round{width:40px;height:40px;font-size:8px}
+ .cat{aspect-ratio:2.26}
+}
+@media(max-height:750px) and (max-width:600px){
+ .hero-image{height:min(46vw,25dvh)}
+ .categories{gap:7px}
+ .cat{aspect-ratio:2.4}
+ .search-bar{margin-top:5px;margin-bottom:8px}
+}
