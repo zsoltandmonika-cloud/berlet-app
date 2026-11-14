@@ -580,6 +580,32 @@
   refreshFavoritePlaceholders();
  }
  clearImplicitInitialValues();
+ // v1140: only a user-clicked Smart Match handoff may prefill favorite fields.
+ function applyFamilyHandoff(){
+  let packet;
+  try{
+   const raw=w.sessionStorage.getItem('sh9-smart-trip-family-handoff-v1140');
+   w.sessionStorage.removeItem('sh9-smart-trip-family-handoff-v1140');
+   packet=JSON.parse(raw||'null');
+  }catch(_){return}
+  if(!packet||packet.schema!=='sh9.smart-trip.family-handoff/1'||
+   packet.profile!==profile()||!Number.isFinite(packet.sentAt)||
+   Date.now()-packet.sentAt<0||Date.now()-packet.sentAt>120000)return;
+  const forward=packet.from==='Otthon'&&packet.to==='Dávid & Anna Otthona';
+  const reverse=packet.from==='Dávid & Anna Otthona'&&packet.to==='Otthon';
+  if(!forward&&!reverse)return;
+  const favorites=favoriteItems('');
+  for(const [field,label] of [[fields[0],packet.from],[fields[1],packet.to]]){
+   const item=favorites.find(x=>fold(x.name)===fold(label)||fold(x.actualName)===fold(label));
+   if(item)choose(field,item);
+   else{
+    field.input.value=label;
+    field.input.dataset.st22Chosen='family-handoff-label';
+    local[field.key]={name:label,type:'family-handoff-label'};
+   }
+  }
+  say('🧭 Dávidék oda-vissza irány betöltve. Kiemelt útvonal: 260 → 17/19 → 4/6 (visszafelé fordítva). Válassz időpontot, majd indíts keresést.');
+ }
  // v1031: refresh an open suggestion list after the shared 40 places sync.
  w.addEventListener('hh-travel-favorites-changed',()=>{
   fields.forEach(field=>{
@@ -587,8 +613,8 @@
    const q=field.input.value.trim();
    const fav=q?suggestions(q):favoriteItems('');
    if(fav.length)render(field,fav.slice(0,8));
-   refreshFavoritePlaceholders();
   });
+  refreshFavoritePlaceholders();
  });
  d.querySelectorAll('[data-st22-mode]').forEach(btn=>btn.addEventListener('click',()=>updateMode(btn.dataset.st22Mode)));
  // Explicit date/time editing always changes an implicit 'now' search to a scheduled departure.
@@ -633,6 +659,7 @@
  w.addEventListener('storage',e=>{if(e.key==='hh-profile')profileChanged(true)});
  profileChanged(false);
  updateMode('now');
+ applyFamilyHandoff();
  // Selected places stay local to this page; the map receives only validated
  // user-selected records, never a location inferred from free-text.
  function selectedPlaces(){
