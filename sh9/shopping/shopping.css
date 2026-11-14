@@ -25,3 +25,8 @@
 .hero-title{padding:7px 10px 9px}
 .hero-title h1{margin:1px 0}
 @media(max-width:370px){.topbar{padding-inline:8px}.topbar .hero-kicker{font-size:8px;letter-spacing:.4px;padding:3px 6px}}
+
+/* SHO Shopping v7: title immediately below toolbar, before full-width hero image */
+.hero-title{border-top:0;border-bottom:2px solid #e645c48c;padding:8px 10px 9px}
+.hero-title h1{margin:1px 0;text-align:left}
+.hero-image{width:100%;display:block;height:auto}
