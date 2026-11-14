@@ -27,6 +27,30 @@
  function profile(){try{return w.localStorage.getItem('hh-profile')==='m'?'m':'z'}catch(_){return 'z'}}
  d.documentElement.dataset.st22Profile=profile();
  function fold(x){return String(x||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('hu-HU').replace(/\s+/g,' ').trim()}
+ // v1150: A trusted PUBLIC venue address is not a static journey or timetable.
+ const RAM_ART=Object.freeze({
+  name:'1133 Budapest, Kárpát utca 23., Magyarország',
+  displayName:'RaM-ArT Színház',
+  subtitle:'Hivatalos helyszín · Kárpát utca 23.',
+  type:'helyszin'
+ });
+ function keyOfPlace(x){return fold(x).replace(/&/g,' es ').replace(/[^a-z0-9]+/g,'')}
+ function isRamArt(x){
+  const k=keyOfPlace(x);
+  return k==='ramart'||k==='ramartszinhaz'||k==='ramartbudapest'||k==='ramartszinhazbudapest'||
+   (k.startsWith('ramart')&&k.includes('karpat'));
+ }
+ function isDavidAlias(x){
+  return new Set(['davidesanna','davidanna','davidek','davidekotthona',
+   'davidesannaotthona','davidannaotthona']).has(keyOfPlace(x));
+ }
+ function isDavidFavorite(item){
+  const k=keyOfPlace([item?.name,item?.actualName].filter(Boolean).join(' '));
+  return k.includes('david')&&(k.includes('anna')||k.includes('davidek'));
+ }
+ function davidFavorite(){
+  return favoriteItems('Dávid').find(isDavidFavorite)||null;
+ }
  function nowHU(){
   const fmt=new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/Budapest',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hour12:false,hourCycle:'h23'});
   const parts={};for(const x of fmt.formatToParts(new Date()))parts[x.type]=x.value;
@@ -49,7 +73,8 @@
  function clearAll(){fields.forEach(f=>{abort(f.key);close(f)})}
  function favoriteItems(q){
   try{
-   const entries=geo?.favoriteSuggestions?.(w.localStorage,q,12)||[];
+   const lookup=isDavidAlias(q)?'Dávid':q;
+   const entries=geo?.favoriteSuggestions?.(w.localStorage,lookup,12)||[];
    return entries.filter(x=>x&&typeof x.name==='string'&&Number.isFinite(x.lat)&&Number.isFinite(x.lng))
     .map(x=>({name:String(x.displayName||x.name).slice(0,110),subtitle:[x.name,x.subtitle].filter(Boolean).join(' · ').slice(0,160),
      lat:x.lat,lng:x.lng,type:'kedvenc',actualName:x.name}));
@@ -70,7 +95,8 @@
  function suggestions(q){
   if(searchMethod()==='bkk_gtfs')return w.SH9_BKK_SEARCH_V1107?.suggestions?.(q)||[];
   const f=favoriteItems(q),s=localStations(q),seen=new Set();
-  return [...f,...s].filter(item=>{const key=fold(item.name)+'|'+(item.lat||'');if(seen.has(key))return false;seen.add(key);return true}).slice(0,8)
+  const venues=isRamArt(q)?[RAM_ART]:[];
+  return [...venues,...f,...s].filter(item=>{const key=fold(item.name)+'|'+(item.lat||'');if(seen.has(key))return false;seen.add(key);return true}).slice(0,8)
  }
  function choose(field,item){
   abort(field.key);
@@ -85,8 +111,8 @@
   found.forEach((item,i)=>{
    const b=d.createElement('button');b.type='button';b.setAttribute('role','option');b.id='st22-'+field.key+'-'+i;
    const label=d.createElement('span'),strong=d.createElement('strong'),sub=d.createElement('small'),icon=d.createElement('em');
-   strong.textContent=item.name;sub.textContent=item.subtitle||'Hely';label.append(strong,sub);
-   icon.textContent=item.type==='bkk_megallo'?'🚋 BKK':item.type==='bkk_katalogus'?'📍 BKK':item.type==='kedvenc'?'★ KEDVENC':item.type==='vasút'?'🚆 VASÚT':'⌖ CÍM';
+   strong.textContent=item.displayName||item.name;sub.textContent=item.subtitle||'Hely';label.append(strong,sub);
+   icon.textContent=item.type==='bkk_megallo'?'🚋 BKK':item.type==='bkk_katalogus'?'📍 BKK':item.type==='kedvenc'?'★ KEDVENC':item.type==='helyszin'?'🎭 HELYSZÍN':item.type==='vasút'?'🚆 VASÚT':'⌖ CÍM';
    b.append(label,icon);
    b.addEventListener('click',()=>choose(field,item));field.box.appendChild(b);
   });
@@ -274,10 +300,11 @@
   });
  }
  const METHOD_KEY='sh9-smart-trip-search-method-v1076-';
+ const LIVE_DEFAULT_MIGRATION='sh9-smart-trip-live-default-v1150-';
  const LEGACY_METHOD_KEY='sh9-smart-trip-search-method-v1075-';
  const allowedMethods=new Set(['chatgpt','google','native','lena_native','bkk_gtfs','google_api_v5']);
  function searchMethod(){
-  return allowedMethods.has(methodSelect?.value)?methodSelect.value:'chatgpt';
+  return allowedMethods.has(methodSelect?.value)?methodSelect.value:'google_api_v5';
  }
  function restoreMethod(){
   if(!methodSelect)return;
@@ -285,8 +312,16 @@
   try{
    const saved=w.localStorage.getItem(METHOD_KEY+p);
    const legacy=w.localStorage.getItem(LEGACY_METHOD_KEY+p);
-   methodSelect.value=allowedMethods.has(saved)?saved:legacy==='external'?'google':legacy==='native'?'native':'chatgpt';
-  }catch(_){methodSelect.value='chatgpt'}
+   const chosen=allowedMethods.has(saved)?saved:legacy==='external'?'google':legacy==='native'?'native':'google_api_v5';
+   if(!w.localStorage.getItem(LIVE_DEFAULT_MIGRATION+p)){
+    // One-time upgrade from formerly static/chat handoff. Later explicit
+    // provider selections remain untouched on subsequent visits.
+    const upgraded=!saved||['chatgpt','native','bkk_gtfs'].includes(saved);
+    methodSelect.value=upgraded?'google_api_v5':chosen;
+    if(upgraded)w.localStorage.setItem(METHOD_KEY+p,'google_api_v5');
+    w.localStorage.setItem(LIVE_DEFAULT_MIGRATION+p,'1');
+   }else methodSelect.value=chosen;
+  }catch(_){methodSelect.value='google_api_v5'}
  }
  function googleHandoff(query){
   if(autoFallback?.go?.(multiModel,query,local,w.location))return true;
@@ -396,10 +431,34 @@
   });
   focusResults();
  }
+ async function resolveKnownPlaces(searchId){
+  for(const field of fields){
+   const typed=field.input.value.trim();
+   if(!typed)continue;
+   if(isRamArt(typed)){
+    choose(field,RAM_ART);continue;
+   }
+   if(!isDavidAlias(typed))continue;
+   if(isDavidFavorite(local[field.key])&&Number.isFinite(local[field.key].lat))continue;
+   let saved=davidFavorite();
+   if(!saved){
+    const family=w.HH_TRAVEL_FAVORITES_V972;
+    if(family?.sync)try{await family.sync(true)}catch(_){}
+    if(searchId!==searchCounter)return 'A keresés megváltozott. Indíts új keresést.';
+    saved=davidFavorite();
+   }
+   if(!saved)return 'A „Dávid & Anna Otthona” mentett cím most nem elérhető. Jelentkezz be a Family Guardba, majd frissítsd a családi kedvenceket. Nem használunk kitalált címet.';
+   choose(field,saved);
+  }
+  return null;
+ }
  async function searchTrip(event){
   event.preventDefault();clearAll();resultView?.unlockSound?.();
   const searchId=++searchCounter;
   if(results)results.hidden=false;
+  const placeError=await resolveKnownPlaces(searchId);
+  if(searchId!==searchCounter)return;
+  if(placeError){unavailable(placeError);return}
   const query=snapshot();
   if(!query.from||!query.to){unavailable('Az útvonalhoz mindkét hely szükséges. Válassz indulási helyet és célt a prediktív listából.');return}
   if(fold(query.from)===fold(query.to)){unavailable('Az indulási és érkezési hely nem lehet azonos.');return}
