@@ -1,86 +1,39 @@
 :root{color-scheme:dark;--bg:#070717;--card:#171122;--pink:#ff46b5;--gold:#ffd18b;--text:#fff7ff;--muted:#bdb4ce;--cyan:#5bdcff}
 *{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:76px}body{margin:0;background:radial-gradient(ellipse at 18% 8%,#44214d66,transparent 37%),radial-gradient(ellipse at 95% 35%,#0d254d66,transparent 34%),var(--bg);color:var(--text);font:14px/1.4 Inter,system-ui,"Segoe UI",sans-serif}a{color:inherit;text-decoration:none}button,input,select{font:inherit}button{cursor:pointer;color:inherit}button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid #bff3ff;outline-offset:2px}[hidden]{display:none!important}.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}.app{width:min(100%,540px);min-height:100dvh;margin:0 auto;background:linear-gradient(160deg,#080b1e,#0a0718 45%,#080d22);box-shadow:0 0 55px #0005}.topbar{height:66px;display:flex;align-items:center;justify-content:space-between;gap:6px;padding:6px 10px;background:#090b1dee;position:relative;z-index:3}.brand{display:flex;align-items:center;gap:7px;white-space:nowrap;min-width:0;font-size:19px;font-weight:850}.brand strong{font-size:clamp(13px,4.2vw,18px);overflow:hidden;text-overflow:ellipsis}.brand-mark{background:linear-gradient(140deg,#ff809f,#d81c8f);display:grid;place-items:center;width:39px;height:39px;border-radius:50%;box-shadow:0 0 16px #ed2d8d77;font-size:17px}.brand-divider{height:28px;width:1px;background:#ffffff44;margin:0 2px}.head-actions{display:flex;gap:5px;align-items:center}.icon-btn{display:grid;place-items:center;width:30px;height:38px;border:0;background:none;font-size:29px;line-height:1}.fav-round{height:57px;width:57px;flex:none;border-radius:50%;border:1px solid #ffa6d9;background:radial-gradient(circle at 25% 0%,#ff75a9,#c81b77 65%,#5a0d46);box-shadow:0 0 11px #ff43a6b0;font-size:11px;line-height:1.05;text-align:center}.fav-round span{display:block}.hero{position:relative;background:#17031f;overflow:hidden}.hero-image{width:100%;display:block;height:auto;max-height:none;aspect-ratio:1602/982;object-fit:contain}.hero-title{text-align:center;background:linear-gradient(180deg,#23071b,#0d071b);padding:9px 8px 11px;border-top:2px solid #e645c48c}.hero-title>span{display:inline-block;color:#ffebbd;border:1px solid #f3bf7999;border-radius:40px;letter-spacing:1.6px;font-weight:800;font-size:10px;padding:2px 10px}.hero-title h1{text-align:left;margin:1px 0;font-size:clamp(32px,8.3vw,45px);font-style:italic;font-weight:950;letter-spacing:-1.7px;line-height:1.04;text-shadow:0 2px 11px #000}.hero-title h1 em{color:#ff86d8;font-style:italic;filter:drop-shadow(0 0 7px #eb4db5)}.hero-title p{margin:2px 0 0;font-size:11.5px;color:#eadce9}.search-bar{height:55px;margin:9px 10px 14px;display:flex;align-items:center;gap:5px;padding:5px 5px 5px 11px;border-radius:40px;background:#140d22;border:2px solid #fa64d8;box-shadow:0 0 11px #fb2dccaa,inset 0 1px 9px #e657ce32}.search-bar .star{font-size:23px;color:#ffe1a2}.search-bar input{flex:1;width:0;background:none;border:0;color:white;outline:none;font-size:12px}.search-bar input::placeholder{color:#d0c5d1}.search-bar button{flex:none;border:0;background:none;font-size:19px;width:31px;height:36px}.search-bar .search-submit{display:grid;place-items:center;width:47px;background:linear-gradient(120deg,#ff69cc,#c40d78);border-radius:30px;font-size:26px;box-shadow:0 0 8px #fc3aaa9c}.categories{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 10px;padding:0 10px 13px}.cat{display:block;min-width:0;aspect-ratio:2.14;position:relative;padding:0;border:0;border-radius:16px;overflow:hidden;background:#1a0e27;box-shadow:0 0 0 1.5px var(--neon),0 0 12px var(--neon),inset 0 0 6px var(--neon)}.cat img{width:100%;height:100%;display:block;object-fit:cover}.cat:active{transform:scale(.983)}.cat.pink{--neon:#ff4296}.cat.blue{--neon:#198dff}.cat.cyan{--neon:#24e6f5}.cat.gold{--neon:#ffa92e}.cat.magenta{--neon:#ff3b8b}.quick-panel{margin:6px 10px 18px;border:1px solid #e867ea;border-radius:20px;padding:11px 10px;background:linear-gradient(135deg,#41123c66,#130f2de0);box-shadow:0 0 12px #ea40e45a}.quick-panel h2{font-size:14px;margin:0 0 10px 3px}.quick-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}.quick-grid button{min-width:0;min-height:94px;padding:9px 3px;border:1px solid #e889df;border-radius:14px;background:linear-gradient(160deg,#331b3d,#0e1426);box-shadow:inset 0 1px #ffffff39}.quick-grid button span{display:block;color:#ffa5e2;font-size:27px;line-height:1.1}.quick-grid strong{display:block;font-size:10.5px;line-height:1.2;margin-top:6px;word-break:normal}.quick-grid small{display:block;color:#dfc3dd;font-size:9px;margin-top:3px;line-height:1.2}.workspace{margin:16px 10px 26px;padding:17px 12px;border:1px solid #b855a255;background:linear-gradient(140deg,#1b162e,#0e1325);border-radius:20px;scroll-margin-top:18px}.workspace-head{display:flex;align-items:center;justify-content:space-between;gap:10px}.eyebrow{font-size:9px;color:#f5a8d9;letter-spacing:1.2px;font-weight:800}.workspace h2{font-size:21px;margin:0}.main-add,.primary{border:1px solid #ff9cdd;border-radius:30px;background:linear-gradient(125deg,#ef3e9d,#9b2d9b);box-shadow:0 0 11px #fb61ba56;padding:9px 13px;font-weight:750;font-size:11px}.subtle{color:var(--muted);font-size:11px;margin:9px 0 13px;line-height:1.5}.tabs{display:flex;gap:6px;flex-wrap:wrap;margin:12px 0}.tabs button{background:#211a33;border:1px solid #704f7e;border-radius:20px;padding:7px 10px;font-size:11px}.tabs button[aria-pressed="true"]{background:#a62c75;border-color:#fa91d2}.item{background:#121729;border:1px solid #67466465;border-radius:14px;padding:11px;margin:8px 0;display:flex;align-items:center;gap:10px}.item-main{flex:1;min-width:0}.item-title{display:block;word-break:break-word;font-weight:750;font-size:13px}.item-meta{font-size:10px;color:#bdb2cb;margin-top:4px}.item-actions{display:flex;align-items:center;gap:4px;flex-wrap:wrap;max-width:97px;justify-content:flex-end}.small-btn{background:#261b3a;border:1px solid #7b4c8e;border-radius:10px;padding:6px 8px;font-size:11px;white-space:nowrap}.small-btn.danger{color:#ffb0ac;border-color:#a74c70}.item.complete .item-title{text-decoration:line-through;color:#9a92ac}.check{width:26px;height:26px;border:1px solid #ae79ad;border-radius:8px;accent-color:#ef57ae}.empty{margin:13px 0;padding:19px 12px;text-align:center;border:1px dashed #9d719e;border-radius:14px;color:#c8bbd2;font-size:12px}.summary{padding:12px;border-radius:13px;border:1px solid #ba75bc62;background:#2a1735;margin:10px 0;font-size:12px}.summary strong{color:#ffd392;font-size:16px}.stat-row{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:6px 0}.offer-info{font-size:11px;color:#e7d4e8}.merchant-grid{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}.merchant-grid a,.retailers a{padding:8px 10px;background:#1f2035;border:1px solid #805e94;border-radius:11px;font-size:11px}.retailer-area{padding:12px 13px 20px;margin:15px 10px 30px;border:1px solid #50496e;border-radius:16px}.retailer-area h2{margin:0 0 10px;font-size:17px}.retailer-area small{font-size:9px;color:#b5a8c3;font-weight:normal}.retailers{display:flex;gap:7px;flex-wrap:wrap}.retailer-area p{font-size:10px;color:#aaa0bb;line-height:1.5}.bottom-space{height:80px}.bottomnav{height:73px;position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:min(100%,540px);background:#0b1932ee;backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border-top:1px solid #5985bd88;border-radius:18px 18px 0 0;display:grid;grid-template-columns:repeat(5,1fr);padding:5px 3px calc(4px + env(safe-area-inset-bottom,0px));z-index:30}.bottomnav a,.bottomnav button{border:0;background:none;color:#d7d9eb;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:2px;font-size:10px;min-width:0;text-align:center}.bottomnav span{font-size:25px;line-height:1}.bottomnav .current{color:#81c4ff;text-shadow:0 0 6px #338dfd}.backdrop{position:fixed;inset:0;background:#040510e8;backdrop-filter:blur(5px);z-index:100;display:flex;justify-content:center;align-items:flex-end;padding:10px;padding-bottom:max(10px,env(safe-area-inset-bottom,10px))}.dialog{width:min(100%,530px);max-height:90dvh;overflow:auto;padding:17px;border:1px solid #ff81d099;border-radius:23px;background:linear-gradient(145deg,#302041,#11192b 78%);box-shadow:0 8px 38px #000b}.dialog header{display:flex;justify-content:space-between;align-items:center;gap:10px}.dialog h2{margin:0;font-size:19px}.close{width:34px;height:34px;background:#2c1a3a;border:1px solid #8e5791;border-radius:50%;font-size:23px}.field{display:grid;gap:5px;margin:10px 0;color:#f2c9e5;font-size:12px;font-weight:650}.field input,.field select,.field textarea{border-radius:11px;background:#0b1122;border:1px solid #815d91;color:white;padding:12px;width:100%;font-size:14px;outline-offset:2px}.dialog-actions{display:flex;gap:8px;align-items:center;justify-content:flex-end;flex-wrap:wrap;margin-top:18px}.chip{border:1px solid #f092c0;background:#4c2455;padding:7px 10px;border-radius:12px;font-size:11px}.toast{position:fixed;bottom:88px;z-index:120;left:50%;transform:translateX(-50%);width:min(90vw,370px);text-align:center;background:#362244;color:white;border:1px solid #e56cc0;border-radius:12px;padding:11px 15px;box-shadow:0 6px 20px #0009}.readonly{border:1px solid #64536a;border-radius:10px;padding:9px;color:#cdbbd1;font-size:11px}.dialog video{width:100%;max-height:50dvh;object-fit:contain;border-radius:14px;background:#000}
 @media(min-width:680px){.app{border-left:1px solid #4e284d;border-right:1px solid #4e284d}.categories{gap:14px;padding:0 14px}.cat{border-radius:19px}.search-bar{margin-inline:14px}}@media(max-width:370px){.brand{gap:4px;font-size:16px}.brand strong{font-size:12px}.brand-mark{width:32px;height:32px}.fav-round{width:49px;height:49px;font-size:10px}.icon-btn{width:25px}.quick-grid{gap:4px}.quick-grid small{font-size:8px}.cat{border-radius:12px}.bottomnav a,.bottomnav button{font-size:9px}}@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
-/* SHO Shopping v5: compact controls beside the left-aligned center label */
-.topbar{justify-content:flex-start}
-.hero-title{text-align:left;padding:8px 10px 11px}
-.hero-toolbar{display:flex;align-items:center;justify-content:space-between;gap:6px;min-width:0}
-.hero-title .hero-kicker{display:inline-flex;align-items:center;white-space:nowrap;color:#ffebbd;border:1px solid #f3bf7999;border-radius:40px;letter-spacing:1.2px;font-weight:800;font-size:10px;padding:3px 8px}
-.hero-toolbar .head-actions{display:flex;align-items:center;gap:4px;flex:none}
-.hero-toolbar .icon-btn{width:29px;height:40px;font-size:27px}
-.hero-toolbar .fav-round{display:flex;flex-direction:column;align-items:center;justify-content:center;width:50px;height:50px;padding:0;font-size:10px;line-height:1}
-.hero-title h1{margin:3px 0 0}
+
+/* SHO Shopping v10: original picture proportions, no stretched tiles or forced grid heights.
+   Only the top chrome is compact. All six cards keep the approved visual design. */
+.topbar{height:34px;padding:3px 9px;display:flex;align-items:center;justify-content:flex-start}
+.topbar .hero-kicker{display:inline-flex;align-items:center;white-space:nowrap;color:#ffebbd;
+ border:1px solid #f3bf7999;border-radius:40px;letter-spacing:1px;
+ font-weight:800;font-size:9px;padding:2px 8px}
+.hero-title{height:44px;min-height:44px;display:flex;align-items:center;justify-content:space-between;
+ gap:4px;padding:1px 9px;background:linear-gradient(180deg,#23071b,#0d071b);
+ border-top:0;border-bottom:1px solid #e645c48c;text-align:left}
+.hero-title h1{flex:1;min-width:0;margin:0;white-space:nowrap;
+ font-size:clamp(24px,6.9vw,37px);font-style:italic;line-height:1.05;
+ letter-spacing:-1.5px;font-weight:950;text-align:left}
+.hero-title .head-actions{display:flex;align-items:center;gap:2px;flex:none}
+.hero-title .icon-btn{width:25px;height:34px;font-size:24px}
+.hero-title .fav-round{display:flex;flex-direction:column;align-items:center;justify-content:center;
+ width:41px;height:41px;padding:0;font-size:8.5px;line-height:1}
+.hero-image{display:block;width:100%;height:auto;max-height:none;
+ aspect-ratio:1602/982;object-fit:contain;object-position:center}
+.search-bar{height:50px;margin:6px 10px 10px}
+.categories{height:auto;min-height:0;display:grid;
+ grid-template-columns:repeat(2,minmax(0,1fr));grid-auto-rows:auto;align-content:start;
+ gap:11px 10px;padding:0 10px 11px}
+.categories .cat{aspect-ratio:2.14;min-height:0;max-height:none;border-radius:16px}
+.categories .cat img{width:100%;height:100%;object-fit:cover;display:block}
 @media(max-width:370px){
-.hero-title{padding:7px 8px 10px}
-.hero-title .hero-kicker{font-size:8px;letter-spacing:.4px;padding:3px 6px}
-.hero-toolbar .head-actions{gap:1px}
-.hero-toolbar .icon-btn{width:23px;height:35px;font-size:24px}
-.hero-toolbar .fav-round{width:44px;height:44px;font-size:9px}
+ .hero-title h1{font-size:clamp(22px,6.7vw,25px);letter-spacing:-1.2px}
+ .hero-title .icon-btn{width:22px;font-size:22px}
+ .hero-title .fav-round{width:39px;height:39px;font-size:8px}
+ .categories{gap:9px 8px}
 }
-
-/* SHO Shopping v6: one top header row; title alone below the hero image */
-.topbar{justify-content:space-between;padding:6px 10px;height:66px}
-.topbar .hero-toolbar{width:100%}
-.topbar .hero-kicker{display:inline-flex;align-items:center;white-space:nowrap;color:#ffebbd;border:1px solid #f3bf7999;border-radius:40px;letter-spacing:1.2px;font-weight:800;font-size:10px;padding:3px 8px}
-.hero-title{padding:7px 10px 9px}
-.hero-title h1{margin:1px 0}
-@media(max-width:370px){.topbar{padding-inline:8px}.topbar .hero-kicker{font-size:8px;letter-spacing:.4px;padding:3px 6px}}
-
-/* SHO Shopping v7: title immediately below toolbar, before full-width hero image */
-.hero-title{border-top:0;border-bottom:2px solid #e645c48c;padding:8px 10px 9px}
-.hero-title h1{margin:1px 0;text-align:left}
-.hero-image{width:100%;display:block;height:auto}
-
-/* SHO Shopping v8: S24 Ultra six-category above-fold compact view */
-.topbar{height:41px;padding:5px 10px;display:flex;align-items:center}
-.hero-title{height:50px;min-height:50px;padding:2px 10px 3px;border-top:0;border-bottom:2px solid #e645c48c;display:flex;align-items:center;justify-content:space-between;gap:5px}
-.hero-title h1{flex:1;min-width:0;margin:0;white-space:nowrap;text-align:left;font-size:clamp(25px,7vw,39px);line-height:1;letter-spacing:-1.6px}
-.hero-title .head-actions{display:flex;align-items:center;gap:3px;flex:0 0 auto}
-.hero-title .icon-btn{width:26px;height:35px;font-size:25px}
-.hero-title .fav-round{display:flex;align-items:center;justify-content:center;flex-direction:column;width:45px;height:45px;padding:0;font-size:9px;line-height:1}
-.hero-image{width:100%;height:min(52vw,28dvh);max-height:272px;aspect-ratio:auto;object-fit:cover;object-position:center 43%;display:block}
-.search-bar{margin-top:7px;margin-bottom:10px;height:51px}
-.categories{gap:8px;padding-bottom:9px}
-.cat{aspect-ratio:2.25}
-@media(max-width:370px){
- .topbar{height:39px;padding:4px 8px}
- .hero-title{height:47px;min-height:47px;padding:2px 8px}
- .hero-title h1{font-size:clamp(23px,6.9vw,27px);letter-spacing:-1.3px}
- .hero-title .head-actions{gap:1px}
- .hero-title .icon-btn{width:21px;height:32px;font-size:22px}
- .hero-title .fav-round{width:40px;height:40px;font-size:8px}
- .cat{aspect-ratio:2.26}
-}
-@media(max-height:750px) and (max-width:600px){
- .hero-image{height:min(46vw,25dvh)}
- .categories{gap:7px}
- .cat{aspect-ratio:2.4}
- .search-bar{margin-top:5px;margin-bottom:8px}
-}
-
-/* SHO Shopping v9: restore generously sized visual tiles and fill the S24 Ultra viewport.
-   Space is recovered above the cards, never by compressing card artwork. */
-@media(max-width:600px){
-  .topbar{height:34px;padding:2px 9px}
-  .topbar .hero-kicker{padding:2px 7px;font-size:9px;letter-spacing:.8px}
-  .hero-title{height:44px;min-height:44px;padding:1px 9px;border-bottom-width:1px}
-  .hero-title h1{margin:0;font-size:clamp(25px,7vw,35px);line-height:1.02}
-  .hero-title .head-actions{gap:2px}
-  .hero-title .icon-btn{width:25px;height:34px;font-size:24px}
-  .hero-title .fav-round{width:41px;height:41px;font-size:8.5px}
-  .hero-image{height:min(44vw,25dvh);max-height:none;object-fit:cover;object-position:center 43%}
-  .search-bar{height:48px;margin:6px 10px 8px}
-  .categories{
-    height:max(303px,calc(100dvh - 34px - 44px - min(44vw,25dvh) - 62px - 73px));
-    grid-template-rows:repeat(3,minmax(0,1fr));
-    gap:10px;
-    padding:0 10px 9px;
-  }
-  .categories .cat{aspect-ratio:auto;min-height:90px;border-radius:16px}
-  .categories .cat img{object-fit:fill}
-}
-@media(max-width:370px){
-  .hero-title h1{font-size:clamp(23px,7vw,26px)}
-  .hero-title .fav-round{width:39px;height:39px}
-  .categories{gap:8px}
+@media(min-width:680px){
+ .categories{gap:14px;padding:0 14px 13px}
+ .categories .cat{border-radius:19px}
+ .search-bar{margin-inline:14px}
 }
