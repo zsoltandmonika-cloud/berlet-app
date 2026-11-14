@@ -230,11 +230,6 @@ $("shoProducts")?.addEventListener("click",e=>{
  if(api.addCatalogProduct(p)){button.textContent="✓ Kosárba mentve";try{navigator.vibrate?.(8)}catch(_){}}
 });
 $("shoStoreConnect")?.querySelector("[data-sho-connect-refresh]")?.addEventListener("click",()=>search($("searchInput")?.value||""));
-$("shoStoreConnect")?.querySelector("[data-sho-connect-reset]")?.addEventListener("click",()=>{
- state.category="";state.query="";state.products=[];$("searchInput").value="";
- paintStores();paintProducts();feedback("Válassz üzletet vagy keress valódi termékeket.");
- $("shoCatalogStatus").textContent="Nyomd meg a Keresés gombot az Open Food Facts termékadatainak lekéréséhez.";
-});
 window.SHOP_CONNECTORS_V2=Object.freeze({search,selectCategory,stores:MERCHANTS.map(x=>x.name)});
 paintStores();
 })();
