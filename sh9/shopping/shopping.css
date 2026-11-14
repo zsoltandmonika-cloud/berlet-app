@@ -37,3 +37,15 @@
  .categories .cat{border-radius:19px}
  .search-bar{margin-inline:14px}
 }
+
+/* Shopping screen-group snap v13 · approved SHO Golden Standard.
+   Content alone snaps. Fixed bottom navigation and shell never animate. */
+html.shopping-snap-ready{scroll-snap-type:y proximity;scroll-padding-top:0}
+html.shopping-snap-ready .topbar,
+html.shopping-snap-ready #shoStoreConnect,
+html.shopping-snap-ready #shoCatalogPanel{scroll-snap-align:start;scroll-snap-stop:normal}
+html.shopping-snap-ready #shoStoreConnect,
+html.shopping-snap-ready #shoCatalogPanel{scroll-margin-top:0}
+@media(prefers-reduced-motion:reduce){
+ html.shopping-snap-ready{scroll-snap-type:none;scroll-behavior:auto}
+}
