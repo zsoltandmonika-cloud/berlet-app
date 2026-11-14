@@ -43,8 +43,9 @@ function storeLogo(shop){
 }
 function paintStores(){
  const box=$("shoStoreGrid");if(!box)return;
+ const visibleStores=storesFor(state.category);
  box.replaceChildren();
- for(const shop of storesFor(state.category)){
+ for(const shop of visibleStores){
   const card=make("article","sho-store");
   const brand=make("a","sho-store-brand");
   brand.href=shop.url;brand.target="_blank";brand.rel="noopener noreferrer external";
@@ -67,7 +68,8 @@ function paintStores(){
   card.append(brand,actions);box.append(card);
  }
  const header=$("shoStoreSummary");
- if(header)header.textContent=storesFor(state.category).length+" áruház · képes üzletkártyák · külső keresés és rendelés";
+ if(header)header.textContent=visibleStores.length+" áruház · képes üzletkártyák · külső keresés és rendelés";
+ $("shoStoreConnect")?.classList.toggle("all-stores",visibleStores.length===MERCHANTS.length&&!state.query);
 }
 function sortedProducts(){
  const rows=state.products.slice();
