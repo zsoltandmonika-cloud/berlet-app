@@ -6,8 +6,10 @@ const html=read('sh9/smart-travel/public-transport/smart-trip/index.html');
 const ui=read('sh9/smart-travel/public-transport/smart-trip/smart-trip-ai-v1022.js');
 const q={from:'Otthon',to:'Mónika · Anyuka',date:'2026-11-01',time:'07:30',mode:'depart'};
 const places={origin:{name:'Otthon',lat:47.54512,lng:19.03534},destination:{name:'Mónika · Anyuka',lat:48.25343,lng:20.64156}};
-test('ChatGPT is default, Google is only an explicitly chosen dropdown item, no CTA',()=>{
+test('Live Google Routes is primary, ChatGPT and Google Maps remain selectable',()=>{
  assert.match(html,/<option value="chatgpt">✨ Léna · ChatGPT/);
+ assert.match(html,/<option value="google_api_v5">🌍 Valódi Google útvonal/);
+ assert.match(ui,/LIVE_DEFAULT_MIGRATION='sh9-smart-trip-live-default-v1150-'/);
  assert.match(html,/<option value="google">🗺️ Google Térkép/);
  assert.match(html,/<option value="native">🧠 SH9 saját · kísérleti/);
  assert.doesNotMatch(html,/id="st22ExternalTrip"|id="st22ExternalNote"/);
@@ -81,12 +83,25 @@ test('stale, mismatching or out-of-country favorite coordinates cannot be leaked
  assert.equal(ai.prompt({...q,time:'99:55'},places,'balanced'),null);
  assert.equal(ai.prompt({...q,from:' '},places,'balanced'),null);
 });
-test('profile independent defaults preserve legacy explicit Google choice and no new API cost',()=>{
+test('one-time default upgrade keeps later explicit provider choices',()=>{
  assert.match(ui,/METHOD_KEY='sh9-smart-trip-search-method-v1076-'/);
- assert.match(ui,/const allowedMethods=new Set\(\['chatgpt','google','native','lena_native','bkk_gtfs'\]\)/);
+ assert.match(ui,/const allowedMethods=new Set\(\['chatgpt','google','native','lena_native','bkk_gtfs','google_api_v5'\]\)/);
+ assert.match(ui,/methodSelect\.value=upgraded\?'google_api_v5':chosen/);
+ assert.match(ui,/w\.localStorage\.setItem\(LIVE_DEFAULT_MIGRATION\+p,'1'\)/);
  assert.match(ui,/saved\)\?saved:legacy==='external'\?'google'/);
  assert.match(ui,/w\.localStorage\.getItem\(METHOD_KEY\+p\)/);
  assert.match(ui,/w\.localStorage\.setItem\(METHOD_KEY\+profile\(\),choice\)/);
  assert.match(ui,/restoreMethod\(\);\s*if\(clearFields\)/);
  assert.doesNotMatch(html,/gpt-4\.1-mini|api\.openai\.com/);
+});
+
+test('RaM-ArT canonical address and Dávid és Anna aliases route through actual address/favorite',()=>{
+ assert.match(ui,/1133 Budapest, Kárpát utca 23\., Magyarország/);
+ assert.match(ui,/function isRamArt\(x\)/);
+ assert.match(ui,/davidesanna/);
+ assert.match(ui,/async function resolveKnownPlaces\(searchId\)/);
+ assert.match(ui,/await family\.sync\(true\)/);
+ assert.match(ui,/if\(placeError\)\{unavailable\(placeError\);return\}/);
+ assert.match(ui,/!saved\)return 'A „Dávid & Anna Otthona” mentett cím/);
+ assert.doesNotMatch(ui,/47\.4778137|19\.0725712/);
 });
