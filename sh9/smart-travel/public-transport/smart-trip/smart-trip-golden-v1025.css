@@ -253,3 +253,8 @@ button{cursor:pointer;touch-action:manipulation}a{text-decoration:none}
 @supports (min-height:100dvh){
  .st22-shell{min-height:100dvh}
 }
+
+/* v1150: explicit, accessible fallback to provider's live transit planner. */
+.st22-v5-live-map-link{display:flex;align-items:center;justify-content:center;min-height:42px;padding:10px 13px;margin:10px 0 0;border:1px solid rgba(122,186,236,.44);border-radius:13px;color:#d5ecff;background:rgba(35,72,112,.28);font-weight:700;text-align:center;text-decoration:none;font-size:12px;line-height:1.4}
+.st22-v5-live-map-link:focus-visible{outline:2px solid #a9d7ff;outline-offset:3px}
+.st22-v5-live-map-link[hidden]{display:none!important}
