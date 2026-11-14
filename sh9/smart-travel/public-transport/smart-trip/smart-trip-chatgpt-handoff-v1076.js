@@ -31,6 +31,20 @@
   return selected?'Kazincbarcika: a közvetlen Volán járat előnyt élvez, ha a Márka ABC közelében áll meg.':'';
  }
 
+ // v1140: family route ranking only, never invent BKK departures.
+ function familyRoutePreference(q){
+  const a=safe(q?.from).toLocaleLowerCase('hu-HU'),b=safe(q?.to).toLocaleLowerCase('hu-HU');
+  const david=s=>/d[aá]vid/.test(s)&&(/anna/.test(s)||/d[aá]vid[eé]k/.test(s));
+  const home=s=>/^otthon$/.test(s);
+  const becsi=s=>/b[eé]csi/.test(s)&&/v[oö]r[oö]sv[aá]ri/.test(s);
+  const prefix='KIEMELT helyi járatpreferencia, csak valós menetrendi csatlakozással, min. 5 perc átszállási tartalékkal: ';
+  if(david(b)&&home(a))return prefix+'Otthon → 260 (Citronella → Bécsi út/Vörösvári út) → 17 vagy 19 → 4 vagy 6 → Dávidék.';
+  if(david(b)&&becsi(a))return prefix+'Bécsi út/Vörösvári út → 17 vagy 19 → 4 vagy 6 → Dávidék.';
+  if(david(a)&&home(b))return prefix+'Dávidék → 4 vagy 6 → 17 vagy 19 → 260 (Bécsi út/Vörösvári út → Citronella) → Otthon.';
+  if(david(a)&&becsi(b))return prefix+'Dávidék → 4 vagy 6 → 17 vagy 19 → Bécsi út/Vörösvári út.';
+  return '';
+ }
+
  function point(q,p){
   if(!p||safe(p.name)!==safe(q)||!Number.isFinite(p.lat)||!Number.isFinite(p.lng)||
     p.lat<45||p.lat>49||p.lng<16||p.lng>23)return '';
@@ -62,6 +76,7 @@
    'Fontos: '+requested,
    'Távolsági preferencia: 1. közvetlen Volán, 2. Sajó Expressz, 3. egyéb expresszvonat, utána más járatok. Csak menetrendileg megfelelő, ésszerű várakozású és biztonságos csatlakozású megoldást válassz; helyi utakra ez nem vonatkozik.',
    specificPreference(q,points),
+   familyRoutePreference(q),
    'Adj pontosan egy legjobb útvonalat konkrét járatokkal, átszállásokkal és gyaloglással. Alternatív útvonalakat ne keress és ne adj meg.',
    'Ellenőrizd az adott nap menetrendjét és az útvonalat érintő ünnepi vagy forgalmi eltéréseket. A bizonytalan időpontokat jelöld becsültnek, adj forráslinket.',
    'Az útitervből készíts sh9.trip-pack/1 JSON-t. Mezők: schema,title,travelDate,from,to,departure,arrival,arrivalStatus,summary,segments[{mode,line,from,to,departure,arrival,status,note}],alerts[{title,text}],alternatives:[],sources[{name,url}]. mode: walk/bus/tram/metro/train/hev/other; status: timetable/estimated/unknown. Idők: HH:mm vagy null. Csak megalapozott adatot használj.',
