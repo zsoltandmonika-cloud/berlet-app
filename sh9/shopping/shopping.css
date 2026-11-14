@@ -57,3 +57,30 @@
  .cat{aspect-ratio:2.4}
  .search-bar{margin-top:5px;margin-bottom:8px}
 }
+
+/* SHO Shopping v9: restore generously sized visual tiles and fill the S24 Ultra viewport.
+   Space is recovered above the cards, never by compressing card artwork. */
+@media(max-width:600px){
+  .topbar{height:34px;padding:2px 9px}
+  .topbar .hero-kicker{padding:2px 7px;font-size:9px;letter-spacing:.8px}
+  .hero-title{height:44px;min-height:44px;padding:1px 9px;border-bottom-width:1px}
+  .hero-title h1{margin:0;font-size:clamp(25px,7vw,35px);line-height:1.02}
+  .hero-title .head-actions{gap:2px}
+  .hero-title .icon-btn{width:25px;height:34px;font-size:24px}
+  .hero-title .fav-round{width:41px;height:41px;font-size:8.5px}
+  .hero-image{height:min(44vw,25dvh);max-height:none;object-fit:cover;object-position:center 43%}
+  .search-bar{height:48px;margin:6px 10px 8px}
+  .categories{
+    height:max(303px,calc(100dvh - 34px - 44px - min(44vw,25dvh) - 62px - 73px));
+    grid-template-rows:repeat(3,minmax(0,1fr));
+    gap:10px;
+    padding:0 10px 9px;
+  }
+  .categories .cat{aspect-ratio:auto;min-height:90px;border-radius:16px}
+  .categories .cat img{object-fit:fill}
+}
+@media(max-width:370px){
+  .hero-title h1{font-size:clamp(23px,7vw,26px)}
+  .hero-title .fav-round{width:39px;height:39px}
+  .categories{gap:8px}
+}
