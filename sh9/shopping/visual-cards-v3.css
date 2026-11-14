@@ -63,3 +63,63 @@
 
 /* Duplicate legacy plain-text store links are superseded by the branded Store Connect cards. */
 .app .retailer-area{display:none}
+
+
+/* Store screen v12: 10 merchants across 5 balanced rows; catalog starts in the NEXT panel.
+   S24 Ultra reference. Keep logos undistorted and retain functional store links. */
+.shop-connect.sho-catalog-panel{margin-top:10px}
+.shop-connect.sho-catalog-panel .sho-catalog-head{margin-top:0;padding-top:0;border-top:0}
+@media(max-width:600px){
+ .shop-connect.store-screen{margin:6px 10px 12px;padding:10px;scroll-margin-top:10px}
+ .shop-connect.store-screen.all-stores{
+  display:flex;flex-direction:column;overflow:hidden;
+  height:calc(100dvh - 88px);height:calc(100svh - 88px);
+ }
+ .shop-connect.store-screen .shop-connect-head{flex:0 0 auto;min-height:40px}
+ .shop-connect.store-screen .shop-title{font-size:18px;line-height:1.12}
+ .shop-connect.store-screen .shop-kicker{margin-bottom:2px}
+ .shop-connect.store-screen .sho-actions{flex:0 0 auto;margin:5px 0 3px}
+ .shop-connect.store-screen .sho-actions button{min-height:32px;padding:5px 9px;font-size:10px}
+ .shop-connect.store-screen .sho-store-count{
+  flex:0 0 auto;min-width:0;margin:3px 0 6px;font-size:9px;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap
+ }
+ .shop-connect.store-screen .sho-store-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px 8px}
+ .shop-connect.store-screen.all-stores .sho-store-grid{
+  display:grid;grid-template-rows:repeat(5,minmax(0,1fr));
+  flex:1 1 auto;min-height:0
+ }
+ .shop-connect.store-screen .sho-store{
+  min-width:0;min-height:90px;height:100%;display:flex;flex-direction:column;
+  justify-content:space-between;gap:3px;padding:5px 7px;
+  overflow:hidden;border-radius:13px
+ }
+ .shop-connect.store-screen.all-stores .sho-store{min-height:0}
+ .shop-connect.store-screen .sho-store-brand{
+  min-height:0;flex:1 1 auto;display:flex;align-items:center;gap:7px
+ }
+ .shop-connect.store-screen .sho-store-logo{
+  display:grid;place-items:center;width:42px;height:42px;flex:0 0 42px;
+  border-radius:9px;overflow:hidden
+ }
+ .shop-connect.store-screen .sho-store-logo img{
+  display:block;width:34px;height:34px;object-fit:contain
+ }
+ .shop-connect.store-screen .sho-store-top{
+  display:flex;flex-direction:column;align-items:flex-start;gap:2px;
+  justify-content:center;min-width:0;margin:0
+ }
+ .shop-connect.store-screen .sho-store-top strong{
+  font-size:clamp(12px,3.4vw,15px);line-height:1.1
+ }
+ .shop-connect.store-screen .sho-store-top span{font-size:8px;line-height:1.15}
+ .shop-connect.store-screen .sho-store-actions{display:flex;gap:3px;margin-top:0}
+ .shop-connect.store-screen .sho-store-actions a{
+  flex:1;min-width:0;min-height:28px;padding:3px 5px;font-size:9px;
+  border-radius:8px;line-height:1.2
+ }
+}
+@media(max-width:600px) and (max-height:690px){
+ .shop-connect.store-screen.all-stores{height:auto;min-height:calc(100dvh - 88px);overflow:visible}
+ .shop-connect.store-screen.all-stores .sho-store-grid{grid-template-rows:repeat(5,minmax(90px,auto))}
+}
