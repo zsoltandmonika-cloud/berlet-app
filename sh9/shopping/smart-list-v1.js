@@ -643,7 +643,14 @@ $('qtyUnit').onchange=e=>changeQtyUnit(e.target.value);
 $('qtySave').onclick=()=>void saveQtyEditor();
 d.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('qtyOverlay').hidden)closeQtyEditor()});
 
-$('navList').onclick=()=>w.scrollTo({top:0,behavior:'smooth'});
+$('navList').onclick=()=>{switchSmartView('shopping');w.scrollTo({top:0,behavior:'smooth'})};
+$('navAsk').addEventListener('click',e=>{
+ const project=w.HH_CHATGPT_PROJECT_SHORTCUT_V712;
+ if(project&&typeof project.openProject==='function'){
+  e.preventDefault();
+  project.openProject();
+ }
+});
 $('signIn').onclick=async()=>{
  if(!api)return toast('A bejelentkezéshez nincs felhőkapcsolat.');
  try{
