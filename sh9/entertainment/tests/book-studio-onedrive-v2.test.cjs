@@ -32,7 +32,7 @@ test('OneDrive is read-only with least delegated Files.Read scope, PKCE and ephe
 test('Existing EPUB/PDF renderer can read OneDrive without uploading original file',()=>{
  assert.match(cloud,/SH9_BOOK_STUDIO_DRIVE_V2\.download\(b\)/);
  assert.match(cloud,/SH9_BOOK_STUDIO_DRIVE_V2\?\.getBook\(id\)/);
- assert.match(cloud,/SH9_BOOK_STUDIO_DRIVE_V2\.saveProgress\(snapshot,patch\)/);
+ assert.match(cloud,/drive\.saveProgress\(snapshot,patch\)/);
  assert.match(cloud,/w\.SH9_BOOK_STUDIO_V1=Object\.freeze/);
  assert.match(drive,/hh_book_studio_drive_progress_v2/);
 });
