@@ -24,7 +24,7 @@ const ICON=Object.fromEntries(groups.map(g=>[g[1],g[0]]));
 const nrm=s=>String(s||'').toLocaleLowerCase('hu-HU').normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
 const validUrl=s=>{try{const u=new URL(s);return u.protocol==='https:'?u.href:''}catch(_){return''}};
 const node=(tag,cls,txt)=>{let n=d.createElement(tag);if(cls)n.className=cls;if(txt!==undefined)n.textContent=txt;return n};
-let user=null,allowed=[],items=[],selectedCategory='Mind',remote=[],activeQuery='',queryToken=0,queryTimer=0,fetchCtrl=null,live=null,refreshBusy=false,firstLoad=true,writing=false,voiceRec=null;
+let user=null,allowed=[],items=[],selectedCategory='Mind',remote=[],activeQuery='',queryToken=0,queryTimer=0,fetchCtrl=null,live=null,refreshBusy=false,pendingReload=false,firstLoad=true,writing=false,voiceRec=null;
 const who=()=>{try{return localStorage.getItem('hh-profile')==='m'?'monika':'zsolt'}catch(_){return'zsolt'}};
 const label=p=>p==='monika'?'Mónika':'Zsolt';
 function toast(message){const e=$('toast');e.textContent=message;e.hidden=false;clearTimeout(toast.id);toast.id=setTimeout(()=>e.hidden=true,3600)}
@@ -83,7 +83,7 @@ async function add(p){
  finally{writing=false}
 }
 function itemRow(p){
- const card=node('article','product'+(p.done?' done':''));
+ const card=node('article','product'+(p.done?' done':''));card.addEventListener('click',e=>{if(!e.target.closest('button'))void setDone(p,!p.done)});
  const check=node('button','check',p.done?'✓':'');check.type='button';check.setAttribute('aria-label',p.done?'Visszateszem a listára: '+p.name:'Megvettem: '+p.name);
  check.onclick=()=>setDone(p,!p.done);
  const image=node('span','product-image');
@@ -126,7 +126,8 @@ async function removeItem(item){
  haptic();toast('Törölve: '+item.name);await reload(false);
 }
 async function reload(fromRemote){
- if(!user||refreshBusy)return;
+ if(!user)return;
+ if(refreshBusy){pendingReload=true;return}
  refreshBusy=true;
  try{
   const result=await api.from(TABLE).select('id,name,quantity,unit,category,image_url,barcode,favorite,done,done_at,done_by_profile,updated_by_profile,created_at,updated_at').eq('household','zsolt-monika').order('created_at',{ascending:false}).limit(500);
@@ -139,7 +140,7 @@ async function reload(fromRemote){
   }
   items=next;firstLoad=false;status('Felhő szinkronizálva ✓',true);render();
  }catch(e){status('Kapcsolati hiba · nincs mentés',false);toast('A családi lista nem frissült: '+String(e.message||e).slice(0,100))}
- finally{refreshBusy=false}
+ finally{refreshBusy=false;if(pendingReload){pendingReload=false;setTimeout(()=>void reload(true),75)}}
 }
 function subscribe(){
  if(!api||!user||live)return;
@@ -173,16 +174,16 @@ async function fetchProductMatches(){
  const query=$('productSearch').value.trim();
  if(query.length<3||query.length>70||!['Mind','Élelmiszer','Italok'].includes(selectedCategory)){remote=[];suggestions();return}
  const token=++queryToken;activeQuery=query;
- if(fetchCtrl)fetchCtrl.abort();fetchCtrl=new AbortController();
+ if(fetchCtrl)fetchCtrl.abort();fetchCtrl=new AbortController();const controller=fetchCtrl,timeout=setTimeout(()=>controller.abort(),10000);
  try{
   const url=new URL(cfg.supabaseUrl+'/functions/v1/sho-shopping-products-v1');url.searchParams.set('q',query);
-  const response=await fetch(url,{headers:{apikey:cfg.publishableKey,Accept:'application/json'},signal:AbortSignal.any([fetchCtrl.signal,AbortSignal.timeout(10000)])});
+  const response=await fetch(url,{headers:{apikey:cfg.publishableKey,Accept:'application/json'},signal:controller.signal});
   if(!response.ok)throw Error('Katalógus nem elérhető');
   const json=await response.json();
   if(token!==queryToken||$('productSearch').value.trim()!==query)return;
   remote=(json.products||[]).filter(x=>x.name&&x.code).slice(0,10).map(x=>({name:x.name,category:'Élelmiszer',image:x.image,code:x.code,icon:'🥫'}));
   suggestions();
- }catch(e){if(token===queryToken){remote=[];suggestions()}}
+ }catch(e){if(token===queryToken){remote=[];suggestions()}}finally{clearTimeout(timeout)}
 }
 function buildCategories(){
  const box=$('categories');
