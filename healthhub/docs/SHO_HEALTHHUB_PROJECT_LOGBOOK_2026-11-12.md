@@ -89,6 +89,13 @@
 - **Nyitott:** mobilos end-to-end Tesco belépés/termékkeresés/kosárba helyezés, kétprofilos szinkron és böngésző-visszalépés UAT. A Tesco kosártartalmát a SHO nem olvassa és a rendelést nem adja le.
 - Részletes QA, architektúra és átadási korlát: [Tesco Cart Bridge v1 specifikáció](./SHO_TESCO_CART_BRIDGE_PILOT_V1.md).
 
+### 11. 2026. november 15. · Tesco Smart Cart Bridge v2 — kattintástakarékos pilot
+- A v1 kézi „Kosárba tettem” jelölését elhagytuk a **v2** új képernyőjén. Az új út: közös Smart List vagy 10 mintatermék → aktív Tesco-keresés/mentett terméklink egy koppintással → böngésző Vissza → következő termék automatikusan előkészítve.
+- A „következő” kizárólag `sessionStorage` navigációs állapot, nem Tesco kosár-visszaigazolás vagy vásárlási állapot. A közös listát a v2 **csak olvassa**. A párosított Tesco SKU-linkek a meglévő családi felhőtáblába mennek, a v1 kézi jelölései érintetlenek.
+- Új v2 fájlok: `sh9/shopping/tesco-bridge-v2.html` és `tesco-bridge-v2.js`. Belépési pont: Shopping → Boltok & valódi termékek → **Tesco Bridge v2**. A v1 külön oldalon rollback célra megmarad. A Golden Shopping Hero és Smart List érintetlen.
+- Belső DOM/felhőmock ellenőrzés: **13/13** sikeres, régi `removeChild` hiba nem szerepel a v2-ben. Nem automatizált Tesco-kosárfeltöltés.
+- Részletek: [Tesco Bridge v2](./SHO_TESCO_CART_BRIDGE_V2.md). **Nyitott:** valódi Tesco/Samsung Internet navigáció, terméklink és kéttelefonos UAT.
+
 ### 6. Folytatási szabály
 
 A következő fejlesztések előtt a **P0 migrációs adatbiztonsági hiányokat** kell rendezni. Minden release-nél: célzott CI → főági merge → valódi mobilteszt → Project Control naplófrissítés. A GitHub PR nem helyettesíti a privát, kétprofilos telefonos ellenőrzést.
