@@ -48,7 +48,7 @@ async function loadBooks(){
   if(token!==refreshToken)return;
   loadedProfile=p;books=data||[];setStatus('🔒 Privát felhő',false);
   renderBooks();
-  for(const b of books.filter(b=>b.cover_path)){void loadCover(b,p,token)}
+  for(const b of books.filter(b=>b.cover_path)){void loadCover(b,p,token,c)}
  }catch(e){
   if(token!==refreshToken)return;
   loadedProfile='';books=[];setStatus('🔒 Bejelentkezés szükséges',true);
@@ -61,9 +61,8 @@ async function loadBooks(){
  }
  $('uploadFile').disabled=false;
 }
-async function loadCover(b,p,token){
+async function loadCover(b,p,token,c){
  try{
-  const c=await authorized(p);
   const {data,error}=await c.storage.from(BUCKET).download(b.cover_path);
   if(error)throw error;
   const u=URL.createObjectURL(data);
@@ -138,6 +137,13 @@ async function fileFormat(f){
  const header=new Uint8Array(await f.slice(0,8).arrayBuffer());
  if(ext==='pdf'&&String.fromCharCode(...header.slice(0,5))!=='%PDF-')throw Error('A fájl nem érvényes PDF.');
  if(ext==='epub'&&(header[0]!==80||header[1]!==75))throw Error('A fájl nem érvényes EPUB/ZIP.');
+ if(ext==='epub'){
+  if(!w.JSZip||!w.ePub)throw Error('Az EPUB feldolgozó nem elérhető.');
+  const zip=await w.JSZip.loadAsync(file);
+  const mt=zip.file('mimetype');
+  if(!mt||(await mt.async('string')).trim()!=='application/epub+zip')throw Error('A fájl nem szabványos EPUB.');
+ }
+ if(ext==='pdf'&&!w.pdfjsLib)throw Error('A PDF-olvasó nem elérhető.');
  return ext;
 }
 function coverCanvas(source,width,height){
