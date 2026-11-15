@@ -30,6 +30,54 @@ function splitLines(v){return(v||"").split(/\r?\n/).map(x=>x.trim()).filter(Bool
 function isFav(id){return localStorage.getItem(keyFav(id))==="1"}function setFav(id,v){localStorage.setItem(keyFav(id),v?"1":"0")}
 function getText(id){return localStorage.getItem(keyText(id))||""}function setText(id,t){t.trim()?localStorage.setItem(keyText(id),t.trim()):localStorage.removeItem(keyText(id))}
 function getMeta(id){try{return JSON.parse(localStorage.getItem(keyMeta(id))||"{}")}catch(e){return{}}}function setMeta(id,m){localStorage.setItem(keyMeta(id),JSON.stringify(m))}
+// Recipe removal is shared with the Studio via Puter metadata (never by deleting static recipe files).
+// Keep user intent locally when offline or when Puter usage cannot be verified.
+const RECIPE_META_CLOUD_PREFIX="lena:recipe-meta:";
+const RECIPE_META_PENDING_KEY="lena:meta:pending:v1159";
+function pendingRecipeMetaIds(){
+ try{const values=JSON.parse(localStorage.getItem(RECIPE_META_PENDING_KEY)||"[]");
+  return Array.isArray(values)?values.filter(x=>typeof x==="string"):[]
+ }catch(e){return[]}
+}
+function markRecipeMetaPending(id,yes){
+ const ids=new Set(pendingRecipeMetaIds());if(yes)ids.add(id);else ids.delete(id);
+ localStorage.setItem(RECIPE_META_PENDING_KEY,JSON.stringify([...ids]))
+}
+async function puterMetaCloudAvailable(){
+ const gate=window.LENA_PUTER_CREDIT_GATE_V1159;
+ return !!(puterCloudReady()&&puter.auth.isSignedIn()&&gate?.permit&&await gate.permit())
+}
+async function saveRecipeMetaShared(id,meta){
+ if(!await puterMetaCloudAvailable()){markRecipeMetaPending(id,true);return false}
+ try{
+  const item={id,...meta,updatedAt:meta.updatedAt||new Date().toISOString()};
+  await puter.kv.set(RECIPE_META_CLOUD_PREFIX+id,item);
+  const check=await puter.kv.get(RECIPE_META_CLOUD_PREFIX+id);
+  if(!check||check.id!==id||check.updatedAt!==item.updatedAt)throw new Error("A Puter metaadat visszaolvasása nem sikerült.");
+  markRecipeMetaPending(id,false);return true
+ }catch(e){markRecipeMetaPending(id,true);console.warn("Receptmeta felhőmentés később",id,e);return false}
+}
+async function loadRecipeMetaShared(){
+ if(!await puterMetaCloudAvailable())return false;
+ try{
+  const pending=new Set(pendingRecipeMetaIds()),rows=await puter.kv.list(RECIPE_META_CLOUD_PREFIX+"*",true);
+  for(const row of rows){
+   const v=row&&row.value;if(!v||!v.id||pending.has(String(v.id)))continue;
+   const id=String(v.id),local=getMeta(id);
+   if(!local.updatedAt||!v.updatedAt||String(v.updatedAt)>=String(local.updatedAt))setMeta(id,{...local,...v})
+  }
+  return true
+ }catch(e){console.warn("Receptmeta felhőszinkron nem érhető el",e);return false}
+}
+async function flushRecipeMetaPending(){
+ if(!await puterMetaCloudAvailable())return 0;
+ let done=0;
+ for(const id of pendingRecipeMetaIds()){
+  if(await saveRecipeMetaShared(id,getMeta(id)))done++;
+ }
+ return done
+}
+
 function effective(r){const m=getMeta(r.id);return Object.assign({},r,{title:m.title||r.title,category:m.category||r.category,deleted:!!m.deleted})}
 function feedbackKey(id){return"lena:taste:local:"+id}
 function historyKey(){return"lena:taste:history"}
@@ -245,7 +293,8 @@ async function loadSharedRecipes(){
  }catch(e){console.warn("Puter központi recepttár nem érhető el",e);return false}
 }
 async function refreshSharedRecipes(render=true){
- const ok=await loadSharedRecipes();await loadCustomRecipes();if(render){renderHome();renderPending()}return ok
+ await loadRecipeMetaShared();await flushRecipeMetaPending();
+ const ok=await loadSharedRecipes();await loadCustomRecipes();if(render){renderHome();renderPending();renderDeleted()}return ok
 }
 
 async function loadCustomRecipes(){
@@ -341,7 +390,7 @@ async function saveEdit(){
  else{const m=getMeta(currentId);setMeta(currentId,{title,category,deleted:!!m.deleted})}
  $("#editDialog").close();openRecipe(currentId,false);toast("Recept adatai elmentve.")
 }
-function deleteCurrent(){if(!currentId)return;const r=getRecipe(currentId);if(!r)return;if(!confirm("Biztosan törlöd ezt a receptet?\n\n"+r.title+"\n\nA törlés visszaállítható."))return;const m=getMeta(currentId);m.deleted=true;setMeta(currentId,m);$("#editDialog").close();showHome(true);toast("Recept a kukába került.")}
+async function deleteCurrent(){if(!currentId)return;const id=currentId,r=getRecipe(id);if(!r)return;if(!confirm("Biztosan törlöd ezt a receptet?\n\n"+r.title+"\n\nA törlés visszaállítható."))return;const m={...getMeta(id),deleted:true,updatedAt:new Date().toISOString()};setMeta(id,m);markRecipeMetaPending(id,true);$("#editDialog").close();showHome(true);const saved=await saveRecipeMetaShared(id,m);toast(saved?"☁ Recept a közös Kukában.":"🗑️ Recept elrejtve. Felhőszinkronra vár.")}
 function resetCurrent(){if(!currentId)return;const m=getMeta(currentId);delete m.title;delete m.category;m.deleted=false;if(Object.keys(m).length)setMeta(currentId,m);else localStorage.removeItem(keyMeta(currentId));const r=getRecipe(currentId);$("#editTitle").value=r.title;$("#editCategory").value=r.category;toast("Alapadatok visszaállítva.")}
 
 function filenameTitle(name){return(name||"").replace(/\.[^.]+$/,"").replace(/[_-]+/g," ").trim()}
@@ -859,7 +908,7 @@ async function syncPendingToCloud(){
 }
 
 function renderPending(){const box=$("#pendingList");box.innerHTML="";const list=customRecipes.slice().sort((a,b)=>a.title.localeCompare(b.title,"hu"));if(!list.length){const e=document.createElement("div");e.className="empty-admin";e.textContent="Nincs csak helyben tárolt új recept.";box.appendChild(e);return}list.forEach(r=>{const row=document.createElement("div");row.className="deleted-item";const main=document.createElement("div");main.className="deleted-main",t=document.createElement("div");t.className="deleted-title";t.textContent=r.title;const c=document.createElement("div");c.className="deleted-cat";c.textContent=r.category+(r.pending?" · szinkronra vár":" · feltöltve, frissítésre vár");main.append(t,c);const b=document.createElement("button");b.className="sync-btn";b.textContent=r.pending?"☁ Feltöltés":"✓ Fent";b.disabled=!r.pending;b.onclick=()=>syncLocalRecipe(r.id);row.append(main,b);box.appendChild(row)})}
-function renderDeleted(){const box=$("#deletedList");box.innerHTML="";const del=allRecipes().filter(r=>r.deleted).sort((a,b)=>a.title.localeCompare(b.title,"hu"));if(!del.length){const e=document.createElement("div");e.className="empty-admin";e.textContent="A kuka üres.";box.appendChild(e);return}del.forEach(r=>{const row=document.createElement("div");row.className="deleted-item";const main=document.createElement("div");main.className="deleted-main",t=document.createElement("div");t.className="deleted-title";t.textContent=r.title;const c=document.createElement("div");c.className="deleted-cat";c.textContent=r.category;main.append(t,c);const b=document.createElement("button");b.className="restore-btn";b.textContent="↩ Vissza";b.onclick=()=>{const m=getMeta(r.id);m.deleted=false;setMeta(r.id,m);renderDeleted();renderHome();toast("Recept visszaállítva.")};row.append(main,b);box.appendChild(row)})}
+function renderDeleted(){const box=$("#deletedList");box.innerHTML="";const del=allRecipes().filter(r=>r.deleted&&!getMeta(r.id).permanentlyDeleted).sort((a,b)=>a.title.localeCompare(b.title,"hu"));if(!del.length){const e=document.createElement("div");e.className="empty-admin";e.textContent="A kuka üres.";box.appendChild(e);return}del.forEach(r=>{const row=document.createElement("div");row.className="deleted-item";const main=document.createElement("div");main.className="deleted-main",t=document.createElement("div");t.className="deleted-title";t.textContent=r.title;const c=document.createElement("div");c.className="deleted-cat";c.textContent=r.category;main.append(t,c);const b=document.createElement("button");b.className="restore-btn";b.textContent="↩ Vissza";b.onclick=async()=>{const m={...getMeta(r.id),deleted:false,updatedAt:new Date().toISOString()};setMeta(r.id,m);markRecipeMetaPending(r.id,true);renderDeleted();renderHome();const saved=await saveRecipeMetaShared(r.id,m);toast(saved?"☁ Recept visszaállítva a közös tárban.":"↩ Recept visszaállítva helyben, szinkronra vár.")};row.append(main,b);box.appendChild(row)})}
 function openAdmin(){renderPending();renderDeleted();$("#adminDialog").showModal()}
 
 
@@ -1129,5 +1178,5 @@ $("#saveText").onclick=()=>{if(!currentId)return;setText(currentId,$("#textEdito
 let __lastCentralRefresh=Date.now();
 document.addEventListener("visibilitychange",()=>{if(!document.hidden&&Date.now()-__lastCentralRefresh>30000){__lastCentralRefresh=Date.now();refreshSharedRecipes(true);loadTasteFeedback();loadNutritionCache()}if(!document.hidden&&$("#cookModeDialog").open&&!cookState.wakeLock)requestCookWakeLock()});
 window.addEventListener("popstate",e=>{const st=e.state;if(st&&st.view==="recipe"&&st.id){openRecipe(st.id,false);return}showHome(false)});
-(async()=>{migrateCanonicalBaseState();await loadSharedRecipes();await loadCustomRecipes();await loadTasteFeedback();await loadNutritionCache();history.replaceState({view:"home"},"","#home");renderHome();updateStudioProviderBadge();if(puterCloudReady()&&puter.auth.isSignedIn())syncPendingToCloud();void 0})().catch(e=>{console.error(e);renderHome()});
+(async()=>{migrateCanonicalBaseState();await loadRecipeMetaShared();await flushRecipeMetaPending();await loadSharedRecipes();await loadCustomRecipes();await loadTasteFeedback();await loadNutritionCache();history.replaceState({view:"home"},"","#home");renderHome();updateStudioProviderBadge();if(puterCloudReady()&&puter.auth.isSignedIn())syncPendingToCloud();void 0})().catch(e=>{console.error(e);renderHome()});
 if("serviceWorker"in navigator&&location.protocol.startsWith("http"))navigator.serviceWorker.register("./sw.js?v=36").catch(()=>{});
