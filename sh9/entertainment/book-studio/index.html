@@ -10,6 +10,7 @@
 <link rel="stylesheet" href="./book-studio.css?v=2">
 <link rel="stylesheet" href="./onedrive-books-v2.css?v=3">
 <link rel="stylesheet" href="./book-studio-golden-v3.css?v=3">
+<link rel="stylesheet" href="./book-studio-tuning-v4.css?v=4">
 </head>
 <body>
 <div class="shell">
@@ -36,7 +37,7 @@
  </div>
  <div id="odFolderSelector" class="od-folders" hidden><label for="odFolders">Könyvtárforrás</label><select id="odFolders"></select></div>
  <div class="od-toolbar"><label class="searchbox">⌕ <input id="odFilter" type="search" placeholder="Keress a könyveid között…" autocomplete="off"></label><button id="odResume" hidden type="button" class="od-resume">▶ Folytatom: <span id="odResumeName"></span></button></div>
- <div class="od-utility-row"><span class="od-shelf-kicker">✦ A SAJÁT KÖNYVESPOLCOD</span><div class="od-cache-tools"><span class="od-cache-info" id="odCacheInfo">A helyi könyvtár előkészítése…</span><button type="button" id="odCoverSync" class="od-cover-sync">✦ Eredeti borítók</button><button type="button" id="odCacheClear" class="od-cache-clear" title="Csak a helyben tárolt könyvek és borítók törlése">Gyorsítótár törlése</button></div></div>
+ <div class="od-utility-row"><span class="od-shelf-kicker">✦ A SAJÁT KÖNYVESPOLCOD</span><div class="od-cache-tools"><span class="od-cache-info" id="odCacheInfo">A helyi könyvtár előkészítése…</span><button type="button" id="odCoverSync" class="od-cover-sync" aria-pressed="true">✦ Eredeti borítók · BE</button><button type="button" id="odDedup" class="od-dedup" hidden>◈ Duplikátumok</button><button type="button" id="odCacheClear" class="od-cache-clear" title="Csak a helyben tárolt könyvek és borítók törlése">Gyorsítótár törlése</button></div></div><p id="odDedupStatus" class="od-dedup-status" role="status" aria-live="polite"></p>
  <div class="book-grid" id="odGrid" aria-live="polite"></div><p id="odEmpty" class="od-empty" hidden>Nincs könyv.</p>
  <p class="od-note">🔒 A könyvek az eredeti OneDrive-on maradnak. Egyszeri megnyitás után titkosítatlan helyi eszköz-gyorsítótárból olvashatók újra, ha a Microsoft-bejelentkezés aktív. A gyorsítótárat bármikor törölheted. Nincs OneDrive-írás vagy törlés.</p>
  </section>
@@ -55,6 +56,13 @@
  <div class="reader-progress-bar"><label for="readerScrub" class="sr-only">Ugrás a könyvben</label><input id="readerScrub" type="range" min="0" max="100" value="0" step="1" disabled aria-label="Olvasási pozíció" title="Ugrás a könyvben"><span class="reader-scrub-percentage" id="readerScrubPercent">0%</span></div>
  <footer class="reader-footer"><button type="button" id="prevPage" class="page-turn-prev" aria-label="Előző oldal">‹ <span>Előző</span></button><span id="pageLabel">Olvasás</span><button type="button" id="nextPage" class="page-turn-next" aria-label="Következő oldal"><span>Következő</span> ›</button></footer>
 </div>
+<div class="od-title-editor" id="odTitleEditor" hidden role="dialog" aria-modal="true" aria-label="Könyvcím javítása"><form id="odTitleForm" class="od-title-panel">
+ <span class="od-edit-kicker">✦ BOOK STUDIO · CÍMSZERKESZTŐ</span><h2>Magyar cím és szerző</h2>
+ <p>Csak a könyvespolcon megjelenő cím változik. Az eredeti OneDrive-fájl érintetlen marad.</p>
+ <label for="odTitleInput">Könyv címe</label><input id="odTitleInput" type="text" maxlength="180" required autocomplete="off">
+ <label for="odAuthorInput">Szerző</label><input id="odAuthorInput" type="text" maxlength="150" autocomplete="off">
+ <div class="od-title-actions"><button id="odTitleCancel" type="button">Mégse</button><button id="odTitleSave" type="submit">✓ Cím mentése</button></div>
+ </form></div>
 <div class="toast" id="toast" hidden role="status" aria-live="polite"></div>
 <script defer src="../../../healthhub/central-vault/config.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.2/dist/umd/supabase.min.js"></script>
@@ -63,7 +71,8 @@
 <script defer src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
 <script defer src="./onedrive-session-v3.js?v=3"></script>
 <script defer src="./book-cache-v3.js?v=3"></script>
+<script defer src="./book-metadata-v4.js?v=4"></script>
 <script defer src="./book-studio.js?v=3-reader"></script>
-<script defer src="./onedrive-books-v2.js?v=3-golden"></script>
+<script defer src="./onedrive-books-v2.js?v=4-covers-dedup-hu"></script>
 </body>
 </html>
