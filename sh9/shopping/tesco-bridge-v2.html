@@ -1,0 +1,418 @@
+<!doctype html>
+<html lang="hu">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0e1429">
+<meta name="description" content="SHO Tesco Smart Cart Bridge v2 · egykoppintásos terméktovábbítás, családi terméklinkek, felesleges kosárjelölés nélkül.">
+<title>SHO · Tesco Smart Cart Bridge v2</title>
+<link rel="icon" href="../sho-preview/favicon.svg" type="image/svg+xml">
+<style>
+:root{color-scheme:dark;--text:#f8edf9;--mute:#c4b2ce;--pink:#f9a9e4;--line:#bb81b35d;--green:#a1f3c1}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;min-height:100vh;font:14px/1.44 system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--text);background:radial-gradient(ellipse at 90% -10%,#6f3a746a 0,transparent 46%),linear-gradient(155deg,#19132f,#091a30 62%,#120f29)}
+a{color:inherit;text-decoration:none}button,input{font:inherit}button{color:inherit;cursor:pointer}
+main{max-width:570px;margin:auto;padding:12px 12px calc(98px + env(safe-area-inset-bottom,0px))}
+.glass{border:1px solid var(--line);border-radius:19px;background:linear-gradient(138deg,#25213cdd,#122036ea);box-shadow:0 9px 29px #0002;backdrop-filter:blur(14px)}
+.top{display:flex;justify-content:space-between;align-items:center;gap:7px;margin:1px 0 11px}
+.top a{padding:9px 11px;font-size:11px;font-weight:750;border:1px solid #e2a1d363;border-radius:11px;background:#302341d1}
+.top small{color:#f5b0de;font-size:9px;font-weight:950;letter-spacing:1.2px;text-align:center}
+.hero{padding:16px;overflow:hidden;background:radial-gradient(circle at 95% 15%,#853f8199 0,transparent 47%),linear-gradient(130deg,#29223e,#0c2239)}
+.hero .eyebrow{font-size:9px;font-weight:900;letter-spacing:1.6px;color:#ffc4e5}
+.hero h1{font-size:25px;line-height:1.08;letter-spacing:-.9px;margin:7px 0}
+.hero h1 em{font-style:normal;color:#ffb1e0}
+.hero p{font-size:11px;color:#e0cedd;line-height:1.5;margin:5px 0 0;max-width:460px}
+.mode{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin:11px 0}
+.mode button{background:#1d2842;border:1px solid #9e78ab83;border-radius:13px;min-height:55px;font-weight:850;font-size:12px;padding:8px}
+.mode button[aria-pressed=true]{background:linear-gradient(125deg,#884682,#322846);border-color:#ffb0dd;box-shadow:inset 0 1px #ffe5f986}
+.mode small{display:block;color:#d5bdde;font-weight:550;font-size:10px;margin-top:2px}
+.mode-description{margin:0 0 10px;color:#c7b4d5;font-size:10px;padding:0 4px}
+.active-card{padding:14px;background:radial-gradient(circle at 110% -40%,#a7568786 0,transparent 46%),linear-gradient(145deg,#29233e,#112641)}
+.now{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}
+.now strong{font-size:11px;letter-spacing:.5px;color:#eec3df}
+.pill{background:#4e3257;border:1px solid #b582b1;border-radius:11px;padding:6px 8px;font-size:11px;font-weight:850;white-space:nowrap}
+.selected{display:flex;gap:11px;align-items:center}
+.selected-icon{width:62px;height:62px;flex:none;display:grid;place-items:center;background:linear-gradient(150deg,#64416e,#2b455b);border:1px solid #f3afd799;border-radius:17px;font-size:34px;box-shadow:0 8px 18px #110c2c77}
+.selected-info{flex:1;min-width:0}
+.selected-info h2{font-size:18px;line-height:1.25;margin:0 0 5px;overflow-wrap:anywhere}
+.selected-info p{font-size:12px;color:#d4c0d7;margin:0 0 5px}
+.map-label{font-size:10px;font-weight:700;color:#b7edcf}
+.go{display:flex;align-items:center;justify-content:center;min-height:52px;width:100%;margin:13px 0 0;border-radius:14px;border:1px solid #ffd0ec;background:linear-gradient(110deg,#a54894,#6d408c 70%,#533e8c);color:white;font-size:14px;font-weight:900;text-align:center;box-shadow:0 7px 22px #ce4f9b37}
+.go[aria-disabled=true]{opacity:.5;pointer-events:none}
+.subnote{margin:8px 0 0;color:#d3c3d6;font-size:10px;text-align:center}
+.navigation{display:grid;grid-template-columns:1fr auto 1fr;gap:7px;margin-top:12px;align-items:center}
+.navigation button{border:1px solid #8e719e8a;background:#242840;border-radius:10px;font-weight:750;min-height:35px;font-size:11px;padding:7px}
+.navigation button:disabled{opacity:.5;cursor:default}
+.navigation .link-editor{font-size:12px;border-color:#f1a6da8c;color:#ffb5e3;padding:7px 11px}
+.map-editor{margin-top:10px;border-radius:12px;border:1px solid #c98bb874;padding:11px;background:#101b31}
+.map-editor[hidden]{display:none}
+.map-editor label{display:block;font-size:11px;font-weight:750;color:#f4d4e9}
+.map-editor input{display:block;width:100%;background:#0b1728;border:1px solid #b189b6;border-radius:9px;color:white;padding:10px;margin:7px 0;font-size:11px}
+.map-editor .buttons{display:flex;gap:7px}
+.map-editor .buttons button{border:1px solid #f3b9dc;background:#673a66;border-radius:9px;padding:8px 11px;font-size:11px;font-weight:750}
+.map-editor .buttons .cancel{background:transparent;border-color:#87798d}
+.map-editor small{display:block;color:#cbb8cc;font-size:10px;margin-top:7px}
+.auth{border:1px solid #c99cbd6a;background:#28223c; padding:10px 12px;border-radius:12px;margin-top:11px;display:flex;justify-content:space-between;align-items:center;gap:9px;font-size:11px}
+.auth[hidden]{display:none}
+.auth button{background:#8c4279;color:#fff;border:1px solid #f4b3d8;border-radius:10px;padding:8px 10px;white-space:nowrap;font-size:11px}
+.list-card{margin-top:10px;padding:10px}
+.list-header{display:flex;align-items:center;justify-content:space-between;gap:7px;padding:4px 4px 10px}
+.list-header h3{font-size:13px;margin:0}
+.list-header button{background:transparent;border:0;color:#f8afe3;font-size:10px;font-weight:750;padding:5px}
+.list{display:grid;gap:4px}
+.item-row{width:100%;min-height:52px;border:1px solid transparent;border-radius:11px;background:#1a2136;display:flex;align-items:center;gap:9px;padding:6px 9px;text-align:left;color:inherit}
+.item-row.selected{border-color:#e3a2d9;background:linear-gradient(100deg,#643d65,#2d3449)}
+.face{display:grid;place-items:center;font-size:23px;width:39px;height:39px;flex:none;background:#2e3149;border-radius:11px}
+.item-copy{min-width:0;flex:1;display:flex;flex-direction:column;gap:2px}
+.item-copy strong{font-size:11px;line-height:1.2;overflow-wrap:anywhere}
+.item-copy small{font-size:10px;color:#d0bdd3}
+.item-badge{font-size:13px;color:#ffc2e6;flex:none}
+.empty{padding:24px 12px;text-align:center;color:var(--mute);font-size:12px}
+.disclosure{font-size:10px;line-height:1.55;color:#cabbd2;padding:11px 13px;margin-top:10px}
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);padding:10px 13px;background:#4c2e53;border:1px solid #ffc1e7;border-radius:12px;max-width:90vw;box-shadow:0 8px 24px #0008;font-size:12px;text-align:center;z-index:80}
+.toast[hidden]{display:none}
+.bottom{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:min(100%,570px);min-height:73px;padding:8px 5px calc(6px + env(safe-area-inset-bottom,0px));display:grid;grid-template-columns:repeat(4,1fr);background:#101c32f2;border:1px solid #7d699a62;border-bottom:0;border-radius:18px 18px 0 0;backdrop-filter:blur(18px);z-index:50}
+.bottom a{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:10px;color:#e4d6e8}
+.bottom span{font-size:21px}
+@media(max-width:375px){main{padding:10px 9px 98px}.hero h1{font-size:22px}.selected-info h2{font-size:16px}.navigation button{font-size:10px}.top small{font-size:8px}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<main>
+<header class="top">
+<a href="./" aria-label="Vissza a Shoppinghoz">‹ Shopping</a>
+<small>SHO · CART BRIDGE</small>
+<a href="./smart-list.html">Smart List ›</a>
+</header>
+<section class="hero glass">
+ <span class="eyebrow">TESCO · PILOT V2 · ONE-TAP FLOW</span>
+ <h1>Smart <em>Cart Bridge</em> 🛒</h1>
+ <p>A Tesco-termék egy koppintással megnyílik. Visszatérve már a következő termék vár, kézi pipálás nélkül.</p>
+</section>
+<div class="mode" role="group" aria-label="Tesco átadás adatforrása">
+ <button id="sharedMode" type="button" aria-pressed="false">🛒 Közös Smart List<small id="sharedTotal">Felhő betöltése…</small></button>
+ <button id="demoMode" type="button" aria-pressed="true">✨ 10 mintatermék<small>Próba · listaírás nélkül</small></button>
+</div>
+<p class="mode-description" id="modeHelp">✨ 10 mintatermék · csak próba, a Smart Listhez nem nyúlunk.</p>
+<section class="active-card glass" aria-label="Következő Tesco-termék">
+ <div class="now"><strong>MOST KÖVETKEZIK</strong><span class="pill" id="itemCount">1 / 10</span></div>
+ <div class="selected">
+   <span class="selected-icon" id="selectedIcon">🥛</span>
+   <div class="selected-info"><h2 id="selectedName">Tesco UHT félzsíros tej 2,8% 1 l</h2><p id="selectedQuantity">2 db</p><span class="map-label" id="linkInfo">⌕ Első alkalom: Tesco keresés</span></div>
+ </div>
+ <a class="go" id="openTesco" rel="noopener noreferrer" href="https://bevasarlas.tesco.hu/shop/hu-HU/search?query=Tesco%20UHT%20f%C3%A9lzs%C3%ADros%20tej%202%2C8%25%201%20l">🔎 Keresés a Tescóban ↗</a>
+ <p class="subnote">A termék a Tesco oldalán kerül a kosárba. A SHO csak a következő keresést készíti elő.</p>
+ <div class="navigation">
+   <button type="button" id="prevItem">‹ Előző</button>
+   <button type="button" id="editLink" class="link-editor">🔗 Terméklink</button>
+   <button type="button" id="nextItem">Következő ›</button>
+ </div>
+ <form class="map-editor" id="editing" hidden aria-label="Tesco terméklink megjegyzése">
+   <label for="linkInput">Tesco-termékoldal linkje</label>
+   <input id="linkInput" type="url" inputmode="url" autocomplete="off" spellcheck="false" maxlength="400" placeholder="https://bevasarlas.tesco.hu/shop/hu-HU/products/..." />
+   <div class="buttons">
+     <button id="saveLink" type="submit">🔗 Mentés közösen</button>
+     <button id="linkCancel" class="cancel" type="button">Mégsem</button>
+   </div>
+   <small>Másold be egyszer a konkrét Tesco-termékoldal címét. Ezután keresés helyett közvetlenül nyílik meg. Az ellenőrzés csak a Tesco-domaint és a linkformátumot vizsgálja.</small>
+ </form>
+</section>
+<div class="auth" id="authMessage" hidden><span id="authLabel">A közös terméklinkekhez be kell jelentkezni.</span><button type="button" id="signIn">Bejelentkezés</button></div>
+<section class="list-card glass" aria-label="Tesco-termékek">
+ <div class="list-header"><h3>📋 Termékek <small style="font-size:10px;color:#d6bdce;font-weight:500">(egy koppintásos sorrend)</small></h3><button id="restart" type="button">↺ Elölről</button></div>
+ <div id="rows" class="list">
+<a class="item-row fallback-row" href="https://bevasarlas.tesco.hu/shop/hu-HU/search?query=Tesco%20UHT%20f%C3%A9lzs%C3%ADros%20tej%202%2C8%25%201%20l" rel="noopener noreferrer"><span class="face">🥛</span><span class="item-copy"><strong>Tesco UHT félzsíros tej 2,8% 1 l</strong><small>2 db</small></span><span class="item-badge">⌕</span></a>
+<a class="item-row fallback-row" href="https://bevasarlas.tesco.hu/shop/hu-HU/search?query=Kov%C3%A1szos%20vekni%20470%20g" rel="noopener noreferrer"><span class="face">🍞</span><span class="item-copy"><strong>Kovászos vekni 470 g</strong><small>1 db</small></span><span class="item-badge">⌕</span></a>
+<a class="item-row fallback-row" href="https://bevasarlas.tesco.hu/shop/hu-HU/search?query=Ban%C3%A1n%20l%C3%A9dig" rel="noopener noreferrer"><span class="face">🍌</span><span class="item-copy"><strong>Banán lédig</strong><small>1 kg</small></span><span class="item-badge">⌕</span></a>
+<a class="item-row fallback-row" href="https://bevasarlas.tesco.hu/shop/hu-HU/search?query=Friss%20toj%C3%A1s%20M%2010%20db" rel="noopener noreferrer"><span class="face">🥚</span><span class="item-copy"><strong>Friss tojás M 10 db</strong><small>1 doboz</small></span><span class="item-badge">⌕</span></a>
+<a class="item-row fallback-row" href="https://bevasarlas.tesco.hu/shop/hu-HU/search?query=Penne%20t%C3%A9szta%20500%20g" rel="noopener noreferrer"><span class="face">🍝</span><span class="item-copy"><strong>Penne tészta 500 g</strong><small>2 csomag</small></span><span class="item-badge">⌕</span></a>
+<a class="item-row fallback-row" href="https://bevasarlas.tesco.hu/shop/hu-HU/search?query=J%C3%A1zmin%20rizs%201%20kg" rel="noopener noreferrer"><span class="face">🍚</span><span class="item-copy"><strong>Jázmin rizs 1 kg</strong><small>1 db</small></span><span class="item-badge">⌕</span></a>
+<a class="item-row fallback-row" href="https://bevasarlas.tesco.hu/shop/hu-HU/search?query=Arabica%20szemes%20k%C3%A1v%C3%A9%201%20kg" rel="noopener noreferrer"><span class="face">☕</span><span class="item-copy"><strong>Arabica szemes kávé 1 kg</strong><small>1 db</small></span><span class="item-badge">⌕</span></a>
+<a class="item-row fallback-row" href="https://bevasarlas.tesco.hu/shop/hu-HU/search?query=Kokt%C3%A9lparadicsom" rel="noopener noreferrer"><span class="face">🍅</span><span class="item-copy"><strong>Koktélparadicsom</strong><small>500 g</small></span><span class="item-badge">⌕</span></a>
+<a class="item-row fallback-row" href="https://bevasarlas.tesco.hu/shop/hu-HU/search?query=Sz%C3%A9nsavmentes%20%C3%A1sv%C3%A1nyv%C3%ADz%201%2C5%20l" rel="noopener noreferrer"><span class="face">💧</span><span class="item-copy"><strong>Szénsavmentes ásványvíz 1,5 l</strong><small>2 db</small></span><span class="item-badge">⌕</span></a>
+<a class="item-row fallback-row" href="https://bevasarlas.tesco.hu/shop/hu-HU/search?query=Nat%C3%BAr%20joghurt%20500%20g" rel="noopener noreferrer"><span class="face">🥣</span><span class="item-copy"><strong>Natúr joghurt 500 g</strong><small>2 db</small></span><span class="item-badge">⌕</span></a>
+ </div>
+</section>
+<section class="disclosure glass">🔒 <strong>Fontos:</strong> a SHO nem látja a Tesco kosarának tartalmát, nem helyez bele terméket, és nem ad le rendelést. A „következő” csak a megnyitási sorrendet jelenti, nem azt, hogy a terméket megvettétek. A pontos Tesco-terméklinkek családi felhőbe menthetők. A Smart List „Megvettem” állapota változatlan.</section>
+</main>
+<nav class="bottom" aria-label="SHO navigáció">
+<a href="../"><span>⌂</span>Kezdőlap</a>
+<a id="askLena" href="../../healthhub/index.html?sh9nav=admin&amp;sh9cfg=asklena"><span>💬</span>Ask Léna</a>
+<a href="./smart-list.html"><span>🛒</span>Smart List</a>
+<a href="./"><span>🛍️</span>Shopping</a>
+</nav>
+<div class="toast" id="toast" hidden role="status"></div>
+<script src="../../healthhub/central-vault/config.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.2/dist/umd/supabase.min.js"></script>
+<script defer src="../../healthhub/guardian/guardian-native-auth-v1063.js"></script>
+<script defer src="../../healthhub/chatgpt-project-shortcut-v712.js?v=756-central-open"></script>
+<script>
+/* Dependencies with defer execute before DOMContentLoaded. Keep static demo links usable if a dependency fails. */
+document.addEventListener('DOMContentLoaded',function(){
+try{
+/* SHO Tesco Bridge v2 · click-saving, honest handoff.
+ * No cart API, no manual basket status. Source list is read-only.
+ * Per-tab next-item state in sessionStorage; verified Tesco SKU links synced in family Supabase.
+ */
+(function(w,d){
+'use strict';
+const $=id=>d.getElementById(id), FAMILY='zsolt-monika';
+const TABLE='hh_shopping_list_v1', MAPPING='hh_shopping_tesco_bridge_v1';
+const SEARCH_BASE='https://bevasarlas.tesco.hu/shop/hu-HU/search?query=';
+const NAV_KEY='sho-tesco-bridge-v2';
+const DEMO=[
+ {id:'milk',name:'Tesco UHT félzsíros tej 2,8% 1 l',quantity:2,unit:'db',icon:'🥛'},
+ {id:'bread',name:'Kovászos vekni 470 g',quantity:1,unit:'db',icon:'🍞'},
+ {id:'banana',name:'Banán lédig',quantity:1,unit:'kg',icon:'🍌'},
+ {id:'eggs',name:'Friss tojás M 10 db',quantity:1,unit:'doboz',icon:'🥚'},
+ {id:'penne',name:'Penne tészta 500 g',quantity:2,unit:'csomag',icon:'🍝'},
+ {id:'rice',name:'Jázmin rizs 1 kg',quantity:1,unit:'db',icon:'🍚'},
+ {id:'coffee',name:'Arabica szemes kávé 1 kg',quantity:1,unit:'db',icon:'☕'},
+ {id:'tomato',name:'Koktélparadicsom',quantity:500,unit:'g',icon:'🍅'},
+ {id:'water',name:'Szénsavmentes ásványvíz 1,5 l',quantity:2,unit:'db',icon:'💧'},
+ {id:'yoghurt',name:'Natúr joghurt 500 g',quantity:2,unit:'db',icon:'🥣'}
+];
+if(DEMO.length!==10)throw Error('A pilot 10 próbaelemből áll.');
+const cfg=w.HH_CENTRAL_VAULT;
+const nativeOAuth=(()=>{try{return w.sessionStorage.getItem('hh-one-native-oauth-v1063')==='1'}catch(_){return false}})();
+const api=cfg&&cfg.enabled&&w.supabase?.createClient?
+ w.supabase.createClient(cfg.supabaseUrl,cfg.publishableKey,{
+   auth:{storageKey:'hh-guardian-family-auth-v785',persistSession:true,autoRefreshToken:true,
+     detectSessionInUrl:true,flowType:nativeOAuth?'pkce':'implicit'}
+ }):null;
+let user=null,allowed=[],shared=[],mappings=new Map(),mode='demo',modeTouched=false;
+let selectedKey=null,linkEditing=false,loading=false,pending=false,channel=null,lastLoad=0;
+let toastHandle=null;
+function readState(){
+ try{const x=JSON.parse(w.sessionStorage.getItem(NAV_KEY)||'{}');return x&&typeof x==='object'?x:{}}catch(_){return {}}
+}
+function writeState(data){try{w.sessionStorage.setItem(NAV_KEY,JSON.stringify(data))}catch(_){}}
+function stateFor(source){const s=readState();const v=s[source];return v&&typeof v==='object'?v:{next:'',opened:[]}}
+function keyFor(p,source){return source+':'+p.id}
+function visible(){return mode==='shared'?shared.slice(0,10):DEMO}
+function access(){return Boolean(api&&user&&allowed.some(x=>x==='zsolt'||x==='monika'))}
+function chosenProfile(){try{return w.localStorage.getItem('hh-profile')==='m'?'monika':'zsolt'}catch(_){return 'zsolt'}}
+function who(){const p=chosenProfile();return allowed.includes(p)?p:allowed.includes('zsolt')?'zsolt':'monika'}
+function node(tag,cls,value){const el=d.createElement(tag);if(cls)el.className=cls;if(value!==undefined)el.textContent=value;return el}
+function qty(p){return new Intl.NumberFormat('hu-HU',{maximumFractionDigits:2}).format(Number(p.quantity)||1)+' '+(p.unit||'db')}
+function productIcon(p){
+ if(p.icon)return p.icon;
+ const s=String(p.name).toLocaleLowerCase('hu-HU');
+ if(/kávé/.test(s))return '☕';
+ if(/tej|joghurt|sajt/.test(s))return '🥛';
+ if(/banán/.test(s))return '🍌';
+ if(/kenyér|kifli|zsemle/.test(s))return '🍞';
+ if(/tojás/.test(s))return '🥚';
+ if(/rizs/.test(s))return '🍚';
+ if(/tészta|penne/.test(s))return '🍝';
+ if(/paradicsom/.test(s))return '🍅';
+ if(/víz/.test(s))return '💧';
+ return '🛒';
+}
+function safeImage(text){try{const u=new URL(String(text||''));return u.protocol==='https:'?u.href:''}catch(_){return ''}}
+function exactTescoUrl(text){
+ try{
+  const u=new URL(String(text||'').trim());
+  if(u.protocol!=='https:'||u.hostname!=='bevasarlas.tesco.hu'||u.port||u.username||u.password)return '';
+  const m=u.pathname.match(/^\/(?:shop|groceries)\/hu-HU\/products\/(\d+)\/?$/i);
+  if(!m)return '';
+  return 'https://bevasarlas.tesco.hu/shop/hu-HU/products/'+m[1];
+ }catch(_){return ''}
+}
+function urlFor(p){
+ const mapping=mappings.get(keyFor(p,mode));
+ const saved=exactTescoUrl(mapping?.tesco_url);
+ return saved||SEARCH_BASE+encodeURIComponent(String(p.name||'').trim());
+}
+function toast(text){
+ const el=$('toast');if(!el)return;el.textContent=text;el.hidden=false;
+ if(toastHandle)clearTimeout(toastHandle);
+ toastHandle=setTimeout(()=>el.hidden=true,3200);
+}
+function selection(){
+ const all=visible(),s=stateFor(mode);
+ let i=all.findIndex(p=>keyFor(p,mode)===(selectedKey||s.next));
+ if(i<0)i=0;
+ return {all,index:i,item:all[i]||null,s};
+}
+function setMode(next){
+ mode=next==='shared'?'shared':'demo';modeTouched=true;selectedKey=null;linkEditing=false;
+ const s=readState();s.mode=mode;writeState(s);render();
+}
+function chooseItem(i){
+ const list=visible(),item=list[i];if(!item)return;
+ selectedKey=keyFor(item,mode);linkEditing=false;render();
+}
+function moveBy(delta){
+ const a=selection();if(!a.all.length)return;
+ chooseItem((a.index+delta+a.all.length)%a.all.length);
+}
+function recordOpen(){
+ const a=selection();if(!a.item)return;
+ const s=readState(),v=stateFor(mode),key=keyFor(a.item,mode);
+ const opened=Array.isArray(v.opened)?v.opened.slice(-40):[];
+ if(!opened.includes(key))opened.push(key);
+ v.opened=opened;
+ v.next=keyFor(a.all[(a.index+1)%a.all.length],mode);
+ v.last=key;s[mode]=v;s.mode=mode;
+ writeState(s);
+ selectedKey=null;
+}
+function drawRows(info){
+ const box=$('rows');box.replaceChildren();
+ if(!info.all.length){box.append(node('div','empty','A közös Smart Listben most nincs megvásárolandó termék. Válaszd a 10 mintatermék módot.'));return}
+ for(let i=0;i<info.all.length;i++){
+  const p=info.all[i],key=keyFor(p,mode),mapping=mappings.get(key);
+  const button=node('button','item-row'+(i===info.index?' selected':''));button.type='button';
+  button.setAttribute('aria-current',String(i===info.index));
+  button.setAttribute('aria-label','Termék kiválasztása: '+p.name);
+  button.onclick=()=>chooseItem(i);
+  const face=node('span','face',productIcon(p));
+  const left=node('span','item-copy');
+  left.append(node('strong',null,p.name),node('small',null,qty(p)));
+  const tag=node('span','item-badge',exactTescoUrl(mapping?.tesco_url)?'🔗':'⌕');
+  tag.title=exactTescoUrl(mapping?.tesco_url)?'Mentett Tesco-terméklink':'Tesco keresés szükséges';
+  button.append(face,left,tag);box.append(button);
+ }
+}
+function render(){
+ const a=selection(),p=a.item;
+ $('demoMode').setAttribute('aria-pressed',String(mode==='demo'));
+ $('sharedMode').setAttribute('aria-pressed',String(mode==='shared'));
+ $('sharedTotal').textContent=shared.length+' aktív termék';
+ $('itemCount').textContent=p?(a.index+1)+' / '+a.all.length:'0 / 0';
+ $('selectedIcon').textContent=p?productIcon(p):'🛒';
+ $('selectedName').textContent=p?p.name:'Nincs termék';
+ $('selectedQuantity').textContent=p?qty(p):'Válts a mintatermékekre';
+ const mapping=p?mappings.get(keyFor(p,mode)):null;
+ const hasLink=!!exactTescoUrl(mapping?.tesco_url);
+ $('linkInfo').textContent=p?(hasLink?'✓ Mentett Tesco terméklink':'⌕ Első alkalom: Tesco keresés'):'';
+ const open=$('openTesco');
+ open.href=p?urlFor(p):'#';
+ open.textContent=hasLink?'🎯 Tesco-termék megnyitása ↗':'🔎 Keresés a Tescóban ↗';
+ open.setAttribute('aria-disabled',String(!p));
+ $('prevItem').disabled=!p||a.all.length<2;
+ $('nextItem').disabled=!p||a.all.length<2;
+ $('editLink').disabled=!p;
+ $('editing').hidden=!linkEditing||!p;
+ $('linkInput').value=hasLink?exactTescoUrl(mapping?.tesco_url):'';
+ $('modeHelp').textContent=mode==='demo'
+  ?'✨ 10 mintatermék · csak próba, a Smart Listhez nem nyúlunk.'
+  :shared.length?'☁️ A közös Smart List első '+a.all.length+' még meg nem vásárolt terméke.':'A lista üres vagy még töltődik.';
+ $('authMessage').hidden=access();
+ $('authLabel').textContent=access()?'':user?'A családi profil nem jogosult a linkmentésre.':'Keresni bejelentkezés nélkül is lehet. A közös linkmentéshez jelentkezz be.';
+ drawRows(a);
+}
+async function loadCloud(){
+ if(!access())return;
+ if(loading){pending=true;return}loading=true;
+ try{
+  const [l,m]=await Promise.all([
+   api.from(TABLE).select('id,name,quantity,unit,image_url,category,created_at').eq('household',FAMILY).eq('done',false).order('created_at',{ascending:false}).limit(10),
+   api.from(MAPPING).select('id,item_key,tesco_url,source,name_snapshot').eq('household',FAMILY).limit(500)
+  ]);
+  if(l.error)throw l.error;if(m.error)throw m.error;
+  shared=l.data||[];
+  mappings=new Map((m.data||[]).map(item=>[item.item_key,item]));
+  if(!modeTouched&&!readState().mode&&shared.length){mode='shared';selectedKey=null}
+  lastLoad=Date.now();render();
+ }catch(e){toast('Felhőhiba: '+String(e.message||e).slice(0,95))}
+ finally{loading=false;if(pending){pending=false;void loadCloud()}}
+}
+async function saveLink(){
+ const a=selection(),p=a.item;
+ if(!p)return;
+ if(!access()){toast('A linkmentéshez bejelentkezés szükséges.');return}
+ const raw=$('linkInput').value.trim();
+ const checked=raw?exactTescoUrl(raw):'';
+ if(raw&&!checked){toast('Csak a Tesco hivatalos termékoldala menthető.');return}
+ const key=keyFor(p,mode),prior=mappings.get(key);
+ $('saveLink').disabled=true;
+ try{
+  let query;
+  if(prior){
+   query=api.from(MAPPING).update({tesco_url:checked,updated_by_profile:who(),updated_at:new Date().toISOString()})
+      .eq('id',prior.id).eq('household',FAMILY).select('id,item_key,tesco_url,source,name_snapshot').single();
+  }else{
+   query=api.from(MAPPING).insert({
+    household:FAMILY,item_key:key,source:mode,name_snapshot:String(p.name).slice(0,100),
+    tesco_url:checked,updated_by_profile:who(),created_by:user.id
+   }).select('id,item_key,tesco_url,source,name_snapshot').single();
+  }
+  const r=await query;
+  if(r.error)throw r.error;
+  mappings.set(key,r.data);
+  linkEditing=false;render();
+  toast(checked?'🔗 Tesco-terméklink közösen elmentve.':'Tesco-terméklink törölve.');
+ }catch(e){
+  if(String(e.code||'')==='23505'){void loadCloud();toast('A másik készülék előbb mentett. Frissítettem, próbáld újra.')}
+  else toast('Mentési hiba: '+String(e.message||e).slice(0,85));
+ }finally{$('saveLink').disabled=false}
+}
+function subscribe(){
+ if(channel||!access())return;
+ channel=api.channel('sho-tesco-bridge-v2-'+user.id)
+ .on('postgres_changes',{event:'*',schema:'public',table:TABLE},()=>void loadCloud())
+ .on('postgres_changes',{event:'*',schema:'public',table:MAPPING},()=>void loadCloud())
+ .subscribe();
+}
+async function authSync(){
+ if(!api){render();toast('A Tesco keresés működik; a felhő jelenleg nem elérhető.');return}
+ try{
+  const r=await api.auth.getUser();user=r.error?null:r.data?.user||null;
+  allowed=[];
+  if(user){const acl=await api.from('hh_profile_access').select('profile_key').eq('user_id',user.id);
+   if(!acl.error)allowed=(acl.data||[]).map(x=>x.profile_key)}
+  if(access()){
+   await loadCloud();subscribe();
+  }else{
+   if(channel){api.removeChannel(channel);channel=null}
+   shared=[];mappings.clear();render();
+  }
+ }catch(e){render();toast('Kapcsolati hiba: '+String(e.message||e).slice(0,70))}
+}
+$('demoMode').onclick=()=>setMode('demo');
+$('sharedMode').onclick=()=>setMode('shared');
+$('prevItem').onclick=()=>moveBy(-1);
+$('nextItem').onclick=()=>moveBy(1);
+$('openTesco').addEventListener('click',e=>{
+ if(!selection().item){e.preventDefault();return}
+ recordOpen(); // No await or popup. Same-tab navigation remains a direct user action.
+});
+$('editLink').onclick=()=>{linkEditing=!linkEditing;render();if(linkEditing)$('linkInput').focus()};
+$('editing').addEventListener('submit',e=>{e.preventDefault();void saveLink()});
+$('linkCancel').onclick=()=>{linkEditing=false;render()};
+$('restart').onclick=()=>{
+ const s=readState();s[mode]={next:'',opened:[]};writeState(s);
+ selectedKey=null;linkEditing=false;render();toast('↻ Az útvonal újra az első terméktől indul.');
+};
+$('signIn').onclick=async()=>{
+ if(!api)return toast('Felhőkapcsolat nem elérhető.');
+ try{
+  if(nativeOAuth){
+   const handled=await w.HH_ONE_NATIVE_AUTH_V1063?.start?.(api);
+   if(!handled)throw Error('Natív bejelentkezés nem elérhető.');return;
+  }
+  const r=await api.auth.signInWithOAuth({provider:'google',options:{redirectTo:w.location.origin+w.location.pathname}});
+  if(r.error)throw r.error;
+ }catch(e){toast('Bejelentkezési hiba: '+String(e.message||e).slice(0,80))}
+};
+$('askLena').addEventListener('click',e=>{
+ const project=w.HH_CHATGPT_PROJECT_SHORTCUT_V712;
+ if(typeof project?.openProject==='function'){e.preventDefault();project.openProject()}
+});
+w.addEventListener('pageshow',()=>{selectedKey=null;render();if(access()&&Date.now()-lastLoad>5000)void loadCloud()});
+d.addEventListener('visibilitychange',()=>{if(d.visibilityState==='visible'&&access()&&Date.now()-lastLoad>5000)void loadCloud()});
+w.addEventListener('storage',e=>{if(e.key==='hh-guardian-family-auth-v785')void authSync()});
+if(api)api.auth.onAuthStateChange(e=>{if(e==='SIGNED_IN'||e==='SIGNED_OUT')setTimeout(()=>void authSync(),0)});
+const priorMode=readState().mode;if(priorMode==='demo'||priorMode==='shared'){mode=priorMode;modeTouched=true}
+render();void authSync();
+})(window,document);
+}catch(err){
+const notice=document.getElementById('modeHelp');
+if(notice)notice.textContent='A vezérlés nem indult. A 10 alap Tesco-keresőlink tovább használható. Hiba: '+String(err&&err.message||err).slice(0,130);
+}
+});
+</script>
+</body>
+</html>
