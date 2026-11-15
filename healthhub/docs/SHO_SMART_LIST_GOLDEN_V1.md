@@ -25,6 +25,15 @@
 - 25 névfelismerési teszt sikeres, a beépített 392 különböző terméknévből 354 felismerhető termékszinten (kb. 90%), a többi kategóriaikont kap.
 - A felhasználói készüléken a natív emoji megjelenés eltérhet. Kéttelefonos vizuális UAT még szükséges.
 
+## Shopping fő kategóriák egységesítése · 2026-11-15
+- A Smart List pontosan öt fő kategóriát kínál: **Élelmiszer, Elektronika, Divat & Stílus, Drogéria & Szépség, Otthon & Háztartás**, a Shopping főmodul azonos azonosítóival.
+- Kompakt gombfeliratok: Élelmiszer, Elektronika, Divat, Drogéria, Otthon & Háztartás.
+- A korábbi különálló Mind, Italok és Kisállat gomb megszűnt; kezdetben minden termék kereshető, a kiválasztott kategória szűr, ismételt koppintás eltávolítja a szűrést.
+- A meglévő elemek nem vesznek el: régi Italok → Élelmiszer; Drogéria → Drogéria & Szépség; Háztartás és Kisállat → Otthon & Háztartás. Nincs adatbázis-migráció.
+- Elektronika, Divat, Otthon és további drogéria-szócikkek bővítve; a prediktív kereső **593 különböző terméket** javasolhat (a lokális gyűjtemény alapján), továbbra is fogad tetszőleges saját terméknevet.
+- Open Food Facts távoli képes keresés továbbra is csak élelmiszerhez használható (és szűrő nélküli keresésnél), nem ígér nem létező elektronikai vagy ruházati katalógust.
+- GitHub JavaScript szintaxisellenőrzés sikeres; éles S24 Ultra képernyőteszt és kategóriaszűrés UAT szükséges.
+
 ## Ellenőrzés
 - GitHub módosítások és új fájlok a `main` ágon mentve.
 - JavaScript szintaxis ellenőrzése sikeres.
