@@ -16,9 +16,12 @@ const ID_RE=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const MAX_ITEMS=900,MAX_FOLDERS=65,MAX_DEPTH=5,MAX_DOWNLOAD=80*1024*1024;
 let config=null,token='',expires=0,found=[],entries=[],folderId='',driveId='',ready=false,scanning=false,progressCloud=false;
 let refreshToken='',refreshIssuedAt=0,renewing=null;
-const CACHE=w.SH9_BOOK_CACHE_V3;
+const CACHE=w.SH9_BOOK_CACHE_V3,META=w.SH9_BOOK_METADATA_V4;
 const coverUrls=new Map(),pendingDownloads=new Map();
-let coverLoading=false,coverJob=0;
+let coverLoading=false,coverJob=0,showDuplicates=false,autoCoverTimer=0,editorBook=null;
+const AUTO_COVER_KEY='sh9-book-auto-covers-v4',MAX_AUTO_TRANSFER=95*1024*1024;
+const coversOn=()=>load(w.localStorage,AUTO_COVER_KEY)!=='off';
+const missingCovers=new Set();
 const element=(tag,cls,txt)=>{const x=d.createElement(tag);if(cls)x.className=cls;if(txt!==undefined)x.textContent=txt;return x};
 const text=s=>String(s||'').trim().slice(0,200);
 const pid=()=>w.localStorage.getItem('hh-profile')==='m'?'monika':'zsolt';
@@ -39,7 +42,7 @@ function trusted(){
 }
 function markTrusted(){if(config)store(w.localStorage,TRUST,JSON.stringify({clientId:config.clientId,account:config.account}))}
 async function clearCredentials(){
- resetSession();dropCoverUrls();pendingDownloads.clear();++coverJob;refreshToken='';refreshIssuedAt=0;
+ resetSession();dropCoverUrls();pendingDownloads.clear();missingCovers.clear();++coverJob;refreshToken='';refreshIssuedAt=0;
  try{w.localStorage.removeItem(TRUST);w.localStorage.removeItem(SILENT_RETRY)}catch(_){}
  if(PERSIST)await PERSIST.clear(w);
 }
@@ -241,10 +244,11 @@ async function scanFolder(){
  return all;
 }
 function mapBook(item,stored={}){
- const format=item.name.toLowerCase().endsWith('.pdf')?'pdf':'epub',stem=item.name.replace(/\.(epub|pdf)$/i,'');
- // Filename is a presentation fallback, not metadata extracted from the book.
- let author='',title=stem;
- if(stem.includes(' - ')){const i=stem.indexOf(' - ');author=stem.slice(0,i);title=stem.slice(i+3)}
+ const format=item.name.toLowerCase().endsWith('.pdf')?'pdf':'epub';
+ const parsed=META?.parseFilename(item.name)||{title:item.name.replace(/\.(epub|pdf)$/i,''),author:''};
+ const manual=META?.readOverride(w.localStorage,config?.account,{drive_id:driveId,drive_item_id:item.id});
+ const catalog=META?.metadata(parsed.title,parsed.author,item.name)||parsed;
+ const title=manual?.title||catalog.title,author=manual?.author??catalog.author;
  return {id:'od_'+encodeURIComponent(item.id),source:'onedrive',drive_id:driveId,drive_item_id:item.id,profile_key:pid(),
   title:text(title),author:text(author),file_name:item.name,format,storage_path:null,
   // OneDrive occasionally includes this short-lived link in children responses.
@@ -276,6 +280,7 @@ async function loadLibrary(){
   render();
   status('✓ '+entries.length+' könyv a OneDrive-on · '+(progressCloud?'olvasási állapot felhőben':'olvasási pozíció szinkronja: Family Guard-belépés szükséges'),!progressCloud);
   void updateCacheInfo();
+  updateCoverToggle();scheduleAutomaticCovers();
  }catch(e){
   status('Nem sikerült olvasni a OneDrive-ot: '+e.message,true);
  }finally{scanning=false}
@@ -291,18 +296,24 @@ async function cachedCover(b){
  if(!cover||!entries.some(x=>x.id===b.id))return;
  const url=URL.createObjectURL(cover);coverUrls.set(b.id,url);paintCover(b);
 }
+function distinctBooks(){return META?.deduplicate(entries)||{primary:entries,hidden:[],mapping:new Map()}}
 function render(){
  const grid=$('odGrid');grid.replaceChildren();
  const f=$('odFilter').value.toLocaleLowerCase('hu-HU').trim();
- const list=entries.filter(b=>(b.title+' '+b.author).toLocaleLowerCase('hu-HU').includes(f));
- $('odCount').textContent=entries.length+' könyv';
+ const groups=distinctBooks(),source=showDuplicates?entries:groups.primary;
+ const list=source.filter(b=>(b.title+' '+b.author).toLocaleLowerCase('hu-HU').includes(f));
+ $('odCount').textContent=groups.primary.length+' könyv'+(groups.hidden.length?' · '+groups.hidden.length+' duplikátum elrejtve':'');
+ $('odDedup').hidden=!groups.hidden.length;
+ $('odDedup').textContent=showDuplicates?'✓ Duplikátumok elrejtése':'◈ '+groups.hidden.length+' duplikátum mutatása';
+ $('odDedupStatus').textContent=groups.hidden.length?groups.hidden.length+' ismétlődő könyv elrejtve, az eredeti OneDrive-fájlok érintetlenek.':'Nincsenek felismert duplikátumok.';
  $('odEmpty').hidden=!!list.length;
  $('odEmpty').textContent=entries.length?'Nincs ilyen cím vagy szerző.':'Ebben az EBOOKS mappában nem találtam EPUB/PDF könyvet.';
- const recent=entries.filter(x=>x.progress_locator).sort((a,b)=>(b.updated_at||'').localeCompare(a.updated_at||''))[0];
+ const recent=source.filter(x=>x.progress_locator).sort((a,b)=>(b.updated_at||'').localeCompare(a.updated_at||''))[0];
  $('odResume').hidden=!recent;
  if(recent){$('odResumeName').textContent=recent.title;$('odResume').onclick=()=>void w.SH9_BOOK_STUDIO_V1.openBook(recent.id)}
  for(const b of list){
   const card=element('article','book-card onedrive-book');
+  if(groups.hidden.includes(b))card.classList.add('od-duplicate');
   const cover=element('button','cover od-cover');cover.type='button';cover.id='odcover-'+b.id;
   const idx=b.id.length%6,colors=[['#0e4862','#628aa2'],['#5a254f','#a34e74'],['#4c3430','#b37c49'],['#263a60','#647cc0'],['#294f47','#62a78f'],['#51395e','#b8838c']];
   cover.style.setProperty('--tone1',colors[idx][0]);cover.style.setProperty('--tone2',colors[idx][1]);
@@ -315,7 +326,9 @@ function render(){
   const fav=element('button',b.is_favorite?'faved':'',b.is_favorite?'♥':'♡');
   fav.setAttribute('aria-label',b.is_favorite?'Kedvenc eltávolítása':'Kedvencekhez adás');
   fav.addEventListener('click',async()=>{const before=b.is_favorite;b.is_favorite=!before;render();await saveProgress(b);});
-  buttons.append(open,fav);
+  const edit=element('button','od-edit-title','✎');edit.title='Magyar cím vagy szerző javítása';edit.setAttribute('aria-label','Cím és szerző szerkesztése: '+b.title);
+  edit.addEventListener('click',()=>openTitleEditor(b));
+  buttons.append(open,edit,fav);
   const progress=element('div','card-progress'),bar=element('span');bar.style.width=Math.min(100,Math.max(0,b.progress_percent||0))+'%';progress.append(bar);
   card.append(cover,h,p,buttons,progress);grid.append(card);
   paintCover(b);if(!coverUrls.has(b.id))void cachedCover(b);
@@ -476,27 +489,69 @@ async function updateCacheInfo(){
  const x=await CACHE.count(config.account);
  if($('odCacheInfo'))$('odCacheInfo').textContent=x.books+' könyv helyben · '+x.covers+' eredeti borító';
 }
-async function prepareCovers(){
- if(coverLoading||!ready)return;
- coverLoading=true;const id=++coverJob;
- const btn=$('odCoverSync');btn.disabled=true;
- const work=entries.filter(x=>!coverUrls.has(x.id)&&x.size_bytes>0&&x.size_bytes<28*1024*1024);
- let done=0;
+async function prepareCovers(automatic=false){
+ if(coverLoading||!ready||!CACHE)return;
+ coverLoading=true;const id=++coverJob;const btn=$('odCoverSync');
+ const source=distinctBooks().primary;
+ const work=source.filter(x=>!coverUrls.has(x.id)&&!missingCovers.has(x.id)&&x.size_bytes>0&&x.size_bytes<(automatic?20:28)*1024*1024);
+ let done=0,transferred=0,success=0;
  try{
   for(const book of work){
-   if(id!==coverJob||!ready)break;
+   if(id!==coverJob||!ready||(automatic&&!coversOn()))break;
+   if(automatic&&transferred+book.size_bytes>MAX_AUTO_TRANSFER)break;
    try{
-    const cover=await CACHE?.get(config.account,book,'cover');
-    if(cover){await cachedCover(book)}
-    else{const blob=await download(book);await extractCover(book,blob)}
-   }catch(_){/* Degraded book cover retains readable premium placeholder. */}
+    const old=await CACHE.get(config.account,book,'cover');
+    if(old){await cachedCover(book);success++}
+    else{
+     const cached=await CACHE.get(config.account,book,'file');
+     if(!cached)transferred+=book.size_bytes;
+     const blob=cached||await download(book);
+     await extractCover(book,blob);
+     if(coverUrls.has(book.id))success++;
+     else missingCovers.add(book.id);
+    }
+   }catch(_){missingCovers.add(book.id)}
    done++;
-   status('📚 Eredeti borítók: '+done+' / '+work.length+' · a könyvek az eszközre egyszer töltődnek le.');
-   await new Promise(resolve=>w.setTimeout(resolve,70));
+   if(done%4===0||done===work.length)status('📚 Automatikus borítók: '+done+'/'+work.length+' · '+success+' eredeti borító');
+   await new Promise(resolve=>w.setTimeout(resolve,automatic?160:55));
   }
- }finally{coverLoading=false;btn.disabled=false;await updateCacheInfo();
-  if(ready)status('✓ '+entries.length+' könyv · '+done+' borító ellenőrizve · ☁️ OneDrive');
+ }finally{
+  coverLoading=false;await updateCacheInfo();
+  if(ready)status('✓ '+distinctBooks().primary.length+' könyv · '+success+' új borító · OneDrive');
  }
+}
+
+
+function updateCoverToggle(){
+ const btn=$('odCoverSync');if(!btn)return;
+ btn.setAttribute('aria-pressed',String(coversOn()));
+ btn.textContent=coversOn()?'✦ Eredeti borítók · BE':'✦ Eredeti borítók · KI';
+ btn.title=coversOn()?'Borítók automatikus előkészítésének kikapcsolása':'Borítók automatikus előkészítésének bekapcsolása';
+}
+function scheduleAutomaticCovers(){
+ clearTimeout(autoCoverTimer);
+ if(!coversOn()||!ready)return;
+ if(w.navigator?.connection?.saveData || /^(slow-2g|2g)$/.test(w.navigator?.connection?.effectiveType||'')){
+  status('☁️ Könyvek beolvasva · Adattakarékos kapcsolat miatt az automatikus borítók szünetelnek.');
+  return;
+ }
+ autoCoverTimer=w.setTimeout(()=>void prepareCovers(true),700);
+}
+function openTitleEditor(b){
+ if(!b||!config)return;editorBook=b;
+ $('odTitleInput').value=b.title;$('odAuthorInput').value=b.author||'';
+ $('odTitleEditor').hidden=false;$('odTitleInput').focus();
+}
+function closeTitleEditor(){$('odTitleEditor').hidden=true;editorBook=null}
+function saveTitleEdit(){
+ if(!editorBook||!META||!config)return;
+ const t=$('odTitleInput').value.trim(),a=$('odAuthorInput').value.trim();
+ if(!t){$('odTitleInput').focus();return}
+ try{
+  const edit=META.saveOverride(w.localStorage,config.account,editorBook,t,a);
+  Object.assign(editorBook,edit);closeTitleEditor();render();
+  status('✓ A könyv megjelenített címe javítva. Az eredeti OneDrive-fájlnév nem változott.');
+ }catch(e){status('Címmentési hiba: '+e.message,true)}
 }
 
 async function saveConfig(){
@@ -513,13 +568,24 @@ $('odConnect').addEventListener('click',()=>void beginAuth());
 $('odRefresh').addEventListener('click',()=>void loadLibrary());
 $('odDisconnect').addEventListener('click',async()=>{await clearCredentials();entries=[];render();status('OneDrive kapcsolat bontva. Az automatikus belépést is kikapcsoltuk.');});
 $('odConfigToggle').addEventListener('click',()=>{$('odConfig').hidden=!$('odConfig').hidden;});
-$('odFolders').addEventListener('change',()=>{folderId=$('odFolders').value;driveId=found.find(x=>x.id===folderId)?.parentReference?.driveId||'';void loadLibrary()});
+$('odFolders').addEventListener('change',()=>{folderId=$('odFolders').value;driveId=found.find(x=>x.id===folderId)?.parentReference?.driveId||'';++coverJob;missingCovers.clear();void loadLibrary()});
 $('odFilter').addEventListener('input',render);
-$('odCoverSync').addEventListener('click',()=>void prepareCovers());
+$('odCoverSync').addEventListener('click',()=>{
+ store(w.localStorage,AUTO_COVER_KEY,coversOn()?'off':'on');
+ updateCoverToggle();
+ if(coversOn())scheduleAutomaticCovers();
+ else{++coverJob;status('Automatikus eredeti borítók kikapcsolva.')}
+});
+$('odDedup').addEventListener('click',()=>{showDuplicates=!showDuplicates;render()});
+$('odTitleSave').addEventListener('click',saveTitleEdit);
+$('odTitleCancel').addEventListener('click',closeTitleEditor);
+$('odTitleEditor').addEventListener('click',e=>{if(e.target===$('odTitleEditor'))closeTitleEditor()});
+$('odTitleForm').addEventListener('submit',e=>{e.preventDefault();saveTitleEdit()});
+
 $('odCacheClear').addEventListener('click',async()=>{
  if(!config||!CACHE)return;
  if(!w.confirm('Töröljük az ezen az eszközön tárolt könyvmásolatokat és borítókat? A OneDrive könyveid nem változnak.'))return;
- ++coverJob;dropCoverUrls();
+ ++coverJob;missingCovers.clear();dropCoverUrls();
  await CACHE.clear(config.account);render();await updateCacheInfo();
  status('A helyi gyorsítótár kiürítve. Az eredeti OneDrive-könyvek érintetlenek.');
 });
