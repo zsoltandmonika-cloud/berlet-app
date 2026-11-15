@@ -18,6 +18,7 @@ const MERCHANTS=[
  {name:"Temu",domain:"temu.com",url:"https://www.temu.com/",cats:["Divat & Stílus","Otthon & Háztartás"]},
  {name:"SHEIN",domain:"hu.shein.com",url:"https://hu.shein.com/",cats:["Divat & Stílus"]},
 ];
+const SMART_STORE_KEYS={"Auchan":"auchan","Kifli":"kifli","dm":"dm","Rossmann":"rossmann","eMAG":"emag","Alza":"alza","Allegro":"allegro","Temu":"temu","SHEIN":"shein"};
 const state={category:"",query:"",products:[],busy:false,callToken:0,sort:"relevance",visible:6};
 const SEARCH_CACHE_PREFIX="sho-shopping-off-catalog-v2:";
 const MAX_CACHE_AGE=15*60*1000;
@@ -52,12 +53,15 @@ function paintStores(){
   brand.title=shop.name+" hivatalos oldalának megnyitása";
   const mark=storeLogo(shop);
   const details=make("div","sho-store-top");
-  details.append(make("strong",null,shop.name),make("span",null,"Hivatalos áruház"));
+  details.append(make("strong",null,shop.name),make("span",null,"Hivatalos áruház ↗"));
   brand.append(mark,details);
   const actions=make("div","sho-store-actions");
-  const open=make("a","sho-store-open","Bolt megnyitása ↗");
-  open.href=shop.url;open.target="_blank";open.rel="noopener noreferrer external";
-  actions.append(open);
+  // The brand/logo opens the official store. The in-card CTA starts Smart Shopping.
+  const smart=make("a","sho-store-open sho-store-smart","🛒 Smart Shopping ↗");
+  smart.href=shop.name==="Tesco"?"./tesco-bridge-v3.html":"./merchant-smart-v1.html?store="+encodeURIComponent(SMART_STORE_KEYS[shop.name]);
+  smart.title=shop.name+" Smart Shopping · közös listából keresés a boltban, nem automatikus kosárfeltöltés";
+  smart.setAttribute("aria-label",shop.name+" Smart Shopping, közös bevásárlólista áruházi kereséshez");
+  actions.append(smart);
   if(state.query){
    const find=make("a","sho-store-find","Termék keresése ⌕");
    find.href=officialSearchUrl(shop,state.query);
