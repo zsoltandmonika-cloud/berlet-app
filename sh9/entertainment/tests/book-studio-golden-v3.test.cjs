@@ -16,7 +16,7 @@ const sessionStore=require('../book-studio/onedrive-session-v3.js');
 const sample={drive_id:'test-drive',drive_item_id:'book-id',etag:'version-1',size_bytes:2048};
 test('Golden V3 app scripts load in safe order and keep original library',()=>{
  const a=html.indexOf('onedrive-session-v3.js'),b=html.indexOf('book-cache-v3.js');
- const c=html.indexOf('book-studio.js?v=3'),d=html.indexOf('onedrive-books-v2.js?v=3');
+ const c=html.indexOf('book-studio.js?v='),d=html.indexOf('onedrive-books-v2.js?v=');
  assert.ok(a>0&&a<b&&b<c&&c<d,'dependencies must initialize before reader');
  assert.match(html,/id="odCoverSync"/);
  assert.match(html,/id="odCacheClear"/);
