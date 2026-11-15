@@ -8,14 +8,15 @@
 <title>SHO · Book Studio</title>
 <link rel="icon" href="../../sho-preview/favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="./book-studio.css?v=2">
-<link rel="stylesheet" href="./onedrive-books-v2.css?v=2">
+<link rel="stylesheet" href="./onedrive-books-v2.css?v=3">
+<link rel="stylesheet" href="./book-studio-golden-v3.css?v=3">
 </head>
 <body>
 <div class="shell">
 <header class="top"><a href="../" class="back" aria-label="Vissza a Szórakozás oldalra">‹ <strong>SHO</strong> / Smart Entertainment</a><div class="top-controls"><span class="online" id="cloudState" role="status">Kapcsolódás…</span><button id="profileSwitch" class="profile" type="button" title="Profilváltás">Zsolt ⟲</button></div></header>
 <main>
 <section class="hero">
- <div class="hero-copy"><span class="eyebrow">✦ SHO · GOLDEN STANDARD</span><h1>Book <em>Studio</em></h1><p>A saját könyvtáratok. A könyv ott folytatódik, ahol abbahagytátok.</p>
+ <div class="hero-copy"><span class="eyebrow">✦ SHO · GOLDEN STANDARD · PRIVÁT KÖNYVTÁR</span><h1>Book <em>Studio</em></h1><p>Az összes történetetek, egy gyönyörű könyvespolcon. Ott folytatod, ahol abbahagytad.</p>
  <div class="hero-actions"><a class="btn primary" href="#onedriveBooks">☁️ OneDrive könyveim</a><label for="uploadFile" class="btn subtle">＋ Külön feltöltés</label><input id="uploadFile" type="file" accept=".epub,.pdf,application/epub+zip,application/pdf" hidden></div>
  <p id="importStatus" class="hint" role="status" aria-live="polite">Elsődleges forrás: OneDrive. A külön feltöltés opcionális, a Supabase felhőbe történik.</p></div>
  <div class="hero-visual" aria-hidden="true"><div class="stack first"><span>✦</span></div><div class="stack second"><span>BOOK<br>STUDIO</span></div><div class="stack third"><span>📖</span></div></div>
@@ -30,13 +31,14 @@
    <button id="odSave" type="button">Beállítás mentése</button>
    <small>Az SHO Naptárhoz korábban megadott alkalmazásazonosítót felajánljuk, ha elérhető. A Microsoft-alkalmazásban külön SPA visszatérési URL és Files.Read engedély szükséges.</small>
   </div>
-  <div class="od-actions"><button id="odConnect" type="button" class="od-primary">🔐 Microsoft OneDrive csatlakozás</button><button id="odRefresh" type="button" hidden>↻ Könyvtár frissítése</button><button id="odConfigToggle" type="button" hidden>⚙ Beállítás</button><button id="odDisconnect" type="button" hidden>Kapcsolat bontása</button></div>
+  <div class="od-actions"><button id="odConnect" type="button" class="od-primary">🔐 Microsoft OneDrive csatlakozás</button><button id="odRefresh" type="button" hidden>↻ Frissítés</button><button id="odConfigToggle" type="button" hidden>⚙ Beállítás</button><button id="odDisconnect" type="button" hidden>Kapcsolat bontása</button></div>
   <p class="od-status" id="odStatus" role="status" aria-live="polite">OneDrive kapcsolat ellenőrzése…</p>
  </div>
  <div id="odFolderSelector" class="od-folders" hidden><label for="odFolders">Könyvtárforrás</label><select id="odFolders"></select></div>
- <div class="od-toolbar"><label class="searchbox">⌕ <input id="odFilter" type="search" placeholder="Cím vagy szerző keresése…" autocomplete="off"></label><button id="odResume" hidden type="button" class="od-resume">▶ Folytatom: <span id="odResumeName"></span></button></div>
+ <div class="od-toolbar"><label class="searchbox">⌕ <input id="odFilter" type="search" placeholder="Keress a könyveid között…" autocomplete="off"></label><button id="odResume" hidden type="button" class="od-resume">▶ Folytatom: <span id="odResumeName"></span></button></div>
+ <div class="od-utility-row"><span class="od-shelf-kicker">✦ A SAJÁT KÖNYVESPOLCOD</span><div class="od-cache-tools"><span class="od-cache-info" id="odCacheInfo">A helyi könyvtár előkészítése…</span><button type="button" id="odCoverSync" class="od-cover-sync">✦ Eredeti borítók</button><button type="button" id="odCacheClear" class="od-cache-clear" title="Csak a helyben tárolt könyvek és borítók törlése">Gyorsítótár törlése</button></div></div>
  <div class="book-grid" id="odGrid" aria-live="polite"></div><p id="odEmpty" class="od-empty" hidden>Nincs könyv.</p>
- <p class="od-note">🔒 Csak a Microsoft-fiókodhoz tartozó OneDrive-fájlok olvasása. Nincs automatikus másolás, törlés vagy megosztás. A MOBI formátum egyelőre nem támogatott.</p>
+ <p class="od-note">🔒 A könyvek az eredeti OneDrive-on maradnak. Egyszeri megnyitás után titkosítatlan helyi eszköz-gyorsítótárból olvashatók újra, ha a Microsoft-bejelentkezés aktív. A gyorsítótárat bármikor törölheted. Nincs OneDrive-írás vagy törlés.</p>
  </section>
  <section class="resume" id="resumeSection" hidden><div class="section-title"><div><span class="eyebrow">OLVASÁS ALATT</span><h2>Folytatom az olvasást</h2></div></div><button class="resume-card" id="resumeButton" type="button"><span class="resume-icon" aria-hidden="true">📖</span><span class="resume-info"><strong id="resumeTitle"></strong><small id="resumeAuthor"></small><span class="progress-track"><span id="resumeProgress"></span></span></span><span class="resume-go" aria-hidden="true">→</span></button></section>
 <section id="library" class="library">
@@ -47,10 +49,11 @@
 </main>
 </div>
 <div class="reader" id="reader" hidden role="dialog" aria-modal="true" aria-label="Könyvolvasó">
- <header class="reader-bar"><button type="button" id="closeReader" class="square" aria-label="Olvasó bezárása">←</button><div class="reader-meta"><strong id="readerTitle"></strong><small id="readerAuthor"></small></div><span class="reader-status" id="readerProgress" aria-live="polite"></span></header>
- <div class="reader-tools" role="toolbar" aria-label="Olvasó beállításai"><label class="sr-only" for="readerTheme">Olvasási megjelenés</label><select id="readerTheme"><option value="dark">🌙 Sötét</option><option value="light">☀️ Világos</option><option value="sepia">📜 Szépia</option></select><button type="button" id="smallerText" aria-label="Kisebb betűméret">A−</button><button type="button" id="biggerText" aria-label="Nagyobb betűméret">A＋</button><button type="button" id="addBookmark" title="Könyvjelző mentése">🔖 ＋</button><label class="sr-only" for="bookmarkList">Mentett könyvjelzők</label><select id="bookmarkList" aria-label="Mentett könyvjelzők"><option value="">Könyvjelzők…</option></select></div>
- <div class="reader-content" id="readerContent"><div id="epubStage" hidden></div><div id="pdfStage" hidden></div><p id="readerMessage" role="status">Könyv betöltése…</p></div>
- <footer class="reader-footer"><button type="button" id="prevPage">‹ Előző</button><span id="pageLabel">Olvasás</span><button type="button" id="nextPage">Következő ›</button></footer>
+ <header class="reader-bar"><button type="button" id="closeReader" class="square" aria-label="Olvasó bezárása">←</button><div class="reader-meta"><strong id="readerTitle"></strong><small id="readerAuthor"></small></div><span class="reader-status" id="readerProgress" aria-live="polite"></span><button type="button" id="readerFocus" class="focus-toggle" title="Zavartalan olvasás / eszköztár megjelenítése" aria-pressed="false">⛶</button></header>
+ <div class="reader-tools" role="toolbar" aria-label="Olvasó beállításai"><label class="sr-only" for="readerTheme">Olvasási megjelenés</label><select id="readerTheme"><option value="dark">🌙 Sötét</option><option value="light">☀️ Világos</option><option value="sepia">📜 Szépia</option></select><button type="button" id="smallerText" aria-label="Kisebb betűméret">A−</button><button type="button" id="biggerText" aria-label="Nagyobb betűméret">A＋</button><button type="button" id="addBookmark" title="Könyvjelző mentése">🔖 ＋</button><label class="sr-only" for="bookmarkList">Mentett könyvjelzők</label><select id="bookmarkList" aria-label="Mentett könyvjelzők"><option value="">Könyvjelzők…</option></select><label class="sr-only" for="chapterList">Fejezetek</label><select id="chapterList" aria-label="Fejezetválasztó" hidden><option value="">Fejezetek…</option></select></div>
+ <div class="reader-content" id="readerContent"><div class="reader-paper-glow" aria-hidden="true"></div><div id="epubStage" hidden></div><div id="pdfStage" hidden></div><p id="readerMessage" role="status">Könyv betöltése…</p></div>
+ <div class="reader-progress-bar"><label for="readerScrub" class="sr-only">Ugrás a könyvben</label><input id="readerScrub" type="range" min="0" max="100" value="0" step="1" disabled aria-label="Olvasási pozíció" title="Ugrás a könyvben"><span class="reader-scrub-percentage" id="readerScrubPercent">0%</span></div>
+ <footer class="reader-footer"><button type="button" id="prevPage" class="page-turn-prev" aria-label="Előző oldal">‹ <span>Előző</span></button><span id="pageLabel">Olvasás</span><button type="button" id="nextPage" class="page-turn-next" aria-label="Következő oldal"><span>Következő</span> ›</button></footer>
 </div>
 <div class="toast" id="toast" hidden role="status" aria-live="polite"></div>
 <script defer src="../../../healthhub/central-vault/config.js"></script>
@@ -58,7 +61,9 @@
 <script defer src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/epubjs@0.3.93/dist/epub.min.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
-<script defer src="./book-studio.js?v=2-onedrive"></script>
-<script defer src="./onedrive-books-v2.js?v=3-graph-download"></script>
+<script defer src="./onedrive-session-v3.js?v=3"></script>
+<script defer src="./book-cache-v3.js?v=3"></script>
+<script defer src="./book-studio.js?v=3-reader"></script>
+<script defer src="./onedrive-books-v2.js?v=3-golden"></script>
 </body>
 </html>
