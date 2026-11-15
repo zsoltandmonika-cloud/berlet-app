@@ -140,7 +140,7 @@ async function fileFormat(f){
  if(ext==='epub'&&(header[0]!==80||header[1]!==75))throw Error('A fájl nem érvényes EPUB/ZIP.');
  if(ext==='epub'){
   if(!w.JSZip||!w.ePub)throw Error('Az EPUB feldolgozó nem elérhető.');
-  const zip=await w.JSZip.loadAsync(file);
+  const zip=await w.JSZip.loadAsync(f);
   const mt=zip.file('mimetype');
   if(!mt||(await mt.async('string')).trim()!=='application/epub+zip')throw Error('A fájl nem szabványos EPUB.');
  }
