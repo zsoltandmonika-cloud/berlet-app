@@ -216,6 +216,7 @@ a{color:inherit;text-decoration:none}button{font:inherit;cursor:pointer}button:f
 .card.cinema-montage{border-color:#e5ac6cbb;box-shadow:0 0 0 1px #e7a95536,0 0 21px #d37e5070}
 </style>
 <link rel="stylesheet" href="./book-studio-entry-v1.css?v=1">
+<link rel="stylesheet" href="./book-studio-entry-v4.css?v=4-s24-fullwidth">
 </head>
 <body>
 <header class="topbar">
@@ -254,7 +255,18 @@ a{color:inherit;text-decoration:none}button{font:inherit;cursor:pointer}button:f
  <button type="button" class="pixel-feature-edit" id="pixelFeatureEdit" aria-label="Kiemelt ajánlat szerkesztése" title="Kiemelt ajánlat szerkesztése"></button>
  <div class="pixel-feature-custom" id="pixelFeatureCustom" aria-live="polite"><span id="pixelFeatureKicker" class="feature-kicker">📌 KIEMELT AJÁNLATUNK</span><strong id="pixelFeatureTitle"></strong><small id="pixelFeatureNote"></small></div>
 </section>
-<a class="books-promo" href="./book-studio/" aria-label="SHO Book Studio, digitális könyvtár és EPUB/PDF olvasó"><span class="bs-mark" aria-hidden="true">📚</span><span class="bs-text"><span class="bs-kicker">✦ GOLDEN STANDARD · ÚJ MODUL</span><strong>Book Studio</strong><small>Saját könyvtár · EPUB és PDF · Folytatom az olvasást</small></span><span class="bs-open" aria-hidden="true">→</span></a>
+<section class="bs-entertainment-feature" aria-label="Book Studio · könyvtár">
+ <a class="books-promo books-promo--immersive" href="./book-studio/" aria-label="SHO Book Studio · saját digitális könyvtár és könyvolvasó megnyitása">
+  <span class="bs-photo-film" aria-hidden="true"></span>
+  <span class="bs-photo-books" aria-hidden="true"><span class="bs-photo-book one"></span><span class="bs-photo-book two"></span><span class="bs-photo-book three"></span></span>
+  <span class="bs-text"><span class="bs-kicker">✦ SHO · GOLDEN STANDARD · DIGITÁLIS KÖNYVTÁR</span><strong>Book <em>Studio</em></strong><small>Olvasás, ahol abbahagytad · OneDrive · Saját polcod</small><span class="bs-hero-cta">📖 Könyvtár megnyitása <span aria-hidden="true">↗</span></span></span>
+ </a>
+ <div class="bs-preview-shelf" aria-label="Könyvespolc előnézet">
+  <div class="bs-preview-head"><div><span class="bs-preview-kicker">✦ SAJÁT KÖNYVEID</span><h2>📚 Könyvespolcom</h2><p id="bsPreviewStatus" role="status">A legutóbb olvasott könyveid itt várnak.</p></div><a class="bs-all" href="./book-studio/">Teljes könyvtár ↗</a></div>
+  <div id="bsPreviewGrid" class="bs-preview-grid" aria-live="polite"></div>
+  <div class="bs-wood-shelf" aria-hidden="true"></div>
+ </div>
+</section>
 <section class="upcoming empty-pin" id="upcoming" aria-label="Kitűzött következő program">
  <a class="pixel-event-detail" id="pixelEventDetail" href="https://ramart.hu/elvalt-nok-klubja/" target="_blank" rel="noopener noreferrer" aria-label="Következő program részletei"></a>
  <button type="button" class="pixel-event-edit" id="pixelEventEdit" aria-label="Következő program szerkesztése"></button>
@@ -407,5 +419,7 @@ a{color:inherit;text-decoration:none}button{font:inherit;cursor:pointer}button:f
 <script defer src="./feature-pin-v1189.js?v=1189-approved"></script>
 <script defer src="./pixel-artwork-v3.js?v=1186-approved-hd"></script>
 <script defer src="../shared/sh9-golden-bottom-nav-v924.js?v=1184-entertainment"></script>
+<script defer src="./book-studio/book-cache-v3.js?v=3"></script>
+<script defer src="./book-studio-preview-v4.js?v=4"></script>
 </body>
 </html>

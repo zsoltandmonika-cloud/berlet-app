@@ -12,6 +12,7 @@ let api=null,books=[],busy=false,favoritesOnly=false,loadedProfile='',readerVers
 let current=null,currentLocation='',epubBook=null,rendition=null,pdfDoc=null,pdfPage=1,pdfTask=null,pdfVersion=0,fontSize=100;
 let saveTimer=0,writeQueue=Promise.resolve(),openCoverUrls=new Map(),refreshToken=0,toastTimer=0;
 let epubLocsReady=false,pageChanging=false,turnTimer=0;
+const SOUND_KEY='sh9-book-page-sound-v4';let pageAudio=null;
 const profile=()=>{try{return w.localStorage.getItem('hh-profile')==='m'?'monika':'zsolt'}catch(_){return'zsolt'}};
 const short=p=>p==='monika'?'m':'z';
 const setStatus=(s,warn)=>{$('cloudState').textContent=s;$('cloudState').classList.toggle('warn',!!warn)};
@@ -258,12 +259,48 @@ function queueSave(){
  }).catch(e=>{toast('A könyvjelző / pozíció nem menthető: '+e.message)});
  return writeQueue;
 }
+function soundEnabled(){try{return w.localStorage.getItem(SOUND_KEY)!=='off'}catch(_){return true}}
+function updateSoundButton(){
+ const b=$('readerSound');if(!b)return;
+ b.textContent=soundEnabled()?'🔊 Lapozóhang: BE':'🔇 Lapozóhang: KI';
+ b.setAttribute('aria-pressed',String(soundEnabled()));
+ b.title='Halk könyvlap hang, bármikor kikapcsolható.';
+}
+function playPageTurnSound(){
+ if(!soundEnabled())return;
+ try{
+  const AudioContext=w.AudioContext||w.webkitAudioContext;
+  if(!AudioContext)return;
+  if(!pageAudio)pageAudio=new AudioContext();
+  if(pageAudio.state==='suspended'){void pageAudio.resume();return}
+  const t=pageAudio.currentTime,duration=.145,rate=pageAudio.sampleRate;
+  const samples=Math.ceil(rate*duration),buffer=pageAudio.createBuffer(1,samples,rate),channel=buffer.getChannelData(0);
+  for(let i=0;i<samples;i++){
+   const pos=i/samples;
+   channel[i]=((Math.random()*2-1)*.58+Math.sin(i*.066)*.13)*(1-pos)*Math.sin(Math.PI*Math.min(1,pos*2));
+  }
+  const src=pageAudio.createBufferSource(),filter=pageAudio.createBiquadFilter(),volume=pageAudio.createGain();
+  src.buffer=buffer;filter.type='lowpass';filter.frequency.value=1300;filter.Q.value=.45;
+  volume.gain.setValueAtTime(.0001,t);
+  volume.gain.exponentialRampToValueAtTime(.017,t+.03);
+  volume.gain.exponentialRampToValueAtTime(.0001,t+duration);
+  src.connect(filter);filter.connect(volume);volume.connect(pageAudio.destination);
+  src.start(t);src.stop(t+duration+.005);
+ }catch(_){/* Sound is optional: no audio fault can interrupt paging. */}
+}
 function applyTheme(){
  const theme=current?.theme||'dark';$('reader').dataset.theme=theme;
  if(rendition){
-  const ink=theme==='dark'?'#f8f2ff':theme==='sepia'?'#493f30':'#24222c';
-  const bg=theme==='dark'?'#17182b':theme==='sepia'?'#eee4cc':'#f8f8f8';
-  rendition.themes.default({body:{'background-color':bg,color:ink,'font-family':'Georgia,serif','line-height':'1.72','padding':'0 5%','text-align':'left'}});
+  const ink=theme==='dark'?'#fff7ed':theme==='sepia'?'#34281f':'#1d2230';
+  const bg=theme==='dark'?'#252d3c':theme==='sepia'?'#f1e5c9':'#fffdf8';
+  rendition.themes.default({
+   body:{'background-color':bg,color:ink,'font-family':'Georgia,serif','line-height':'1.78','padding':'0 5%','text-align':'left'},
+   p:{color:ink,'line-height':'1.78','margin-bottom':'1em'},
+   h1:{color:ink,'font-family':'Georgia,serif','line-height':'1.25'},
+   h2:{color:ink,'font-family':'Georgia,serif','line-height':'1.3'},
+   h3:{color:ink,'font-family':'Georgia,serif','line-height':'1.3'},
+   a:{color:theme==='dark'?'#a5d9ff':'#345c96'}
+  });
   rendition.themes.fontSize(fontSize+'%');
  }
  if(pdfDoc)void renderPDF();
@@ -361,6 +398,7 @@ async function renderPDF(){
 async function pageMove(step){
  if(pageChanging||!current)return;
  pageChanging=true;const r=$('reader');
+ playPageTurnSound();
  r.classList.remove('turn-forward','turn-backward');void r.offsetWidth;
  r.classList.add(step>0?'turn-forward':'turn-backward');
  clearTimeout(turnTimer);turnTimer=w.setTimeout(()=>r.classList.remove('turn-forward','turn-backward'),370);
@@ -440,6 +478,10 @@ $('addBookmark').addEventListener('click',()=>void mark());
 $('bookmarkList').addEventListener('change',()=>{const l=$('bookmarkList');void jumpTo(l.value);l.value=''});
 $('chapterList').addEventListener('change',()=>{const l=$('chapterList');void jumpTo(l.value);l.value=''});
 $('readerFocus').addEventListener('click',()=>{const x=$('reader').classList.toggle('focus-mode');$('readerFocus').setAttribute('aria-pressed',String(x))});
+$('readerSound').addEventListener('click',()=>{
+ try{w.localStorage.setItem(SOUND_KEY,soundEnabled()?'off':'on')}catch(_){}
+ updateSoundButton();
+});
 $('readerScrub').addEventListener('input',()=>{$('readerScrubPercent').textContent=$('readerScrub').value+'%';$('readerScrub').style.setProperty('--progress',$('readerScrub').value+'%')});
 $('readerScrub').addEventListener('change',async()=>{
  if(!current)return;const p=Number($('readerScrub').value)/100;
@@ -467,5 +509,5 @@ w.addEventListener('resize',()=>{if(!pdfDoc)return;clearTimeout(resizeTimer);res
 w.addEventListener('storage',e=>{if(e.key==='hh-profile'&&short(profile())!==d.documentElement.dataset.profile)void closeReader().then(()=>{void loadBooks();void w.SH9_BOOK_STUDIO_DRIVE_V2?.reload()})});
 w.addEventListener('pagehide',()=>{if(current)void queueSave();clearCovers()});
 w.SH9_BOOK_STUDIO_V1=Object.freeze({openBook,authorized,profile});
-paintProfile();void loadBooks();
+updateSoundButton();paintProfile();void loadBooks();
 })(window,document);

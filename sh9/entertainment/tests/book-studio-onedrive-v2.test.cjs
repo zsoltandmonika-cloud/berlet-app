@@ -38,7 +38,7 @@ test('Existing EPUB/PDF renderer can read OneDrive without uploading original fi
 });
 test('Original Entertainment tiles remain and Book Studio is linked',()=>{
  for(const label of ['Mozi','Színház','Koncertek','Home Media'])assert.ok(entertainment.includes('>'+label+'</b>'));
- assert.match(entertainment,/class="books-promo" href="\.\/book-studio\/"/);
+ assert.match(entertainment,/class="books-promo books-promo--immersive" href="\.\/book-studio\/"/);
 });
 test('UI and scripts have parser-valid JavaScript',()=>{
  new Function(cloud);new Function(drive);
