@@ -41,6 +41,15 @@
 - **Visszaállítási referenciakód:** `sh9/shopping/smart-list.html` és `sh9/shopping/smart-list-v1.js` a v10-hez tartozó GitHub `main` állapotban; korábbi elfogadott implementáció commitok: HTML `ccc42b207c3113ad82eb39f1826b1d8664869ff7`, JS `832198441bb52b9413e91f413595e76c9a46b9db`.
 - A felhasználó jelezte: **„szuper lett, smart save”** és **„eddig minden super”**. Ez vizuális/UX jóváhagyás; külön kéttelefonos Realtime és mennyiség szerveroldali együttműködési UAT továbbra is nyitott.
 
+## Smart List v11 · kategóriastátusz-panel · 2026-11-15
+- A korábbi vízszintes kategória-chip sor helyett **hat függőleges, kompakt státuszsor**: Mind, Élelmiszer, Drogéria, Otthon és háztartás, Divat, Elektronika. A kijelzőn rövid magyar címkék, a tárolt kategóriaazonosítók a Shopping főkategóriáival egyeznek.
+- Minden sorban **megvett / összes** számpár és valós adatból számolt zöld progress bar. A `Mind` az összes tételt mutatja, az üres kategóriák `0/0` és 0%-os sáv állapotúak.
+- Egy koppintás egy adott kategóriára a **bevásárlólista tételeit és a fejléc hátra/megvéve számlálóját is szűri**, nem csupán a keresési javaslatokat; második koppintás visszaállítja a `Mind` nézetet. A `Mind` sor önállóan is választható.
+- A korábbi italok, háztartás, drogéria, kisállat megnevezések továbbra is a megfelelő új fő kategóriába normalizálódnak, meglévő termékek nem vesznek el.
+- A 58 px-es terméksorok, a jobb oldali mennyiség/súly gomb, az alsó szerkesztő, a felhőszinkron és a check/uncheck visszajelzés megmarad.
+- Technikai verifikáció: kód szintaxis és 10 regressziós feltétel sikeres; nyolc szimulált tétel alapján mind a 6 számpár, sávszázalék, kategóriaszűrés és visszaállítás helyes. **Valós kéttelefonos UAT még szükséges.**
+- Implementáció: HTML `sh9/shopping/smart-list.html` v11; JS `sh9/shopping/smart-list-v1.js`. HTML commit: `09ac830af50d8fa77a533fa39eb3a44bb89685e4`; JS commit: `d2bec2e51d77bd178242d68de6d70e09bbb0155c`.
+
 ## Ellenőrzés
 - GitHub módosítások és új fájlok a `main` ágon mentve.
 - JavaScript szintaxis ellenőrzése sikeres.
