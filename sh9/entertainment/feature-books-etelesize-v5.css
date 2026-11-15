@@ -1,0 +1,168 @@
+/* SHO Smart Entertainment V5 · Step 1
+   Match two highlighted tiles to the APPROVED Etele Premium mobile card.
+   Etele is exactly calc((100vw - 24px) / 1.62) in pixel-artwork-v3.css.
+   Preserve source graphic proportions and all clickable/editable functionality.
+   No changes to cinema cards, culture/events tiles or the 4-item header. */
+@media (max-width:650px) {
+ :root {
+  --sho-etele-tile-width:calc(100vw - 24px);
+  --sho-etele-tile-height:calc((100vw - 24px) / 1.62);
+ }
+ /* Kiemelt ajánlatunk: mobile panel height follows Etele's 1.62 aspect ratio. */
+ .pixel-extension {
+  --feature-w:var(--sho-etele-tile-width) !important;
+  --feature-h:var(--sho-etele-tile-height) !important;
+  height:calc(var(--tile-h) + var(--standard-gap) + var(--sho-etele-tile-height)) !important;
+ }
+ .pixel-extension .pixel-feature-link {
+  left:12px !important;
+  right:auto !important;
+  width:var(--sho-etele-tile-width) !important;
+  height:var(--sho-etele-tile-height) !important;
+  box-sizing:border-box !important;
+  border:1px solid #f7bc87a8 !important;
+  border-radius:18px !important;
+  overflow:hidden !important;
+  background-color:#141429 !important;
+  /* The approved 766x196 art includes text; NEVER stretch/crop it.
+     Present it at its original ratio as the upper photographic strip. */
+  background-image:
+   linear-gradient(180deg,transparent 34%,#18112b80 53%,#101529 100%),
+   url('./assets/sho-feature-proportional-v1194.webp') !important;
+  background-size:100% 100%,100% auto !important;
+  background-repeat:no-repeat !important;
+  background-position:center,center top !important;
+  box-shadow:0 0 0 1px #b44c9b66,0 5px 22px #e87c9f43,0 9px 24px #0008 !important;
+ }
+ .pixel-extension .pixel-feature-link::after {
+  content:'🎬  Premiervilág · Friss programok · Jegyek  ↗';
+  position:absolute;
+  left:16px;right:16px;bottom:14px;
+  display:flex;align-items:center;justify-content:flex-start;
+  min-height:37px;padding:8px 10px;
+  border:1px solid #ffdeb383;border-radius:12px;
+  background:linear-gradient(110deg,#83375d80,#25437d91);
+  backdrop-filter:blur(9px);-webkit-backdrop-filter:blur(9px);
+  font-size:clamp(11px,3vw,14px);font-weight:800;
+  letter-spacing:.1px;line-height:1.35;color:#fff3e7;
+  text-shadow:0 2px 8px #000b;
+  white-space:normal;pointer-events:none;
+ }
+ /* The existing user-editable feature text wins over default decoration. */
+ .pixel-extension[data-custom="true"] .pixel-feature-link::after{content:none !important}
+ .pixel-extension .pixel-feature-edit {
+  left:auto !important;
+  right:25px !important;
+  top:calc(var(--tile-h) + var(--standard-gap) + var(--feature-h)*.46) !important;
+  width:42px !important;height:40px !important;
+  display:grid !important;place-items:center !important;
+  border:1px solid #ffca9a9e !important;border-radius:13px !important;
+  background:#381933bd !important;
+  box-shadow:0 5px 16px #0008 !important;
+  touch-action:manipulation;
+ }
+ .pixel-extension .pixel-feature-edit::after{
+  content:'✎';font-size:24px;font-weight:800;color:#fff7ef;
+ }
+ .pixel-extension .pixel-feature-custom {
+  left:7.5% !important;
+  width:79% !important;
+  top:calc(var(--tile-h) + var(--standard-gap) + var(--feature-h)*.53) !important;
+  height:calc(var(--feature-h)*.42) !important;
+  padding:10px 14px !important;
+  border:1px solid #f0c4e080 !important;
+  border-radius:12px !important;
+  background:linear-gradient(125deg,#201629e8,#162443e9) !important;
+  justify-content:center !important;
+  gap:4px !important;
+ }
+ .pixel-extension .pixel-feature-custom .feature-kicker{
+  font-size:10px !important;line-height:1.3 !important;
+ }
+ .pixel-extension .pixel-feature-custom strong{
+  font-size:clamp(14px,4.1vw,19px) !important;line-height:1.1 !important;
+ }
+ .pixel-extension .pixel-feature-custom small{
+  font-size:11px !important;line-height:1.3 !important;
+ }
+ /* Book Studio: its clickable hero alone matches Etele's exact footprint.
+    The separately requested bookshelf below remains a separate section. */
+ .bs-entertainment-feature {
+  left:auto !important;
+  transform:none !important;
+  width:var(--sho-etele-tile-width) !important;
+  max-width:var(--sho-etele-tile-width) !important;
+  margin:12px auto 22px !important;
+ }
+ .bs-entertainment-feature .books-promo,
+ .books-promo.books-promo--immersive {
+  box-sizing:border-box !important;
+  width:100% !important;
+  max-width:100% !important;
+  height:var(--sho-etele-tile-height) !important;
+  min-height:var(--sho-etele-tile-height) !important;
+  max-height:var(--sho-etele-tile-height) !important;
+  aspect-ratio:1.62 !important;
+  margin:0 !important;
+  border-radius:18px !important;
+  overflow:hidden !important;
+ }
+ .books-promo.books-promo--immersive .bs-text {
+  top:50% !important;
+  left:19px !important;
+  right:auto !important;
+  transform:translateY(-50%) !important;
+  width:66% !important;
+  gap:6px !important;
+ }
+ .books-promo.books-promo--immersive .bs-kicker {
+  font-size:9px !important;
+  letter-spacing:.7px !important;
+  line-height:1.25 !important;
+ }
+ .books-promo.books-promo--immersive .bs-text strong {
+  font-size:clamp(31px,9vw,42px) !important;
+  line-height:.98 !important;
+  letter-spacing:-1.3px !important;
+ }
+ .books-promo.books-promo--immersive .bs-text small {
+  font-size:11px !important;
+  max-width:270px !important;
+  line-height:1.3 !important;
+ }
+ .books-promo.books-promo--immersive .bs-hero-cta {
+  font-size:11px !important;
+  padding:8px 12px !important;
+  margin-top:5px !important;
+  gap:7px !important;
+ }
+ .books-promo.books-promo--immersive .bs-photo-books {
+  height:72% !important;
+  width:43% !important;
+  right:2% !important;
+  bottom:4% !important;
+  opacity:.8 !important;
+ }
+ /* Fallback for a browser still rendering the V1 promo markup: same size. */
+ .bs-entertainment-feature .books-promo:not(.books-promo--immersive) {
+  display:flex !important;align-items:center !important;
+  padding:15px !important;gap:11px !important;
+ }
+ .bs-entertainment-feature .books-promo:not(.books-promo--immersive) .bs-text strong {
+  font-size:clamp(28px,8vw,39px) !important;
+ }
+ .bs-entertainment-feature .books-promo:not(.books-promo--immersive) .bs-mark {
+  width:63px !important;height:76px !important;flex:0 0 63px !important;
+ }
+}
+@media(max-width:370px){
+ .pixel-extension .pixel-feature-link::after{font-size:11px;padding:6px 8px;left:10px;right:10px}
+ .books-promo.books-promo--immersive .bs-text{left:14px!important;width:70%!important}
+ .books-promo.books-promo--immersive .bs-text strong{font-size:30px!important}
+ .books-promo.books-promo--immersive .bs-kicker{font-size:8px!important}
+ .books-promo.books-promo--immersive .bs-photo-books{opacity:.54!important}
+}
+@media(prefers-reduced-motion:reduce){
+ .pixel-extension .pixel-feature-link,
+ .books-promo.books-promo--immersive{transition:none!important}
+}
