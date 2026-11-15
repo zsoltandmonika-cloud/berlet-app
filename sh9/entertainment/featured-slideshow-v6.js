@@ -25,7 +25,7 @@ const DEFAULTS=[
  {kind:'events',category:'Rendezvények',icon:'🎡',catalog:'./rendezvenyek/',title:'Budapesti rendezvények',note:'Fesztiválok · vásárok · programok',href:'./rendezvenyek/'}
 ];
 const FAVKEY='sho-entertainment-favorites-v1',PINKEY='sho-entertainment-featured-v1189';
-const PAUSE_MS=6300;const reduced=()=>w.matchMedia?.('(prefers-reduced-motion: reduce)').matches||false;
+const PAUSE_MS=3000;const reduced=()=>w.matchMedia?.('(prefers-reduced-motion: reduce)').matches||false;
 const $=(id)=>d.getElementById(id),clean=x=>String(x||'').trim().replace(/\s+/g,' ').slice(0,150);
 const validDate=s=>{if(!s)return true;const n=Date.parse(String(s).slice(0,10)+'T23:59:59');return Number.isFinite(n)&&n>=Date.now()};
 const imageUrl=s=>{
@@ -98,17 +98,14 @@ function customPinned(){
  }catch(_){return null}
 }
 let slides=[],index=0,timer=null,pausedByView=false,hovered=false,focusInside=false,swipeBlockUntil=0,initialized=false;
+let touching=false,pointerX=null,pointerY=null,pointerAt=0;
 let lastManual=0;
 const carousel=elem('div','sho-feature-carousel'),viewport=elem('div','sho-feature-viewport');
 carousel.id='shoFeatureCarousel';
 carousel.setAttribute('aria-label','Kiemelt ajánlatok a hat szórakozási kategóriából');
 carousel.setAttribute('role','region');carousel.setAttribute('aria-roledescription','diavetítés');
-const prev=elem('button','sho-feature-prev','‹'),next=elem('button','sho-feature-next','›');
-prev.type=next.type='button';prev.setAttribute('aria-label','Előző kiemelt ajánlat');
-next.setAttribute('aria-label','Következő kiemelt ajánlat');
-const dots=elem('div','sho-feature-dots'),counter=elem('span','sho-feature-counter');
-dots.setAttribute('role','group');dots.setAttribute('aria-label','Kiemelt ajánlatok kiválasztása');
-carousel.append(viewport,prev,next,dots,counter);
+// Full-card click navigates. No overlay controls, counters, settings or CTA button.
+carousel.append(viewport);
 root.append(carousel);
 function navigateTarget(node,slide){
  node.href=slide.href;
@@ -127,29 +124,22 @@ function buildCard(slide,n){
   elem('span','sho-feature-pick','✦ KIEMELT AJÁNLAT'));
  const text=elem('span','sho-feature-copy');
  text.append(elem('strong','sho-feature-title',slide.title),
-  elem('small','sho-feature-note',slide.note),
-  elem('span','sho-feature-cta','Részletek és programok ↗'));
+  elem('small','sho-feature-note',slide.note));
  link.append(photo,shade,top,text);
  link.addEventListener('click',e=>{if(Date.now()<swipeBlockUntil)e.preventDefault()});
  link.setAttribute('aria-hidden','true');link.tabIndex=-1;
  return link;
 }
 function draw(){
- viewport.replaceChildren();dots.replaceChildren();
- slides.forEach((slide,i)=>{
-  viewport.append(buildCard(slide,i));
-  const button=elem('button','sho-feature-dot');
-  button.type='button';button.setAttribute('aria-label',(i+1)+'. ajánlat: '+slide.category);
-  button.title=slide.category;button.addEventListener('click',()=>show(i,true));
-  dots.append(button);
- });
+ viewport.replaceChildren();
+ slides.forEach((slide,i)=>viewport.append(buildCard(slide,i)));
  show(Math.min(index,slides.length-1),false);
  root.dataset.carouselReady='true';
  initialized=true;
  schedule();
 }
 function canPlay(){
- return initialized&&slides.length>1&&!reduced()&&!pausedByView&&!hovered&&!focusInside&&
+ return initialized&&slides.length>1&&!reduced()&&!pausedByView&&!hovered&&!focusInside&&!touching&&
   d.visibilityState!=='hidden'&&!$('shoFeatureDialog')?.open;
 }
 function schedule(){
@@ -159,35 +149,52 @@ function schedule(){
 function show(n,manual){
  if(!slides.length)return;
  index=((n%slides.length)+slides.length)%slides.length;
- const links=Array.from(viewport.children),buttons=Array.from(dots.children);
+ const links=Array.from(viewport.children);
  links.forEach((node,i)=>{
   const active=i===index;
   node.classList.toggle('active',active);
   node.setAttribute('aria-hidden',String(!active));node.tabIndex=active?0:-1;
  });
- buttons.forEach((b,i)=>{
-  const active=i===index;
-  b.setAttribute('aria-pressed',String(active));b.classList.toggle('active',active);
- });
- counter.textContent=(index+1)+' / '+slides.length;
  if(manual){lastManual=Date.now();try{w.navigator.vibrate?.(8)}catch(_){}}
  schedule();
 }
-prev.addEventListener('click',()=>show(index-1,true));
-next.addEventListener('click',()=>show(index+1,true));
 let touchX=null,touchY=null,touchAt=0;
 carousel.addEventListener('touchstart',e=>{
  if(e.touches.length!==1)return;
+ touching=true;schedule();
  touchX=e.touches[0].clientX;touchY=e.touches[0].clientY;touchAt=Date.now();
 },{passive:true});
 carousel.addEventListener('touchend',e=>{
- if(touchX===null||e.changedTouches.length!==1)return;
+ touching=false;
+ if(touchX===null||e.changedTouches.length!==1){schedule();return}
  const dx=e.changedTouches[0].clientX-touchX,dy=e.changedTouches[0].clientY-touchY;
  touchX=null;
  if(Math.abs(dx)>44&&Math.abs(dy)<80&&Date.now()-touchAt<1100){
   swipeBlockUntil=Date.now()+650;show(index+(dx<0?1:-1),true);
- }
+ }else schedule();
 },{passive:true});
+carousel.addEventListener('touchcancel',()=>{touchX=null;touching=false;schedule()},{passive:true});
+// Desktop: horizontal mouse drag to change slide; touch uses native passive touch handlers above.
+carousel.addEventListener('pointerdown',e=>{
+ if(e.pointerType!=='mouse'&&e.pointerType!=='pen')return;
+ if(e.button!==0)return;
+ pointerX=e.clientX;pointerY=e.clientY;pointerAt=Date.now();
+ touching=true;schedule();
+});
+carousel.addEventListener('pointerup',e=>{
+ if(pointerX===null)return;
+ const dx=e.clientX-pointerX,dy=e.clientY-pointerY;
+ pointerX=null;touching=false;
+ if(Math.abs(dx)>44&&Math.abs(dy)<80&&Date.now()-pointerAt<1100){
+  swipeBlockUntil=Date.now()+650;show(index+(dx<0?1:-1),true);
+ }else schedule();
+});
+carousel.addEventListener('pointercancel',()=>{pointerX=null;touching=false;schedule()});
+carousel.addEventListener('keydown',e=>{
+ if(e.key==='ArrowLeft'||e.key==='ArrowRight'){
+  e.preventDefault();show(index+(e.key==='ArrowRight'?1:-1),true);
+ }
+});
 carousel.addEventListener('mouseenter',()=>{hovered=true;schedule()});
 carousel.addEventListener('mouseleave',()=>{hovered=false;schedule()});
 carousel.addEventListener('focusin',()=>{focusInside=true;schedule()});
@@ -210,7 +217,7 @@ async function refresh(){
   const inPage=def.dom?fromCurrentCards(def):null;
   return {...def,...inPage,image:inPage?.image||PHOTO[def.kind]};
  });
- slides=pinnedSlideWithDefaults(defs);
+ slides=defs;
  const oldIndex=slides.findIndex(x=>x.kind===oldKind);
  if(oldIndex>=0)index=oldIndex;
  draw();
