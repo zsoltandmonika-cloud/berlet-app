@@ -28,9 +28,8 @@ let user=null,allowed=[],items=[],selectedCategory='Mind',remote=[],activeQuery=
 const who=()=>{try{return localStorage.getItem('hh-profile')==='m'?'monika':'zsolt'}catch(_){return'zsolt'}};
 const label=p=>p==='monika'?'Mónika':'Zsolt';
 function toast(message){const e=$('toast');e.textContent=message;e.hidden=false;clearTimeout(toast.id);toast.id=setTimeout(()=>e.hidden=true,3600)}
-function status(message,ok){$('syncText').textContent=message;$('syncState').classList.toggle('connected',!!ok)}
+function status(message,ok){$('syncText').textContent=message;$('syncState').title=message;$('syncState').classList.toggle('connected',!!ok)}
 function haptic(){try{navigator.vibrate?.(9)}catch(_){/* unsupported */}}
-function profileUi(){d.querySelectorAll('[data-profile]').forEach(x=>{x.setAttribute('aria-pressed',String(x.dataset.profile===who()));x.disabled=!!user&&!allowed.includes(x.dataset.profile)})}
 function selectedIcon(category){return ICON[category]||'🛒'}
 function suggestions(){
  const q=$('productSearch').value.trim(),out=$('suggestions');out.replaceChildren();
@@ -110,7 +109,6 @@ function render(){
   empty.append(node('span','big','🛒'),node('span',null,user?'A lista üres. Adj hozzá egy terméket!':'Bejelentkezés után megjelenik a közös lista.'));
   box.append(empty);
  }else [...done,...active].forEach(x=>box.append(itemRow(x)));
- profileUi();
 }
 async function setDone(item,value){
  if(!user||busyIds.has(item.id))return;
@@ -180,7 +178,6 @@ async function authSync(){
   if(live){api.removeChannel(live);live=null}
   items=[];render();status(user?'Nincs jogosultság a családi listához':'Bejelentkezés szükséges',false);
  }
- profileUi();
 }
 let lastRefresh=0;
 function foreground(){
@@ -231,13 +228,12 @@ function startVoice(){
  voiceRec.onend=()=>{$('voice').classList.remove('voice-on');voiceRec=null;$('inputHelp').textContent='🎙️ Mondhatod így is: „tej, kenyér, 2 liter ásványvíz”. A termékek külön sorokba kerülnek.'};
  try{voiceRec.start()}catch(_){voiceRec=null;toast('A mikrofon nem indult el.')}
 }
-buildCategories();render();profileUi();
+buildCategories();render();
 $('productSearch').addEventListener('input',()=>{remote=[];queryToken++;suggestions();searchDebounce()});
 $('productSearch').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();void add({name:e.target.value,category:inferCategory(parseEntry(e.target.value).name)})}});
 $('addTyped').onclick=()=>add({name:$('productSearch').value,category:inferCategory(parseEntry($('productSearch').value).name)});
 $('voice').onclick=startVoice;
 $('navList').onclick=()=>w.scrollTo({top:0,behavior:'smooth'});
-d.querySelectorAll('[data-profile]').forEach(b=>b.onclick=()=>{if(user&&!allowed.includes(b.dataset.profile))return;try{localStorage.setItem('hh-profile',b.dataset.profile==='monika'?'m':'z')}catch(_){}profileUi()});
 $('signIn').onclick=async()=>{
  if(!api)return toast('A bejelentkezéshez nincs felhőkapcsolat.');
  try{
@@ -246,7 +242,7 @@ $('signIn').onclick=async()=>{
   if(error)throw error;
  }catch(e){toast('Bejelentkezési hiba: '+e.message)}
 };
-w.addEventListener('storage',e=>{if(e.key==='hh-profile'){profileUi()}if(e.key==='hh-guardian-family-auth-v785')void authSync()});
+w.addEventListener('storage',e=>{if(e.key==='hh-guardian-family-auth-v785')void authSync()});
 d.addEventListener('visibilitychange',foreground);w.addEventListener('focus',foreground);
 if(api)api.auth.onAuthStateChange((event)=>{if(event==='SIGNED_OUT'||event==='SIGNED_IN')setTimeout(authSync,0)});
 void authSync();
