@@ -146,6 +146,7 @@ function draw(){
  show(Math.min(index,slides.length-1),false);
  root.dataset.carouselReady='true';
  initialized=true;
+ schedule();
 }
 function canPlay(){
  return initialized&&slides.length>1&&!reduced()&&!pausedByView&&!hovered&&!focusInside&&
