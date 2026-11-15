@@ -66,6 +66,13 @@
 - **Állapot:** GitHub `main` mentés megtörtént. HTML commit `ccc42b207c3113ad82eb39f1826b1d8664869ff7`, JS commit `832198441bb52b9413e91f413595e76c9a46b9db`; v10 script hivatkozás érvényes. A felhasználó pozitív vizuális visszajelzést adott. A kéttelefonos felhőszinkron és a mennyiség-konkurencia tesztje külön ellenőrzendő.
 - **Funkcionális leírás:** [SHO Smart List Golden v1](./SHO_SMART_LIST_GOLDEN_V1.md)
 
+### 8. 2026. november 15. · Smart List v11, hat függőleges kategória-progress sor
+- A felhasználó elfogadta a Listonic-stílusú, vertikális kategóriastátusz-ötletet. `Mind` + öt Shopping főkategória jelenik meg.
+- Élő, adatvezérelt **megvett / összes** értékek és zöld progress bar, kategóriára koppintva terméklista és fejléc szűrés, ismételt koppintással vissza a teljes listára.
+- A Smart List v10 jóváhagyott terméksorai, mennyiség/súly editorja és felhőműveletei megmaradtak.
+- GitHub mentés: JS `d2bec2e51d77bd178242d68de6d70e09bbb0155c`, HTML `09ac830af50d8fa77a533fa39eb3a44bb89685e4`. Belső funkcionális regresszióteszt sikeres, **Samsung mobilos vizuális ellenőrzés hátravan**.
+- Részletek: [Smart List Golden specifikáció](./SHO_SMART_LIST_GOLDEN_V1.md)
+
 ### 6. Folytatási szabály
 
 A következő fejlesztések előtt a **P0 migrációs adatbiztonsági hiányokat** kell rendezni. Minden release-nél: célzott CI → főági merge → valódi mobilteszt → Project Control naplófrissítés. A GitHub PR nem helyettesíti a privát, kétprofilos telefonos ellenőrzést.
