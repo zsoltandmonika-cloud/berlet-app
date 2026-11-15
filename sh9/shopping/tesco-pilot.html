@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="hu">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0a1428">
+<meta name="description" content="SHO Tesco Smart Cart Bridge – 10 termékes, családi felhővel szinkronizált bevásárlási pilot.">
+<title>SHO · Tesco Smart Cart Bridge</title>
+<link rel="icon" type="image/svg+xml" href="../sho-preview/favicon.svg">
+<style>
+:root{color-scheme:dark;--ink:#fff0fb;--muted:#b9b4c9;--pink:#f5a5de;--green:#5be09a}
+*{box-sizing:border-box}html{scroll-behavior:smooth}
+body{margin:0;background:radial-gradient(ellipse at 85% -8%,#57285c 0,transparent 38%),linear-gradient(150deg,#10162f,#091629 62%,#11132b);color:var(--ink);font:14px/1.42 system-ui,-apple-system,"Segoe UI",sans-serif;min-height:100vh}
+button,input,a{font:inherit}button{cursor:pointer;color:inherit}a{color:inherit;text-decoration:none}
+.app{max-width:570px;margin:0 auto;padding:13px 13px calc(100px + env(safe-area-inset-bottom,0px))}
+.glass{border:1px solid #c489bc4f;background:linear-gradient(130deg,#252139df,#12243adf);box-shadow:0 14px 40px #0002;backdrop-filter:blur(15px);border-radius:18px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:7px;margin-bottom:12px}
+.top a{border:1px solid #ca92c45e;border-radius:12px;background:#28233caa;padding:8px 10px;font-size:12px;font-weight:700}
+.brand{font-size:9px;letter-spacing:1.7px;font-weight:900;color:#f2b9e6}
+.hero{padding:16px 16px 13px;background:radial-gradient(ellipse at 95% 0,#87428580,transparent 55%),linear-gradient(130deg,#292040,#101d34);overflow:hidden}
+.hero h1{font-size:25px;line-height:1.1;margin:6px 0 7px;letter-spacing:-.9px}
+.hero h1 em{font-style:normal;color:#ffaadf}
+.hero p{margin:0;color:#d4c7d9;font-size:12px;max-width:380px}
+.hero-actions{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:13px}
+.shop-link{display:flex;align-items:center;gap:7px;border:1px solid #faa9df;background:linear-gradient(110deg,#aa468e,#743c80);font-size:12px;font-weight:800;padding:10px 12px;border-radius:11px}
+.security{font-size:10px;color:#cabed2;text-align:right;max-width:135px}
+.mode{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:12px 0}
+.mode button{border:1px solid #b37bad55;border-radius:12px;padding:11px 5px;background:#1a2137;font-size:12px;font-weight:800}
+.mode button[aria-pressed=true]{border-color:#f4a3db;background:linear-gradient(120deg,#51304f,#29253e);box-shadow:inset 0 2px #f8b5e9}
+.mode button small{display:block;color:#bfb4cb;font-size:10px;font-weight:550;margin-top:3px}
+.info{border:1px solid #e8abda55;border-radius:12px;padding:10px 11px;background:#2b2539bd;color:#e5d8e7;font-size:11px;margin:0 0 10px}
+.info[hidden]{display:none}
+#signIn{background:#a04283;border:1px solid #f7addc;border-radius:9px;padding:7px 13px;margin-top:8px;font-size:12px;font-weight:700}
+.progress{padding:12px 14px;margin-bottom:10px}
+.progress-head{display:flex;align-items:center;justify-content:space-between;gap:9px;margin-bottom:10px}
+.progress-head strong{font-size:14px}.progress-head small{font-size:11px;color:#d3c0d6}
+.progress-track{height:8px;background:#ffffff20;overflow:hidden;border-radius:99px}
+.progress-bar{height:100%;width:0;background:linear-gradient(90deg,#1cbf6b,#9befb0);transition:width .2s;border-radius:99px}
+.progress-foot{display:flex;align-items:center;justify-content:space-between;gap:7px;margin-top:9px}
+.progress-foot small{font-size:10px;color:var(--muted)}
+.linklike{background:transparent;border:0;padding:3px 0;color:#ffb8df;font-size:11px;font-weight:800}
+.items{padding:3px 11px}
+.item{padding:10px 0;border-bottom:1px solid #ffffff1b}.item:last-child{border:0}
+.item-head{display:flex;align-items:center;gap:9px}
+.thumb{display:grid;place-items:center;flex:none;width:44px;height:44px;border-radius:13px;background:linear-gradient(145deg,#513456,#25384d);border:1px solid #d4b1d444;font-size:23px;overflow:hidden}
+.thumb img{width:100%;height:100%;object-fit:contain}
+.item-main{flex:1;min-width:0}
+.item-name{font-size:12px;font-weight:800;overflow-wrap:anywhere}
+.item-sub{font-size:10px;color:var(--muted);margin-top:4px}
+.item-status{display:inline-flex;align-items:center;gap:3px;padding:5px 7px;border-radius:9px;background:#42304d;border:1px solid #a67b9c66;font-size:10px;color:#e7d4e4;flex:none}
+.item-status.checked{background:#154a35;border-color:#52d89666;color:#a6e9bb}
+.item-actions{display:flex;align-items:center;gap:6px;margin:8px 0 0 53px}
+.item-actions a,.item-actions button{display:inline-flex;align-items:center;justify-content:center;gap:4px;padding:8px 9px;border-radius:10px;border:1px solid #b790b65c;background:#25253e;font-size:11px;font-weight:750;min-height:35px}
+.item-actions .goto{flex:1;border-color:#e9a4d999;background:linear-gradient(110deg,#6b3566,#3f2b57)}
+.item-actions .mark{border-color:#81cfaa77;color:#b5f4d2}
+.item-actions .mark.checked{background:#215a41;color:#d5ffe8}
+.match{margin:8px 0 2px 53px;padding:10px;background:#0d1c2f;border:1px solid #c587bb55;border-radius:12px}
+.match[hidden]{display:none}
+.match label{font-size:10px;color:#d5bfd8;font-weight:750}
+.match-row{display:flex;gap:6px;margin-top:6px}
+.match input{flex:1;min-width:0;background:#10172a;border:1px solid #977998;border-radius:9px;color:white;padding:9px;font-size:11px}
+.match button{border:1px solid #f3a5df;background:#773968;border-radius:9px;padding:7px 10px;font-size:11px;font-weight:750}
+.match small{color:#b8b2c1;font-size:10px;display:block;margin-top:5px}
+.empty{padding:25px 10px;text-align:center;color:#d5bed8;font-size:12px}
+.note{font-size:11px;color:#c6b9cf;line-height:1.55;padding:12px 13px;margin-top:11px}
+.bottom{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:min(100%,570px);display:grid;grid-template-columns:repeat(4,1fr);min-height:72px;padding:7px 4px calc(6px + env(safe-area-inset-bottom,0px));background:#101c32f2;border:1px solid #7a699b58;border-bottom:0;border-radius:17px 17px 0 0;backdrop-filter:blur(14px);z-index:20}
+.bottom a{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;text-align:center;font-size:10px;color:#d6d7e5}
+.bottom .nav-emoji{font-size:22px}
+.toast{position:fixed;left:50%;bottom:85px;transform:translateX(-50%);max-width:calc(100% - 30px);width:max-content;padding:11px 16px;background:#432e51;border:1px solid #d394c1;color:white;box-shadow:0 7px 25px #0008;border-radius:12px;z-index:30;font-size:12px;text-align:center}
+.toast[hidden]{display:none}
+@media(max-width:380px){.app{padding:10px 9px 105px}.hero h1{font-size:22px}.item-actions{margin-left:0}.match{margin-left:0}.item-actions a,.item-actions button{font-size:10px;padding:7px 6px}.item-status{font-size:9px}.top a{font-size:11px;padding:7px}}
+</style>
+</head>
+<body>
+<main class="app">
+<header class="top"><a href="./" aria-label="Vissza a Shopping központba">‹ Shopping</a><span class="brand">SHO · SMART CART BRIDGE</span><a href="./smart-list.html">Smart List ›</a></header>
+<section class="hero glass">
+  <span class="brand">TESCO · 10 TERMÉKES PILOT</span>
+  <h1>Smart <em>Cart Bridge</em> 🛒</h1>
+  <p>SHO termékek → Tesco keresés → kézi kosárba helyezés. A haladást közösen látjátok a felhőben.</p>
+  <div class="hero-actions"><a class="shop-link" href="https://bevasarlas.tesco.hu/shop/hu-HU/" target="_blank" rel="noopener noreferrer">🏬 Tesco megnyitása <span aria-hidden="true">↗</span></a><span class="security">A fizetés és a kosár a Tescónál marad.</span></div>
+</section>
+<div class="mode" role="group" aria-label="Tesco pilot forrása">
+  <button type="button" id="modeShared" aria-pressed="false">🛒 Közös Smart List <small id="sharedCount">Felhő betöltése…</small></button>
+  <button type="button" id="modeDemo" aria-pressed="true">✨ 10 mintatermék <small>Próba, listaírás nélkül</small></button>
+</div>
+<div class="info" id="sourceMessage" role="status">Betöltés…</div>
+<div class="info" id="authMessage" hidden><span id="authText">A közös felhő eléréséhez jelentkezz be.</span><div><button type="button" id="signIn">Bejelentkezés</button></div></div>
+<section class="progress glass" aria-label="Tesco pilot előrehaladás">
+ <div class="progress-head"><strong id="progressTitle">Tesco kosárátadás · próba</strong><small id="progressCount">0 / 10 jelölve</small></div>
+ <div class="progress-track"><div class="progress-bar" id="progressBar"></div></div>
+ <div class="progress-foot"><small>A ✓ mindig saját kézi visszajelzés, nem Tesco-adat.</small><button type="button" class="linklike" id="resetProgress">↻ Jelölések nullázása</button></div>
+</section>
+<section class="items glass" id="pilotItems" aria-label="Tesco pilot termékek"><div class="empty">Termékek betöltése…</div></section>
+<section class="note glass">🔒 <strong>Biztonságos átadás:</strong> a SHO nem kér Tesco-jelszót, nem fér hozzá a Tesco kosarához, és nem ad le rendelést. A terméklink elmentése csak a hivatalos Tesco-termékoldalra engedélyezett. A kézzel jelölt haladás mindkét családi profilból elérhető. A Smart List eredeti tételei és „Megvettem” státusza érintetlenek.</section>
+</main>
+<nav class="bottom" aria-label="SHO navigáció">
+<a href="../"><span class="nav-emoji">⌂</span>Kezdőlap</a>
+<a id="navAsk" href="../../healthhub/index.html?sh9nav=admin&amp;sh9cfg=asklena"><span class="nav-emoji">💬</span>Ask Léna</a>
+<a href="./smart-list.html"><span class="nav-emoji">🛒</span>Smart List</a>
+<a href="./"><span class="nav-emoji">🛍️</span>Shopping</a>
+</nav>
+<div class="toast" id="toast" role="status" hidden></div>
+<script src="../../healthhub/central-vault/config.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.2/dist/umd/supabase.min.js"></script>
+<script defer src="../../healthhub/guardian/guardian-native-auth-v1063.js"></script>
+<script defer src="../../healthhub/chatgpt-project-shortcut-v712.js?v=756-central-open"></script>
+<script defer src="./tesco-pilot-v1.js?v=1"></script>
+</body>
+</html>
