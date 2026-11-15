@@ -38,3 +38,11 @@ Az elfogadott **Smart List v14** és a Tesco Otthonról közötti biztonságos, 
 ## Hivatkozás
 - Tesco hivatalos vásárlási folyamat: https://bevasarlas.tesco.hu/shop/hu-HU/zone/hogyan-rendelj-online
 - Tesco hivatalos hozzáadás / mennyiség: https://www.tesco.hu/help/hu/pages/tesco-otthonrol/hogyan-vasarolhatok/hogyan-tudok-egy-termeket-a-kosarba-tenni-illetve-a-kosar-tartalman-kesobb-modositani
+
+## Javítás · 2026-11-15 · Pilot v1.1 – üres / nem reagáló oldal
+- A felhasználó jelezte, hogy a próbafelületen kattintásra sem jelennek meg a termékek, illetve az áruházoldal nem nyílik.
+- A 10 mintatermék már a `tesco-pilot.html` statikus HTML-jében megjelenik **mielőtt** a JavaScript vagy a családi felhő elkészülne. Ez regressziós tartalék és azonnali keresési lehetőség.
+- A pilot JavaScript-futtatóját az oldalhoz csomagoltuk, így nincs külön `tesco-pilot-v1.js` letöltési követelmény a felhasználói képernyőn. A forrásfájl továbbra is azonos implementációként megmarad.
+- A Tesco-keresések és a Tesco főbolt-linkje **azonos böngészőlapra** navigálnak, hogy az Android / Samsung Internet beépített felugróablak-blokkolása ne állítsa meg az átadást.
+- A forrásban és a becsomagolt futtatóban a JavaScript szintaxisa helyes, 10 statikus elem megtalálható. A GitHubra mentett commit: `84e4d90cf8be0a7b5948ebdf9e62ddc4c78799d3`, státuszszöveg javítása `4de90365e8690bd4b1c87ef2ad9d52a9325018aa`.
+- **Korlát:** az éles GitHub Pages publikálás és a mobil WebView megnyitás közvetlen ellenőrzése ebből a munkamenetből nem volt lehetséges. Következő UAT: a pilot link friss, cache-busting megnyitása, 10 statikus sor láthatósága, Tesco-keresés egy kattintásra, családi szinkron betöltése.
