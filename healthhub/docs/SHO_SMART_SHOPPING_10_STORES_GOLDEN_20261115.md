@@ -28,3 +28,9 @@
 - Tényleges Android/PC kétprofilos próbát és valódi bolti találatok felhasználói validálását nem végeztük el.
 
 **Későbbi fejlesztési kapu:** kereskedőnként csak ellenőrzött API vagy engedélyezett partner-hozzáférés alapján lehet valódi direkt kosárfeltöltést, ár- és készletszinkront bevezetni.
+## Golden UX finomítás · dupla koppintás · 2026-11-15
+- A felhasználó a nagy „Keresés a Tescóban” gomb **helyett** a terméksoron történő dupla kattintást / dupla koppintást kérte. Megvalósult Tescon és a kilenc többi áruház közös motorjában.
+- **Egy koppintás:** kiválasztja és fókuszba hozza a terméket. **Ugyanazon terméksor dupla koppintása (450 ms):** ugyanabban a böngészőlapban megnyitja a mentett hivatalos terméklinket, vagy a hivatalos Tesco-keresőt / boltra szűrt webkeresőt. Böngésző Vissza után a következő termék kerül előtérbe.
+- A főpanelen a korábbi teljes szélességű gomb helyén egy **kisméretű akadálymentes megnyitási link** maradt. A felületben látható útmutató és `touch-action: manipulation` CSS segíti a dupla mobilkoppintást és csökkenti a böngésző dupla-koppintás nagyításával való ütközést.
+- A Tesco Golden v3 terméklogikáján ez felhasználó által jóváhagyott UX-módosítás, a v1/v2 pilotok és a 10 boltos kártyarács érintetlenek; a Smart List kizárólag olvasott. Teszt: forrás szintaktika, Tesco és Auchan szimulált dupla koppintás és Vissza-útvonal sikeres; terméklista statikus fallback megmaradt.
+- GitHub Pages publikálás sikeres a módosítások után: Tesco `42c3f4e2f8fd01ab18a582150b0b7ea7df42a7b0`, többbolt `c6c3a65093eff382ddcc75450e5ddaf9be03da83`. **Tényleges Android dupla koppintás UAT még szükséges.**
