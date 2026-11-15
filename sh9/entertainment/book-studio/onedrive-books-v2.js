@@ -16,6 +16,9 @@ const ID_RE=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const MAX_ITEMS=900,MAX_FOLDERS=65,MAX_DEPTH=5,MAX_DOWNLOAD=80*1024*1024;
 let config=null,token='',expires=0,found=[],entries=[],folderId='',driveId='',ready=false,scanning=false,progressCloud=false;
 let refreshToken='',refreshIssuedAt=0,renewing=null;
+const CACHE=w.SH9_BOOK_CACHE_V3;
+const coverUrls=new Map(),pendingDownloads=new Map();
+let coverLoading=false,coverJob=0;
 const element=(tag,cls,txt)=>{const x=d.createElement(tag);if(cls)x.className=cls;if(txt!==undefined)x.textContent=txt;return x};
 const text=s=>String(s||'').trim().slice(0,200);
 const pid=()=>w.localStorage.getItem('hh-profile')==='m'?'monika':'zsolt';
@@ -36,7 +39,7 @@ function trusted(){
 }
 function markTrusted(){if(config)store(w.localStorage,TRUST,JSON.stringify({clientId:config.clientId,account:config.account}))}
 async function clearCredentials(){
- resetSession();refreshToken='';refreshIssuedAt=0;
+ resetSession();dropCoverUrls();pendingDownloads.clear();++coverJob;refreshToken='';refreshIssuedAt=0;
  try{w.localStorage.removeItem(TRUST);w.localStorage.removeItem(SILENT_RETRY)}catch(_){}
  if(PERSIST)await PERSIST.clear(w);
 }
@@ -247,7 +250,8 @@ function mapBook(item,stored={}){
   // OneDrive occasionally includes this short-lived link in children responses.
   // Memory only: never persist a preauthenticated download URL to Supabase or browser storage.
   download_url:item['@microsoft.graph.downloadUrl']||item['@content.downloadUrl']||'',listed_at:Date.now(),
-  size_bytes:item.size,progress_locator:stored.progress_locator||'',progress_percent:stored.progress_percent||0,
+  size_bytes:item.size,etag:item.eTag||item.cTag||'',last_modified:item.lastModifiedDateTime||'',
+  progress_locator:stored.progress_locator||'',progress_percent:stored.progress_percent||0,
   bookmarks:Array.isArray(stored.bookmarks)?stored.bookmarks:[],is_favorite:!!stored.is_favorite,
   theme:stored.theme||'dark',font_size:stored.font_size||100,updated_at:stored.updated_at||''};
 }
@@ -271,9 +275,21 @@ async function loadLibrary(){
   entries=items.map(item=>mapBook(item,progress.get(item.id))).sort((a,b)=>a.title.localeCompare(b.title,'hu-HU'));
   render();
   status('✓ '+entries.length+' könyv a OneDrive-on · '+(progressCloud?'olvasási állapot felhőben':'olvasási pozíció szinkronja: Family Guard-belépés szükséges'),!progressCloud);
+  void updateCacheInfo();
  }catch(e){
   status('Nem sikerült olvasni a OneDrive-ot: '+e.message,true);
  }finally{scanning=false}
+}
+function dropCoverUrls(){for(const v of coverUrls.values())URL.revokeObjectURL(v);coverUrls.clear()}
+function paintCover(b){
+ const el=d.getElementById('odcover-'+b.id),url=coverUrls.get(b.id);
+ if(el&&url){el.style.backgroundImage='url("'+url+'")';el.classList.add('has-art')}
+}
+async function cachedCover(b){
+ if(!CACHE||coverUrls.has(b.id)||!config)return;
+ const cover=await CACHE.get(config.account,b,'cover');
+ if(!cover||!entries.some(x=>x.id===b.id))return;
+ const url=URL.createObjectURL(cover);coverUrls.set(b.id,url);paintCover(b);
 }
 function render(){
  const grid=$('odGrid');grid.replaceChildren();
@@ -287,11 +303,12 @@ function render(){
  if(recent){$('odResumeName').textContent=recent.title;$('odResume').onclick=()=>void w.SH9_BOOK_STUDIO_V1.openBook(recent.id)}
  for(const b of list){
   const card=element('article','book-card onedrive-book');
-  const cover=element('button','cover od-cover');cover.type='button';
+  const cover=element('button','cover od-cover');cover.type='button';cover.id='odcover-'+b.id;
   const idx=b.id.length%6,colors=[['#0e4862','#628aa2'],['#5a254f','#a34e74'],['#4c3430','#b37c49'],['#263a60','#647cc0'],['#294f47','#62a78f'],['#51395e','#b8838c']];
   cover.style.setProperty('--tone1',colors[idx][0]);cover.style.setProperty('--tone2',colors[idx][1]);
   cover.append(element('span','cover-mark','✦'),element('strong','',b.title),element('small','',b.author||'OneDrive · '+b.format.toUpperCase()));
-  cover.title=b.title;cover.addEventListener('click',()=>void w.SH9_BOOK_STUDIO_V1.openBook(b.id));
+  cover.title=b.title;cover.setAttribute('aria-label',b.title+' megnyitása');
+  cover.addEventListener('click',()=>void w.SH9_BOOK_STUDIO_V1.openBook(b.id));
   const h=element('h3','',b.title),p=element('p','',b.author||'☁️ OneDrive');
   const buttons=element('div','card-actions');
   const open=element('button','open','Olvasás →');open.addEventListener('click',()=>void w.SH9_BOOK_STUDIO_V1.openBook(b.id));
@@ -301,6 +318,7 @@ function render(){
   buttons.append(open,fav);
   const progress=element('div','card-progress'),bar=element('span');bar.style.width=Math.min(100,Math.max(0,b.progress_percent||0))+'%';progress.append(bar);
   card.append(cover,h,p,buttons,progress);grid.append(card);
+  paintCover(b);if(!coverUrls.has(b.id))void cachedCover(b);
  }
 }
 async function saveProgress(b,patch={}){
@@ -361,23 +379,126 @@ async function freshDownloadUrl(b){
 async function download(b){
  if(!await ensureAccess()){resetSession();throw Error('A Microsoft-belépés lejárt. Kapcsolódj újra.');}
  if(!getBook(b.id)||b.size_bytes>MAX_DOWNLOAD)throw Error(b.size_bytes>MAX_DOWNLOAD?'Túl nagy könyv mobilos olvasáshoz (80 MB limit).':'Az adott könyv már nincs a könyvtárban.');
- // Do not use /content from a browser: its 302 redirect fails Graph CORS preflight.
- // Use a short-lived preauthenticated URL, never include OAuth bearer in this request.
- const url=await freshDownloadUrl(b);
- let blob;
- try{
-  const res=await w.fetch(url,{method:'GET',credentials:'omit'});
-  if(!res.ok)throw Error('OneDrive letöltés HTTP '+res.status);
-  const len=Number(res.headers.get('Content-Length')||0);
-  if(len>MAX_DOWNLOAD)throw Error('Túl nagy könyvfájl.');
-  blob=await res.blob();
- }catch(e){
-  if(e instanceof TypeError)throw Error('A OneDrive fájlletöltést a böngésző blokkolta (CORS/hálózat). '+e.message);
-  throw e;
- }
- if(blob.size>MAX_DOWNLOAD)throw Error('Túl nagy könyvfájl.');
- return blob;
+ const account=config.account,cacheKey=CACHE?.key(account,b,'file')||b.id;
+ if(pendingDownloads.has(cacheKey))return pendingDownloads.get(cacheKey);
+ const task=(async()=>{
+  // This is a local browser cache. Same signed-in account + same file revision only.
+  const old=CACHE?await CACHE.get(account,b,'file'):null;
+  if(old?.size){void extractCover(b,old);return old}
+  const url=await freshDownloadUrl(b);
+  let blob;
+  try{
+   const res=await w.fetch(url,{method:'GET',credentials:'omit'});
+   if(!res.ok)throw Error('OneDrive letöltés HTTP '+res.status);
+   const len=Number(res.headers.get('Content-Length')||0);
+   if(len>MAX_DOWNLOAD)throw Error('Túl nagy könyvfájl.');
+   blob=await res.blob();
+  }catch(e){
+   if(e instanceof TypeError)throw Error('A OneDrive fájlletöltést a böngésző blokkolta (CORS/hálózat). '+e.message);
+   throw e;
+  }
+  if(blob.size>MAX_DOWNLOAD)throw Error('Túl nagy könyvfájl.');
+  if(CACHE)void CACHE.put(account,b,'file',blob).then(updateCacheInfo);
+  void extractCover(b,blob);
+  return blob;
+ })().finally(()=>{pendingDownloads.delete(cacheKey)});
+ pendingDownloads.set(cacheKey,task);return task;
 }
+
+function zipPath(base,href){
+ let raw=String(href||'').split('#')[0].split('?')[0];
+ try{raw=decodeURIComponent(raw)}catch(_){}
+ const dirs=base.split('/').slice(0,-1);
+ for(const part of raw.split('/')){
+  if(!part||part==='.')continue;
+  if(part==='..')dirs.pop();else dirs.push(part);
+ }
+ return dirs.join('/');
+}
+async function thumbFromBlob(blob){
+ if(!blob?.size||!blob.type.startsWith('image/'))return null;
+ try{
+  const bit=await w.createImageBitmap(blob);
+  const ratio=Math.min(1,420/bit.width,630/bit.height);
+  const cv=d.createElement('canvas');cv.width=Math.max(1,Math.round(bit.width*ratio));cv.height=Math.max(1,Math.round(bit.height*ratio));
+  cv.getContext('2d').drawImage(bit,0,0,cv.width,cv.height);bit.close();
+  return await new Promise(resolve=>cv.toBlob(resolve,'image/jpeg',.85));
+ }catch(_){return null}
+}
+async function epubCover(blob){
+ if(!w.JSZip||!w.DOMParser||blob.size>MAX_DOWNLOAD)return null;
+ const zip=await w.JSZip.loadAsync(blob),manifestFile=zip.file('META-INF/container.xml');
+ if(!manifestFile)return null;
+ const parser=new w.DOMParser();
+ const container=parser.parseFromString(await manifestFile.async('string'),'text/xml');
+ const opfPath=container.querySelector('rootfile')?.getAttribute('full-path');
+ if(!opfPath||!zip.file(opfPath))return null;
+ const xml=parser.parseFromString(await zip.file(opfPath).async('string'),'text/xml');
+ const coverMeta=Array.from(xml.getElementsByTagName('meta')).find(x=>x.getAttribute('name')==='cover')?.getAttribute('content');
+ const manifest=Array.from(xml.getElementsByTagName('item'));
+ let item=manifest.find(x=>(x.getAttribute('properties')||'').split(/\s+/).includes('cover-image'));
+ if(!item&&coverMeta)item=manifest.find(x=>x.getAttribute('id')===coverMeta);
+ if(!item)item=manifest.find(x=>/cover/i.test(x.getAttribute('href')||'')&&/^image\//i.test(x.getAttribute('media-type')||''));
+ if(!item)return null;
+ const name=zipPath(opfPath,item.getAttribute('href'));
+ const z=zip.file(name);if(!z)return null;
+ const bytes=await z.async('uint8array');
+ if(bytes.length>12*1024*1024)return null;
+ const type=item.getAttribute('media-type')||'image/jpeg';
+ return await thumbFromBlob(new Blob([bytes],{type}));
+}
+async function pdfCover(blob){
+ if(!w.pdfjsLib||blob.size>28*1024*1024)return null;
+ let pdf=null;
+ try{
+  pdf=await w.pdfjsLib.getDocument({data:new Uint8Array(await blob.arrayBuffer()),useSystemFonts:true}).promise;
+  const page=await pdf.getPage(1),initial=page.getViewport({scale:1});
+  const vp=page.getViewport({scale:Math.min(1,420/initial.width,630/initial.height)});
+  const canvas=d.createElement('canvas');canvas.width=Math.round(vp.width);canvas.height=Math.round(vp.height);
+  await page.render({canvasContext:canvas.getContext('2d'),viewport:vp}).promise;
+  return await new Promise(resolve=>canvas.toBlob(resolve,'image/jpeg',.83));
+ }catch(_){return null}finally{try{await pdf?.destroy()}catch(_){}}
+}
+async function extractCover(b,blob){
+ if(!CACHE||!config||coverUrls.has(b.id))return;
+ // Never download files just to paint the shelf automatically. Use local copies only.
+ const cached=await CACHE.get(config.account,b,'cover');
+ let image=cached;
+ if(!image){
+  try{image=b.format==='epub'?await epubCover(blob):await pdfCover(blob)}catch(_){image=null}
+  if(image)void CACHE.put(config.account,b,'cover',image).then(updateCacheInfo);
+ }
+ if(!image||!entries.some(x=>x.id===b.id)||coverUrls.has(b.id))return;
+ const url=URL.createObjectURL(image);coverUrls.set(b.id,url);paintCover(b);
+}
+async function updateCacheInfo(){
+ if(!CACHE||!config)return;
+ const x=await CACHE.count(config.account);
+ if($('odCacheInfo'))$('odCacheInfo').textContent=x.books+' könyv helyben · '+x.covers+' eredeti borító';
+}
+async function prepareCovers(){
+ if(coverLoading||!ready)return;
+ coverLoading=true;const id=++coverJob;
+ const btn=$('odCoverSync');btn.disabled=true;
+ const work=entries.filter(x=>!coverUrls.has(x.id)&&x.size_bytes>0&&x.size_bytes<28*1024*1024);
+ let done=0;
+ try{
+  for(const book of work){
+   if(id!==coverJob||!ready)break;
+   try{
+    const cover=await CACHE?.get(config.account,book,'cover');
+    if(cover){await cachedCover(book)}
+    else{const blob=await download(book);await extractCover(book,blob)}
+   }catch(_){/* Degraded book cover retains readable premium placeholder. */}
+   done++;
+   status('📚 Eredeti borítók: '+done+' / '+work.length+' · a könyvek az eszközre egyszer töltődnek le.');
+   await new Promise(resolve=>w.setTimeout(resolve,70));
+  }
+ }finally{coverLoading=false;btn.disabled=false;await updateCacheInfo();
+  if(ready)status('✓ '+entries.length+' könyv · '+done+' borító ellenőrizve · ☁️ OneDrive');
+ }
+}
+
 async function saveConfig(){
  const clientId=$('odClientId').value.trim(),account=$('odAccount').value.trim().toLowerCase();
  if(!ID_RE.test(clientId)||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(account)){status('Valós Microsoft App ID és e-mail-cím szükséges.',true);return}
@@ -394,6 +515,14 @@ $('odDisconnect').addEventListener('click',async()=>{await clearCredentials();en
 $('odConfigToggle').addEventListener('click',()=>{$('odConfig').hidden=!$('odConfig').hidden;});
 $('odFolders').addEventListener('change',()=>{folderId=$('odFolders').value;driveId=found.find(x=>x.id===folderId)?.parentReference?.driveId||'';void loadLibrary()});
 $('odFilter').addEventListener('input',render);
+$('odCoverSync').addEventListener('click',()=>void prepareCovers());
+$('odCacheClear').addEventListener('click',async()=>{
+ if(!config||!CACHE)return;
+ if(!w.confirm('Töröljük az ezen az eszközön tárolt könyvmásolatokat és borítókat? A OneDrive könyveid nem változnak.'))return;
+ ++coverJob;dropCoverUrls();
+ await CACHE.clear(config.account);render();await updateCacheInfo();
+ status('A helyi gyorsítótár kiürítve. Az eredeti OneDrive-könyvek érintetlenek.');
+});
 w.SH9_BOOK_STUDIO_DRIVE_V2=Object.freeze({getBook,download,saveProgress,render,reload:async()=>{entries=[];await loadLibrary()}});
 displayConfig();setConnected(false);
 (async()=>{
