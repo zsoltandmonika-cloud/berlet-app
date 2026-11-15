@@ -20,10 +20,10 @@ const groups=[
 ];
 const SHOPPING_MAIN_CATEGORIES=[
  ['🍎','Élelmiszer','Élelmiszer'],
- ['📱','Elektronika','Elektronika'],
- ['👗','Divat & Stílus','Divat'],
  ['🧴','Drogéria & Szépség','Drogéria'],
- ['🏠','Otthon & Háztartás','Otthon & Háztartás']
+ ['🏠','Otthon & Háztartás','Otthon és háztartás'],
+ ['👗','Divat & Stílus','Divat'],
+ ['📱','Elektronika','Elektronika']
 ];
 function mainCategory(category){
  const c=String(category||'');
