@@ -25,6 +25,15 @@
 
 This rule governs future pages and incremental polishing. It is **not** authorization to mass-delete existing functional labels or to alter previously approved imagery without review.
 
+## One click, no confirmation dialogs for ordinary items · 2026-11-15
+
+**Golden Standard interaction rule for HealthHub / SHO / Smart List:**
+- Low-risk, ordinary list-item deletion is **one tap**. Never show a blocking browser `confirm()` or redundant “Biztosan törlöd?” dialog.
+- The action should update the UI immediately when safe, report success/failure unobtrusively, and ideally provide non-blocking **Visszavonás (Undo)** for recoverable actions. Do not announce success before a cloud write is confirmed.
+- Check/uncheck state changes are one tap, reversible, and may use discreet, distinct audio plus haptic feedback when the platform permits. Sound failure must never block the action.
+- **Safety exception:** destructive, irreversible, high-impact actions (account removal, loss of medical history, privacy/security-critical or bulk deletion) still require a proportionate safeguard. One-click preference does not override data safety.
+- Implementation example: `sh9/shopping/smart-list-v1.js` (single-tap item delete, check/uncheck audio confirmation after successful cloud write).
+
 ## Implementation references
 - Source of truth (baseline): `healthhub/premium-home-compact-v525.css` and `healthhub/premium-glass-home-v520.css`, v528.1.
 - Digital Health implementation: `healthhub/digital-health/golden-shell-v531.css` + `healthhub/golden-standard-avatars-v529.js` (byte-identical originals) + `digital-health/index.html` profile-view controller.
