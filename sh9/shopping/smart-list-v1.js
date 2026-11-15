@@ -11,6 +11,7 @@ const api=cfg&&cfg.enabled&&w.supabase?.createClient?
    detectSessionInUrl:true,flowType:nativeOAuth?'pkce':'implicit'}
  }):null;
 const TABLE='hh_shopping_list_v1';
+const FAVORITES_TABLE='hh_shopping_favorites_v1';
 const groups=[
  ['🥛','Élelmiszer','tej|félzsíros tej|teljes tej|laktózmentes tej|zabital|mandulaital|rizsital|kefir|natúr joghurt|görög joghurt|gyümölcsjoghurt|tejföl|tejszín|főzőtejszín|habtejszín|vaj|margarin|túró|cottage cheese|mozzarella|trappista sajt|gouda sajt|cheddar sajt|feta sajt|parmezán|camembert|krémsajt|önthető sajt|tojás|bio tojás|toast kenyér|fehér kenyér|teljes kiőrlésű kenyér|rozskenyér|bagett|ciabatta|zsömle|kifli|kalács|croissant|tortilla|pita|hamburgerzsemle|hotdog kifli|abonett|extrudált kenyér|zsemlemorzsa|liszt|rétesliszt|teljes kiőrlésű liszt|zabpehely|búzadara|rizs|basmati rizs|jázminrizs|barna rizs|kuszkusz|bulgur|quinoa|penne tészta|spagetti|fusilli|farfalle|makaróni|lasagne tészta|cérnametélt|tarhonya|burgonya|édesburgonya|vöröshagyma|lilahagyma|fokhagyma|póréhagyma|sárgarépa|fehérrépa|zeller|karalábé|paradicsom|koktélparadicsom|paprika|kaliforniai paprika|uborka|kovászos uborka|csemegeuborka|fejes saláta|jégsaláta|római saláta|rukkola|spenót|brokkoli|karfiol|cukkini|padlizsán|gomba|lilahagyma|káposzta|vöröskáposzta|kelkáposzta|zöldborsó|zöldbab|kukorica|sütőtök|retek|cékla|avokádó|citrom|lime|narancs|mandarin|grapefruit|alma|körte|banán|szőlő|eper|málna|áfonya|szeder|őszibarack|nektarin|sárgabarack|szilva|kiwi|ananász|mangó|gránátalma|dinnye|sárgadinnye|datolya|mazsola|dió|mandula|mogyoró|kesudió|pisztácia|napraforgómag|tökmag|chia mag|lenmag|csirkemell|csirkecomb|pulykamell|sertéskaraj|sertéscomb|darált hús|marhahús|bélszín|virsli|sonka|csirkemellsonka|szalámi|kolbász|bacon|májas|füstölt lazac|lazacfilé|tonhalkonzerv|szardínia|makréla|halrudacska|garnélarák|tenger gyümölcsei|fagyasztott zöldség|mirelit brokkoli|mirelit borsó|fagyasztott hasábburgonya|pizza|passzírozott paradicsom|paradicsompüré|pizzaszósz|pesto|mustár|ketchup|majonéz|torma|ecet|balzsamecet|olívaolaj|napraforgóolaj|kókuszolaj|só|tengeri só|bors|pirospaprika|oregánó|bazsalikom|majoránna|kakukkfű|rozmaring|fahéj|kömény|kurkuma|curry|cukor|barna cukor|porcukor|méz|juharszirup|édesítőszer|sütőpor|élesztő|vaníliás cukor|kakaópor|étcsokoládé|tejcsokoládé|keksz|nápolyi|müzliszelet|chips|ropi|pattogatott kukorica|mogyoróvaj|lekvár|nutella|müzli|granola|corn flakes|zabkása|instant leves|húsleveskocka|konzervbab|csicseriborsó|lencse|vörösbab|fehérbab|zöldborsó konzerv|sűrített tej'],
  ['☕','Italok','ásványvíz|szénsavmentes víz|szénsavas víz|tonik|szóda|kóla|cukormentes kóla|narancslé|almalé|multivitamin ital|őszibaracklé|citromlé|limonádé|jegestea|zöld tea|fekete tea|gyümölcstea|kamillatea|mentatea|filteres tea|instant kávé|szemes arabica kávé|szemes kávé|őrölt kávé|kávékapszula|koffeinmentes kávé|kapucsínó por|kakaóital|forró csokoládé|energiaital|izotóniás ital|gyömbérsör|málnaszörp|bodzaszörp|szörp|kókuszvíz|aloe vera ital|fehérjeturmix|protein ital'],
@@ -43,7 +44,7 @@ const ICON={...Object.fromEntries(groups.map(g=>[g[1],g[0]])),...Object.fromEntr
 const nrm=s=>String(s||'').toLocaleLowerCase('hu-HU').normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
 const validUrl=s=>{try{const u=new URL(s);return u.protocol==='https:'?u.href:''}catch(_){return''}};
 const node=(tag,cls,txt)=>{let n=d.createElement(tag);if(cls)n.className=cls;if(txt!==undefined)n.textContent=txt;return n};
-let user=null,allowed=[],items=[],selectedCategory='',remote=[],activeQuery='',queryToken=0,queryTimer=0,fetchCtrl=null,live=null,refreshBusy=false,pendingReload=false,firstLoad=true,writing=false,voiceRec=null,busyIds=new Set();
+let user=null,allowed=[],items=[],favorites=[],favoriteBusy=new Set(),viewMode='shopping',selectedCategory='',remote=[],activeQuery='',queryToken=0,queryTimer=0,fetchCtrl=null,live=null,refreshBusy=false,pendingReload=false,firstLoad=true,writing=false,voiceRec=null,busyIds=new Set();
 const who=()=>{try{return localStorage.getItem('hh-profile')==='m'?'monika':'zsolt'}catch(_){return'zsolt'}};
 const label=p=>p==='monika'?'Mónika':'Zsolt';
 function toast(message){const e=$('toast');e.textContent=message;e.hidden=false;clearTimeout(toast.id);toast.id=setTimeout(()=>e.hidden=true,3600)}
@@ -244,14 +245,16 @@ async function add(p){
  if(writing)return;
  const parsed=parseEntry(p.name);
  if(!parsed.name)return;
- if(!Number.isFinite(parsed.quantity)||parsed.quantity<=0||parsed.quantity>9999)return toast('Ellenőrizd a mennyiséget.');
+ const amount=p.quantity!==undefined?Number(p.quantity):parsed.quantity;
+ const measure=p.unit||parsed.unit;
+ if(!Number.isFinite(amount)||amount<=0||amount>9999)return toast('Ellenőrizd a mennyiséget.');
  const category=mainCategory(p.category||inferCategory(parsed.name)),image=validUrl(p.image||'');
- const found=items.find(x=>!x.done&&(p.code&&x.barcode===p.code||nrm(x.name)===nrm(parsed.name)&&x.unit===parsed.unit));
+ const found=items.find(x=>!x.done&&(p.code&&x.barcode===p.code||nrm(x.name)===nrm(parsed.name)&&x.unit===measure));
  writing=true;
  try{
   let error=null;
-  if(found){const res=await api.from(TABLE).update({quantity:Math.min(9999,Number(found.quantity)+parsed.quantity),updated_by_profile:who()}).eq('id',found.id).select('id');error=res.error}
-  else{const res=await api.from(TABLE).insert({name:parsed.name.slice(0,100),quantity:parsed.quantity,unit:parsed.unit,category,image_url:image,barcode:String(p.code||'').slice(0,20),updated_by_profile:who()}).select('id');error=res.error}
+  if(found){const res=await api.from(TABLE).update({quantity:Math.min(9999,Number(found.quantity)+amount),updated_by_profile:who()}).eq('id',found.id).select('id');error=res.error}
+  else{const res=await api.from(TABLE).insert({name:parsed.name.slice(0,100),quantity:amount,unit:measure,category,image_url:image,barcode:String(p.code||'').slice(0,20),updated_by_profile:who()}).select('id');error=res.error}
   if(error)throw error;
   $('productSearch').value='';remote=[];activeQuery='';queryToken++;if(fetchCtrl)fetchCtrl.abort();
   $('suggestions').hidden=true;haptic();toast('＋ '+parsed.name+' a közös listában');
@@ -363,7 +366,8 @@ function itemRow(p){
  main.append(node('div','product-name',p.name),meta);
  if(p.done&&p.done_by_profile)main.append(node('div','product-details done-note','✓ '+label(p.done_by_profile)+' kipipálta'));
  const controls=node('div','product-controls');
- const favorite=node('button','heart'+(p.favorite?' active':''),p.favorite?'♥':'♡');favorite.type='button';favorite.title='Kedvenc';favorite.setAttribute('aria-label','Kedvenc: '+p.name);favorite.onclick=()=>setFavorite(p,!p.favorite);
+ const marked=isFavorite(p.name);
+ const favorite=node('button','heart'+(marked?' active':''),marked?'♥':'♡');favorite.type='button';favorite.title='Kedvenc';favorite.setAttribute('aria-label',(marked?'Kedvencekből eltávolít: ':'Kedvencekbe ment: ')+p.name);favorite.onclick=()=>setFavorite(p,!marked);
  const remove=node('button','remove','×');remove.type='button';remove.title='Törlés';remove.setAttribute('aria-label','Törlés: '+p.name);remove.onclick=()=>removeItem(p);
  controls.append(favorite,remove);card.append(check,image,main,controls);return card;
 }
@@ -421,9 +425,86 @@ async function setDone(item,value){
   await reload(true);
  }finally{busyIds.delete(item.id)}
 }
+function favoriteKey(name){return String(name||'').trim().toLocaleLowerCase('hu-HU')}
+function isFavorite(name){return favorites.some(f=>f.name_key===favoriteKey(name))}
+async function reloadFavorites(){
+ if(!user||!allowed.some(x=>x==='zsolt'||x==='monika'))return;
+ try{
+  const res=await api.from(FAVORITES_TABLE).select('id,household,name,name_key,quantity,unit,category,image_url,barcode,created_at')
+   .eq('household','zsolt-monika').order('created_at',{ascending:true}).limit(500);
+  if(res.error)throw res.error;
+  favorites=res.data||[];
+  renderFavorites();
+  render();
+ }catch(e){toast('Kedvencek szinkronhiba: '+String(e.message||e).slice(0,75))}
+}
 async function setFavorite(item,value){
- const res=await api.from(TABLE).update({favorite:value,updated_by_profile:who()}).eq('id',item.id);
- if(res.error)return toast('Kedvenc mentése sikertelen.');haptic();await reload(false);
+ if(!user||!allowed.includes(who()))return toast('Jelentkezz be a családi fiókba.');
+ const key=favoriteKey(item.name);
+ if(!key||favoriteBusy.has(key))return;
+ favoriteBusy.add(key);
+ try{
+  let result;
+  if(value){
+   result=await api.from(FAVORITES_TABLE).upsert({
+    household:'zsolt-monika',name:item.name.trim().slice(0,100),name_key:key.slice(0,100),
+    quantity:Number(item.quantity)||1,unit:item.unit||'db',
+    category:mainCategory(item.category),image_url:validUrl(item.image_url||item.image||''),
+    barcode:String(item.barcode||item.code||'').slice(0,20),
+    updated_by_profile:who(),created_by:user.id
+   },{onConflict:'household,name_key',ignoreDuplicates:true});
+  }else{
+   result=await api.from(FAVORITES_TABLE).delete().eq('household','zsolt-monika').eq('name_key',key);
+  }
+  if(result.error)throw result.error;
+  await reloadFavorites();
+  haptic();toast(value?'♥ Kedvencekhez mentve: '+item.name:'♡ Eltávolítva a kedvencekből: '+item.name);
+ }catch(e){toast('Kedvenc mentése sikertelen: '+String(e.message||e).slice(0,75))}
+ finally{favoriteBusy.delete(key)}
+}
+async function addFavoriteToList(fav){
+ if(!user||!allowed.includes(who()))return toast('Jelentkezz be a családi fiókba.');
+ const success=await add({name:fav.name,quantity:fav.quantity,unit:fav.unit,category:fav.category,image:fav.image_url,code:fav.barcode});
+ if(success){selectedCategory='';switchSmartView('shopping');render()}
+}
+function renderFavorites(){
+ const box=$('favoriteList');if(!box)return;
+ box.replaceChildren();
+ $('favoritesCount').textContent=favorites.length+' kedvenc';
+ if(!favorites.length){
+  const empty=node('div','empty');
+  empty.append(node('span','big','♡'),node('span',null,user?'Még nincs kedvenc. A termékek mellett koppints a szívecskére!':'Bejelentkezés után elérhetők a közös kedvencek.'));
+  box.append(empty);return;
+ }
+ for(const p of favorites){
+  const row=node('article','favorite-row');
+  const picture=node('span','product-image');
+  const url=validUrl(p.image_url);
+  if(url){const image=node('img');image.src=url;image.alt=p.name;image.loading='lazy';image.onerror=()=>{picture.replaceChildren(d.createTextNode(productIcon(p.name,p.category)))};picture.append(image)}
+  else picture.textContent=productIcon(p.name,p.category);
+  const info=node('div','favorite-info');
+  info.append(node('div','product-name',p.name),node('div','product-details',formatQty(p.quantity,p.unit)+' · '+shortCategory(p.category)));
+  const actions=node('div','favorite-actions');
+  const addBack=node('button','favorite-readd','＋');addBack.type='button';addBack.title='Hozzáadás a bevásárlólistához';
+  addBack.setAttribute('aria-label','Bevásárlólistához ad: '+p.name);
+  addBack.onclick=()=>void addFavoriteToList(p);
+  const unfav=node('button','favorite-unheart','♥');unfav.type='button';unfav.title='Kedvenc levétele';
+  unfav.setAttribute('aria-label','Kedvencekből eltávolít: '+p.name);
+  unfav.onclick=()=>void setFavorite(p,false);
+  actions.append(addBack,unfav);row.append(picture,info,actions);box.append(row);
+ }
+}
+function switchSmartView(next){
+ viewMode=next==='favorites'?'favorites':'shopping';
+ $('shoppingSearch').hidden=viewMode!=='shopping';
+ $('shoppingBoard').hidden=viewMode!=='shopping';
+ $('favoritesBoard').hidden=viewMode!=='favorites';
+ $('openFavorites').classList.toggle('active',viewMode==='favorites');
+ $('openShoppingList').classList.toggle('active',viewMode==='shopping');
+ $('openFavorites').setAttribute('aria-pressed',String(viewMode==='favorites'));
+ $('openShoppingList').setAttribute('aria-pressed',String(viewMode==='shopping'));
+ if(viewMode==='favorites')renderFavorites();
+ w.scrollTo({top:0,behavior:'smooth'});
 }
 async function removeItem(item){
  // One tap deletes without a modal; prevent duplicate requests while saving.
@@ -456,7 +537,9 @@ async function reload(fromRemote){
 }
 function subscribe(){
  if(!api||!user||live)return;
- live=api.channel('sho-smart-list-'+user.id).on('postgres_changes',{event:'*',schema:'public',table:TABLE},()=>{void reload(true)}).subscribe();
+ live=api.channel('sho-smart-list-'+user.id)
+  .on('postgres_changes',{event:'*',schema:'public',table:TABLE},()=>{void reload(true)})
+  .on('postgres_changes',{event:'*',schema:'public',table:FAVORITES_TABLE},()=>{void reloadFavorites()}).subscribe();
 }
 async function authSync(){
  if(!api){status('A felhőkapcsolat nem érhető el',false);$('loginBox').hidden=false;return}
@@ -469,10 +552,10 @@ async function authSync(){
  $('loginBox').hidden=access;
  if(access){
   if(!allowed.includes(who())){try{localStorage.setItem('hh-profile',allowed.includes('zsolt')?'z':'m')}catch(_){}}
-  await reload(false);subscribe();
+  await reloadFavorites();await reload(false);subscribe();
  }else{
   if(live){api.removeChannel(live);live=null}
-  items=[];render();status(user?'Nincs jogosultság a családi listához':'Bejelentkezés szükséges',false);
+  items=[];favorites=[];renderFavorites();render();status(user?'Nincs jogosultság a családi listához':'Bejelentkezés szükséges',false);
  }
 }
 let lastRefresh=0;
@@ -543,7 +626,9 @@ function startVoice(){
  voiceRec.onend=()=>{$('voice').classList.remove('voice-on');voiceRec=null;};
  try{voiceRec.start()}catch(_){voiceRec=null;toast('A mikrofon nem indult el.')}
 }
-buildCategories();render();
+buildCategories();renderFavorites();render();
+$('openFavorites').onclick=()=>switchSmartView('favorites');
+$('openShoppingList').onclick=()=>switchSmartView('shopping');
 $('productSearch').addEventListener('input',()=>{remote=[];queryToken++;suggestions();searchDebounce()});
 $('productSearch').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();void add({name:e.target.value,category:inferCategory(parseEntry(e.target.value).name)})}});
 $('addTyped').onclick=()=>add({name:$('productSearch').value,category:inferCategory(parseEntry($('productSearch').value).name)});
