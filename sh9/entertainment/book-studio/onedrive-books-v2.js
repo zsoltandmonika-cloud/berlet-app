@@ -152,6 +152,9 @@ function mapBook(item,stored={}){
  if(stem.includes(' - ')){const i=stem.indexOf(' - ');author=stem.slice(0,i);title=stem.slice(i+3)}
  return {id:'od_'+encodeURIComponent(item.id),source:'onedrive',drive_id:driveId,drive_item_id:item.id,profile_key:pid(),
   title:text(title),author:text(author),file_name:item.name,format,storage_path:null,
+  // OneDrive occasionally includes this short-lived link in children responses.
+  // Memory only: never persist a preauthenticated download URL to Supabase or browser storage.
+  download_url:item['@microsoft.graph.downloadUrl']||item['@content.downloadUrl']||'',listed_at:Date.now(),
   size_bytes:item.size,progress_locator:stored.progress_locator||'',progress_percent:stored.progress_percent||0,
   bookmarks:Array.isArray(stored.bookmarks)?stored.bookmarks:[],is_favorite:!!stored.is_favorite,
   theme:stored.theme||'dark',font_size:stored.font_size||100,updated_at:stored.updated_at||''};
@@ -225,19 +228,61 @@ async function saveProgress(b,patch={}){
  }catch(e){status('Olvasási állapot mentési hiba: '+e.message,true)}
 }
 function getBook(id){return entries.find(x=>x.id===id&&x.profile_key===pid())||null}
+// Microsoft Graph's downloadUrl is an INSTANCE ANNOTATION. It is not a normal
+// $select column. The documented browser example uses `?select=` (no dollar).
+// Personal OneDrive may return it in full metadata or children, depending on
+// endpoint/account. We accept only a short-lived HTTPS URL and never persist it.
+const tempDownloadUrl=obj=>{
+ const url=obj?.['@microsoft.graph.downloadUrl']||obj?.['@content.downloadUrl'];
+ if(typeof url!=='string')return '';
+ try{const u=new URL(url);return u.protocol==='https:'&&u.hostname?u.href:''}catch(_){return ''}
+};
+async function freshDownloadUrl(b){
+ const id=encodeURIComponent(b.drive_item_id),drive=encodeURIComponent(b.drive_id);
+ const routes=[
+  GRAPH+'me/drive/items/'+id+'?select=id,@microsoft.graph.downloadUrl',
+  GRAPH+'me/drive/items/'+id,
+  GRAPH+'drives/'+drive+'/items/'+id+'?select=id,@microsoft.graph.downloadUrl',
+  GRAPH+'drives/'+drive+'/items/'+id
+ ];
+ let lastError=null,hadMetadata=false;
+ for(const route of routes){
+  try{
+   const metadata=await json(route);
+   hadMetadata=true;
+   const url=tempDownloadUrl(metadata);
+   if(url)return url;
+  }catch(e){
+   lastError=e;
+   if(/munkamenet|Microsoft Graph: 401|Microsoft Graph: 403/.test(e.message||''))throw e;
+  }
+ }
+ // Fallback to a signed link from the same live folder listing, if fresh.
+ if(Date.now()-b.listed_at<20*60*1000){
+  const cached=tempDownloadUrl({'@microsoft.graph.downloadUrl':b.download_url});
+  if(cached)return cached;
+ }
+ throw Error(hadMetadata?
+  'A Microsoft Graph nem küldött letöltési hivatkozást ehhez a fájlhoz. Könyvtár frissítése, majd újrapróbálás szükséges.':
+  'A könyvfájl metaadata nem elérhető: '+(lastError?.message||'ismeretlen hiba'));
+}
 async function download(b){
  if(!ready||!token||expires<Date.now()+25000){resetSession();throw Error('A Microsoft-belépés lejárt. Kapcsolódj újra.');}
  if(!getBook(b.id)||b.size_bytes>MAX_DOWNLOAD)throw Error(b.size_bytes>MAX_DOWNLOAD?'Túl nagy könyv mobilos olvasáshoz (80 MB limit).':'Az adott könyv már nincs a könyvtárban.');
- // /content has CORS redirect trouble. Graph @microsoft.graph.downloadUrl is the documented SPA route.
- const meta=await json(GRAPH+'me/drive/items/'+encodeURIComponent(b.drive_item_id)+'?$select=id,@microsoft.graph.downloadUrl');
- const url=meta['@microsoft.graph.downloadUrl'];
- if(typeof url!=='string'||!url.startsWith('https://'))throw Error('A Microsoft nem adott ideiglenes letöltési URL-t.');
- const blob=await w.fetch(url,{method:'GET',cache:'no-store',credentials:'omit'}).then(async res=>{
+ // Do not use /content from a browser: its 302 redirect fails Graph CORS preflight.
+ // Use a short-lived preauthenticated URL, never include OAuth bearer in this request.
+ const url=await freshDownloadUrl(b);
+ let blob;
+ try{
+  const res=await w.fetch(url,{method:'GET',credentials:'omit'});
   if(!res.ok)throw Error('OneDrive letöltés HTTP '+res.status);
   const len=Number(res.headers.get('Content-Length')||0);
   if(len>MAX_DOWNLOAD)throw Error('Túl nagy könyvfájl.');
-  return res.blob();
- });
+  blob=await res.blob();
+ }catch(e){
+  if(e instanceof TypeError)throw Error('A OneDrive fájlletöltést a böngésző blokkolta (CORS/hálózat). '+e.message);
+  throw e;
+ }
  if(blob.size>MAX_DOWNLOAD)throw Error('Túl nagy könyvfájl.');
  return blob;
 }
