@@ -260,6 +260,89 @@ async function add(p){
  }catch(e){toast('Nem sikerült menteni a felhőbe: '+String(e.message||e).slice(0,90));return false}
  finally{writing=false}
 }
+const COUNT_UNITS=['db','csomag','doboz','üveg','flakon','l','ml'];
+const WEIGHT_UNITS=['kg','g'];
+function shortCategory(category){
+ const cat=mainCategory(category);
+ return cat==='Otthon & Háztartás'?'Otthon':cat==='Drogéria & Szépség'?'Drogéria':cat==='Divat & Stílus'?'Divat':cat;
+}
+function formatQty(value,unit){return Number(value).toLocaleString('hu-HU',{maximumFractionDigits:3})+' '+unit}
+let editItem=null,editMode='count',editUnit='db';
+function formatEditNumber(value){return String(Math.round(Number(value)*1000)/1000)}
+function availableUnits(mode){return mode==='weight'?WEIGHT_UNITS:COUNT_UNITS}
+function refreshQtyEditor(){
+ const units=$('qtyUnit'),previous=units.value;
+ units.replaceChildren();
+ for(const unit of availableUnits(editMode)){
+  const opt=node('option',null,unit);opt.value=unit;units.append(opt);
+ }
+ units.value=availableUnits(editMode).includes(editUnit)?editUnit:availableUnits(editMode)[0];
+ editUnit=units.value;
+ $('qtyModeCount').classList.toggle('active',editMode==='count');
+ $('qtyModeWeight').classList.toggle('active',editMode==='weight');
+ $('qtyModeCount').setAttribute('aria-pressed',String(editMode==='count'));
+ $('qtyModeWeight').setAttribute('aria-pressed',String(editMode==='weight'));
+}
+function openQtyEditor(item){
+ if(!user||!allowed.includes(who()))return toast('A mennyiség módosításához jelentkezz be.');
+ if(busyIds.has(item.id))return;
+ editItem=item;editUnit=item.unit;
+ editMode=WEIGHT_UNITS.includes(editUnit)?'weight':'count';
+ $('qtyTitle').textContent=item.name;
+ $('qtyNumber').value=formatEditNumber(item.quantity);
+ refreshQtyEditor();
+ $('qtyOverlay').hidden=false;
+ $('qtyClose').focus({preventScroll:true});
+}
+function closeQtyEditor(){
+ const id=editItem?.id;
+ $('qtyOverlay').hidden=true;editItem=null;
+ if(id){const original=[...d.querySelectorAll('[data-qty-itemid]')].find(x=>x.dataset.qtyItemid===id);original?.focus({preventScroll:true})}
+}
+function changeQtyMode(mode){
+ if(!editItem||mode===editMode)return;
+ editMode=mode;
+ editUnit=mode==='weight'?'kg':'db';
+ $('qtyNumber').value='1';
+ refreshQtyEditor();
+}
+function qtyStep(direction){
+ if(!editItem)return;
+ const unit=$('qtyUnit').value;
+ const step=unit==='g'||unit==='ml'?100:unit==='kg'||unit==='l'?0.25:1;
+ const n=Number(String($('qtyNumber').value).replace(',','.'));
+ const value=Math.max(step,Math.min(9999,(Number.isFinite(n)?n:step)+direction*step));
+ $('qtyNumber').value=formatEditNumber(value);
+}
+function changeQtyUnit(next){
+ if(!editItem)return;
+ const previous=editUnit;
+ let value=Number(String($('qtyNumber').value).replace(',','.'));
+ if(Number.isFinite(value)){
+  if(previous==='kg'&&next==='g'||previous==='l'&&next==='ml')value*=1000;
+  if(previous==='g'&&next==='kg'||previous==='ml'&&next==='l')value/=1000;
+  if(value<=9999&&value>0)$('qtyNumber').value=formatEditNumber(value);
+ }
+ editUnit=next;
+}
+async function saveQtyEditor(){
+ const p=editItem;if(!p||busyIds.has(p.id))return;
+ const q=Number(String($('qtyNumber').value).replace(',','.')),unit=$('qtyUnit').value;
+ if(!Number.isFinite(q)||q<=0||q>9999||!availableUnits(editMode).includes(unit)){
+  toast('Adj meg 0 és 9999 közötti, pozitív mennyiséget.');return;
+ }
+ if(Number(p.quantity)===q&&p.unit===unit){closeQtyEditor();return}
+ busyIds.add(p.id);$('qtySave').disabled=true;
+ try{
+  const res=await api.from(TABLE).update({quantity:q,unit,updated_by_profile:who()})
+   .eq('id',p.id).eq('quantity',p.quantity).eq('unit',p.unit).select('id');
+  if(res.error)throw res.error;
+  if(!res.data?.length){closeQtyEditor();await reload(true);toast('A terméket közben más is módosította.');return}
+  closeQtyEditor();haptic();toast('Módosítva: '+p.name+' · '+formatQty(q,unit));
+  await reload(false);
+ }catch(e){toast('Mennyiség mentési hiba: '+String(e.message||e).slice(0,80))}
+ finally{busyIds.delete(p.id);$('qtySave').disabled=false}
+}
 function itemRow(p){
  const card=node('article','product'+(p.done?' done':''));card.addEventListener('click',e=>{if(!e.target.closest('button'))void setDone(p,!p.done)});
  const check=node('button','check',p.done?'✓':'');check.type='button';check.setAttribute('aria-label',p.done?'Visszateszem a listára: '+p.name:'Megvettem: '+p.name);
@@ -268,7 +351,16 @@ function itemRow(p){
  if(validUrl(p.image_url)){const img=node('img');img.src=validUrl(p.image_url);img.alt=p.name;img.loading='lazy';img.onerror=()=>{image.replaceChildren(d.createTextNode(productIcon(p.name,p.category)))};image.append(img)}
  else image.textContent=productIcon(p.name,p.category);
  const main=node('div','product-main');
- main.append(node('div','product-name',p.name),node('div','product-details',String(Number(p.quantity))+' '+p.unit+' · '+mainCategory(p.category)));
+ const meta=node('div','product-meta');
+ const cat=node('span','product-category',shortCategory(p.category));
+ cat.title=mainCategory(p.category);
+ const qty=node('button','quantity-pill',formatQty(p.quantity,p.unit));
+ qty.type='button';qty.dataset.qtyItemid=p.id;
+ qty.title='Mennyiség vagy súly módosítása: '+p.name;
+ qty.setAttribute('aria-label',p.name+' – mennyiség vagy súly: '+formatQty(p.quantity,p.unit));
+ qty.onclick=()=>openQtyEditor(p);
+ meta.append(cat,qty);
+ main.append(node('div','product-name',p.name),meta);
  if(p.done&&p.done_by_profile)main.append(node('div','product-details done-note','✓ '+label(p.done_by_profile)+' kipipálta'));
  const controls=node('div','product-controls');
  const favorite=node('button','heart'+(p.favorite?' active':''),p.favorite?'♥':'♡');favorite.type='button';favorite.title='Kedvenc';favorite.setAttribute('aria-label','Kedvenc: '+p.name);favorite.onclick=()=>setFavorite(p,!p.favorite);
@@ -431,6 +523,16 @@ $('productSearch').addEventListener('input',()=>{remote=[];queryToken++;suggesti
 $('productSearch').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();void add({name:e.target.value,category:inferCategory(parseEntry(e.target.value).name)})}});
 $('addTyped').onclick=()=>add({name:$('productSearch').value,category:inferCategory(parseEntry($('productSearch').value).name)});
 $('voice').onclick=startVoice;
+$('qtyClose').onclick=closeQtyEditor;
+$('qtyOverlay').addEventListener('click',e=>{if(e.target===$('qtyOverlay'))closeQtyEditor()});
+$('qtyModeCount').onclick=()=>changeQtyMode('count');
+$('qtyModeWeight').onclick=()=>changeQtyMode('weight');
+$('qtyMinus').onclick=()=>qtyStep(-1);
+$('qtyPlus').onclick=()=>qtyStep(1);
+$('qtyUnit').onchange=e=>changeQtyUnit(e.target.value);
+$('qtySave').onclick=()=>void saveQtyEditor();
+d.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('qtyOverlay').hidden)closeQtyEditor()});
+
 $('navList').onclick=()=>w.scrollTo({top:0,behavior:'smooth'});
 $('signIn').onclick=async()=>{
  if(!api)return toast('A bejelentkezéshez nincs felhőkapcsolat.');
