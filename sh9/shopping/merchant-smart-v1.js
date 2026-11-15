@@ -48,13 +48,40 @@ function allowedUrl(text){
   return ok?u.href:'';
  }catch(_){return ''}
 }
+// User-approved exact Auchan SKU matches; do not substitute named competing brands.
+const DIRECT_AUCHAN_PRODUCTS=Object.freeze({
+ 'uht laktozmentes tej 1.5%':'https://auchan.hu/shop/auchan-kedvenc-laktozmentes-uht-tej-15percent-1-l.p-931877',
+ 'uht laktozmentes tej 1.5% 1 l':'https://auchan.hu/shop/auchan-kedvenc-laktozmentes-uht-tej-15percent-1-l.p-931877',
+ 'auchan kedvenc laktozmentes uht tej 1.5% 1 l':'https://auchan.hu/shop/auchan-kedvenc-laktozmentes-uht-tej-15percent-1-l.p-931877'
+});
+function normalizedProductName(text){
+ return String(text||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase()
+  .replace(/(\d),(\d)/g,'$1.$2').replace(/\s+/g,' ').trim();
+}
+function knownDirectProductUrl(name){
+ if(key!=='auchan')return '';
+ return allowedUrl(DIRECT_AUCHAN_PRODUCTS[normalizedProductName(name)]||'');
+}
 function searchUrl(term){
  const q=String(term||'').trim().slice(0,160);
  if(key==='temu')return 'https://www.temu.com/hu/search_result.html?search_key='+encodeURIComponent(q);
  // Site-restricted search fallback rather than inventing unstable merchant deep-link APIs.
  return 'https://www.google.com/search?q='+encodeURIComponent('site:'+store.domain+' '+q);
 }
-function linkFor(p){return allowedUrl(mapped.get(mode+':'+pkey(p))?.product_url)||searchUrl(p.name)}
+function directUrlFor(p){
+ const exact=allowedUrl(mapped.get(mode+':'+pkey(p))?.product_url);
+ if(exact)return exact;
+ // Repeat purchases may get new Smart List IDs; reuse exact family-paired names.
+ const name=normalizedProductName(p.name);
+ for(const pair of mapped.values()){
+  if(normalizedProductName(pair.name_snapshot)===name){
+   const learned=allowedUrl(pair.product_url);
+   if(learned)return learned;
+  }
+ }
+ return knownDirectProductUrl(p.name);
+}
+function linkFor(p){return directUrlFor(p)||searchUrl(p.name)}
 function select(i){const p=list()[i];if(!p)return;lastRowTapKey='';lastRowTapAt=0;selected=pkey(p);showLink=false;render()}
 function activateRow(i){
  const p=list()[i];if(!p)return;
@@ -81,7 +108,7 @@ function draw(a){
   row.setAttribute('aria-label','Termék: '+p.name+'. Egy koppintás kiválaszt, dupla koppintás megnyitja az áruházban.');
   row.title='Dupla kattintás: bolt keresés';
   const icon=mk('span','product-icon',emoji(p));const info=mk('span','product-info');info.append(mk('strong',null,p.name),mk('small',null,qty(p)));
-  row.append(icon,info,mk('span','product-link',allowedUrl(mapped.get(mode+':'+pkey(p))?.product_url)?'🔗':'⌕'));box.append(row);
+  row.append(icon,info,mk('span','product-link',directUrlFor(p)?'🔗':'⌕'));box.append(row);
  }
  if(total<a.all.length){const more=mk('button','more','＋ További '+Math.min(40,a.all.length-total)+' termék · '+total+'/'+a.all.length);more.type='button';more.onclick=()=>{visibleCount=total+40;render()};box.append(more)}
 }
@@ -97,9 +124,9 @@ function render(){
  $('icon').textContent=a.p?emoji(a.p):'🛒';
  $('itemName').textContent=a.p?a.p.name:'Nincs termék';
  $('itemQty').textContent=a.p?qty(a.p):'';
- const saved=a.p?allowedUrl(mapped.get(mode+':'+pkey(a.p))?.product_url):'';
- const go=$('go');go.href=a.p?linkFor(a.p):store.home;go.textContent=saved?'↗ Mentett termék':'↗ Bolt megnyitása';
- $('searchMethod').textContent=saved?'✓ Elmentett '+store.name+' termékoldal':key==='temu'?'Hivatalos Temu keresés':'Webkeresés a '+store.name+' oldalára szűkítve';
+ const saved=a.p?directUrlFor(a.p):'';
+ const go=$('go');go.href=a.p?linkFor(a.p):store.home;go.textContent=saved?'↗ Közvetlen termékoldal':'↗ Bolt keresése';
+ $('searchMethod').textContent=saved?'✓ Konkrét '+store.name+' termékoldal':key==='temu'?'Hivatalos Temu keresés':'Külső webkeresés a '+store.name+' oldalára szűkítve';
  $('prev').disabled=!a.p||a.all.length<2;$('next').disabled=!a.p||a.all.length<2;
  $('edit').disabled=!a.p;
  $('editor').hidden=!showLink||!a.p;
@@ -173,7 +200,7 @@ $('edit').onclick=()=>{showLink=!showLink;render();if(showLink)$('linkInput').fo
 $('editor').addEventListener('submit',e=>{e.preventDefault();void save()});
 $('cancel').onclick=()=>{showLink=false;render()};
 $('restart').onclick=()=>{const s=state();s[mode]={next:''};put(s);selected=null;visibleCount=40;render();msg('Az első termék következik.')};
-$('fullSearch').addEventListener('submit',e=>{e.preventDefault();const v=$('freeQuery').value.trim();if(v.length<2)return;w.location.assign(searchUrl(v))});
+$('fullSearch').addEventListener('submit',e=>{e.preventDefault();const v=$('freeQuery').value.trim();if(v.length<2)return;w.location.assign(knownDirectProductUrl(v)||searchUrl(v))});
 $('signIn').onclick=async()=>{
  if(!api)return msg('Felhőkapcsolat nem elérhető.');
  try{
