@@ -58,6 +58,130 @@ function playClickSound(checked,ctx){
  }catch(_){/* sound is optional; keep shopping usable */}
 }
 function selectedIcon(category){return ICON[category]||'🛒'}
+// Product-specific Hungarian icon mapping: original product photo always wins.
+// Match whole words/phrases, not arbitrary substrings (e.g. alma != almalé).
+// Earlier entries take precedence when a name contains multiple terms.
+const PRODUCT_ICON_RULES=[
+ ["🍌","banán|banan"],
+ ["🍎","alma|granny smith|zöldalma|piros alma"],
+ ["🍐","körte"],
+ ["🍋","citrom|lime"],
+ ["🍊","narancs|mandarin|grapefruit"],
+ ["🍇","szőlő"],
+ ["🍓","eper"],
+ ["🫐","áfonya|szeder|málna"],
+ ["🍒","cseresznye|meggy"],
+ ["🍑","őszibarack|nektarin|sárgabarack"],
+ ["🍉","görögdinnye|dinnye"],
+ ["🍈","sárgadinnye"],
+ ["🍍","ananász"],
+ ["🥭","mangó"],
+ ["🥝","kiwi|kivi"],
+ ["🥑","avokádó"],
+ ["🍅","paradicsom|koktélparadicsom"],
+ ["🫑","paprika|kaliforniai paprika|kápia paprika"],
+ ["🌶️","chili|csili|erős paprika|pirospaprika|füstölt paprika"],
+ ["🥒","uborka|csemegeuborka|kovászos uborka"],
+ ["🥕","sárgarépa|fehérrépa|répa"],
+ ["🥔","burgonya|krumpli|édesburgonya|hasábburgonya"],
+ ["🧅","vöröshagyma|lilahagyma|póréhagyma|hagyma"],
+ ["🧄","fokhagyma"],
+ ["🥦","brokkoli|karfiol"],
+ ["🥬","saláta|jégsaláta|római saláta|fejes saláta|rukkola|spenót|káposzta|kelkáposzta"],
+ ["🌽","kukorica"],
+ ["🍄","gomba|csiperke"],
+ ["🍆","padlizsán|cukkini"],
+ ["🫛","zöldborsó|borsó|zöldbab"],
+ ["🫘","bab|vörösbab|fehérbab|lencse|csicseriborsó"],
+ ["🎃","sütőtök"],
+ ["🥥","kókusz|kókuszvíz"],
+ ["🥜","mogyoró|kesudió|pisztácia|mogyoróvaj"],
+ ["🌰","dió|mandula|gesztenye"],
+ ["🌻","napraforgómag|tökmag|chia mag|lenmag"],
+ ["🍞","kenyér|toast kenyér|rozskenyér|abonett|extrudált kenyér"],
+ ["🥖","bagett|ciabatta|kifli|zsömle|zsemle|péksütemény"],
+ ["🥐","croissant|kalács"],
+ ["🫓","tortilla|pita|lepény"],
+ ["🥣","zabpehely|müzli|granola|corn flakes|zabkása|búzadara"],
+ ["🍚","rizs|basmati rizs|jázminrizs|kuszkusz|bulgur|quinoa"],
+ ["🍝","tészta|penne|spagetti|fusilli|farfalle|makaróni|lasagne|cérnametélt|tarhonya"],
+ ["🍕","pizza|pizzaszósz"],
+ ["🥫","konzerv|konzervbab|paradicsompüré|passzírozott paradicsom"],
+ ["🥩","marhahús|bélszín|sertéskaraj|sertéscomb|darált hús|sertéshús|marhahus"],
+ ["🍗","csirkemell|csirkecomb|csirkehús|csirke"],
+ ["🦃","pulykamell|pulykahús|pulyka"],
+ ["🍖","sonka|bacon|szalonna|kolbász|szalámi|májas"],
+ ["🌭","virsli|hotdog"],
+ ["🍔","hamburgerzsemle|hamburger"],
+ ["🐟","hal|lazac|lazacfilé|füstölt lazac|tonhal|tonhalkonzerv|szardínia|makréla|halrudacska"],
+ ["🦐","garnélarák|garnéla|rák"],
+ ["🦑","tenger gyümölcsei|tintahal"],
+ ["🥚","tojás"],
+ ["🥛","tej|félzsíros tej|teljes tej|laktózmentes tej|sűrített tej|zabital|mandulaital|rizsital"],
+ ["🧈","vaj|margarin"],
+ ["🧀","sajt|mozzarella|trappista sajt|gouda|cheddar|feta|parmezán|camembert|krémsajt|cottage cheese"],
+ ["🥣","joghurt|natúr joghurt|görög joghurt|gyümölcsjoghurt|kefir|tejföl|túró"],
+ ["🥛","tejszín|főzőtejszín|habtejszín"],
+ ["💧","ásványvíz|szénsavmentes víz|szénsavas víz|szóda|víz"],
+ ["🧃","narancslé|almalé|multivitamin ital|őszibaracklé|citromlé|gyümölcslé"],
+ ["☕","kávé|szemes kávé|szemes arabica kávé|őrölt kávé|instant kávé|koffeinmentes kávé|kávékapszula|kapucsínó por"],
+ ["🍵","tea|filteres tea|zöld tea|fekete tea|gyümölcstea|kamillatea|mentatea|jegestea"],
+ ["🥤","kóla|cukormentes kóla|limonádé|tonik|energiaital|izotóniás ital|protein ital|fehérjeturmix"],
+ ["🧋","szörp|málnaszörp|bodzaszörp"],
+ ["🧂","só|tengeri só|bors|fűszer|curry|kurkuma|kömény|fahéj|oregánó|bazsalikom|rozmaring|kakukkfű"],
+ ["🫒","olívaolaj|napraforgóolaj|kókuszolaj|étolaj"],
+ ["🫙","mustár|ketchup|majonéz|pesto|torma|ecet|balzsamecet|lekvár|nutella"],
+ ["🍯","méz|juharszirup"],
+ ["🧁","cukor|barna cukor|porcukor|vaníliás cukor|édesítőszer|sütőpor|élesztő"],
+ ["🍫","csokoládé|étcsokoládé|tejcsokoládé|kakaópor|kakaóital|forró csokoládé"],
+ ["🍪","keksz|nápolyi|müzliszelet"],
+ ["🍿","pattogatott kukorica|chips|ropi"],
+ ["🍬","cukorka|rágógumi"],
+ ["🍨","fagylalt|jégkrém"],
+ ["🍰","torta|sütemény"],
+ ["🍲","instant leves|húsleveskocka|leves"],
+ ["🧽","mosogatószer|mosogatógép tabletta|mosogatógép só|mosogatókefe|szivacs|dörzsszivacs"],
+ ["🧼","szappan|folyékony szappan|kézfertőtlenítő|fertőtlenítő"],
+ ["🫧","mosószer|mosókapszula|öblítő|folttisztító|fehérítő"],
+ ["🧹","seprű|felmosófej|felmosószer|általános tisztítószer"],
+ ["🧴","vízkőoldó|konyhai zsíroldó|fürdőszobai tisztítószer|ablaktisztító"],
+ ["🚽","wc tisztító|wc illatosító"],
+ ["🧻","toalettpapír|papírtörlő|kéztörlő papír|papír zsebkendő|szalvéta"],
+ ["🗑️","szemeteszsák|szelektív szemeteszsák"],
+ ["🧤","gumikesztyű"],
+ ["🧽","törlőkendő|mikroszálas kendő|mosogatórongy"],
+ ["🕯️","gyertya|gyufa|öngyújtó"],
+ ["🔋","elem|ceruzaelem|gombelem"],
+ ["💡","izzó|led izzó"],
+ ["📦","ételtároló doboz|fagyasztózacskó|uzsonnás tasak|alufólia|sütőpapír|frissentartó fólia"],
+ ["🪥","fogkefe|fogkrém|szájvíz|fogselyem|fogköztisztító kefe"],
+ ["🧴","sampon|balzsam|hajpakolás|hajolaj|szárazsampon"],
+ ["🛁","tusfürdő|testápoló|kézkrém|arckrém|nappali krém|éjszakai krém"],
+ ["🌞","naptej|fényvédő|napvédő stift"],
+ ["🌸","dezodor|izzadásgátló|parfüm"],
+ ["🪒","borotva|borotvahab|borotvagél"],
+ ["🩹","sebtapasz|steril géz"],
+ ["💊","vitamin|vitamin c|multivitamin|magnézium"],
+ ["💄","sminklemosó|micellás víz|vattakorong|körömlakklemosó"],
+ ["🪮","hajkefe|állatfésű|hajfesték|hajlakk|hajzselé"],
+ ["🐶","kutyatáp|száraz kutyatáp|nedves kutyaeledel|kutyaeledel"],
+ ["🦴","kutyajutalomfalat|rágócsont|kutya rágócsont"],
+ ["🐾","kutyapelenka|kutyapiszok zacskó|kutyatörlőkendő|bolhanyakörv"],
+ ["🧴","kutyasampon|kutyafogkrém"],
+ ["🧸","kutyajáték"],
+ ["🛏️","kutyafekhely"],
+ ["🥣","kutyatál"],
+ ["🐈","macskaeledel|macskajutalomfalat"],
+ ["🐈","macskaalom|alomtálca"],
+ ["🧶","kutyapóráz|kutyanyakörv"],
+].map(([icon,aliases])=>({icon,terms:aliases.split('|').map(x=>nrm(x).replace(/[^a-z0-9]+/g,' ').trim())}));
+function productIcon(name,category){
+ const text=' '+nrm(name).replace(/[^a-z0-9]+/g,' ').replace(/\\s+/g,' ').trim()+' ';
+ for(const rule of PRODUCT_ICON_RULES){
+  if(rule.terms.some(term=>term&&text.includes(' '+term+' ')))return rule.icon;
+ }
+ return selectedIcon(category);
+}
 function suggestions(){
  const q=$('productSearch').value.trim(),out=$('suggestions');out.replaceChildren();
  if(!q){out.hidden=true;return}
@@ -68,8 +192,8 @@ function suggestions(){
  for(const p of remoteResults.concat(found)){
   const b=node('button','suggestion');b.type='button';
   const img=node('span','thumb');
-  if(p.image&&validUrl(p.image)){const photo=node('img');photo.src=validUrl(p.image);photo.alt='Termékfotó';photo.loading='lazy';img.append(photo)}
-  else img.textContent=p.icon||selectedIcon(p.category);
+  if(p.image&&validUrl(p.image)){const photo=node('img');photo.src=validUrl(p.image);photo.alt='Termékfotó';photo.loading='lazy';photo.onerror=()=>{img.replaceChildren(d.createTextNode(productIcon(p.name,p.category)))};img.append(photo)}
+  else img.textContent=productIcon(p.name,p.category);
   const body=node('span','body');body.append(node('strong',null,p.name),node('small',null,p.image?'Valódi termékfotó · Open Food Facts':p.category+' · gyors hozzáadás'));
   b.append(img,body,node('b',null,'＋'));b.addEventListener('click',async()=>{await add(p);});
   out.append(b);
@@ -114,8 +238,8 @@ function itemRow(p){
  const check=node('button','check',p.done?'✓':'');check.type='button';check.setAttribute('aria-label',p.done?'Visszateszem a listára: '+p.name:'Megvettem: '+p.name);
  check.onclick=()=>setDone(p,!p.done);
  const image=node('span','product-image');
- if(validUrl(p.image_url)){const img=node('img');img.src=validUrl(p.image_url);img.alt=p.name;img.loading='lazy';img.onerror=()=>{image.replaceChildren(d.createTextNode(selectedIcon(p.category)))};image.append(img)}
- else image.textContent=selectedIcon(p.category);
+ if(validUrl(p.image_url)){const img=node('img');img.src=validUrl(p.image_url);img.alt=p.name;img.loading='lazy';img.onerror=()=>{image.replaceChildren(d.createTextNode(productIcon(p.name,p.category)))};image.append(img)}
+ else image.textContent=productIcon(p.name,p.category);
  const main=node('div','product-main');
  main.append(node('div','product-name',p.name),node('div','product-details',String(Number(p.quantity))+' '+p.unit+' · '+p.category));
  if(p.done&&p.done_by_profile)main.append(node('div','product-details done-note','✓ '+label(p.done_by_profile)+' kipipálta'));
