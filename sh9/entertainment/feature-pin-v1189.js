@@ -55,10 +55,10 @@ form.addEventListener('submit',event=>{
  const url=urlInput?safeLink(urlInput):'#mozi';
  if(!title||!url){alert('A kiemelt ajánlathoz címet és érvényes HTTPS hivatkozást adj meg.');return}
  try{localStorage.setItem(key,JSON.stringify({title:title.slice(0,85),note:note.slice(0,100),url}))}catch(_){}
- dialog.close();paint();
+ dialog.close();paint();window.dispatchEvent(new Event('sho:featured-updated'));
 });
 cancel?.addEventListener('click',()=>dialog.close());
-clear?.addEventListener('click',()=>{try{localStorage.removeItem(key)}catch(_){}dialog.close();paint()});
+clear?.addEventListener('click',()=>{try{localStorage.removeItem(key)}catch(_){}dialog.close();paint();window.dispatchEvent(new Event('sho:featured-updated'))});
 window.addEventListener('storage',event=>{if(event.key===key||event.key===nextKey)paint()});
 window.addEventListener('pageshow',paint);
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')paint()});

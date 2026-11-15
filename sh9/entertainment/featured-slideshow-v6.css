@@ -1,0 +1,167 @@
+/* SHO Smart Entertainment · Golden V6 · real six-category featured slideshow.
+   The Etele Premium card dimension established in Step 1 is the invariant.
+   Existing editable pinned offer is kept as an optional seventh entry.
+   We never stretch baked text/photo artwork; slides render their own labels. */
+.pixel-extension .sho-feature-carousel{
+ position:absolute;left:2%;top:49%;width:96%;height:49%;z-index:6;
+ display:block;overflow:hidden;isolation:isolate;
+ border:1px solid #f6c891d4;border-radius:18px;
+ background:linear-gradient(125deg,#101329,#22172d 50%,#101f39);
+ box-shadow:0 0 0 1px #b24e9d66,0 9px 33px #fa6f9c43,0 13px 31px #0009;
+ -webkit-tap-highlight-color:transparent;
+}
+.pixel-extension .sho-feature-carousel::after{
+ content:'';position:absolute;z-index:3;inset:0;border-radius:inherit;
+ box-shadow:inset 0 0 0 1px #ffdfb822,inset 0 14px 27px #ffffff09;
+ pointer-events:none;
+}
+.pixel-extension[data-carousel-ready="true"] .pixel-feature-link{
+ background-image:none!important;
+ background-color:transparent!important;
+ box-shadow:none!important;
+ border-color:transparent!important;
+}
+.pixel-extension[data-carousel-ready="true"] .pixel-feature-link::after{content:none!important;display:none!important}
+.pixel-extension[data-carousel-ready="true"] .pixel-feature-custom{display:none!important}
+.sho-feature-viewport{position:absolute;inset:0;overflow:hidden}
+.sho-feature-slide{
+ position:absolute;inset:0;display:block;z-index:1;
+ color:#fff;opacity:0;transform:scale(1.025);
+ pointer-events:none;
+ transition:opacity .66s cubic-bezier(.24,.74,.3,1),transform 4.8s ease;
+ background:#141424;text-decoration:none;
+}
+.sho-feature-slide.active{opacity:1;z-index:2;transform:scale(1);pointer-events:auto}
+.sho-feature-slide:focus-visible{outline:3px solid #ffe5b0;outline-offset:-6px}
+.sho-feature-slide .sho-feature-photo{
+ position:absolute;inset:0;display:block;
+ background-size:cover;background-position:50% 44%;background-repeat:no-repeat;
+ filter:saturate(1.16) contrast(1.09) brightness(.84);
+ transform:scale(1.035);transition:transform 6.3s linear;will-change:transform;
+}
+.sho-feature-slide.active .sho-feature-photo{transform:scale(1.09)}
+.sho-feature-slide .sho-feature-shade{
+ position:absolute;inset:0;display:block;pointer-events:none;
+ background:linear-gradient(90deg,#060919d9 0%,#0b1129ba 41%,#080c1680 75%,#070b17b5 100%),
+  linear-gradient(0deg,#080716f7 0%,#060619c5 26%,transparent 68%),
+  radial-gradient(ellipse at 88% 18%,#ffd27a3c,transparent 44%);
+}
+.sho-feature-top{
+ position:absolute;top:14px;left:16px;right:66px;
+ display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:7px;z-index:2;
+}
+.sho-feature-category{
+ display:inline-flex;gap:6px;align-items:center;
+ font-size:clamp(11px,1.1vw,14px);font-weight:950;line-height:1.1;
+ padding:8px 11px;border:1px solid #fff4e4a1;border-radius:999px;
+ background:#1b1530c7;backdrop-filter:blur(11px);-webkit-backdrop-filter:blur(11px);
+ color:#fff9f0;text-shadow:0 2px 10px #0008;
+}
+.sho-feature-pick{
+ font-size:clamp(9px,1vw,12px);font-weight:850;letter-spacing:1.2px;
+ color:#ffdfa4;text-shadow:0 2px 10px #000b;white-space:nowrap;
+}
+.sho-feature-copy{
+ position:absolute;left:clamp(15px,3vw,35px);right:clamp(18px,5vw,65px);
+ bottom:clamp(32px,5vw,55px);display:flex;flex-direction:column;gap:9px;
+ z-index:2;align-items:flex-start;text-shadow:0 3px 15px #000d;
+}
+.sho-feature-title{
+ display:block;color:#fff;font-size:clamp(23px,2.7vw,42px);font-weight:950;
+ letter-spacing:-.6px;line-height:1.07;
+ max-width:650px;text-wrap:balance;
+ display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;
+}
+.sho-feature-note{
+ font-size:clamp(11px,1.15vw,15px);line-height:1.27;
+ color:#f3e9e7;max-width:630px;font-weight:560;
+ display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+}
+.sho-feature-cta{
+ display:inline-flex;align-items:center;justify-content:center;
+ border-radius:99px;padding:10px 17px;margin-top:4px;
+ border:1px solid #ffe9b5c7;background:linear-gradient(110deg,#ac457a,#345ab1);
+ color:#fff6eb;font-size:clamp(11px,1.05vw,14px);font-weight:880;line-height:1.15;
+ box-shadow:0 5px 18px #0007;
+}
+.sho-feature-prev,.sho-feature-next{
+ position:absolute;z-index:5;top:51%;transform:translateY(-50%);
+ display:grid;place-items:center;width:39px;height:45px;padding:0;
+ border:1px solid #fff6e68a;border-radius:14px;
+ background:linear-gradient(150deg,#100e25bd,#1e1d40d2);
+ color:white;box-shadow:0 3px 15px #0008;
+ backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+ font-size:31px;line-height:1;touch-action:manipulation;
+}
+.sho-feature-prev{left:8px}
+.sho-feature-next{right:8px}
+.sho-feature-prev:active,.sho-feature-next:active{transform:translateY(-50%) scale(.94)}
+.sho-feature-dots{
+ position:absolute;z-index:5;bottom:7px;left:50%;transform:translateX(-50%);
+ display:flex;justify-content:center;align-items:center;gap:4px;max-width:90%;
+}
+.sho-feature-dot{
+ display:grid;place-items:center;width:23px;height:27px;min-width:23px;
+ background:transparent;border:0;padding:0;cursor:pointer;
+}
+.sho-feature-dot:before{
+ content:'';display:block;width:13px;height:5px;border-radius:10px;
+ background:#ffffff72;border:1px solid #ffffff56;box-shadow:0 1px 5px #0008;
+ transition:width .2s ease,background .2s ease;
+}
+.sho-feature-dot.active:before{width:20px;background:#ffe1b0;box-shadow:0 0 10px #fa94c7}
+.sho-feature-counter{
+ position:absolute;right:12px;bottom:11px;z-index:5;color:#fff8f3;
+ font-size:10px;font-weight:850;padding:3px 8px;border-radius:7px;
+ background:#060d1b99;border:1px solid #ffffff28;
+}
+.pixel-extension[data-carousel-ready="true"] .pixel-feature-edit{
+ z-index:12!important;background:#371b3dd8!important;
+ border-color:#f0b4da9e!important;
+}
+/* Mobile: match the approved Etele Premium full-width card without a blank zone. */
+@media(max-width:650px){
+ .pixel-extension .sho-feature-carousel{
+  left:12px!important;right:auto!important;
+  top:calc(var(--tile-h) + var(--standard-gap))!important;
+  width:calc(100vw - 24px)!important;
+  height:calc((100vw - 24px)/1.62)!important;
+  border-radius:18px!important;
+  box-sizing:border-box!important;
+ }
+ .pixel-extension[data-carousel-ready="true"] .pixel-feature-edit{
+  top:calc(var(--tile-h) + var(--standard-gap) + 9px)!important;
+  right:21px!important;left:auto!important;
+  width:34px!important;height:32px!important;
+  border-radius:10px!important;z-index:15!important;
+ }
+ .pixel-extension[data-carousel-ready="true"] .pixel-feature-edit::after{font-size:19px!important}
+ .sho-feature-top{top:12px;left:12px;right:48px;gap:5px}
+ .sho-feature-category{font-size:11px;padding:6px 10px;line-height:1.15}
+ .sho-feature-pick{font-size:9px;letter-spacing:.75px}
+ .sho-feature-copy{
+  left:clamp(14px,4vw,22px);right:clamp(17px,5vw,23px);
+  bottom:35px;gap:5px;
+ }
+ .sho-feature-title{font-size:clamp(23px,6.5vw,31px);line-height:1.05;-webkit-line-clamp:2}
+ .sho-feature-note{font-size:11px;line-height:1.25;-webkit-line-clamp:2;max-width:285px}
+ .sho-feature-cta{font-size:10px;padding:7px 12px;margin-top:4px}
+ .sho-feature-prev,.sho-feature-next{width:30px;height:37px;font-size:25px;border-radius:10px;top:48%}
+ .sho-feature-prev{left:4px}.sho-feature-next{right:4px}
+ .sho-feature-dots{bottom:4px;gap:2px}
+ .sho-feature-dot{width:23px;min-width:23px;height:25px}
+ .sho-feature-counter{bottom:6px;right:7px;font-size:9px;padding:2px 6px}
+}
+@media(max-width:370px){
+ .sho-feature-top{top:8px;left:10px;right:45px}
+ .sho-feature-category{font-size:10px}
+ .sho-feature-pick{font-size:8px;letter-spacing:.3px}
+ .sho-feature-copy{left:13px;right:13px;bottom:32px;gap:3px}
+ .sho-feature-title{font-size:clamp(20px,6.2vw,24px)}
+ .sho-feature-note{font-size:10px}
+ .sho-feature-cta{font-size:9px;padding:6px 10px}
+}
+@media(prefers-reduced-motion:reduce){
+ .sho-feature-slide,.sho-feature-slide .sho-feature-photo,
+ .sho-feature-dot:before{transition:none!important;animation:none!important}
+}
