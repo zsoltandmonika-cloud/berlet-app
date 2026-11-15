@@ -17,8 +17,9 @@ button,input{font:inherit}button{cursor:pointer;color:inherit}a{color:inherit;te
 .product{display:flex;align-items:center;gap:10px;padding:10px 11px;min-height:80px;border-radius:17px;border:1px solid #ffffff1f;background:linear-gradient(120deg,#211b34e8,#15223bdb);box-shadow:inset 0 1px #ffffff15}
 .product.done{opacity:.72;background:#151727}.check{flex:none;height:32px;width:32px;border:2px solid #a988b5;background:#180f28;border-radius:11px;font-size:18px;display:grid;place-items:center}.done .check{border-color:#62d7ac;background:#235747;color:#a6ffdb}
 .product-image{width:42px;height:42px;flex:none;border-radius:10px;overflow:hidden;display:grid;place-items:center;background:radial-gradient(circle at 25% 10%,#6b3d6c,#25324b);border:1px solid #b87dae55;font-size:22px}.product-image img{height:100%;width:100%;object-fit:contain;background:#fff}
-.product-main{flex:1;min-width:0}.product-name{font-size:13px;font-weight:800;line-height:1.25;word-break:break-word}.done .product-name{text-decoration:line-through;text-decoration-thickness:2px;color:#aeb0b8}.product-details{color:#b8aec6;font-size:11px;margin-top:3px}.product-details.done-note{color:#82dec1}
+.product-main{flex:1;min-width:0}.product-meta{display:flex;align-items:center;gap:5px;min-height:21px;margin-top:3px;min-width:0}.product-category{font-size:11px;color:#b8aec6;min-width:0;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.quantity-pill{flex:none;min-width:39px;min-height:21px;padding:2px 5px;border:1px solid #bb84b47a;border-radius:8px;background:#392448af;color:#f2d5e8;font-size:10px;font-weight:700;line-height:1.2;white-space:nowrap}.quantity-pill:active{background:#78426d}.product-name{font-size:13px;font-weight:800;line-height:1.25;word-break:break-word}.done .product-name{text-decoration:line-through;text-decoration-thickness:2px;color:#aeb0b8}.product-details{color:#b8aec6;font-size:11px;margin-top:3px}.product-details.done-note{color:#82dec1}
 .product-controls{display:flex;flex-direction:column;gap:2px;align-items:center;flex:none}.product-controls button{border:0;background:transparent;font-size:18px;min-width:30px;min-height:22px}.product-controls .heart.active{color:#fb87c9}.product-controls .remove{color:#a9a0b3}
+.qty-overlay[hidden]{display:none}.qty-overlay{position:fixed;inset:0;z-index:90;background:#080b17b8;display:flex;align-items:flex-end;justify-content:center;padding:12px 12px calc(88px + env(safe-area-inset-bottom,0px))}.qty-panel{width:min(100%,480px);max-height:calc(100dvh - 120px);overflow:auto;padding:17px 15px 15px;border:1px solid #ce8bcc91;border-radius:20px;background:linear-gradient(145deg,#30213f,#101d35);box-shadow:0 20px 55px #000b}.qty-top{display:flex;align-items:center;justify-content:space-between;gap:10px}.qty-top strong{font-size:16px;overflow-wrap:anywhere}.qty-close{border:0;background:#ffffff12;border-radius:10px;width:35px;height:35px;font-size:22px;flex:none}.qty-modes{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:15px}.qty-modes button{min-height:39px;border:1px solid #a176a67a;border-radius:11px;background:#1b2037;font-size:12px}.qty-modes button.active{background:#8a3e7b;border-color:#efabe0}.qty-stepper{display:grid;grid-template-columns:41px minmax(40px,1fr) 41px 72px;gap:7px;margin-top:13px;align-items:center}.qty-stepper button,.qty-stepper input,.qty-stepper select{min-width:0;height:43px;border:1px solid #ad82af79;border-radius:10px;background:#0b1428;color:#fff;text-align:center}.qty-stepper button{font-size:23px;font-weight:700}.qty-stepper input{font-size:16px;width:100%;padding:0 3px}.qty-stepper select{font-size:13px}.qty-save{margin-top:14px;width:100%;min-height:43px;font-size:14px}
 .empty{border:1px dashed #a278a785;border-radius:18px;text-align:center;padding:24px 15px;color:#c4b9ce;font-size:12px}.empty .big{font-size:38px;display:block;margin-bottom:7px}
 
 .login{padding:17px;margin:10px 0}.login h3{margin:0 0 5px}.login p{font-size:12px;color:#cbbdd2}.login[hidden],.modal[hidden],.toast[hidden]{display:none}
@@ -42,9 +43,25 @@ button,input{font:inherit}button{cursor:pointer;color:inherit}a{color:inherit;te
 </section>
 </div>
 <nav class="bottom" aria-label="SHO navigáció"><a href="../"><span>⌂</span>Kezdőlap</a><a href="./"><span>🛍️</span>Shopping</a><button type="button" class="active" id="navList"><span>🛒</span>Smart List</button><a href="../family-hub/"><span>👨‍👩‍👧</span>Family Hub</a></nav>
+<div id="qtyOverlay" class="qty-overlay" hidden>
+ <div class="qty-panel" role="dialog" aria-modal="true" aria-labelledby="qtyTitle">
+  <div class="qty-top"><strong id="qtyTitle">Mennyiség / súly</strong><button type="button" id="qtyClose" class="qty-close" aria-label="Bezárás">×</button></div>
+  <div class="qty-modes" role="group" aria-label="Mennyiség vagy súly">
+   <button type="button" id="qtyModeCount" aria-pressed="true">Mennyiség</button>
+   <button type="button" id="qtyModeWeight" aria-pressed="false">Súly</button>
+  </div>
+  <div class="qty-stepper">
+   <button type="button" id="qtyMinus" aria-label="Csökkentés">−</button>
+   <input id="qtyNumber" type="number" inputmode="decimal" min="0.001" max="9999" step="any" aria-label="Mennyiség értéke">
+   <button type="button" id="qtyPlus" aria-label="Növelés">＋</button>
+   <select id="qtyUnit" aria-label="Mértékegység"></select>
+  </div>
+  <button id="qtySave" type="button" class="primary qty-save">Mentés</button>
+ </div>
+</div>
 <div class="toast" role="status" id="toast" hidden></div>
 <script src="../../healthhub/central-vault/config.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.2/dist/umd/supabase.min.js"></script>
 <script defer src="../../healthhub/guardian/guardian-native-auth-v1063.js"></script>
-<script defer src="./smart-list-v1.js?v=9"></script>
+<script defer src="./smart-list-v1.js?v=10"></script>
 </body></html>
