@@ -24,7 +24,7 @@ const ICON=Object.fromEntries(groups.map(g=>[g[1],g[0]]));
 const nrm=s=>String(s||'').toLocaleLowerCase('hu-HU').normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
 const validUrl=s=>{try{const u=new URL(s);return u.protocol==='https:'?u.href:''}catch(_){return''}};
 const node=(tag,cls,txt)=>{let n=d.createElement(tag);if(cls)n.className=cls;if(txt!==undefined)n.textContent=txt;return n};
-let user=null,allowed=[],items=[],selectedCategory='Mind',remote=[],activeQuery='',queryToken=0,queryTimer=0,fetchCtrl=null,live=null,refreshBusy=false,pendingReload=false,firstLoad=true,writing=false,voiceRec=null;
+let user=null,allowed=[],items=[],selectedCategory='Mind',remote=[],activeQuery='',queryToken=0,queryTimer=0,fetchCtrl=null,live=null,refreshBusy=false,pendingReload=false,firstLoad=true,writing=false,voiceRec=null,busyIds=new Set();
 const who=()=>{try{return localStorage.getItem('hh-profile')==='m'?'monika':'zsolt'}catch(_){return'zsolt'}};
 const label=p=>p==='monika'?'Mónika':'Zsolt';
 function toast(message){const e=$('toast');e.textContent=message;e.hidden=false;clearTimeout(toast.id);toast.id=setTimeout(()=>e.hidden=true,3600)}
@@ -79,7 +79,8 @@ async function add(p){
   $('productSearch').value='';remote=[];activeQuery='';queryToken++;if(fetchCtrl)fetchCtrl.abort();
   $('suggestions').hidden=true;haptic();toast('＋ '+parsed.name+' a közös listában');
   await reload(false);
- }catch(e){toast('Nem sikerült menteni a felhőbe: '+String(e.message||e).slice(0,90))}
+  return true;
+ }catch(e){toast('Nem sikerült menteni a felhőbe: '+String(e.message||e).slice(0,90));return false}
  finally{writing=false}
 }
 function itemRow(p){
@@ -109,11 +110,25 @@ function render(){
  profileUi();
 }
 async function setDone(item,value){
- if(!user)return;
- const res=await api.from(TABLE).update({done:value,updated_by_profile:who()}).eq('id',item.id).eq('done',item.done).select('id');
- if(res.error)return toast('Szinkronhiba: '+res.error.message);
- if(!res.data?.length)return reload(true).then(()=>toast('A terméket közben más is módosította.'));
- haptic();toast(value?'✓ Megvásárolva: '+item.name:'↩ Újra a listán: '+item.name);await reload(false);
+ if(!user||busyIds.has(item.id))return;
+ const wasDone=!!item.done,wasDoneBy=item.done_by_profile;
+ busyIds.add(item.id);
+ // Instant visual feedback; the server is authoritative if the write fails.
+ item.done=value;
+ item.done_by_profile=value?who():null;
+ render();
+ try{
+  const res=await api.from(TABLE).update({done:value,updated_by_profile:who()}).eq('id',item.id).eq('done',wasDone).select('id');
+  if(res.error)throw res.error;
+  if(!res.data?.length){await reload(true);toast('A terméket közben más is módosította.');return}
+  haptic();toast(value?'✓ Megvásárolva: '+item.name:'↩ Újra a listán: '+item.name);
+  await reload(false);
+ }catch(e){
+  item.done=wasDone;item.done_by_profile=wasDoneBy;
+  render();
+  toast('Szinkronhiba: '+String(e.message||e).slice(0,85));
+  await reload(true);
+ }finally{busyIds.delete(item.id)}
 }
 async function setFavorite(item,value){
  const res=await api.from(TABLE).update({favorite:value,updated_by_profile:who()}).eq('id',item.id);
@@ -198,8 +213,7 @@ async function addVoiceText(text){
  if(!fragments.length)return;
  let ok=0;
  for(const name of fragments){
-  await add({name,category:inferCategory(parseEntry(name).name)});
-  ok++;
+  if(await add({name,category:inferCategory(parseEntry(name).name)}))ok++;
  }
  if(ok>1)toast('🎙️ '+ok+' termék feldolgozva a közös listára.');
 }
