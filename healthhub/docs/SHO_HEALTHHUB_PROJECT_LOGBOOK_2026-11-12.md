@@ -58,6 +58,14 @@
 | P1 | Smart Trip A-terv és Smart Match mobilos e2e | Kezdőpont, menetidő, irányváltás, csatlakozás és szolgáltatói forrás ellenőrzése |
 | P1 | Level 3 / Timeline QA megmaradt hibái | Ismételhető hibadiagnózis és zöld CI, regresszió nélkül |
 
+### 7. 2026. november 15. · SHO Smart List v10 „Smart Save” checkpoint
+- **Felhasználó által jóváhagyott állapot:** egy közös családi bevásárlólista, megvásárolt tételek az elején, egykattintásos pipálás/törlés (szokásos tételeknél nincs megerősítő prompt), hang- és rezgés-visszajelzés.
+- **Vizuális standard:** hero és profilváltó nélkül, kompakt 58 px terméksorok, megtartott jól olvasható terméknév, pontos termékszintű emoji vagy hiteles termékfotó.
+- **Főkategóriák:** Élelmiszer, Drogéria, Otthon és háztartás, Divat, Elektronika; prediktív termékjavaslatok.
+- **Új v10 elem:** mennyiség/súly gomb közvetlenül a termék mellett; alsó szerkesztőben db/kg/g/l/ml stb., +/- és Supabase-mentés; a sor méretét nem növeltük.
+- **Állapot:** GitHub `main` mentés megtörtént. HTML commit `ccc42b207c3113ad82eb39f1826b1d8664869ff7`, JS commit `832198441bb52b9413e91f413595e76c9a46b9db`; v10 script hivatkozás érvényes. A felhasználó pozitív vizuális visszajelzést adott. A kéttelefonos felhőszinkron és a mennyiség-konkurencia tesztje külön ellenőrzendő.
+- **Funkcionális leírás:** [SHO Smart List Golden v1](./SHO_SMART_LIST_GOLDEN_V1.md)
+
 ### 6. Folytatási szabály
 
 A következő fejlesztések előtt a **P0 migrációs adatbiztonsági hiányokat** kell rendezni. Minden release-nél: célzott CI → főági merge → valódi mobilteszt → Project Control naplófrissítés. A GitHub PR nem helyettesíti a privát, kétprofilos telefonos ellenőrzést.
