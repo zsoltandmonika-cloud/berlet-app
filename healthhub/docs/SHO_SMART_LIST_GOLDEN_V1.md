@@ -17,6 +17,14 @@
 - A külön lista megszüntetése nem érinti a felhős státuszmentést, Realtime szinkront, kedvenceket és termékkeresést.
 - A GitHub-kód és a JavaScript szintaxisa ellenőrizve; valódi kéttelefonos UAT továbbra is szükséges.
 
+## Termékszintű ikonfelismerés · 2026-11-15
+- Intelligens magyar terméknév-felismerés: **112 ikon-szabálycsoport, 409 névalias** (ékezetfüggetlen, teljes szó/kifejezés egyezés).
+- Példa: `banán`, `bio banán`, `2 kg banán` → 🍌; `alma` → 🍎; `kávé` → ☕; `kutyatáp` → 🐶.
+- Megjelenítési prioritás: **valódi termékfotó → specifikus emoji → kategóriaikon**. Hibás/kieső fotónál is automatikus ikon-visszaesés.
+- Ugyanaz a szabály működik a prediktív találatokban és a már mentett közös lista elemein; nincs adatbázis-migráció.
+- 25 névfelismerési teszt sikeres, a beépített 392 különböző terméknévből 354 felismerhető termékszinten (kb. 90%), a többi kategóriaikont kap.
+- A felhasználói készüléken a natív emoji megjelenés eltérhet. Kéttelefonos vizuális UAT még szükséges.
+
 ## Ellenőrzés
 - GitHub módosítások és új fájlok a `main` ágon mentve.
 - JavaScript szintaxis ellenőrzése sikeres.
