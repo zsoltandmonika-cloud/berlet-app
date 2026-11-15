@@ -29,7 +29,7 @@ const api=cfg&&cfg.enabled&&w.supabase?.createClient?
      detectSessionInUrl:true,flowType:nativeOAuth?'pkce':'implicit'}
  }):null;
 let user=null,allowed=[],shared=[],mappings=new Map(),mode='demo',modeTouched=false;
-let selectedKey=null,linkEditing=false,loading=false,pending=false,channel=null,lastLoad=0;
+let selectedKey=null,linkEditing=false,loading=false,pending=false,channel=null,lastLoad=0,visibleRowCount=40;
 let toastHandle=null;
 function readState(){
  try{const x=JSON.parse(w.sessionStorage.getItem(NAV_KEY)||'{}');return x&&typeof x==='object'?x:{}}catch(_){return {}}
@@ -84,7 +84,7 @@ function selection(){
  return {all,index:i,item:all[i]||null,s};
 }
 function setMode(next){
- mode=next==='shared'?'shared':'demo';modeTouched=true;selectedKey=null;linkEditing=false;
+ mode=next==='shared'?'shared':'demo';modeTouched=true;selectedKey=null;linkEditing=false;visibleRowCount=40;
  const s=readState();s.mode=mode;writeState(s);render();
 }
 function chooseItem(i){
@@ -109,7 +109,8 @@ function recordOpen(){
 function drawRows(info){
  const box=$('rows');box.replaceChildren();
  if(!info.all.length){box.append(node('div','empty','A közös Smart Listben most nincs megvásárolandó termék. Válaszd a 10 mintatermék módot.'));return}
- for(let i=0;i<info.all.length;i++){
+ const maxRows=Math.min(info.all.length,Math.max(visibleRowCount,info.index+1));
+ for(let i=0;i<maxRows;i++){
   const p=info.all[i],key=keyFor(p,mode),mapping=mappings.get(key);
   const button=node('button','item-row'+(i===info.index?' selected':''));button.type='button';
   button.setAttribute('aria-current',String(i===info.index));
@@ -121,6 +122,11 @@ function drawRows(info){
   const tag=node('span','item-badge',exactTescoUrl(mapping?.tesco_url)?'🔗':'⌕');
   tag.title=exactTescoUrl(mapping?.tesco_url)?'Mentett Tesco-terméklink':'Tesco keresés szükséges';
   button.append(face,left,tag);box.append(button);
+ }
+ if(maxRows<info.all.length){
+  const more=node('button','item-row more-rows','＋ További '+Math.min(40,info.all.length-maxRows)+' termék mutatása · '+maxRows+'/'+info.all.length);
+  more.type='button';more.onclick=()=>{visibleRowCount=maxRows+40;render()};
+  box.append(more);
  }
 }
 function render(){
