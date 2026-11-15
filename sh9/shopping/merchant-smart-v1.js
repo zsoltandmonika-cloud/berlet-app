@@ -30,7 +30,7 @@ const STATE_KEY='sho-merchant-shopping-v1:'+key;
 const cfg=w.HH_CENTRAL_VAULT;
 const nativeOAuth=(()=>{try{return w.sessionStorage.getItem('hh-one-native-oauth-v1063')==='1'}catch(_){return false}})();
 const api=cfg?.enabled&&w.supabase?.createClient?w.supabase.createClient(cfg.supabaseUrl,cfg.publishableKey,{auth:{storageKey:'hh-guardian-family-auth-v785',persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,flowType:nativeOAuth?'pkce':'implicit'}}):null;
-let user=null,profiles=[],rows=[],mapped=new Map(),mode='demo',modeTouched=false,selected=null,showLink=false,loading=false,loadPending=false,channel=null,lastUpdate=0,visibleCount=40;
+let user=null,profiles=[],rows=[],mapped=new Map(),mode='demo',modeTouched=false,selected=null,showLink=false,loading=false,loadPending=false,channel=null,lastUpdate=0,visibleCount=40,lastRowTapKey='',lastRowTapAt=0;
 function state(){try{const o=JSON.parse(w.sessionStorage.getItem(STATE_KEY)||'{}');return o&&typeof o==='object'?o:{}}catch(_){return {}}}
 function put(o){try{w.sessionStorage.setItem(STATE_KEY,JSON.stringify(o))}catch(_){}}
 function list(){return mode==='shared'?rows:samples}
@@ -55,7 +55,17 @@ function searchUrl(term){
  return 'https://www.google.com/search?q='+encodeURIComponent('site:'+store.domain+' '+q);
 }
 function linkFor(p){return allowedUrl(mapped.get(mode+':'+pkey(p))?.product_url)||searchUrl(p.name)}
-function select(i){const p=list()[i];if(!p)return;selected=pkey(p);showLink=false;render()}
+function select(i){const p=list()[i];if(!p)return;lastRowTapKey='';lastRowTapAt=0;selected=pkey(p);showLink=false;render()}
+function activateRow(i){
+ const p=list()[i];if(!p)return;
+ const k=mode+':'+pkey(p),now=Date.now();
+ const doubleTap=lastRowTapKey===k&&now-lastRowTapAt>=0&&now-lastRowTapAt<=450;
+ lastRowTapKey=k;lastRowTapAt=now;
+ if(!doubleTap){selected=pkey(p);showLink=false;render();return}
+ lastRowTapKey='';lastRowTapAt=0;
+ selected=pkey(p);recordOpen();
+ w.location.assign(linkFor(p)); // same-tab navigation from real user tap
+}
 function shift(delta){const a=selectedState();if(a.p)select((a.i+delta+a.all.length)%a.all.length)}
 function recordOpen(){
  const a=selectedState();if(!a.p)return;
@@ -67,7 +77,9 @@ function draw(a){
  const box=$('items');box.replaceChildren();if(!a.all.length){box.append(mk('p','empty','A közös Smart List jelenleg üres vagy nem elérhető.'));return}
  const total=Math.min(a.all.length,Math.max(visibleCount,a.i+1));
  for(let i=0;i<total;i++){
-  const p=a.all[i],row=mk('button','product'+(i===a.i?' chosen':''));row.type='button';row.onclick=()=>select(i);
+  const p=a.all[i],row=mk('button','product'+(i===a.i?' chosen':''));row.type='button';row.onclick=()=>activateRow(i);
+  row.setAttribute('aria-label','Termék: '+p.name+'. Egy koppintás kiválaszt, dupla koppintás megnyitja az áruházban.');
+  row.title='Dupla kattintás: bolt keresés';
   const icon=mk('span','product-icon',emoji(p));const info=mk('span','product-info');info.append(mk('strong',null,p.name),mk('small',null,qty(p)));
   row.append(icon,info,mk('span','product-link',allowedUrl(mapped.get(mode+':'+pkey(p))?.product_url)?'🔗':'⌕'));box.append(row);
  }
@@ -86,7 +98,7 @@ function render(){
  $('itemName').textContent=a.p?a.p.name:'Nincs termék';
  $('itemQty').textContent=a.p?qty(a.p):'';
  const saved=a.p?allowedUrl(mapped.get(mode+':'+pkey(a.p))?.product_url):'';
- const go=$('go');go.href=a.p?linkFor(a.p):store.home;go.textContent=saved?'🎯 Mentett termék megnyitása ↗':key==='temu'?'🔎 Temu keresés ↗':'🔎 Termék keresése ↗';
+ const go=$('go');go.href=a.p?linkFor(a.p):store.home;go.textContent=saved?'↗ Mentett termék':'↗ Bolt megnyitása';
  $('searchMethod').textContent=saved?'✓ Elmentett '+store.name+' termékoldal':key==='temu'?'Hivatalos Temu keresés':'Webkeresés a '+store.name+' oldalára szűkítve';
  $('prev').disabled=!a.p||a.all.length<2;$('next').disabled=!a.p||a.all.length<2;
  $('edit').disabled=!a.p;
