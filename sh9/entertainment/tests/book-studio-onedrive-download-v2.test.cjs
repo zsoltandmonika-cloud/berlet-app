@@ -58,7 +58,7 @@ async function scenario({metadataMode='selected',listingLink=false,driveFallback
    openBook:async()=>{}
   }
  };
- const context={window:win,document:doc,URL,Blob,Date,console,TextEncoder,TextDecoder,setTimeout,clearTimeout};
+ const context={window:win,document:doc,URL,URLSearchParams,Blob,Date,console,TextEncoder,TextDecoder,setTimeout,clearTimeout};
  vm.runInNewContext(script,context,{timeout:5000});
  let b=null;
  for(let i=0;i<75;i++){
