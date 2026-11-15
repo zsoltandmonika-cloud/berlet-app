@@ -34,6 +34,13 @@
 - Open Food Facts távoli képes keresés továbbra is csak élelmiszerhez használható (és szűrő nélküli keresésnél), nem ígér nem létező elektronikai vagy ruházati katalógust.
 - GitHub JavaScript szintaxisellenőrzés sikeres; éles S24 Ultra képernyőteszt és kategóriaszűrés UAT szükséges.
 
+## Smart Save · felhasználó által jóváhagyott v10 · 2026-11-15
+- **Jóváhagyva:** kompakt 58 px terméksorok, változatlan terméknév-betűméret, öt Shopping-főkategória a kért sorrendben: Élelmiszer → Drogéria → Otthon és háztartás → Divat → Elektronika.
+- A terméksor jobb oldalán kisméretű, kattintható mennyiség/súly jelzés (`1 db`, `250 g`); külön alsó szerkesztőben mennyiség/súly mód, mértékegység és +/- gomb, felhőmentés.
+- Egyetlen közös lista, a megvásárolt tételek felül, zöld pipával és áthúzással. Termékszintű képek/ikonok, egykattintásos műveletek, hang- és haptikus visszajelzés.
+- **Visszaállítási referenciakód:** `sh9/shopping/smart-list.html` és `sh9/shopping/smart-list-v1.js` a v10-hez tartozó GitHub `main` állapotban; korábbi elfogadott implementáció commitok: HTML `ccc42b207c3113ad82eb39f1826b1d8664869ff7`, JS `832198441bb52b9413e91f413595e76c9a46b9db`.
+- A felhasználó jelezte: **„szuper lett, smart save”** és **„eddig minden super”**. Ez vizuális/UX jóváhagyás; külön kéttelefonos Realtime és mennyiség szerveroldali együttműködési UAT továbbra is nyitott.
+
 ## Ellenőrzés
 - GitHub módosítások és új fájlok a `main` ágon mentve.
 - JavaScript szintaxis ellenőrzése sikeres.
