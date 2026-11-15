@@ -3667,6 +3667,34 @@
       "clinical PDFs separate permission model"
     ]
   },
+  "smartShoppingTenStoreRelease": {
+    "version": "v1-10-stores",
+    "approvedAt": "2026-11-15",
+    "label": "Smart Shopping",
+    "status": "GOLDEN IN-CARD RELEASE - PUBLISHED, MOBILE UAT PENDING",
+    "merchants": [
+      "Tesco",
+      "Auchan",
+      "Kifli",
+      "dm",
+      "Rossmann",
+      "eMAG",
+      "Alza",
+      "Allegro",
+      "Temu",
+      "SHEIN"
+    ],
+    "cardDesign": "Golden Standard full screen 5x2; one Smart Shopping CTA per store card; brand/logo opens official merchant",
+    "shoppingEntry": "sh9/shopping/index.html",
+    "tescoEntry": "sh9/shopping/tesco-bridge-v3.html",
+    "otherStoreEntry": "sh9/shopping/merchant-smart-v1.html?store=<supported-key>",
+    "familyListMode": "read-only full active hh_shopping_list_v1 with 250-row cloud paging",
+    "merchantProductLinks": "hh_shopping_merchant_links_v1, Zsolt/Monika RLS only, separate from Tesco link state",
+    "scope": "merchant website search handoff, saved merchant product links, next-item navigation, full family list; not automated merchant basket API",
+    "source": "healthhub/docs/SHO_SMART_SHOPPING_10_STORES_GOLDEN_20261115.md",
+    "regression": "9/9 synthetic merchant tests pass; legacy Tesco Golden v3 unchanged",
+    "open": "Android Samsung Internet, Edge, both accounts, live merchant search URLs and link mappings require UAT"
+  },
   "tescoShoppingRelease": {
     "version": "v3",
     "displayName": "Tesco Smart Shopping",
