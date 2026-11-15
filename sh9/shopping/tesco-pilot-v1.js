@@ -106,7 +106,7 @@ function rowFor(p){
  const actions=element('div','item-actions');
  const external=element('a','goto',matched?'🎯 Tesco termék ↗':'🔎 Tesco keresés ↗');
  external.href=matched||searchUrl(p.name);
- external.target='_blank';external.rel='noopener noreferrer external';
+ external.rel='noopener noreferrer external';
  external.title=matched?'Saját mentett Tesco-terméklink':'Hivatalos Tesco termékkeresés';
  external.setAttribute('aria-label',p.name+' megnyitása a Tesco oldalán');
  const mark=element('button','mark'+(done?' checked':''),done?'↶ Vissza':'✓ Kosárba tettem');
