@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0",
   "project": "Léna Health Ecosystem / HealthHub",
-  "updatedAt": "2026-11-12",
+  "updatedAt": "2026-11-15",
   "liveBuild": "v380",
   "currentFocus": "2026-11-12: Outlook kanonikus Dropbox natív GPS-cutover működik és felhasználói oldalról elfogadott; a legacy Gmail nem GPS Health/Activity/Sleep/Digital Wellbeing egyeztetés P0 nyitott. SHO Smart Trip V5 / Smart Match mobil QA; HealthHub Interfood Smart Lunch v1183 és Interfood Ételeim v1184 user-accepted, két Smart Action közös deduplikációja nyitott.",
   "nextDevelopment": "P0: legacy Gmail → Outlook nem GPS Health/Activity/Sleep adatrekonsziliáció és maradék írók igazolása, biztonságos backup után kivezetés. P1: Family Guard profiljelölő-rerender kéttelefonos QA; Smart Lunch + Ételeim cross-action duplikációvédelem; Smart Trip A terv és kitűzött útvonal e2e; Level 3/Timeline CI hibák külön triázs.",
@@ -3666,6 +3666,32 @@
       "unattended 24/7 worker",
       "clinical PDFs separate permission model"
     ]
+  },
+  "tescoShoppingRelease": {
+    "version": "v3",
+    "displayName": "Tesco Smart Shopping",
+    "status": "GOLDEN RELEASE - PUBLISHED (merchant cart integration not provided)",
+    "finalizedAt": "2026-11-15",
+    "entry": "sh9/shopping/index.html -> sh9/shopping/tesco-bridge-v3.html",
+    "capabilities": [
+      "Official Tesco groceries category browsing and search via Tesco website",
+      "Entire active family Smart List read-only, Supabase paged",
+      "One-tap product search or saved SKU link",
+      "Next item after browser back; tab-local position",
+      "Shared, RLS protected Tesco product link mapping"
+    ],
+    "limitations": [
+      "No direct Tesco catalogue import, live price/stock or automated checkout/cart changes",
+      "No Tesco account credentials stored by SHO",
+      "Merchant prices, baskets and orders remain solely on Tesco website",
+      "End-to-end physical-device and two-profile user acceptance pending"
+    ],
+    "rollback": [
+      "sh9/shopping/tesco-bridge-v2.html",
+      "sh9/shopping/tesco-pilot.html"
+    ],
+    "documentation": "healthhub/docs/SHO_TESCO_CART_BRIDGE_V3.md",
+    "quality": "12/12 extended mocked functional tests; GitHub Pages deployment success for v3 entry"
   },
   "latestLogbook": "healthhub/docs/SHO_HEALTHHUB_PROJECT_LOGBOOK_2026-11-12.md"
 }
