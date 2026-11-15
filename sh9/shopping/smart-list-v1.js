@@ -176,7 +176,7 @@ const PRODUCT_ICON_RULES=[
  ["🧶","kutyapóráz|kutyanyakörv"],
 ].map(([icon,aliases])=>({icon,terms:aliases.split('|').map(x=>nrm(x).replace(/[^a-z0-9]+/g,' ').trim())}));
 function productIcon(name,category){
- const text=' '+nrm(name).replace(/[^a-z0-9]+/g,' ').replace(/\\s+/g,' ').trim()+' ';
+ const text=' '+nrm(name).replace(/[^a-z0-9]+/g,' ').replace(/\s+/g,' ').trim()+' ';
  for(const rule of PRODUCT_ICON_RULES){
   if(rule.terms.some(term=>term&&text.includes(' '+term+' ')))return rule.icon;
  }
