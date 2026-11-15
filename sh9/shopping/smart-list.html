@@ -7,7 +7,7 @@
 button,input{font:inherit}button{cursor:pointer;color:inherit}a{color:inherit;text-decoration:none}button:focus-visible,input:focus-visible,a:focus-visible{outline:2px solid #83dfff;outline-offset:3px}button:disabled{opacity:.45;cursor:wait}
 .shell{width:min(100%,560px);min-height:100dvh;margin:auto;padding:12px 14px calc(104px + env(safe-area-inset-bottom,0px))}
 .glass{border:1px solid #ffffff27;background:linear-gradient(145deg,#271c35ed,#121c32e8);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);box-shadow:0 10px 32px #0005,inset 0 1px #ffffff1a;border-radius:22px}
-.header{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:1px 0 10px}.eyebrow{font-size:10px;font-weight:900;letter-spacing:1.6px;color:#f8c3e5}.header h1{font-size:clamp(25px,7vw,36px);letter-spacing:-1.3px;margin:3px 0 0;line-height:1.05}.header h1 em{color:var(--pink);font-style:normal}.header-actions{display:flex;gap:7px}.round{display:grid;place-items:center;width:41px;height:41px;border:1px solid #dc8fce6e;background:#371e46c9;border-radius:15px;font-size:20px}
+.header{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:1px 0 10px}.eyebrow{font-size:10px;font-weight:900;letter-spacing:1.6px;color:#f8c3e5}.header h1{font-size:clamp(25px,7vw,36px);letter-spacing:-1.3px;margin:3px 0 0;line-height:1.05}.header h1 em{color:var(--pink);font-style:normal}.header-actions{display:flex;gap:7px}.round{display:grid;place-items:center;width:41px;height:41px;border:1px solid #dc8fce6e;background:#371e46c9;border-radius:15px;font-size:20px;color:#f7e9f6;cursor:pointer}.round.active{border-color:#f5b4df;background:linear-gradient(135deg,#8a3f7f,#312547);box-shadow:inset 0 1px #ffffff40,0 0 12px #ca70ae40}
 .state{display:inline-flex;align-items:center;flex:none}.state-dot{width:8px;height:8px;background:#f3b44a;border-radius:50%;box-shadow:0 0 10px #f3b44a6b}.state.connected .state-dot{background:#58e3a5;box-shadow:0 0 10px #58e3a59a}.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}
 .search-card{position:relative;padding:9px 10px 8px;border-color:#ef82d55e}.search-label{display:block;color:#f7c3e4;font-size:9px;letter-spacing:1.2px;font-weight:900;margin:0 0 6px 4px}.search-inner{display:flex;align-items:center;background:#0a1326;border:1px solid #8c79b570;border-radius:13px;gap:5px;padding:4px 5px 4px 10px;min-height:44px}.search-inner .magnifier{font-size:17px;color:#dfadce}.search-inner input{min-width:0;flex:1;border:0;background:transparent;outline:none;color:white;font-size:14px}.search-inner input::placeholder{color:#948aa5}.search-inner button{height:32px;width:34px;flex:none;border:1px solid #a06fa6;border-radius:10px;background:#372447;font-size:17px}.search-inner button.voice-on{background:#903c79;box-shadow:0 0 14px #f982b479}.search-inner .add-inline{border-color:#ffade7;background:linear-gradient(135deg,#ad488f,#793e85);color:#fff;font-size:23px;font-weight:800;line-height:1;box-shadow:0 1px 7px #bc4b9d35}.search-inner .add-inline:active{transform:scale(.96)}
 .picker{display:grid;grid-template-columns:minmax(0,1fr);gap:5px;margin-top:9px}.hint{font-size:10px;color:#bbb2c9}
@@ -28,6 +28,15 @@ button,input{font:inherit}button{cursor:pointer;color:inherit}a{color:inherit;te
 .product-image{width:42px;height:42px;flex:none;border-radius:10px;overflow:hidden;display:grid;place-items:center;background:radial-gradient(circle at 25% 10%,#6b3d6c,#25324b);border:1px solid #b87dae55;font-size:22px}.product-image img{height:100%;width:100%;object-fit:contain;background:#fff}
 .product-main{flex:1;min-width:0}.product-meta{display:flex;align-items:center;gap:5px;min-height:21px;margin-top:3px;min-width:0}.product-category{font-size:11px;color:#b8aec6;min-width:0;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.quantity-pill{flex:none;min-width:39px;min-height:21px;padding:2px 5px;border:1px solid #bb84b47a;border-radius:8px;background:#392448af;color:#f2d5e8;font-size:10px;font-weight:700;line-height:1.2;white-space:nowrap}.quantity-pill:active{background:#78426d}.product-name{font-size:13px;font-weight:800;line-height:1.25;word-break:break-word}.done .product-name{text-decoration:line-through;text-decoration-thickness:2px;color:#aeb0b8}.product-details{color:#b8aec6;font-size:11px;margin-top:3px}.product-details.done-note{color:#82dec1}
 .product-controls{display:flex;flex-direction:column;gap:2px;align-items:center;flex:none}.product-controls button{border:0;background:transparent;font-size:18px;min-width:30px;min-height:22px}.product-controls .heart.active{color:#fb87c9}.product-controls .remove{color:#a9a0b3}
+.search-card[hidden],.shopping-board[hidden],.favorites-board[hidden]{display:none!important}
+.favorites-board{margin-top:12px;padding:12px 12px 10px}
+.favorite-row{display:flex;align-items:center;gap:8px;min-height:58px;padding:7px 5px;border-bottom:1px solid #ffffff1b}
+.favorite-row:last-child{border-bottom:0}
+.favorite-info{min-width:0;flex:1}
+.favorite-actions{display:flex;align-items:center;gap:5px;flex:none}
+.favorite-actions button{height:34px;width:34px;border-radius:11px;border:1px solid #b077ab79;background:#392244d5;color:#fff;font-size:20px}
+.favorite-actions .favorite-readd{border-color:#eea5de;background:linear-gradient(135deg,#ab498d,#823d88);font-weight:800}
+.favorite-actions .favorite-unheart{color:#ffa7d7;font-size:18px}
 .qty-overlay[hidden]{display:none}.qty-overlay{position:fixed;inset:0;z-index:90;background:#080b17b8;display:flex;align-items:flex-end;justify-content:center;padding:12px 12px calc(88px + env(safe-area-inset-bottom,0px))}.qty-panel{width:min(100%,480px);max-height:calc(100dvh - 120px);overflow:auto;padding:17px 15px 15px;border:1px solid #ce8bcc91;border-radius:20px;background:linear-gradient(145deg,#30213f,#101d35);box-shadow:0 20px 55px #000b}.qty-top{display:flex;align-items:center;justify-content:space-between;gap:10px}.qty-top strong{font-size:16px;overflow-wrap:anywhere}.qty-close{border:0;background:#ffffff12;border-radius:10px;width:35px;height:35px;font-size:22px;flex:none}.qty-modes{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:15px}.qty-modes button{min-height:39px;border:1px solid #a176a67a;border-radius:11px;background:#1b2037;font-size:12px}.qty-modes button.active{background:#8a3e7b;border-color:#efabe0}.qty-stepper{display:grid;grid-template-columns:41px minmax(40px,1fr) 41px 72px;gap:7px;margin-top:13px;align-items:center}.qty-stepper button,.qty-stepper input,.qty-stepper select{min-width:0;height:43px;border:1px solid #ad82af79;border-radius:10px;background:#0b1428;color:#fff;text-align:center}.qty-stepper button{font-size:23px;font-weight:700}.qty-stepper input{font-size:16px;width:100%;padding:0 3px}.qty-stepper select{font-size:13px}.qty-save{margin-top:14px;width:100%;min-height:43px;font-size:14px}
 .empty{border:1px dashed #a278a785;border-radius:18px;text-align:center;padding:24px 15px;color:#c4b9ce;font-size:12px}.empty .big{font-size:38px;display:block;margin-bottom:7px}
 
@@ -38,16 +47,20 @@ button,input{font:inherit}button{cursor:pointer;color:inherit}a{color:inherit;te
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{animation:none!important;transition:none!important}}
 </style>
 </head><body><div class="shell">
-<header class="header"><div><span class="eyebrow">SHO · GOLDEN EDITION</span><h1>Smart <em>List</em> ✨</h1></div><div class="header-actions"><a class="round" href="./" aria-label="Smart Shopping">🛍️</a><a class="round" href="../" aria-label="SHO kezdőlap">⌂</a></div></header>
+<header class="header"><div><span class="eyebrow">SHO · GOLDEN EDITION</span><h1>Smart <em>List</em> ✨</h1></div><div class="header-actions"><button class="round" id="openFavorites" type="button" aria-label="Kedvencek" aria-pressed="false" title="Közös kedvencek">♥</button><button class="round active" id="openShoppingList" type="button" aria-label="Bevásárlólista" aria-pressed="true" title="Bevásárlólista">🛒</button></div></header>
 
 <section class="login glass" id="loginBox" hidden><h3>🔒 Családi belépés</h3><p>A közös lista csak a családi Supabase-fiókok számára látható. A két telefon szinkronizálásához jelentkezz be.</p><button type="button" class="primary" id="signIn">Google-belépés</button></section>
-<section class="search-card glass"><label class="search-label" for="productSearch">MIT VEGYÜNK?</label>
+<section class="search-card glass" id="shoppingSearch"><label class="search-label" for="productSearch">MIT VEGYÜNK?</label>
 <div class="search-inner"><span class="magnifier">⌕</span><input id="productSearch" placeholder="Pl. tej, kenyér, kávé…" autocomplete="off" enterkeyhint="done" maxlength="100"><button id="voice" type="button" aria-label="Termékek diktálása" title="Diktálás">🎙️</button><button id="addTyped" class="add-inline" type="button" aria-label="Beírt termék hozzáadása a közös listához" title="Hozzáadás">＋</button></div>
 <div class="picker" id="categories" aria-label="Termékkategóriák, megvett és összes termék"></div>
 <div class="suggestions" id="suggestions" hidden aria-label="Prediktív találatok"></div></section>
-<section class="shopping-board glass" aria-label="Közös bevásárlólista">
+<section class="shopping-board glass" id="shoppingBoard" aria-label="Közös bevásárlólista">
 <div class="section-heading"><div class="heading-title"><h2>🛒 Bevásárlólista</h2><span class="state" id="syncState" title="Felhőkapcsolat ellenőrzése…"><span class="state-dot"></span><span id="syncText" class="sr-only" role="status">Felhőkapcsolat ellenőrzése…</span></span></div><span id="activeCount" class="count">0 hátra · 0 megvéve</span></div>
 <div id="activeList" class="list" aria-label="Megvásárolt és bevásárolandó termékek"></div>
+</section>
+<section class="favorites-board glass" id="favoritesBoard" hidden aria-label="Közös kedvencek">
+<div class="section-heading"><div class="heading-title"><h2>♥ Kedvencek</h2></div><span id="favoritesCount" class="count">0 kedvenc</span></div>
+<div class="list" id="favoriteList" aria-label="Mentett kedvenc termékek"></div>
 </section>
 </div>
 <nav class="bottom" aria-label="SHO navigáció"><a href="../"><span>⌂</span>Kezdőlap</a><a href="./"><span>🛍️</span>Shopping</a><button type="button" class="active" id="navList"><span>🛒</span>Smart List</button><a href="../family-hub/"><span>👨‍👩‍👧</span>Family Hub</a></nav>
@@ -71,5 +84,5 @@ button,input{font:inherit}button{cursor:pointer;color:inherit}a{color:inherit;te
 <script src="../../healthhub/central-vault/config.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.2/dist/umd/supabase.min.js"></script>
 <script defer src="../../healthhub/guardian/guardian-native-auth-v1063.js"></script>
-<script defer src="./smart-list-v1.js?v=12"></script>
+<script defer src="./smart-list-v1.js?v=13"></script>
 </body></html>
