@@ -80,6 +80,15 @@
 - SQL migráció sikeres, 4 politika, RLS és publikáció ellenőrizve; rollback QA teszt, 0 tesztszemét. HTML commit `77957e103da6d69edb45e87cde750bcb926c6159`; JS commit `103f026c3bdd099c5cd8508b5443da71944b25b3`.
 - **Nyitott:** két telefonos élő kedvenc-/visszaadás-szinkron UAT. A Shopping régi helyi Wishlistje még független, migráció csak külön tervezetten.
 
+### 10. 2026. november 15. · Smart List v14 navigáció és Tesco Cart Bridge 10 termékes pilot
+- Smart List alsó navigáció: **Kezdőlap → Ask Léna → Smart List 🛒 → Shopping**. Family Hub ikon ebből a dockból kivezetve, Ask Léna a közös ChatGPT-projektindítóra kötve. V14 HTML commit `04e95a33e77c996a751f8b88a33c9ffa5f7e166a`; JS `7994d0b5deae375fdadf3f15015ddb4b9d1c2133`.
+- Új Shopifytól független **Tesco Smart Cart Bridge** pilot: `sh9/shopping/tesco-pilot.html` + `tesco-pilot-v1.js`. Elérhető a Shopping „BOLTOK & VALÓDI TERMÉKEK” keresője mellől a **🛒 Tesco Pilot 10** gombbal. Két adatforrás: a közös felhős Smart List maximum 10 aktív tétele, illetve 10 külön mintatermék.
+- Működő, ellenőrzött Tesco termékkeresés `/shop/hu-HU/search?query=...`; opcionális ellenőrzött termékoldal-link mentés (kizárólag hivatalos Tesco SKU URL). Felhasználó által kézzel jelzett „Kosárba tettem”, visszavonás, felhős 0/10 haladás és nullázás. A Tesco felületén történik a tényleges kosárművelet: **nem** kereskedő által visszaigazolt automatikus kosárátadás.
+- Migráció: `sho_tesco_pilot_bridge_family_state_v1`, új `public.hh_shopping_tesco_bridge_v1` tábla, 3 családi RLS policy, Realtime és tiltott anonim olvasás. QA teszt rollback után 0 rekord; böngészőmockban 13/13 pass, JS szintaxis OK.
+- A Smart List v14 és a Shopping elfogadott képes kategóriakártyái érintetlenek; csak kompakt pilot-indítógomb került a meglévő Shop Connect műveleti sorba.
+- **Nyitott:** mobilos end-to-end Tesco belépés/termékkeresés/kosárba helyezés, kétprofilos szinkron és böngésző-visszalépés UAT. A Tesco kosártartalmát a SHO nem olvassa és a rendelést nem adja le.
+- Részletes QA, architektúra és átadási korlát: [Tesco Cart Bridge v1 specifikáció](./SHO_TESCO_CART_BRIDGE_PILOT_V1.md).
+
 ### 6. Folytatási szabály
 
 A következő fejlesztések előtt a **P0 migrációs adatbiztonsági hiányokat** kell rendezni. Minden release-nél: célzott CI → főági merge → valódi mobilteszt → Project Control naplófrissítés. A GitHub PR nem helyettesíti a privát, kétprofilos telefonos ellenőrzést.
