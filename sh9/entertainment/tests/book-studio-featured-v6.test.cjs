@@ -111,8 +111,8 @@ test('Browser-like VM renders six rotating clickable category recommendations an
  assert.equal(viewport.children[0].href,'https://www.cinemacity.hu/');
  assert.equal(viewport.children[1].href,'https://example.org/theatre');
  assert.equal(viewport.children[1].children[3].children[0].textContent,'Következő színházi műsor');
- assert.equal(viewport.children[4].href,'https://example.net/sh9/entertainment/kultura/');
- assert.equal(viewport.children[5].href,'https://example.net/sh9/entertainment/rendezvenyek/');
+ assert.equal(viewport.children[4].href,'./kultura/');
+ assert.equal(viewport.children[5].href,'./rendezvenyek/');
  assert.equal(panel.dataset.carouselReady,'true');
  api.next();assert.equal(api.activeCategory,'Színház');
  api.prev();assert.equal(api.activeCategory,'Mozi');
