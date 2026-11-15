@@ -1,0 +1,81 @@
+/* SHO Entertainment · Book Studio cinematic hero and cached local shelf preview V4. */
+.bs-entertainment-feature{position:relative;isolation:isolate;width:100%;margin:14px 0 26px}
+.books-promo.books-promo--immersive{display:block;position:relative;isolation:isolate;width:100%;height:auto;min-height:clamp(330px,39vw,550px);
+ margin:0;padding:clamp(26px,4vw,54px);border:1px solid #e6b88bc9;border-radius:25px;overflow:hidden;
+ color:#fff;box-shadow:0 18px 56px #0009,0 0 34px #df8f7a40,inset 0 1px #ffe6bd88;
+ background:linear-gradient(90deg,#070b19ea 3%,#121b2dd1 38%,#1b183581 69%,#070912c9),
+ url('https://images.unsplash.com/photo-1495446815901-a7297e633e8d?w=2200&auto=format&fit=crop&q=87') center 42%/cover no-repeat,#12192b}
+.books-promo--immersive .bs-photo-film{position:absolute;inset:0;z-index:0;pointer-events:none;background:
+ radial-gradient(ellipse at 72% 16%,#e6ac6844,transparent 40%),
+ linear-gradient(175deg,#ffffff0c,#11061b2d 46%,#090f22ac 100%);
+ mix-blend-mode:screen}
+.books-promo--immersive:after{content:"";position:absolute;inset:auto 0 0;height:35%;pointer-events:none;background:linear-gradient(0deg,#100e21bb,transparent)}
+.books-promo--immersive .bs-text{position:absolute;top:50%;left:clamp(18px,5vw,65px);z-index:3;transform:translateY(-50%);display:flex;flex-direction:column;align-items:flex-start;gap:14px;width:min(57%,650px)}
+.books-promo--immersive .bs-kicker{color:#fff0d2;text-shadow:0 4px 14px #050714;font-size:clamp(10px,1vw,13px);font-weight:900;letter-spacing:2px;line-height:1.45}
+.books-promo--immersive .bs-text strong{font-size:clamp(45px,5.5vw,100px);letter-spacing:-3px;line-height:.94;text-shadow:0 8px 33px #000b;font-weight:950;color:white;white-space:normal}
+.books-promo--immersive .bs-text strong em{font-style:normal;background:linear-gradient(120deg,#fff3bb,#ffc3a5,#fc93c2);background-clip:text;color:transparent}
+.books-promo--immersive .bs-text small{color:#fff4f0;max-width:420px;font-size:clamp(12px,1.3vw,18px);line-height:1.5;text-shadow:0 4px 13px #000}
+.books-promo--immersive .bs-hero-cta{display:inline-flex;align-items:center;gap:17px;margin-top:13px;padding:13px 22px;border-radius:99px;border:1px solid #ffdec5c7;
+ background:linear-gradient(110deg,#a84693,#315da3);box-shadow:0 12px 25px #0007;font-size:clamp(12px,1.2vw,17px);font-weight:850;color:white}
+.books-promo--immersive .bs-photo-books{position:absolute;z-index:2;right:5%;bottom:6%;height:67%;width:34%;max-width:470px;pointer-events:none;
+ filter:drop-shadow(0 17px 24px #03030cce)}
+.books-promo--immersive .bs-photo-book{position:absolute;top:2%;left:20%;width:54%;height:90%;border-radius:7px 17px 14px 6px;
+ border:1px solid #fff5d87a;box-shadow:12px 18px 26px #000c,inset 7px 0 18px #0007;
+ background:linear-gradient(145deg,#71404f,#d29b76 60%,#211b37);
+ transform:perspective(800px) rotate(-8deg) rotateY(-10deg)}
+.books-promo--immersive .bs-photo-book.one{transform:translate(-34%,4%) rotate(-19deg);background:linear-gradient(130deg,#26415e,#72496d 56%,#151f32)}
+.books-promo--immersive .bs-photo-book.two{z-index:2;transform:translate(15%,-4%) rotate(1deg);background:linear-gradient(155deg,#654252,#c38a76 53%,#281c2e)}
+.books-promo--immersive .bs-photo-book.three{transform:translate(53%,5%) rotate(18deg);background:linear-gradient(125deg,#1f4350,#448a8d 57%,#1d2845)}
+.books-promo--immersive:hover,.books-promo--immersive:focus-visible{filter:brightness(1.06)}
+.bs-preview-shelf{margin-top:15px;position:relative;border-radius:21px;background:
+ radial-gradient(ellipse at 40% -10%,#5d628737,transparent 60%),linear-gradient(160deg,#172138ee,#0d1426ed 65%,#15131fee);
+ border:1px solid #a9bbdf5a;box-shadow:0 14px 42px #0008,inset 0 1px #ffffff29;padding:23px clamp(13px,2.3vw,32px) 35px;overflow:hidden}
+.bs-preview-shelf:before{content:'';pointer-events:none;position:absolute;inset:0 0 auto;height:55%;opacity:.2;
+ background:url('https://images.unsplash.com/photo-1495446815901-a7297e633e8d?w=1800&auto=format&fit=crop&q=75') center 45%/cover}
+.bs-preview-head{position:relative;z-index:2;display:flex;align-items:end;justify-content:space-between;gap:14px;flex-wrap:wrap;margin:0 0 20px}
+.bs-preview-head h2{margin:3px 0;font-size:clamp(23px,2.6vw,33px);color:#fff6f1;text-shadow:0 3px 12px #000}
+.bs-preview-head p{color:#dbeafa;margin:6px 0 0;font-size:12px}
+.bs-preview-kicker{color:#ffd9a2;letter-spacing:2px;font-size:10px;font-weight:900}
+.bs-preview-head .bs-all{background:#ffffff15;border:1px solid #b5c4e191;padding:10px 14px;border-radius:14px;color:#f1f8ff;white-space:nowrap;font-weight:750;font-size:12px}
+.bs-preview-grid{position:relative;z-index:2;display:grid;grid-auto-flow:column;grid-auto-columns:clamp(115px,15vw,180px);
+ gap:clamp(12px,2vw,23px);align-items:end;overflow-x:auto;scroll-snap-type:x mandatory;padding:12px 12px 32px 3px;scrollbar-width:thin;scrollbar-color:#a97d5a transparent}
+.bs-preview-book{position:relative;scroll-snap-align:start;aspect-ratio:2/3;display:flex;flex-direction:column;justify-content:space-between;
+ min-width:0;overflow:hidden;background:linear-gradient(145deg,#ffffff18,transparent 38%),var(--book-color,#384664);background-size:cover;background-position:center;
+ border:1px solid #ffe7bd9c;border-radius:4px 12px 10px 3px;padding:11px;color:white;text-shadow:0 3px 12px #000;
+ box-shadow:7px 11px 20px #000c,inset 6px 0 12px #0006;transition:transform .2s ease}
+.bs-preview-book:after{content:'';position:absolute;inset:0 auto 0 5px;border-left:1px solid #ffffff6b;pointer-events:none}
+.bs-preview-book:hover,.bs-preview-book:focus-visible{transform:translateY(-6px)}
+.bs-preview-book .bs-preview-art{font-size:25px;color:#ffe6c0}
+.bs-preview-book strong{position:relative;z-index:1;font-size:clamp(14px,1.3vw,19px);font-weight:900;line-height:1.23;overflow-wrap:break-word;display:-webkit-box;-webkit-line-clamp:5;-webkit-box-orient:vertical;overflow:hidden}
+.bs-preview-book small{font-size:10px;color:#e9e8f3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.bs-preview-book.bs-has-cover .bs-preview-art,.bs-preview-book.bs-has-cover strong,.bs-preview-book.bs-has-cover small{display:none}
+.bs-preview-empty{display:grid;place-items:center;min-height:200px;padding:15px;border:1px dashed #a5c1e47d;border-radius:13px;color:white;font-weight:850}
+.bs-wood-shelf{position:absolute;z-index:1;bottom:17px;left:2%;width:96%;height:17px;border-radius:1px 1px 10px 10px;
+ background:linear-gradient(180deg,#ddb17b,#895b39 47%,#34231e 90%);box-shadow:0 9px 22px #0009,inset 0 1px #ffdaac;
+ pointer-events:none}
+@media(max-width:650px){
+ .bs-entertainment-feature{left:50%;transform:translateX(-50%);width:calc(100vw - 12px);max-width:100vw;margin:9px 0 22px}
+ .books-promo.books-promo--immersive{min-height:min(72svh,690px);padding:16px;border-radius:19px;max-width:100%;background-position:60% center}
+ .books-promo--immersive .bs-text{top:14%;transform:none;left:17px;right:16px;width:calc(100% - 33px);gap:11px}
+ .books-promo--immersive .bs-text strong{font-size:clamp(47px,11.5vw,71px);letter-spacing:-2px}
+ .books-promo--immersive .bs-text small{font-size:12px;max-width:310px}
+ .books-promo--immersive .bs-photo-books{width:67%;height:43%;right:17%;bottom:8%;opacity:.95}
+ .books-promo--immersive .bs-kicker{font-size:10px;letter-spacing:1.2px}
+ .books-promo--immersive .bs-hero-cta{font-size:13px;padding:11px 16px;margin-top:6px}
+ .bs-preview-shelf{margin-top:10px;padding:16px 10px 30px;border-radius:16px}
+ .bs-preview-head{margin-bottom:8px}
+ .bs-preview-head h2{font-size:24px}
+ .bs-preview-head .bs-all{padding:8px 9px;font-size:10px}
+ .bs-preview-grid{grid-auto-columns:clamp(116px,36vw,152px);gap:13px;padding:11px 9px 27px 2px}
+ .bs-preview-book{padding:11px 8px;box-shadow:6px 10px 17px #0009,inset 6px 0 10px #0007}
+ .bs-preview-book strong{font-size:14px}
+ .bs-wood-shelf{height:14px;bottom:15px}
+}
+@media(max-width:390px){
+ .books-promo--immersive .bs-photo-books{height:38%;bottom:10%}
+ .books-promo--immersive .bs-text strong{font-size:46px}
+ .bs-preview-grid{grid-auto-columns:37vw}
+}
+@media(prefers-reduced-motion:reduce){
+ .bs-preview-book{transition:none}.bs-preview-book:hover{transform:none}
+}
