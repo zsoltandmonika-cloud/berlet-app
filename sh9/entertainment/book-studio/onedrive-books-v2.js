@@ -39,12 +39,12 @@ function setConnected(on){
  $('odConnect').hidden=on;
  $('odRefresh').hidden=!on;
  $('odDisconnect').hidden=!on;
- $('odConfigToggle').hidden=!on;
+ $('odConfigToggle').hidden=!config;
 }
 async function json(url,options={}){
  const u=new URL(url,GRAPH);
  if(u.protocol!=='https:'||u.hostname!=='graph.microsoft.com'||!u.pathname.startsWith('/v1.0/'))throw Error('Érvénytelen Microsoft Graph URL.');
- if(!token||expires<Date.now()+20000)throw Error('Lejárt a OneDrive-munkamenet. Kérlek, csatlakozz újra.');
+ if(!token||expires<Date.now()+20000){resetSession();throw Error('Lejárt a OneDrive-munkamenet. Kérlek, csatlakozz újra.');}
  const res=await w.fetch(u.href,{method:'GET',cache:'no-store',credentials:'omit',
   headers:{Authorization:'Bearer '+token},...options});
  if(!res.ok){if(res.status===401)resetSession();throw Error('Microsoft Graph: '+res.status);}
@@ -154,7 +154,7 @@ function mapBook(item,stored={}){
   title:text(title),author:text(author),file_name:item.name,format,storage_path:null,
   size_bytes:item.size,progress_locator:stored.progress_locator||'',progress_percent:stored.progress_percent||0,
   bookmarks:Array.isArray(stored.bookmarks)?stored.bookmarks:[],is_favorite:!!stored.is_favorite,
-  theme:stored.theme||'dark',font_size:stored.font_size||100};
+  theme:stored.theme||'dark',font_size:stored.font_size||100,updated_at:stored.updated_at||''};
 }
 async function progressRecords(){
  try{
@@ -221,11 +221,12 @@ async function saveProgress(b,patch={}){
    updated_at:new Date().toISOString()};
   const {error}=await api.from(PROGRESS).upsert(entry,{onConflict:'profile_key,drive_id,item_id'});
   if(error)throw error;
+  b.updated_at=entry.updated_at;
  }catch(e){status('Olvasási állapot mentési hiba: '+e.message,true)}
 }
 function getBook(id){return entries.find(x=>x.id===id&&x.profile_key===pid())||null}
 async function download(b){
- if(!ready||!token||expires<Date.now()+25000)throw Error('A Microsoft-belépés lejárt. Kapcsolódj újra.');
+ if(!ready||!token||expires<Date.now()+25000){resetSession();throw Error('A Microsoft-belépés lejárt. Kapcsolódj újra.');}
  if(!getBook(b.id)||b.size_bytes>MAX_DOWNLOAD)throw Error(b.size_bytes>MAX_DOWNLOAD?'Túl nagy könyv mobilos olvasáshoz (80 MB limit).':'Az adott könyv már nincs a könyvtárban.');
  // /content has CORS redirect trouble. Graph @microsoft.graph.downloadUrl is the documented SPA route.
  const meta=await json(GRAPH+'me/drive/items/'+encodeURIComponent(b.drive_item_id)+'?$select=id,@microsoft.graph.downloadUrl');
