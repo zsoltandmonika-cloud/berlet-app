@@ -25,16 +25,7 @@
 <section class="onedrive-panel" id="onedriveBooks" aria-label="Közös OneDrive könyvtár">
  <div class="section-title od-heading"><div><span class="eyebrow">ELSŐDLEGES KÖNYVTÁR · KÖZVETLEN KAPCSOLAT</span><h2>☁️ OneDrive <small id="odCount">Könyvek keresése</small></h2></div><span class="od-readonly">🔒 Csak olvasás</span></div>
  <p class="od-desc">A könyvek az eredeti OneDrive EBOOKS mappában maradnak. Itt csak a borítós könyvespolcot, az olvasási előrehaladást és a könyvjelzőket látod.</p>
- <div class="od-connect" id="odConnectPanel">
-  <div id="odConfig" class="od-config" hidden>
-   <label>Microsoft alkalmazásazonosító <input type="text" id="odClientId" placeholder="Application (client) ID" autocomplete="off" spellcheck="false"></label>
-   <label>OneDrive Microsoft-fiók <input type="email" id="odAccount" placeholder="outlook.com / hotmail.com" autocomplete="email"></label>
-   <button id="odSave" type="button">Beállítás mentése</button>
-   <small>Az SHO Naptárhoz korábban megadott alkalmazásazonosítót felajánljuk, ha elérhető. A Microsoft-alkalmazásban külön SPA visszatérési URL és Files.Read engedély szükséges.</small>
-  </div>
-  <div class="od-actions"><button id="odConnect" type="button" class="od-primary">🔐 Microsoft OneDrive csatlakozás</button><button id="odRefresh" type="button" hidden>↻ Frissítés</button><button id="odConfigToggle" type="button" hidden>⚙ Beállítás</button><button id="odDisconnect" type="button" hidden>Kapcsolat bontása</button></div>
-  <p class="od-status" id="odStatus" role="status" aria-live="polite">OneDrive kapcsolat ellenőrzése…</p>
- </div>
+ <div class="od-quick-status"><span id="odInlineStatus" aria-live="polite">☁️ OneDrive kapcsolat ellenőrzése…</span><a href="#odConnectPanel" class="od-manage-link">⚙ Kapcsolat beállítása ↓</a></div>
  <div id="odFolderSelector" class="od-folders" hidden><label for="odFolders">Könyvtárforrás</label><select id="odFolders"></select></div>
  <div class="od-toolbar"><label class="searchbox">⌕ <input id="odFilter" type="search" placeholder="Keress a könyveid között…" autocomplete="off"></label><button id="odResume" hidden type="button" class="od-resume">▶ Folytatom: <span id="odResumeName"></span></button></div>
  <div class="od-utility-row"><span class="od-shelf-kicker">✦ A SAJÁT KÖNYVESPOLCOD</span><div class="od-cache-tools"><span class="od-cache-info" id="odCacheInfo">A helyi könyvtár előkészítése…</span><button type="button" id="odCoverSync" class="od-cover-sync" aria-pressed="true">✦ Eredeti borítók · BE</button><button type="button" id="odDedup" class="od-dedup" hidden>◈ Duplikátumok</button><button type="button" id="odCacheClear" class="od-cache-clear" title="Csak a helyben tárolt könyvek és borítók törlése">Gyorsítótár törlése</button></div></div><p id="odDedupStatus" class="od-dedup-status" role="status" aria-live="polite"></p>
@@ -47,6 +38,19 @@
  <div class="book-grid" id="bookGrid" aria-live="polite"></div><div id="emptyState" class="empty" hidden><span aria-hidden="true">📚</span><h3>A könyvespolc még üres.</h3><p>Adj hozzá egy DRM-mentes EPUB-ot vagy PDF-et. A fájlok a privát felhőbe kerülnek.</p></div>
 </section>
 <p class="privacy">🔒 A OneDrive-fájlok nem kerülnek át a Supabase-be. Az olvasási pozíció és könyvjelzők profilonként külön tárolódnak. A másolásvédett (DRM) könyvek nem támogatottak.</p>
+<section class="od-admin-bottom" id="bookStudioSettings" aria-label="OneDrive kapcsolat adminisztráció"><div class="section-title"><div><span class="eyebrow">RENDSZERBEÁLLÍTÁSOK</span><h2>⚙ OneDrive kapcsolat</h2></div></div><p class="od-admin-copy">A kapcsolódás és a fiók beállításai itt vannak, nem foglalnak helyet a könyvespolc fölött.</p>
+ <div class="od-connect" id="odConnectPanel">
+  <div id="odConfig" class="od-config" hidden>
+   <label>Microsoft alkalmazásazonosító <input type="text" id="odClientId" placeholder="Application (client) ID" autocomplete="off" spellcheck="false"></label>
+   <label>OneDrive Microsoft-fiók <input type="email" id="odAccount" placeholder="outlook.com / hotmail.com" autocomplete="email"></label>
+   <button id="odSave" type="button">Beállítás mentése</button>
+   <small>Az SHO Naptárhoz korábban megadott alkalmazásazonosítót felajánljuk, ha elérhető. A Microsoft-alkalmazásban külön SPA visszatérési URL és Files.Read engedély szükséges.</small>
+  </div>
+  <div class="od-actions"><button id="odConnect" type="button" class="od-primary">🔐 Microsoft OneDrive csatlakozás</button><button id="odRefresh" type="button" hidden>↻ Frissítés</button><button id="odConfigToggle" type="button" hidden>⚙ Beállítás</button><button id="odDisconnect" type="button" hidden>Kapcsolat bontása</button></div>
+  <p class="od-status" id="odStatus" role="status" aria-live="polite">OneDrive kapcsolat ellenőrzése…</p>
+ </div>
+
+</section>
 </main>
 </div>
 <div class="reader" id="reader" hidden role="dialog" aria-modal="true" aria-label="Könyvolvasó">
