@@ -30,6 +30,33 @@ const label=p=>p==='monika'?'Mónika':'Zsolt';
 function toast(message){const e=$('toast');e.textContent=message;e.hidden=false;clearTimeout(toast.id);toast.id=setTimeout(()=>e.hidden=true,3600)}
 function status(message,ok){$('syncText').textContent=message;$('syncState').title=message;$('syncState').classList.toggle('connected',!!ok)}
 function haptic(){try{navigator.vibrate?.(9)}catch(_){/* unsupported */}}
+// Prepare Web Audio inside the original tap so Samsung/Chrome can play the
+// short confirmation after the cloud write succeeds. Silent on unsupported devices.
+let clickAudio=null;
+function armClickSound(){
+ try{
+  const Audio=w.AudioContext||w.webkitAudioContext;
+  if(!Audio)return null;
+  if(!clickAudio||clickAudio.state==='closed')clickAudio=new Audio();
+  if(clickAudio.state==='suspended')void clickAudio.resume().catch(()=>{});
+  return clickAudio;
+ }catch(_){return null}
+}
+function playClickSound(checked,ctx){
+ if(!ctx||ctx.state!=='running')return;
+ try{
+  const now=ctx.currentTime,osc=ctx.createOscillator(),gain=ctx.createGain();
+  const start=checked?690:510,end=checked?940:350;
+  osc.type='sine';
+  osc.frequency.setValueAtTime(start,now);
+  osc.frequency.exponentialRampToValueAtTime(end,now+0.075);
+  gain.gain.setValueAtTime(0.001,now);
+  gain.gain.exponentialRampToValueAtTime(0.038,now+0.012);
+  gain.gain.exponentialRampToValueAtTime(0.001,now+0.09);
+  osc.connect(gain);gain.connect(ctx.destination);
+  osc.start(now);osc.stop(now+0.095);
+ }catch(_){/* sound is optional; keep shopping usable */}
+}
 function selectedIcon(category){return ICON[category]||'🛒'}
 function suggestions(){
  const q=$('productSearch').value.trim(),out=$('suggestions');out.replaceChildren();
@@ -113,6 +140,7 @@ function render(){
 async function setDone(item,value){
  if(!user||busyIds.has(item.id))return;
  const wasDone=!!item.done,wasDoneBy=item.done_by_profile;
+ const clickSound=armClickSound();
  busyIds.add(item.id);
  // Instant visual feedback; the server is authoritative if the write fails.
  item.done=value;
@@ -122,7 +150,7 @@ async function setDone(item,value){
   const res=await api.from(TABLE).update({done:value,updated_by_profile:who()}).eq('id',item.id).eq('done',wasDone).select('id');
   if(res.error)throw res.error;
   if(!res.data?.length){await reload(true);toast('A terméket közben más is módosította.');return}
-  haptic();toast(value?'✓ Megvásárolva: '+item.name:'↩ Újra a listán: '+item.name);
+  haptic();playClickSound(value,clickSound);toast(value?'✓ Megvásárolva: '+item.name:'↩ Újra a listán: '+item.name);
   await reload(false);
  }catch(e){
   item.done=wasDone;item.done_by_profile=wasDoneBy;
@@ -136,10 +164,16 @@ async function setFavorite(item,value){
  if(res.error)return toast('Kedvenc mentése sikertelen.');haptic();await reload(false);
 }
 async function removeItem(item){
- if(!w.confirm('Biztosan törlöd a közös listáról? '+item.name))return;
- const res=await api.from(TABLE).delete().eq('id',item.id);
- if(res.error)return toast('Nem sikerült törölni: '+res.error.message);
- haptic();toast('Törölve: '+item.name);await reload(false);
+ // One tap deletes without a modal; prevent duplicate requests while saving.
+ if(!user||busyIds.has(item.id))return;
+ busyIds.add(item.id);
+ try{
+  const res=await api.from(TABLE).delete().eq('id',item.id).select('id');
+  if(res.error)throw res.error;
+  if(!res.data?.length){toast('A terméket közben már törölték.');await reload(true);return}
+  haptic();toast('Törölve: '+item.name);await reload(false);
+ }catch(e){toast('Nem sikerült törölni: '+String(e.message||e).slice(0,85))}
+ finally{busyIds.delete(item.id)}
 }
 async function reload(fromRemote){
  if(!user)return;
