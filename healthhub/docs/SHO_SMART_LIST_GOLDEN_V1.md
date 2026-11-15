@@ -9,6 +9,14 @@
 - A `supabase_realtime` publikáció változásra frissíti a másik, megnyitott klienst. Újratöltés alkalmazásfókuszra / láthatóvá váláskor. Nem használ 3 mp-es pollingot.
 - A meglévő `shopping.js` lokális Smart Basket adatai érintetlenek. Nincs automatikus áttöltés a két tároló között. Nem állítunk valótlan bolti árat vagy készletet.
 
+## Workflow frissítés · 2026-11-15
+- Egyetlen közös `shopping-board` csempe tartalmazza a megvásárolt és még megvásárolandó termékeket.
+- A megvásároltak legfelül szerepelnek (legutóbbi pipálás elöl), zöld pipa + áthúzott terméknév + zöld jelölés.
+- A még szükséges termékek alattuk következnek, külön szekció és lenyíló lista nélkül.
+- A fejléc összesítése: `X hátra · Y megvéve`. Egy koppintással visszaállítható az aktív állapot.
+- A külön lista megszüntetése nem érinti a felhős státuszmentést, Realtime szinkront, kedvenceket és termékkeresést.
+- A GitHub-kód és a JavaScript szintaxisa ellenőrizve; valódi kéttelefonos UAT továbbra is szükséges.
+
 ## Ellenőrzés
 - GitHub módosítások és új fájlok a `main` ágon mentve.
 - JavaScript szintaxis ellenőrzése sikeres.
