@@ -1,0 +1,54 @@
+'use strict';
+const {test}=require('node:test');
+const assert=require('node:assert/strict');
+const fs=require('node:fs'),path=require('node:path');
+const base=path.resolve(__dirname,'../../..');
+const get=p=>fs.readFileSync(path.join(base,p),'utf8');
+const js=get('sh9/entertainment/featured-slideshow-v6.js');
+const css=get('sh9/entertainment/featured-slideshow-v7.css');
+const html=get('sh9/entertainment/index.html');
+test('3s auto-scroll and manual horizontal mobile and desktop swipes, no visible controls',()=>{
+ assert.match(js,/PAUSE_MS=3000/);
+ assert.match(js,/setTimeout\(\(\)=>show\(index\+1,false\),PAUSE_MS\)/);
+ assert.match(js,/carousel\.addEventListener\('touchstart'/);
+ assert.match(js,/carousel\.addEventListener\('touchend'/);
+ assert.match(js,/carousel\.addEventListener\('pointerdown'/);
+ assert.match(js,/carousel\.addEventListener\('pointerup'/);
+ assert.match(js,/carousel\.addEventListener\('keydown'/);
+ assert.match(js,/swipeBlockUntil=Date\.now\(\)\+650/);
+ assert.doesNotMatch(js,/carousel\.append\(viewport,prev,next,dots,counter\)/);
+ assert.doesNotMatch(js,/elem\('button','sho-feature-next'/);
+ assert.doesNotMatch(js,/elem\('button','sho-feature-dot'/);
+});
+test('Every slideshow card and Book Studio tile is one full-size clickable anchor, no CTA button',()=>{
+ assert.match(js,/const link=elem\('a','sho-feature-slide'\)/);
+ assert.match(js,/link\.append\(photo,shade,top,text\)/);
+ assert.match(js,/navigateTarget\(link,slide\)/);
+ assert.match(js,/link\.draggable=false/);
+ assert.doesNotMatch(js,/elem\('span','sho-feature-cta'/);
+ assert.match(html,/<a class="books-promo books-promo--immersive" href="\.\/book-studio\/"/);
+ assert.match(css,/\.books-promo--immersive \.bs-hero-cta\{\s*display:none!important/);
+ assert.match(css,/\.pixel-extension\[data-carousel-ready="true"\] \.pixel-feature-edit/);
+ assert.match(css,/\.pixel-extension \.sho-feature-prev/);
+ assert.match(css,/\.pixel-extension \.sho-feature-dots/);
+ assert.match(css,/\.pixel-extension \.sho-feature-counter/);
+ assert.match(css,/\.sho-feature-carousel\{[\s\S]*?touch-action:pan-y pinch-zoom/);
+});
+test('Carousel remains exactly six categories and preserves Etele-size footprint',()=>{
+ assert.match(js,/slides=defs/);
+ assert.match(js,/kind:'cinema'/);assert.match(js,/kind:'theatre'/);
+ assert.match(js,/kind:'concert'/);assert.match(js,/kind:'home'/);
+ assert.match(js,/kind:'culture'/);assert.match(js,/kind:'events'/);
+ assert.match(css,/height:calc\(\(100vw - 24px\)\/1\.62\)!important/);
+ assert.match(css,/width:calc\(100vw - 24px\)!important/);
+ assert.match(css,/@media\(prefers-reduced-motion:reduce\)/);
+});
+test('No unclosed script eats mobile navigation or subsequent scripts',()=>{
+ const opens=(html.match(/<script(?:\s|>)/g)||[]).length;
+ const closes=(html.match(/<\/script>/g)||[]).length;
+ assert.equal(opens,closes,'every script must close before the next script');
+ assert.match(html,/<script defer src="\.\/featured-slideshow-v6\.js\?v=7-auto3s-swipe-clean"><\/script>/);
+ assert.match(html,/<script defer src="\.\/pixel-artwork-v3\.js[^"]*"><\/script>/);
+ assert.match(html,/featured-slideshow-v7\.css\?v=7-no-controls-3s/);
+ assert.doesNotThrow(()=>new Function(js));
+});

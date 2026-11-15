@@ -1,0 +1,65 @@
+/* SHO Entertainment Golden V7 · clean, effortless six-category slider.
+ * No UI chrome. Entire image card is the link; swipe to browse, auto 3 seconds.
+ * Etele Premium dimensions and Book Studio full-card link are unchanged. */
+.pixel-extension[data-carousel-ready="true"] .pixel-feature-edit,
+.pixel-extension[data-carousel-ready="true"] .pixel-feature-link,
+.pixel-extension[data-carousel-ready="true"] .pixel-feature-custom {
+ display:none!important;visibility:hidden!important;pointer-events:none!important;
+}
+.pixel-extension .sho-feature-carousel{
+ cursor:pointer;touch-action:pan-y pinch-zoom;
+ -webkit-user-select:none;user-select:none;
+}
+.pixel-extension .sho-feature-slide,
+.pixel-extension .sho-feature-slide * {
+ cursor:pointer;
+ -webkit-user-select:none;user-select:none;
+}
+.pixel-extension .sho-feature-slide .sho-feature-photo,
+.pixel-extension .sho-feature-slide .sho-feature-shade,
+.pixel-extension .sho-feature-slide .sho-feature-top,
+.pixel-extension .sho-feature-slide .sho-feature-copy,
+.pixel-extension .sho-feature-slide .sho-feature-top *,
+.pixel-extension .sho-feature-slide .sho-feature-copy *{
+ pointer-events:none;
+}
+.pixel-extension .sho-feature-slide{transition:opacity .35s ease,transform 3s linear}
+.pixel-extension .sho-feature-slide .sho-feature-photo{transition:transform 3s linear}
+.pixel-extension .sho-feature-copy{bottom:clamp(18px,3vw,39px);gap:8px}
+.pixel-extension .sho-feature-title{font-size:clamp(24px,2.9vw,46px)}
+.pixel-extension .sho-feature-note{color:#fff5f0;font-weight:650}
+.pixel-extension .sho-feature-cta,
+.pixel-extension .sho-feature-prev,
+.pixel-extension .sho-feature-next,
+.pixel-extension .sho-feature-dots,
+.pixel-extension .sho-feature-counter{
+ display:none!important;pointer-events:none!important;
+}
+/* No standalone open button: tapping anywhere on the Book Studio tile works. */
+.bs-entertainment-feature .books-promo--immersive{
+ cursor:pointer;touch-action:manipulation;
+}
+.bs-entertainment-feature .books-promo--immersive .bs-hero-cta{
+ display:none!important;
+}
+.bs-entertainment-feature .books-promo--immersive .bs-text{gap:12px}
+.bs-entertainment-feature .books-promo--immersive .bs-text,
+.bs-entertainment-feature .books-promo--immersive .bs-text * {
+ pointer-events:none;
+}
+@media(max-width:650px){
+ .pixel-extension .sho-feature-carousel{
+  width:calc(100vw - 24px)!important;
+  height:calc((100vw - 24px)/1.62)!important;
+ }
+ .pixel-extension .sho-feature-top{right:14px}
+ .pixel-extension .sho-feature-copy{bottom:19px;left:17px;right:17px;gap:5px}
+ .pixel-extension .sho-feature-title{font-size:clamp(23px,6.8vw,31px);-webkit-line-clamp:3}
+ .pixel-extension .sho-feature-note{font-size:11px;max-width:95%}
+ .bs-entertainment-feature .books-promo--immersive .bs-text{gap:9px!important}
+ .bs-entertainment-feature .books-promo--immersive .bs-text strong{font-size:clamp(34px,9.4vw,44px)!important}
+ .bs-entertainment-feature .books-promo--immersive .bs-text small{max-width:93%!important;line-height:1.35!important}
+}
+@media(prefers-reduced-motion:reduce){
+ .pixel-extension .sho-feature-slide,.pixel-extension .sho-feature-slide .sho-feature-photo{transition:none!important}
+}

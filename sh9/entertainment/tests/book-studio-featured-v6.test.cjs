@@ -23,7 +23,7 @@ test('Six-category slider is loaded after original feature editor, while preserv
  assert.match(html,/class="card etele-featured"/);
  assert.match(old,/sho:featured-updated/);
 });
-test('Slider is Etele Premium-sized, changes photo/text, supports swipe, dots and respects reduced motion',()=>{
+test('Slider is Etele Premium-sized, changes photo/text, supports swipe, full-card navigation and respects reduced motion',()=>{
  assert.match(step1,/--sho-etele-tile-height:calc\(\(100vw - 24px\) \/ 1\.62\)/);
  assert.match(css,/height:calc\(\(100vw - 24px\)\/1\.62\)!important/);
  assert.match(css,/width:calc\(100vw - 24px\)!important/);
@@ -33,7 +33,7 @@ test('Slider is Etele Premium-sized, changes photo/text, supports swipe, dots an
  assert.match(script,/touchstart/);
  assert.match(script,/touchend/);
  assert.match(script,/Math\.abs\(dx\)>44/);
- assert.match(script,/PAUSE_MS=6300/);
+ assert.match(script,/PAUSE_MS=3000/);
  assert.match(script,/IntersectionObserver/);
  assert.match(script,/prefers-reduced-motion/);
  assert.match(css,/@media\(prefers-reduced-motion:reduce\)/);
