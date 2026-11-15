@@ -7,11 +7,15 @@
 'use strict';
 const $=id=>d.getElementById(id),CFG='sh9-book-ms-config-v2',TOKEN='sh9-book-ms-access-v2',FLOW='sh9-book-ms-pkce-v2';
 const GRAPH='https://graph.microsoft.com/v1.0/',AUTH='https://login.microsoftonline.com/consumers/oauth2/v2.0/';
-const SCOPES='openid profile User.Read Files.Read';
+const SCOPES='openid profile offline_access User.Read Files.Read';
+const TRUST='sh9-book-ms-trusted-v3',SILENT_RETRY='sh9-book-ms-silent-attempt-v3';
+const PERSIST=w.SH9_BOOK_ONEDRIVE_PERSIST_V3;
+const SILENT_GAP_MS=4*60*60*1000,REFRESH_MAX_MS=23*60*60*1000;
 const PROGRESS='hh_book_studio_drive_progress_v2';
 const ID_RE=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const MAX_ITEMS=900,MAX_FOLDERS=65,MAX_DEPTH=5,MAX_DOWNLOAD=80*1024*1024;
 let config=null,token='',expires=0,found=[],entries=[],folderId='',driveId='',ready=false,scanning=false,progressCloud=false;
+let refreshToken='',refreshIssuedAt=0,renewing=null;
 const element=(tag,cls,txt)=>{const x=d.createElement(tag);if(cls)x.className=cls;if(txt!==undefined)x.textContent=txt;return x};
 const text=s=>String(s||'').trim().slice(0,200);
 const pid=()=>w.localStorage.getItem('hh-profile')==='m'?'monika':'zsolt';
@@ -25,7 +29,82 @@ const clearQuery=()=>{
  ['code','state','session_state','error','error_description'].forEach(k=>url.searchParams.delete(k));
  w.history.replaceState(w.history.state,'',url.pathname+url.search+url.hash);
 };
-function resetSession(){token='';expires=0;try{sessionStorage.removeItem(TOKEN)}catch(_){}ready=false;setConnected(false)}
+function resetSession(){token='';expires=0;try{w.sessionStorage.removeItem(TOKEN)}catch(_){}ready=false;setConnected(false)}
+function trusted(){
+ const previous=parse(load(w.localStorage,TRUST));
+ return !!(config&&previous?.clientId===config.clientId&&previous?.account===config.account);
+}
+function markTrusted(){if(config)store(w.localStorage,TRUST,JSON.stringify({clientId:config.clientId,account:config.account}))}
+async function clearCredentials(){
+ resetSession();refreshToken='';refreshIssuedAt=0;
+ try{w.localStorage.removeItem(TRUST);w.localStorage.removeItem(SILENT_RETRY)}catch(_){}
+ if(PERSIST)await PERSIST.clear(w);
+}
+async function rememberRefresh(){
+ if(!PERSIST||!config||!refreshToken)return false;
+ return await PERSIST.save(w,config.clientId,config.account,refreshToken,refreshIssuedAt);
+}
+async function reloadRefresh(){
+ if(!PERSIST||!config)return false;
+ const record=await PERSIST.load(w,config.clientId,config.account);
+ if(!record)return false;
+ refreshToken=record.refreshToken;refreshIssuedAt=record.issuedAt;return true;
+}
+function storeTokenResponse(reply,originalIssuedAt){
+ if(!reply?.access_token)throw Error('A Microsoft nem adott hozzáférési tokent.');
+ token=reply.access_token;expires=Date.now()+Math.max(60,Number(reply.expires_in)||3600)*1000;
+ store(w.sessionStorage,TOKEN,JSON.stringify({accessToken:token,expires,clientId:config.clientId,account:config.account}));
+ if(reply.refresh_token){
+  refreshToken=reply.refresh_token;
+  // A forgatott SPA refresh token nem indít új 24 órás időablakot.
+  refreshIssuedAt=originalIssuedAt||Date.now();
+ }
+}
+async function verifyAccount(){
+ if(!token||expires<Date.now()+20000)throw Error('Microsoft munkamenet nem érhető el.');
+ const response=await w.fetch(GRAPH+'me?$select=mail,userPrincipalName,otherMails',{
+  method:'GET',cache:'no-store',credentials:'omit',headers:{Authorization:'Bearer '+token}
+ });
+ if(!response.ok)throw Error('Microsoft profil-ellenőrzés HTTP '+response.status);
+ verifyEmail(await response.json());
+}
+async function renewAccess(){
+ if(renewing)return renewing;
+ renewing=(async()=>{
+  if(!refreshToken)await reloadRefresh();
+  if(!refreshToken||!refreshIssuedAt||Date.now()-refreshIssuedAt>=REFRESH_MAX_MS)return false;
+  try{
+   const response=await w.fetch(AUTH+'token',{method:'POST',cache:'no-store',credentials:'omit',
+    headers:{'Content-Type':'application/x-www-form-urlencoded'},
+    body:new URLSearchParams({client_id:config.clientId,grant_type:'refresh_token',
+      refresh_token:refreshToken,scope:SCOPES})
+   });
+   if(!response.ok)throw Error('Microsoft tokenfrissítés HTTP '+response.status);
+   storeTokenResponse(await response.json(),refreshIssuedAt);
+   await verifyAccount();
+   await rememberRefresh();
+   ready=true;setConnected(true);markTrusted();return true;
+  }catch(e){
+   resetSession();
+   if(/HTTP 400|HTTP 401|Másik Microsoft-fiók/.test(e.message||'')){
+    refreshToken='';refreshIssuedAt=0;if(PERSIST)await PERSIST.clear(w);
+   }
+   return false;
+  }
+ })().finally(()=>{renewing=null});
+ return renewing;
+}
+async function ensureAccess(){
+ if(token&&expires>Date.now()+40000)return true;
+ return await renewAccess();
+}
+async function silentReconnect(){
+ if(!trusted()||new URLSearchParams(w.location.search).get('sh9native')==='1')return false;
+ const last=Number(load(w.localStorage,SILENT_RETRY)||0);
+ if(last&&Date.now()-last<SILENT_GAP_MS)return false;
+ store(w.localStorage,SILENT_RETRY,String(Date.now()));
+ await beginAuth(true);return true;
+}
 function displayConfig(){
  const cached=parse(load(w.localStorage,CFG));
  const cal=parse(load(w.localStorage,'sh9-ms-calendar-config-v1'));
@@ -44,9 +123,14 @@ function setConnected(on){
 async function json(url,options={}){
  const u=new URL(url,GRAPH);
  if(u.protocol!=='https:'||u.hostname!=='graph.microsoft.com'||!u.pathname.startsWith('/v1.0/'))throw Error('Érvénytelen Microsoft Graph URL.');
- if(!token||expires<Date.now()+20000){resetSession();throw Error('Lejárt a OneDrive-munkamenet. Kérlek, csatlakozz újra.');}
- const res=await w.fetch(u.href,{method:'GET',cache:'no-store',credentials:'omit',
-  headers:{Authorization:'Bearer '+token},...options});
+ if(!await ensureAccess()){resetSession();throw Error('Lejárt a OneDrive-munkamenet. Microsoft-belépés szükséges.');}
+ const send=()=>w.fetch(u.href,{method:'GET',cache:'no-store',credentials:'omit',
+  ...options,headers:{...(options.headers||{}),Authorization:'Bearer '+token}});
+ let res=await send();
+ if(res.status===401){
+  token='';expires=0;
+  if(await renewAccess())res=await send();
+ }
  if(!res.ok){if(res.status===401)resetSession();throw Error('Microsoft Graph: '+res.status);}
  return res.json();
 }
@@ -55,7 +139,7 @@ function verifyEmail(me){
  if(!actual.includes(config.account))throw Error('Nem a beállított Microsoft-fiókba jelentkeztél be.');
 }
 function random(n){const b=new Uint8Array(n);w.crypto.getRandomValues(b);return btoa(String.fromCharCode(...b)).replace(/\+/g,'-').replace(/\//g,'_').replace(/=/g,'')}
-async function beginAuth(){
+async function beginAuth(silent=false){
  if(!config){$('odConfig').hidden=false;status('Add meg a Microsoft alkalmazásazonosítót és e-mail-címet.',true);return}
  if(!w.crypto?.subtle||!w.isSecureContext){status('A Microsoft-belépéshez HTTPS és WebCrypto szükséges.',true);return}
  if(new URLSearchParams(w.location.search).get('sh9native')==='1'){status('A bejelentkezést a telefon rendszerböngészőjében végezd, ne a natív WebView-ben.',true);return}
@@ -68,6 +152,7 @@ async function beginAuth(){
  const url=new URL(AUTH+'authorize');
  for(const [k,v] of Object.entries({client_id:config.clientId,response_type:'code',redirect_uri:origin(),response_mode:'query',
   scope:SCOPES,code_challenge_method:'S256',code_challenge:challenge,state}))url.searchParams.set(k,v);
+ if(silent)url.searchParams.set('prompt','none');
  w.location.assign(url.href);
 }
 async function handleCallback(){
@@ -75,7 +160,12 @@ async function handleCallback(){
  if(!search.has('code')&&!search.has('error'))return false;
  const flow=parse(load(w.sessionStorage,FLOW));try{w.sessionStorage.removeItem(FLOW)}catch(_){}
  const code=search.get('code'),state=search.get('state'),err=search.get('error');
- clearQuery();if(err){status('Microsoft nem engedélyezte az olvasást: '+err,true);return true}
+ clearQuery();if(err){
+  status((err==='login_required'||err==='interaction_required'||err==='consent_required')?
+   'A Microsoft ismételt jóváhagyást kér. Kattints a Microsoft OneDrive csatlakozásra.':
+   'Microsoft bejelentkezés sikertelen: '+err,true);
+  return true;
+ }
  if(!code||!flow||!config||flow.state!==state||flow.clientId!==config.clientId||flow.account!==config.account||
   flow.redirect!==origin()||Date.now()-flow.at>600000){status('Sikertelen biztonsági ellenőrzés. Próbáld újra.',true);return true}
  try{
@@ -83,11 +173,10 @@ async function handleCallback(){
    redirect_uri:origin(),scope:SCOPES});
   const res=await w.fetch(AUTH+'token',{method:'POST',cache:'no-store',credentials:'omit',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:form});
   if(!res.ok)throw Error('Microsoft-belépés HTTP '+res.status);
-  const out=await res.json();if(!out.access_token)throw Error('A Microsoft nem adott hozzáférési tokent.');
-  token=out.access_token;expires=Date.now()+Math.max(60,Number(out.expires_in)||3600)*1000;
-  const me=await json(GRAPH+'me?$select=mail,userPrincipalName,otherMails');
-  verifyEmail(me);
-  store(w.sessionStorage,TOKEN,JSON.stringify({accessToken:token,expires,clientId:config.clientId,account:config.account}));
+  storeTokenResponse(await res.json());
+  await verifyAccount();
+  await rememberRefresh();
+  markTrusted();
   ready=true;setConnected(true);void loadLibrary();
  }catch(e){resetSession();status('OneDrive-belépési hiba: '+e.message,true)}
  return true;
@@ -95,11 +184,14 @@ async function handleCallback(){
 async function resume(){
  if(!config)return false;
  const s=parse(load(w.sessionStorage,TOKEN));
- if(!s||s.clientId!==config.clientId||s.account!==config.account||s.expires<Date.now()+40000)return false;
- token=s.accessToken;expires=s.expires;
- try{const me=await json(GRAPH+'me?$select=mail,userPrincipalName,otherMails');verifyEmail(me);
-  ready=true;setConnected(true);return true
- }catch(_){resetSession();return false}
+ if(s&&s.clientId===config.clientId&&s.account===config.account&&s.expires>Date.now()+40000){
+  token=s.accessToken;expires=s.expires;
+  try{
+   await verifyAccount();ready=true;setConnected(true);markTrusted();
+   return true;
+  }catch(_){resetSession()}
+ }
+ return await renewAccess();
 }
 async function pages(url,limit=8){
  let next=url,data=[],page=0;
@@ -267,7 +359,7 @@ async function freshDownloadUrl(b){
   'A könyvfájl metaadata nem elérhető: '+(lastError?.message||'ismeretlen hiba'));
 }
 async function download(b){
- if(!ready||!token||expires<Date.now()+25000){resetSession();throw Error('A Microsoft-belépés lejárt. Kapcsolódj újra.');}
+ if(!await ensureAccess()){resetSession();throw Error('A Microsoft-belépés lejárt. Kapcsolódj újra.');}
  if(!getBook(b.id)||b.size_bytes>MAX_DOWNLOAD)throw Error(b.size_bytes>MAX_DOWNLOAD?'Túl nagy könyv mobilos olvasáshoz (80 MB limit).':'Az adott könyv már nincs a könyvtárban.');
  // Do not use /content from a browser: its 302 redirect fails Graph CORS preflight.
  // Use a short-lived preauthenticated URL, never include OAuth bearer in this request.
@@ -289,14 +381,16 @@ async function download(b){
 async function saveConfig(){
  const clientId=$('odClientId').value.trim(),account=$('odAccount').value.trim().toLowerCase();
  if(!ID_RE.test(clientId)||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(account)){status('Valós Microsoft App ID és e-mail-cím szükséges.',true);return}
+ const changed=!config||clientId!==config.clientId||account!==config.account;
+ if(changed)await clearCredentials();
  config={clientId,account};if(!store(w.localStorage,CFG,JSON.stringify(config))){status('Nem menthető a beállítás ebben a böngészőben.',true);return}
- resetSession();$('odConfig').hidden=true;
- status('Beállítás mentve. Kattints a Microsoft-belépésre (Files.Read jogosultság).');
+ $('odConfig').hidden=true;
+ status(changed?'Beállítás mentve. Kattints egyszer a Microsoft-belépésre.':'Beállítások változatlanok. A Microsoft-kapcsolat megmaradt.');
 }
 $('odSave').addEventListener('click',()=>void saveConfig());
 $('odConnect').addEventListener('click',()=>void beginAuth());
 $('odRefresh').addEventListener('click',()=>void loadLibrary());
-$('odDisconnect').addEventListener('click',()=>{resetSession();entries=[];render();status('OneDrive kapcsolat bontva.');});
+$('odDisconnect').addEventListener('click',async()=>{await clearCredentials();entries=[];render();status('OneDrive kapcsolat bontva. Az automatikus belépést is kikapcsoltuk.');});
 $('odConfigToggle').addEventListener('click',()=>{$('odConfig').hidden=!$('odConfig').hidden;});
 $('odFolders').addEventListener('change',()=>{folderId=$('odFolders').value;driveId=found.find(x=>x.id===folderId)?.parentReference?.driveId||'';void loadLibrary()});
 $('odFilter').addEventListener('input',render);
@@ -304,7 +398,11 @@ w.SH9_BOOK_STUDIO_DRIVE_V2=Object.freeze({getBook,download,saveProgress,render,r
 displayConfig();setConnected(false);
 (async()=>{
  if(await handleCallback())return;
- if(await resume())await loadLibrary();
- else status(config?'Microsoft-kapcsolat szükséges. Az EPUB/PDF könyvek közvetlenül a OneDrive-on maradnak.':'Microsoft-kapcsolat beállítása szükséges.');
+ if(await resume()){
+  status('☁️ OneDrive automatikusan csatlakoztatva…');
+  await loadLibrary();return;
+ }
+ if(config&&await silentReconnect())return;
+ status(config?'Microsoft-megerősítés szükséges. A könyvek továbbra is a OneDrive-on maradnak.':'Microsoft-kapcsolat beállítása szükséges.');
 })();
 })(window,document);
