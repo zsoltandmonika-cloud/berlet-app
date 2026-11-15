@@ -69,9 +69,9 @@ function exactTescoUrl(text){
  }catch(_){return ''}
 }
 function urlFor(p){
- const mapping=mappings.get(keyFor(p,mode));
- const saved=exactTescoUrl(mapping?.tesco_url);
- return saved||SEARCH_BASE+encodeURIComponent(String(p.name||'').trim());
+ // The default double-tap ALWAYS opens Tesco's native result listing.
+ // A family-saved exact SKU is a secondary, explicitly chosen shortcut.
+ return SEARCH_BASE+encodeURIComponent(String(p.name||'').trim());
 }
 function toast(text){
  const el=$('toast');if(!el)return;el.textContent=text;el.hidden=false;
@@ -153,11 +153,14 @@ function render(){
  $('selectedQuantity').textContent=p?qty(p):'Válts a mintatermékekre';
  const mapping=p?mappings.get(keyFor(p,mode)):null;
  const hasLink=!!exactTescoUrl(mapping?.tesco_url);
- $('linkInfo').textContent=p?(hasLink?'✓ Mentett Tesco terméklink':'⌕ Első alkalom: Tesco keresés'):'';
+ $('linkInfo').textContent=p?(hasLink?'🔎 Tesco találatok · mentett termék külön elérhető':'🔎 Tesco találati lista'):'';
  const open=$('openTesco');
  open.href=p?urlFor(p):'#';
- open.textContent=hasLink?'↗ Mentett termék':'↗ Tesco megnyitása';
+ open.textContent='↗ Tesco találatok';
  open.setAttribute('aria-disabled',String(!p));
+ const savedShortcut=$('savedTesco');
+ savedShortcut.hidden=!p||!hasLink;
+ savedShortcut.href=p&&hasLink?exactTescoUrl(mapping?.tesco_url):'#';
  $('prevItem').disabled=!p||a.all.length<2;
  $('nextItem').disabled=!p||a.all.length<2;
  $('editLink').disabled=!p;
@@ -256,7 +259,11 @@ $('prevItem').onclick=()=>moveBy(-1);
 $('nextItem').onclick=()=>moveBy(1);
 $('openTesco').addEventListener('click',e=>{
  if(!selection().item){e.preventDefault();return}
- recordOpen(); // No await or popup. Same-tab navigation remains a direct user action.
+ recordOpen(); // Tesco search results, never an automatic product choice.
+});
+$('savedTesco').addEventListener('click',e=>{
+ if(!selection().item||$('savedTesco').hidden){e.preventDefault();return}
+ recordOpen(); // Explicit direct SKU shortcut only.
 });
 $('editLink').onclick=()=>{linkEditing=!linkEditing;render();if(linkEditing)$('linkInput').focus()};
 $('editing').addEventListener('submit',e=>{e.preventDefault();void saveLink()});
