@@ -11,7 +11,6 @@
  const text=x=>String(x||'').trim().replace(/\s+/g,' ');
  const accents=x=>x.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('hu-HU');
  const CATALOG=[
-  [/^2015 v(?:32|\d+)$/i,['2015','']],
   [/^a\s*kis\s*herceg$/i,['A kis herceg','Antoine de Saint-Exupéry']],
   [/^a\s*bankar$/i,['A bankár','Frei Tamás']],
   [/^agrarbarok$/i,['Agrárbárók','Frei Tamás']],
