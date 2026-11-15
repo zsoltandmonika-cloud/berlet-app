@@ -36,16 +36,16 @@ const notes=[
 "A tonhalat a végén add a mártáshoz: a hosszú főzéstől kiszáradhat és széteshet.",
 "A 100–200 ml félretett tésztafőzővíz biztosítja a selymes, nem száraz állagot.",
 "Az olívabogyó, kapribogyó, füstölt paprika és vaj opcionális ízfokozók, nem szükségesek az alaprecepthez.",
-"Ételfotó: Shameel Mukkath / Pexels, illusztráció. A tényleges étel megjelenése eltérhet.",
+"A kártya grafikus illusztráció. A tényleges étel megjelenése eltérhet.",
 "A tápérték csak a ténylegesen felhasznált márkák és mennyiségek alapján számolható pontosabban; az opcionális hozzávalókat külön kezeld."
 ];
 const recipe={
  id,
  title:"Mediterrán, paradicsomos tonhalas penne",
  category:"Tészták",
- file:"https://images.pexels.com/photos/5640054/pexels-photo-5640054.jpeg?auto=compress&cs=tinysrgb&w=1200",
- mime:"image/jpeg",
- originalName:"Mediterrán penne · Shameel Mukkath (Pexels)",
+ file:"recipes/Lena_Mediterran_Tonhalas_Penne_500g_2026.svg",
+ mime:"image/svg+xml",
+ originalName:"Léna Mediterrán tonhalas penne · receptkártya.svg",
  studioData:{
   title:"Mediterrán, paradicsomos tonhalas penne",
   category:"Tészták",
