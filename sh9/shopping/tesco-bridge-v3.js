@@ -31,6 +31,7 @@ const api=cfg&&cfg.enabled&&w.supabase?.createClient?
 let user=null,allowed=[],shared=[],mappings=new Map(),mode='demo',modeTouched=false;
 let selectedKey=null,linkEditing=false,loading=false,pending=false,channel=null,lastLoad=0,visibleRowCount=40;
 let toastHandle=null;
+let lastRowTapKey='',lastRowTapAt=0; // survives row redraw across first and second tap
 function readState(){
  try{const x=JSON.parse(w.sessionStorage.getItem(NAV_KEY)||'{}');return x&&typeof x==='object'?x:{}}catch(_){return {}}
 }
@@ -88,8 +89,19 @@ function setMode(next){
  const s=readState();s.mode=mode;writeState(s);render();
 }
 function chooseItem(i){
+ lastRowTapKey='';lastRowTapAt=0;
  const list=visible(),item=list[i];if(!item)return;
  selectedKey=keyFor(item,mode);linkEditing=false;render();
+}
+function activateRow(i){
+ const p=visible()[i];if(!p)return;
+ const key=keyFor(p,mode),now=Date.now();
+ const doubleTap=lastRowTapKey===key&&now-lastRowTapAt>=0&&now-lastRowTapAt<=450;
+ lastRowTapKey=key;lastRowTapAt=now;
+ if(!doubleTap){selectedKey=key;linkEditing=false;render();return}
+ lastRowTapKey='';lastRowTapAt=0;
+ selectedKey=key;recordOpen();
+ w.location.assign(urlFor(p)); // direct gesture, same tab, exact saved URL or official search
 }
 function moveBy(delta){
  const a=selection();if(!a.all.length)return;
@@ -114,8 +126,9 @@ function drawRows(info){
   const p=info.all[i],key=keyFor(p,mode),mapping=mappings.get(key);
   const button=node('button','item-row'+(i===info.index?' selected':''));button.type='button';
   button.setAttribute('aria-current',String(i===info.index));
-  button.setAttribute('aria-label','Termék kiválasztása: '+p.name);
-  button.onclick=()=>chooseItem(i);
+  button.setAttribute('aria-label','Termék: '+p.name+'. Egy koppintás kiválaszt, dupla koppintás megnyitja a Tescóban.');
+  button.title='Dupla kattintás: Tesco megnyitása';
+  button.onclick=()=>activateRow(i);
   const face=node('span','face',productIcon(p));
   const left=node('span','item-copy');
   left.append(node('strong',null,p.name),node('small',null,qty(p)));
@@ -143,7 +156,7 @@ function render(){
  $('linkInfo').textContent=p?(hasLink?'✓ Mentett Tesco terméklink':'⌕ Első alkalom: Tesco keresés'):'';
  const open=$('openTesco');
  open.href=p?urlFor(p):'#';
- open.textContent=hasLink?'🎯 Tesco-termék megnyitása ↗':'🔎 Keresés a Tescóban ↗';
+ open.textContent=hasLink?'↗ Mentett termék':'↗ Tesco megnyitása';
  open.setAttribute('aria-disabled',String(!p));
  $('prevItem').disabled=!p||a.all.length<2;
  $('nextItem').disabled=!p||a.all.length<2;
