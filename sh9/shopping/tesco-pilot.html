@@ -241,10 +241,8 @@ function rowFor(p){
  const input=element('input');input.type='url';input.inputMode='url';
  input.placeholder='https://bevasarlas.tesco.hu/shop/hu-HU/products/...';
  input.value=matched;input.autocomplete='off';input.spellcheck=false;input.maxLength=300;
- label.append(input);
  const saveButton=element('button',null,'Mentés');saveButton.type='submit';
  const inputRow=element('div','match-row');inputRow.append(input,saveButton);
- label.removeChild(input);
  linkPanel.append(label,inputRow,element('small',null,'Másold ide a Tesco megnyitott termékoldalának címét. Ezután közvetlenül ugyanarra a termékre jutsz.'));
  linkPanel.addEventListener('submit',e=>{
   e.preventDefault();
