@@ -720,13 +720,14 @@ async function saveEdit(){
 async function deleteCurrent(){
  if(!currentId)return;const id=currentId,r=getRecipe(id);if(!r)return;
  if(!confirm("Biztosan törlöd ezt a receptet?\n\n"+r.title+"\n\nA törlés visszaállítható."))return;
- try{
-   if(!await ensurePuterSignIn())throw new Error("Puter bejelentkezés szükséges.");
-   const m={...getMeta(id),deleted:true,updatedAt:new Date().toISOString()};
-   const ok=await saveRecipeMetaCloud(id,m);
-   if(!ok)throw new Error("Nem sikerült a felhőmentés.");
-   setMeta(id,m);$("#editDialog").close();showHome(true);toast("☁ Recept a felhőben is a kukába került.")
- }catch(e){alert("A törlést nem sikerült a felhőbe menteni: "+(e.message||e))}
+ // A soft-delete never depends on AI credits, authentication, or network availability.
+ // Hide locally first; queue cross-device metadata until Puter KV is available.
+ const m={...getMeta(id),deleted:true,updatedAt:new Date().toISOString()};
+ setMeta(id,m);markMetaPendingV1159(id,true);
+ $("#editDialog").close();showHome(true);
+ let synced=false;
+ try{synced=await saveRecipeMetaCloud(id,m)}catch(e){console.warn("Recept törlésének felhőszinkronja függőben",e)}
+ toast(synced?"☁ Recept a közös Kukában.":"🗑️ Recept elrejtve. Felhőszinkronra vár.");
 }
 async function resetCurrent(){
  if(!currentId)return;const id=currentId;
