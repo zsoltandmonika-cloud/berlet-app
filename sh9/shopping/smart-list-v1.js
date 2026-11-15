@@ -18,13 +18,32 @@ const groups=[
  ['🧴','Drogéria','sampon|balzsam|hajpakolás|tusfürdő|szappan|folyékony szappan|kézkrém|testápoló|arckrém|nappali krém|éjszakai krém|fényvédő|naptej|ajakápoló|dezodor|izzadásgátló|parfüm|fogkrém|fogkefe|elektromos fogkefefej|fogselyem|szájvíz|borotva|borotvahab|borotvagél|vattakorong|fültisztító pálcika|nedves törlőkendő|sminklemosó|micellás víz|pamutbetét|egészségügyi betét|tampon|hajfesték|hajlakk|hajzselé|hajolaj|hajgumi|körömlakklemosó|körömreszelő|kézfertőtlenítő|sebtapasz|steril géz|hidrogén-peroxid|sós orrspray|vitamin C|magnézium|multivitamin|napvédő stift|arcmaszk|szárazsampon|fogköztisztító kefe|papírvatta'],
  ['🐾','Kisállat','kutyatáp|száraz kutyatáp|nedves kutyaeledel|kutyajutalomfalat|kutyapelenka|kutyasampon|kutyafogkrém|kutyapiszok zacskó|kutya rágócsont|kutyajáték|kutyatál|kutyafekhely|macskaeledel|macskaalom|macskajutalomfalat|alomtálca|állatfésű|bolhanyakörv|kutyatörlőkendő']
 ];
-const PRODUCTS=[...new Map(groups.flatMap(([icon,category,names])=>names.split('|').map(name=>[name.toLocaleLowerCase('hu-HU'),{name,category,icon}]))).entries()].map(([,v])=>v);
-const cats=['Mind','Élelmiszer','Italok','Háztartás','Drogéria','Kisállat'];
-const ICON=Object.fromEntries(groups.map(g=>[g[1],g[0]]));
+const SHOPPING_MAIN_CATEGORIES=[
+ ['🍎','Élelmiszer','Élelmiszer'],
+ ['📱','Elektronika','Elektronika'],
+ ['👗','Divat & Stílus','Divat'],
+ ['🧴','Drogéria & Szépség','Drogéria'],
+ ['🏠','Otthon & Háztartás','Otthon & Háztartás']
+];
+function mainCategory(category){
+ const c=String(category||'');
+ if(c==='Italok')return 'Élelmiszer';
+ if(c==='Drogéria')return 'Drogéria & Szépség';
+ if(c==='Háztartás'||c==='Kisállat')return 'Otthon & Háztartás';
+ return c||'Élelmiszer';
+}
+const additionalGroups=[
+ ["📱","Elektronika","mobiltelefon|okostelefon|telefon tok|mobil tok|kijelzővédő fólia|üvegfólia|telefontöltő|gyorstöltő|USB-C töltő|vezeték nélküli töltő|powerbank|USB-C kábel|USB kábel|HDMI kábel|hálózati kábel|LAN kábel|adapter|USB adapter|fülhallgató|vezeték nélküli fülhallgató|bluetooth fülhallgató|fejhallgató|hangszóró|bluetooth hangszóró|okosóra|óraszíj|okosotthon központ|okosizzó|okos konnektor|laptop|notebook|laptop töltő|számítógép|monitor|billentyűzet|egér|vezeték nélküli egér|webkamera|router|wifi router|külső merevlemez|pendrive|memóriakártya|SSD|nyomtató|nyomtatópatron|toner|TV|televízió|távirányító|elektromos hosszabbító|elosztó|játék konzol|elektromos fogkefe|elektromos borotva|kábelrendező"],
+ ["👗","Divat & Stílus","póló|t-shirt|ing|blúz|top|pulóver|kardigán|kapucnis pulóver|hoodie|mellény|farmer|farmernadrág|nadrág|szövetnadrág|leggings|rövidnadrág|szoknya|ruha|nyári ruha|alkalmi ruha|zakó|blézer|öltöny|kabát|dzseki|esőkabát|cipő|tornacipő|sportcipő|futócipő|bakancs|csizma|szandál|papucs|zokni|harisnya|alsónemű|fehérnemű|melltartó|pizsama|fürdőruha|úszónadrág|sál|sapka|kalap|kesztyű|öv|napszemüveg|táska|kézitáska|hátizsák|pénztárca|ékszer|nyaklánc|karkötő|fülbevaló|karóra"],
+ ["🏠","Otthon & Háztartás","ágynemű|ágyneműhuzat|paplan|párna|párnahuzat|lepedő|takaró|pléd|matrac|matracvédő|törölköző|fürdőlepedő|fürdőszobaszőnyeg|szőnyeg|függöny|sötétítő függöny|redőny|polc|tárolókosár|szekrény|komód|asztal|szék|lámpa|állólámpa|asztali lámpa|váza|képkeret|fali óra|virágcserép|szobanövény|mosókosár|vállfa|ruhaszárító|vasalódeszka|edény|lábas|serpenyő|fazék|tepsi|sütőforma|vágódeszka|konyhakés|evőeszköz|tányér|pohár|bögre|termobögre|kulacs|kancsó|szűrő|szűrőkanál|konzervnyitó|dugóhúzó|konyharuha|konyhai mérleg|kávéfőző|vízforraló|pirítós sütő|mikrohullámú sütő|porszívó|porszívózsák|légtisztító"],
+ ["🧴","Drogéria & Szépség","arcápoló|arclemosó|arcszérum|hajbalzsam|hajhab|hajfesték|kézmosó|habfürdő|dezodor stift|rúzs|szemceruza|szempillaspirál|alapozó|púder|pirosító|körömlakk|sminkecset|kozmetikai tükör|hajkefe|hajszárító|sminkszivacs|szemránckrém|testpermet|intim mosakodó|szemmaszk|arcpakolás"],
+];
+const PRODUCTS=[...new Map([...groups,...additionalGroups].flatMap(([icon,category,names])=>names.split('|').map(name=>[name.toLocaleLowerCase('hu-HU'),{name,category:mainCategory(category),icon}]))).entries()].map(([,v])=>v);
+const ICON={...Object.fromEntries(groups.map(g=>[g[1],g[0]])),...Object.fromEntries(additionalGroups.map(g=>[g[1],g[0]])),Élelmiszer:'🍎'};
 const nrm=s=>String(s||'').toLocaleLowerCase('hu-HU').normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
 const validUrl=s=>{try{const u=new URL(s);return u.protocol==='https:'?u.href:''}catch(_){return''}};
 const node=(tag,cls,txt)=>{let n=d.createElement(tag);if(cls)n.className=cls;if(txt!==undefined)n.textContent=txt;return n};
-let user=null,allowed=[],items=[],selectedCategory='Mind',remote=[],activeQuery='',queryToken=0,queryTimer=0,fetchCtrl=null,live=null,refreshBusy=false,pendingReload=false,firstLoad=true,writing=false,voiceRec=null,busyIds=new Set();
+let user=null,allowed=[],items=[],selectedCategory='',remote=[],activeQuery='',queryToken=0,queryTimer=0,fetchCtrl=null,live=null,refreshBusy=false,pendingReload=false,firstLoad=true,writing=false,voiceRec=null,busyIds=new Set();
 const who=()=>{try{return localStorage.getItem('hh-profile')==='m'?'monika':'zsolt'}catch(_){return'zsolt'}};
 const label=p=>p==='monika'?'Mónika':'Zsolt';
 function toast(message){const e=$('toast');e.textContent=message;e.hidden=false;clearTimeout(toast.id);toast.id=setTimeout(()=>e.hidden=true,3600)}
@@ -185,7 +204,7 @@ function productIcon(name,category){
 function suggestions(){
  const q=$('productSearch').value.trim(),out=$('suggestions');out.replaceChildren();
  if(!q){out.hidden=true;return}
- const target=nrm(q);let found=PRODUCTS.filter(p=>(selectedCategory==='Mind'||selectedCategory===p.category)&&nrm(p.name).includes(target));
+ const target=nrm(q);let found=PRODUCTS.filter(p=>(!selectedCategory||selectedCategory===mainCategory(p.category))&&nrm(p.name).includes(target));
  found.sort((a,b)=>Number(nrm(b.name).startsWith(target))-Number(nrm(a.name).startsWith(target))||a.name.localeCompare(b.name,'hu'));
  found=found.slice(0,7);
  const remoteResults=remote.filter(p=>nrm(p.name).includes(target)).slice(0,5);
@@ -210,7 +229,15 @@ function parseEntry(raw){
  return{name:s,quantity:1,unit:'db'};
 }
 function inferCategory(name){
- const q=nrm(name),ref=PRODUCTS.find(x=>nrm(x.name)===q);return ref?.category||(selectedCategory!=='Mind'?selectedCategory:'Élelmiszer');
+ const q=nrm(name),ref=PRODUCTS.find(x=>nrm(x.name)===q);
+ if(ref)return ref.category;
+ // Recognise familiar products even with qualifiers, e.g. "bio banán" or "1 kg rizs".
+ const value=' '+q.replace(/[^a-z0-9]+/g,' ').replace(/\s+/g,' ').trim()+' ';
+ const partial=PRODUCTS.filter(p=>{
+  const term=nrm(p.name).replace(/[^a-z0-9]+/g,' ').trim();
+  return term&&value.includes(' '+term+' ');
+ }).sort((a,b)=>b.name.length-a.name.length)[0];
+ return partial?.category||selectedCategory||'Élelmiszer';
 }
 async function add(p){
  if(!user||!allowed.includes(who()))return toast('Előbb jelentkezz be a családi fiókba.');
@@ -218,7 +245,7 @@ async function add(p){
  const parsed=parseEntry(p.name);
  if(!parsed.name)return;
  if(!Number.isFinite(parsed.quantity)||parsed.quantity<=0||parsed.quantity>9999)return toast('Ellenőrizd a mennyiséget.');
- const category=p.category||inferCategory(parsed.name),image=validUrl(p.image||'');
+ const category=mainCategory(p.category||inferCategory(parsed.name)),image=validUrl(p.image||'');
  const found=items.find(x=>!x.done&&(p.code&&x.barcode===p.code||nrm(x.name)===nrm(parsed.name)&&x.unit===parsed.unit));
  writing=true;
  try{
@@ -241,7 +268,7 @@ function itemRow(p){
  if(validUrl(p.image_url)){const img=node('img');img.src=validUrl(p.image_url);img.alt=p.name;img.loading='lazy';img.onerror=()=>{image.replaceChildren(d.createTextNode(productIcon(p.name,p.category)))};image.append(img)}
  else image.textContent=productIcon(p.name,p.category);
  const main=node('div','product-main');
- main.append(node('div','product-name',p.name),node('div','product-details',String(Number(p.quantity))+' '+p.unit+' · '+p.category));
+ main.append(node('div','product-name',p.name),node('div','product-details',String(Number(p.quantity))+' '+p.unit+' · '+mainCategory(p.category)));
  if(p.done&&p.done_by_profile)main.append(node('div','product-details done-note','✓ '+label(p.done_by_profile)+' kipipálta'));
  const controls=node('div','product-controls');
  const favorite=node('button','heart'+(p.favorite?' active':''),p.favorite?'♥':'♡');favorite.type='button';favorite.title='Kedvenc';favorite.setAttribute('aria-label','Kedvenc: '+p.name);favorite.onclick=()=>setFavorite(p,!p.favorite);
@@ -345,7 +372,7 @@ function foreground(){
 const searchDebounce=()=>{clearTimeout(queryTimer);queryTimer=setTimeout(fetchProductMatches,650)};
 async function fetchProductMatches(){
  const query=$('productSearch').value.trim();
- if(query.length<3||query.length>70||!['Mind','Élelmiszer','Italok'].includes(selectedCategory)){remote=[];suggestions();return}
+ if(query.length<3||query.length>70||(selectedCategory&&selectedCategory!=='Élelmiszer')){remote=[];suggestions();return}
  const token=++queryToken;activeQuery=query;
  if(fetchCtrl)fetchCtrl.abort();fetchCtrl=new AbortController();const controller=fetchCtrl,timeout=setTimeout(()=>controller.abort(),10000);
  try{
@@ -360,10 +387,23 @@ async function fetchProductMatches(){
 }
 function buildCategories(){
  const box=$('categories');
- for(const cat of cats){
-  const b=node('button','category-chip'+(cat===selectedCategory?' active':''),cat==='Mind'?'✨ Mind':(selectedIcon(cat)+' '+cat));b.type='button';
-  b.onclick=()=>{selectedCategory=cat;box.querySelectorAll('button').forEach(x=>x.classList.remove('active'));b.classList.add('active');remote=[];suggestions();searchDebounce()};
-  box.append(b);
+ for(const [icon,category,labelText] of SHOPPING_MAIN_CATEGORIES){
+  const button=node('button','category-chip',icon+' '+labelText);
+  button.type='button';
+  button.dataset.category=category;
+  button.setAttribute('aria-pressed','false');
+  button.setAttribute('aria-label',category);
+  button.onclick=()=>{
+   // Second tap on the current chip clears the filter, without adding a sixth chip.
+   selectedCategory=selectedCategory===category?'':category;
+   box.querySelectorAll('button').forEach(x=>{
+    const active=x.dataset.category===selectedCategory;
+    x.classList.toggle('active',active);
+    x.setAttribute('aria-pressed',String(active));
+   });
+   remote=[];suggestions();searchDebounce();
+  };
+  box.append(button);
  }
 }
 async function addVoiceText(text){
