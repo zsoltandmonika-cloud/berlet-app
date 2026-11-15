@@ -11,6 +11,7 @@
  const text=x=>String(x||'').trim().replace(/\s+/g,' ');
  const accents=x=>x.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('hu-HU');
  const CATALOG=[
+  [/^2015 v(?:32|\d+)$/i,['2015','']],
   [/^a\s*kis\s*herceg$/i,['A kis herceg','Antoine de Saint-Exupéry']],
   [/^a\s*bankar$/i,['A bankár','Frei Tamás']],
   [/^agrarbarok$/i,['Agrárbárók','Frei Tamás']],
@@ -20,7 +21,6 @@
   [/^a\s*gonosz$/i,['A gonosz','Alex Kava']],
   [/^a\s*lincoln\s*mitosz$/i,['A Lincoln-mítosz','Steve Berry']],
   [/^a\s*kuldetes$/i,['A küldetés','Wilbur Smith']],
-  [/^a\s*megmento$/i,['A Megmentő','Frei Tamás']],
   [/^arctalan\s*demonok$/i,['Arctalan démonok','John Connolly']],
   [/^alaskaban\s*vadasztam$/i,['Alaszkában vadásztam','Széchenyi Zsigmond']],
   [/^perujrafelvetel$/i,['Perújrafelvétel','Michael Connelly']],
@@ -34,6 +34,7 @@
  'G. R. R. Martin','George R. R. Martin','Bártfai Barnabás','Pétery Kristóf'
  ];
  const NAME_FIXES=[
+ [/\btronok\s*harca\b/gi,'Trónok harca'],[/\bfrei\s*tamas\b/gi,'Frei Tamás'],
  [/\bfrei\s+tamas\b/gi,'Frei Tamás'],[/\bexupry\b/gi,'Exupéry'],[/\bexupery\b/gi,'Exupéry'],
  [/\bszechenyi\s+zsigmond\b/gi,'Széchenyi Zsigmond'],[/\bmilos\s+mikeln\b/gi,'Miloš Mikeln']
  ];
@@ -83,6 +84,21 @@
   title=title.replace(/^(?:Alex Delaware|Harry Bosch|Maggie O.Dell|Charlie Parker|Cotton Malone|Jack Swyteck|Ókori Egyiptom)\s*\d{1,2}\s*-\s*/i,'');
   return findCanonical(title,author);
  }
+ function overridesKey(account,driveId,itemId){return 'sh9-book-title-v4:'+encodeURIComponent(String(account||'').toLowerCase())+':'+encodeURIComponent(String(driveId||''))+':'+encodeURIComponent(String(itemId||''))}
+ function readOverride(store,account,b){
+  try{
+   const raw=store.getItem(overridesKey(account,b.drive_id,b.drive_item_id));
+   const v=JSON.parse(raw);
+   return v&&typeof v.title==='string'&&v.title.trim().length>0?{title:v.title.slice(0,180),author:(v.author||'').slice(0,150)}:null
+  }catch(_){return null}
+ }
+ function saveOverride(store,account,b,title,author){
+  const t=text(title).slice(0,180),a=text(author).slice(0,150);
+  if(!t||t.length>180)throw Error('A könyvcím nem lehet üres.');
+  store.setItem(overridesKey(account,b.drive_id,b.drive_item_id),JSON.stringify({title:t,author:a}));
+  return {title:t,author:a};
+ }
+ function removeOverride(store,account,b){store.removeItem(overridesKey(account,b.drive_id,b.drive_item_id))}
  function metadata(title,author,fallbackName){
   const raw=clean(title),source=raw||parseFilename(fallbackName).title;
   const fallback=parseFilename(fallbackName);
@@ -123,5 +139,5 @@
   hidden.sort((a,b)=>String(a.title).localeCompare(String(b.title),'hu-HU'));
   return {primary,hidden,mapping};
  }
- return Object.freeze({clean,parseFilename,metadata,findCanonical,deduplicate,key});
+ return Object.freeze({clean,parseFilename,metadata,findCanonical,deduplicate,key,readOverride,saveOverride,removeOverride});
 });
