@@ -104,6 +104,14 @@
 - Forrás: [Tesco Smart Shopping v3 Golden contract](./SHO_TESCO_CART_BRIDGE_V3.md), `healthhub/project-control.json → tescoShoppingRelease`. A v3 Golden felülethez később csak új verzióban nyúlunk.
 - A projekt általános `SH9 · Edge Installable PWA QA` és `HealthHub Level 3 Guard` CI-hibái külön, nem Tesco-specifikusak (natív navigációs fallback tesztek, BKK favorites ellenőrzés); nem értelmezhetők sikeresnek. Ez **nem** teljes projektszintű zöld QA.
 
+### 13. 2026. november 15. · Smart Shopping mind a 10 áruházkártyán
+- Jóváhagyott dizájn: a külön felső Tesco CTA helyett **mind a 10 áruházkártyán belül** látszik az `🛒 Smart Shopping ↗` gomb; a bolt neve és logója továbbra is közvetlen bolt-link. A teljes 2×5 viewport Golden Standard maradt, nincs új sor vagy magasítás.
+- Tesco változatlan Golden v3; Auchan, Kifli, dm, Rossmann, eMAG, Alza, Allegro, Temu és SHEIN az új közös `merchant-smart-v1.html?store=...` oldalra kötve. Teljes családi Smart List, következő termék, opcionális konkrét bolti terméklink felhős mentése. A nyolc nem igazolt közvetlen keresési útvonalú kereskedőnél boltra szűrt külső webkeresés; Temunál saját kereső.
+- Új RLS-védett Supabase tábla: `hh_shopping_merchant_links_v1` (külön a Tesco bridge táblától), 3 családi policy, anon SELECT kizárva, Realtime bekapcsolva. A Smart List táblát csak olvassuk, és nem jelezzük automatikusan megvásároltnak.
+- Mock DOM + felhőmotor ellenőrzés: **9/9 üzlet sikeres**: 261 aktív elem, 40→80 tételes megjelenítés, következő termék Vissza után, kereskedő-specifikus URL-mentés és direct open. A Tesco Golden forrás nem változott.
+- Határ: a vásárlási átadás *nem* közvetlen kosár-API vagy automatikus feltöltés. Valódi Samsung Internet / Edge és két családi profilos UAT még nyitott.
+- Dokumentáció: [10 boltos Golden integráció](./SHO_SMART_SHOPPING_10_STORES_GOLDEN_20261115.md). A későbbi valódi kosárintegráció külön fejlesztési kapu.
+
 ### 6. Folytatási szabály
 
 A következő fejlesztések előtt a **P0 migrációs adatbiztonsági hiányokat** kell rendezni. Minden release-nél: célzott CI → főági merge → valódi mobilteszt → Project Control naplófrissítés. A GitHub PR nem helyettesíti a privát, kétprofilos telefonos ellenőrzést.
