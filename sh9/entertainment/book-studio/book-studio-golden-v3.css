@@ -1,0 +1,135 @@
+/* SHO Book Studio Golden V3: photographic library hero + shelf cards + immersive book.
+ * Two free-to-use Unsplash photographs are decorative background layers only.
+ * Core functionality and book data work if the remote images do not load.
+ */
+:root{--bs-ice:#8bdcff;--bs-rose:#f5aedb;--bs-gold:#f3c993;--bs-shelf:#a06f48;--bs-ring:#86d4ff}
+body{background:radial-gradient(ellipse at 0 0,#25153f90,transparent 54%),radial-gradient(ellipse at 100% 20%,#174b5c48,transparent 50%),#070b15}
+.shell{max-width:1620px}
+.top{height:72px}.top .back{display:inline-flex;align-items:center;gap:10px}.top .back strong{font-weight:900}
+.hero{min-height:340px;margin:3px 0 25px;border:1px solid #ce9e6a91;box-shadow:0 28px 100px #0009,inset 0 1px #ffe6c155;isolation:isolate;
+ background:linear-gradient(95deg,#090d17ee 3%,#10172ddc 39%,#100e178c 72%,#060b17dd 100%),
+ url('https://images.unsplash.com/photo-1647793294248-4a3187b0d6a6?auto=format&fit=crop&w=2400&q=85') center 50%/cover no-repeat,#182036}
+.hero:before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,#f6bd6947,transparent 30%,#0a132c55 70%),radial-gradient(ellipse at 80% 20%,#ef9b654d,transparent 34%);mix-blend-mode:screen;pointer-events:none;z-index:0}
+.hero:after{width:420px;height:420px;right:-155px;bottom:-255px;background:#aa49744e}
+.hero-copy{max-width:710px;z-index:2}.hero h1{font-size:clamp(55px,7.2vw,108px);line-height:.96;margin:13px 0;filter:drop-shadow(0 8px 25px #0008)}.hero h1 em{background:linear-gradient(120deg,#fff5c7 2%,#ffc29d 29%,#ff97c3 64%,#f6cee9);background-clip:text;color:transparent}
+.hero p{max-width:560px;color:#f1eef6;text-shadow:0 2px 8px #000;font-size:clamp(14px,1.7vw,20px)}
+.hero .eyebrow{color:#ffdaa9;text-shadow:0 2px 9px #000;letter-spacing:2.4px}
+.hero-actions .btn{backdrop-filter:blur(15px);-webkit-backdrop-filter:blur(15px);border:1px solid #fff7;padding:12px 24px}
+.hero-actions .btn.primary{background:linear-gradient(120deg,#2561bd,#883f94 72%,#c54d9c);box-shadow:0 8px 35px #462db35c}
+.hero-actions .btn.subtle{background:#080e1b91}
+.hero .hint{color:#ece1dd;opacity:.78}
+.hero-visual{min-height:270px;flex-basis:29%;filter:drop-shadow(0 20px 32px #05050fc2)}.stack{height:235px;width:152px;box-shadow:10px 20px 25px #000a,inset 7px 0 14px #03011170,0 0 12px #c3926778}
+.onedrive-panel{position:relative;isolation:isolate;overflow:hidden;border:1px solid #7eafe47a;background:
+ radial-gradient(ellipse at 60% 10%,#215d8330,transparent 44%),linear-gradient(155deg,#111b2bf0,#0a111df5 55%,#120e18f5);
+ box-shadow:0 24px 68px #0008,inset 0 1px #ffffff30,0 0 32px #548fd825}
+.onedrive-panel:before{content:"";position:absolute;inset:0 0 auto;height:380px;z-index:-1;opacity:.3;pointer-events:none;
+ background:linear-gradient(180deg,#101a2b44,#111a2bec 93%),url('https://images.unsplash.com/photo-1623771702313-39dc4f71d275?auto=format&fit=crop&w=2400&q=75') center 38%/cover no-repeat}
+.onedrive-panel:after{content:"";position:absolute;inset:0;border-radius:inherit;box-shadow:inset 0 1px #fff4;pointer-events:none}
+.onedrive-panel .section-title{margin-top:0}
+.od-heading h2{font-size:clamp(31px,4vw,47px);letter-spacing:-.8px;text-shadow:0 3px 17px #0008}
+.od-heading h2 small{font-size:14px;color:#b9dcf9;letter-spacing:0}
+.od-desc{max-width:820px;font-size:14px;color:#e5e8f4}
+.od-connect{backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);border:1px solid #8ea9d061;background:linear-gradient(130deg,#19223abb,#101a28ce);box-shadow:inset 0 1px #fff1}
+.od-readonly{background:#133d2bba;color:#bdffe3}
+.od-toolbar{margin-top:17px;margin-bottom:10px}
+.od-toolbar .searchbox{min-height:46px;border:1px solid #8acaff6c;box-shadow:0 3px 15px #0004;backdrop-filter:blur(10px);background:#0c1425dc}
+.od-toolbar .searchbox input{font-size:15px}
+.od-utility-row{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;border-bottom:1px solid #8ec9ec43;padding:7px 0 15px;margin:0 0 19px}
+.od-shelf-kicker{font-size:11px;color:var(--bs-gold);letter-spacing:2.5px;font-weight:900}
+.od-cache-tools{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.od-cache-info{font-size:11px;color:#b4d8ea;margin-right:8px}
+.od-cover-sync,.od-cache-clear{padding:9px 13px;border-radius:13px;background:#1d385dba;color:#ecf6ff;border:1px solid #8bcdfc75;font-size:12px;font-weight:800}
+.od-cache-clear{background:#ffffff0e;border-color:#ffffff35;color:#c9c8d4}
+.od-cover-sync:disabled{opacity:.48;cursor:wait}
+.od-utility-row button:hover{filter:brightness(1.19)}
+.onedrive-panel .book-grid{gap:clamp(15px,1.7vw,27px)}
+.onedrive-book{padding:11px 11px 14px;border:1px solid #a6bdd350;border-radius:15px;background:
+ linear-gradient(165deg,#284468bd 0%,#111b2fe8 51%,#100e18ee 100%);box-shadow:0 11px 26px #0007,inset 0 1px #c7e9ff18;transition:transform .21s ease,box-shadow .21s ease,border-color .21s ease;display:flex;flex-direction:column}
+.onedrive-book:after{content:"";position:absolute;bottom:-6px;left:-6px;right:-6px;height:7px;border-radius:1px 1px 9px 9px;background:linear-gradient(180deg,#a77a4ca8,#3e2b22,#120e13);box-shadow:0 4px 12px #0008;pointer-events:none}
+.onedrive-book:hover,.onedrive-book:focus-within{transform:translateY(-5px);box-shadow:0 19px 42px #000a,0 0 20px #a6777840;border-color:#dfbd9585}
+.onedrive-book .od-cover{position:relative;aspect-ratio:2/3;border-radius:3px 12px 10px 3px;
+ background:linear-gradient(150deg,#ffffff15,#ffffff00 36%),linear-gradient(135deg,var(--tone1),var(--tone2));
+ box-shadow:9px 11px 24px #000a,inset 6px 0 13px #0007,0 0 1px #ffffff70;
+ padding:17px 11px;transform:perspective(650px) rotateY(-4deg);transition:transform .25s ease}
+.onedrive-book:hover .od-cover,.onedrive-book:focus-within .od-cover{transform:perspective(650px) rotateY(0)}
+.onedrive-book .od-cover:after{border-left:2px solid #fefefe34;left:8px}
+.onedrive-book .od-cover.has-art{background-size:cover;background-position:center;background-repeat:no-repeat}
+.onedrive-book .od-cover.has-art:before{background:linear-gradient(180deg,#0000000d,#00000005);z-index:1}
+.onedrive-book .od-cover.has-art .cover-mark,.onedrive-book .od-cover.has-art strong,.onedrive-book .od-cover.has-art small{display:none}
+.onedrive-book .od-cover strong{font-size:clamp(15px,1.7vw,22px);line-height:1.17;overflow-wrap:break-word;hyphens:auto;display:-webkit-box;-webkit-line-clamp:6;-webkit-box-orient:vertical;overflow:hidden;word-break:normal;text-shadow:0 3px 10px #000a}
+.onedrive-book .od-cover small{font-size:10px;opacity:.85;color:#fff;letter-spacing:.3px;line-height:1.35}
+.onedrive-book h3{font-size:14px;line-height:1.32;min-height:38px;overflow:hidden;white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;margin:15px 0 4px}
+.onedrive-book p{font-size:12px;min-height:18px;color:#dccfe3}
+.onedrive-book .card-actions{margin-top:auto;padding-top:12px}
+.onedrive-book .card-actions .open{padding:10px 14px;font-size:12px;font-weight:840;background:linear-gradient(115deg,#2c68b8,#984b96);border:1px solid #9faefc86;box-shadow:0 5px 15px #0004}
+.onedrive-book .card-actions button:not(.open){width:38px;height:38px;border-radius:50%;font-size:17px;display:grid;place-items:center}
+.onedrive-book .card-progress{height:4px;margin-top:13px;background:#e0e3f322;border-radius:5px;overflow:hidden}
+.onedrive-book .card-progress span{background:linear-gradient(90deg,#65c7ff,#ef8cd5);box-shadow:0 0 13px #a06ecb}
+.od-note{padding-top:13px;border-top:1px solid #ffffff24;color:#a6b8ce;font-size:11px}
+/* Reading room: narrowed paper frame makes desktop 1920px readable instead of 130-char lines. */
+.reader{--paper:#101522;--ink:#eeeaf2;--surface:#101a29;background:linear-gradient(115deg,#080b13,#141a2a 50%,#080b13);font-family:Inter,system-ui,-apple-system,"Segoe UI",Arial,sans-serif}
+.reader[data-theme=dark]{--paper:#171c29;--ink:#e8e2dc;--surface:#171c29}
+.reader[data-theme=light]{--paper:#fffefa;--ink:#2c292c;--surface:#f8f3eb;background:#f3f1eb}
+.reader[data-theme=sepia]{--paper:#eee2c7;--ink:#493b2e;--surface:#efe3ca;background:#d0bea0}
+.reader-bar,.reader-tools,.reader-footer,.reader-progress-bar{border-color:color-mix(in srgb,var(--ink) 16%,transparent);background:var(--surface);color:var(--ink);position:relative;z-index:5}
+.reader-bar{min-height:63px;padding:10px 20px;box-shadow:0 2px 18px #0001}
+.reader-bar .reader-meta strong{font-size:15px}.reader-bar .reader-meta small{font-size:12px}
+.reader-bar .square{font-size:21px;width:44px;height:44px;display:grid;place-items:center}
+.reader-bar .focus-toggle{background:transparent;color:inherit;border:1px solid #ffffff30;border-radius:12px;font-size:20px;min-width:44px;min-height:44px}
+.reader-tools{gap:9px;min-height:55px;padding:8px 18px;justify-content:center;box-shadow:0 3px 13px #0002}
+.reader-tools select,.reader-tools button{background:color-mix(in srgb,var(--paper) 60%,#ffffff 8%);color:var(--ink);border-radius:12px;min-height:37px;padding:7px 12px;font-size:13px;font-weight:750;box-shadow:inset 0 1px #ffffff10}
+.reader-tools select option{background:var(--surface);color:var(--ink)}
+.reader-content{padding:clamp(12px,2.5vh,32px) clamp(14px,3vw,46px);perspective:1600px;background:
+ radial-gradient(ellipse at 50% 30%,color-mix(in srgb,var(--paper) 75%,white 7%),var(--paper) 85%);
+ position:relative}
+.reader-paper-glow{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,#f0d8af08,transparent 60%);pointer-events:none}
+#epubStage{max-width:920px;width:100%;height:100%;min-height:0;margin:0 auto;
+ border-radius:4px 15px 15px 4px;overflow:hidden;box-shadow:0 0 0 1px #ffffff12,12px 20px 45px #0004,
+ inset 10px 0 16px #0001;background:var(--paper);color:var(--ink)}
+#pdfStage{max-width:100%;min-height:100%;margin:0 auto}
+#pdfStage canvas{width:auto;max-width:100%;height:auto;box-shadow:0 8px 42px #0005}
+.reader-progress-bar{display:flex;align-items:center;gap:17px;min-height:35px;padding:5px 18px;background:var(--surface)}
+.reader-progress-bar input{appearance:none;-webkit-appearance:none;flex:1;min-width:0;height:5px;cursor:pointer;border-radius:999px;outline:0;background:linear-gradient(90deg,#b483bd var(--progress,0%),#ffffff2d var(--progress,0%))}
+.reader-progress-bar input::-webkit-slider-thumb{-webkit-appearance:none;width:15px;height:15px;border-radius:50%;background:#f1beeb;border:2px solid #fff;box-shadow:0 0 12px #a978c3}
+.reader-progress-bar input::-moz-range-thumb{width:12px;height:12px;border-radius:50%;background:#f1beeb;border:2px solid #fff}
+.reader-progress-bar input:disabled{opacity:.38;cursor:not-allowed}
+.reader-scrub-percentage{font-size:12px;font-weight:740;width:39px;text-align:right}
+.reader-footer{min-height:67px;padding:7px 23px max(8px,env(safe-area-inset-bottom));gap:12px;background:var(--surface);z-index:6}
+.reader-footer button{min-width:143px;min-height:47px;display:flex;justify-content:center;align-items:center;gap:7px;border-radius:13px;border:1px solid #adc8dd55;background:color-mix(in srgb,var(--paper) 80%,white 8%);font-size:16px;font-weight:830}
+.reader-footer button:hover{background:color-mix(in srgb,var(--paper) 58%,#99a9e4 27%)}
+.reader-footer #pageLabel{font-size:13px;color:var(--ink);font-weight:800;opacity:.8;text-align:center}
+.reader.focus-mode .reader-tools{display:none}
+.reader.focus-mode .reader-bar{min-height:48px;opacity:.77}
+.reader.focus-mode .reader-footer{opacity:.8}
+.reader.focus-mode .reader-content{padding-top:8px;padding-bottom:8px}
+.reader.turn-forward #epubStage,.reader.turn-forward #pdfStage{animation:bs-page-forward .33s cubic-bezier(.2,.8,.2,1)}
+.reader.turn-backward #epubStage,.reader.turn-backward #pdfStage{animation:bs-page-backward .33s cubic-bezier(.2,.8,.2,1)}
+@keyframes bs-page-forward{0%{transform:perspective(1600px) rotateY(0) translateX(0);filter:brightness(1)}45%{transform:perspective(1600px) rotateY(-5deg) translateX(-8px);filter:brightness(.92)}100%{transform:perspective(1600px) rotateY(0) translateX(0);filter:brightness(1)}}
+@keyframes bs-page-backward{0%{transform:perspective(1600px) rotateY(0) translateX(0)}45%{transform:perspective(1600px) rotateY(5deg) translateX(8px)}100%{transform:perspective(1600px) rotateY(0) translateX(0)}}
+@media(max-width:700px){
+ .hero{min-height:280px;border-radius:19px;padding:26px 20px;margin:0 0 16px}
+ .hero h1{font-size:clamp(45px,11vw,65px)}.hero p{font-size:14px;max-width:370px}
+ .hero-visual{opacity:.22;right:-35px;top:25px;transform:scale(.65)}
+ .onedrive-panel{padding:14px 10px;border-radius:16px}.od-heading h2{font-size:32px}
+ .od-utility-row{align-items:flex-start}.od-cache-info{width:100%}.od-cover-sync,.od-cache-clear{padding:9px 11px}
+ .onedrive-panel .book-grid{gap:12px}.onedrive-book{padding:8px 8px 12px;border-radius:12px}
+ .onedrive-book .od-cover{padding:12px 9px;aspect-ratio:2/3}
+ .onedrive-book .od-cover strong{font-size:clamp(13px,3.7vw,20px)}
+ .onedrive-book h3{font-size:13px;min-height:36px;margin:12px 0 3px}
+ .onedrive-book .card-actions .open{padding:9px 11px;font-size:11px}
+ .reader-bar{min-height:56px;padding:6px 10px}
+ .reader-tools{min-height:52px;justify-content:flex-start;overflow-x:auto;flex-wrap:nowrap;padding:8px 10px;gap:7px}
+ .reader-tools select,.reader-tools button{flex-shrink:0;min-width:38px;padding:7px 9px}
+ #chapterList{max-width:145px}
+ .reader-content{padding:8px 6px 5px}
+ #epubStage{border-radius:0 7px 7px 0}
+ .reader-progress-bar{min-height:32px;padding:4px 12px}
+ .reader-footer{min-height:67px;padding:7px 10px max(9px,env(safe-area-inset-bottom));gap:6px}
+ .reader-footer button{flex:1;min-width:0;font-size:18px;min-height:46px}
+ .reader-footer button span{font-size:12px}
+ .reader-footer #pageLabel{font-size:10px;max-width:34%;line-height:1.2}
+}
+@media(prefers-reduced-motion:reduce){
+ .reader.turn-forward #epubStage,.reader.turn-forward #pdfStage,.reader.turn-backward #epubStage,.reader.turn-backward #pdfStage{animation:none}
+ .onedrive-book{transition:none}.onedrive-book:hover,.onedrive-book:focus-within{transform:none}
+}

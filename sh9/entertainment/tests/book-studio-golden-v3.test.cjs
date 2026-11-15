@@ -1,0 +1,83 @@
+'use strict';
+const {test}=require('node:test');
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const path=require('node:path');
+const root=path.resolve(__dirname,'../../..');
+const read=p=>fs.readFileSync(path.join(root,p),'utf8');
+const html=read('sh9/entertainment/book-studio/index.html');
+const book=read('sh9/entertainment/book-studio/book-studio.js');
+const drive=read('sh9/entertainment/book-studio/onedrive-books-v2.js');
+const css=read('sh9/entertainment/book-studio/book-studio-golden-v3.css');
+const session=read('sh9/entertainment/book-studio/onedrive-session-v3.js');
+const cacheSrc=read('sh9/entertainment/book-studio/book-cache-v3.js');
+const cache=require('../book-studio/book-cache-v3.js');
+const sessionStore=require('../book-studio/onedrive-session-v3.js');
+const sample={drive_id:'test-drive',drive_item_id:'book-id',etag:'version-1',size_bytes:2048};
+test('Golden V3 app scripts load in safe order and keep original library',()=>{
+ const a=html.indexOf('onedrive-session-v3.js'),b=html.indexOf('book-cache-v3.js');
+ const c=html.indexOf('book-studio.js?v=3'),d=html.indexOf('onedrive-books-v2.js?v=3');
+ assert.ok(a>0&&a<b&&b<c&&c<d,'dependencies must initialize before reader');
+ assert.match(html,/id="odCoverSync"/);
+ assert.match(html,/id="odCacheClear"/);
+ assert.match(html,/id="readerFocus"/);
+ assert.match(html,/id="readerScrub"/);
+ assert.match(html,/id="chapterList"/);
+ assert.match(html,/id="nextPage"/);
+ assert.match(html,/id="library"/);
+ assert.match(html,/book-studio-golden-v3\.css/);
+});
+test('OneDrive automatic login is opted in by previous successful sign-in, rate limited and revocable',()=>{
+ assert.match(drive,/offline_access User\.Read Files\.Read/);
+ assert.match(drive,/refresh_token:refreshToken/);
+ assert.match(drive,/prompt','none/);
+ assert.match(drive,/SILENT_GAP_MS=4\*60\*60\*1000/);
+ assert.match(drive,/await clearCredentials\(\)/);
+ assert.match(drive,/await verifyAccount\(\)/);
+ assert.match(session,/AES-GCM/);
+ assert.match(session,/non-extractable/i);
+ assert.match(drive,/SH9_BOOK_ONEDRIVE_PERSIST_V3/);
+ assert.doesNotMatch(drive,/client_secret|Files\.ReadWrite/);
+ assert.notEqual(sessionStore,require('../../outlook-session-v2.js'));
+});
+test('Books persist locally under account, drive, revision, and can be cleared explicitly',()=>{
+ assert.notEqual(cache.key('one@live.com',sample,'file'),cache.key('two@live.com',sample,'file'));
+ assert.notEqual(cache.key('one@live.com',sample,'file'),cache.key('one@live.com',sample,'cover'));
+ assert.notEqual(cache.key('one@live.com',sample,'file'),cache.key('one@live.com',{...sample,etag:'v2'},'file'));
+ assert.match(drive,/CACHE\.get\(account,b,'file'\)/);
+ assert.match(drive,/CACHE\.put\(account,b,'file',blob\)/);
+ assert.match(drive,/CACHE\.clear\(config.account\)/);
+ assert.match(cacheSrc,/LIMIT=230\*1024\*1024/);
+ assert.doesNotMatch(cacheSrc,/localStorage|service_role/);
+});
+test('Real covers are extracted from EPUB OPF and PDF first page after local file open or user request',()=>{
+ assert.match(drive,/META-INF\/container\.xml/);
+ assert.match(drive,/cover-image/);
+ assert.match(drive,/zip\.file\(opfPath\)/);
+ assert.match(drive,/page\.render/);
+ assert.match(drive,/async function prepareCovers/);
+ assert.match(drive,/if\(!CACHE\|\|!config\|\|coverUrls\.has\(b\.id\)\)return/);
+});
+test('Reader has pages, swipe touch, chapter list, and subtle animation',()=>{
+ assert.match(book,/flow:'paginated'/);
+ assert.match(book,/rendition\.next\(\)/);
+ assert.match(book,/bindChapterGestures/);
+ assert.match(book,/touchstart/);
+ assert.match(book,/touchend/);
+ assert.match(book,/epubBook\.loaded\.navigation/);
+ assert.match(book,/epubBook\.locations\.generate/);
+ assert.match(book,/readerScrub/);
+ assert.match(book,/focus-mode/);
+ assert.match(css,/@keyframes bs-page-forward/);
+ assert.match(css,/\.reader-footer button/);
+ assert.match(css,/prefers-reduced-motion/);
+});
+test('Photographic library background with dark glass preserves mobile layout',()=>{
+ assert.match(css,/images\.unsplash\.com\/photo-1647793294248/);
+ assert.match(css,/images\.unsplash\.com\/photo-1623771702313/);
+ assert.match(css,/backdrop-filter:blur/);
+ assert.match(css,/@media\(max-width:700px\)/);
+});
+test('All browser scripts parse as valid JavaScript',()=>{
+ for(const src of [book,drive,cacheSrc,session])assert.doesNotThrow(()=>new Function(src));
+});
