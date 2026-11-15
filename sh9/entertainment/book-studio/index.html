@@ -7,7 +7,8 @@
 <meta name="description" content="SHO Book Studio · privát digitális könyvtár és EPUB/PDF olvasó.">
 <title>SHO · Book Studio</title>
 <link rel="icon" href="../../sho-preview/favicon.svg" type="image/svg+xml">
-<link rel="stylesheet" href="./book-studio.css?v=1">
+<link rel="stylesheet" href="./book-studio.css?v=2">
+<link rel="stylesheet" href="./onedrive-books-v2.css?v=2">
 </head>
 <body>
 <div class="shell">
@@ -15,16 +16,34 @@
 <main>
 <section class="hero">
  <div class="hero-copy"><span class="eyebrow">✦ SHO · GOLDEN STANDARD</span><h1>Book <em>Studio</em></h1><p>A saját könyvtáratok. A könyv ott folytatódik, ahol abbahagytátok.</p>
- <div class="hero-actions"><label for="uploadFile" class="btn primary">＋ Könyv hozzáadása</label><input id="uploadFile" type="file" accept=".epub,.pdf,application/epub+zip,application/pdf" hidden><a class="btn subtle" href="#library">Saját könyvtár ↓</a></div>
- <p id="importStatus" class="hint" role="status" aria-live="polite">EPUB és PDF · privát felhőtárhely · max. 25 MB/könyv</p></div>
+ <div class="hero-actions"><a class="btn primary" href="#onedriveBooks">☁️ OneDrive könyveim</a><label for="uploadFile" class="btn subtle">＋ Külön feltöltés</label><input id="uploadFile" type="file" accept=".epub,.pdf,application/epub+zip,application/pdf" hidden></div>
+ <p id="importStatus" class="hint" role="status" aria-live="polite">Elsődleges forrás: OneDrive. A külön feltöltés opcionális, a Supabase felhőbe történik.</p></div>
  <div class="hero-visual" aria-hidden="true"><div class="stack first"><span>✦</span></div><div class="stack second"><span>BOOK<br>STUDIO</span></div><div class="stack third"><span>📖</span></div></div>
 </section>
-<section class="resume" id="resumeSection" hidden><div class="section-title"><div><span class="eyebrow">OLVASÁS ALATT</span><h2>Folytatom az olvasást</h2></div></div><button class="resume-card" id="resumeButton" type="button"><span class="resume-icon" aria-hidden="true">📖</span><span class="resume-info"><strong id="resumeTitle"></strong><small id="resumeAuthor"></small><span class="progress-track"><span id="resumeProgress"></span></span></span><span class="resume-go" aria-hidden="true">→</span></button></section>
+<section class="onedrive-panel" id="onedriveBooks" aria-label="Közös OneDrive könyvtár">
+ <div class="section-title od-heading"><div><span class="eyebrow">ELSŐDLEGES KÖNYVTÁR · KÖZVETLEN KAPCSOLAT</span><h2>☁️ OneDrive <small id="odCount">Könyvek keresése</small></h2></div><span class="od-readonly">🔒 Csak olvasás</span></div>
+ <p class="od-desc">A könyvek az eredeti OneDrive EBOOKS mappában maradnak. Itt csak a borítós könyvespolcot, az olvasási előrehaladást és a könyvjelzőket látod.</p>
+ <div class="od-connect" id="odConnectPanel">
+  <div id="odConfig" class="od-config" hidden>
+   <label>Microsoft alkalmazásazonosító <input type="text" id="odClientId" placeholder="Application (client) ID" autocomplete="off" spellcheck="false"></label>
+   <label>OneDrive Microsoft-fiók <input type="email" id="odAccount" placeholder="outlook.com / hotmail.com" autocomplete="email"></label>
+   <button id="odSave" type="button">Beállítás mentése</button>
+   <small>Az SHO Naptárhoz korábban megadott alkalmazásazonosítót felajánljuk, ha elérhető. A Microsoft-alkalmazásban külön SPA visszatérési URL és Files.Read engedély szükséges.</small>
+  </div>
+  <div class="od-actions"><button id="odConnect" type="button" class="od-primary">🔐 Microsoft OneDrive csatlakozás</button><button id="odRefresh" type="button" hidden>↻ Könyvtár frissítése</button><button id="odConfigToggle" type="button" hidden>⚙ Beállítás</button><button id="odDisconnect" type="button" hidden>Kapcsolat bontása</button></div>
+  <p class="od-status" id="odStatus" role="status" aria-live="polite">OneDrive kapcsolat ellenőrzése…</p>
+ </div>
+ <div id="odFolderSelector" class="od-folders" hidden><label for="odFolders">Könyvtárforrás</label><select id="odFolders"></select></div>
+ <div class="od-toolbar"><label class="searchbox">⌕ <input id="odFilter" type="search" placeholder="Cím vagy szerző keresése…" autocomplete="off"></label><button id="odResume" hidden type="button" class="od-resume">▶ Folytatom: <span id="odResumeName"></span></button></div>
+ <div class="book-grid" id="odGrid" aria-live="polite"></div><p id="odEmpty" class="od-empty" hidden>Nincs könyv.</p>
+ <p class="od-note">🔒 Csak a Microsoft-fiókodhoz tartozó OneDrive-fájlok olvasása. Nincs automatikus másolás, törlés vagy megosztás. A MOBI formátum egyelőre nem támogatott.</p>
+ </section>
+ <section class="resume" id="resumeSection" hidden><div class="section-title"><div><span class="eyebrow">OLVASÁS ALATT</span><h2>Folytatom az olvasást</h2></div></div><button class="resume-card" id="resumeButton" type="button"><span class="resume-icon" aria-hidden="true">📖</span><span class="resume-info"><strong id="resumeTitle"></strong><small id="resumeAuthor"></small><span class="progress-track"><span id="resumeProgress"></span></span></span><span class="resume-go" aria-hidden="true">→</span></button></section>
 <section id="library" class="library">
- <div class="section-title"><div><span class="eyebrow">SAJÁT GYŰJTEMÉNY</span><h2>📚 Könyvtáram <small id="bookCount">0 könyv</small></h2></div><div class="library-actions"><label class="searchbox">⌕ <input id="searchBooks" type="search" autocomplete="off" placeholder="Cím vagy szerző…"></label><button id="favOnly" type="button" aria-pressed="false">♡ Kedvencek</button></div></div>
+ <div class="section-title"><div><span class="eyebrow">OPCIONÁLIS · KÜLÖN FELTÖLTÖTT KÖNYVEK</span><h2>📚 Supabase-könyvtáram <small id="bookCount">0 könyv</small></h2></div><div class="library-actions"><label class="searchbox">⌕ <input id="searchBooks" type="search" autocomplete="off" placeholder="Cím vagy szerző…"></label><button id="favOnly" type="button" aria-pressed="false">♡ Kedvencek</button></div></div>
  <div class="book-grid" id="bookGrid" aria-live="polite"></div><div id="emptyState" class="empty" hidden><span aria-hidden="true">📚</span><h3>A könyvespolc még üres.</h3><p>Adj hozzá egy DRM-mentes EPUB-ot vagy PDF-et. A fájlok a privát felhőbe kerülnek.</p></div>
 </section>
-<p class="privacy">🔒 A könyvek profilonként külön, nem nyilvános tárhelyen vannak. A másolásvédett (DRM) könyvek nem támogatottak.</p>
+<p class="privacy">🔒 A OneDrive-fájlok nem kerülnek át a Supabase-be. Az olvasási pozíció és könyvjelzők profilonként külön tárolódnak. A másolásvédett (DRM) könyvek nem támogatottak.</p>
 </main>
 </div>
 <div class="reader" id="reader" hidden role="dialog" aria-modal="true" aria-label="Könyvolvasó">
@@ -39,6 +58,7 @@
 <script defer src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/epubjs@0.3.93/dist/epub.min.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
-<script defer src="./book-studio.js?v=1"></script>
+<script defer src="./book-studio.js?v=2-onedrive"></script>
+<script defer src="./onedrive-books-v2.js?v=2"></script>
 </body>
 </html>

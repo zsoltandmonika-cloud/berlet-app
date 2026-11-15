@@ -242,7 +242,13 @@ function queueSave(){
   bookmarks:current.bookmarks||[],theme:current.theme||'dark',font_size:current.font_size||100,
   updated_at:new Date().toISOString()
  };
+ const snapshot={...current,bookmarks:current.bookmarks?.slice()||[]};
  writeQueue=writeQueue.catch(()=>{}).then(async()=>{
+  if(snapshot.source==='onedrive'){
+   const drive=w.SH9_BOOK_STUDIO_DRIVE_V2;
+   if(!drive)throw Error('A OneDrive-kapcsolat nem elérhető.');
+   await drive.saveProgress(snapshot,patch);return;
+  }
   const c=await authorized(p);
   const {error}=await c.from(TABLE).update(patch).eq('id',id).eq('profile_key',p);
   if(error)throw Error(error.message);
@@ -260,19 +266,25 @@ function applyTheme(){
  if(pdfDoc)void renderPDF();
 }
 async function openBook(id){
- const b=books.find(x=>x.id===id);if(!b||busy)return;
+ const b=books.find(x=>x.id===id)||w.SH9_BOOK_STUDIO_DRIVE_V2?.getBook(id);if(!b||busy)return;
  await closeReader();
  const version=++readerVersion;
  current={...b,bookmarks:Array.isArray(b.bookmarks)?b.bookmarks.slice():[]};
  currentLocation=current.progress_locator||'';pdfPage=1;pdfDoc=null;rendition=null;epubBook=null;
  $('reader').hidden=false;d.body.style.overflow='hidden';$('readerMessage').hidden=false;
- $('readerMessage').textContent='A könyv letöltése a privát felhőből…';
+ $('readerMessage').textContent=b.source==='onedrive'?'A könyv letöltése a OneDrive-ról…':'A könyv letöltése a privát felhőből…';
  $('epubStage').hidden=true;$('pdfStage').hidden=true;$('pdfStage').replaceChildren();$('epubStage').replaceChildren();
  updateReaderUI();$('closeReader').focus();
  try{
-  const c=await authorized(b.profile_key);
-  const {data,error}=await c.storage.from(BUCKET).download(b.storage_path);
-  if(error)throw Error(error.message);
+  let data;
+  if(b.source==='onedrive'){
+   data=await w.SH9_BOOK_STUDIO_DRIVE_V2.download(b);
+  }else{
+   const c=await authorized(b.profile_key);
+   const reply=await c.storage.from(BUCKET).download(b.storage_path);
+   if(reply.error)throw Error(reply.error.message);
+   data=reply.data;
+  }
   if(version!==readerVersion)return;
   const bytes=await data.arrayBuffer();
   if(b.format==='epub'){
@@ -342,13 +354,16 @@ async function closeReader(){
  if(!current){$('reader').hidden=true;d.body.style.overflow='';return}
  ++readerVersion;
  clearTimeout(saveTimer);await queueSave();
- for(const b of books)if(b.id===current.id){Object.assign(b,current);break}
+ if(current.source==='onedrive'){
+  const entry=w.SH9_BOOK_STUDIO_DRIVE_V2?.getBook(current.id);
+  if(entry)Object.assign(entry,current);
+ }else for(const b of books)if(b.id===current.id){Object.assign(b,current);break}
  if(rendition){try{rendition.destroy()}catch(_){}rendition=null}
  if(epubBook){try{epubBook.destroy()}catch(_){}epubBook=null}
  if(pdfTask){try{pdfTask.cancel()}catch(_){}pdfTask=null}
  if(pdfDoc){try{await pdfDoc.destroy()}catch(_){}pdfDoc=null}
  $('reader').hidden=true;d.body.style.overflow='';current=null;currentLocation='';
- renderBooks();
+ renderBooks();w.SH9_BOOK_STUDIO_DRIVE_V2?.render();
 }
 async function mark(){
  if(!current||!currentLocation)return toast('Előbb nyiss meg egy oldalt!');
@@ -367,7 +382,7 @@ $('profileSwitch').addEventListener('click',async()=>{
  await closeReader();
  const next=profile()==='zsolt'?'m':'z';
  try{w.localStorage.setItem('hh-profile',next)}catch(_){return}
- void loadBooks();
+ void loadBooks();void w.SH9_BOOK_STUDIO_DRIVE_V2?.reload();
 });
 $('uploadFile').addEventListener('change',e=>{const file=e.target.files?.[0];if(file)void importBook(file)});
 $('searchBooks').addEventListener('input',renderBooks);
@@ -388,7 +403,8 @@ d.addEventListener('keydown',e=>{
 });
 let resizeTimer=0;
 w.addEventListener('resize',()=>{if(!pdfDoc)return;clearTimeout(resizeTimer);resizeTimer=w.setTimeout(()=>void renderPDF(),220)});
-w.addEventListener('storage',e=>{if(e.key==='hh-profile'&&short(profile())!==d.documentElement.dataset.profile)void closeReader().then(loadBooks)});
+w.addEventListener('storage',e=>{if(e.key==='hh-profile'&&short(profile())!==d.documentElement.dataset.profile)void closeReader().then(()=>{void loadBooks();void w.SH9_BOOK_STUDIO_DRIVE_V2?.reload()})});
 w.addEventListener('pagehide',()=>{if(current)void queueSave();clearCovers()});
+w.SH9_BOOK_STUDIO_V1=Object.freeze({openBook,authorized,profile});
 paintProfile();void loadBooks();
 })(window,document);

@@ -1,0 +1,21 @@
+name: SHO Book Studio OneDrive V2 QA
+on:
+  pull_request:
+    paths:
+      - 'sh9/entertainment/book-studio/**'
+      - 'sh9/entertainment/tests/book-studio-onedrive-v2.test.cjs'
+      - 'sh9/entertainment/index.html'
+  push:
+    paths:
+      - 'sh9/entertainment/book-studio/**'
+      - 'sh9/entertainment/tests/book-studio-onedrive-v2.test.cjs'
+      - 'sh9/entertainment/index.html'
+permissions:
+  contents: read
+jobs:
+  book-studio-onedrive:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Test OneDrive read-only integration and JS parser
+        run: node --test sh9/entertainment/tests/book-studio-onedrive-v2.test.cjs
