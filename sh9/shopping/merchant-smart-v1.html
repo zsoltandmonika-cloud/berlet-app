@@ -1,0 +1,342 @@
+<!doctype html>
+<html lang="hu"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0b1830">
+<meta name="description" content="SHO Smart Shopping: közös családi bevásárlólista, áruházspecifikus keresés és elmentett termékoldalak.">
+<title>SHO · Áruházi Smart Shopping</title>
+<link rel="icon" type="image/svg+xml" href="../sho-preview/favicon.svg">
+<style>
+:root{color-scheme:dark;--ink:#fff0fb;--sub:#d6bed8;--line:#d786ba72;--pink:#ffb2e0}
+*{box-sizing:border-box}html{scroll-behavior:smooth}
+body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 85% 0%,#78407877 0,transparent 46%),linear-gradient(155deg,#1c1931,#0c1a32 63%,#150f2b);color:var(--ink);font:14px/1.42 system-ui,-apple-system,"Segoe UI",sans-serif}
+a{text-decoration:none;color:inherit}button,input{font:inherit}button{color:inherit;cursor:pointer}
+[hidden]{display:none!important}
+main{max-width:580px;margin:auto;padding:12px 12px calc(98px + env(safe-area-inset-bottom,0px))}
+.glass{background:linear-gradient(140deg,#28203edb,#12223ae8);border:1px solid var(--line);border-radius:18px;box-shadow:0 9px 26px #0004,inset 0 1px #fff1;backdrop-filter:blur(13px)}
+.top{display:flex;justify-content:space-between;align-items:center;gap:9px;margin-bottom:10px}
+.top a{font-size:11px;font-weight:750;padding:8px 11px;background:#29243fc9;border:1px solid #bd86be76;border-radius:11px}
+.top small{font-size:9px;font-weight:900;letter-spacing:1.4px;color:var(--pink)}
+.hero{padding:16px;background:radial-gradient(circle at 96% 0%,#82487a9e,transparent 49%),linear-gradient(130deg,#30223e,#10253d)}
+.kicker{font-size:10px;font-weight:950;letter-spacing:1px;color:#ffc6e7}
+.hero h1{font-size:25px;line-height:1.08;letter-spacing:-.5px;margin:7px 0}
+.hero h1 em{font-style:normal;color:#ffc0e4}
+.hero p{font-size:11px;line-height:1.5;color:#dccbde;margin:4px 0 0}
+.hero a{display:inline-flex;margin-top:12px;align-items:center;gap:5px;padding:7px 10px;border:1px solid #f4b2d5a1;background:#442d52b2;border-radius:10px;font-size:11px;font-weight:750;color:#fce8f8}
+.mode{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin:11px 0 6px}
+.mode button{min-height:54px;background:#222b44;border:1px solid #a982bc8a;border-radius:13px;padding:7px;font-size:12px;font-weight:820}
+.mode button[aria-pressed=true]{background:linear-gradient(120deg,#904479,#353354);border-color:#ffb2e2;box-shadow:inset 0 1px #fff4}
+.mode small{display:block;font-size:10px;font-weight:500;color:#e0c9de;margin-top:2px}
+.modeHelp{font-size:10px;margin:3px 3px 11px;color:#d4c4d8}
+.focus{padding:14px;background:radial-gradient(ellipse at 93% 0%,#814c8290,transparent 53%),linear-gradient(130deg,#2a2342,#11283f)}
+.focusHead{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:11px}
+.focusHead strong{font-size:11px;letter-spacing:.8px;color:#f2c7e6}
+.position{background:#533559;border:1px solid #a775a7;border-radius:11px;font-size:11px;font-weight:850;padding:5px 9px}
+.focusItem{display:flex;align-items:center;gap:11px}
+.focusIcon{width:63px;height:63px;display:grid;flex:none;place-items:center;border-radius:17px;background:linear-gradient(140deg,#623b66,#304e62);border:1px solid #d99dd3bd;font-size:31px}
+.focusItem h2{font-size:18px;line-height:1.24;margin:0 0 4px;overflow-wrap:anywhere}
+.focusItem p{margin:0 0 4px;font-size:12px;color:#ddcadb}
+.focusItem small{font-size:10px;color:#b9eccd;font-weight:700}
+.primary{display:flex;justify-content:center;align-items:center;min-height:52px;margin:13px 0 0;width:100%;border:1px solid #ffcded;border-radius:13px;background:linear-gradient(110deg,#a64d99,#673d8a);text-align:center;font-size:14px;font-weight:900;box-shadow:0 8px 22px #d851a838}
+.caption{font-size:10px;color:#d3bcd5;margin:8px 0 0;text-align:center}
+.arrows{display:grid;grid-template-columns:1fr auto 1fr;gap:7px;margin-top:12px}
+.arrows button{min-height:35px;padding:7px 9px;border-radius:10px;border:1px solid #9875a4;background:#282b43;font-size:11px;font-weight:760}
+.arrows button:disabled{opacity:.5;cursor:default}
+.arrows #edit{border-color:#ecabd5;color:#ffc8e6}
+.editor{margin-top:10px;padding:10px;border:1px solid #ae7bab;border-radius:11px;background:#131c33}
+.editor label{font-size:11px;font-weight:750}
+.editor input{width:100%;margin:8px 0 7px;min-height:40px;padding:8px;color:white;border:1px solid #a47da9;background:#0a182e;border-radius:9px;font-size:11px}
+.editor .btnrow{display:flex;gap:8px}
+.editor button{border:1px solid #ffbddf;border-radius:9px;padding:7px 12px;font-size:11px;font-weight:750;background:#653962}
+.editor button.cancel{background:#253046;border-color:#756c87}
+.editor small{display:block;margin-top:7px;font-size:10px;line-height:1.4;color:#d2c0d4}
+.freeSearch{padding:12px;margin-top:10px}
+.freeSearch h3{font-size:13px;margin:0 0 8px}
+.freeSearch form{display:flex;gap:7px}
+.freeSearch input{flex:1;min-width:0;background:#0e1a2d;border:1px solid #a37da9;border-radius:10px;color:white;padding:9px 10px;min-height:40px;font-size:12px}
+.freeSearch button{border:1px solid #f6b3d9;border-radius:10px;background:linear-gradient(110deg,#8d467f,#623d86);padding:8px 11px;font-weight:800;font-size:11px;min-height:40px}
+.freeSearch p{font-size:10px;color:#d5c2d6;line-height:1.5;margin:8px 0 0}
+.auth{display:flex;gap:8px;justify-content:space-between;align-items:center;background:#35253f;border:1px solid #ba81ad82;border-radius:11px;padding:10px;margin-top:10px;font-size:10px}
+.auth button{border:1px solid #f6b2d7;border-radius:9px;background:#7b3c75;font-size:10px;white-space:nowrap;padding:7px}
+.listBlock{margin-top:10px;padding:9px}
+.listHead{display:flex;align-items:center;justify-content:space-between;gap:5px;padding:4px 4px 10px}
+.listHead strong{font-size:13px}
+.listHead button{font-size:10px;border:0;color:#ffc1e4;background:transparent;font-weight:700}
+.products{display:grid;gap:4px}
+.product{display:flex;align-items:center;gap:9px;min-height:49px;width:100%;padding:7px 9px;border:1px solid transparent;border-radius:11px;background:#1c2539;text-align:left}
+.product.chosen{border-color:#e5a5d5;background:linear-gradient(110deg,#634264,#30384e)}
+.product-icon{display:grid;place-items:center;width:37px;height:37px;flex:none;border-radius:10px;background:#33334d;font-size:21px}
+.product-info{min-width:0;flex:1;display:flex;flex-direction:column;gap:2px}
+.product-info strong{font-size:11px;line-height:1.25;overflow-wrap:anywhere}
+.product-info small{font-size:10px;color:#d1bfd3}
+.product-link{color:#f1c0e0;font-size:13px}
+.more{background:#463452!important;border:1px solid #d691c5!important;border-radius:11px!important;min-height:37px!important;font-size:11px!important;font-weight:750!important}
+.empty{font-size:11px;line-height:1.5;color:#d6c3d4;padding:16px 10px;text-align:center}
+.fallback{display:block;padding:9px;border:1px solid #a36f9c;border-radius:9px;font-size:11px}
+.disclaimer{margin-top:10px;padding:12px;font-size:10px;line-height:1.55;color:#d2c0d8}
+.notice{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);max-width:90vw;border:1px solid #ffc1e1;border-radius:12px;padding:10px 12px;background:#4f3054;box-shadow:0 9px 25px #0007;font-size:12px;z-index:70}
+.bottom{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:min(100%,580px);min-height:73px;padding:8px 5px calc(6px + env(safe-area-inset-bottom,0px));display:grid;grid-template-columns:repeat(4,1fr);background:#101c32ef;border:1px solid #7d699a62;border-bottom:0;border-radius:18px 18px 0 0;backdrop-filter:blur(18px);z-index:50}
+.bottom a{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:10px;color:#e4d6e8}
+.bottom span{font-size:20px}
+@media(max-width:375px){main{padding:10px 9px 100px}.hero h1{font-size:22px}.focusItem h2{font-size:16px}.freeSearch{padding:10px}.freeSearch button{padding:7px}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+</style></head><body>
+<main>
+<header class="top">
+ <a href="./">‹ Shopping</a><small>SHO · MULTI-STORE</small><a href="./smart-list.html">Smart List ›</a>
+</header>
+<section class="hero glass">
+ <span class="kicker">AZ ÁRUHÁZ SAJÁT VÁSÁRLÁSI FELÜLETÉVEL</span>
+ <h1 id="storeTitle">Smart Shopping 🛒</h1>
+ <p>Végigvezetünk a közös listán. Egy koppintás a kereséshez, visszatérve már a következő termék vár.</p>
+ <a id="storeHome" href="https://auchan.hu/shop" rel="noopener noreferrer">🏬 <span id="storeName">Auchan</span> webáruháza ↗</a>
+</section>
+<div class="mode">
+ <button type="button" id="modeShared" aria-pressed="false">🛒 Közös Smart List<small id="sharedCount">Felhő betöltése…</small></button>
+ <button type="button" id="modeDemo" aria-pressed="true">✨ 10 példatermék<small>Kockázatmentes próba</small></button>
+</div>
+<p class="modeHelp" id="modeHelp">✨ 10 példatermék · nincs Smart List-módosítás.</p>
+<section class="focus glass">
+ <div class="focusHead"><strong>MOST KÖVETKEZIK</strong><span class="position" id="position">1 / 10</span></div>
+ <div class="focusItem">
+  <span class="focusIcon" id="icon">🛍️</span>
+  <div><h2 id="itemName">Smart Shopping</h2><p id="itemQty">1 db</p><small id="searchMethod">Áruházi keresés</small></div>
+ </div>
+ <a class="primary" id="go" href="https://auchan.hu/shop" rel="noopener noreferrer">🔎 Termék keresése ↗</a>
+ <p class="caption">A vásárlás a bolt saját oldalán történik. A SHO nem igazolja a kosár tartalmát.</p>
+ <div class="arrows"><button type="button" id="prev">‹ Előző</button><button type="button" id="edit">🔗 Terméklink</button><button type="button" id="next">Következő ›</button></div>
+ <form class="editor" id="editor" hidden>
+  <label for="linkInput">Pontos áruházi terméklink</label>
+  <input type="url" id="linkInput" maxlength="1000" autocomplete="off" spellcheck="false" inputmode="url" placeholder="Illeszd be a bolt hivatalos termékoldalának címét">
+  <div class="btnrow"><button type="submit" id="save">🔗 Mentés közösen</button><button type="button" id="cancel" class="cancel">Mégsem</button></div>
+  <small>Egyszeri mentés, legközelebb a keresés helyett az adott termékoldal nyílik. A címet csak a bolt domainjére ellenőrizzük, a termékegyezőséget neked kell ellenőrizni.</small>
+ </form>
+</section>
+<section class="freeSearch glass" aria-label="Szabad termékkeresés">
+ <h3>🔎 Termék keresése a boltban</h3>
+ <form id="fullSearch" role="search">
+  <input type="search" id="freeQuery" required minlength="2" maxlength="160" autocomplete="off" placeholder="Mit keresel? Pl. arabica szemes kávé" aria-label="Termék neve">
+  <button type="submit">Keresés ↗</button>
+ </form>
+ <p>Ahol nincs ellenőrzött közvetlen bolti keresőhivatkozás, ott a keresés a <strong id="storeDomain">bolt webhelyére</strong> szűrt webkeresést használja. Nem közvetlen kosárintegráció.</p>
+</section>
+<div class="auth" id="auth" hidden><span id="authMessage">A családi terméklinkekhez bejelentkezés szükséges.</span><button id="signIn" type="button">Bejelentkezés</button></div>
+<section class="listBlock glass">
+ <div class="listHead"><strong>📋 Smart List termékek</strong><button type="button" id="restart">↺ Elölről</button></div>
+ <div class="products" id="items">
+  <p class="empty">A 10 példatermék és a közös lista betöltése… Ha a felület nem indul, a boltok eredeti oldalai itt is megnyithatók.</p>
+<a class="fallback" href="https://auchan.hu/shop" rel="noopener noreferrer">Auchan hivatalos boltja ↗</a>
+<a class="fallback" href="https://www.kifli.hu/" rel="noopener noreferrer">Kifli hivatalos boltja ↗</a>
+<a class="fallback" href="https://www.dm.hu/" rel="noopener noreferrer">dm hivatalos boltja ↗</a>
+<a class="fallback" href="https://shop.rossmann.hu/" rel="noopener noreferrer">Rossmann hivatalos boltja ↗</a>
+<a class="fallback" href="https://www.emag.hu/" rel="noopener noreferrer">eMAG hivatalos boltja ↗</a>
+<a class="fallback" href="https://www.alza.hu/" rel="noopener noreferrer">Alza hivatalos boltja ↗</a>
+<a class="fallback" href="https://allegro.hu/" rel="noopener noreferrer">Allegro hivatalos boltja ↗</a>
+<a class="fallback" href="https://www.temu.com/" rel="noopener noreferrer">Temu hivatalos boltja ↗</a>
+<a class="fallback" href="https://hu.shein.com/" rel="noopener noreferrer">SHEIN hivatalos boltja ↗</a>
+ </div>
+</section>
+<section class="disclaimer glass">
+ 🔒 A termékek <strong>nem kerülnek automatikusan kosárba</strong>. Az áruház saját oldalán lehet választani és rendelni. A megnyitott termék után a következő kerül sorra, de nem tekintjük megvásároltnak. A Smart List és a Tesco Golden v3 adatai változatlanok.
+</section>
+</main>
+<nav class="bottom" aria-label="SHO navigáció">
+ <a href="../"><span>⌂</span>Kezdőlap</a>
+ <a id="askLena" href="../../healthhub/index.html?sh9nav=admin&amp;sh9cfg=asklena"><span>💬</span>Ask Léna</a>
+ <a href="./smart-list.html"><span>🛒</span>Smart List</a>
+ <a href="./"><span>🛍️</span>Shopping</a>
+</nav>
+<div class="notice" id="notice" role="status" hidden></div>
+<script src="../../healthhub/central-vault/config.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.2/dist/umd/supabase.min.js"></script>
+<script defer src="../../healthhub/guardian/guardian-native-auth-v1063.js"></script>
+<script defer src="../../healthhub/chatgpt-project-shortcut-v712.js?v=756-central-open"></script>
+<script>
+document.addEventListener('DOMContentLoaded',function(){
+ try{
+/* SHO Smart Shopping · multi-store engine v1
+  Nine merchant-specific handoffs. The Tesco v3 Golden flow stays untouched.
+  No merchant basket/price APIs. Family list is read-only; URLs are RLS-protected.
+*/
+(function(w,d){'use strict';
+const $=id=>d.getElementById(id);
+const FAMILY='zsolt-monika',LIST='hh_shopping_list_v1',LINKS='hh_shopping_merchant_links_v1';
+const STORES={
+ auchan:{name:'Auchan',domain:'auchan.hu',home:'https://auchan.hu/shop',group:'food'},
+ kifli:{name:'Kifli',domain:'kifli.hu',home:'https://www.kifli.hu/',group:'food'},
+ dm:{name:'dm',domain:'dm.hu',home:'https://www.dm.hu/',group:'beauty'},
+ rossmann:{name:'Rossmann',domain:'shop.rossmann.hu',home:'https://shop.rossmann.hu/',group:'beauty'},
+ emag:{name:'eMAG',domain:'emag.hu',home:'https://www.emag.hu/',group:'tech'},
+ alza:{name:'Alza',domain:'alza.hu',home:'https://www.alza.hu/',group:'tech'},
+ allegro:{name:'Allegro',domain:'allegro.hu',home:'https://allegro.hu/',group:'tech'},
+ temu:{name:'Temu',domain:'temu.com',home:'https://www.temu.com/',group:'home'},
+ shein:{name:'SHEIN',domain:'hu.shein.com',home:'https://hu.shein.com/',group:'fashion'}
+};
+const SAMPLES={
+ food:[['🍌','Banán','1','kg'],['🥛','Tej 2,8%','2','l'],['☕','Szemes arabica kávé','1','kg'],['🍞','Kovászos kenyér','1','db'],['🥚','Tojás M','10','db'],['🍚','Jázmin rizs','1','kg'],['🧀','Trappista sajt','500','g'],['🍅','Koktélparadicsom','500','g'],['💧','Ásványvíz','2','l'],['🍝','Penne tészta','500','g']],
+ beauty:[['🧴','Sampon','1','db'],['🫧','Tusfürdő','1','db'],['🦷','Fogkrém','1','db'],['🪥','Fogkefe','2','db'],['🧻','WC-papír','1','csomag'],['🧼','Folyékony szappan','1','db'],['🧺','Mosógél','1','db'],['🌸','Öblítő','1','db'],['🧽','Mosogatószer','1','db'],['🧴','Testápoló','1','db']],
+ tech:[['📱','USB-C töltő','1','db'],['🔋','Powerbank','1','db'],['🎧','Bluetooth fülhallgató','1','db'],['💻','Laptop állvány','1','db'],['🖱️','Vezeték nélküli egér','1','db'],['⌨️','Billentyűzet','1','db'],['☕','Kávéfőző','1','db'],['🔌','Hosszabbító','1','db'],['💡','LED izzó','1','db'],['📦','SSD meghajtó','1','db']],
+ home:[['💡','LED fényfüzér','1','db'],['🧺','Tárolókosár','1','db'],['🛋️','Díszpárna','1','db'],['🍽️','Konyhai rendező','1','db'],['🔌','USB-C kábel','1','db'],['📱','Telefonállvány','1','db'],['🪴','Virágtartó','1','db'],['🛁','Fürdőszobai polc','1','db'],['🪑','Székpárna','1','db'],['🧹','Takarítókefe','1','db']],
+ fashion:[['👚','Női póló','1','db'],['👗','Ruha','1','db'],['👖','Farmernadrág','1','db'],['🧥','Kabát','1','db'],['👟','Sportcipő','1','pár'],['🧣','Sál','1','db'],['👜','Válltáska','1','db'],['👕','Férfi póló','1','db'],['🧦','Zokni','1','csomag'],['🧢','Sapka','1','db']]
+};
+let key=new URL(w.location.href).searchParams.get('store')||'auchan';
+if(!Object.prototype.hasOwnProperty.call(STORES,key))key='auchan';
+const store=STORES[key],samples=SAMPLES[store.group].map(([icon,name,quantity,unit],i)=>({id:'demo-'+i,icon,name,quantity:Number(quantity),unit}));
+const STATE_KEY='sho-merchant-shopping-v1:'+key;
+const cfg=w.HH_CENTRAL_VAULT;
+const nativeOAuth=(()=>{try{return w.sessionStorage.getItem('hh-one-native-oauth-v1063')==='1'}catch(_){return false}})();
+const api=cfg?.enabled&&w.supabase?.createClient?w.supabase.createClient(cfg.supabaseUrl,cfg.publishableKey,{auth:{storageKey:'hh-guardian-family-auth-v785',persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,flowType:nativeOAuth?'pkce':'implicit'}}):null;
+let user=null,profiles=[],rows=[],mapped=new Map(),mode='demo',modeTouched=false,selected=null,showLink=false,loading=false,loadPending=false,channel=null,lastUpdate=0,visibleCount=40;
+function state(){try{const o=JSON.parse(w.sessionStorage.getItem(STATE_KEY)||'{}');return o&&typeof o==='object'?o:{}}catch(_){return {}}}
+function put(o){try{w.sessionStorage.setItem(STATE_KEY,JSON.stringify(o))}catch(_){}}
+function list(){return mode==='shared'?rows:samples}
+function pkey(p){return String(p.id)}
+function selectedState(){const all=list(),s=state(),idx=all.findIndex(p=>pkey(p)===(selected||s[mode]?.next));const i=idx>=0?idx:0;return {all,i,p:all[i]||null}}
+function own(){return Boolean(api&&user&&profiles.some(x=>x==='zsolt'||x==='monika'))}
+function profile(){let p='zsolt';try{p=w.localStorage.getItem('hh-profile')==='m'?'monika':'zsolt'}catch(_){}return profiles.includes(p)?p:profiles[0]||'zsolt'}
+function mk(tag,cls,text){const e=d.createElement(tag);if(cls)e.className=cls;if(text!==undefined)e.textContent=String(text);return e}
+function msg(text){$('notice').textContent=text;$('notice').hidden=false}
+function qty(p){return new Intl.NumberFormat('hu-HU',{maximumFractionDigits:2}).format(Number(p.quantity)||1)+' '+(p.unit||'db')}
+function emoji(p){if(p.icon)return p.icon;const s=String(p.name).toLocaleLowerCase('hu-HU');if(/kávé/.test(s))return '☕';if(/tej|joghurt/.test(s))return '🥛';if(/banán/.test(s))return '🍌';if(/sampon|tusfürdő/.test(s))return '🧴';if(/telefon|kábel/.test(s))return '📱';if(/cipő/.test(s))return '👟';return '🛍️'}
+function allowedUrl(text){
+ try{const u=new URL(String(text||'').trim());if(u.protocol!=='https:'||u.username||u.password||u.port||u.href.length>1000)return '';
+  const host=u.hostname.toLowerCase();const ok=host===store.domain||host==='www.'+store.domain||(key==='temu'&&host==='www.temu.com');
+  return ok?u.href:'';
+ }catch(_){return ''}
+}
+function searchUrl(term){
+ const q=String(term||'').trim().slice(0,160);
+ if(key==='temu')return 'https://www.temu.com/hu/search_result.html?search_key='+encodeURIComponent(q);
+ // Site-restricted search fallback rather than inventing unstable merchant deep-link APIs.
+ return 'https://www.google.com/search?q='+encodeURIComponent('site:'+store.domain+' '+q);
+}
+function linkFor(p){return allowedUrl(mapped.get(mode+':'+pkey(p))?.product_url)||searchUrl(p.name)}
+function select(i){const p=list()[i];if(!p)return;selected=pkey(p);showLink=false;render()}
+function shift(delta){const a=selectedState();if(a.p)select((a.i+delta+a.all.length)%a.all.length)}
+function recordOpen(){
+ const a=selectedState();if(!a.p)return;
+ const s=state(),v=s[mode]&&typeof s[mode]==='object'?s[mode]:{};
+ v.next=pkey(a.all[(a.i+1)%a.all.length]);s[mode]=v;s.mode=mode;
+ put(s);selected=null;
+}
+function draw(a){
+ const box=$('items');box.replaceChildren();if(!a.all.length){box.append(mk('p','empty','A közös Smart List jelenleg üres vagy nem elérhető.'));return}
+ const total=Math.min(a.all.length,Math.max(visibleCount,a.i+1));
+ for(let i=0;i<total;i++){
+  const p=a.all[i],row=mk('button','product'+(i===a.i?' chosen':''));row.type='button';row.onclick=()=>select(i);
+  const icon=mk('span','product-icon',emoji(p));const info=mk('span','product-info');info.append(mk('strong',null,p.name),mk('small',null,qty(p)));
+  row.append(icon,info,mk('span','product-link',allowedUrl(mapped.get(mode+':'+pkey(p))?.product_url)?'🔗':'⌕'));box.append(row);
+ }
+ if(total<a.all.length){const more=mk('button','more','＋ További '+Math.min(40,a.all.length-total)+' termék · '+total+'/'+a.all.length);more.type='button';more.onclick=()=>{visibleCount=total+40;render()};box.append(more)}
+}
+function render(){
+ $('storeTitle').textContent=store.name+' Smart Shopping';
+ $('storeName').textContent=store.name;
+ $('storeHome').href=store.home;
+ $('storeDomain').textContent=store.domain;
+ $('modeShared').setAttribute('aria-pressed',String(mode==='shared'));
+ $('modeDemo').setAttribute('aria-pressed',String(mode==='demo'));
+ $('sharedCount').textContent=rows.length+' aktív tétel';
+ const a=selectedState();$('position').textContent=a.p?(a.i+1)+' / '+a.all.length:'0 / 0';
+ $('icon').textContent=a.p?emoji(a.p):'🛒';
+ $('itemName').textContent=a.p?a.p.name:'Nincs termék';
+ $('itemQty').textContent=a.p?qty(a.p):'';
+ const saved=a.p?allowedUrl(mapped.get(mode+':'+pkey(a.p))?.product_url):'';
+ const go=$('go');go.href=a.p?linkFor(a.p):store.home;go.textContent=saved?'🎯 Mentett termék megnyitása ↗':key==='temu'?'🔎 Temu keresés ↗':'🔎 Termék keresése ↗';
+ $('searchMethod').textContent=saved?'✓ Elmentett '+store.name+' termékoldal':key==='temu'?'Hivatalos Temu keresés':'Webkeresés a '+store.name+' oldalára szűkítve';
+ $('prev').disabled=!a.p||a.all.length<2;$('next').disabled=!a.p||a.all.length<2;
+ $('edit').disabled=!a.p;
+ $('editor').hidden=!showLink||!a.p;
+ $('linkInput').value=saved;
+ $('auth').hidden=own();
+ $('authMessage').textContent=user?'Ehhez a családi profilhoz nincs mentési jogosultság.':'A közös terméklink mentéséhez bejelentkezés szükséges.';
+ $('modeHelp').textContent=mode==='shared'?'☁️ Teljes közös Smart List · '+rows.length+' aktív tétel.':'✨ 10 példatermék · nincs Smart List-módosítás.';
+ draw(a);
+}
+function setMode(next){mode=next;modeTouched=true;selected=null;showLink=false;visibleCount=40;const s=state();s.mode=mode;put(s);render()}
+async function fetchAll(table,cols,active){
+ const out=[],size=250;
+ for(let offset=0;offset<10000;offset+=size){
+  let q=api.from(table).select(cols).eq('household',FAMILY);
+  if(table===LINKS)q=q.eq('store_key',key);
+  if(active)q=q.eq('done',false);
+  const r=await q.order('created_at',{ascending:false}).range(offset,offset+size-1);
+  if(r.error)throw r.error;
+  const page=r.data||[];out.push(...page);if(page.length<size)return out;
+ }
+ throw Error('A lista meghaladja a 10 000 tételt; a hiányos betöltés nem megengedett.');
+}
+async function loadCloud(){
+ if(!own())return;if(loading){loadPending=true;return}loading=true;
+ try{
+  const [listRows,links]=await Promise.all([
+   fetchAll(LIST,'id,name,quantity,unit,category,created_at',true),
+   fetchAll(LINKS,'id,store_key,source,item_key,product_url,name_snapshot',false)
+  ]);
+  rows=listRows;mapped=new Map(links.map(x=>[x.source+':'+x.item_key,x]));
+  if(!modeTouched&&!state().mode&&rows.length)mode='shared';
+  lastUpdate=Date.now();render();
+ }catch(e){msg('Felhőadat nem elérhető: '+String(e.message||e).slice(0,110))}
+ finally{loading=false;if(loadPending){loadPending=false;void loadCloud()}}
+}
+async function save(){
+ const a=selectedState();if(!a.p)return;
+ if(!own()){msg('A közös mentéshez jelentkezz be.');return}
+ const raw=$('linkInput').value.trim(),safe=raw?allowedUrl(raw):'';
+ if(raw&&!safe){msg('Csak a '+store.name+' hivatalos HTTPS-terméklinkje menthető.');return}
+ const id=mode+':'+pkey(a.p),previous=mapped.get(id);$('save').disabled=true;
+ try{
+  let q;if(previous){
+   q=api.from(LINKS).update({product_url:safe,updated_by_profile:profile(),updated_at:new Date().toISOString()})
+    .eq('id',previous.id).eq('household',FAMILY).eq('store_key',key).select('id,store_key,source,item_key,product_url,name_snapshot').single();
+  }else{
+   q=api.from(LINKS).insert({household:FAMILY,store_key:key,source:mode,item_key:pkey(a.p),
+    name_snapshot:String(a.p.name).slice(0,180),product_url:safe,updated_by_profile:profile(),created_by:user.id})
+    .select('id,store_key,source,item_key,product_url,name_snapshot').single();
+  }
+  const result=await q;if(result.error)throw result.error;mapped.set(id,result.data);showLink=false;render();
+  msg(safe?'🔗 '+store.name+' terméklink mentve a családi felhőbe.':'A mentett terméklink törölve.');
+ }catch(e){if(String(e.code||'')==='23505'){void loadCloud();msg('A másik eszköz már mentette. Frissítve, próbáld újra.')}else msg('Mentés sikertelen: '+String(e.message||e).slice(0,85))}
+ finally{$('save').disabled=false}
+}
+function subscribe(){if(channel||!own())return;channel=api.channel('sho-store-links-'+key+'-'+user.id).on('postgres_changes',{event:'*',schema:'public',table:LIST},()=>void loadCloud()).on('postgres_changes',{event:'*',schema:'public',table:LINKS},e=>{if(e.new?.store_key===key||e.old?.store_key===key)void loadCloud()}).subscribe()}
+async function authSync(){
+ if(!api){render();msg('Keresés elérhető, a felhőkapcsolat most nem működik.');return}
+ try{
+  const r=await api.auth.getUser();user=r.error?null:r.data?.user||null;profiles=[];
+  if(user){const acl=await api.from('hh_profile_access').select('profile_key').eq('user_id',user.id);
+   if(!acl.error)profiles=(acl.data||[]).map(x=>x.profile_key).filter(x=>x==='zsolt'||x==='monika')}
+  if(own()){await loadCloud();subscribe()}else{rows=[];mapped.clear();if(channel){api.removeChannel(channel);channel=null}render()}
+ }catch(e){msg('Bejelentkezési hiba: '+String(e.message||e).slice(0,100))}
+}
+$('modeShared').onclick=()=>setMode('shared');
+$('modeDemo').onclick=()=>setMode('demo');
+$('prev').onclick=()=>shift(-1);$('next').onclick=()=>shift(1);
+$('go').addEventListener('click',()=>{if(selectedState().p)recordOpen()});
+$('edit').onclick=()=>{showLink=!showLink;render();if(showLink)$('linkInput').focus()};
+$('editor').addEventListener('submit',e=>{e.preventDefault();void save()});
+$('cancel').onclick=()=>{showLink=false;render()};
+$('restart').onclick=()=>{const s=state();s[mode]={next:''};put(s);selected=null;visibleCount=40;render();msg('Az első termék következik.')};
+$('fullSearch').addEventListener('submit',e=>{e.preventDefault();const v=$('freeQuery').value.trim();if(v.length<2)return;w.location.assign(searchUrl(v))});
+$('signIn').onclick=async()=>{
+ if(!api)return msg('Felhőkapcsolat nem elérhető.');
+ try{
+  if(nativeOAuth){const ok=await w.HH_ONE_NATIVE_AUTH_V1063?.start?.(api);if(!ok)throw Error('Natív belépés nem elérhető.');return}
+  const r=await api.auth.signInWithOAuth({provider:'google',options:{redirectTo:w.location.origin+w.location.pathname+w.location.search}});
+  if(r.error)throw r.error;
+ }catch(e){msg('Belépés sikertelen: '+String(e.message||e).slice(0,90))}
+};
+w.addEventListener('pageshow',()=>{selected=null;render();if(own()&&Date.now()-lastUpdate>5000)void loadCloud()});
+d.addEventListener('visibilitychange',()=>{if(d.visibilityState==='visible'&&own()&&Date.now()-lastUpdate>5000)void loadCloud()});
+w.addEventListener('storage',e=>{if(e.key==='hh-guardian-family-auth-v785')void authSync()});
+if(api)api.auth.onAuthStateChange(e=>{if(e==='SIGNED_IN'||e==='SIGNED_OUT')setTimeout(()=>void authSync(),0)});
+const previousMode=state().mode;if(previousMode==='demo'||previousMode==='shared'){mode=previousMode;modeTouched=true}
+render();void authSync();
+})(window,document);
+ }catch(err){
+  const panel=document.getElementById('modeHelp');
+  if(panel)panel.textContent='A vezérlés nem indult. Az áruházak eredeti oldalait továbbra is megnyithatod. '+String(err&&err.message||err).slice(0,90);
+ }
+});
+</script>
+</body></html>
