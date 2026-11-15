@@ -222,10 +222,10 @@ function startVoice(){
  if(!Speech)return toast('A böngészőben nem elérhető a magyar hangfelismerés. Használd a billentyűzet mikrofonját.');
  if(voiceRec){voiceRec.stop();return}
  voiceRec=new Speech();voiceRec.lang='hu-HU';voiceRec.interimResults=false;voiceRec.maxAlternatives=1;
- $('voice').classList.add('voice-on');$('inputHelp').textContent='🎙️ Figyelek. Sorold fel a termékeket, például: tej, kenyér, két liter víz.';
+ $('voice').classList.add('voice-on');
  voiceRec.onresult=e=>{const text=e.results[0]?.[0]?.transcript||'';$('productSearch').value=text;void addVoiceText(text)};
  voiceRec.onerror=e=>toast('Hangbevitel nem sikerült: '+e.error);
- voiceRec.onend=()=>{$('voice').classList.remove('voice-on');voiceRec=null;$('inputHelp').textContent='🎙️ Mondhatod így is: „tej, kenyér, 2 liter ásványvíz”. A termékek külön sorokba kerülnek.'};
+ voiceRec.onend=()=>{$('voice').classList.remove('voice-on');voiceRec=null;};
  try{voiceRec.start()}catch(_){voiceRec=null;toast('A mikrofon nem indult el.')}
 }
 buildCategories();render();
