@@ -25,7 +25,7 @@ const missingCovers=new Set();
 const element=(tag,cls,txt)=>{const x=d.createElement(tag);if(cls)x.className=cls;if(txt!==undefined)x.textContent=txt;return x};
 const text=s=>String(s||'').trim().slice(0,200);
 const pid=()=>w.localStorage.getItem('hh-profile')==='m'?'monika':'zsolt';
-const status=(s,problem)=>{$('odStatus').textContent=s;$('odStatus').dataset.error=problem?'1':'0'};
+const status=(s,problem)=>{$('odStatus').textContent=s;$('odStatus').dataset.error=problem?'1':'0';if($('odInlineStatus')){$('odInlineStatus').textContent=s;$('odInlineStatus').dataset.error=problem?'1':'0'}};
 const origin=()=>new URL('./',w.location.href).href;
 const store=(storage,key,val)=>{try{storage.setItem(key,val);return true}catch(_){return false}};
 const load=(storage,key)=>{try{return storage.getItem(key)}catch(_){return null}};
@@ -278,6 +278,19 @@ async function loadLibrary(){
   const items=await scanFolder(),progress=await progressRecords();
   entries=items.map(item=>mapBook(item,progress.get(item.id))).sort((a,b)=>a.title.localeCompare(b.title,'hu-HU'));
   render();
+  const preview=w.SH9_BOOK_PREVIEW_V4;
+  if(preview){
+   const groups=distinctBooks();
+   const sorted=groups.primary.slice().sort((a,b)=>
+    Number(!!b.progress_locator)-Number(!!a.progress_locator)||
+    Number(b.is_favorite)-Number(a.is_favorite)||a.title.localeCompare(b.title,'hu-HU'));
+   void preview.save(config.account,pid(),sorted);
+   const pending=preview.pendingRead();
+   if(pending&&entries.some(x=>x.id===pending)){
+    preview.pendingClear();
+    w.setTimeout(()=>{if(ready&&getBook(pending))void w.SH9_BOOK_STUDIO_V1.openBook(pending)},180);
+   }
+  }
   status('✓ '+entries.length+' könyv a OneDrive-on · '+(progressCloud?'olvasási állapot felhőben':'olvasási pozíció szinkronja: Family Guard-belépés szükséges'),!progressCloud);
   void updateCacheInfo();
   updateCoverToggle();scheduleAutomaticCovers();
