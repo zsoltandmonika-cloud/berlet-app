@@ -367,16 +367,35 @@ function itemRow(p){
  const remove=node('button','remove','×');remove.type='button';remove.title='Törlés';remove.setAttribute('aria-label','Törlés: '+p.name);remove.onclick=()=>removeItem(p);
  controls.append(favorite,remove);card.append(check,image,main,controls);return card;
 }
+function categoryItems(category){
+ return category?items.filter(p=>mainCategory(p.category)===category):items;
+}
+function refreshCategoryProgress(){
+ const buttons=$('categories').querySelectorAll('[data-category]');
+ buttons.forEach(button=>{
+  const category=button.dataset.category;
+  const all=categoryItems(category),total=all.length,bought=all.filter(p=>p.done).length;
+  const active=category===selectedCategory;
+  button.classList.toggle('active',active);
+  button.setAttribute('aria-pressed',String(active));
+  button.setAttribute('aria-label',(category||'Mind')+': '+bought+' megvéve, '+total+' összesen'+(active?' · kiválasztva':''));
+  button.querySelector('.category-number').textContent=bought+'/'+total;
+  button.querySelector('.category-fill').style.width=(total?Math.round(100*bought/total):0)+'%';
+ }
+ );
+}
 function render(){
- const active=items.filter(p=>!p.done),done=items.filter(p=>p.done);
+ refreshCategoryProgress();
+ const visible=categoryItems(selectedCategory);
+ const active=visible.filter(p=>!p.done),done=visible.filter(p=>p.done);
  // One shared tile: checked purchases remain visible, at the very top.
  // Most recently checked items lead; unpurchased items retain their list order.
  done.sort((a,b)=>new Date(b.done_at||b.updated_at||0)-new Date(a.done_at||a.updated_at||0));
  $('activeCount').textContent=active.length+' hátra · '+done.length+' megvéve';
  const box=$('activeList');box.replaceChildren();
- if(!items.length){
+ if(!visible.length){
   const empty=node('div','empty');
-  empty.append(node('span','big','🛒'),node('span',null,user?'A lista üres. Adj hozzá egy terméket!':'Bejelentkezés után megjelenik a közös lista.'));
+  empty.append(node('span','big','🛒'),node('span',null,!user?'Bejelentkezés után megjelenik a közös lista.':selectedCategory?'Ebben a kategóriában még nincs termék.':'A lista üres. Adj hozzá egy terméket!'));
   box.append(empty);
  }else [...done,...active].forEach(x=>box.append(itemRow(x)));
 }
@@ -479,24 +498,30 @@ async function fetchProductMatches(){
 }
 function buildCategories(){
  const box=$('categories');
- for(const [icon,category,labelText] of SHOPPING_MAIN_CATEGORIES){
-  const button=node('button','category-chip',icon+' '+labelText);
+ const list=[['✨','','Mind'],...SHOPPING_MAIN_CATEGORIES];
+ for(const [icon,category,labelText] of list){
+  const button=node('button','category-progress');
   button.type='button';
   button.dataset.category=category;
-  button.setAttribute('aria-pressed','false');
-  button.setAttribute('aria-label',category);
+  button.setAttribute('aria-pressed',String(category===selectedCategory));
+  const header=node('span','category-head');
+  const name=node('span','category-label',icon+' '+labelText);
+  const count=node('span','category-number','0/0');
+  header.append(name,count);
+  const track=node('span','category-track');
+  track.setAttribute('aria-hidden','true');
+  track.append(node('span','category-fill'));
+  button.append(header,track);
   button.onclick=()=>{
-   // Second tap on the current chip clears the filter, without adding a sixth chip.
-   selectedCategory=selectedCategory===category?'':category;
-   box.querySelectorAll('button').forEach(x=>{
-    const active=x.dataset.category===selectedCategory;
-    x.classList.toggle('active',active);
-    x.setAttribute('aria-pressed',String(active));
-   });
+   // Mind displays everything; tapping the active category returns to Mind.
+   selectedCategory=category===selectedCategory?'':category;
+   refreshCategoryProgress();
+   render();
    remote=[];suggestions();searchDebounce();
   };
   box.append(button);
  }
+ refreshCategoryProgress();
 }
 async function addVoiceText(text){
  const fragments=String(text||'').split(/\s*,\s*|\s+és\s+|\s+meg\s+/i).map(x=>x.trim()).filter(Boolean).slice(0,12);
