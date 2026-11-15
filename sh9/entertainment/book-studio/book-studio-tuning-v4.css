@@ -99,3 +99,21 @@ body{color:var(--bs-v4-ink)}
 @media(prefers-reduced-motion:reduce){
  .reader.turn-forward #epubStage,.reader.turn-forward #pdfStage,.reader.turn-backward #epubStage,.reader.turn-backward #pdfStage{animation:none}
 }
+
+/* Connection setup moved below all books, with a compact status line near the shelf. */
+.od-quick-status{display:flex;align-items:center;justify-content:space-between;gap:15px;flex-wrap:wrap;
+ padding:11px 16px;margin:9px 0 16px;color:#e7f3ff;background:#1c3047b8;border:1px solid #8dbbdd71;
+ border-radius:13px;font-size:13px;font-weight:700;line-height:1.4}
+.od-quick-status [data-error="1"]{color:#ffe1a6}
+.od-manage-link{white-space:nowrap;color:#d3eafe;border:1px solid #9dbfe864;border-radius:10px;background:#14263ac9;padding:8px 12px;font-size:12px}
+.od-admin-bottom{margin:50px 0 12px;padding:21px clamp(12px,3vw,32px);background:linear-gradient(140deg,#142032cc,#151a29dc);border:1px solid #95abc05a;border-radius:21px;scroll-margin-top:25px}
+.od-admin-bottom .section-title{margin:0 0 10px}.od-admin-bottom .section-title h2{font-size:22px}
+.od-admin-copy{font-size:13px;color:#bfcfdf;line-height:1.5;margin:0 0 14px}
+.od-admin-bottom .od-connect{margin-bottom:0}
+@media(max-width:700px){
+ .od-quick-status{padding:10px 12px;font-size:12px}
+ .od-quick-status [id="odInlineStatus"]{flex:1 1 100%}
+ .od-manage-link{display:inline-flex;padding:8px 10px;font-size:11px}
+ .od-admin-bottom{margin:32px 0 10px;padding:16px 11px}
+ .od-admin-bottom .section-title h2{font-size:20px}
+}
