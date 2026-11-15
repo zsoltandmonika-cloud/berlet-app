@@ -63,7 +63,7 @@ button,input{font:inherit}button{cursor:pointer;color:inherit}a{color:inherit;te
 <div class="list" id="favoriteList" aria-label="Mentett kedvenc termékek"></div>
 </section>
 </div>
-<nav class="bottom" aria-label="SHO navigáció"><a href="../"><span>⌂</span>Kezdőlap</a><a href="./"><span>🛍️</span>Shopping</a><button type="button" class="active" id="navList"><span>🛒</span>Smart List</button><a href="../family-hub/"><span>👨‍👩‍👧</span>Family Hub</a></nav>
+<nav class="bottom" aria-label="SHO navigáció"><a href="../"><span>⌂</span>Kezdőlap</a><a id="navAsk" href="../../healthhub/index.html?sh9nav=admin&amp;sh9cfg=asklena" aria-label="Ask Léna megnyitása"><span>💬</span>Ask Léna</a><button type="button" class="active" id="navList"><span>🛒</span>Smart List</button><a href="./"><span>🛍️</span>Shopping</a></nav>
 <div id="qtyOverlay" class="qty-overlay" hidden>
  <div class="qty-panel" role="dialog" aria-modal="true" aria-labelledby="qtyTitle">
   <div class="qty-top"><strong id="qtyTitle">Mennyiség / súly</strong><button type="button" id="qtyClose" class="qty-close" aria-label="Bezárás">×</button></div>
@@ -84,5 +84,6 @@ button,input{font:inherit}button{cursor:pointer;color:inherit}a{color:inherit;te
 <script src="../../healthhub/central-vault/config.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.2/dist/umd/supabase.min.js"></script>
 <script defer src="../../healthhub/guardian/guardian-native-auth-v1063.js"></script>
-<script defer src="./smart-list-v1.js?v=13"></script>
+<script defer src="../../healthhub/chatgpt-project-shortcut-v712.js?v=756-central-open"></script>
+<script defer src="./smart-list-v1.js?v=14"></script>
 </body></html>
