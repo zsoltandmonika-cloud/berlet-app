@@ -50,6 +50,16 @@
 - Technikai verifikáció: kód szintaxis és 10 regressziós feltétel sikeres; nyolc szimulált tétel alapján mind a 6 számpár, sávszázalék, kategóriaszűrés és visszaállítás helyes. **Valós kéttelefonos UAT még szükséges.**
 - Implementáció: HTML `sh9/shopping/smart-list.html` v11; JS `sh9/shopping/smart-list-v1.js`. HTML commit: `09ac830af50d8fa77a533fa39eb3a44bb89685e4`; JS commit: `d2bec2e51d77bd178242d68de6d70e09bbb0155c`.
 
+## Smart List v13 · kedvencek és felső navigáció · 2026-11-15
+- A felső két redundáns navigációs ikon helyén **♥ Kedvencek** és **🛒 Bevásárlólista** gomb. Ugyanazon Smart List oldalon váltják a nézetet; az alsó SHO navigáció megmarad.
+- A Kedvencek végre **független, tartós közös felhős gyűjtemény**: `public.hh_shopping_favorites_v1`; egyedi `(household, name_key)` kulcs, név, mennyiség, mértékegység, kategória, hiteles kép/vonalkód és frissítő profil tárolása.
+- Supabase RLS engedélyezve, négy családi jogosultsági politika (SELECT/INSERT/UPDATE/DELETE). `anon` nem rendelkezik SELECT joggal; hitelesített családi profil hozzáférhet. Realtime publikáció engedélyezve.
+- Az átálláskor meglévő kedvenc jelöléseket átemeltük a külön táblába, adatok törlése nélkül. A szív most a külön Kedvencek-tábla alapján jelenik meg.
+- A listaelem törlése **nem** érinti a Kedvencek-táblát. A Kedvencek nézet kompakt sorokból áll, `＋` gombbal a tárolt mennyiség + mértékegység felhasználásával újra felvehető a bevásárlólistára; `♥` gombbal külön törölhető a Kedvencekből. Nincs zavaró megerősítő prompt.
+- Supabase migráció: `sho_shopping_favorites_shared_persistent_v1`. HTML `sh9/shopping/smart-list.html` v13, JS `sh9/shopping/smart-list-v1.js`; commitok: HTML `77957e103da6d69edb45e87cde750bcb926c6159`, JS `103f026c3bdd099c5cd8508b5443da71944b25b3`.
+- Ellenőrzés: JS szintaxis, az oldalelemek egyeztetése, RLS/adatjogosultság és Realtime jelenlét; DB módosítások teszttranzakcióval visszagörgetve. **Két mobiltelefonos UAT még szükséges.**
+- A régi Shopping főoldali, helyileg tárolt Wishlist továbbra is **külön** gyűjtemény; a most kialakított közös kedvencek ennek nem automatikus migrációja.
+
 ## Ellenőrzés
 - GitHub módosítások és új fájlok a `main` ágon mentve.
 - JavaScript szintaxis ellenőrzése sikeres.
