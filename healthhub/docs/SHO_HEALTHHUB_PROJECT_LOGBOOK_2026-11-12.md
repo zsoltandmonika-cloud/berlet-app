@@ -96,6 +96,14 @@
 - Belső DOM/felhőmock ellenőrzés: **13/13** sikeres, régi `removeChild` hiba nem szerepel a v2-ben. Nem automatizált Tesco-kosárfeltöltés.
 - Részletek: [Tesco Bridge v2](./SHO_TESCO_CART_BRIDGE_V2.md). **Nyitott:** valódi Tesco/Samsung Internet navigáció, terméklink és kéttelefonos UAT.
 
+### 12. 2026. november 15. · Tesco Smart Shopping v3 GOLDEN RELEASE
+- A felhasználó jóváhagyta a v3 kattintástakarékos Tesco-konceptet, majd kérte a véglegesítést. **Tesco Smart Shopping** néven a Shopping / Boltok & valódi termékek részből a `tesco-bridge-v3.html` nyílik, a 10 termékes v1 pilot és v2 rollback-ként megmarad.
+- Funkció: teljes aktív családi Smart List felhőből lapozva, termékenként Tesco keresés vagy mentett hivatalos SKU-link, böngésző Vissza után következő termék, önálló hivatalos Tesco-kategóriák és kereső. Nem írja a Smart List vásárlási állapotát.
+- Teszt: 12/12 kiterjesztett mock DOM + felhő QA, 260 aktív tétel 2 szakaszban, 40-es mobil render, korábbi regressziós hibák nélkül. GitHub Pages build a v3 Shopping gombot tartalmazó commithoz sikeres; a végső release build külön ellenőrzendő.
+- **Limitáció:** nincs Tesco-kosár-/ár-/készlet-/rendelés API. Minden tényleges vásárlás a Tesco webáruház oldalán történik, és a kétprofilos Android/PC éles UAT nyitott.
+- Forrás: [Tesco Smart Shopping v3 Golden contract](./SHO_TESCO_CART_BRIDGE_V3.md), `healthhub/project-control.json → tescoShoppingRelease`. A v3 Golden felülethez később csak új verzióban nyúlunk.
+- A projekt általános `SH9 · Edge Installable PWA QA` és `HealthHub Level 3 Guard` CI-hibái külön, nem Tesco-specifikusak (natív navigációs fallback tesztek, BKK favorites ellenőrzés); nem értelmezhetők sikeresnek. Ez **nem** teljes projektszintű zöld QA.
+
 ### 6. Folytatási szabály
 
 A következő fejlesztések előtt a **P0 migrációs adatbiztonsági hiányokat** kell rendezni. Minden release-nél: célzott CI → főági merge → valódi mobilteszt → Project Control naplófrissítés. A GitHub PR nem helyettesíti a privát, kétprofilos telefonos ellenőrzést.
