@@ -10,6 +10,7 @@
  'use strict';
  const text=x=>String(x||'').trim().replace(/\s+/g,' ');
  const accents=x=>x.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('hu-HU');
+ const normAuthor=x=>accents(x).replace(/[^\p{L}\p{N}]+/gu,' ').trim().replace(/\s+/g,' ');
  const CATALOG=[
   [/^a\s*kis\s*herceg$/i,['A kis herceg','Antoine de Saint-Exupéry']],
   [/^a\s*bankar$/i,['A bankár','Frei Tamás']],
@@ -41,14 +42,14 @@
   let s=text(x).replace(/\.(epub|pdf)$/i,'').replace(/[_]+/g,' ').replace(/\u200b/g,'');
   s=s.replace(/(?:-?up\s*by\s*om|-?upbyom|-?olvas\s*om(?:mani)?|-?bootleg|-?ebook)\b/gi,' ');
   s=s.replace(/(\b(?:epub|hungarian)\b)/gi,' ').replace(/[\[\]{}]/g,' ')
-   .replace(/\s*\.\s*/g,' ').replace(/\s*[-–—]\s*/g,' - ')
+   .replace(/\s*\.\s*/g,' ').replace(/--+/g,' - ').replace(/\s*[-–—]\s+/g,' - ')
    .replace(/\s+/g,' ').replace(/^[-,.\s]+|[-,.\s]+$/g,'');
   for(const [pattern,replacement] of NAME_FIXES)s=s.replace(pattern,replacement);
   return s.slice(0,210);
  }
  function authorCanonical(input){
   const author=clean(input).replace(/\s+-\s+.*$/,'');
-  const known=KNOWN_AUTHORS.find(a=>accents(a)===accents(author));
+  const known=KNOWN_AUTHORS.find(a=>normAuthor(a)===normAuthor(author));
   return known||author;
  }
  function findCanonical(title,author=''){
@@ -63,7 +64,7 @@
   let author='',title=stem;
   if(accents(stem).startsWith('fekete istvan tuskevar'))return {title:'Tüskevár',author:'Fekete István'};
   const known=KNOWN_AUTHORS.find(a=>{
-   const aNorm=accents(a),sNorm=accents(stem);
+   const aNorm=normAuthor(a),sNorm=normAuthor(stem);
    return sNorm.startsWith(aNorm+' - ')||sNorm.startsWith(aNorm+' ');
   });
   if(known){
@@ -73,9 +74,9 @@
    const parts=stem.split(' - ').filter(Boolean);
    if(parts.length>1){
     const candidate=authorCanonical(parts[0]);
-    const candidateKnown=KNOWN_AUTHORS.some(a=>accents(a)===accents(candidate));
+    const candidateKnown=KNOWN_AUTHORS.some(a=>normAuthor(a)===normAuthor(candidate));
     if(candidateKnown){author=candidate;title=parts.slice(1).join(' - ')}
-    else if(KNOWN_AUTHORS.some(a=>accents(a)===accents(authorCanonical(parts[parts.length-1])))){
+    else if(KNOWN_AUTHORS.some(a=>normAuthor(a)===normAuthor(authorCanonical(parts[parts.length-1])))){
      author=authorCanonical(parts.at(-1));title=parts.slice(0,-1).join(' - ');
     }
    }
