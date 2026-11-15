@@ -77,3 +77,20 @@ Böngészőben a rövid élettartamú Microsoft-hozzáférési token a sessionSt
 - [ ] Könyvlista olvasása közben semmilyen eredeti fájlt nem ír/töröl a rendszer.
 
 QA forrás: `node --test sh9/entertainment/tests/book-studio-onedrive-v2.test.cjs`.
+
+
+## Golden V3 · iBooks-szerű használat és OneDrive automatikus kapcsolat (2026-11-15)
+
+- Eredeti OneDrive-fájl **csak első megnyitáskor** töltődik le. Utána az azonos Microsoft-fiókhoz, OneDrive-fájlazonosítóhoz és ETag / módosítási verzióhoz kötött helyi IndexedDB-gyorsítótár szolgálja ki a megnyitást. Maximum ~230 MB össz-cache / 80 MB könyv, LRU-közeli időalapú takarítással. A fájlok eredetije nem másolódik a Supabase-be és nem módosul.
+- Bejelentkezési munkamenet: `offline_access`, az engedélyezett Microsoft SPA eredeti 24 órás korlátját figyelembe vevő automatikus refresh (23 óra után nem használható). A refresh token izolált böngészős IndexedDB-ben **nem kinyerhető WebCrypto AES-GCM kulccsal titkosítva** tárolódik, a hozzáférési token sessionStorage-ban. Ezt nem szabad szerveroldali, évekre megújuló automatikus hozzáférésnek nevezni. Előzetes sikeres Microsoft-belépés után a böngésző megkísérel egy legfeljebb 4 óránkénti first-party top-level `prompt=none` SSO-újrabelépést. Microsoft új engedélyt kérhet; manuális gomb marad. A fiók változásakor a hitelesítés törlődik, a kijelentkezés automatikus újrabelépést tilt.
+- Valódi EPUB borító a fájl OPF manifest `cover-image` referenciájából és PDF első oldalának bélyegképe. A miniatűr csak felhasználói könyvmegnyitáskor vagy külön `Eredeti borítók` gomb után készül, sosem teljes OneDrive tömeges háttérletöltésként. A miniatűrök is az adott eszközön cache-elődnek.
+- `Gyorsítótár törlése` az **aktuális Microsoft-fiókhoz tartozó** eszközön tárolt eBook fájlokat és képeket törli a OneDrive módosítása nélkül.
+- Olvasó: olvasható 920 px max. laptest, valódi paginált EPUB, PDF léptetés, érintéses horizontális swipe, széli koppintás, billentyűzet, vizuális finom lapfordító effekt, fejezetlista, `Folytatom`, EPUB CFI / PDF oldalszám, helypozíciós csúszka (EPUB locations generálása után), Fókusz mód, téma/karakter méret.
+- HD vizuál: 2 Unsplash fénykép alkotja a sötét üveges Book Studio könyvtármontázst. A két külső dekoratív háttérfotó **nem kerül a GitHub repo binary fájljai közé**, betöltés hiányában színátmenetes fallback. Source photography: Unsplash photo IDs `1647793294248-4a3187b0d6a6`, `1623771702313-39dc4f71d275` (Unsplash license). A valódi könyvborítók helyi könyvfájlból származnak.
+
+### V3 QA és felhasználói validáció
+
+- Statikus/regressziós tesztek: `node --test sh9/entertainment/tests/book-studio-*.test.cjs`.
+- **Elvárt manuális próba**: frissen bejelentkezve 1 EPUB első megnyitás (OneDrive hálózati letöltés), bezár/újranyit (cache, nem kér második letöltést), könyvborító megjelenik; egy PDF ugyanez. Böngésző újraindítása után Microsoft SSO (esetleg consent) és helyi cache. Laptop/telefon külön helyi cache, felhőprofilok olvasási helye külön tárolódik.
+- Ha kijelentkezés után a böngésző IndexedDB-jében személyes könyvfájlok maradnak, külön `Gyorsítótár törlése` használata szükséges, ez biztonsági és tárhelyhasználati tradeoff. Natív WebView Microsoft Auth integráció továbbra is külön feladat.
+- Az EPUB-szöveges keresés és a Léna AI Buddy még nem kész.
