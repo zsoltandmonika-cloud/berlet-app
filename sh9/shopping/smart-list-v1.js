@@ -100,13 +100,16 @@ function itemRow(p){
 }
 function render(){
  const active=items.filter(p=>!p.done),done=items.filter(p=>p.done);
- $('activeCount').textContent=active.length+' termék';
- const box=$('activeList'),purchased=$('purchasedList');box.replaceChildren();purchased.replaceChildren();
- if(!active.length){const empty=node('div','empty');empty.append(node('span','big','🛒'),node('span',null,user?'A lista kész. Jöhet a következő bevásárlás!':'Bejelentkezés után megjelenik a közös lista.'));box.append(empty)}
- else active.forEach(x=>box.append(itemRow(x)));
- done.forEach(x=>purchased.append(itemRow(x)));
- $('purchasedSummary').textContent='✓ Megvásárolva ('+done.length+')';
- $('purchasedWrap').hidden=!done.length;
+ // One shared tile: checked purchases remain visible, at the very top.
+ // Most recently checked items lead; unpurchased items retain their list order.
+ done.sort((a,b)=>new Date(b.done_at||b.updated_at||0)-new Date(a.done_at||a.updated_at||0));
+ $('activeCount').textContent=active.length+' hátra · '+done.length+' megvéve';
+ const box=$('activeList');box.replaceChildren();
+ if(!items.length){
+  const empty=node('div','empty');
+  empty.append(node('span','big','🛒'),node('span',null,user?'A lista üres. Adj hozzá egy terméket!':'Bejelentkezés után megjelenik a közös lista.'));
+  box.append(empty);
+ }else [...done,...active].forEach(x=>box.append(itemRow(x)));
  profileUi();
 }
 async function setDone(item,value){
