@@ -56,7 +56,7 @@ test('Real covers are extracted from EPUB OPF and PDF first page after local fil
  assert.match(drive,/zip\.file\(opfPath\)/);
  assert.match(drive,/page\.render/);
  assert.match(drive,/async function prepareCovers/);
- assert.match(drive,/if\(!CACHE\|\|coverUrls\.has\(b\.id\)\|\|!config\)return/);
+ assert.match(drive,/if\(!CACHE\|\|!config\|\|coverUrls\.has\(b\.id\)\)return/);
 });
 test('Reader has pages, swipe touch, chapter list, and subtle animation',()=>{
  assert.match(book,/flow:'paginated'/);
