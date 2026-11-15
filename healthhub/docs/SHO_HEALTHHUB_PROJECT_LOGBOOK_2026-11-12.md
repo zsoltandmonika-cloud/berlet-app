@@ -73,6 +73,13 @@
 - GitHub mentés: JS `d2bec2e51d77bd178242d68de6d70e09bbb0155c`, HTML `09ac830af50d8fa77a533fa39eb3a44bb89685e4`. Belső funkcionális regresszióteszt sikeres, **Samsung mobilos vizuális ellenőrzés hátravan**.
 - Részletek: [Smart List Golden specifikáció](./SHO_SMART_LIST_GOLDEN_V1.md)
 
+### 9. 2026. november 15. · Smart List v13: két felső ikon és közös Kedvencek
+- A felső Shopping/Home ikonok helyén Kedvencek/Bevásárlólista nézetváltó; a lent lévő navigáció érintetlen.
+- Tartós `hh_shopping_favorites_v1` felhőtábla, családi RLS és Realtime, meglévő szívecskés tételek egyszeri átemelése. A listaelem törlésétől függetlenül megőrzött kedvencek.
+- Kedvenc `＋` visszaad a közös listához, a saját `♥` levétel a kedvencgyűjteményből töröl. Meglévő kompakt v12 terméksor/mennyiség/súly és hat progress sor változatlan.
+- SQL migráció sikeres, 4 politika, RLS és publikáció ellenőrizve; rollback QA teszt, 0 tesztszemét. HTML commit `77957e103da6d69edb45e87cde750bcb926c6159`; JS commit `103f026c3bdd099c5cd8508b5443da71944b25b3`.
+- **Nyitott:** két telefonos élő kedvenc-/visszaadás-szinkron UAT. A Shopping régi helyi Wishlistje még független, migráció csak külön tervezetten.
+
 ### 6. Folytatási szabály
 
 A következő fejlesztések előtt a **P0 migrációs adatbiztonsági hiányokat** kell rendezni. Minden release-nél: célzott CI → főági merge → valódi mobilteszt → Project Control naplófrissítés. A GitHub PR nem helyettesíti a privát, kétprofilos telefonos ellenőrzést.
