@@ -126,6 +126,8 @@ function buildCard(slide,n){
  text.append(elem('strong','sho-feature-title',slide.title),
   elem('small','sho-feature-note',slide.note));
  link.append(photo,shade,top,text);
+ link.draggable=false;
+ link.addEventListener('dragstart',e=>e.preventDefault());
  link.addEventListener('click',e=>{if(Date.now()<swipeBlockUntil)e.preventDefault()});
  link.setAttribute('aria-hidden','true');link.tabIndex=-1;
  return link;
