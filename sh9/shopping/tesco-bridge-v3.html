@@ -88,6 +88,13 @@ main{max-width:570px;margin:auto;padding:12px 12px calc(98px + env(safe-area-ins
 .visually-hidden{position:absolute;width:1px;height:1px;padding:0;margin:-1px;border:0;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}
 .more-rows{justify-content:center;border:1px solid #d493c2!important;background:#423452!important;color:#ffd1eb!important;font-size:11px;font-weight:800}
 @media(max-width:375px){.full-search{padding:10px}.full-search button{padding:8px;font-size:10px}}
+
+/* Golden one-tap selection + double-tap merchant handoff.
+   The full-width search button is replaced by an unobtrusive access link. */
+.go.go-compact{display:inline-flex;width:auto;min-height:28px;align-items:center;margin:9px 0 0;
+ padding:4px 10px;border:1px solid #e5a4d48a;border-radius:9px;
+ background:#332840;color:#ffe4f5;font-size:11px;font-weight:750;box-shadow:none}
+.item-row{touch-action:manipulation;user-select:none;-webkit-user-select:none}
 </style>
 </head>
 <body>
@@ -100,7 +107,7 @@ main{max-width:570px;margin:auto;padding:12px 12px calc(98px + env(safe-area-ins
 <section class="hero glass">
  <span class="eyebrow">TESCO · SMART SHOPPING · GOLDEN</span>
  <h1>Smart <em>Cart Bridge</em> 🛒</h1>
- <p>Bármely Tesco-terméket megkeresheted, vagy végigmehetsz a teljes közös Smart Listen. Nincs dupla pipálás.</p>
+ <p>Termék kiválasztása egy koppintással, közvetlen Tesco-megnyitás dupla koppintással. Visszatérve a következő termék vár.</p>
 </section>
 <div class="mode" role="group" aria-label="Tesco átadás adatforrása">
  <button id="sharedMode" type="button" aria-pressed="false">🛒 Közös Smart List<small id="sharedTotal">Felhő betöltése…</small></button>
@@ -122,8 +129,8 @@ main{max-width:570px;margin:auto;padding:12px 12px calc(98px + env(safe-area-ins
    <span class="selected-icon" id="selectedIcon">🥛</span>
    <div class="selected-info"><h2 id="selectedName">Tesco UHT félzsíros tej 2,8% 1 l</h2><p id="selectedQuantity">2 db</p><span class="map-label" id="linkInfo">⌕ Első alkalom: Tesco keresés</span></div>
  </div>
- <a class="go" id="openTesco" rel="noopener noreferrer" href="https://bevasarlas.tesco.hu/shop/hu-HU/search?query=Tesco%20UHT%20f%C3%A9lzs%C3%ADros%20tej%202%2C8%25%201%20l">🔎 Keresés a Tescóban ↗</a>
- <p class="subnote">A termék a Tesco oldalán kerül a kosárba. A SHO csak a következő keresést készíti elő.</p>
+ <a class="go go-compact" id="openTesco" rel="noopener noreferrer" href="https://bevasarlas.tesco.hu/shop/hu-HU/search?query=Tesco%20UHT%20f%C3%A9lzs%C3%ADros%20tej%202%2C8%25%201%20l">🔎 Keresés a Tescóban ↗</a>
+ <p class="subnote">👆 Dupla koppintás a terméksoron = megnyitás a Tescóban. A kosárba helyezés továbbra is a Tesco oldalán történik.</p>
  <div class="navigation">
    <button type="button" id="prevItem">‹ Előző</button>
    <button type="button" id="editLink" class="link-editor">🔗 Terméklink</button>
@@ -141,7 +148,7 @@ main{max-width:570px;margin:auto;padding:12px 12px calc(98px + env(safe-area-ins
 </section>
 <div class="auth" id="authMessage" hidden><span id="authLabel">A közös terméklinkekhez be kell jelentkezni.</span><button type="button" id="signIn">Bejelentkezés</button></div>
 <section class="list-card glass" aria-label="Tesco-termékek">
- <div class="list-header"><h3>📋 Termékek <small style="font-size:10px;color:#d6bdce;font-weight:500">(egy koppintásos sorrend)</small></h3><button id="restart" type="button">↺ Elölről</button></div>
+ <div class="list-header"><h3>📋 Termékek <small style="font-size:10px;color:#d6bdce;font-weight:500">(koppintás: kijelölés · dupla: megnyitás)</small></h3><button id="restart" type="button">↺ Elölről</button></div>
  <div id="rows" class="list">
 <a class="item-row fallback-row" href="https://bevasarlas.tesco.hu/shop/hu-HU/search?query=Tesco%20UHT%20f%C3%A9lzs%C3%ADros%20tej%202%2C8%25%201%20l" rel="noopener noreferrer"><span class="face">🥛</span><span class="item-copy"><strong>Tesco UHT félzsíros tej 2,8% 1 l</strong><small>2 db</small></span><span class="item-badge">⌕</span></a>
 <a class="item-row fallback-row" href="https://bevasarlas.tesco.hu/shop/hu-HU/search?query=Kov%C3%A1szos%20vekni%20470%20g" rel="noopener noreferrer"><span class="face">🍞</span><span class="item-copy"><strong>Kovászos vekni 470 g</strong><small>1 db</small></span><span class="item-badge">⌕</span></a>
@@ -205,6 +212,7 @@ const api=cfg&&cfg.enabled&&w.supabase?.createClient?
 let user=null,allowed=[],shared=[],mappings=new Map(),mode='demo',modeTouched=false;
 let selectedKey=null,linkEditing=false,loading=false,pending=false,channel=null,lastLoad=0,visibleRowCount=40;
 let toastHandle=null;
+let lastRowTapKey='',lastRowTapAt=0; // survives row redraw across first and second tap
 function readState(){
  try{const x=JSON.parse(w.sessionStorage.getItem(NAV_KEY)||'{}');return x&&typeof x==='object'?x:{}}catch(_){return {}}
 }
@@ -262,8 +270,19 @@ function setMode(next){
  const s=readState();s.mode=mode;writeState(s);render();
 }
 function chooseItem(i){
+ lastRowTapKey='';lastRowTapAt=0;
  const list=visible(),item=list[i];if(!item)return;
  selectedKey=keyFor(item,mode);linkEditing=false;render();
+}
+function activateRow(i){
+ const p=visible()[i];if(!p)return;
+ const key=keyFor(p,mode),now=Date.now();
+ const doubleTap=lastRowTapKey===key&&now-lastRowTapAt>=0&&now-lastRowTapAt<=450;
+ lastRowTapKey=key;lastRowTapAt=now;
+ if(!doubleTap){selectedKey=key;linkEditing=false;render();return}
+ lastRowTapKey='';lastRowTapAt=0;
+ selectedKey=key;recordOpen();
+ w.location.assign(urlFor(p)); // direct gesture, same tab, exact saved URL or official search
 }
 function moveBy(delta){
  const a=selection();if(!a.all.length)return;
@@ -288,8 +307,9 @@ function drawRows(info){
   const p=info.all[i],key=keyFor(p,mode),mapping=mappings.get(key);
   const button=node('button','item-row'+(i===info.index?' selected':''));button.type='button';
   button.setAttribute('aria-current',String(i===info.index));
-  button.setAttribute('aria-label','Termék kiválasztása: '+p.name);
-  button.onclick=()=>chooseItem(i);
+  button.setAttribute('aria-label','Termék: '+p.name+'. Egy koppintás kiválaszt, dupla koppintás megnyitja a Tescóban.');
+  button.title='Dupla kattintás: Tesco megnyitása';
+  button.onclick=()=>activateRow(i);
   const face=node('span','face',productIcon(p));
   const left=node('span','item-copy');
   left.append(node('strong',null,p.name),node('small',null,qty(p)));
@@ -317,7 +337,7 @@ function render(){
  $('linkInfo').textContent=p?(hasLink?'✓ Mentett Tesco terméklink':'⌕ Első alkalom: Tesco keresés'):'';
  const open=$('openTesco');
  open.href=p?urlFor(p):'#';
- open.textContent=hasLink?'🎯 Tesco-termék megnyitása ↗':'🔎 Keresés a Tescóban ↗';
+ open.textContent=hasLink?'↗ Mentett termék':'↗ Tesco megnyitása';
  open.setAttribute('aria-disabled',String(!p));
  $('prevItem').disabled=!p||a.all.length<2;
  $('nextItem').disabled=!p||a.all.length<2;
