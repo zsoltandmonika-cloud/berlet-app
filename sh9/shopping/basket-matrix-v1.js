@@ -4,6 +4,11 @@
 const FAMILY='zsolt-monika',LIST='hh_shopping_list_v1',LINKS='hh_shopping_merchant_links_v1',TESCO='hh_shopping_tesco_bridge_v1';
 const reg=w.SHOP_STORE_REGISTRY_V1,cache=w.SHOP_LOCAL_FIRST_V1,search=w.SHOP_MERCHANT_SEARCH_V1,$=id=>d.getElementById(id);
 let shops=reg?.current().filter(s=>s.enabled)||[],items=[],links=[],tesco=[],authenticated=false,userId='',source='loading',lastCache='',prepared=false,visible=50;
+let merchantIndex=new Map(),tescoIndex=new Map();
+function indexLinks(){
+ merchantIndex=new Map(links.map(x=>[x.store_key+':'+x.source+':'+x.item_key,x.product_url]));
+ tescoIndex=new Map(tesco.map(x=>[x.item_key,x.tesco_url]));
+}
 function node(tag,cls,value){const n=d.createElement(tag);if(cls)n.className=cls;if(value!==undefined)n.textContent=String(value);return n}
 function msg(s){$('syncStatus').textContent=s}
 const cats={'Drogéria':'Drogéria & Szépség','Háztartás':'Otthon & Háztartás','Otthon és háztartás':'Otthon & Háztartás','Italok':'Élelmiszer','Kisállat':'Otthon & Háztartás','Divat':'Divat & Stílus'};
@@ -18,14 +23,7 @@ function exact(link,shop){
  }catch(_){return ''}
 }
 function saved(item,shop){
- let raw='';
- if(shop.key==='tesco'){
-  const row=tesco.find(x=>x.item_key==='shared:'+String(item.id));
-  raw=row?.tesco_url||'';
- }else{
-  const row=links.find(x=>x.store_key===shop.key&&x.source==='shared'&&x.item_key===String(item.id));
-  raw=row?.product_url||'';
- }
+ const raw=shop.key==='tesco'?tescoIndex.get('shared:'+String(item.id)):merchantIndex.get(shop.key+':shared:'+String(item.id));
  return exact(raw,shop);
 }
 function routes(){return items.reduce((sum,item)=>sum+eligible(item).length,0)}
@@ -66,6 +64,7 @@ async function localRead(uid){
   if(Array.isArray(a?.rows)){items=a.rows.filter(x=>x&&x.id&&x.name);source='cached';lastCache=a.syncedAt||''}
   if(Array.isArray(b?.rows))links=b.rows;
   if(Array.isArray(c?.rows))tesco=c.rows;
+  indexLinks();
  }catch(_){}
  counters();
  if(source==='cached')msg('📱 Helyi kosármásolat · '+(lastCache?new Date(lastCache).toLocaleString('hu-HU'):'ismeretlen frissesség')+'. A bolti árakat nem ellenőriztük.');
@@ -92,6 +91,7 @@ async function refresh(){
   ]);
   if(results[0].status==='fulfilled'){links=results[0].value;if(cache)void cache.write(userId,'links:all',{rows:links})}
   if(results[1].status==='fulfilled'){tesco=results[1].value;if(cache)void cache.write(userId,'links:tesco',{rows:tesco})}
+  indexLinks();
   await storePromise;
   counters();
  }catch(e){
