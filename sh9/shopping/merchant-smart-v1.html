@@ -86,7 +86,7 @@ main{max-width:580px;margin:auto;padding:12px 12px calc(98px + env(safe-area-ins
  padding:4px 10px;margin:8px 0 0;border:1px solid #e7a5d58a;
  border-radius:9px;background:#342941;box-shadow:none;font-size:11px;font-weight:750}
 .product{touch-action:manipulation;user-select:none;-webkit-user-select:none}
-</style></head><body>
+</style><link rel="stylesheet" href="./merchant-basket-v1.css?v=1"></head><body>
 <main>
 <header class="top">
  <a href="./">‹ Shopping</a><small>SHO · MULTI-STORE</small><a href="./smart-list.html">Smart List ›</a>
@@ -161,6 +161,7 @@ main{max-width:580px;margin:auto;padding:12px 12px calc(98px + env(safe-area-ins
 <script defer src="../../healthhub/chatgpt-project-shortcut-v712.js?v=756-central-open"></script>
 <script defer src="./store-registry-v1.js?v=1"></script>
 <script defer src="./shopping-local-v1.js?v=1"></script>
+<script defer src="./merchant-basket-v1.js?v=1"></script>
 <script>
 document.addEventListener('DOMContentLoaded',function(){
  try{
@@ -321,6 +322,7 @@ function render(){
  $('authMessage').textContent=user?'Ehhez a családi profilhoz nincs mentési jogosultság.':'A közös terméklink mentéséhez bejelentkezés szükséges.';
  $('modeHelp').textContent=mode!=='shared'?'✨ 10 példatermék · nincs Smart List-módosítás.':cloudStatus==='loading'?'☁️ A közös Smart List szinkronizálása…':cloudStatus==='cached'?'📱 Helyi lista · utolsó szinkron: '+(cachedAt?new Date(cachedAt).toLocaleString('hu-HU'):'ismeretlen')+' · nem élő áradat':cloudStatus==='auth'?'🔒 A közös bevásárlólistához családi bejelentkezés szükséges.':cloudStatus==='error'?'⚠️ Felhőhiba: '+cloudError:rows.length?'☁️ Teljes közös Smart List · '+rows.length+' aktív tétel.':'☁️ A közös Smart List jelenleg üres.';
  draw(a);
+ try{w.dispatchEvent(new Event('sho:merchant-list-updated'))}catch(_){}
 }
 function setMode(next){mode=next;selected=null;showLink=false;visibleCount=40;const s=state();s.mode=mode;put(s);render()}
 async function fetchAll(table,cols,active){
@@ -418,6 +420,13 @@ w.addEventListener('pageshow',()=>{selected=null;render();if(own()&&Date.now()-l
 d.addEventListener('visibilitychange',()=>{if(d.visibilityState==='visible'&&own()&&Date.now()-lastUpdate>5*60*1000)void loadCloud()});
 w.addEventListener('storage',e=>{if(e.key==='hh-guardian-family-auth-v785')void authSync()});
 if(api)api.auth.onAuthStateChange(e=>{if(e==='SIGNED_IN'||e==='SIGNED_OUT')setTimeout(()=>void authSync(),0)});
+// Read-only match snapshot for the independent full-basket UI. Never writes to the family list.
+w.SHOP_MERCHANT_MATCH_V1=Object.freeze({snapshot:()=>({
+ mode,status:cloudStatus,store:key,items:mode==='shared'?rows.map(p=>({
+  id:pkey(p),name:String(p.name),quantity:p.quantity,unit:p.unit,
+  searchUrl:linkFor(p),savedUrl:directUrlFor(p)
+ })):[]
+})});
 // Every Smart Shopping entry opens the real shared family list by default.
 // Demo remains explicitly selectable, but cannot persist over a later store entry.
 render();void authSync();
