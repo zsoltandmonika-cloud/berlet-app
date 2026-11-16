@@ -6,7 +6,7 @@
 "use strict";
 const $=id=>document.getElementById(id);
 const API="https://vhsrupphzcjkdrusonzh.supabase.co/functions/v1/sho-shopping-products-v1";
-const MERCHANTS=[
+const DEFAULT_MERCHANTS=[
  {name:"Tesco",domain:"bevasarlas.tesco.hu",url:"https://bevasarlas.tesco.hu/shop/hu-hu/",cats:["Élelmiszer","Drogéria & Szépség","Otthon & Háztartás"]},
  {name:"ALDI",domain:"shop.aldi.hu",url:"https://shop.aldi.hu/kezdooldal",cats:["Élelmiszer","Drogéria & Szépség","Otthon & Háztartás"]},
  {name:"Auchan",domain:"auchan.hu",url:"https://auchan.hu/shop",cats:["Élelmiszer","Elektronika","Otthon & Háztartás","Drogéria & Szépség"]},
@@ -20,6 +20,7 @@ const MERCHANTS=[
  {name:"SHEIN",domain:"hu.shein.com",url:"https://hu.shein.com/",cats:["Divat & Stílus"]},
  {name:"Shoperia",domain:"shoperia.hu",url:"https://shoperia.hu/",cats:["Drogéria & Szépség","Otthon & Háztartás"]},
 ];
+let MERCHANTS=DEFAULT_MERCHANTS;
 const SMART_STORE_KEYS={"Auchan":"auchan","Kifli":"kifli","dm":"dm","Rossmann":"rossmann","eMAG":"emag","Alza":"alza","Allegro":"allegro","Temu":"temu","SHEIN":"shein","Shoperia":"shoperia","ALDI":"aldi"};
 const state={category:"",query:"",products:[],busy:false,callToken:0,sort:"relevance",visible:6};
 const SEARCH_CACHE_PREFIX="sho-shopping-off-catalog-v2:";
@@ -60,7 +61,7 @@ function paintStores(){
   const actions=make("div","sho-store-actions");
   // The brand/logo opens the official store. The in-card CTA starts Smart Shopping.
   const smart=make("a","sho-store-open sho-store-smart","🛒 Smart Shopping ↗");
-  smart.href=shop.name==="Tesco"?"./tesco-bridge-v3.html":"./merchant-smart-v1.html?store="+encodeURIComponent(SMART_STORE_KEYS[shop.name])+"&view=shared&rev=20261116b";
+  smart.href=(shop.key==="tesco"||shop.name==="Tesco")?"./tesco-bridge-v3.html":"./merchant-smart-v1.html?store="+encodeURIComponent(shop.key||SMART_STORE_KEYS[shop.name])+"&view=shared&rev=20261116c";
   smart.title=shop.name+" Smart Shopping · közös listából keresés a boltban, nem automatikus kosárfeltöltés";
   smart.setAttribute("aria-label",shop.name+" Smart Shopping, közös bevásárlólista áruházi kereséshez");
   actions.append(smart);
@@ -238,6 +239,17 @@ $("shoProducts")?.addEventListener("click",e=>{
  if(api.addCatalogProduct(p)){button.textContent="✓ Kosárba mentve";try{navigator.vibrate?.(8)}catch(_){}}
 });
 $("shoStoreConnect")?.querySelector("[data-sho-connect-refresh]")?.addEventListener("click",()=>search($("searchInput")?.value||""));
-window.SHOP_CONNECTORS_V2=Object.freeze({search,selectCategory,stores:MERCHANTS.map(x=>x.name)});
-paintStores();
+window.SHOP_CONNECTORS_V2=Object.freeze({search,selectCategory,getStores:()=>MERCHANTS.map(x=>({...x}))});
+const registry=window.SHOP_STORE_REGISTRY_V1;
+function installRegistry(stores){
+ if(!Array.isArray(stores))return;
+ MERCHANTS=stores.filter(x=>x.enabled!==false).map(x=>({name:x.name,key:x.key,domain:x.domain,url:x.url,cats:x.cats}));
+ paintStores();
+}
+if(registry){
+ installRegistry(registry.current()); // First paint from local snapshot, with zero network dependency.
+ registry.sync().then(installRegistry).catch(()=>{
+  feedback("Az áruházlista jelenleg helyi másolatból töltődött be. Felhőfrissítéshez családi bejelentkezés szükséges.");
+ });
+}else paintStores();
 })();
