@@ -47,6 +47,8 @@
    if(file.size>18*1024*1024||!w.pdfjsLib)return null;
    let pdf=null;
    try{
+    if(!w.pdfjsLib.GlobalWorkerOptions.workerSrc)w.pdfjsLib.GlobalWorkerOptions.workerSrc=
+     'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js';
     pdf=await w.pdfjsLib.getDocument({data:new Uint8Array(await file.arrayBuffer())}).promise;
     const page=await pdf.getPage(1),v=page.getViewport({scale:1});
     const view=page.getViewport({scale:Math.min(0.7,240/v.width)});
@@ -99,13 +101,14 @@
   let added=0,skipped=0,failed=0;
   try{
    try{await w.navigator?.storage?.persist?.()}catch(_){}
+   const existing=await tx('readonly',s=>s.getAll());
+   const fingerprints=new Set(existing.filter(x=>x.profile_key===who).map(x=>x.fingerprint));
    for(const file of files){
     try{
      if(profile()!==who)throw Error('Profilváltás miatt megszakadt az import.');
      const format=await formatFor(file);
      const fingerprint=[who,file.name,file.size,file.lastModified].join('|');
-     const all=await tx('readonly',s=>s.getAll());
-     if(all.some(x=>x.fingerprint===fingerprint)){skipped++;continue}
+     if(fingerprints.has(fingerprint)){skipped++;continue}
      const meta=w.SH9_BOOK_METADATA_V4?.parseFilename?.(file.name)||{};
      const cover=await coverFor(file,format);
      const row={id:'local-'+w.crypto.randomUUID(),profile_key:who,source:'local',
@@ -114,7 +117,7 @@
       size_bytes:file.size,blob:new Blob([file],{type:format==='pdf'?'application/pdf':'application/epub+zip'}),
       cover,progress_locator:'',progress_percent:0,bookmarks:[],
       is_favorite:false,theme:'sepia',font_size:100,updated_at:new Date().toISOString()};
-     await tx('readwrite',s=>s.put(row));added++;
+     await tx('readwrite',s=>s.put(row));fingerprints.add(fingerprint);added++;
      flash('📱 Helyi importálás: '+added+'/'+files.length+' könyv mentve…');
     }catch(e){failed++;flash('Importálási hiba: '+e.message,true)}
    }
