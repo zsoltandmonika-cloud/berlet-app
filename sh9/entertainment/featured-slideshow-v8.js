@@ -6,7 +6,7 @@
  */
 (function(w,d){
 'use strict';
-const ROOT=d.querySelector('.pixel-extension');
+const ROOT=d.querySelector('.sh9-program-feature')||d.querySelector('.pixel-extension');
 if(!ROOT)return;
 const $=id=>d.getElementById(id);
 const DELAY=4000,TRANSITION_MS=570,MAX_PER_KIND=4;
