@@ -4,7 +4,7 @@
 const CACHE='sho-store-registry-v1',TABLE='hh_shopping_store_prefs_v1',FAMILY='zsolt-monika';
 const CATS=['Élelmiszer','Elektronika','Divat & Stílus','Drogéria & Szépség','Otthon & Háztartás'];
 const BASE=[
- ['tesco','Tesco','bevasarlas.tesco.hu','https://bevasarlas.tesco.hu/shop/hu-hu/',['Élelmiszer','Drogéria & Szépség','Otthon & Háztartás']],
+ ['tesco','Tesco','bevasarlas.tesco.hu','https://bevasarlas.tesco.hu/shop/hu-hu/',['Élelmiszer','Drogéria & Szépség','Otthon & Háztartás','Divat & Stílus']],
  ['aldi','ALDI','shop.aldi.hu','https://shop.aldi.hu/kezdooldal',['Élelmiszer','Drogéria & Szépség','Otthon & Háztartás']],
  ['auchan','Auchan','auchan.hu','https://auchan.hu/shop',['Élelmiszer','Elektronika','Otthon & Háztartás','Drogéria & Szépség']],
  ['kifli','Kifli','kifli.hu','https://www.kifli.hu/',['Élelmiszer','Drogéria & Szépség','Otthon & Háztartás']],
