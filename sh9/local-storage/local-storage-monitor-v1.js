@@ -120,6 +120,35 @@
   result.missing=!local.present&&!cloud.present;
   return result;
  }
+ /* Recipe Studio has its OWN existing import DB and its new disposable
+  * cloud card cache. Only Blob.size and row.bytes metadata are inspected.
+  * No Puter call, no recipe text/title access and no content reading. */
+ async function measureRecipes(indexedDB){
+  const result={supported:false,localBytes:null,cloudBytes:null,localCount:null,
+   cloudCount:null,pendingCount:null,lastCheck:null,partial:false,missing:false};
+  const known=await listNames(indexedDB);
+  if(known===null)return result;
+  result.supported=true;result.localBytes=0;result.cloudBytes=0;
+  result.localCount=0;result.cloudCount=0;result.pendingCount=0;
+  const local=await walkStore(indexedDB,known,'lena-recepttar-studio-preview','recipes',row=>{
+   if(!row?.id)return;
+   result.localBytes+=safeSize(row.blob?.size)+safeSize(row.heroBlob?.size)+safeSize(row.processBlob?.size);
+   result.localCount++;
+   if(row.pending)result.pendingCount++;
+  });
+  const cloud=await walkStore(indexedDB,known,'lena-recept-studio-asset-cache-v1','assets',row=>{
+   if(!row?.key||!row?.blob)return;
+   result.cloudBytes+=safeSize(row.bytes);
+   result.cloudCount++;
+  });
+  const catalogue=await walkStore(indexedDB,known,'lena-recept-studio-asset-cache-v1','catalogue',row=>{
+   if(Number.isFinite(Number(row?.checkedAt))&&Number(row.checkedAt)>0)
+    result.lastCheck=Math.max(result.lastCheck||0,Number(row.checkedAt));
+  });
+  result.partial=![local,cloud,catalogue].every(x=>x.ok);
+  result.missing=!local.present&&!cloud.present;
+  return result;
+ }
  function stamp(n){
   if(!n||!Number.isFinite(n))return 'nincs ismert időpont';
   try{return new Date(n).toLocaleString('hu-HU',{dateStyle:'short',timeStyle:'short'})}
@@ -171,6 +200,30 @@
      ' (nem igazolja a felhő frissességét).';
     $(doc,'bookStatus').textContent=info.partial?'Részleges mérés':info.missing?'Még nincs adat':'Helyben mérve';
    }
+   // Measured on the same browser origin as Studio; scope is NOT a phone-wide sum.
+   const recipes=await measureRecipes(win.indexedDB);
+   const localRecipe=$(doc,'recipeLocalUsage'),cloudRecipe=$(doc,'recipeCloudCacheUsage');
+   const recipeDetail=$(doc,'recipeStorageDetail'),recipeSync=$(doc,'recipeStorageSync');
+   const recipeStatus=$(doc,'recipeStorageStatus');
+   if(localRecipe&&cloudRecipe&&recipeDetail&&recipeSync&&recipeStatus){
+    if(!recipes.supported){
+     localRecipe.textContent=cloudRecipe.textContent='Nem mérhető';
+     recipeDetail.textContent='Ebben a böngészőben a Recept Studio IndexedDB-mérése nem támogatott.';
+     recipeSync.textContent='Recepttár mérése nem elérhető.';
+     recipeStatus.textContent='Nem mérhető';
+    }else{
+     localRecipe.textContent=readable(recipes.localBytes);
+     cloudRecipe.textContent=readable(recipes.cloudBytes);
+     recipeDetail.textContent=recipes.localCount+' helyben mentett recept · '+
+      recipes.cloudCount+' gyorsítótárazott felhőkártya · '+
+      recipes.pendingCount+' szinkronra vár'+
+      (recipes.partial?' · ⚠️ A mérés részleges.':'');
+     recipeSync.textContent='Utolsó Puter-katalógusellenőrzés: '+stamp(recipes.lastCheck)+
+      ' (helyben tárolt időbélyeg; nem igazolja az aktuális felhőállapotot).';
+     recipeStatus.textContent=recipes.partial?'Részleges mérés':
+      recipes.missing?'Még nincs helyi adat':'Helyben mérve';
+    }
+   }
    $(doc,'lastRead').textContent='Mérés: '+stamp(Date.now());
    busy=false;button.disabled=false;
   }
@@ -182,5 +235,5 @@
   });
   return Object.freeze({refresh});
  }
- return Object.freeze({readable,budgetLevel,labelBrowser,measureBrowser,measureBooks,mount});
+ return Object.freeze({readable,budgetLevel,labelBrowser,measureBrowser,measureBooks,measureRecipes,mount});
 });

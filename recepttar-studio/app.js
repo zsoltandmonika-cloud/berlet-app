@@ -356,25 +356,96 @@ async function ensurePuterSignIn(forcePick=false){
  if(!puter.auth.isSignedIn())throw new Error("Puter-bejelentkezés nem sikerült.");
  return await currentPuterUser()||{signedIn:true}
 }
-async function loadSharedRecipes(){
- if(!await canCloudIOV1159())return false;
- sharedRecipes.forEach(r=>r._url&&URL.revokeObjectURL(r._url));sharedRecipes=[];sharedReadable={};
- try{
-  if(!puterCloudReady()||!puter.auth.isSignedIn())return false;
-  const rows=await puter.kv.list(CLOUD_KEY_PREFIX+"*",true),next=[],readable={};
-  for(const row of rows){
-    const v=row&&row.value;if(!v||!v.id||!v.title||!v.cardPath)continue;
-    try{
-      const cardBlob=await puter.fs.read(v.cardPath),url=URL.createObjectURL(cardBlob);
-      next.push({id:String(v.id),title:String(v.title),category:String(v.category||"Egyébb"),file:url,mime:String(v.mime||cardBlob.type||"image/jpeg"),originalName:String(v.originalName||v.title+".jpg"),central:true,createdAt:v.createdAt||null,heroPath:v.heroPath||null,processPath:v.processPath||null,studioData:v.studioData||null,youtubeId:String(v.youtubeId||""),_url:url});
-      if(v.readable)readable[String(v.id)]=v.readable
-    }catch(fileErr){console.warn("Központi receptkép nem olvasható",v.id,fileErr)}
-  }
-  sharedRecipes=next;sharedReadable=readable;return true
- }catch(e){console.warn("Puter központi recepttár nem érhető el",e);return false}
+/* V1: Cloud recipe card images are cached only for a verified Puter account.
+ * Show locally stored pictures first, then check metadata when stale.
+ * Never read/modify the existing local-recipe DB schema or pending edit queue. */
+const RECIPE_ASSET_CACHE_V1=window.LENA_RECIPE_ASSET_CACHE_V1;
+let recipeCacheAccountV1='';
+async function recipeCacheAccountKeyV1(){
+ if(!puterCloudReady()||!puter.auth.isSignedIn())return '';
+ const u=await currentPuterUser();
+ return String(u?.uuid||u?.id||u?.username||u?.email||'').trim().toLowerCase();
 }
-async function refreshSharedRecipes(render=true){
- const ok=await loadSharedRecipes();await loadCustomRecipes();if(render){renderHome();renderPending()}return ok
+function remoteRecipeCardV1(v,blob){
+ const url=URL.createObjectURL(blob);
+ return {id:String(v.id),title:String(v.title),category:String(v.category||'Egyéb'),
+  file:url,mime:String(v.mime||blob.type||'image/jpeg'),
+  originalName:String(v.originalName||v.title+'.jpg'),central:true,
+  createdAt:v.createdAt||null,heroPath:v.heroPath||null,processPath:v.processPath||null,
+  studioData:v.studioData||null,youtubeId:String(v.youtubeId||''),_url:url};
+}
+function applySharedCardsV1(next,readable){
+ const old=sharedRecipes;
+ sharedRecipes=next;sharedReadable=readable;
+ old.forEach(r=>{if(r._url)URL.revokeObjectURL(r._url)});
+}
+async function cardsFromCatalogueV1(rows,account,offlineOnly){
+ const next=[],readable={};
+ for(const entry of rows){
+  const v=entry?.value||entry;
+  if(!v?.id||!v?.title||!v?.cardPath)continue;
+  try{
+   let blob=account?await RECIPE_ASSET_CACHE_V1?.get(account,v):null;
+   if(!blob&&!offlineOnly){
+    // Paid Puter file read occurs ONLY for a missing/changed card.
+    blob=await puter.fs.read(v.cardPath);
+    if(account)await RECIPE_ASSET_CACHE_V1?.put(account,v,blob);
+   }
+   if(!blob?.size)continue;
+   next.push(remoteRecipeCardV1(v,blob));
+   if(v.readable)readable[String(v.id)]=v.readable;
+  }catch(error){console.warn('Receptkártya képe nem elérhető:',String(v.id),error)}
+ }
+ return {next,readable};
+}
+async function loadSharedRecipes(force=false){
+ const account=await recipeCacheAccountKeyV1();
+ // A prior user's cached shared cookbook must not leak after sign-out
+ // or a Puter account switch on the same phone.
+ if(!account){
+  recipeCacheAccountV1='';
+  if(sharedRecipes.length){applySharedCardsV1([],{});renderHome()}
+  return false;
+ }
+ if(recipeCacheAccountV1!==account){
+  recipeCacheAccountV1=account;
+  if(sharedRecipes.length){applySharedCardsV1([],{});renderHome()}
+ }
+ const cached=await RECIPE_ASSET_CACHE_V1?.catalogue(account);
+ let hydrated=0;
+ if(cached?.rows?.length&&!sharedRecipes.length){
+  const local=await cardsFromCatalogueV1(cached.rows,account,true);
+  hydrated=local.next.length;
+  if(hydrated){applySharedCardsV1(local.next,local.readable);renderHome()}
+ }else if(cached?.rows?.length){
+  hydrated=sharedRecipes.filter(r=>r.central).length;
+ }
+ // Metadata is not polled on every screen return: max one recheck/15 min.
+ // An explicit sync action below passes force=true to bypass this TTL.
+ if(!force&&cached&&RECIPE_ASSET_CACHE_V1?.fresh(cached)&&hydrated===cached.rows.length)
+  return true;
+ if(!await canCloudIOV1159())return !!sharedRecipes.length;
+ try{
+  const rows=await puter.kv.list(CLOUD_KEY_PREFIX+'*',true);
+  const freshRows=rows.map(r=>r?.value).filter(v=>v?.id&&v?.title&&v?.cardPath);
+  const result=await cardsFromCatalogueV1(freshRows,account,false);
+  // If all file reads fail, keep the already verified device copy rather
+  // than replacing a populated bookshelf with an empty, misleading one.
+  if(freshRows.length&&!result.next.length&&sharedRecipes.length)return false;
+  applySharedCardsV1(result.next,result.readable);
+  renderHome();
+  await RECIPE_ASSET_CACHE_V1?.saveCatalogue(account,freshRows);
+  return true;
+ }catch(error){
+  console.warn('Puter receptkatalógus most nem érhető el, helyi könyvtár marad:',error);
+  return !!sharedRecipes.length;
+ }
+}
+async function refreshSharedRecipes(render=true,force=false){
+ const ok=await loadSharedRecipes(force);
+ await loadCustomRecipes();
+ if(render){renderHome();renderPending()}
+ return ok
 }
 
 async function loadCustomRecipes(){
@@ -711,7 +782,7 @@ async function saveEdit(){
    }
    const saved=await saveRecipeMetaCloud(id,m);
    let cardSaved=true;
-   if(row){cardSaved=await syncLocalRecipe(id,{silent:true,refresh:false});if(cardSaved)await loadSharedRecipes();await loadCustomRecipes()}
+   if(row){cardSaved=await syncLocalRecipe(id,{silent:true,refresh:false});if(cardSaved)await loadSharedRecipes(true);await loadCustomRecipes()}
    $("#editDialog").close();openRecipe(id,false);renderHome();
    toast(saved&&cardSaved?"☁ Receptadatok felhőbe mentve.":pendingCloudNoticeV1159());
  }catch(e){console.error(e);alert("A mentés nem sikerült: "+(e.message||e))}
@@ -1108,7 +1179,7 @@ async function replaceCurrentCardImage(file){
      youtubeId:String(r.youtubeId||previous?.youtubeId||"")
    });
    const synced=await syncLocalRecipe(id,{silent:true,refresh:false});
-   if(synced)await loadSharedRecipes();
+   if(synced)await loadSharedRecipes(true);
    await loadCustomRecipes();
    renderHome();openRecipe(id,false);
    toast(synced?"☁ Az új receptkártya a Puter-felhőben mentve és visszaellenőrizve.":pendingCloudNoticeV1159());
@@ -1372,7 +1443,7 @@ async function studioFinalize(){
    );
    setReadable(id,readable);const meta=getMeta(id);meta.title=d.title;meta.category=d.category;meta.deleted=false;meta.updatedAt=new Date().toISOString();setMeta(id,meta);await saveRecipeMetaCloud(id,meta);
    const synced=await syncLocalRecipe(id,{silent:true,refresh:false});
-   if(synced)await loadSharedRecipes();
+   if(synced)await loadSharedRecipes(true);
    await loadCustomRecipes();$("#studioDialog").close();activeCategory="Mind";favoritesOnly=false;
    if(editing){history.replaceState({view:"recipe",id},"","#recipe="+encodeURIComponent(id));openRecipe(id,false)}else showHome(false);
    const nutriStandard=window.LENA_NUTRI_STANDARD_V1155;
@@ -1413,7 +1484,7 @@ async function cloudSignIn(forcePick=false){
    await ensurePuterSignIn(forcePick);
    await loadCloudRecipeMeta();await loadCategoryConfig();
    const n=await syncPendingToCloud();
-   await refreshSharedRecipes(true);await updateCloudStatus();
+   await refreshSharedRecipes(true,true);await updateCloudStatus();
    toast(n?"☁ "+n+" helyi recept feltöltve.":"✓ Központi tárhely csatlakoztatva.")
  }catch(e){console.error(e);s.textContent="✕ Bejelentkezés nem sikerült: "+(e.msg||e.message||e)}
 }
@@ -1423,7 +1494,7 @@ async function cloudRefresh(){
    if(!puter.auth.isSignedIn())await ensurePuterSignIn();
    await loadCloudRecipeMeta();await loadCategoryConfig();
    const n=await syncPendingToCloud();
-   await refreshSharedRecipes(true);await updateCloudStatus();
+   await refreshSharedRecipes(true,true);await updateCloudStatus();
    toast(n?"☁ "+n+" helyi recept feltöltve és frissítve.":"✓ Központi receptek frissítve.")
  }catch(e){console.error(e);s.textContent="✕ Frissítés nem sikerült: "+(e.msg||e.message||e)}
 }
@@ -1446,7 +1517,7 @@ async function syncLocalRecipe(id,{silent=false,refresh=true}={}){
    const check=await puter.kv.get(CLOUD_KEY_PREFIX+id),checkBlob=await puter.fs.read(cardPath);
    if(!check||check.cardPath!==cardPath||checkBlob.size!==row.blob.size)throw new Error("A felhőmentés visszaolvasása sikertelen.");
    row.pending=false;await dbPut(row);
-   if(refresh){await loadSharedRecipes();await loadCustomRecipes();renderHome();renderPending()}
+   if(refresh){await loadSharedRecipes(true);await loadCustomRecipes();renderHome();renderPending()}
    if(!silent)toast("✓ Központi mentés kész. Másik gépen is megnyitható.");
    return true
  }catch(e){console.error(e);if(!silent)toast("Központi mentési hiba: "+(e.msg||e.message||e));return false}
@@ -1458,7 +1529,7 @@ async function syncPendingToCloud(){
  let ok=0;for(const row of rows){if(await syncLocalRecipe(row.id,{silent:true,refresh:false}))ok++}
  await flushMetaPendingV1159();
  await flushLocalNutritionV1159();
- if(ok){await loadSharedRecipes();await loadCustomRecipes();renderHome();renderPending()}
+ if(ok){await loadSharedRecipes(true);await loadCustomRecipes();renderHome();renderPending()}
  return ok
 }
 
@@ -1997,7 +2068,7 @@ async function saveStructuredReadableToCloud(id,data){
  });
  setReadable(id,data);
  const synced=await syncLocalRecipe(id,{silent:true,refresh:false});
- if(synced)await loadSharedRecipes();
+ if(synced)await loadSharedRecipes(true);
  await loadCustomRecipes();
  return synced;
 }
@@ -2105,12 +2176,31 @@ window.LENA_NUTRI_STANDARD_CONTEXT_V1155=Object.freeze({
  }
 });
 let __lastCentralRefresh=Date.now();
-document.addEventListener("visibilitychange",()=>{if(!document.hidden&&Date.now()-__lastCentralRefresh>30000){__lastCentralRefresh=Date.now();refreshSharedRecipes(true);loadTasteFeedback();loadNutritionCache()}if(!document.hidden&&$("#cookModeDialog").open&&!cookState.wakeLock)requestCookWakeLock()});
+document.addEventListener("visibilitychange",()=>{if(!document.hidden&&Date.now()-__lastCentralRefresh>15*60*1000){__lastCentralRefresh=Date.now();refreshSharedRecipes(true);loadTasteFeedback();loadNutritionCache()}if(!document.hidden&&$("#cookModeDialog").open&&!cookState.wakeLock)requestCookWakeLock()});
 document.addEventListener("keydown",e=>{if(e.key==="Escape"&&document.body.classList.contains("original-card-fullscreen"))setOriginalFullscreen(false)});
 window.addEventListener("popstate",e=>{const st=e.state;if(st&&st.view==="recipe"&&st.id){openRecipe(st.id,false);return}showHome(false)});
-function openInitialRoute(){
+function openInitialRoute(preservePending=false){
  const match=location.hash.match(/^#recipe=(.+)$/);let id=null;try{id=match?decodeURIComponent(match[1]):null}catch(e){}
  if(id&&getRecipe(id)){history.replaceState({view:"recipe",id},"",location.pathname+location.search+"#recipe="+encodeURIComponent(id));openRecipe(id,false);return}
+ if(id&&preservePending){renderHome();return}
  history.replaceState({view:"home"},"",location.pathname+location.search+"#home");renderHome()
 }
-(async()=>{migrateCanonicalBaseState();await canCloudIOV1159();await loadSharedRecipes();await loadCloudRecipeMeta();await loadCategoryConfig();await loadCustomRecipes();await loadTasteFeedback();await loadNutritionCache();openInitialRoute();window.LENA_NUTRI_STANDARD_V1155?.refresh?.();updateStudioProviderBadge();if(puterCloudReady()&&puter.auth.isSignedIn())await syncPendingToCloud();void 0})().catch(e=>{console.error(e);renderHome()});
+(async()=>{
+ migrateCanonicalBaseState();
+ // Critical first paint: existing on-device recipes render BEFORE any cloud call.
+ categoryConfig=categoryConfigLocal();
+ await loadCustomRecipes();
+ openInitialRoute(true);
+ window.LENA_RECIPE_LOCAL_FIRST_BOOT_V1=Date.now();
+ // Paid API/AI quota and cloud cannot block reading existing local recipes.
+ await loadSharedRecipes();
+ await loadCloudRecipeMeta();
+ await loadCategoryConfig();
+ await loadTasteFeedback();
+ await loadNutritionCache();
+ if(!currentId&&location.hash.startsWith('#recipe='))openInitialRoute(false);
+ else if(!currentId)renderHome();
+ window.LENA_NUTRI_STANDARD_V1155?.refresh?.();
+ updateStudioProviderBadge();
+ if(puterCloudReady()&&puter.auth.isSignedIn())await syncPendingToCloud();
+})().catch(e=>{console.error(e);renderHome()});

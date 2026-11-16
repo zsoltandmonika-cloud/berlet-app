@@ -55,7 +55,9 @@ test('Usable funds allow sync; unsigned/unknown balances fail closed safely',asy
 });
 test('All cloud bulk/background operations use credit gate',()=>{
  assert.match(app,/async function canCloudIOV1159\(\)/);
- assert.match(app,/async function loadSharedRecipes\(\)\{\s*if\(!await canCloudIOV1159\(\)\)return false/);
+ assert.match(app,/async function loadSharedRecipes\(force=false\)/);
+ assert.match(app,/if\(!await canCloudIOV1159\(\)\)return !!sharedRecipes\.length/);
+ assert.match(app,/if\(!force&&cached&&RECIPE_ASSET_CACHE_V1\?\.fresh\(cached\)/);
  assert.match(app,/async function syncLocalRecipe\(id,\{silent=false,refresh=true\}=\{\}\)\{\s*const row=await dbGet\(id\);if\(!row\)return false;\s*if\(!await canCloudIOV1159\(\)\)/);
  assert.match(app,/async function syncPendingToCloud\(\)\{\s*if\(!puterCloudReady\(\)\|\|!puter\.auth\.isSignedIn\(\)\|\|!await canCloudIOV1159\(\)\)return 0/);
  assert.match(app,/async function loadTasteFeedback\(\)[\s\S]*?await canCloudIOV1159\(\)/);
@@ -85,5 +87,5 @@ test('Manual cooked weight is stored locally and later queued for cloud',()=>{
 test('Provider credit state never pretends local pending writes were cloud synced',()=>{
  assert.match(app,/if\(!await canCloudIOV1159\(\)\)\{\s*if\(!silent\)toast\(pendingCloudNoticeV1159\(\)\);return false/);
  assert.match(app,/const savedMessage=synced\?/);
- assert.match(app,/if\(synced\)await loadSharedRecipes\(\)/);
+ assert.match(app,/if\(synced\)await loadSharedRecipes\(true\)/);
 });
