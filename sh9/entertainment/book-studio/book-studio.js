@@ -294,11 +294,11 @@ function applyTheme(){
   const ink=theme==='dark'?'#fff7ed':theme==='sepia'?'#34281f':'#1d2230';
   const bg=theme==='dark'?'#252d3c':theme==='sepia'?'#f1e5c9':'#fffdf8';
   rendition.themes.default({
-   body:{'background-color':bg,color:ink,'font-family':'Georgia,serif','line-height':'1.78','padding':'0 5%','text-align':'left'},
-   p:{color:ink,'line-height':'1.78','margin-bottom':'1em'},
-   h1:{color:ink,'font-family':'Georgia,serif','line-height':'1.25'},
-   h2:{color:ink,'font-family':'Georgia,serif','line-height':'1.3'},
-   h3:{color:ink,'font-family':'Georgia,serif','line-height':'1.3'},
+   body:{'background-color':bg,color:ink,'font-family':'Georgia,serif','line-height':'1.62','padding':'0 3.5%','margin':'0','text-align':'left'},
+   p:{color:ink,'line-height':'1.62','margin-bottom':'.7em'},
+   h1:{color:ink,'font-family':'Georgia,serif','line-height':'1.25','margin-top':'.65em','margin-bottom':'.5em'},
+   h2:{color:ink,'font-family':'Georgia,serif','line-height':'1.3','margin-top':'.65em','margin-bottom':'.5em'},
+   h3:{color:ink,'font-family':'Georgia,serif','line-height':'1.3','margin-top':'.65em','margin-bottom':'.5em'},
    a:{color:theme==='dark'?'#a5d9ff':'#345c96'}
   });
   rendition.themes.fontSize(fontSize+'%');
