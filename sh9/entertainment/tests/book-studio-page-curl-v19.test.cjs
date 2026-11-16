@@ -46,6 +46,7 @@ class Node {
  getAttribute(k){return this.attributes[k]}
  append(...a){this.children.push(...a)}
  replaceChildren(...a){this.children=[...a]}
+ get firstElementChild(){return this.children[0]||null}
  querySelector(){return new Node()}
  focus(){}
  matches(){return false}
