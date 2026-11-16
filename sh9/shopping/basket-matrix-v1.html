@@ -27,7 +27,13 @@ h2{font-size:16px;margin:0 0 9px}
 .product[open] summary::before{transform:rotate(90deg)}
 .product summary span{flex:1}
 .product summary::-webkit-details-marker{display:none}.product summary small{color:#dbc8da;font-size:9px;font-weight:540;display:block}
-.product summary span{min-width:0}.product summary b{white-space:nowrap;font-size:10px;color:#b5e0d0}
+.product summary span{min-width:0}
+.product summary b{white-space:nowrap;font-size:10px;color:#b5e0d0}
+.product-icon{width:32px;height:32px;flex:none;display:grid;place-items:center;border-radius:10px;border:1px solid #b687ba;background:linear-gradient(140deg,#60416c,#38334e);box-shadow:inset 0 1px #ffffff20;overflow:hidden;font-size:19px;line-height:1}
+.product-icon>span{display:grid;place-items:center;width:100%;height:100%}
+.product-icon>img{width:100%;height:100%;object-fit:cover}
+.product summary .match-hit-badge{font-size:10px;font-weight:800;color:#d5cadb;background:#2c2941;border:1px solid #907c99;border-radius:9px;padding:5px 7px;flex:none}
+
 .product .shops{display:grid;gap:8px;padding:10px;background:linear-gradient(135deg,#1d253e,#1d2a3c);border-top:1px solid #a583ad77}
 .shop{display:flex;align-items:stretch;justify-content:space-between;gap:0;padding:0;border:1px solid #827da7;border-left:3px solid #a391ce;border-radius:10px;overflow:hidden;background:linear-gradient(110deg,#303350,#26334c);box-shadow:inset 0 1px #ffffff18,0 3px 9px #0000002b}
 .shop:nth-child(even){background:linear-gradient(110deg,#35334e,#2c334b);border-left-color:#b99abd}
@@ -36,6 +42,11 @@ h2{font-size:16px;margin:0 0 9px}
 .shop-main:hover,.shop-main:active{background:#c891d320}
 .shop-main:focus-visible{outline:2px solid #e3b7db;outline-offset:-3px}
 .shop strong{font-size:12px;color:#faf0ff}.shop small{display:block;font-size:9px;color:#ced1e7;overflow-wrap:anywhere}
+.shop-main .shop-count{font-size:10px;font-weight:700;line-height:1.4;color:#c6d2df}
+.shop-main .shop-count.verified{color:#b4e3d2}
+.shop-logo,.shop-logo-fallback{width:30px;height:30px;flex:none;object-fit:contain;background:#f9f8fb;border:1px solid #b29bc2;border-radius:8px;padding:3px}
+.shop-logo-fallback{display:grid;place-items:center;font-size:20px;font-weight:900;color:#e21c2a}
+
 .shop-main .shop-cta{min-width:72px;display:grid;place-items:center;border:1px solid #af96c7;border-radius:8px;padding:7px;font-size:10px;font-weight:790;text-align:center;background:#3b3158;color:#f1e7fb;white-space:nowrap;pointer-events:none}
 .shop a.saved{align-self:center;flex:none;min-width:72px;display:grid;place-items:center;border:1px solid #c398b5;border-radius:8px;padding:7px;margin:7px 8px 7px 0;font-size:10px;font-weight:790;text-align:center;background:#513356;color:#ffdef0;white-space:nowrap}
 .shop a:focus-visible{outline:2px solid #e3bbdc;outline-offset:2px}
@@ -43,7 +54,7 @@ h2{font-size:16px;margin:0 0 9px}
 .more{padding:12px;border:1px solid #b487b3;background:#56345d;border-radius:11px;font-size:12px;font-weight:770}
 .footer-note{font-size:10px;line-height:1.55;color:#cdb9d1;padding:10px 1px}
 [hidden]{display:none!important}button:focus-visible,a:focus-visible,summary:focus-visible{outline:2px solid #f0bee5;outline-offset:2px}
-@media(max-width:360px){.count strong{font-size:20px}.count small{font-size:9px}.shop-main{gap:5px;padding:8px}.shop-main .shop-cta{min-width:64px;padding:6px}.shop a.saved{min-width:64px;margin-right:6px;padding:6px}}
+@media(max-width:360px){.count strong{font-size:20px}.count small{font-size:9px}.shop-main{gap:5px;padding:8px}.shop-main .shop-cta{min-width:64px;padding:6px}.shop a.saved{min-width:64px;margin-right:6px;padding:6px}.product-icon{width:28px;height:28px;font-size:17px}.shop-logo,.shop-logo-fallback{width:25px;height:25px}.product summary .match-hit-badge{font-size:9px;padding:4px 6px}}
 @media(prefers-reduced-motion:reduce){.product summary::before{transition:none}}
 </style></head><body><main>
 <nav><a href="./">‹ Shopping</a><strong style="font-size:11px">SHO · BASKET INTELLIGENCE</strong><a href="./store-manager-v1.html">⚙ Boltok</a></nav>
@@ -56,5 +67,6 @@ h2{font-size:16px;margin:0 0 9px}
 <script defer src="./store-registry-v1.js?v=2"></script>
 <script defer src="./shopping-local-v1.js?v=1"></script>
 <script defer src="./merchant-search-v1.js?v=1"></script>
-<script defer src="./basket-matrix-v1.js?v=6"></script>
+<script defer src="./smart-list-icons-shared-v1.js?v=1"></script>
+<script defer src="./basket-matrix-v1.js?v=7"></script>
 </body></html>
