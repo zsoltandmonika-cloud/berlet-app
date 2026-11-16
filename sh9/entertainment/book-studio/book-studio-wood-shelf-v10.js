@@ -8,7 +8,7 @@
  const $=id=>d.getElementById(id),CACHE=w.SH9_BOOK_CACHE_V3;
  if(!$('bshelfRows')||!$('bshelfSettingsToggle'))return;
  const palette=['#264e5c','#50364f','#605037','#293a5a','#5a3840','#34514b','#533c55','#4b3b39'];
- const state={books:[],covers:new Map(),connected:false,loading:true,error:false,message:'☁️ OneDrive-könyvtár előkészítése…'};
+ const state={books:[],covers:new Map(),connected:false,loading:true,error:false,message:'☁️ OneDrive-könyvtár előkészítése…',coverScanning:false,coverDone:0,coverTotal:0};
  const main=$('bshelfFront'),admin=$('bsAdminView'),menu=$('bshelfSettingsMenu');
  const settingsBtn=$('bshelfSettingsToggle'),searchBtn=$('bshelfSearchToggle');
  const searchBox=$('bshelfSearchBox'),search=$('bshelfSearch');
@@ -61,7 +61,8 @@
   const n=state.books.length;
   count.textContent=n? n+' könyv · ☁️ OneDrive':state.loading?'Csatlakozás…':'OneDrive';
   message.textContent=state.loading?'📚 '+(state.message.replace(/^[☁️📚📂\s]+/u,'')||'Könyvek beolvasása…'):
-   n?'✓ '+n+' könyv az eredeti OneDrive-gyűjteményből':state.message;
+   n&&state.coverScanning?'🖼️ Eredeti borítók automatikusan: '+state.coverDone+'/'+state.coverTotal+' · '+state.covers.size+' megjelenítve':
+   n?'✓ '+n+' könyv · '+state.covers.size+' borító · OneDrive':state.message;
   message.dataset.error=state.error?'1':'0';
   if(!state.loading&&!n){
    empty.hidden=false;
@@ -72,17 +73,24 @@
  }
  function setConnected(on){
   state.connected=!!on;
-  if(!on){state.books=[];state.covers.clear()}
+  if(!on){state.books=[];state.covers.clear();state.coverScanning=false}
   statusOnly();render();
  }
  function setLoading(on){
   state.loading=!!on;
-  if(on){state.message='📂 Könyvek beolvasása…';state.error=false;}
+  if(on){state.message='📂 Könyvek beolvasása…';state.error=false;state.coverScanning=false}
   statusOnly();
+ }
+ function setCoverProgress(completed,total){
+  state.coverScanning=total>0;state.coverDone=completed;state.coverTotal=total;
+  statusOnly();
+ }
+ function finishCoverProgress(){
+  state.coverScanning=false;statusOnly();
  }
  function coverReady(id,url){
   if(!id||!url)return;
-  state.covers.set(id,url);
+  state.covers.set(id,url);statusOnly();
   // Scope book IDs to exact buttons, no query selector interpolation or HTML.
   for(const btn of rows.querySelectorAll('.bshelf-book')){
    if(btn.dataset.bookId!==id)continue;
@@ -196,6 +204,6 @@
   },{passive:true});
   render();
  }
- w.SH9_BOOKSHELF_V10=Object.freeze({update,coverReady,setStatus,setConnected,setLoading,frontView});
+ w.SH9_BOOKSHELF_V10=Object.freeze({update,coverReady,setStatus,setConnected,setLoading,setCoverProgress,finishCoverProgress,frontView});
  init();
 })(window,document);
