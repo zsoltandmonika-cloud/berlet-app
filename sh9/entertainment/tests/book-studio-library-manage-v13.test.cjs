@@ -50,7 +50,7 @@ function env(){
   'bshelfSearchToggle','bshelfSortToggle','bshelfSortMenu','bshelfSortTitle','bshelfSortTitleDesc',
   'bshelfSortAuthor','bshelfSortFavorites','bshelfSortReading','bshelfSortManual',
   'bshelfSearchBox','bshelfSearch','bshelfEmpty','bshelfStatus','bshelfCount',
-  'bshelfAdminTitle','bshelfMenuOneDrive','bshelfMenuCovers','bshelfMenuUploads','bshelfMenuManage',
+  'bshelfOfflinePanel','bshelfMenuOffline','bshelfAdminTitle','bshelfMenuOneDrive','bshelfMenuCovers','bshelfMenuUploads','bshelfMenuManage',
   'bshelfManagePanel','bshelfManageCount','bshelfManageList','bshelfManageFilter',
   'bshelfSearchClear','bshelfConnectAction','bshelfAdminBack','bookStudioSettings',
   'onedriveBooks','library','profileSwitch'];
