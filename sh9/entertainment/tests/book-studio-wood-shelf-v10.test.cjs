@@ -33,7 +33,7 @@ test('Book Studio lands on the immersive bookshelf, keeping admin/settings out o
  assert.equal((html.match(/<script(?:\s|>)/g)||[]).length,(html.match(/<\/script>/g)||[]).length);
 });
 test('All books come from verified original OneDrive collection and open the existing reader',()=>{
- assert.match(drive,/w\.SH9_BOOKSHELF_V10\?\.update\(ready\?source:\[\]\)/);
+ assert.match(drive,/w\.SH9_BOOKSHELF_V10\?\.update\(ready\?source:\[\]/);
  assert.match(drive,/w\.SH9_BOOKSHELF_V10\?\.coverReady\(b\.id,url\)/);
  assert.match(drive,/w\.SH9_BOOKSHELF_V10\?\.setLoading\(true\)/);
  assert.match(drive,/w\.SH9_BOOKSHELF_V10\?\.setConnected\(on\)/);
@@ -74,7 +74,8 @@ class Node{
 test('Browser simulation: renders actual OneDrive files on HD shelves, cover ready and one-click open',()=>{
  const ids=['bshelfRows','bshelfSettingsToggle','bshelfFront','bsAdminView','bshelfSettingsMenu',
   'bshelfSearchToggle','bshelfSearchBox','bshelfSearch','bshelfEmpty','bshelfStatus','bshelfCount',
-  'bshelfAdminTitle','bshelfMenuOneDrive','bshelfMenuCovers','bshelfMenuUploads',
+  'bshelfAdminTitle','bshelfMenuOneDrive','bshelfMenuManage','bshelfMenuCovers','bshelfMenuUploads',
+  'bshelfManagePanel','bshelfManageCount','bshelfManageList','bshelfManageFilter',
   'bshelfSearchClear','bshelfConnectAction','bshelfAdminBack','bookStudioSettings',
   'onedriveBooks','library','profileSwitch'];
  const nodes=new Map(ids.map(x=>[x,new Node('div')]));
@@ -96,6 +97,7 @@ test('Browser simulation: renders actual OneDrive files on HD shelves, cover rea
  const w={
   SH9_BOOK_STUDIO_V1:{openBook:async id=>{opened.push(id)}},
   matchMedia:()=>({matches:false}),
+  localStorage:{getItem:()=>null,setItem(){}},
   scrollTo(){},requestAnimationFrame:cb=>cb(),addEventListener(){},
  };
  vm.runInNewContext(script,{window:w,document:doc},{timeout:5000});
