@@ -252,6 +252,7 @@ function mapBook(item,stored={}){
  const title=manual?.title||catalog.title,author=manual?.author??catalog.author;
  return {id:'od_'+encodeURIComponent(item.id),source:'onedrive',drive_id:driveId,drive_item_id:item.id,profile_key:pid(),
   title:text(title),author:text(author),file_name:item.name,format,storage_path:null,
+  web_url:item.webUrl||'',
   // OneDrive occasionally includes this short-lived link in children responses.
   // Memory only: never persist a preauthenticated download URL to Supabase or browser storage.
   download_url:item['@microsoft.graph.downloadUrl']||item['@content.downloadUrl']||'',listed_at:Date.now(),
@@ -318,7 +319,7 @@ function render(){
  const groups=distinctBooks(),source=showDuplicates?entries:groups.primary;
  // The full-screen wooden bookcase reuses the actual verified OneDrive
  // collection and all original image blob URLs, without a duplicate upload.
- w.SH9_BOOKSHELF_V10?.update(ready?source:[]);
+ w.SH9_BOOKSHELF_V10?.update(ready?source:[],config?.account||'',pid());
  // Cached covers must populate the visible wood bookcase even when the old
  // admin list has an active search filter or has never been opened.
  if(ready)for(const book of source)if(!coverUrls.has(book.id))void cachedCover(book);
