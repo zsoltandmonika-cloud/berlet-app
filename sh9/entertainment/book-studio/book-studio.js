@@ -579,7 +579,7 @@ $('profileSwitch').addEventListener('click',async()=>{
  await closeReader();
  const next=profile()==='zsolt'?'m':'z';
  try{w.localStorage.setItem('hh-profile',next)}catch(_){return}
- void loadBooks();void w.SH9_BOOK_STUDIO_DRIVE_V2?.reload();
+ void loadBooks();void (w.SH9_BOOK_STUDIO_DRIVE_V2?.profileChanged?.()||w.SH9_BOOK_STUDIO_DRIVE_V2?.reload?.());
 });
 $('uploadFile').addEventListener('change',e=>{const file=e.target.files?.[0];if(file)void importBook(file)});
 $('searchBooks').addEventListener('input',renderBooks);
@@ -638,8 +638,13 @@ d.addEventListener('keydown',e=>{
 });
 let resizeTimer=0;
 w.addEventListener('resize',()=>{if(!pdfDoc)return;clearTimeout(resizeTimer);resizeTimer=w.setTimeout(()=>void renderPDF(),220)});
-w.addEventListener('storage',e=>{if(e.key==='hh-profile'&&short(profile())!==d.documentElement.dataset.profile)void closeReader().then(()=>{void loadBooks();void w.SH9_BOOK_STUDIO_DRIVE_V2?.reload()})});
+w.addEventListener('storage',e=>{if(e.key==='hh-profile'&&short(profile())!==d.documentElement.dataset.profile)void closeReader().then(()=>{void loadBooks();void (w.SH9_BOOK_STUDIO_DRIVE_V2?.profileChanged?.()||w.SH9_BOOK_STUDIO_DRIVE_V2?.reload?.())})});
 w.addEventListener('pagehide',()=>{if(current)void queueSave();clearCovers()});
 w.SH9_BOOK_STUDIO_V1=Object.freeze({openBook,authorized,profile});
-updateSoundButton();paintProfile();void loadBooks();
+updateSoundButton();paintProfile();
+// Airplane mode is a pure local reader; do not try the unrelated Supabase
+// upload library while the user is reading offline OneDrive EPUB/PDFs.
+if(w.navigator?.onLine===false){
+ setStatus('📱 Helyi olvasás',false);
+}else void loadBooks();
 })(window,document);
