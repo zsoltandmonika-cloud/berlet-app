@@ -524,14 +524,24 @@ async function freshDownloadUrl(b){
   'A könyvfájl metaadata nem elérhető: '+(lastError?.message||'ismeretlen hiba'));
 }
 async function download(b){
- if(!await ensureAccess()){resetSession();throw Error('A Microsoft-belépés lejárt. Kapcsolódj újra.');}
- if(!getBook(b.id)||b.size_bytes>MAX_DOWNLOAD)throw Error(b.size_bytes>MAX_DOWNLOAD?'Túl nagy könyv mobilos olvasáshoz (80 MB limit).':'Az adott könyv már nincs a könyvtárban.');
- const account=config.account,cacheKey=CACHE?.key(account,b,'file')||b.id;
+ if(!config?.account||!b||b.profile_key!==pid()||!getBook(b.id))
+  throw Error('A könyv nem tartozik az aktuális könyvtárhoz vagy profilhoz.');
+ if(b.size_bytes>MAX_DOWNLOAD)throw Error('Túl nagy könyv mobilos olvasáshoz (80 MB limit).');
+ const account=config.account;
+ const canReadLocal=ready||(localMode&&OFFLINE?.isEnabled(account,pid()));
+ if(!canReadLocal)throw Error('A Microsoft-kapcsolat nem elérhető. Offline olvasás csak a külön letöltött könyvekkel lehetséges.');
+ const cacheKey=CACHE?.key(account,b,'file')||b.id;
  if(pendingDownloads.has(cacheKey))return pendingDownloads.get(cacheKey);
  const task=(async()=>{
-  // This is a local browser cache. Same signed-in account + same file revision only.
+  // Critical fast path: no OAuth refresh and NO network for a locally stored
+  // book. Even an airplane-mode launch opens it immediately from IndexedDB.
   const old=CACHE?await CACHE.get(account,b,'file'):null;
-  if(old?.size){void extractCover(b,old);return old}
+  if(old?.size){
+   if(!coverUrls.has(b.id))void extractCover(b,old);
+   return old;
+  }
+  if(!ready)throw Error('Ez a könyv még nincs letöltve a telefonra. Csatlakozz Wi-Fi-re és használd az Offline könyvtár → Összes könyv letöltése gombot.');
+  if(!await ensureAccess()){resetSession();throw Error('A Microsoft-belépés lejárt. Kapcsolódj újra.')}
   const url=await freshDownloadUrl(b);
   let blob;
   try{
