@@ -157,3 +157,9 @@
 @media(max-width:600px){
  .shop-connect.store-screen.all-stores .sho-store:last-child:nth-child(odd){grid-column:1 / -1}
 }
+
+/* Flexible dynamic merchant registry. Keep the default 2 × 6 Golden screen. */
+.shop-connect-head .sho-store-settings{flex:none;font-size:10px;font-weight:760;color:#ffd9ed;background:#422441;border:1px solid #ca83ba;border-radius:9px;padding:6px 8px;text-decoration:none}
+@media(max-width:600px){
+ .shop-connect.store-screen.all-stores .sho-store-grid{overflow-y:auto;overscroll-behavior:contain;grid-auto-rows:minmax(83px,auto)}
+}
