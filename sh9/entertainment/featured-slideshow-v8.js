@@ -13,6 +13,7 @@ const DELAY=4000,TRANSITION_MS=570,MAX_PER_KIND=4;
 const MEDIA_LIVE='https://mediaradar.pages.dev/data/bootstrap.json';
 const MEDIA_FALLBACK='./data/featured-media-snapshot-v8.json';
 const CINEMA_CURATED='./data/featured-cinema-v8.json';
+const SHOWS_CURATED='./data/featured-shows-v8.json';
 const FAV_KEY='sho-entertainment-favorites-v1';
 const SPECS=[
  {kind:'cinema',name:'Mozi',icon:'🎬',selector:'#movies'},
@@ -140,6 +141,19 @@ async function cinemas(spec){
    priority:100-i
   })).filter(x=>x.image&&x.href).slice(0,MAX_PER_KIND);
   return cards.length?cards:fromSHO(spec);
+ }catch(_){return fromSHO(spec)}
+}
+async function shows(spec){
+ try{
+  const data=await readJson(SHOWS_CURATED);
+  const current=(data.shows?.[spec.kind]||[]).filter(x=>
+   x.title&&x.href&&x.image&&notExpired(x.endDate));
+  const result=current.map((x,i)=>({
+   id:spec.kind+':event:'+i+':'+x.title,kind:spec.kind,category:spec.name,icon:spec.icon,
+   title:text(x.title),note:text(x.note||''),image:art(x.image),poster:'',
+   href:href(x.href),source:'Hivatalos programszervező',priority:100-i
+  })).filter(x=>x.image&&x.href).slice(0,MAX_PER_KIND);
+  return result.length?result:fromSHO(spec);
  }catch(_){return fromSHO(spec)}
 }
 function filteredMediaRows(data){
@@ -299,6 +313,7 @@ async function refresh(){
  const tasks=await Promise.all(SPECS.map(async spec=>{
   if(spec.kind==='cinema')return [spec.kind,await cinemas(spec)];
   if(spec.kind==='home')return [spec.kind,await media(spec)];
+  if(spec.kind==='theatre'||spec.kind==='concert')return [spec.kind,await shows(spec)];
   if(spec.catalog)return [spec.kind,await catalog(spec)];
   return [spec.kind,fromSHO(spec)];
  }));
