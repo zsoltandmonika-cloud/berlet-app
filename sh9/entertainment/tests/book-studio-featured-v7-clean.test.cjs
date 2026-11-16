@@ -47,7 +47,7 @@ test('No unclosed script eats mobile navigation or subsequent scripts',()=>{
  const opens=(html.match(/<script(?:\s|>)/g)||[]).length;
  const closes=(html.match(/<\/script>/g)||[]).length;
  assert.equal(opens,closes,'every script must close before the next script');
- assert.match(html,/<script defer src="\.\/featured-slideshow-v8\.js\?v=8-4s-real-items-rtl"><\/script>/);
+ assert.match(html,/<script defer src="\.\/featured-slideshow-v8\.js\?v=(8-4s-real-items-rtl|16-book-first-program-after)"><\/script>/);
  assert.match(html,/<script defer src="\.\/pixel-artwork-v3\.js[^"]*"><\/script>/);
  assert.match(html,/featured-slideshow-v7\.css\?v=7-no-controls-3s/);
  assert.doesNotThrow(()=>new Function(js));
