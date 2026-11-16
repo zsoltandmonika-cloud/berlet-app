@@ -35,6 +35,7 @@
   const ua=String(nav?.userAgent||'');
   const device=/Android/i.test(ua)?'Android telefon / táblagép':/Windows/i.test(ua)?'Windows számítógép':'Aktuális eszköz';
   const browser=/SamsungBrowser/i.test(ua)?'Samsung Internet':
+   /; wv\)|\bwv\b/i.test(ua)?'Android WebView (például HH One)':
    /Edg\//.test(ua)?'Microsoft Edge':/Chrome\//.test(ua)?'Chrome / Chromium':'Aktuális böngésző / WebView';
   return device+' · '+browser;
  }
