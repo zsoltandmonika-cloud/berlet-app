@@ -1,0 +1,181 @@
+/* SHO Book Studio Golden V14 | Samsung S24 Ultra compact reader
+   Goal: give the actual EPUB/PDF page 2-3 more lines without reducing font
+   size or hiding functional reading controls. Only reader view is affected.
+   The progress slider remains fully interactive with a slimmer visual rail.
+*/
+@media (max-width:700px) {
+ .bshelf-v10-page .reader {
+  height:100dvh;
+  max-height:100dvh;
+  overflow:hidden;
+ }
+ .bshelf-v10-page .reader .reader-bar {
+  flex:0 0 auto;
+  min-height:48px !important;
+  padding:4px 9px !important;
+  gap:6px !important;
+ }
+ .bshelf-v10-page .reader .reader-bar .square,
+ .bshelf-v10-page .reader .reader-bar .focus-toggle {
+  width:40px !important;
+  height:40px !important;
+  min-height:40px !important;
+  min-width:40px !important;
+  padding:4px !important;
+ }
+ .bshelf-v10-page .reader .reader-meta {
+  min-width:0;
+  gap:0 !important;
+ }
+ .bshelf-v10-page .reader .reader-meta strong {
+  font-size:13px !important;
+  line-height:1.25 !important;
+ }
+ .bshelf-v10-page .reader .reader-meta small {
+  font-size:10px !important;
+  line-height:1.15 !important;
+ }
+ /* The same percentage appears beside the seek bar. Hide duplicates. */
+ .bshelf-v10-page .reader .reader-status,
+ .bshelf-v10-page .reader .reader-footer #pageLabel {
+  display:none !important;
+ }
+ .bshelf-v10-page .reader .reader-tools {
+  flex:0 0 43px !important;
+  box-sizing:border-box;
+  height:43px !important;
+  min-height:43px !important;
+  max-height:43px !important;
+  padding:3px 7px !important;
+  gap:5px !important;
+  flex-wrap:nowrap !important;
+  align-items:center !important;
+  justify-content:flex-start !important;
+  overflow-x:auto !important;
+  overflow-y:hidden !important;
+  -webkit-overflow-scrolling:touch;
+  scrollbar-width:none;
+ }
+ .bshelf-v10-page .reader .reader-tools::-webkit-scrollbar{display:none}
+ .bshelf-v10-page .reader .reader-tools select,
+ .bshelf-v10-page .reader .reader-tools button {
+  flex:0 0 auto !important;
+  box-sizing:border-box;
+  min-width:34px !important;
+  min-height:36px !important;
+  height:36px !important;
+  padding:5px 8px !important;
+  font-size:12px !important;
+  line-height:1.15 !important;
+  border-radius:10px !important;
+ }
+ .bshelf-v10-page .reader .reader-tools #readerTheme{max-width:118px}
+ .bshelf-v10-page .reader .reader-tools #bookmarkList{max-width:125px}
+ .bshelf-v10-page .reader .reader-tools #chapterList{max-width:110px}
+ .bshelf-v10-page .reader .reader-tools #readerSound {
+  min-width:75px !important;
+  max-width:130px;
+  font-size:10px !important;
+ }
+ /* Restore wasted outer whitespace; actual publisher text stays inside iframe. */
+ .bshelf-v10-page .reader .reader-content{
+  flex:1 1 0 !important;
+  min-height:0 !important;
+  padding:3px 3px 2px !important;
+  overflow:hidden !important;
+ }
+ .bshelf-v10-page .reader.focus-mode .reader-content{
+  padding:2px 3px !important;
+ }
+ .bshelf-v10-page .reader #epubStage{
+  height:100% !important;
+  min-height:0 !important;
+ }
+ .bshelf-v10-page .reader #pdfStage{padding:3px !important}
+ /* 24px row, a 3px rail and a 12px draggable thumb.
+    Larger invisible input box keeps an easier touch target. */
+ .bshelf-v10-page .reader .reader-progress-bar{
+  flex:0 0 27px !important;
+  box-sizing:border-box;
+  height:27px !important;
+  min-height:27px !important;
+  max-height:27px !important;
+  padding:1px 10px 1px 13px !important;
+  gap:9px !important;
+  display:flex !important;
+  align-items:center !important;
+ }
+ .bshelf-v10-page .reader .reader-progress-bar input[type=range]{
+  flex:1 1 auto;
+  min-width:0;
+  height:24px !important;
+  margin:0 !important;
+  padding:0 !important;
+  border:0 !important;
+  background:transparent !important;
+  touch-action:pan-x;
+  appearance:none;
+  -webkit-appearance:none;
+ }
+ .bshelf-v10-page .reader .reader-progress-bar input[type=range]::-webkit-slider-runnable-track{
+  height:3px !important;
+  border-radius:99px;
+  background:linear-gradient(90deg,#b483bd var(--progress,0%),#a18b9855 var(--progress,0%));
+ }
+ .bshelf-v10-page .reader .reader-progress-bar input[type=range]::-webkit-slider-thumb{
+  width:12px !important;
+  height:12px !important;
+  margin-top:-4.5px !important;
+  border:2px solid #fff !important;
+  border-radius:50%;
+  background:#e7a9dc !important;
+  box-shadow:0 0 6px #a978c3;
+  appearance:none;
+  -webkit-appearance:none;
+ }
+ .bshelf-v10-page .reader .reader-progress-bar input[type=range]::-moz-range-track{
+  height:3px !important;
+  border-radius:99px;
+  background:linear-gradient(90deg,#b483bd var(--progress,0%),#a18b9855 var(--progress,0%));
+ }
+ .bshelf-v10-page .reader .reader-progress-bar input[type=range]::-moz-range-thumb{
+  height:12px !important;
+  width:12px !important;
+  border:2px solid white !important;
+  border-radius:50%;
+  background:#e7a9dc !important;
+ }
+ .bshelf-v10-page .reader #readerScrubPercent{
+  flex:0 0 30px;
+  width:30px !important;
+  font-size:11px !important;
+  font-weight:800;
+  color:var(--ink);
+  text-align:right;
+ }
+ .bshelf-v10-page .reader .reader-footer {
+  flex:0 0 auto;
+  box-sizing:border-box;
+  min-height:48px !important;
+  max-height:68px;
+  padding:3px 9px max(3px,env(safe-area-inset-bottom)) !important;
+  gap:7px !important;
+ }
+ .bshelf-v10-page .reader .reader-footer button {
+  flex:1 1 50% !important;
+  min-width:0 !important;
+  min-height:42px !important;
+  height:42px !important;
+  font-size:17px !important;
+  border-radius:11px !important;
+  padding:6px 10px !important;
+ }
+ .bshelf-v10-page .reader .reader-footer button span {
+  font-size:12px !important;
+  line-height:1.2 !important;
+ }
+}
+/* Large screens retain their original reader layout. */
+@media(prefers-reduced-motion:reduce){
+ .bshelf-v10-page .reader .reader-progress-bar input[type=range]{transition:none!important}
+}
