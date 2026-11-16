@@ -158,7 +158,7 @@ function render(){
    action.setAttribute('aria-label',shop.name+' · '+item.name+' keresési találatok megnyitása');
    const logo=merchantLogo(shop);
    if(logo)action.append(logo);
-   const cta=node('span','shop-cta',count===null?'🔎 – találat':'🔎 '+count.toLocaleString('hu-HU')+' találat');
+   const cta=node('span','shop-cta'+(count===null?'':' count-known'),count===null?'🔎 – találat':'🔎 '+count.toLocaleString('hu-HU')+' találat');
    if(count===null)cta.title='Az áruház élő találatszáma még nem érhető el. Koppints a bolti kereséshez.';
    action.append(label,cta);
    row.append(action);list.append(row);
