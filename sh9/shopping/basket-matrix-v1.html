@@ -47,8 +47,8 @@ h2{font-size:16px;margin:0 0 9px}
 @media(prefers-reduced-motion:reduce){.product summary::before{transition:none}}
 </style></head><body><main>
 <nav><a href="./">‹ Shopping</a><strong style="font-size:11px">SHO · BASKET INTELLIGENCE</strong><a href="./store-manager-v1.html">⚙ Boltok</a></nav>
-<div class="status" id="syncStatus" role="status" aria-live="polite">☁️ A családi lista és az áruházbeállítások ellenőrzése…</div>
-<section class="panel"><h2>📋 Párosítások és áruházi találatok</h2><div class="counts" aria-label="Kosár áttekintése"><div class="count"><strong id="productsCount">…</strong><small>Termék</small></div><div class="count"><strong id="storesCount">…</strong><small>Aktív bolt</small></div><div class="count"><strong id="routesCount">…</strong><small>Lehetséges keresés</small></div></div><p class="hint" id="matchSummary">Minden aktív termék × minden aktív bolt. Az eredmény létét bolti adatkapcsolat nélkül még ellenőrizni kell.</p><div class="results" id="results"></div></section>
+<div class="status" id="syncStatus" role="alert" aria-live="assertive" hidden></div>
+<section class="panel"><h2>📋 Párosítások és áruházi találatok</h2><div class="counts" aria-label="Kosár áttekintése"><div class="count"><strong id="productsCount">…</strong><small>Termék</small></div><div class="count"><strong id="storesCount">…</strong><small>Aktív bolt</small></div><div class="count"><strong id="routesCount">…</strong><small>Lehetséges keresés</small></div></div><div class="results" id="results"></div></section>
 <p class="footer-note">📱 Helyi IndexedDB-másolatból offline is előkészíthetők a már tárolt termékek keresési hivatkozásai, de az áruházi találatok internet nélkül nem nyílnak meg. ☁️ A Supabase a hiteles lista. A bolti kosár és az aktuális árak csak az áruház saját oldalán érhetők el, amíg nincs ellenőrzött integráció.</p>
 </main>
 <script defer src="../../healthhub/central-vault/config.js"></script>
@@ -56,5 +56,5 @@ h2{font-size:16px;margin:0 0 9px}
 <script defer src="./store-registry-v1.js?v=2"></script>
 <script defer src="./shopping-local-v1.js?v=1"></script>
 <script defer src="./merchant-search-v1.js?v=1"></script>
-<script defer src="./basket-matrix-v1.js?v=5"></script>
+<script defer src="./basket-matrix-v1.js?v=6"></script>
 </body></html>
