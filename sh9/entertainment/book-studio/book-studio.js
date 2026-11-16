@@ -279,6 +279,11 @@ function queueSave(){
  };
  const snapshot={...current,bookmarks:current.bookmarks?.slice()||[]};
  writeQueue=writeQueue.catch(()=>{}).then(async()=>{
+  if(snapshot.source==='local'){
+   const local=w.SH9_BOOK_LOCAL_V22;
+   if(!local||!await local.saveProgress(snapshot,patch))throw Error('A helyi könyvjelző nem menthető.');
+   return;
+  }
   if(snapshot.source==='onedrive'){
    const drive=w.SH9_BOOK_STUDIO_DRIVE_V2;
    if(!drive)throw Error('A OneDrive-kapcsolat nem elérhető.');
@@ -377,7 +382,7 @@ function applyTheme(){
  if(pdfDoc)void renderPDF();
 }
 async function openBook(id){
- const b=books.find(x=>x.id===id)||w.SH9_BOOK_STUDIO_DRIVE_V2?.getBook(id);if(!b||busy)return;
+ const b=books.find(x=>x.id===id)||w.SH9_BOOK_STUDIO_DRIVE_V2?.getBook(id)||w.SH9_BOOK_LOCAL_V22?.getBook(id);if(!b||busy)return;
  await closeReader();
  const version=++readerVersion;
  current={...b,bookmarks:Array.isArray(b.bookmarks)?b.bookmarks.slice():[]};
@@ -394,13 +399,15 @@ async function openBook(id){
  $('readerScrubPercent').textContent=(current.progress_percent||0)+'%';
  $('chapterList').hidden=true;$('chapterList').replaceChildren();
  $('reader').hidden=false;d.body.style.overflow='hidden';$('readerMessage').hidden=false;
- $('readerMessage').textContent=b.source==='onedrive'?'A könyv előkészítése a OneDrive-ról vagy a helyi könyvtárból…':'A könyv letöltése a privát felhőből…';
+ $('readerMessage').textContent=b.source==='local'?'A könyv megnyitása a telefonról…':b.source==='onedrive'?'A könyv előkészítése a OneDrive-ról vagy a helyi könyvtárból…':'A könyv letöltése a privát felhőből…';
  $('epubStage').hidden=true;$('pdfStage').hidden=true;$('pdfStage').replaceChildren();$('epubStage').replaceChildren();
  updateReaderUI();$('closeReader').focus();
  try{
   let data;
   if(b.source==='onedrive'){
    data=await w.SH9_BOOK_STUDIO_DRIVE_V2.download(b);
+  }else if(b.source==='local'){
+   data=await w.SH9_BOOK_LOCAL_V22.getBlob(b.id);
   }else{
    const c=await authorized(b.profile_key);
    const reply=await c.storage.from(BUCKET).download(b.storage_path);
@@ -549,7 +556,9 @@ async function closeReader(){
  if(!current){$('reader').hidden=true;d.body.style.overflow='';return}
  ++readerVersion;
  clearTimeout(saveTimer);await queueSave();
- if(current.source==='onedrive'){
+ if(current.source==='local'){
+  void w.SH9_BOOK_LOCAL_V22?.refresh?.();
+ }else if(current.source==='onedrive'){
   const entry=w.SH9_BOOK_STUDIO_DRIVE_V2?.getBook(current.id);
   if(entry)Object.assign(entry,current);
  }else for(const b of books)if(b.id===current.id){Object.assign(b,current);break}
@@ -579,6 +588,7 @@ $('profileSwitch').addEventListener('click',async()=>{
  await closeReader();
  const next=profile()==='zsolt'?'m':'z';
  try{w.localStorage.setItem('hh-profile',next)}catch(_){return}
+ void w.SH9_BOOK_LOCAL_V22?.refresh?.();
  void loadBooks();void (w.SH9_BOOK_STUDIO_DRIVE_V2?.profileChanged?.()||w.SH9_BOOK_STUDIO_DRIVE_V2?.reload?.());
 });
 $('uploadFile').addEventListener('change',e=>{const file=e.target.files?.[0];if(file)void importBook(file)});
@@ -638,7 +648,7 @@ d.addEventListener('keydown',e=>{
 });
 let resizeTimer=0;
 w.addEventListener('resize',()=>{if(!pdfDoc)return;clearTimeout(resizeTimer);resizeTimer=w.setTimeout(()=>void renderPDF(),220)});
-w.addEventListener('storage',e=>{if(e.key==='hh-profile'&&short(profile())!==d.documentElement.dataset.profile)void closeReader().then(()=>{void loadBooks();void (w.SH9_BOOK_STUDIO_DRIVE_V2?.profileChanged?.()||w.SH9_BOOK_STUDIO_DRIVE_V2?.reload?.())})});
+w.addEventListener('storage',e=>{if(e.key==='hh-profile'&&short(profile())!==d.documentElement.dataset.profile)void closeReader().then(()=>{void w.SH9_BOOK_LOCAL_V22?.refresh?.();void loadBooks();void (w.SH9_BOOK_STUDIO_DRIVE_V2?.profileChanged?.()||w.SH9_BOOK_STUDIO_DRIVE_V2?.reload?.())})});
 w.addEventListener('pagehide',()=>{if(current)void queueSave();clearCovers()});
 w.SH9_BOOK_STUDIO_V1=Object.freeze({openBook,authorized,profile});
 updateSoundButton();paintProfile();
