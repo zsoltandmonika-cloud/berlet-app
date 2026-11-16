@@ -16,7 +16,7 @@ test('Book Studio exposes accessible management view inside settings, without Gr
  assert.doesNotMatch(drive,/Files\.ReadWrite|graph\.microsoft\.com.*DELETE/);
  assert.doesNotMatch(js,/method:\s*['"]DELETE['"]/);
  assert.match(drive,/web_url:item\.webUrl\|\|''/);
- assert.match(drive,/update\(ready\?source:\[\],config\?\.account\|\|'',pid\(\)\)/);
+ assert.match(drive,/update\(\(ready\|\|localMode\)\?source:\[\],config\?\.account\|\|'',pid\(\)\)/);
 });
 class Node{
  constructor(tag='div'){
