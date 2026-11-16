@@ -36,7 +36,7 @@ function storesFor(category){
  return MERCHANTS.filter(s=>s.cats.includes(category));
 }
 function storeLogo(shop){
- const logo=make("span","sho-store-logo");
+ const logo=make("span",shop.key==="allegro"||shop.name==="Allegro"?"sho-store-logo sho-store-logo--allegro":"sho-store-logo");
  const img=document.createElement("img");
  const brand=window.SHOP_MERCHANT_BRAND_ICONS_V1?.byKey?.(shop.key||shop.name,shop.domain);
  img.src=brand?.url||"https://www.google.com/s2/favicons?domain="+encodeURIComponent(shop.domain)+"&sz=128";
