@@ -76,7 +76,7 @@ test('Browser simulation: renders actual OneDrive files on HD shelves, cover rea
   'bshelfSearchToggle','bshelfSortToggle','bshelfSortMenu','bshelfSortTitle','bshelfSortTitleDesc',
   'bshelfSortAuthor','bshelfSortFavorites','bshelfSortReading','bshelfSortManual',
   'bshelfSearchBox','bshelfSearch','bshelfEmpty','bshelfStatus','bshelfCount',
-  'bshelfAdminTitle','bshelfMenuOneDrive','bshelfMenuManage','bshelfMenuCovers','bshelfMenuUploads',
+  'bshelfOfflinePanel','bshelfMenuOffline','bshelfAdminTitle','bshelfMenuOneDrive','bshelfMenuManage','bshelfMenuCovers','bshelfMenuUploads',
   'bshelfManagePanel','bshelfManageCount','bshelfManageList','bshelfManageFilter',
   'bshelfSearchClear','bshelfConnectAction','bshelfAdminBack','bookStudioSettings',
   'onedriveBooks','library','profileSwitch'];
