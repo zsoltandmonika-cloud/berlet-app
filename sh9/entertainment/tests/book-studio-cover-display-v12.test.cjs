@@ -11,7 +11,7 @@ test('S24 original cover images are loaded eagerly, never lazy-hidden deadlocked
  assert.match(js,/img\.classList\.add\('is-loaded'\)/);
  assert.match(css,/img\.bshelf-real-cover\{[\s\S]*?opacity:0/);
  assert.match(css,/img\.bshelf-real-cover\.is-loaded\{[\s\S]*?opacity:1/);
- assert.match(html,/book-studio-wood-shelf-v10\.js\?v=12-visible-cover-load/);
+ assert.match(html,/book-studio-wood-shelf-v10\.js\?v=(12-visible-cover-load|13-library-manager)/);
  assert.match(html,/book-studio-wood-shelf-v10\.css\?v=12-cover-display-fix/);
 });
 test('Displayed cover count changes only after actual image onload',()=>{
