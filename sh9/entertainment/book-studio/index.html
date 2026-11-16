@@ -14,6 +14,7 @@
 <link rel="stylesheet" href="./book-studio-wood-shelf-v10.css?v=12-cover-display-fix">
 <link rel="stylesheet" href="./book-studio-library-manage-v13.css?v=13">
 <link rel="stylesheet" href="./book-studio-reader-compact-v14.css?v=14-s24-more-reading-space">
+<link rel="stylesheet" href="./book-studio-shelf-sort-v17.css?v=17-sort-custom">
 </head>
 <body class="bshelf-v10-page">
 <div class="shell">
@@ -25,6 +26,17 @@
  </div>
  <div class="bshelf-toolbar">
   <button id="bshelfSearchToggle" type="button" aria-expanded="false" aria-controls="bshelfSearchBox" aria-label="Könyv keresése">⌕</button>
+  <button id="bshelfSortToggle" type="button" aria-expanded="false" aria-controls="bshelfSortMenu" aria-label="Könyvek sorrendjének beállítása" title="Könyvek rendezése">⇅</button>
+  <div id="bshelfSortMenu" class="bshelf-sort-menu" hidden role="group" aria-label="Könyvek rendezése">
+   <div class="bshelf-menu-title">⇅ KÖNYVEK SORRENDJE</div>
+   <button type="button" id="bshelfSortTitle">🔤 Cím szerint · A–Z</button>
+   <button type="button" id="bshelfSortTitleDesc">🔠 Cím szerint · Z–A</button>
+   <button type="button" id="bshelfSortAuthor">✍️ Szerző szerint</button>
+   <button type="button" id="bshelfSortFavorites">♥ Kedvencek elöl</button>
+   <button type="button" id="bshelfSortReading">📖 Olvasás alatt elöl</button>
+   <button type="button" id="bshelfSortManual">↕ Saját sorrend</button>
+   <p class="bshelf-sort-tip">Saját sorrend: ⚙ Könyvtár szerkesztése, majd ↑ ↓ a könyvek mellett.</p>
+  </div>
   <button id="bshelfSettingsToggle" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="bshelfSettingsMenu" aria-label="Book Studio beállítások">⚙</button>
   <div class="bshelf-settings-menu" id="bshelfSettingsMenu" hidden role="group" aria-label="Könyvtár beállításai">
    <div class="bshelf-menu-title">⚙ BOOK STUDIO · BEÁLLÍTÁSOK</div>
@@ -66,7 +78,7 @@
  <div class="bshelf-manage-intro">
   <span class="bshelf-manage-kicker">✦ SAJÁT KÖNYVTÁR · SZERKESZTÉS</span>
   <h2>📚 Könyveim kezelése</h2>
-  <p>Elrejtheted a könyveket a polcról, és bármikor visszahelyezheted őket. Az eredeti OneDrive-fájlok változatlanok.</p>
+  <p>Rendezd a könyveidet cím, szerző vagy kedvencek szerint. A <strong>↑ ↓</strong> gombokkal saját sorrendet is készíthetsz. Az eredeti OneDrive-fájlok változatlanok.</p>
   <div id="bshelfManageCount" class="bshelf-manage-count" role="status" aria-live="polite">Könyvek betöltése…</div>
  </div>
  <label class="bshelf-manage-search">⌕ <input id="bshelfManageFilter" type="search" placeholder="Keresés a könyveid között…" autocomplete="off"></label>
@@ -136,7 +148,7 @@
 <script defer src="../book-studio-preview-v4.js?v=4"></script>
 <script defer src="./book-metadata-v4.js?v=4"></script>
 <script defer src="./book-studio.js?v=14-epub-compact-readable"></script>
-<script defer src="./book-studio-wood-shelf-v10.js?v=13-library-manager"></script>
+<script defer src="./book-studio-wood-shelf-v10.js?v=17-shelf-sort"></script>
 <script defer src="./onedrive-books-v2.js?v=13-library-manager"></script>
 </body>
 </html>
