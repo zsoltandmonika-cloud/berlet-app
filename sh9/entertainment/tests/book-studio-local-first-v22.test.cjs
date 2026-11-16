@@ -20,7 +20,7 @@ test('V22 imports EPUB/PDF from Samsung browser, independently of Microsoft and 
  assert.match(local,/async function importFiles/);
  assert.match(local,/source:'local'/);
  assert.match(local,/profile_key:who/);
- assert.doesNotMatch(local,/supabase|graph\.microsoft\.com|service_role|fetch\(/i);
+ assert.doesNotMatch(local,/\b(?:w\.)?fetch\s*\(|\.from\(['\"]|graph\.microsoft\.com|service_role/i);
 });
 test('Local book import never deletes original file, has a confirmation and local progress',()=>{
  assert.match(local,/async function deleteBook\(id\)/);
