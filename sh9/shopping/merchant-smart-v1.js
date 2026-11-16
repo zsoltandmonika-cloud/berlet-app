@@ -25,14 +25,22 @@ const SAMPLES={
  home:[['💡','LED fényfüzér','1','db'],['🧺','Tárolókosár','1','db'],['🛋️','Díszpárna','1','db'],['🍽️','Konyhai rendező','1','db'],['🔌','USB-C kábel','1','db'],['📱','Telefonállvány','1','db'],['🪴','Virágtartó','1','db'],['🛁','Fürdőszobai polc','1','db'],['🪑','Székpárna','1','db'],['🧹','Takarítókefe','1','db']],
  fashion:[['👚','Női póló','1','db'],['👗','Ruha','1','db'],['👖','Farmernadrág','1','db'],['🧥','Kabát','1','db'],['👟','Sportcipő','1','pár'],['🧣','Sál','1','db'],['👜','Válltáska','1','db'],['👕','Férfi póló','1','db'],['🧦','Zokni','1','csomag'],['🧢','Sapka','1','db']]
 };
+const registry=w.SHOP_STORE_REGISTRY_V1;
+for(const x of registry?.current()||[]){
+ if(x.is_custom&&x.enabled)STORES[x.key]={name:x.name,domain:x.domain,home:x.url,group:'home',isCustom:true};
+}
 let key=new URL(w.location.href).searchParams.get('store')||'auchan';
-if(!Object.prototype.hasOwnProperty.call(STORES,key))key='auchan';
+if(!Object.prototype.hasOwnProperty.call(STORES,key)){
+ const box=$('modeHelp');if(box)box.textContent='Ez a bolt még nincs betöltve. Lépj vissza a bevásárláshoz, és frissítsd a boltokat.';
+ return;
+}
 const store=STORES[key],samples=SAMPLES[store.group].map(([icon,name,quantity,unit],i)=>({id:'demo-'+i,icon,name,quantity:Number(quantity),unit}));
 const STATE_KEY='sho-merchant-shopping-v1:'+key;
 const cfg=w.HH_CENTRAL_VAULT;
+const cache=w.SHOP_LOCAL_FIRST_V1;
 const nativeOAuth=(()=>{try{return w.sessionStorage.getItem('hh-one-native-oauth-v1063')==='1'}catch(_){return false}})();
 const api=cfg?.enabled&&w.supabase?.createClient?w.supabase.createClient(cfg.supabaseUrl,cfg.publishableKey,{auth:{storageKey:'hh-guardian-family-auth-v785',persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,flowType:nativeOAuth?'pkce':'implicit'}}):null;
-let user=null,profiles=[],rows=[],mapped=new Map(),mode='shared',cloudStatus='loading',cloudError='',selected=null,showLink=false,loading=false,loadPending=false,channel=null,lastUpdate=0,visibleCount=40,lastRowTapKey='',lastRowTapAt=0;
+let user=null,profiles=[],rows=[],mapped=new Map(),mode='shared',cloudStatus='loading',cloudError='',cachedAt='',selected=null,showLink=false,loading=false,loadPending=false,channel=null,lastUpdate=0,visibleCount=40,lastRowTapKey='',lastRowTapAt=0;
 function state(){try{const o=JSON.parse(w.sessionStorage.getItem(STATE_KEY)||'{}');return o&&typeof o==='object'?o:{}}catch(_){return {}}}
 function put(o){try{w.sessionStorage.setItem(STATE_KEY,JSON.stringify(o))}catch(_){}}
 function list(){return mode==='shared'?rows:samples}
@@ -72,7 +80,7 @@ function searchUrl(term){
   case 'temu':return 'https://www.temu.com/hu/search_result.html?search_key='+encoded;
   case 'shein':return 'https://hu.shein.com/pdsearch/'+encoded+'/';
   case 'shoperia':return 'https://www.google.com/search?q='+encodeURIComponent('site:shoperia.hu '+q); // Native search route not verified
-  default:return store.home;
+  default:return store.isCustom?'https://www.google.com/search?q='+encodeURIComponent('site:'+store.domain+' '+q):store.home;
  }
 }
 function directUrlFor(p){
@@ -116,7 +124,7 @@ function draw(a){
  for(let i=0;i<total;i++){
   const p=a.all[i],row=mk('button','product'+(i===a.i?' chosen':''));row.type='button';row.onclick=()=>activateRow(i);
   row.setAttribute('aria-label','Termék: '+p.name+'. Egy koppintás kiválaszt, dupla koppintás az áruház keresési találatait nyitja meg.');
-  row.title=(key==='shoperia'||key==='aldi')?'Dupla kattintás: boltra szűrt webkeresés':'Dupla kattintás: a bolt saját találati listája';
+  row.title=(key==='shoperia'||key==='aldi'||store.isCustom)?'Dupla kattintás: boltra szűrt webkeresés':'Dupla kattintás: a bolt saját találati listája';
   const icon=mk('span','product-icon',emoji(p));const info=mk('span','product-info');info.append(mk('strong',null,p.name),mk('small',null,qty(p)));
   row.append(icon,info,mk('span','product-link',directUrlFor(p)?'🔗':'⌕'));box.append(row);
  }
@@ -135,17 +143,17 @@ function render(){
  $('itemName').textContent=a.p?a.p.name:'Nincs termék';
  $('itemQty').textContent=a.p?qty(a.p):'';
  const saved=a.p?directUrlFor(a.p):'';
- const go=$('go');go.href=a.p?(saved||linkFor(a.p)):store.home;go.textContent=saved?'↗ Mentett termék · külön':(key==='shoperia'||key==='aldi')?'↗ '+store.name+' webkeresés':'↗ Találatok a boltban';
- $('searchMethod').textContent=(key==='shoperia'||key==='aldi')?'🔎 '+store.name+' termékek · boltra szűrt webkeresés (a natív keresőútvonal még nem igazolt)':'🔎 '+store.name+' saját találati listája · termék kiválasztása a boltban';
-  if($('searchCaption'))$('searchCaption').textContent=(key==='shoperia'||key==='aldi')?'👆 Dupla koppintás: boltra szűrt webes találatok; a konkrét terméket és ár szerinti rendezést az áruház oldalán választhatod.':'👆 Dupla koppintás: az összes megfelelő áruházi találat, nem egy előre kiválasztott termék. Az ár szerinti rendezést a bolt oldalán állíthatod.';
-  if($('freeSearchHelp'))$('freeSearchHelp').textContent=(key==='shoperia'||key==='aldi')?store.domain+'-ra szűrt külső webkeresést nyitunk. A rendelés az áruház saját oldalán történik.':'A keresés a kiválasztott áruház saját webhelyének találati listáját nyitja meg. A rendezés és a kosárba helyezés a bolt oldalán történik, nem a SHO-ban.';
+ const go=$('go');go.href=a.p?linkFor(a.p):store.home;go.textContent=saved?'↗ Találatok · mentett külön':(key==='shoperia'||key==='aldi'||store.isCustom)?'↗ '+store.name+' webkeresés':'↗ Találatok a boltban';
+ $('searchMethod').textContent=(key==='shoperia'||key==='aldi'||store.isCustom)?'🔎 '+store.name+' termékek · boltra szűrt webkeresés (a natív keresőútvonal még nem igazolt)':'🔎 '+store.name+' saját találati listája · termék kiválasztása a boltban';
+  if($('searchCaption'))$('searchCaption').textContent=(key==='shoperia'||key==='aldi'||store.isCustom)?'👆 Dupla koppintás: boltra szűrt webes találatok; a konkrét terméket és ár szerinti rendezést az áruház oldalán választhatod.':'👆 Dupla koppintás: az összes megfelelő áruházi találat, nem egy előre kiválasztott termék. Az ár szerinti rendezést a bolt oldalán állíthatod.';
+  if($('freeSearchHelp'))$('freeSearchHelp').textContent=(key==='shoperia'||key==='aldi'||store.isCustom)?store.domain+'-ra szűrt külső webkeresést nyitunk. A rendelés az áruház saját oldalán történik.':'A keresés a kiválasztott áruház saját webhelyének találati listáját nyitja meg. A rendezés és a kosárba helyezés a bolt oldalán történik, nem a SHO-ban.';
  $('prev').disabled=!a.p||a.all.length<2;$('next').disabled=!a.p||a.all.length<2;
  $('edit').disabled=!a.p;
  $('editor').hidden=!showLink||!a.p;
  $('linkInput').value=saved;
  $('auth').hidden=own();
  $('authMessage').textContent=user?'Ehhez a családi profilhoz nincs mentési jogosultság.':'A közös terméklink mentéséhez bejelentkezés szükséges.';
- $('modeHelp').textContent=mode!=='shared'?'✨ 10 példatermék · nincs Smart List-módosítás.':cloudStatus==='loading'?'☁️ A közös Smart List szinkronizálása…':cloudStatus==='auth'?'🔒 A közös bevásárlólistához családi bejelentkezés szükséges.':cloudStatus==='error'?'⚠️ Felhőhiba: '+cloudError:rows.length?'☁️ Teljes közös Smart List · '+rows.length+' aktív tétel.':'☁️ A közös Smart List jelenleg üres.';
+ $('modeHelp').textContent=mode!=='shared'?'✨ 10 példatermék · nincs Smart List-módosítás.':cloudStatus==='loading'?'☁️ A közös Smart List szinkronizálása…':cloudStatus==='cached'?'📱 Helyi lista · utolsó szinkron: '+(cachedAt?new Date(cachedAt).toLocaleString('hu-HU'):'ismeretlen')+' · nem élő áradat':cloudStatus==='auth'?'🔒 A közös bevásárlólistához családi bejelentkezés szükséges.':cloudStatus==='error'?'⚠️ Felhőhiba: '+cloudError:rows.length?'☁️ Teljes közös Smart List · '+rows.length+' aktív tétel.':'☁️ A közös Smart List jelenleg üres.';
  draw(a);
 }
 function setMode(next){mode=next;selected=null;showLink=false;visibleCount=40;const s=state();s.mode=mode;put(s);render()}
@@ -164,24 +172,34 @@ async function fetchAll(table,cols,active){
 async function loadCloud(){
  if(!own())return;
  if(loading){loadPending=true;return}
- loading=true;cloudStatus='loading';cloudError='';render();
+ loading=true;cloudStatus=rows.length?'cached':'loading';cloudError='';render();
  try{
-  // The shared list must never be blocked by the optional per-store SKU links.
+  if(cache&&!rows.length){
+   const local=await cache.read(user.id,'list');
+   if(Array.isArray(local?.rows)){
+    rows=local.rows.filter(x=>x&&x.id&&x.name);
+    cachedAt=local.syncedAt||'';cloudStatus='cached';render();
+   }
+  }
+  if(cache&&!mapped.size){
+   const saved=await cache.read(user.id,'links:'+key);
+   if(Array.isArray(saved?.rows))mapped=new Map(saved.rows.map(x=>[x.source+':'+x.item_key,x]));
+  }
+ }catch(_){}
+ try{
   const listRows=await fetchAll(LIST,'id,name,quantity,unit,category,created_at',true);
-  rows=listRows;
-  cloudStatus='ready';lastUpdate=Date.now();render();
+  rows=listRows;cloudStatus='ready';cachedAt='';lastUpdate=Date.now();render();
+  if(cache)void cache.write(user.id,'list',{rows:listRows});
   try{
    const links=await fetchAll(LINKS,'id,store_key,source,item_key,product_url,name_snapshot',false);
-   mapped=new Map(links.map(x=>[x.source+':'+x.item_key,x]));render();
-  }catch(e){
-   mapped.clear();
-   msg('☁️ A közös lista betöltve. A mentett terméklinkek most nem elérhetők.');
-  }
+   mapped=new Map(links.map(x=>[x.source+':'+x.item_key,x]));
+   if(cache)void cache.write(user.id,'links:'+key,{rows:links});
+   render();
+  }catch(_){msg('☁️ A lista betöltve, a mentett terméklinkek helyi másolatból érhetők el.')}
  }catch(e){
-  cloudStatus='error';cloudError=String(e.message||e).slice(0,100);
-  render();msg('Felhőlista nem elérhető: '+cloudError);
- }
- finally{loading=false;if(loadPending){loadPending=false;void loadCloud()}}
+  if(rows.length||cloudStatus==='cached'){cloudStatus='cached';render();msg('📱 Helyi lista · friss szerveradat nem érhető el.')}
+  else{cloudStatus='error';cloudError=String(e.message||e).slice(0,100);render();msg('Felhőlista nem elérhető: '+cloudError)}
+ }finally{loading=false;if(loadPending){loadPending=false;void loadCloud()}}
 }
 async function save(){
  const a=selectedState();if(!a.p)return;
@@ -230,8 +248,8 @@ $('signIn').onclick=async()=>{
   if(r.error)throw r.error;
  }catch(e){msg('Belépés sikertelen: '+String(e.message||e).slice(0,90))}
 };
-w.addEventListener('pageshow',()=>{selected=null;render();if(own()&&Date.now()-lastUpdate>5000)void loadCloud()});
-d.addEventListener('visibilitychange',()=>{if(d.visibilityState==='visible'&&own()&&Date.now()-lastUpdate>5000)void loadCloud()});
+w.addEventListener('pageshow',()=>{selected=null;render();if(own()&&Date.now()-lastUpdate>5*60*1000)void loadCloud()});
+d.addEventListener('visibilitychange',()=>{if(d.visibilityState==='visible'&&own()&&Date.now()-lastUpdate>5*60*1000)void loadCloud()});
 w.addEventListener('storage',e=>{if(e.key==='hh-guardian-family-auth-v785')void authSync()});
 if(api)api.auth.onAuthStateChange(e=>{if(e==='SIGNED_IN'||e==='SIGNED_OUT')setTimeout(()=>void authSync(),0)});
 // Every Smart Shopping entry opens the real shared family list by default.
