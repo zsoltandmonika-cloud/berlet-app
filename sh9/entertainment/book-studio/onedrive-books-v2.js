@@ -829,8 +829,17 @@ $('odCacheClear').addEventListener('click',async()=>{
  await CACHE.clear(config.account);render();await updateCacheInfo();
  status('A helyi gyorsítótár kiürítve. Az eredeti OneDrive-könyvek érintetlenek.');
 });
+async function profileChanged(){
+ // A local offline catalogue MUST not leak books into another SHO profile.
+ ++coverJob;dropCoverUrls();missingCovers.clear();
+ entries=[];localMode=false;
+ setConnected(false);render();
+ if(OFFLINE?.isEnabled(config?.account,pid()))await hydrateLocal();
+ if(ready)await loadLibrary();
+ void OFFLINE?.inspect();
+}
 w.SH9_BOOK_STUDIO_DRIVE_V2=Object.freeze({
- getBook,download,saveProgress,render,
+ getBook,download,saveProgress,render,profileChanged,
  isReady:()=>!!(ready&&entries.length),
  saveOfflineCatalog,prepareOffline,
  disableOfflineView:()=>{
