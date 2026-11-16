@@ -273,6 +273,108 @@ async function progressRecords(){
   progressCloud=false;return new Map();
  }
 }
+// V21: store only a verified, sanitized local book index on explicit opt-in.
+// All signed download URLs and OAuth tokens stay out of IndexedDB.
+async function saveOfflineCatalog(){
+ if(!ready||!config||!entries.length||!OFFLINE?.isEnabled(config.account,pid()))return false;
+ return await OFFLINE.publish(config.account,pid(),entries,folderId,driveId);
+}
+async function mergePending(){
+ if(!config||!OFFLINE?.isEnabled(config.account,pid()))return;
+ const pending=await OFFLINE.listPending(config.account,pid());
+ const byId=new Map(pending.map(x=>[x.drive_item_id,x]));
+ for(const book of entries){
+  const saved=byId.get(book.drive_item_id);
+  if(!saved)continue;
+  // Do not overwrite a newer change made on a second device.
+  if(book.updated_at&&Number(saved.at)<Date.parse(book.updated_at))continue;
+  for(const key of ['progress_locator','progress_percent','bookmarks',
+   'is_favorite','theme','font_size']){
+   if(saved.patch?.[key]!==undefined)book[key]=saved.patch[key];
+  }
+ }
+}
+async function flushPending(){
+ if(!ready||!progressCloud||!config||!OFFLINE?.isEnabled(config.account,pid()))return;
+ const account=config.account,p=pid(),items=await OFFLINE.listPending(account,p);
+ if(!items.length)return;
+ let api;try{api=await w.SH9_BOOK_STUDIO_V1.authorized(p)}catch(_){return}
+ for(const item of items){
+  if(!ready||config?.account!==account||pid()!==p)return;
+  const book=entries.find(x=>x.drive_item_id===item.drive_item_id);
+  if(!book||book.drive_id!==item.drive_id)continue;
+  const patch=item.patch||{};
+  const row={
+   profile_key:p,drive_id:book.drive_id,item_id:book.drive_item_id,
+   progress_locator:patch.progress_locator??book.progress_locator??null,
+   progress_percent:patch.progress_percent??book.progress_percent??0,
+   bookmarks:patch.bookmarks??book.bookmarks??[],
+   is_favorite:patch.is_favorite??book.is_favorite,
+   theme:patch.theme??book.theme??'sepia',
+   font_size:patch.font_size??book.font_size??100,
+   updated_at:new Date(item.at||Date.now()).toISOString()
+  };
+  try{
+   const {error}=await api.from(PROGRESS).upsert(row,{onConflict:'profile_key,drive_id,item_id'});
+   if(error)break;
+   await OFFLINE.ackPending(account,p,item.drive_item_id,item.at);
+  }catch(_){break}
+ }
+}
+async function hydrateLocal(){
+ if(!config?.account||!OFFLINE?.isEnabled(config.account,pid()))return false;
+ const snap=await OFFLINE.getSnapshot(config.account,pid());
+ if(!snap?.books?.length)return false;
+ // The opt-in is per verified Microsoft account and separate SHO profile.
+ // Never hydrate a different device profile or an arbitrary cached account.
+ folderId=snap.folderId||'';driveId=snap.driveId||'';
+ entries=snap.books.filter(b=>b.profile_key===pid()&&b.source==='onedrive'&&
+  b.drive_item_id&&b.drive_id===driveId)
+  .map(b=>({...b,download_url:'',listed_at:0}));
+ if(!entries.length)return false;
+ localMode=true;
+ await mergePending();
+ w.SH9_BOOKSHELF_V10?.setConnected(true);
+ w.SH9_BOOKSHELF_V10?.setOffline(true);
+ render();
+ status('📱 Helyi könyvtár betöltve · '+entries.length+' könyv. A OneDrive a háttérben frissíthető.');
+ w.SH9_BOOKSHELF_V10?.setLoading(false);
+ void updateCacheInfo();
+ return true;
+}
+async function prepareOffline({cancelled=()=>false,onProgress=()=>{}}={}){
+ if(!ready||!config||!CACHE||!OFFLINE?.isEnabled(config.account,pid()))
+  throw Error('Előbb csatlakoztasd a OneDrive-ot és kapcsold be az offline módot.');
+ const account=config.account,person=pid();
+ const catalog=distinctBooks().primary.filter(b=>b.source==='onedrive');
+ let done=0,cached=0,failed=0,wasCancelled=false;
+ await saveOfflineCatalog();
+ for(const book of catalog){
+  if(cancelled()||!ready||config?.account!==account||pid()!==person){
+   wasCancelled=true;break;
+  }
+  try{
+   // Books already cached are pinned in-place, with no network request.
+   let blob=await CACHE.get(account,book,'file');
+   if(!blob){
+    if(book.size_bytes>MAX_DOWNLOAD)throw Error('80 MB fájlméretkorlát.');
+    const space=await w.navigator?.storage?.estimate?.();
+    if(space?.quota&&space.quota-(space.usage||0)<book.size_bytes*1.2+20*1024*1024)
+     throw Error('Nincs elegendő böngésző-tárhely.');
+    blob=await download(book);
+   }
+   if(!blob?.size||!await CACHE.put(account,book,'file',blob,{pinned:true}))
+    throw Error('Az offline könyvfájl helyi mentése sikertelen.');
+   cached++;
+   if(!coverUrls.has(book.id))void extractCover(book,blob);
+  }catch(_){failed++}
+  done++;
+  onProgress({done,total:catalog.length,cached,failed});
+  await new Promise(resolve=>w.setTimeout(resolve,20));
+ }
+ void updateCacheInfo();
+ return {total:catalog.length,done,cached,failed,cancelled:wasCancelled};
+}
 async function loadLibrary(){
  if(!ready||scanning)return;
  scanning=true;if(!localMode)w.SH9_BOOKSHELF_V10?.setLoading(true);status('📂 OneDrive könyvek keresése…',false);$('odGrid').replaceChildren();
