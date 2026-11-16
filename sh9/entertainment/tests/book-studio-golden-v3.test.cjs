@@ -45,7 +45,7 @@ test('Books persist locally under account, drive, revision, and can be cleared e
  assert.notEqual(cache.key('one@live.com',sample,'file'),cache.key('one@live.com',sample,'cover'));
  assert.notEqual(cache.key('one@live.com',sample,'file'),cache.key('one@live.com',{...sample,etag:'v2'},'file'));
  assert.match(drive,/CACHE\.get\(account,b,'file'\)/);
- assert.match(drive,/CACHE\.put\(account,b,'file',blob\)/);
+ assert.match(drive,/CACHE\.put\(account,b,'file',blob,\{pinned:!!options\.pinned\}\)/);
  assert.match(drive,/CACHE\.clear\(config.account\)/);
  assert.match(cacheSrc,/LIMIT=230\*1024\*1024/);
  assert.doesNotMatch(cacheSrc,/localStorage|service_role/);
