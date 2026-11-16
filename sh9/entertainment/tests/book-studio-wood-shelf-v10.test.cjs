@@ -33,7 +33,7 @@ test('Book Studio lands on the immersive bookshelf, keeping admin/settings out o
  assert.equal((html.match(/<script(?:\s|>)/g)||[]).length,(html.match(/<\/script>/g)||[]).length);
 });
 test('All books come from verified original OneDrive collection and open the existing reader',()=>{
- assert.match(drive,/w\.SH9_BOOKSHELF_V10\?\.update\(ready\?source:\[\]/);
+ assert.match(drive,/w\.SH9_BOOKSHELF_V10\?\.update\(\(ready\|\|localMode\)\?source:\[\]/);
  assert.match(drive,/w\.SH9_BOOKSHELF_V10\?\.coverReady\(b\.id,url\)/);
  assert.match(drive,/w\.SH9_BOOKSHELF_V10\?\.setLoading\(true\)/);
  assert.match(drive,/w\.SH9_BOOKSHELF_V10\?\.setConnected\(on\)/);
