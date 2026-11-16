@@ -12,10 +12,10 @@ test('Automatic authentic book covers are ON by default, including V11 one-time 
  assert.match(js,/store\(w\.localStorage,AUTO_COVER_KEY,'on'\)/);
  assert.match(js,/scheduleAutomaticCovers\(\)/);
  assert.match(js,/w\.setTimeout\(\(\)=>void prepareCovers\(true\),700\)/);
- assert.match(html,/onedrive-books-v2\.js\?v=(11-auto-authentic-covers|13-library-manager|20-sepia-explicit-bookmarks)/);
+ assert.match(html,/onedrive-books-v2\.js\?v=(11-auto-authentic-covers|13-library-manager|20-sepia-explicit-bookmarks|21-offline-first)/);
 });
 test('V11 first shows locally cached covers, fetches portrait OneDrive thumbnails, falls back to EPUB/PDF extraction',()=>{
- assert.match(js,/if\(ready\)for\(const book of source\)/);
+ assert.match(js,/if\(ready\|\|localMode\)for\(const book of source\)/);
  assert.match(js,/void cachedCover\(book\)/);
  assert.match(js,/async function graphCover\(b\)/);
  assert.match(js,/\/thumbnails\?select=large/);
@@ -55,7 +55,7 @@ test('New fullscreen wood shelf visibly updates as original covers arrive',()=>{
  assert.match(shelf,/function finishCoverProgress\(\)/);
  assert.match(shelf,/Eredeti borítók automatikusan/);
  assert.match(shelf,/state\.displayed\.size\+' borító/);
- assert.match(html,/book-studio-wood-shelf-v10\.js\?v=(11-auto-cover-status|12-visible-cover-load|13-library-manager|17-shelf-sort)/);
+ assert.match(html,/book-studio-wood-shelf-v10\.js\?v=(11-auto-cover-status|12-visible-cover-load|13-library-manager|17-shelf-sort|21-offline-controls)/);
 });
 test('V11 scripts parse without syntax errors',()=>{
  assert.doesNotThrow(()=>new Function(js));
