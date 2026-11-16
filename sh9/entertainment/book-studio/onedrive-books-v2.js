@@ -595,6 +595,9 @@ async function prepareCovers(automatic=false){
        blob=await download(book);
       }
       if(blob)await extractCover(book,blob);
+      // A book skipped by the mobile-data limit is NOT a failed cover:
+      // allow it to finish automatically on the next authenticated visit.
+      if(!blob)continue;
      }
     }
     if(coverUrls.has(book.id))success++;
