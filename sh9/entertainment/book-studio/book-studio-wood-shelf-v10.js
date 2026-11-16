@@ -146,8 +146,11 @@
   if(!state.loading&&!n){
    empty.hidden=false;
    const caption=empty.querySelector('span');
-   caption.textContent=state.connected?'Ebben a könyvtárban még nincs találat. Ellenőrizd a OneDrive mappát a beállításokban.':
+   caption.textContent=state.connected&&hiddenCount?
+    'Az összes könyved el van rejtve. A ⚙ Könyvtár szerkesztése menüpontban visszahelyezheted őket.':
+    state.connected?'Ebben a könyvtárban még nincs találat. Ellenőrizd a OneDrive mappát a beállításokban.':
     'A OneDrive csatlakoztatását és a könyvek beolvasását a ⚙ gomb alatt érheted el.';
+   empty.querySelector('button').textContent=hiddenCount?'↩ Elrejtett könyvek kezelése':'⚙ OneDrive kapcsolat beállítása';
   }else empty.hidden=true;
  }
  function setConnected(on){
@@ -279,7 +282,7 @@
   manageSearch.addEventListener('input',renderManage);
   $('bshelfMenuCovers').addEventListener('click',()=>adminView('onedriveBooks','🖼️ Borítók és könyvtárkezelés'));
   $('bshelfMenuUploads').addEventListener('click',()=>adminView('library','＋ Külön feltöltött könyvek'));
-  $('bshelfConnectAction').addEventListener('click',()=>adminView('bookStudioSettings','☁️ OneDrive kapcsolat'));
+  $('bshelfConnectAction').addEventListener('click',()=>state.books.some(hiddenBook)?adminView('bshelfManagePanel','📚 Könyvtár szerkesztése'):adminView('bookStudioSettings','☁️ OneDrive kapcsolat'));
   $('bshelfAdminBack').addEventListener('click',frontView);
   $('profileSwitch').addEventListener('click',()=>{navMenu(false);setLoading(true);state.books=[];render()});
   d.addEventListener('keydown',e=>{
