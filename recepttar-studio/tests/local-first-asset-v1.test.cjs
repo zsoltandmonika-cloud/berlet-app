@@ -103,6 +103,55 @@ test('Local Storage Monitor has two measured recipe card-size counters without e
  assert.doesNotMatch(monitorJS,/(?:await|return)\s+[^;\n]*\.arrayBuffer\(/);
  assert.match(monitorHTML,/Modulonkénti mérés még nincs bekötve/);
 });
+test('Real Recept Studio byte counts distinguish saved recipes, cloud pictures and pending changes',async()=>{
+ const monitor=require('../../sh9/local-storage/local-storage-monitor-v1.js');
+ const at=Date.parse('2026-11-16T12:00:00Z');
+ const tables={
+  'lena-recepttar-studio-preview':{recipes:[
+   {id:'r1',blob:{size:900000},heroBlob:{size:300000},processBlob:{size:100000},pending:true},
+   {id:'r2',blob:{size:400000},pending:false}
+  ]},
+  'lena-recept-studio-asset-cache-v1':{
+   assets:[{key:'one|r1',bytes:1200000,blob:{size:1200000}},{key:'one|r2',bytes:1800000,blob:{size:1800000}}],
+   catalogue:[{key:'one',checkedAt:at}]
+  }
+ };
+ const indexedDB={
+  databases:async()=>Object.keys(tables).map(name=>({name})),
+  open(name){
+   const request={};
+   request.result={
+    objectStoreNames:{contains:store=>Object.hasOwn(tables[name],store)},
+    transaction(store){
+     const tr={};
+     tr.objectStore=()=>({openCursor(){
+      const cursor={};let i=0;
+      function next(){
+       const entry=tables[name][store][i++];
+       cursor.result=entry?{value:entry,continue:()=>queueMicrotask(next)}:null;
+       cursor.onsuccess?.();
+       if(!entry)queueMicrotask(()=>tr.oncomplete?.());
+      }
+      queueMicrotask(next);return cursor;
+     }});
+     tr.abort=()=>queueMicrotask(()=>tr.onabort?.());
+     return tr;
+    },close(){}
+   };
+   queueMicrotask(()=>request.onsuccess?.());
+   return request;
+  }
+ };
+ const m=await monitor.measureRecipes(indexedDB);
+ assert.equal(m.supported,true);
+ assert.equal(m.localBytes,1700000);
+ assert.equal(m.cloudBytes,3000000);
+ assert.equal(m.localCount,2);
+ assert.equal(m.cloudCount,2);
+ assert.equal(m.pendingCount,1);
+ assert.equal(m.lastCheck,at);
+ assert.equal(m.partial,false);
+});
 test('New and updated scripts parse without browser dependencies on Node',()=>{
  for(const source of [cacheJS,app,monitorJS])assert.doesNotThrow(()=>new vm.Script(source));
 });
