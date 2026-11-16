@@ -693,7 +693,7 @@ async function extractCover(b,blob){
 async function updateCacheInfo(){
  if(!CACHE||!config)return;
  const x=await CACHE.count(config.account);
- if($('odCacheInfo'))$('odCacheInfo').textContent=x.books+' könyv helyben · '+x.covers+' eredeti borító';
+ if($('odCacheInfo'))$('odCacheInfo').textContent=x.books+' könyv helyben · '+(x.offlineBooks||0)+' offline · '+x.covers+' eredeti borító';
 }
 async function prepareCovers(automatic=false){
  if(coverLoading||!ready||!CACHE)return;
@@ -837,10 +837,26 @@ if(load(w.localStorage,AUTO_V11_INIT)!=='yes'){
 }
 displayConfig();setConnected(false);
 (async()=>{
+ // First paint from local IndexedDB; network login must never block the shelf.
+ if(OFFLINE?.isEnabled(config?.account,pid())){
+  try{await hydrateLocal()}catch(_){}
+ }
  if(await handleCallback())return;
+ // Airplane mode: do not ping Graph or start Microsoft OAuth redirects.
+ if(w.navigator?.onLine===false){
+  status(localMode?'📱 Offline könyvtár · a letöltött könyvek most is olvashatók.':
+   'Nincs internetkapcsolat. Offline könyvtár a ⚙ menüben készíthető elő.',!localMode);
+  return;
+ }
  if(await resume()){
   status('☁️ OneDrive automatikusan csatlakoztatva…');
   await loadLibrary();return;
+ }
+ // If a private shelf is already hydrated, prefer a usable local reader
+ // to an endless interactive Microsoft redirect. User can reconnect in ⚙.
+ if(localMode){
+  status('📱 Helyi könyvtár készen áll. A OneDrive frissítéséhez csatlakozz újra a ⚙ menüben.');
+  return;
  }
  if(config&&await silentReconnect())return;
  status(config?'Microsoft-megerősítés szükséges. A könyvek továbbra is a OneDrive-on maradnak.':'Microsoft-kapcsolat beállítása szükséges.');
