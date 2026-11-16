@@ -1,0 +1,30 @@
+/* Book Studio V22: additive phone import in existing premium dark-glass admin. */
+.bs-local-import{
+ margin:18px 0 20px;padding:20px 18px;border:1px solid rgba(235,196,122,.3);
+ border-radius:20px;background:linear-gradient(150deg,rgba(64,44,30,.79),rgba(22,23,37,.96));
+ box-shadow:0 14px 35px rgba(0,0,0,.18);
+}
+.bs-local-import h3{margin:0 0 9px;font-size:1.15rem;color:#f9ddaa}
+.bs-local-import p{font-size:.88rem;line-height:1.55;color:#e0d5ca}
+.bs-local-import-button,.bs-local-shell{
+ display:inline-flex;align-items:center;justify-content:center;min-height:44px;
+ border-radius:12px;padding:11px 16px;margin:7px 6px 8px 0;
+ font-size:.92rem;font-weight:750;cursor:pointer;
+}
+.bs-local-import-button{background:#eacb8d;color:#382416;border:1px solid #ffe8bb}
+.bs-local-shell{background:rgba(26,41,55,.89);color:#f2e5d4;border:1px solid rgba(232,204,162,.5)}
+.bs-local-import-button:focus-visible,.bs-local-shell:focus-visible,.bs-local-row button:focus-visible{
+ outline:3px solid #ffc86e;outline-offset:3px
+}
+.bs-local-list{display:grid;gap:7px;margin-top:10px}
+.bs-local-row{display:flex;align-items:center;gap:9px;flex-wrap:wrap;padding:10px 11px;
+ border:1px solid rgba(232,204,162,.18);border-radius:12px;background:rgba(255,255,255,.055)}
+.bs-local-row span{flex:1;min-width:130px;color:#fff2dc;overflow-wrap:anywhere;font-size:.88rem}
+.bs-local-row button{border:1px solid rgba(245,210,154,.45);border-radius:9px;
+ background:rgba(37,45,55,.93);color:#fff3d8;padding:8px 11px;cursor:pointer;min-height:37px}
+.bs-local-row .bs-local-remove{color:#ffb6a8;border-color:rgba(255,173,160,.42)}
+.bs-local-empty{font-size:.86rem;opacity:.78}
+.bs-local-warning{border-top:1px solid rgba(238,207,164,.2);padding-top:12px;margin-top:14px}
+.bs-local-onedrive-title{font-size:1rem;color:#f7dba9;margin:20px 0 11px}
+#bsLocalStatus[data-error="1"]{color:#ffc1ad}
+@media (max-width:480px){.bs-local-import{padding:16px 13px}.bs-local-import-button,.bs-local-shell{width:100%;margin:7px 0}}
