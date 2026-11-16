@@ -83,6 +83,7 @@ test('Browser simulation: renders actual OneDrive files on HD shelves, cover rea
  nodes.get('bsAdminView').hidden=true;
  nodes.get('bshelfEmpty').hidden=true;
  const empty=nodes.get('bshelfEmpty');
+ nodes.set('bshelfConnectAction',new Node('button'));
  empty.append(new Node('strong'),new Node('span'),nodes.get('bshelfConnectAction'));
  nodes.get('bshelfFront').append(nodes.get('bshelfRows'),empty);
  const opened=[];
