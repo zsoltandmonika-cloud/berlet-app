@@ -8,6 +8,7 @@ const $=id=>document.getElementById(id);
 const API="https://vhsrupphzcjkdrusonzh.supabase.co/functions/v1/sho-shopping-products-v1";
 const MERCHANTS=[
  {name:"Tesco",domain:"bevasarlas.tesco.hu",url:"https://bevasarlas.tesco.hu/shop/hu-hu/",cats:["Élelmiszer","Drogéria & Szépség","Otthon & Háztartás"]},
+ {name:"ALDI",domain:"shop.aldi.hu",url:"https://shop.aldi.hu/kezdooldal",cats:["Élelmiszer","Drogéria & Szépség","Otthon & Háztartás"]},
  {name:"Auchan",domain:"auchan.hu",url:"https://auchan.hu/shop",cats:["Élelmiszer","Elektronika","Otthon & Háztartás","Drogéria & Szépség"]},
  {name:"Kifli",domain:"kifli.hu",url:"https://www.kifli.hu/",cats:["Élelmiszer","Drogéria & Szépség","Otthon & Háztartás"]},
  {name:"dm",domain:"dm.hu",url:"https://www.dm.hu/",cats:["Drogéria & Szépség","Otthon & Háztartás"]},
@@ -19,7 +20,7 @@ const MERCHANTS=[
  {name:"SHEIN",domain:"hu.shein.com",url:"https://hu.shein.com/",cats:["Divat & Stílus"]},
  {name:"Shoperia",domain:"shoperia.hu",url:"https://shoperia.hu/",cats:["Drogéria & Szépség","Otthon & Háztartás"]},
 ];
-const SMART_STORE_KEYS={"Auchan":"auchan","Kifli":"kifli","dm":"dm","Rossmann":"rossmann","eMAG":"emag","Alza":"alza","Allegro":"allegro","Temu":"temu","SHEIN":"shein","Shoperia":"shoperia"};
+const SMART_STORE_KEYS={"Auchan":"auchan","Kifli":"kifli","dm":"dm","Rossmann":"rossmann","eMAG":"emag","Alza":"alza","Allegro":"allegro","Temu":"temu","SHEIN":"shein","Shoperia":"shoperia","ALDI":"aldi"};
 const state={category:"",query:"",products:[],busy:false,callToken:0,sort:"relevance",visible:6};
 const SEARCH_CACHE_PREFIX="sho-shopping-off-catalog-v2:";
 const MAX_CACHE_AGE=15*60*1000;
