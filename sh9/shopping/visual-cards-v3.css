@@ -163,3 +163,6 @@
 @media(max-width:600px){
  .shop-connect.store-screen.all-stores .sho-store-grid{overflow-y:auto;overscroll-behavior:contain;grid-auto-rows:minmax(83px,auto)}
 }
+
+/* Full Basket matrix shortcut: same Golden action row height, no new header row. */
+.shop-connect .sho-actions .sho-basket-matrix{display:inline-flex;align-items:center;justify-content:center;min-height:32px;padding:6px 10px;border:1px solid #e9aacb;background:linear-gradient(110deg,#694071,#3e436c);color:#ffe7f7;border-radius:11px;font-size:10px;font-weight:850;text-decoration:none}
