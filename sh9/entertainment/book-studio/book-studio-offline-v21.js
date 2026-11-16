@@ -163,6 +163,19 @@
   say('☁️ Offline mód KI. A már lementett könyvek gyorsítótárként megmaradnak.',false,0);
   await inspect();
  }
+ async function clearAccount(account){
+  if(!account||!CACHE)return false;
+  // Existing 'Gyorsítótár törlése' is account-wide across both family profiles.
+  // Keep opt-in and catalogue in step with the actual downloaded files.
+  for(const p of ['zsolt','monika']){
+   await CACHE.catalogueClear(account,p);
+   try{w.localStorage.removeItem(key(account,p))}catch(_){}
+  }
+  w.SH9_BOOKSHELF_V10?.setOffline(false);
+  w.SH9_BOOK_STUDIO_DRIVE_V2?.disableOfflineView?.();
+  void inspect();
+  return true;
+ }
  async function reload(){
   if(!w.SH9_BOOK_STUDIO_DRIVE_V2?.isReady?.()){
    say('A könyvtár frissítéséhez Microsoft-kapcsolat szükséges.',true);return
@@ -183,7 +196,7 @@
  }
  w.SH9_BOOK_OFFLINE_V21=Object.freeze({
   isEnabled,getSnapshot,publish,queueProgress,listPending,ackPending,
-  inspect,registerShell
+  inspect,registerShell,clearAccount
  });
  // Never activate offline content for the household without opt-in.
  if(isEnabled(configAccount(),profile())){
