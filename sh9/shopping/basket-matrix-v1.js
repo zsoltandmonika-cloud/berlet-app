@@ -4,7 +4,7 @@
 (function(w,d){'use strict';
 const FAMILY='zsolt-monika',LIST='hh_shopping_list_v1',LINKS='hh_shopping_merchant_links_v1',TESCO='hh_shopping_tesco_bridge_v1';
 const reg=w.SHOP_STORE_REGISTRY_V1,cache=w.SHOP_LOCAL_FIRST_V1,search=w.SHOP_MERCHANT_SEARCH_V1,$=id=>d.getElementById(id);
-let shops=reg?.current().filter(s=>s.enabled)||[],items=[],links=[],tesco=[],authenticated=false,userId='',source='loading',lastCache='',prepared=false,visible=50;
+let shops=reg?.current().filter(s=>s.enabled)||[],items=[],links=[],tesco=[],authenticated=false,userId='',source='loading',lastCache='',visible=50;
 let merchantIndex=new Map(),tescoIndex=new Map();
 function indexLinks(){
  merchantIndex=new Map(links.map(x=>[x.store_key+':'+x.source+':'+x.item_key,x.product_url]));
@@ -33,8 +33,7 @@ function counters(){
  $('productsCount').textContent=items.length;
  $('storesCount').textContent=shops.length;
  $('routesCount').textContent=routes();
- $('runMatch').disabled=!authenticated||!items.length||!shops.length;
- if(prepared)render();
+ render();
 }
 async function getClient(){
  const cfg=w.HH_CENTRAL_VAULT;
@@ -103,11 +102,10 @@ async function refresh(){
  }
 }
 function render(){
- if(!prepared)return;
  const box=$('results');box.replaceChildren();
  let allPairs=0,knownPairs=0;
  for(const item of items){for(const shop of eligible(item)){allPairs++;if(saved(item,shop))knownPairs++}}
- $('matchSummary').textContent=items.length+' termék × '+shops.length+' aktív áruház = '+allPairs+' lehetséges keresés. '+knownPairs+' családilag mentett terméklink (ellenőrizendő). A kategória nem zár ki boltot. Találat nélküli boltot csak ellenőrzött 0 találat alapján lehet automatikusan elrejteni; élő bolti találati adat még nincs bekötve.';
+ $('matchSummary').textContent=source==='loading'&&!items.length?'A közös bevásárlólista betöltése…':items.length+' termék × '+shops.length+' aktív áruház = '+allPairs+' lehetséges keresés. '+knownPairs+' családilag mentett terméklink (ellenőrizendő). A kategória nem zár ki boltot. Találat nélküli boltot csak ellenőrzött 0 találat alapján lehet automatikusan elrejteni; élő bolti találati adat még nincs bekötve.';
  for(const item of items.slice(0,visible)){
   const active=eligible(item),known=active.filter(shop=>saved(item,shop)).length;
   const detail=node('details','product'),summary=node('summary'),heading=node('span');
@@ -139,6 +137,7 @@ function render(){
  }
  if(items.length>visible){const more=node('button','more','＋ További '+Math.min(50,items.length-visible)+' termék');more.type='button';more.onclick=()=>{visible+=50;render()};box.append(more)}
 }
-$('runMatch').addEventListener('click',()=>{prepared=true;visible=50;render()});
+// The matrix is the result screen; opening it is already the user action.
+// No redundant second prepare click, and no extra network request.
 void refresh();
 })(window,document);
