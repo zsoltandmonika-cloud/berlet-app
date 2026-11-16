@@ -73,13 +73,16 @@ class Node{
 }
 test('Browser simulation: renders actual OneDrive files on HD shelves, cover ready and one-click open',()=>{
  const ids=['bshelfRows','bshelfSettingsToggle','bshelfFront','bsAdminView','bshelfSettingsMenu',
-  'bshelfSearchToggle','bshelfSearchBox','bshelfSearch','bshelfEmpty','bshelfStatus','bshelfCount',
+  'bshelfSearchToggle','bshelfSortToggle','bshelfSortMenu','bshelfSortTitle','bshelfSortTitleDesc',
+  'bshelfSortAuthor','bshelfSortFavorites','bshelfSortReading','bshelfSortManual',
+  'bshelfSearchBox','bshelfSearch','bshelfEmpty','bshelfStatus','bshelfCount',
   'bshelfAdminTitle','bshelfMenuOneDrive','bshelfMenuManage','bshelfMenuCovers','bshelfMenuUploads',
   'bshelfManagePanel','bshelfManageCount','bshelfManageList','bshelfManageFilter',
   'bshelfSearchClear','bshelfConnectAction','bshelfAdminBack','bookStudioSettings',
   'onedriveBooks','library','profileSwitch'];
  const nodes=new Map(ids.map(x=>[x,new Node('div')]));
  nodes.get('bshelfSettingsMenu').hidden=true;
+ nodes.get('bshelfSortMenu').hidden=true;
  nodes.get('bshelfSearchBox').hidden=true;
  nodes.get('bsAdminView').hidden=true;
  nodes.get('bshelfEmpty').hidden=true;
@@ -112,7 +115,8 @@ test('Browser simulation: renders actual OneDrive files on HD shelves, cover rea
  assert.equal(rows.length,4,'Four wood shelf rows even if two are partially empty');
  assert.equal(rows[0].children.length,4);
  assert.equal(rows[1].children.length,1);
- const book=rows[0].children[2];
+ const book=rows.flatMap(row=>row.children).find(book=>book.title.startsWith('Tüskevár'));
+ assert.ok(book,'Tüskevár should be present on alphabetical shelf');
  assert.equal(book.getAttribute('aria-label'),'Olvasás: Tüskevár, Fekete István');
  book.dispatch('click');
  assert.deepEqual(opened,['od_2']);
