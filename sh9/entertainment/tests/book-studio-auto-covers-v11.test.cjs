@@ -12,7 +12,7 @@ test('Automatic authentic book covers are ON by default, including V11 one-time 
  assert.match(js,/store\(w\.localStorage,AUTO_COVER_KEY,'on'\)/);
  assert.match(js,/scheduleAutomaticCovers\(\)/);
  assert.match(js,/w\.setTimeout\(\(\)=>void prepareCovers\(true\),700\)/);
- assert.match(html,/onedrive-books-v2\.js\?v=11-auto-authentic-covers/);
+ assert.match(html,/onedrive-books-v2\.js\?v=(11-auto-authentic-covers|13-library-manager)/);
 });
 test('V11 first shows locally cached covers, fetches portrait OneDrive thumbnails, falls back to EPUB/PDF extraction',()=>{
  assert.match(js,/if\(ready\)for\(const book of source\)/);
