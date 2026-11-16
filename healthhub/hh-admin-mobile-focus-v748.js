@@ -46,6 +46,7 @@ function style(){
  css.push('@media(max-width:350px){#'+ID+' .hhQuickDirectV748{grid-template-columns:minmax(0,1fr)}#'+ID+' .hhQuickDirectV748 button{min-height:60px}}');
  css.push('@media(min-width:720px){#'+ID+' .hhQuickDirectV748{grid-template-columns:repeat(3,minmax(0,1fr))}}');
  css.push('#'+ID+' #hhUsageOpenV870{display:block;width:100%;margin-top:12px;min-height:56px;padding:13px 16px;background:linear-gradient(115deg,#073452,#173656,#34265c);border:1px solid #43abed;box-shadow:inset 0 1px #ffffff22,0 6px 18px #082a4b66;color:#f5fbff;font-weight:850;font-size:14px}');
+ css.push('#'+ID+' #hhLocalStorageOpenV1{display:block;width:100%;margin-top:9px;min-height:54px;padding:13px 16px;background:linear-gradient(115deg,#3d354f,#2a3d61,#103d55);border:1px solid #e6c58c;color:#fff9e8;font-weight:850;font-size:14px;box-shadow:0 6px 18px #081f3e61}');
  css.push('#'+ID+' .hhQuickHelpV748{color:#f3c5ed;margin:9px 0 0!important;font:650 13px/1.5 system-ui!important}');
   css.push('#'+ID+' .hhRegistryActionV809{margin:11px 0;padding:11px;border-radius:12px;border:1px solid #e7a8db;background:#432a4b;color:#fff;display:flex;gap:9px;align-items:center;flex-wrap:wrap}');
   css.push('#'+ID+' .hhRegistryActionV809 span{flex:1;min-width:130px;font-size:12px;font-weight:700}');
@@ -275,6 +276,13 @@ function mount(){
   usage.type='button';usage.id='hhUsageOpenV870';
   usage.addEventListener('click',()=>w.location.assign(new URL('./usage-control/index.html',w.location.href).href));
   panel.appendChild(usage);
+  // V1: explicitly opened, read-only SAME-BROWSER storage monitor.
+  // No background scan, no automatic deletion, no cloud requests.
+  const storageMonitor=el('button','', '📱 Local Storage Monitor · Telefonos tárhely');
+  storageMonitor.type='button';storageMonitor.id='hhLocalStorageOpenV1';
+  storageMonitor.addEventListener('click',()=>w.location.assign(
+   new URL('../sh9/local-storage/',w.location.href).href));
+  panel.appendChild(storageMonitor);
   const fast=el('div','hhRegistryActionV809');fast.id='hhAdminRegistryFastV809';
    const fastText=el('span');fastText.id='hhAdminRegistryTextV809';fast.appendChild(fastText);
    const fastBtn=el('button','', '📱 Telefon kijelölése · Eszközregiszter');
