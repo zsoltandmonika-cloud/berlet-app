@@ -1,0 +1,197 @@
+/* Book Studio Golden V19 · iBooks-inspired page curling.
+ * Lightweight CSS 3D sheet, pencil-thin fold highlight, depth shadow.
+ * Actual EPUB.js / PDF.js remains the ONLY source of book content.
+ * No iframe cloning, no network animation libraries, no text capture.
+ */
+.bshelf-v10-page .reader .reader-content{
+  isolation:isolate;
+  perspective:1450px;
+}
+.bshelf-v10-page .reader .reader-page-curl{
+  position:absolute;
+  inset:3px;
+  z-index:35;
+  overflow:hidden;
+  pointer-events:none!important;
+  isolation:isolate;
+  perspective:1450px;
+  opacity:0;
+  transform:translateZ(0);
+  contain:paint;
+  --curl-paper:#efe2c9;
+  --curl-edge:#bea68c;
+  --curl-shadow:rgba(25,15,7,.38);
+}
+.bshelf-v10-page .reader[data-theme="light"] .reader-page-curl{
+  --curl-paper:#fffdf8;
+  --curl-edge:#bbb0a3;
+  --curl-shadow:rgba(23,25,36,.25);
+}
+.bshelf-v10-page .reader[data-theme="dark"] .reader-page-curl{
+  --curl-paper:#354254;
+  --curl-edge:#607080;
+  --curl-shadow:rgba(0,0,0,.55);
+}
+.bshelf-v10-page .reader .reader-page-curl[hidden]{display:none!important}
+.bshelf-v10-page .reader .reader-page-curl-sheet{
+  position:absolute;
+  inset:0 auto 0 42%;
+  width:58%;
+  height:100%;
+  box-sizing:border-box;
+  transform-origin:0% 50%;
+  transform-style:preserve-3d;
+  backface-visibility:visible;
+  border-radius:0 8px 8px 0;
+  opacity:0;
+  will-change:transform,opacity;
+  background:
+    linear-gradient(99deg,rgba(0,0,0,.14),rgba(255,255,255,.26) 10%,
+        transparent 26%,transparent 70%,rgba(255,255,255,.17) 87%,rgba(0,0,0,.09)),
+    repeating-linear-gradient(0deg,transparent 0px,transparent 3px,rgba(110,78,44,.018) 4px),
+    var(--curl-paper);
+  box-shadow:-14px 0 23px -15px var(--curl-shadow),
+    5px 0 15px -9px var(--curl-shadow);
+  border-left:1px solid var(--curl-edge);
+}
+.bshelf-v10-page .reader .reader-page-curl-sheet::before{
+  content:"";
+  position:absolute;
+  inset:0 auto 0 0;
+  width:27%;
+  background:linear-gradient(90deg,
+    var(--curl-shadow),rgba(255,255,255,.17) 20%,transparent 78%);
+  opacity:.8;
+}
+.bshelf-v10-page .reader .reader-page-curl-sheet::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  border-radius:inherit;
+  background:linear-gradient(100deg,transparent 65%,rgba(255,255,255,.24) 90%,transparent);
+  mix-blend-mode:screen;
+  opacity:.42;
+}
+.bshelf-v10-page .reader .reader-page-curl-shadow{
+  position:absolute;
+  inset:0;
+  opacity:0;
+  transform:translate3d(52%,0,0);
+  will-change:opacity,transform;
+  background:linear-gradient(90deg,
+   transparent 0%,transparent 36%,var(--curl-shadow) 51%,transparent 67%);
+}
+.bshelf-v10-page .reader .reader-page-curl-edge{
+  position:absolute;
+  inset:0 auto 0 85%;
+  width:7px;
+  opacity:0;
+  transform:translate3d(0,0,0);
+  will-change:transform,opacity;
+  background:linear-gradient(90deg,
+    transparent,rgba(255,255,255,.54) 37%,rgba(96,64,39,.22) 80%,transparent);
+  filter:blur(1px);
+}
+.bshelf-v10-page .reader.curl-active .reader-page-curl{opacity:1}
+.bshelf-v10-page .reader.curl-next .reader-page-curl-sheet{
+  animation:bs-curl-forward .46s cubic-bezier(.25,.74,.20,1) both;
+}
+.bshelf-v10-page .reader.curl-prev .reader-page-curl-sheet{
+  inset:0 42% 0 0;
+  transform-origin:100% 50%;
+  border-radius:8px 0 0 8px;
+  border-left:0;
+  border-right:1px solid var(--curl-edge);
+  animation:bs-curl-backward .46s cubic-bezier(.25,.74,.20,1) both;
+}
+.bshelf-v10-page .reader.curl-next .reader-page-curl-shadow{
+  animation:bs-curl-shadow-forward .46s ease-out both;
+}
+.bshelf-v10-page .reader.curl-prev .reader-page-curl-shadow{
+  animation:bs-curl-shadow-backward .46s ease-out both;
+}
+.bshelf-v10-page .reader.curl-next .reader-page-curl-edge{
+  animation:bs-curl-edge-forward .46s ease-out both;
+}
+.bshelf-v10-page .reader.curl-prev .reader-page-curl-edge{
+  animation:bs-curl-edge-backward .46s ease-out both;
+}
+/* The previous whole-page wobble from V4 would fight a curved sheet.
+ * Disable it only for the new page-curl state. */
+.bshelf-v10-page .reader.curl-active.turn-forward #epubStage,
+.bshelf-v10-page .reader.curl-active.turn-backward #epubStage,
+.bshelf-v10-page .reader.curl-active.turn-forward #pdfStage,
+.bshelf-v10-page .reader.curl-active.turn-backward #pdfStage{
+  animation:none!important;
+}
+@keyframes bs-curl-forward{
+  0%{opacity:0;transform:translate3d(0,0,0) rotateY(-5deg) scaleX(1)}
+  15%{opacity:.49;transform:translate3d(-1%,0,0) rotateY(-22deg) scaleX(1)}
+  48%{opacity:.88;transform:translate3d(-17%,0,0) rotateY(-79deg) scaleX(.98)}
+  77%{opacity:.48;transform:translate3d(-34%,0,0) rotateY(-139deg) scaleX(.98)}
+  100%{opacity:0;transform:translate3d(-52%,0,0) rotateY(-169deg) scaleX(.96)}
+}
+@keyframes bs-curl-backward{
+  0%{opacity:0;transform:translate3d(0,0,0) rotateY(5deg) scaleX(1)}
+  15%{opacity:.49;transform:translate3d(1%,0,0) rotateY(22deg) scaleX(1)}
+  48%{opacity:.88;transform:translate3d(17%,0,0) rotateY(79deg) scaleX(.98)}
+  77%{opacity:.48;transform:translate3d(34%,0,0) rotateY(139deg) scaleX(.98)}
+  100%{opacity:0;transform:translate3d(52%,0,0) rotateY(169deg) scaleX(.96)}
+}
+@keyframes bs-curl-shadow-forward{
+  0%{opacity:0;transform:translateX(36%)}
+  35%{opacity:.30;transform:translateX(12%)}
+  59%{opacity:.75;transform:translateX(-11%)}
+  100%{opacity:0;transform:translateX(-54%)}
+}
+@keyframes bs-curl-shadow-backward{
+  0%{opacity:0;transform:translateX(-36%)}
+  35%{opacity:.30;transform:translateX(-12%)}
+  59%{opacity:.75;transform:translateX(11%)}
+  100%{opacity:0;transform:translateX(54%)}
+}
+@keyframes bs-curl-edge-forward{
+  0%{opacity:0;transform:translateX(0)}
+  38%{opacity:.7;transform:translateX(-22vw)}
+  70%{opacity:.65;transform:translateX(-48vw)}
+  100%{opacity:0;transform:translateX(-65vw)}
+}
+@keyframes bs-curl-edge-backward{
+  0%{opacity:0;transform:translateX(-68vw)}
+  38%{opacity:.7;transform:translateX(-45vw)}
+  70%{opacity:.65;transform:translateX(-22vw)}
+  100%{opacity:0;transform:translateX(0)}
+}
+/* While swiping, a tiny paper edge follows the finger. The main page stays
+ * fully readable until the user actually commits the swipe. */
+.bshelf-v10-page .reader.curl-peek .reader-page-curl{opacity:1}
+.bshelf-v10-page .reader.curl-peek .reader-page-curl-sheet{
+  opacity:var(--curl-peek-opacity,.23);
+  transform:translate3d(var(--curl-peek-slide,0px),0,0)
+     rotateY(var(--curl-peek-angle,-16deg));
+  animation:none!important;
+}
+.bshelf-v10-page .reader.curl-peek-prev .reader-page-curl-sheet{
+  inset:0 42% 0 0;
+  transform-origin:100% 50%;
+  border-radius:8px 0 0 8px;
+}
+.bshelf-v10-page .reader.curl-peek .reader-page-curl-shadow{
+  opacity:calc(var(--curl-peek-ratio,0) * .32);
+  transform:translate3d(var(--curl-peek-slide,0px),0,0);
+}
+.bshelf-v10-page .reader.curl-peek .reader-page-curl-edge{opacity:0}
+@media(max-width:700px){
+ .bshelf-v10-page .reader .reader-page-curl{inset:3px 3px 2px}
+ .bshelf-v10-page .reader .reader-page-curl-sheet{border-radius:0 5px 5px 0}
+}
+@media(prefers-reduced-motion:reduce){
+ .bshelf-v10-page .reader .reader-page-curl,
+ .bshelf-v10-page .reader.curl-active .reader-page-curl{
+  display:none!important;
+ }
+ .bshelf-v10-page .reader .reader-page-curl *{
+  animation:none!important;
+  transition:none!important;
+ }
+}

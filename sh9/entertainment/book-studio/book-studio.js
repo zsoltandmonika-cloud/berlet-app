@@ -11,7 +11,7 @@ const PALETTE=[['#162f6b','#7756a5'],['#56254d','#b85b63'],['#114e58','#3484a7']
 let api=null,books=[],busy=false,favoritesOnly=false,loadedProfile='',readerVersion=0;
 let current=null,currentLocation='',epubBook=null,rendition=null,pdfDoc=null,pdfPage=1,pdfTask=null,pdfVersion=0,fontSize=100;
 let saveTimer=0,writeQueue=Promise.resolve(),openCoverUrls=new Map(),refreshToken=0,toastTimer=0;
-let epubLocsReady=false,pageChanging=false,turnTimer=0;
+let epubLocsReady=false,pageChanging=false,turnTimer=0,curlEpoch=0;
 const SOUND_KEY='sh9-book-page-sound-v4';let pageAudio=null;
 const profile=()=>{try{return w.localStorage.getItem('hh-profile')==='m'?'monika':'zsolt'}catch(_){return'zsolt'}};
 const short=p=>p==='monika'?'m':'z';
@@ -272,7 +272,7 @@ function playPageTurnSound(){
   const AudioContext=w.AudioContext||w.webkitAudioContext;
   if(!AudioContext)return;
   if(!pageAudio)pageAudio=new AudioContext();
-  if(pageAudio.state==='suspended'){void pageAudio.resume();return}
+  if(pageAudio.state==='suspended')void pageAudio.resume().catch(()=>{});
   const t=pageAudio.currentTime,duration=.145,rate=pageAudio.sampleRate;
   const samples=Math.ceil(rate*duration),buffer=pageAudio.createBuffer(1,samples,rate),channel=buffer.getChannelData(0);
   for(let i=0;i<samples;i++){
@@ -287,6 +287,46 @@ function playPageTurnSound(){
   src.connect(filter);filter.connect(volume);volume.connect(pageAudio.destination);
   src.start(t);src.stop(t+duration+.005);
  }catch(_){/* Sound is optional: no audio fault can interrupt paging. */}
+}
+// V19: EPUB.js/PDF.js remains the only source of page content.
+// The page-curl overlay is cosmetic and never copies or stretches the text.
+const CURL_DURATION=460,CURL_PREPARE=125;
+const reducedCurl=()=>!!w.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
+const waitCurl=ms=>new Promise(resolve=>w.setTimeout(resolve,ms));
+function resetCurl(){
+ const r=$('reader'),layer=$('readerPageCurl');
+ if(r)r.classList.remove('curl-active','curl-next','curl-prev','curl-peek','curl-peek-next','curl-peek-prev');
+ if(layer){
+  layer.hidden=true;
+  for(const key of ['--curl-peek-opacity','--curl-peek-ratio','--curl-peek-slide','--curl-peek-angle'])
+   layer.style.removeProperty(key);
+ }
+}
+function beginCurl(step){
+ const r=$('reader'),layer=$('readerPageCurl');
+ if(reducedCurl()||!r||r.hidden||!layer)return false;
+ r.classList.remove('curl-active','curl-next','curl-prev','curl-peek','curl-peek-next','curl-peek-prev');
+ layer.hidden=false;
+ void layer.offsetWidth;
+ r.classList.add('curl-active',step>0?'curl-next':'curl-prev');
+ return true;
+}
+function previewCurl(dx,width){
+ const r=$('reader'),layer=$('readerPageCurl');
+ if(reducedCurl()||pageChanging||!current||!layer||!r||r.hidden)return;
+ const strength=Math.min(.78,Math.max(0,Math.abs(dx)/Math.max(160,width)));
+ if(strength<.075){if(r.classList.contains('curl-peek'))resetCurl();return}
+ const forward=dx<0;
+ if(!r.classList.contains('curl-peek')||
+   r.classList.contains('curl-peek-next')!==forward){
+  r.classList.remove('curl-next','curl-prev','curl-active','curl-peek-next','curl-peek-prev');
+  r.classList.add('curl-peek',forward?'curl-peek-next':'curl-peek-prev');
+ }
+ layer.hidden=false;
+ layer.style.setProperty('--curl-peek-ratio',String(strength));
+ layer.style.setProperty('--curl-peek-opacity',String(.13+strength*.47));
+ layer.style.setProperty('--curl-peek-slide',(forward?-strength*35:strength*35).toFixed(1)+'px');
+ layer.style.setProperty('--curl-peek-angle',(forward?-15-strength*69:15+strength*69).toFixed(1)+'deg');
 }
 function applyTheme(){
  const theme=current?.theme||'dark';$('reader').dataset.theme=theme;
@@ -396,24 +436,62 @@ async function renderPDF(){
  }catch(e){if(e?.name!=='RenderingCancelledException')toast('PDF-megjelenítési hiba: '+e.message)}
 }
 async function pageMove(step){
- if(pageChanging||!current)return;
- pageChanging=true;const r=$('reader');
+ if(pageChanging||!current||(!rendition&&!pdfDoc))return;
+ // Do not animate an impossible PDF page beyond the first/last page.
+ if(pdfDoc&&(pdfPage+step<1||pdfPage+step>pdfDoc.numPages))return;
+ pageChanging=true;
+ const token=++curlEpoch,version=readerVersion,r=$('reader');
+ const started=Date.now();
+ const curl=beginCurl(step);
  playPageTurnSound();
- r.classList.remove('turn-forward','turn-backward');void r.offsetWidth;
+ r.classList.remove('turn-forward','turn-backward');
  r.classList.add(step>0?'turn-forward':'turn-backward');
- clearTimeout(turnTimer);turnTimer=w.setTimeout(()=>r.classList.remove('turn-forward','turn-backward'),370);
  try{
-  if(rendition){await (step<0?rendition.prev():rendition.next());return}
-  if(pdfDoc){pdfPage=Math.max(1,Math.min(pdfDoc.numPages,pdfPage+step));await renderPDF()}
- }catch(e){toast('Lapozási hiba: '+e.message)}finally{pageChanging=false}
+  // Unfold the corner before revealing EPUB.js / PDF.js's real next page.
+  if(curl)await waitCurl(CURL_PREPARE);
+  if(token!==curlEpoch||version!==readerVersion)return;
+  if(rendition)await (step<0?rendition.prev():rendition.next());
+  else if(pdfDoc){pdfPage+=step;await renderPDF()}
+  if(curl&&token===curlEpoch&&version===readerVersion){
+   const remaining=CURL_DURATION-(Date.now()-started);
+   if(remaining>0)await waitCurl(remaining);
+  }
+ }catch(e){
+  if(token===curlEpoch&&version===readerVersion)toast('Lapozási hiba: '+e.message);
+ }finally{
+  if(token===curlEpoch){
+   resetCurl();
+   r.classList.remove('turn-forward','turn-backward');
+   pageChanging=false;
+  }
+ }
 }
 function bindChapterGestures(doc){
  if(!doc||doc.documentElement?.dataset?.shoSwipeBound)return;
- doc.documentElement.dataset.shoSwipeBound='1';let x=null,y=null,at=0;
- doc.addEventListener('touchstart',e=>{if(e.touches.length!==1)return;x=e.touches[0].clientX;y=e.touches[0].clientY;at=Date.now()},{passive:true});
- doc.addEventListener('touchend',e=>{if(x===null||e.changedTouches.length!==1)return;
-  const dx=e.changedTouches[0].clientX-x,dy=e.changedTouches[0].clientY-y;x=null;
-  if(Date.now()-at<850&&Math.abs(dx)>55&&Math.abs(dy)<75)void pageMove(dx<0?1:-1)
+ doc.documentElement.dataset.shoSwipeBound='1';
+ let x=null,y=null,at=0;
+ doc.addEventListener('touchstart',e=>{
+  if(!current||pageChanging||e.touches.length!==1)return;
+  x=e.touches[0].clientX;y=e.touches[0].clientY;at=Date.now();
+ },{passive:true});
+ doc.addEventListener('touchmove',e=>{
+  if(x===null||e.touches.length!==1)return;
+  const dx=e.touches[0].clientX-x,dy=e.touches[0].clientY-y;
+  if(Math.abs(dx)>15&&Math.abs(dx)>Math.abs(dy)*1.35)
+   previewCurl(dx,doc.documentElement?.clientWidth||w.innerWidth||400);
+  else if(Math.abs(dy)>25&&$('reader').classList.contains('curl-peek'))resetCurl();
+ },{passive:true});
+ doc.addEventListener('touchend',e=>{
+  if(x===null||e.changedTouches.length!==1)return;
+  const dx=e.changedTouches[0].clientX-x,dy=e.changedTouches[0].clientY-y;
+  x=null;y=null;
+  if($('reader').classList.contains('curl-peek'))resetCurl();
+  if(Date.now()-at<850&&Math.abs(dx)>55&&Math.abs(dy)<75)
+   void pageMove(dx<0?1:-1);
+ },{passive:true});
+ doc.addEventListener('touchcancel',()=>{
+  x=null;y=null;
+  if($('reader').classList.contains('curl-peek'))resetCurl();
  },{passive:true});
  doc.addEventListener('click',e=>{
   if(!rendition||!current||e.target?.closest?.('a,button,input,select,textarea,[contenteditable]'))return;
@@ -430,6 +508,7 @@ async function jumpTo(locator){
  }catch(e){toast('A könyvjelző nem nyitható meg: '+e.message)}
 }
 async function closeReader(){
+ ++curlEpoch;resetCurl();
  if(!current){$('reader').hidden=true;d.body.style.overflow='';return}
  ++readerVersion;
  clearTimeout(saveTimer);await queueSave();
@@ -491,11 +570,27 @@ $('readerScrub').addEventListener('change',async()=>{
  }catch(e){toast('Ugrási hiba: '+e.message)}
 });
 let touchX=null,touchY=null;
-$('readerContent').addEventListener('touchstart',e=>{if(!current||e.touches.length!==1)return;touchX=e.touches[0].clientX;touchY=e.touches[0].clientY},{passive:true});
+$('readerContent').addEventListener('touchstart',e=>{
+ if(!current||pageChanging||e.touches.length!==1)return;
+ touchX=e.touches[0].clientX;touchY=e.touches[0].clientY;
+},{passive:true});
+$('readerContent').addEventListener('touchmove',e=>{
+ if(touchX===null||e.touches.length!==1)return;
+ const dx=e.touches[0].clientX-touchX,dy=e.touches[0].clientY-touchY;
+ if(Math.abs(dx)>15&&Math.abs(dx)>Math.abs(dy)*1.35)
+  previewCurl(dx,$('readerContent').clientWidth||w.innerWidth||400);
+ else if(Math.abs(dy)>25&&$('reader').classList.contains('curl-peek'))resetCurl();
+},{passive:true});
 $('readerContent').addEventListener('touchend',e=>{
  if(!current||touchX===null||e.changedTouches.length!==1)return;
- const dx=e.changedTouches[0].clientX-touchX,dy=e.changedTouches[0].clientY-touchY;touchX=null;
+ const dx=e.changedTouches[0].clientX-touchX,dy=e.changedTouches[0].clientY-touchY;
+ touchX=null;touchY=null;
+ if($('reader').classList.contains('curl-peek'))resetCurl();
  if(Math.abs(dx)>55&&Math.abs(dy)<65)void pageMove(dx<0?1:-1);
+},{passive:true});
+$('readerContent').addEventListener('touchcancel',()=>{
+ touchX=null;touchY=null;
+ if($('reader').classList.contains('curl-peek'))resetCurl();
 },{passive:true});
 d.addEventListener('keydown',e=>{
  if($('reader').hidden||e.target?.matches('input,textarea,select'))return;
