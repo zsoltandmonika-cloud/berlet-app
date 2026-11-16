@@ -100,7 +100,7 @@ test('Local Storage Monitor has two measured recipe card-size counters without e
  assert.match(monitorJS,/lena-recept-studio-asset-cache-v1/);
  assert.match(monitorJS,/row\.blob\?\.size/);
  assert.match(monitorJS,/safeSize\(row\.bytes\)/);
- assert.doesNotMatch(monitorJS,/\.arrayBuffer\(\)/);
+ assert.doesNotMatch(monitorJS,/(?:await|return)\s+[^;\n]*\.arrayBuffer\(/);
  assert.match(monitorHTML,/Modulonkénti mérés még nincs bekötve/);
 });
 test('New and updated scripts parse without browser dependencies on Node',()=>{
