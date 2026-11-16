@@ -1,5 +1,6 @@
-/* SHO all-store full basket matrix v1 · source-backed family list, category-aware search routes.
-   No live merchant prices, no automatic order placement, no cross-store SKU inference. */
+/* SHO all-store Full Basket Match v2 · ALL active merchants for EVERY list item.
+   Categories are informational, never a search exclusion. Routes != verified merchant hits.
+   No live merchant price, result-count API, automatic order, or guessed SKU. */
 (function(w,d){'use strict';
 const FAMILY='zsolt-monika',LIST='hh_shopping_list_v1',LINKS='hh_shopping_merchant_links_v1',TESCO='hh_shopping_tesco_bridge_v1';
 const reg=w.SHOP_STORE_REGISTRY_V1,cache=w.SHOP_LOCAL_FIRST_V1,search=w.SHOP_MERCHANT_SEARCH_V1,$=id=>d.getElementById(id);
@@ -11,9 +12,10 @@ function indexLinks(){
 }
 function node(tag,cls,value){const n=d.createElement(tag);if(cls)n.className=cls;if(value!==undefined)n.textContent=String(value);return n}
 function msg(s){$('syncStatus').textContent=s}
-const cats={'Drogéria':'Drogéria & Szépség','Háztartás':'Otthon & Háztartás','Otthon és háztartás':'Otthon & Háztartás','Italok':'Élelmiszer','Kisállat':'Otthon & Háztartás','Divat':'Divat & Stílus'};
-function category(item){const value=String(item.category||'').trim();return cats[value]||value}
-function eligible(item){const c=category(item);return shops.filter(s=>!c||!reg.CATS.includes(c)||s.cats.includes(c))}
+// A merchant can sell items from outside its primary catalog category.
+ // Without verified per-shop search results, a category must NEVER hide a merchant.
+ // The only filter here is the user's explicit enabled/disabled store setting.
+function eligible(item){return shops}
 function exact(link,shop){
  if(!link)return '';
  try{const url=new URL(String(link));
@@ -105,17 +107,17 @@ function render(){
  const box=$('results');box.replaceChildren();
  let allPairs=0,knownPairs=0;
  for(const item of items){for(const shop of eligible(item)){allPairs++;if(saved(item,shop))knownPairs++}}
- $('matchSummary').textContent=items.length+' termék · '+allPairs+' áruházi keresési útvonal · '+knownPairs+' családilag mentett terméklink (egyezést ellenőrizni kell) · '+(allPairs-knownPairs)+' keresésre vár. Sem az ár, sem a készlet nincs hitelesítve.';
+ $('matchSummary').textContent=items.length+' termék × '+shops.length+' aktív áruház = '+allPairs+' lehetséges keresés. '+knownPairs+' családilag mentett terméklink (ellenőrizendő). A kategória nem zár ki boltot. Találat nélküli boltot csak ellenőrzött 0 találat alapján lehet automatikusan elrejteni; élő bolti találati adat még nincs bekötve.';
  for(const item of items.slice(0,visible)){
   const active=eligible(item),known=active.filter(shop=>saved(item,shop)).length;
   const detail=node('details','product'),summary=node('summary'),heading=node('span');
-  heading.append(node('strong',null,item.name),node('small',null,(item.quantity||1)+' '+(item.unit||'db')+' · '+active.length+' releváns áruház'));
+  heading.append(node('strong',null,item.name),node('small',null,(item.quantity||1)+' '+(item.unit||'db')+' · '+active.length+' aktív áruház · keresésre vár'));
   summary.append(heading,node('b',null,known+' mentett'));
   detail.append(summary);
   const list=node('div','shops');
   for(const shop of active){
    const row=node('div','shop'),label=node('div');
-   label.append(node('strong',null,shop.name),node('small',null,search.native(shop.key)?'Hivatalos bolti találatok':'Bolt domainjére szűrt webkeresés'));
+   label.append(node('strong',null,shop.name),node('small',null,search.native(shop.key)?'Bolti keresés · találatok még nem ellenőrzöttek':'Webkeresés · találatok még nem ellenőrzöttek'));
    // Make the entire retailer surface a real, keyboard-accessible link.
    // The saved SKU shortcut remains a separate sibling link, never a nested anchor.
    const action=node('a','shop-main');
