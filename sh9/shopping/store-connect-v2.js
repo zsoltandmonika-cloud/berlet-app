@@ -38,8 +38,9 @@ function storesFor(category){
 function storeLogo(shop){
  const logo=make("span","sho-store-logo");
  const img=document.createElement("img");
- img.src="https://www.google.com/s2/favicons?domain="+encodeURIComponent(shop.domain)+"&sz=128";
- img.alt=shop.name+" arculati ikon";
+ const brand=window.SHOP_MERCHANT_BRAND_ICONS_V1?.byKey?.(shop.key||shop.name,shop.domain);
+ img.src=brand?.url||"https://www.google.com/s2/favicons?domain="+encodeURIComponent(shop.domain)+"&sz=128";
+ img.alt=brand?.label||shop.name+" arculati ikon";
  img.loading="lazy";img.referrerPolicy="no-referrer";
  img.addEventListener("error",()=>{logo.replaceChildren(make("strong",null,shop.name.slice(0,2)))});
  logo.append(img);
