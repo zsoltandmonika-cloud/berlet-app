@@ -106,3 +106,14 @@ QA forrás: `node --test sh9/entertainment/tests/book-studio-onedrive-v2.test.cj
 - Könyvborító kattintása a külön Book Studio olvasóba vezet és sikeres bejelentkezés után az adott könyvet próbálja megnyitni. A négy eredeti Entertainment fő kategória és meglévő kedvencek változatlanok.
 
 **QA:** `node --test sh9/entertainment/tests/book-studio-*.test.cjs` célzott regressziós ellenőrzés. A külön `SH9 · Edge Installable PWA QA` régebbi pipeline nem kapcsolódó legacy hibája nem bizonyít Book Studio-regressziót. Élő Samsung Internet/Chrome, 2 profil és az eredeti EPUB/PDF olvashatóság tesztje szükséges.
+
+
+## Golden V10 · #1 valódi, interaktív HD fa könyvespolc · 2026-11-16
+
+- **Alapértelmezett Book Studio főoldal:** az S24 Ultra teljes rendelkezésre álló szélességét kitöltő, meleg tölgyfa polcsorok, egységes arany címsor, jobb felső keresés és ⚙ beállítás. A fa hátlap az eredetileg jóváhagyott **első** könyvespolc-illusztráció üres polcrészéből lett kivágva, WebP-ben tömörítve; a demo/hamis könyvek **nincsenek benne**.
+- **Valódi könyvek:** a meglévő, OAuth-kal hitelesített és felderített OneDrive EBOOKS könyvtár **nem destruktívan deduplikált** elemeit jelenítjük meg, 4 borító/polc mobilon és 6/polc desktopon; a keresés magyar címre/szerzőre szűr. A kártya a valódi EPUB cover-image vagy PDF első oldalának már implementált IndexedDB borítóját jeleníti meg, ha elérhető, egyébként egyértelmű tipográfiai címlap. **Nem készítünk megtévesztő, kitalált könyvborítókat.**
+- **Egyetlen kattintás:** a könyvborító gomb közvetlenül a meglévő `SH9_BOOK_STUDIO_V1.openBook(id)` EPUB/PDF olvasót nyitja meg, az olvasási állapotot, könyvjelzőket és helyi könyvgyorsítótárat újrahasználva. Nem kell a régi OneDrive listás admin felületre átlépni.
+- **⚙ Admin menü:** OneDrive bejelentkezés/kapcsolat (`#bookStudioSettings`), borítók, címjavítás és duplikáció (`#onedriveBooks`), opcionálisan külön feltöltött Supabase-könyvek (`#library`), valamint Zsolt/Mónika profilváltás. A régi admin DOM és összes eredeti id megmaradt, de **alapból rejtve van**. A „Vissza a könyvespolcra” gomb visszahozza a full-screen polcot.
+- Kapcsolat hiányában könyvcímek nem jelennek meg előzetes auth nélkül; egyetlen beállítási gomb nyitja az admin nézetet, nincs hard-coded Microsoft token, fájltörlés, extra OneDrive másolás.
+- A fa polcsor háttere `assets/wood-shelf-v10.webp`, az éles CSS `book-studio-wood-shelf-v10.css`, a megjelenítő `book-studio-wood-shelf-v10.js`. A `onedrive-books-v2.js` csak minimális UI hookokkal szinkronizálja a már meglévő, hitelesített elemlistát és blob cover URL-ket.
+- Célzott QA: `node --test sh9/entertainment/tests/book-studio-wood-shelf-v10.test.cjs`. Élő S24 Ultra Samsung Internet teszt a felhasználó valódi Microsoft-fiókjával szükséges.

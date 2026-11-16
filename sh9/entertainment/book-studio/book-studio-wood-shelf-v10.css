@@ -1,0 +1,244 @@
+/* SHO Book Studio Golden V10 · handcrafted immersive wooden bookcase.
+ * Wood texture derived from the user's approved #1 bookshelf image, not fake
+ * shelf-cover art. All book faces are real user-sourced EPUB/PDF covers or
+ * honest typographic placeholders. One tap opens the existing actual reader.
+ */
+:root{--bshelf-gold:#f2c486;--bshelf-cream:#ffefdb;--bshelf-outline:#f5cc9280}
+html{scroll-behavior:smooth}
+body.bshelf-v10-page{margin:0;padding:0;background:#0e0908;color:var(--bshelf-cream);font-family:Inter,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;overflow-x:hidden}
+.bshelf-v10-page .shell{max-width:none!important;width:100%!important;margin:0!important;padding:0!important}
+.bshelf-v10-page main{margin:0;padding:0;max-width:none}
+.bshelf-v10-page [hidden]{display:none!important}
+.bshelf-v10-page .top.bshelf-appbar{
+ position:sticky;top:0;z-index:140;height:clamp(74px,13vw,108px);
+ width:100%;max-width:1100px;margin:0 auto;
+ display:flex;align-items:center;justify-content:space-between;gap:10px;
+ padding:8px clamp(13px,3vw,25px)!important;
+ background:linear-gradient(180deg,#16100cf7,#1a130def 75%,#17100bf4);
+ border-bottom:1px solid #d4a16976;
+ backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+ box-shadow:0 7px 28px #0009,inset 0 -1px #f5d3a83b;
+}
+.bshelf-appbar .bshelf-back{
+ display:grid;place-items:center;flex:0 0 38px;width:38px;height:46px;
+ font-size:36px;text-decoration:none;border:none;background:transparent;
+ color:#f4cb91;line-height:1;font-weight:300;text-shadow:0 2px 7px #0007;
+}
+.bshelf-appbar .bshelf-brand{display:flex;align-items:center;gap:9px;min-width:0;flex:1}
+.bshelf-appbar .bshelf-brand-mark{
+ display:grid;place-items:center;flex:0 0 42px;height:50px;width:42px;
+ font-size:30px;filter:drop-shadow(0 4px 6px #0009);color:#fbd5a0;
+}
+.bshelf-appbar .bshelf-brand strong{
+ display:block;font-family:Georgia,'Times New Roman',serif;
+ font-size:clamp(28px,6.6vw,52px);font-weight:700;line-height:1.0;
+ letter-spacing:-.8px;white-space:nowrap;color:#ffedce;
+ text-shadow:0 3px 16px #000e;
+}
+.bshelf-appbar .bshelf-brand strong em{
+ font-style:normal;background:linear-gradient(125deg,#fff2d4,#ffc079,#e4a15d);
+ background-clip:text;color:transparent;
+}
+.bshelf-appbar .bshelf-brand small{
+ display:block;letter-spacing:1.65px;font-size:clamp(8px,1.9vw,13px);
+ margin:4px 0 0;color:#f4d6ae;font-weight:700;white-space:nowrap;
+}
+.bshelf-appbar .bshelf-toolbar{position:relative;display:flex;align-items:center;gap:4px;flex-shrink:0}
+.bshelf-appbar .bshelf-toolbar>button{
+ width:45px;height:46px;border:1px solid transparent;border-radius:12px;
+ background:#ffffff05;color:#ffe0b3;font-size:29px;display:grid;
+ place-items:center;line-height:1;cursor:pointer;touch-action:manipulation;
+}
+.bshelf-appbar .bshelf-toolbar>button:hover,.bshelf-appbar .bshelf-toolbar>button[aria-expanded="true"]{
+ background:#c79c572a;border-color:#f2ca8877
+}
+.bshelf-appbar .bshelf-toolbar>button:focus-visible,.bshelf-appbar .bshelf-back:focus-visible{
+ outline:2px solid #fff1c1;outline-offset:2px
+}
+.bshelf-settings-menu{
+ position:absolute;top:calc(100% + 13px);right:1px;z-index:220;width:min(340px,calc(100vw - 25px));
+ background:linear-gradient(155deg,#352315f8,#17100cf9);
+ border:1px solid #f5c47ca6;border-radius:18px;
+ padding:11px;box-shadow:0 18px 44px #000d,0 0 26px #c589623d;
+ display:flex;flex-direction:column;gap:7px;
+ backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+}
+.bshelf-menu-title{color:#ffdfad;font-size:11px;letter-spacing:1.5px;font-weight:850;padding:8px 10px}
+.bshelf-settings-menu button{
+ width:100%;min-height:42px;text-align:left;border-radius:11px;
+ background:#efc28415;border:1px solid #edd4b246;color:#fff1e0;
+ padding:10px 13px;font-size:13px;font-weight:750;
+}
+.bshelf-settings-menu button:hover{background:#ffdc9f27}
+.bshelf-settings-menu .bshelf-menu-divider{border-top:1px solid #e8c9a34f;margin:5px 3px}
+.bshelf-settings-menu #cloudState{color:#e2d1b6;padding:5px 10px;font-size:11px;max-width:none}
+.bshelf-settings-menu #profileSwitch{border-color:#d5af8575;background:#59372ba6;color:#fff1db}
+.bshelf-front{width:100%;max-width:1100px;margin:0 auto;min-height:calc(100dvh - 82px);position:relative;background:#3a2215}
+.bshelf-wooden-frame{
+ min-height:calc(100dvh - 84px);
+ overflow:hidden;
+ background:linear-gradient(90deg,#1f0b05 0%,#8b5125 1.8%,#9a6033 2.6%,#af6f39 3.3%,#a56d3e 96.7%,#7b431c 98.7%,#1c0e08 100%);
+ border-left:clamp(4px,.8vw,10px) solid #633415;
+ border-right:clamp(4px,.8vw,10px) solid #522a10;
+ box-shadow:inset 13px 0 22px #0006,inset -13px 0 22px #0006,0 17px 46px #000c;
+}
+.bshelf-strip{
+ min-height:44px;
+ display:flex;justify-content:space-between;align-items:center;gap:12px;
+ padding:11px clamp(19px,3vw,36px) 8px;
+ background:linear-gradient(180deg,#1f130cd9,#422919b5 65%,#80542d85);
+ color:#ffe5bb;box-shadow:0 7px 18px #0004;
+}
+.bshelf-collection-name{font-size:10px;letter-spacing:1.7px;font-weight:900;line-height:1.25}
+.bshelf-count{font-size:11px;white-space:nowrap;font-weight:750;color:#fff1d9}
+.bshelf-search-panel{
+ display:flex;align-items:center;gap:8px;padding:11px 17px;
+ background:#27160edb;border-top:1px solid #dfb5823b;border-bottom:1px solid #efd3a25e;
+}
+.bshelf-search-panel input{
+ min-width:0;flex:1;min-height:44px;border-radius:10px;
+ background:#0e1017e8;border:1px solid #ffdeb170;color:#fff7ed;
+ padding:11px 14px;font-size:15px;outline:none;
+}
+.bshelf-search-panel input:focus{border-color:#fff1d8;box-shadow:0 0 0 2px #ffcf8966}
+.bshelf-search-panel #bshelfSearchClear{
+ width:38px;height:38px;border:1px solid #efd3a260;border-radius:9px;
+ background:#ffffff16;color:#ffe1c1;font-size:24px;
+}
+.bshelf-connection-status{
+ text-align:center;padding:7px 10px;background:#120c09ce;color:#f9dfb7;
+ font-size:11px;font-weight:650;letter-spacing:.2px;
+ min-height:27px;line-height:1.35;
+}
+.bshelf-connection-status[data-error="1"]{color:#ffe2af;background:#461e15}
+.bshelf-rows{min-height:calc(100dvh - 170px);padding:0}
+.bshelf-row{
+ display:grid;grid-template-columns:repeat(4,minmax(0,1fr));
+ gap:clamp(6px,1.65vw,16px);align-items:end;
+ box-sizing:border-box;
+ height:clamp(178px,46vw,265px);
+ padding:16px clamp(13px,3.3vw,36px) 27px;
+ background-image:url('./assets/wood-shelf-v10.webp');
+ background-size:100% 100%;background-position:center;
+ background-repeat:no-repeat;
+ position:relative;
+}
+.bshelf-row.empty-row{opacity:.88}
+.bshelf-book{
+ position:relative;min-width:0;align-self:end;
+ border:0;background:transparent;display:grid;place-items:end center;
+ padding:0;margin:0;cursor:pointer;touch-action:manipulation;
+ filter:drop-shadow(4px 7px 6px #0009);
+ transform-origin:center bottom;transition:transform .2s ease,filter .2s ease;
+}
+.bshelf-book:focus-visible{outline:2px solid #fff2c8;outline-offset:4px;border-radius:7px}
+.bshelf-book:active{transform:translateY(-5px) scale(1.03)}
+.bshelf-book:hover{transform:translateY(-6px);filter:drop-shadow(7px 10px 12px #000b)}
+.bshelf-book-face{
+ width:100%;aspect-ratio:.675;
+ max-height:calc(clamp(178px,46vw,265px) - 42px);
+ display:block;position:relative;overflow:hidden;
+ border-radius:3px 7px 5px 2px;border:1px solid #ffe1ba89;
+ background:linear-gradient(165deg,#d4ab9469,#ffffff06 30%,#080e2398 100%),
+ var(--bshelf-cover-tone,#393b61);
+ box-shadow:inset 5px 0 10px #0007,inset 0 1px #ffffff55,
+ 4px 4px 0 #100c1566,6px 6px 12px #000b;
+}
+.bshelf-book-face:before{
+ content:'';position:absolute;inset:0 auto 0 5px;width:3px;z-index:3;
+ border-left:1px solid #fff7da72;border-right:1px solid #0009;
+ pointer-events:none;
+}
+.bshelf-book-face img{
+ width:100%;height:100%;display:block;object-fit:cover;
+ position:absolute;inset:0;z-index:2;
+}
+.bshelf-book-face img[hidden]{display:none!important}
+.bshelf-title-fallback{
+ position:absolute;inset:7px 6px 12px;z-index:1;
+ display:flex;flex-direction:column;justify-content:center;align-items:center;
+ gap:9px;color:#fff6eb;text-shadow:0 2px 9px #000b;
+ overflow:hidden;text-align:center;pointer-events:none;
+}
+.bshelf-fallback-signet{font-family:Georgia,serif;font-size:19px;color:#ffebc2;opacity:.94}
+.bshelf-fallback-title{
+ font-family:Georgia,serif;
+ font-size:clamp(10px,2.5vw,19px);font-weight:750;line-height:1.18;
+ overflow-wrap:anywhere;hyphens:auto;
+ display:-webkit-box;-webkit-line-clamp:6;-webkit-box-orient:vertical;overflow:hidden;
+}
+.bshelf-fallback-author{
+ font-size:clamp(8px,1.6vw,12px);line-height:1.22;opacity:.85;
+ display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+}
+.bshelf-book-progress{
+ position:absolute;z-index:5;inset:auto 4px 2px 4px;height:3px;border-radius:5px;
+ background:#fff6dd4c;overflow:hidden;
+}
+.bshelf-book-progress>i{
+ display:block;height:100%;background:#f8bf68;box-shadow:0 0 9px #ffc566;
+}
+.bshelf-book-mark{
+ position:absolute;right:2px;top:-2px;z-index:5;
+ font-size:12px;color:#ffe1b0;text-shadow:0 3px 9px #000;pointer-events:none;
+}
+.bshelf-book[aria-disabled="true"]{opacity:.6;pointer-events:none}
+.bshelf-wooden-foot{
+ height:25px;background:linear-gradient(180deg,#e6b274,#854a22 40%,#44240f 88%,#1b0b05);
+ box-shadow:inset 0 2px #ffdea6a6,0 13px 22px #0009;
+}
+.bshelf-empty{
+ display:grid;place-items:center;gap:10px;text-align:center;
+ margin:12px 19px 17px;padding:25px 17px;
+ background:#1e130fcf;border:1px solid #e2b57d8c;border-radius:16px;
+ box-shadow:0 7px 19px #0008;
+}
+.bshelf-empty strong{font:700 18px Georgia,serif;color:#ffe4b6}
+.bshelf-empty span{font-size:13px;line-height:1.5;color:#f5dcc3}
+.bshelf-empty button{
+ margin-top:8px;padding:11px 17px;border:1px solid #f2c58e9c;
+ border-radius:12px;background:linear-gradient(115deg,#885229,#704562);
+ color:white;font-weight:800;font-size:13px;touch-action:manipulation;
+}
+.bshelf-admin{max-width:1320px;margin:auto;padding:13px clamp(10px,2vw,27px) 60px;background:#0a0b14;min-height:calc(100dvh - 70px)}
+.bshelf-admin-toolbar{
+ position:sticky;top:clamp(74px,13vw,108px);z-index:80;
+ display:flex;align-items:center;justify-content:space-between;gap:14px;
+ margin:-10px -2px 14px;padding:12px 8px;
+ background:#13111cf0;border-bottom:1px solid #caa27288;backdrop-filter:blur(14px);
+}
+.bshelf-admin-toolbar button{
+ min-height:43px;min-width:0;padding:9px 14px;border-radius:12px;
+ border:1px solid #e0b78a85;background:#3c291bbd;color:#fff4e8;
+ font-size:12px;font-weight:800;
+}
+.bshelf-admin-toolbar h2{margin:0;font-size:clamp(15px,3vw,22px);color:#ffddaa}
+.bshelf-admin .hero{margin:0 0 20px}
+.bshelf-admin .onedrive-panel{margin-bottom:25px}
+.bshelf-admin [id="odGrid"] .onedrive-book{pointer-events:auto}
+.bshelf-admin #bookStudioSettings{scroll-margin-top:166px}
+.bshelf-admin #onedriveBooks,.bshelf-admin #library{scroll-margin-top:166px}
+.bshelf-v10-page .reader{z-index:700!important}
+/* Desktop can comfortably hold six proper full-size front covers per shelf. */
+@media(min-width:700px){
+ .bshelf-row{grid-template-columns:repeat(6,minmax(0,1fr));height:265px;gap:16px;padding:17px 38px 27px}
+ .bshelf-book-face{max-height:218px;aspect-ratio:.68}
+ .bshelf-fallback-title{font-size:19px}
+ .bshelf-collection-name{font-size:12px}
+ .bshelf-count{font-size:12px}
+}
+@media(max-width:390px){
+ .bshelf-row{height:clamp(168px,47.8vw,185px);padding:12px 11px 25px;gap:6px}
+ .bshelf-book-face{max-height:calc(clamp(168px,47.8vw,185px) - 36px)}
+ .bshelf-appbar .bshelf-brand strong{font-size:clamp(24px,7.3vw,30px)}
+ .bshelf-appbar .bshelf-brand-mark{flex-basis:32px;width:32px;font-size:27px}
+ .bshelf-appbar .bshelf-toolbar>button{width:38px;font-size:26px}
+ .bshelf-appbar .bshelf-back{flex-basis:28px;width:28px}
+ .bshelf-strip{padding-left:14px;padding-right:14px}
+ .bshelf-collection-name{font-size:9px}
+ .bshelf-count{font-size:10px}
+}
+@media(prefers-reduced-motion:reduce){
+ .bshelf-book{transition:none}
+ .bshelf-book:hover,.bshelf-book:active{transform:none}
+}

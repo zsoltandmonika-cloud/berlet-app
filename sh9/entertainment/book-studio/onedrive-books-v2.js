@@ -25,7 +25,7 @@ const missingCovers=new Set();
 const element=(tag,cls,txt)=>{const x=d.createElement(tag);if(cls)x.className=cls;if(txt!==undefined)x.textContent=txt;return x};
 const text=s=>String(s||'').trim().slice(0,200);
 const pid=()=>w.localStorage.getItem('hh-profile')==='m'?'monika':'zsolt';
-const status=(s,problem)=>{$('odStatus').textContent=s;$('odStatus').dataset.error=problem?'1':'0';if($('odInlineStatus')){$('odInlineStatus').textContent=s;$('odInlineStatus').dataset.error=problem?'1':'0'}};
+const status=(s,problem)=>{$('odStatus').textContent=s;$('odStatus').dataset.error=problem?'1':'0';if($('odInlineStatus')){$('odInlineStatus').textContent=s;$('odInlineStatus').dataset.error=problem?'1':'0'};w.SH9_BOOKSHELF_V10?.setStatus(s,problem)};
 const origin=()=>new URL('./',w.location.href).href;
 const store=(storage,key,val)=>{try{storage.setItem(key,val);return true}catch(_){return false}};
 const load=(storage,key)=>{try{return storage.getItem(key)}catch(_){return null}};
@@ -125,6 +125,7 @@ function setConnected(on){
  $('odRefresh').hidden=!on;
  $('odDisconnect').hidden=!on;
  $('odConfigToggle').hidden=!config;
+ w.SH9_BOOKSHELF_V10?.setConnected(on);
 }
 async function json(url,options={}){
  const u=new URL(url,GRAPH);
@@ -271,7 +272,7 @@ async function progressRecords(){
 }
 async function loadLibrary(){
  if(!ready||scanning)return;
- scanning=true;status('📂 OneDrive könyvek keresése…',false);$('odGrid').replaceChildren();
+ scanning=true;w.SH9_BOOKSHELF_V10?.setLoading(true);status('📂 OneDrive könyvek keresése…',false);$('odGrid').replaceChildren();
  try{
   if(!await findFolders()){scanning=false;return}
   status('📚 Könyvek beolvasása…',false);
@@ -296,12 +297,13 @@ async function loadLibrary(){
   updateCoverToggle();scheduleAutomaticCovers();
  }catch(e){
   status('Nem sikerült olvasni a OneDrive-ot: '+e.message,true);
- }finally{scanning=false}
+ }finally{scanning=false;w.SH9_BOOKSHELF_V10?.setLoading(false)}
 }
 function dropCoverUrls(){for(const v of coverUrls.values())URL.revokeObjectURL(v);coverUrls.clear()}
 function paintCover(b){
  const el=d.getElementById('odcover-'+b.id),url=coverUrls.get(b.id);
  if(el&&url){el.style.backgroundImage='url("'+url+'")';el.classList.add('has-art')}
+ if(url)w.SH9_BOOKSHELF_V10?.coverReady(b.id,url);
 }
 async function cachedCover(b){
  if(!CACHE||coverUrls.has(b.id)||!config)return;
@@ -314,6 +316,9 @@ function render(){
  const grid=$('odGrid');grid.replaceChildren();
  const f=$('odFilter').value.toLocaleLowerCase('hu-HU').trim();
  const groups=distinctBooks(),source=showDuplicates?entries:groups.primary;
+ // The full-screen wooden bookcase reuses the actual verified OneDrive
+ // collection and all original image blob URLs, without a duplicate upload.
+ w.SH9_BOOKSHELF_V10?.update(ready?source:[]);
  const list=source.filter(b=>(b.title+' '+b.author).toLocaleLowerCase('hu-HU').includes(f));
  $('odCount').textContent=groups.primary.length+' könyv'+(groups.hidden.length?' · '+groups.hidden.length+' duplikátum elrejtve':'');
  $('odDedup').hidden=!groups.hidden.length;
