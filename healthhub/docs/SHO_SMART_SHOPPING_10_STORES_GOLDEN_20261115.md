@@ -75,3 +75,13 @@
 - **Adatbetöltés:** a közös lista külön, elsődleges Supabase-olvasás; a mentett merchant-specifikus SKU-linkek opcionális második betöltése nem blokkolhatja a listát. Látható szinkron-, bejelentkezési és hibastátuszok.
 - **Érintetlen:** Tesco Golden Bridge v3, családi lista írási funkciói, RLS, mentett termékkapcsolatok, keresési URL-sémák, alap Golden csempegeometria.
 - **QA:** mind a 11 másik áruházra szimulált, bejelentkezett családi felhőbetöltés (4 tétel) 11/11 sikeres; link API hiba mellett is 4 tétel betöltve; nincs bejelentkezés esetén nem jelenik meg megtévesztő 10 mintatermék. A tényleges Android és GitHub Pages UI-UAT még nyitott.
+
+## Kritikus multi-store Bridge javítás · 2026-11-16
+
+**Felhasználói képernyőképes bugreprodukció:** Tesco Golden Bridge: közös 4 aktív termék rendben; Auchan és többi kereskedő: demo / 1/10, felhőbetöltés elakad, beágyazott catch: `Cannot set properties of null (setting 'textContent')`.
+
+**Közvetlen ok:** a multi-store `merchant-smart-v1.html` korábbi szövegmódosításakor eltűnt a `storeDomain` ID-jű elem, a két közös futtató (`merchant-smart-v1.html` inline és `.js`) `render()` függvénye mégis végrehajtotta a `$('storeDomain').textContent=store.domain` sort. Minden render összeomlott, így a korábbi, statikus fallback és demo látszott.
+
+**Javítás:** mindkét scriptből eltávolítottuk a már szükségtelen DOM-módosítást (a bolt domainje továbbra is megjelenik a hivatalos áruházlinken és a keresési leírásban). Az űrlap és a közös lista nem változott. `store-connect-v2.js` Smart Shopping linkjei `rev=20261116b` verziót kaptak, a Shopping főoldal `store-connect-v2.js?v=store-smart-shared-v3-20261116` hivatkozással töri a régi gyorsítótárat.
+
+**QA:** 31 tényleges HTML ID és összes JS `getElementById` hivatkozás egyeztetve (0 hiányzó); JavaScript és inline script szintaxis PASS; 11/11 nem Tesco áruházban valódi HTML-ID-ket tiszteletben tartó DOM + mock Supabase teszt: 4/4 közös listaelem renderelődik, nem demó. A JS újraindítása és GitHub main állapot ellenőrizve. Éles mobilos felhasználói teszt szükséges a Pages kiszolgálási cache és a bejelentkezett Supabase session ellenőrzéséhez.
