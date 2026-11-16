@@ -1,5 +1,5 @@
 /* SHO Smart Shopping · multi-store engine v1
-  Ten merchant-specific handoffs. The Tesco v3 Golden flow stays untouched.
+  Eleven merchant-specific handoffs. The Tesco v3 Golden flow stays untouched.
   No merchant basket/price APIs. Family list is read-only; URLs are RLS-protected.
 */
 (function(w,d){'use strict';
@@ -7,6 +7,7 @@ const $=id=>d.getElementById(id);
 const FAMILY='zsolt-monika',LIST='hh_shopping_list_v1',LINKS='hh_shopping_merchant_links_v1';
 const STORES={
  auchan:{name:'Auchan',domain:'auchan.hu',home:'https://auchan.hu/shop',group:'food'},
+ aldi:{name:'ALDI',domain:'shop.aldi.hu',home:'https://shop.aldi.hu/kezdooldal',group:'food'},
  kifli:{name:'Kifli',domain:'kifli.hu',home:'https://www.kifli.hu/',group:'food'},
  dm:{name:'dm',domain:'dm.hu',home:'https://www.dm.hu/',group:'beauty'},
  rossmann:{name:'Rossmann',domain:'shop.rossmann.hu',home:'https://shop.rossmann.hu/',group:'beauty'},
@@ -61,6 +62,7 @@ function searchUrl(term){
  const q=String(term||'').trim().slice(0,160),encoded=encodeURIComponent(q);
  switch(key){
   case 'auchan':return 'https://auchan.hu/shop/search?q%5B%5D='+encodeURIComponent(encoded);
+  case 'aldi':return 'https://www.google.com/search?q='+encodeURIComponent('site:shop.aldi.hu '+q); // Native search route not verified
   case 'kifli':return 'https://www.kifli.hu/kereses?q='+encoded+'&companyId=1';
   case 'dm':return 'https://www.dm.hu/search?query='+encoded+'&searchType=product';
   case 'rossmann':return 'https://shop.rossmann.hu/talalatok?q='+encoded;
@@ -112,7 +114,7 @@ function draw(a){
  for(let i=0;i<total;i++){
   const p=a.all[i],row=mk('button','product'+(i===a.i?' chosen':''));row.type='button';row.onclick=()=>activateRow(i);
   row.setAttribute('aria-label','Termék: '+p.name+'. Egy koppintás kiválaszt, dupla koppintás az áruház keresési találatait nyitja meg.');
-  row.title=key==='shoperia'?'Dupla kattintás: Shoperia-ra szűrt webkeresés':'Dupla kattintás: a bolt saját találati listája';
+  row.title=(key==='shoperia'||key==='aldi')?'Dupla kattintás: boltra szűrt webkeresés':'Dupla kattintás: a bolt saját találati listája';
   const icon=mk('span','product-icon',emoji(p));const info=mk('span','product-info');info.append(mk('strong',null,p.name),mk('small',null,qty(p)));
   row.append(icon,info,mk('span','product-link',directUrlFor(p)?'🔗':'⌕'));box.append(row);
  }
@@ -131,10 +133,10 @@ function render(){
  $('itemName').textContent=a.p?a.p.name:'Nincs termék';
  $('itemQty').textContent=a.p?qty(a.p):'';
  const saved=a.p?directUrlFor(a.p):'';
- const go=$('go');go.href=a.p?(saved||linkFor(a.p)):store.home;go.textContent=saved?'↗ Mentett termék · külön':key==='shoperia'?'↗ Shoperia webkeresés':'↗ Találatok a boltban';
- $('searchMethod').textContent=key==='shoperia'?'🔎 Shoperia termékek · boltra szűrt webkeresés (a saját keresőútvonal még nem igazolt)':'🔎 '+store.name+' saját találati listája · termék kiválasztása a boltban';
-  if($('searchCaption'))$('searchCaption').textContent=key==='shoperia'?'👆 Dupla koppintás: Shoperia-termékek webes találatai; a bolti oldalon választhatsz és rendezhetsz ár szerint.':'👆 Dupla koppintás: az összes megfelelő áruházi találat, nem egy előre kiválasztott termék. Az ár szerinti rendezést a bolt oldalán állíthatod.';
-  if($('freeSearchHelp'))$('freeSearchHelp').textContent=key==='shoperia'?'Shoperia.hu-ra szűrt külső webkeresést nyitunk. A rendelés a Shoperia oldalán történik.':'A keresés a kiválasztott áruház saját webhelyének találati listáját nyitja meg. A rendezés és a kosárba helyezés a bolt oldalán történik, nem a SHO-ban.';
+ const go=$('go');go.href=a.p?(saved||linkFor(a.p)):store.home;go.textContent=saved?'↗ Mentett termék · külön':(key==='shoperia'||key==='aldi')?'↗ '+store.name+' webkeresés':'↗ Találatok a boltban';
+ $('searchMethod').textContent=(key==='shoperia'||key==='aldi')?'🔎 '+store.name+' termékek · boltra szűrt webkeresés (a natív keresőútvonal még nem igazolt)':'🔎 '+store.name+' saját találati listája · termék kiválasztása a boltban';
+  if($('searchCaption'))$('searchCaption').textContent=(key==='shoperia'||key==='aldi')?'👆 Dupla koppintás: boltra szűrt webes találatok; a konkrét terméket és ár szerinti rendezést az áruház oldalán választhatod.':'👆 Dupla koppintás: az összes megfelelő áruházi találat, nem egy előre kiválasztott termék. Az ár szerinti rendezést a bolt oldalán állíthatod.';
+  if($('freeSearchHelp'))$('freeSearchHelp').textContent=(key==='shoperia'||key==='aldi')?store.domain+'-ra szűrt külső webkeresést nyitunk. A rendelés az áruház saját oldalán történik.':'A keresés a kiválasztott áruház saját webhelyének találati listáját nyitja meg. A rendezés és a kosárba helyezés a bolt oldalán történik, nem a SHO-ban.';
  $('prev').disabled=!a.p||a.all.length<2;$('next').disabled=!a.p||a.all.length<2;
  $('edit').disabled=!a.p;
  $('editor').hidden=!showLink||!a.p;
