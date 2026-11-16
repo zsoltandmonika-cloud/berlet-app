@@ -124,7 +124,8 @@
    await refresh();
    flash('✓ '+added+' könyv helyben mentve'+(skipped?' · '+skipped+' már létezett':'')+
     (failed?' · '+failed+' sikertelen':'')+'. A fájlok nem kerültek felhőbe.',!!failed);
-  }finally{state.busy=false;if(input){input.disabled=false;input.value=''}}
+  }catch(e){flash('A helyi könyvtár nem érhető el: '+e.message,true)}
+  finally{state.busy=false;if(input){input.disabled=false;input.value=''}}
  }
  async function refresh(){
   const who=profile(),all=await tx('readonly',s=>s.getAll());
