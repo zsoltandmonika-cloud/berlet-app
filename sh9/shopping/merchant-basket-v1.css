@@ -1,0 +1,18 @@
+/* SHO Golden Full Basket Match V1 · compact addition, independent of approved store tiles. */
+.batch-match{margin:10px 0 12px;padding:12px;border:1px solid #c78dbba3;background:linear-gradient(130deg,#30233e,#16283f);border-radius:16px}
+.batch-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.batch-head div{min-width:0;display:flex;flex-direction:column;gap:3px}
+.batch-head small{font-size:9px;letter-spacing:.8px;color:#f8bfe0;font-weight:800}
+.batch-head strong{font-size:14px;line-height:1.18}
+.batch-trigger{flex:none;padding:8px 9px;min-height:39px;border:1px solid #ffc1e6;border-radius:11px;background:linear-gradient(110deg,#ac4a97,#533b84);font-size:11px;font-weight:840}
+.batch-trigger:disabled{opacity:.45}
+.batch-summary{font-size:10px;color:#d6c4dc;margin:9px 0 0;line-height:1.45}
+.batch-list{display:grid;gap:7px;margin-top:10px}
+.batch-row{border:1px solid #8e7099;background:#18243b;border-radius:11px;padding:9px;display:flex;align-items:center;justify-content:space-between;gap:9px}
+.batch-info{min-width:0}.batch-info strong{font-size:11px;display:block;overflow-wrap:anywhere}
+.batch-info small{display:block;margin-top:3px;font-size:9px;color:#cfc1d9}
+.batch-actions{display:flex;flex-direction:column;gap:5px;flex:none}
+.batch-action{border:1px solid #81b9de;color:#d7f3ff;border-radius:8px;padding:6px 9px;font-size:10px;font-weight:800;white-space:nowrap;text-align:center}
+.batch-saved{border-color:#d7b0d0;color:#ffe5f4}
+.batch-more{border:1px solid #c49cce;background:#513952;color:#ffe9f8;border-radius:9px;padding:9px}
+@media(max-width:345px){.batch-row{flex-direction:column;align-items:stretch}.batch-actions{flex-direction:row}.batch-action{flex:1}}
