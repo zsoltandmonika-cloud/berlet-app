@@ -155,6 +155,7 @@ function render(){
  $('authMessage').textContent=user?'Ehhez a családi profilhoz nincs mentési jogosultság.':'A közös terméklink mentéséhez bejelentkezés szükséges.';
  $('modeHelp').textContent=mode!=='shared'?'✨ 10 példatermék · nincs Smart List-módosítás.':cloudStatus==='loading'?'☁️ A közös Smart List szinkronizálása…':cloudStatus==='cached'?'📱 Helyi lista · utolsó szinkron: '+(cachedAt?new Date(cachedAt).toLocaleString('hu-HU'):'ismeretlen')+' · nem élő áradat':cloudStatus==='auth'?'🔒 A közös bevásárlólistához családi bejelentkezés szükséges.':cloudStatus==='error'?'⚠️ Felhőhiba: '+cloudError:rows.length?'☁️ Teljes közös Smart List · '+rows.length+' aktív tétel.':'☁️ A közös Smart List jelenleg üres.';
  draw(a);
+ try{w.dispatchEvent(new Event('sho:merchant-list-updated'))}catch(_){}
 }
 function setMode(next){mode=next;selected=null;showLink=false;visibleCount=40;const s=state();s.mode=mode;put(s);render()}
 async function fetchAll(table,cols,active){
@@ -252,6 +253,13 @@ w.addEventListener('pageshow',()=>{selected=null;render();if(own()&&Date.now()-l
 d.addEventListener('visibilitychange',()=>{if(d.visibilityState==='visible'&&own()&&Date.now()-lastUpdate>5*60*1000)void loadCloud()});
 w.addEventListener('storage',e=>{if(e.key==='hh-guardian-family-auth-v785')void authSync()});
 if(api)api.auth.onAuthStateChange(e=>{if(e==='SIGNED_IN'||e==='SIGNED_OUT')setTimeout(()=>void authSync(),0)});
+// Read-only match snapshot for the independent full-basket UI. Never writes to the family list.
+w.SHOP_MERCHANT_MATCH_V1=Object.freeze({snapshot:()=>({
+ mode,status:cloudStatus,store:key,items:mode==='shared'?rows.map(p=>({
+  id:pkey(p),name:String(p.name),quantity:p.quantity,unit:p.unit,
+  searchUrl:linkFor(p),savedUrl:directUrlFor(p)
+ })):[]
+})});
 // Every Smart Shopping entry opens the real shared family list by default.
 // Demo remains explicitly selectable, but cannot persist over a later store entry.
 render();void authSync();
