@@ -389,7 +389,7 @@ async function cardsFromCatalogueV1(rows,account,offlineOnly){
    if(!blob&&!offlineOnly){
     // Paid Puter file read occurs ONLY for a missing/changed card.
     blob=await puter.fs.read(v.cardPath);
-    if(account)void RECIPE_ASSET_CACHE_V1?.put(account,v,blob);
+    if(account)await RECIPE_ASSET_CACHE_V1?.put(account,v,blob);
    }
    if(!blob?.size)continue;
    next.push(remoteRecipeCardV1(v,blob));
@@ -433,7 +433,8 @@ async function loadSharedRecipes(force=false){
   // than replacing a populated bookshelf with an empty, misleading one.
   if(freshRows.length&&!result.next.length&&sharedRecipes.length)return false;
   applySharedCardsV1(result.next,result.readable);
-  void RECIPE_ASSET_CACHE_V1?.saveCatalogue(account,freshRows);
+  renderHome();
+  await RECIPE_ASSET_CACHE_V1?.saveCatalogue(account,freshRows);
   return true;
  }catch(error){
   console.warn('Puter receptkatalógus most nem érhető el, helyi könyvtár marad:',error);
