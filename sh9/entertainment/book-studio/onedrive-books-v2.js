@@ -824,10 +824,17 @@ $('odTitleForm').addEventListener('submit',e=>{e.preventDefault();saveTitleEdit(
 
 $('odCacheClear').addEventListener('click',async()=>{
  if(!config||!CACHE)return;
- if(!w.confirm('Töröljük az ezen az eszközön tárolt könyvmásolatokat és borítókat? A OneDrive könyveid nem változnak.'))return;
+ const pending=await Promise.all(['zsolt','monika'].map(p=>OFFLINE?.listPending(config.account,p)||[]));
+ const unsynced=pending.reduce((sum,x)=>sum+x.length,0);
+ const warning=unsynced?' FIGYELEM: '+unsynced+' még nem szinkronizált olvasási módosítás is törlődik!':'';
+ if(!w.confirm('Törlöd a mindkét profilhoz tartozó, ezen a készüléken tárolt könyvmásolatokat, borítókat és offline könyvtárat?'+warning+' A OneDrive könyveid nem változnak.'))return;
  ++coverJob;missingCovers.clear();dropCoverUrls();
- await CACHE.clear(config.account);render();await updateCacheInfo();
- status('A helyi gyorsítótár kiürítve. Az eredeti OneDrive-könyvek érintetlenek.');
+ await CACHE.clear(config.account);
+ await OFFLINE?.clearAccount(config.account);
+ localMode=false;
+ if(!ready){entries=[];setConnected(false)}
+ render();await updateCacheInfo();
+ status('A helyi könyvtár és offline gyorsítótár kiürítve. A OneDrive könyvek érintetlenek.');
 });
 async function profileChanged(){
  // A local offline catalogue MUST not leak books into another SHO profile.
