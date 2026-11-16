@@ -38,7 +38,7 @@ $('newStore').addEventListener('submit',async e=>{
  const cats=[...$('newCats').querySelectorAll('input:checked')].map(x=>x.value);
  try{
   const shop=reg.fromInput(name,url,cats);
-  if(data.some(x=>x.domain===shop.domain))throw Error('Ez az áruház már szerepel. Kapcsold be a listában!');
+  if(data.some(x=>x.domain.replace(/^www\\./,'')===shop.domain.replace(/^www\\./,'')))throw Error('Ez az áruház már szerepel. Kapcsold be a listában!');
   busy=true;render();
   data=await reg.save(shop);
   $('newStore').reset();
