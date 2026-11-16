@@ -31,7 +31,7 @@ test('Carousel is rendered in the new section, no hidden duplicate above books',
  assert.match(slideshow,/const DELAY=4000,TRANSITION_MS=570,MAX_PER_KIND=4/);
  assert.match(css,/\.pixel-extension \.pixel-feature-link,[\s\S]*display:none!important/);
  assert.match(css,/\.pixel-extension\{[\s\S]*?height:var\(--tile-h\)!important/);
- assert.match(css,/\.sh9-program-feature \.sho-feature-carousel\.sho-feature-slide/);
+ assert.match(css,/\.sh9-program-feature \.sho-feature-carousel \.sho-feature-slide/);
  assert.match(css,/\.sh9-program-feature \.sho-feature-carousel \.sho-feature-slide\.is-active/);
  assert.match(css,/translate3d\(-100%,0,0\)/);
  assert.match(html,/featured-slideshow-v8\.js\?v=16-book-first-program-after/);
