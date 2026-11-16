@@ -1,16 +1,24 @@
 {
   "schema": "healthhub.daily-health-public/1",
-  "date": "2026-11-15",
-  "generatedAt": "2026-11-15T07:44:55+01:00",
+  "date": "2026-11-16",
+  "generatedAt": "2026-11-16T03:18:11+01:00",
   "location": "Budapest",
   "weather": {
-    "available": false
+    "available": true,
+    "observedAt": "2026-11-16T03:15",
+    "temperature": 6.0,
+    "apparentTemperature": 3.5,
+    "daytimeMaxFeelsLike": 5.3,
+    "uvMax": 0.8,
+    "pressureHpa": 1015.7,
+    "pressureChange6h": -3.3,
+    "windGust": 18.7
   },
   "air": {
     "available": true,
-    "observedAt": "2026-11-15T07:00",
-    "aqi": 41.0,
-    "pm25": 17.3,
+    "observedAt": "2026-11-16T03:00",
+    "aqi": 39.0,
+    "pm25": 14.5,
     "pollen": {
       "available": true,
       "name": "Éger",
@@ -20,28 +28,12 @@
   },
   "infection": {
     "available": true,
-    "stale": false,
+    "stale": true,
     "sourceWeek": "2026. 43. hét",
     "periodEnd": "2026-10-25",
-    "signals": [
-      {
-        "name": "COVID-19 / SARS-CoV-2",
-        "level": "watch"
-      },
-      {
-        "name": "Hepatitis A",
-        "level": "high"
-      }
-    ]
+    "signals": []
   },
-  "alerts": [
-    {
-      "key": "infection",
-      "level": "watch",
-      "title": "NNGYK heti figyelő",
-      "explanation": "A hivatalos jelentés kiemelt jelzéseket tartalmaz; nem napi személyes fertőzési kockázat."
-    }
-  ],
+  "alerts": [],
   "methodology": "Szabályalapú, tájékoztató összefoglaló, nem orvosi diagnózis, AI-modell vagy gyógyszerrendelés.",
   "sources": [
     {
