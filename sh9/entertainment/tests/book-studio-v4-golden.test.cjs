@@ -55,10 +55,11 @@ test('Book Studio account/admin card appears below the libraries',()=>{
  assert.match(studio,/id="odInlineStatus"/);
  assert.match(studioCSS,/\.od-admin-bottom/);
 });
-test('Entertainment has a viewport-wide Book Studio hero with local bookshelf preview',()=>{
- const hero=entertainment.indexOf('books-promo--immersive'),books=entertainment.indexOf('id="bsPreviewGrid"'),upcoming=entertainment.indexOf('id="upcoming"');
- assert.ok(hero>0&&books>hero&&upcoming>books);
- assert.match(entertainment,/book-studio-preview-v4\.js/);
+test('Entertainment shows the clickable Book Studio hero without its redundant shelf preview',()=>{
+ const hero=entertainment.indexOf('books-promo--immersive'),upcoming=entertainment.indexOf('id="upcoming"');
+ assert.ok(hero>0&&upcoming>hero);
+ assert.doesNotMatch(entertainment,/id="bsPreviewGrid"|class="bs-preview-shelf"|book-studio-preview-v4\.js/);
+ assert.match(entertainment,/<a class="books-promo books-promo--immersive" href="\.\/book-studio\/"/);
  assert.match(entCSS,/width:calc\(100vw - 12px\)/);
  assert.match(entCSS,/min-height:min\(72svh,690px\)/);
  assert.match(entCSS,/\.bs-wood-shelf/);
