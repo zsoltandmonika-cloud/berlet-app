@@ -17,8 +17,9 @@ const MERCHANTS=[
  {name:"Allegro",domain:"allegro.hu",url:"https://allegro.hu/",cats:["Elektronika","Divat & Stílus","Otthon & Háztartás"]},
  {name:"Temu",domain:"temu.com",url:"https://www.temu.com/",cats:["Divat & Stílus","Otthon & Háztartás"]},
  {name:"SHEIN",domain:"hu.shein.com",url:"https://hu.shein.com/",cats:["Divat & Stílus"]},
+ {name:"Shoperia",domain:"shoperia.hu",url:"https://shoperia.hu/",cats:["Drogéria & Szépség","Otthon & Háztartás"]},
 ];
-const SMART_STORE_KEYS={"Auchan":"auchan","Kifli":"kifli","dm":"dm","Rossmann":"rossmann","eMAG":"emag","Alza":"alza","Allegro":"allegro","Temu":"temu","SHEIN":"shein"};
+const SMART_STORE_KEYS={"Auchan":"auchan","Kifli":"kifli","dm":"dm","Rossmann":"rossmann","eMAG":"emag","Alza":"alza","Allegro":"allegro","Temu":"temu","SHEIN":"shein","Shoperia":"shoperia"};
 const state={category:"",query:"",products:[],busy:false,callToken:0,sort:"relevance",visible:6};
 const SEARCH_CACHE_PREFIX="sho-shopping-off-catalog-v2:";
 const MAX_CACHE_AGE=15*60*1000;
