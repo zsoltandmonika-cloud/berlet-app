@@ -221,7 +221,7 @@ function lastExplicitBookmark(book){
  for(let i=marks.length-1;i>=0;i--){
   const loc=marks[i]?.locator;
   if(typeof loc!=='string'||!loc.trim())continue;
-  if(book.format==='pdf'&&!/^[1-9]\\d*$/.test(loc.trim()))continue;
+  if(book.format==='pdf'&&!/^[1-9]\d*$/.test(loc.trim()))continue;
   return loc.trim();
  }
  return '';
