@@ -115,10 +115,15 @@ function fromCatalogPage(page,spec){
  });
  return results.slice(0,MAX_PER_KIND);
 }
-async function readJson(url){
- const response=await w.fetch(url,{method:'GET',cache:'no-store',credentials:'omit'});
- if(!response.ok)throw Error('HTTP '+response.status+' '+url);
- return response.json();
+async function readJson(url,timeoutMs=0){
+ const controller=timeoutMs&&typeof w.AbortController==='function'?new w.AbortController():null;
+ const timer=controller?w.setTimeout(()=>controller.abort(),timeoutMs):null;
+ try{
+  const response=await w.fetch(url,{method:'GET',cache:'no-store',credentials:'omit',
+   ...(controller?{signal:controller.signal}:{})});
+  if(!response.ok)throw Error('HTTP '+response.status+' '+url);
+  return await response.json();
+ }finally{if(timer!==null)w.clearTimeout(timer)}
 }
 async function catalog(spec){
  try{
@@ -192,7 +197,7 @@ function homeSlides(data,spec){
 }
 async function media(spec){
  try{
-  const live=await readJson(MEDIA_LIVE);
+  const live=await readJson(MEDIA_LIVE,1800);
   const choices=homeSlides(live,spec);
   if(choices.length>=3)return choices.slice(0,MAX_PER_KIND);
  }catch(_){/* CORS or offline: use published fallback from same-origin snapshot. */}
@@ -352,7 +357,7 @@ carousel.addEventListener('keydown',e=>{
   e.preventDefault();show(position+(e.key==='ArrowRight'?1:-1),true);
  }
 });
-carousel.addEventListener('mouseenter',()=>{hovered=true;schedule()});
+carousel.addEventListener('mouseenter',()=>{if(w.matchMedia?.('(hover:hover) and (pointer:fine)')?.matches){hovered=true;schedule()}});
 carousel.addEventListener('mouseleave',()=>{hovered=false;schedule()});
 carousel.addEventListener('focusin',()=>{focusInside=true;schedule()});
 carousel.addEventListener('focusout',()=>{w.setTimeout(()=>{focusInside=carousel.contains(d.activeElement);schedule()},0)});
