@@ -8,9 +8,9 @@
  const $=id=>d.getElementById(id),CACHE=w.SH9_BOOK_CACHE_V3;
  if(!$('bshelfRows')||!$('bshelfSettingsToggle'))return;
  const palette=['#264e5c','#50364f','#605037','#293a5a','#5a3840','#34514b','#533c55','#4b3b39'];
- const state={books:[],covers:new Map(),connected:false,loading:true,error:false,message:'☁️ OneDrive-könyvtár előkészítése…',coverScanning:false,coverDone:0,coverTotal:0,displayed:new Set(),hidden:new Set(),scope:'',account:'',profile:''};
+ const state={books:[],covers:new Map(),connected:false,loading:true,error:false,message:'☁️ OneDrive-könyvtár előkészítése…',coverScanning:false,coverDone:0,coverTotal:0,displayed:new Set(),hidden:new Set(),scope:'',account:'',profile:'',sortMode:'title',customOrder:[],sortScope:''};
  const main=$('bshelfFront'),admin=$('bsAdminView'),menu=$('bshelfSettingsMenu');
- const settingsBtn=$('bshelfSettingsToggle'),searchBtn=$('bshelfSearchToggle');
+ const settingsBtn=$('bshelfSettingsToggle'),searchBtn=$('bshelfSearchToggle'),sortBtn=$('bshelfSortToggle'),sortMenu=$('bshelfSortMenu');
  const searchBox=$('bshelfSearchBox'),search=$('bshelfSearch');
  const rows=$('bshelfRows'),empty=$('bshelfEmpty'),manageList=$('bshelfManageList'),manageSearch=$('bshelfManageFilter');
  const title=x=>String(x||'').replace(/\s+/g,' ').trim();
@@ -24,6 +24,7 @@
  const cols=()=>w.matchMedia?.('(min-width:700px)')?.matches?6:4;
  function navMenu(open){
   menu.hidden=!open;settingsBtn.setAttribute('aria-expanded',String(open));
+  if(open)closeSort();
  }
 
  function hiddenKey(account,profile){
@@ -66,8 +67,8 @@
  function renderManage(){
   if(!manageList)return;
   const needle=clean(manageSearch.value);
-  const list=state.books.filter(b=>!needle||clean(b.title+' '+b.author).includes(needle))
-   .sort((a,b)=>Number(hiddenBook(a))-Number(hiddenBook(b))||a.title.localeCompare(b.title,'hu-HU'));
+  const list=sortBooks(state.books.filter(b=>!needle||clean(b.title+' '+b.author).includes(needle)))
+   .sort((a,b)=>Number(hiddenBook(a))-Number(hiddenBook(b)));
   const hidden=state.books.filter(hiddenBook).length;
   $('bshelfManageCount').textContent=(state.books.length-hidden)+' a polcon · '+hidden+' elrejtve · '+state.books.length+' összesen';
   const frag=d.createDocumentFragment();
@@ -88,6 +89,16 @@
    toggle.setAttribute('aria-label',(hiddenBook(book)?'Visszahelyezés: ':'Elrejtés: ')+book.title);
    toggle.addEventListener('click',()=>setBookHidden(book,!hiddenBook(book)));
    actions.append(toggle);
+   if(!hiddenBook(book)){
+    const up=elem('button','bshelf-order-action','↑'),down=elem('button','bshelf-order-action','↓');
+    up.type=down.type='button';
+    up.setAttribute('aria-label','Könyv előrébb: '+book.title);
+    down.setAttribute('aria-label','Könyv hátrébb: '+book.title);
+    up.title='Egy hellyel előrébb';down.title='Egy hellyel hátrébb';
+    up.addEventListener('click',()=>moveBook(book,-1));
+    down.addEventListener('click',()=>moveBook(book,1));
+    actions.append(up,down);
+   }
    const link=safeOneDriveUrl(book.web_url);
    if(link){
     const a=elem('a','bshelf-drive-link','☁ OneDrive ↗');
@@ -99,6 +110,121 @@
   }
   manageList.replaceChildren(frag);
   if(!list.length)manageList.append(elem('p','bshelf-manage-noresults',state.books.length?'Nincs találat.':'Előbb csatlakoztasd a OneDrive-könyvtárat.'));
+ }
+
+ // Arrange the wooden bookshelf only; never rename, move or delete OneDrive files.
+ // Like the existing hide feature, preferences are local per Microsoft account
+ // AND SHO profile. The default remains alphabetical for older installations.
+ const SORT_MODES=new Set(['title','titleDesc','author','favorites','reading','manual']);
+ const bookKey=book=>book.drive_item_id||book.id;
+ const titleCompare=(a,b)=>a.title.localeCompare(b.title,'hu-HU',{numeric:true,sensitivity:'base'});
+ function sortStorageKey(hiddenScope){
+  return hiddenScope?hiddenScope.replace(/^sh9-book-hidden-v13:/,'sh9-book-sort-v17:'):'';
+ }
+ function loadSort(hiddenScope){
+  state.sortScope=sortStorageKey(hiddenScope);
+  state.sortMode='title';state.customOrder=[];
+  if(!state.sortScope)return;
+  try{
+   const item=JSON.parse(w.localStorage.getItem(state.sortScope)||'{}');
+   if(SORT_MODES.has(item.mode))state.sortMode=item.mode;
+   if(Array.isArray(item.order))state.customOrder=
+    [...new Set(item.order.filter(x=>typeof x==='string'&&x.length<500))].slice(0,3000);
+  }catch(_){}
+  paintSortSelection();
+ }
+ function saveSort(){
+  if(!state.sortScope)return false;
+  try{
+   w.localStorage.setItem(state.sortScope,JSON.stringify({
+    mode:state.sortMode,order:state.customOrder.slice(0,3000)
+   }));
+   return true;
+  }catch(_){
+   w.alert?.('A sorrend nem menthető. Ellenőrizd a böngésző tárhelyét.');
+   return false;
+  }
+ }
+ function sortBooks(books){
+  const list=books.slice(),mode=state.sortMode;
+  if(mode==='manual'){
+   const positions=new Map(state.customOrder.map((key,index)=>[key,index]));
+   return list.sort((a,b)=>{
+    const ai=positions.get(bookKey(a)),bi=positions.get(bookKey(b));
+    return (ai===undefined?Number.MAX_SAFE_INTEGER:ai)-
+     (bi===undefined?Number.MAX_SAFE_INTEGER:bi)||titleCompare(a,b);
+   });
+  }
+  return list.sort((a,b)=>{
+   if(mode==='titleDesc')return -titleCompare(a,b);
+   if(mode==='author')return a.author.localeCompare(b.author,'hu-HU',{sensitivity:'base'})||titleCompare(a,b);
+   if(mode==='favorites')return Number(b.is_favorite)-Number(a.is_favorite)||titleCompare(a,b);
+   if(mode==='reading'){
+    const active=x=>Number(x.progress_percent)>0&&Number(x.progress_percent)<100?1:0;
+    return active(b)-active(a)||
+     Number(b.progress_percent)-Number(a.progress_percent)||titleCompare(a,b);
+   }
+   return titleCompare(a,b);
+  });
+ }
+ function paintSortSelection(){
+  const lookup={title:'bshelfSortTitle',titleDesc:'bshelfSortTitleDesc',
+   author:'bshelfSortAuthor',favorites:'bshelfSortFavorites',
+   reading:'bshelfSortReading',manual:'bshelfSortManual'};
+  for(const [mode,id] of Object.entries(lookup)){
+   const button=$(id);if(!button)continue;
+   button.setAttribute('aria-pressed',String(mode===state.sortMode));
+   button.classList.toggle?.('selected',mode===state.sortMode);
+  }
+ }
+ function openSort(on){
+  sortMenu.hidden=!on;
+  sortBtn.setAttribute('aria-expanded',String(on));
+  paintSortSelection();
+ }
+ function closeSort(){openSort(false)}
+ function ensureManualOrder(){
+  // Keep manual placement for existing books; newly imported books are
+  // appended. The OneDrive scan can gain books between sessions.
+  const reference=sortBooks(state.books);
+  if(state.sortMode!=='manual'||!state.customOrder.length){
+   state.customOrder=reference.map(bookKey);
+  }else{
+   const known=new Set(state.customOrder);
+   for(const book of reference){
+    const key=bookKey(book);
+    if(!known.has(key)){state.customOrder.push(key);known.add(key)}
+   }
+  }
+ }
+ function setSortMode(mode){
+  if(!SORT_MODES.has(mode))return;
+  if(mode==='manual')ensureManualOrder();
+  state.sortMode=mode;
+  if(saveSort()){render();renderManage()}
+  closeSort();
+ }
+ function moveBook(book,direction){
+  if(!state.books.length)return;
+  // On first arrow press, preserve the CURRENT visible order before switching
+  // to 'Saját sorrend'; imported new books can also be moved.
+  ensureManualOrder();
+  const visibleOrdered=sortBooksManual(state.books).filter(b=>!hiddenBook(b));
+  const index=visibleOrdered.findIndex(b=>bookKey(b)===bookKey(book));
+  const other=visibleOrdered[index+direction];
+  if(index<0||!other)return;
+  const from=state.customOrder.indexOf(bookKey(book));
+  const to=state.customOrder.indexOf(bookKey(other));
+  if(from<0||to<0)return;
+  [state.customOrder[from],state.customOrder[to]]=[state.customOrder[to],state.customOrder[from]];
+  state.sortMode='manual';
+  if(saveSort()){render();renderManage();paintSortSelection()}
+ }
+ function sortBooksManual(books){
+  const idx=new Map(state.customOrder.map((key,i)=>[key,i]));
+  return books.slice().sort((a,b)=>
+   (idx.get(bookKey(a))??Number.MAX_SAFE_INTEGER)-
+   (idx.get(bookKey(b))??Number.MAX_SAFE_INTEGER)||titleCompare(a,b));
  }
  function searchPanel(open){
   searchBox.hidden=!open;searchBtn.setAttribute('aria-expanded',String(open));
@@ -155,7 +281,7 @@
  }
  function setConnected(on){
   state.connected=!!on;
-  if(!on){state.books=[];state.covers.clear();state.displayed.clear();state.coverScanning=false;state.scope='';state.account='';state.profile='';state.hidden.clear()}
+  if(!on){state.books=[];state.covers.clear();state.displayed.clear();state.coverScanning=false;state.scope='';state.account='';state.profile='';state.hidden.clear();state.sortScope='';state.sortMode='title';state.customOrder=[]}
   statusOnly();render();
  }
  function setLoading(on){
@@ -236,7 +362,7 @@
   // Fresh DOM book faces need their own decoded image load events.
   state.displayed.clear();
   const key=clean(search.value);
-  const visible=state.books.filter(b=>!hiddenBook(b)&&(!key||clean(b.title+' '+(b.author||'')).includes(key)));
+  const visible=sortBooks(state.books.filter(b=>!hiddenBook(b)&&(!key||clean(b.title+' '+(b.author||'')).includes(key))));
   const perRow=cols();
   const rowCount=Math.max(4,Math.ceil(visible.length/perRow));
   const frag=d.createDocumentFragment();
@@ -260,7 +386,7 @@
  function update(books,account,profile){
   // The integration only calls update AFTER Microsoft account verification.
   const nextScope=hiddenKey(account,profile);
-  if(state.scope!==nextScope){state.scope=nextScope;state.account=String(account||'').toLowerCase();state.profile=String(profile||'');state.hidden=readHidden(nextScope)}
+  if(state.scope!==nextScope){state.scope=nextScope;state.account=String(account||'').toLowerCase();state.profile=String(profile||'');state.hidden=readHidden(nextScope);loadSort(nextScope)}
   state.books=Array.isArray(books)?books.filter(b=>b?.source==='onedrive'&&b?.id&&b?.title).map(b=>({
    id:String(b.id),title:title(b.title).slice(0,200),
    author:title(b.author).slice(0,200),
@@ -273,10 +399,16 @@
   render();renderManage();
  }
  function init(){
-  searchBtn.addEventListener('click',()=>{navMenu(false);searchPanel(searchBox.hidden)});
-  settingsBtn.addEventListener('click',()=>{searchPanel(false);navMenu(menu.hidden)});
+  searchBtn.addEventListener('click',()=>{navMenu(false);closeSort();searchPanel(searchBox.hidden)});
+  settingsBtn.addEventListener('click',()=>{searchPanel(false);closeSort();navMenu(menu.hidden)});
+  sortBtn.addEventListener('click',()=>{navMenu(false);searchPanel(false);openSort(sortMenu.hidden)});
   $('bshelfSearchClear').addEventListener('click',()=>{search.value='';render();search.focus()});
   search.addEventListener('input',render);
+  for(const [id,mode] of [['bshelfSortTitle','title'],['bshelfSortTitleDesc','titleDesc'],
+    ['bshelfSortAuthor','author'],['bshelfSortFavorites','favorites'],
+    ['bshelfSortReading','reading'],['bshelfSortManual','manual']]){
+   $(id).addEventListener('click',()=>setSortMode(mode));
+  }
   $('bshelfMenuOneDrive').addEventListener('click',()=>adminView('bookStudioSettings','☁️ OneDrive kapcsolat'));
   $('bshelfMenuManage').addEventListener('click',()=>adminView('bshelfManagePanel','📚 Könyvtár szerkesztése'));
   manageSearch.addEventListener('input',renderManage);
@@ -287,13 +419,14 @@
   $('profileSwitch').addEventListener('click',()=>{navMenu(false);setLoading(true);state.books=[];render()});
   d.addEventListener('keydown',e=>{
    if(e.key!=='Escape')return;
-   if(!menu.hidden){navMenu(false);settingsBtn.focus()}
+   if(!sortMenu.hidden){closeSort();sortBtn.focus()}
+   else if(!menu.hidden){navMenu(false);settingsBtn.focus()}
    else if(!searchBox.hidden){searchPanel(false);searchBtn.focus()}
    else if(!admin.hidden){frontView()}
   });
   d.addEventListener('pointerdown',e=>{
-   if(menu.hidden||menu.contains(e.target)||settingsBtn.contains(e.target))return;
-   navMenu(false);
+   if(!menu.hidden&&!menu.contains(e.target)&&!settingsBtn.contains(e.target))navMenu(false);
+   if(!sortMenu.hidden&&!sortMenu.contains(e.target)&&!sortBtn.contains(e.target))closeSort();
   });
   let lastCols=cols();
   w.addEventListener('resize',()=>{
