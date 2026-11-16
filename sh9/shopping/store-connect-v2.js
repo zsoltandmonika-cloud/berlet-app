@@ -60,7 +60,7 @@ function paintStores(){
   const actions=make("div","sho-store-actions");
   // The brand/logo opens the official store. The in-card CTA starts Smart Shopping.
   const smart=make("a","sho-store-open sho-store-smart","🛒 Smart Shopping ↗");
-  smart.href=shop.name==="Tesco"?"./tesco-bridge-v3.html":"./merchant-smart-v1.html?store="+encodeURIComponent(SMART_STORE_KEYS[shop.name]);
+  smart.href=shop.name==="Tesco"?"./tesco-bridge-v3.html":"./merchant-smart-v1.html?store="+encodeURIComponent(SMART_STORE_KEYS[shop.name])+"&view=shared&rev=20261116a";
   smart.title=shop.name+" Smart Shopping · közös listából keresés a boltban, nem automatikus kosárfeltöltés";
   smart.setAttribute("aria-label",shop.name+" Smart Shopping, közös bevásárlólista áruházi kereséshez");
   actions.append(smart);
