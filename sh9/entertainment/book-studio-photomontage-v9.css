@@ -1,0 +1,46 @@
+/* SHO Entertainment · Book Studio Golden V9, approved HD photo montage.
+ * The artwork contains its own Book Studio typography, EPUB / PDF / OneDrive
+ * symbols and callouts. Never draw the former DOM title/3D books over it.
+ * One clean clickable tile, exactly the approved Etele Premium footprint.
+ */
+.bs-entertainment-feature .books-promo.books-promo--immersive{
+ background-color:#100c19 !important;
+ background-image:url('./assets/sho-book-studio-golden-hd-v9.webp') !important;
+ background-position:50% 50% !important;
+ background-size:cover !important;
+ background-repeat:no-repeat !important;
+ isolation:isolate;
+ box-shadow:0 13px 29px #000a,0 0 0 1px #e5a3c17f,0 0 30px #b5437c38 !important;
+ border-color:#d6a974bd !important;
+ cursor:pointer;
+}
+/* All graphic and textual overlays duplicate words or objects already baked
+ * into the photomontage. Hide them, including mobile rule overrides. */
+.bs-entertainment-feature .books-promo--immersive .bs-photo-film,
+.bs-entertainment-feature .books-promo--immersive .bs-photo-books,
+.bs-entertainment-feature .books-promo--immersive .bs-text,
+.bs-entertainment-feature .books-promo--immersive::after{
+ display:none !important;
+ visibility:hidden !important;
+}
+.bs-entertainment-feature .books-promo--immersive:hover{
+ filter:brightness(1.055);
+}
+.bs-entertainment-feature .books-promo--immersive:focus-visible{
+ outline:3px solid #fbd3e9;
+ outline-offset:3px;
+}
+@media(max-width:650px){
+ .bs-entertainment-feature .books-promo.books-promo--immersive{
+  background-position:center !important;
+  background-size:100% 100% !important;
+  width:100% !important;
+  /* Exact physical image crop is 1.62:1, matching Etele Premium. */
+  aspect-ratio:1.62 !important;
+ }
+}
+@media(prefers-reduced-motion:reduce){
+ .bs-entertainment-feature .books-promo--immersive{
+  transition:none!important;
+ }
+}
