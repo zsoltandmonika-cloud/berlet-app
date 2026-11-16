@@ -85,3 +85,20 @@
 **Javítás:** mindkét scriptből eltávolítottuk a már szükségtelen DOM-módosítást (a bolt domainje továbbra is megjelenik a hivatalos áruházlinken és a keresési leírásban). Az űrlap és a közös lista nem változott. `store-connect-v2.js` Smart Shopping linkjei `rev=20261116b` verziót kaptak, a Shopping főoldal `store-connect-v2.js?v=store-smart-shared-v3-20261116` hivatkozással töri a régi gyorsítótárat.
 
 **QA:** 31 tényleges HTML ID és összes JS `getElementById` hivatkozás egyeztetve (0 hiányzó); JavaScript és inline script szintaxis PASS; 11/11 nem Tesco áruházban valódi HTML-ID-ket tiszteletben tartó DOM + mock Supabase teszt: 4/4 közös listaelem renderelődik, nem demó. A JS újraindítása és GitHub main állapot ellenőrizve. Éles mobilos felhasználói teszt szükséges a Pages kiszolgálási cache és a bejelentkezett Supabase session ellenőrzéséhez.
+
+## Dinamikus áruházak + Full Basket Match + Local-First V1 · 2026-11-16
+
+**Cél:** teljes közös bevásárlókosár előkészítése egy boltra vagy minden aktív áruházra; új webáruház felvétele/kikapcsolása kódmódosítás nélkül. Integráció a délelőtt bevezetett Local-First mintához.
+
+**Elkészült:**
+- Supabase public.hh_shopping_store_prefs_v1 családi áruház-regiszter, 3 RLS policy (SELECT/INSERT/UPDATE), authenticated jogosultság, hh_profile_access-ellenőrzés, anon grant nincs. A 12 jelenlegi áruház megmaradt alapállapotnak; az első testreszabáskor kerül be az adatbázisba rekord.
+- sh9/shopping/store-registry-v1.js és store-manager-v1.html/.js: áruház hozzáadása HTTPS-cím/kategóriák alapján, ki-/bekapcsolás, felhőmentés, helyi snapshot; marketingparaméterek törlése, biztonságos domainellenőrzés. A Shopping boltkártyái dinamikusak; 12-nél több esetén a rács belül görgethető, a standard kártyák nem zsugorodnak túl.
+- merchant-search-v1.js: ismert boltok natív találati keresői; ALDI, Shoperia és új boltok jelzett, domainre szűrt külső webkeresése.
+- merchant-basket-v1.js/.css: a 11 nem Tesco egyboltos Bridge teljes listás előkészítése egy gombbal, mentett hivatkozások külön megjelenítése. A Tesco Golden v3 forrás érintetlen.
+- basket-matrix-v1.html/.js: összboltos, kategóriaérzékeny Full Basket Match; családi Supabase lista + opcionális mentett bolti/Tesco terméklinkek, egy kattintásos keresési mátrix, 50 termékes lapozható megjelenítés.
+- shopping-local-v1.js: felhasználói azonosító szerint elkülönített IndexedDB read-through cache a családi listára és terméklinkekre. Supabase marad a hiteles forrás; nincs ár/token lokális tárolása vagy periódikus polling. Visszatéréskor a Bridge minimum 5 perc frissességi ablakot használ, és nem duplikál kezdeti oldalletöltéskor.
+- SHO fő Shopping felületen megjelent a Boltok kezelése és a Teljes kosár belépő.
+
+**QA:** 12 alapbolt és új 13. tesztbolt merge, kikapcsolt ALDI kizárása és biztonságtalan URL blokkolása sikeres. 11/11 nem Tesco Bridge: 4/4 családi tétel és 4/4 kötegelt keresés mock teszt sikeres; egy új custom bolttal és offline helyi cache-fallbackkel is. Az all-store mátrix 2 termék/4 aktív bolt/4 releváns keresési útvonal/1 Tesco-link online és cached-offline mock tesztje sikeres. DB RLS aktív, 3 policy, kezdeti üres boltprefs tábla; próbaadat nem került a felhőbe.
+
+**Nem kész / UAT:** nincs hitelesen összekötött bolti ár- és készletfeed, automatikus SKU-egyezés, bolti kosárfeltöltés vagy garantált offline hidegindítás. A GitHub Pages közvetlen elérése e környezetből nem ellenőrizhető; Samsung Internet/HH ONE éles teszt nyitott.
