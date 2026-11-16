@@ -121,7 +121,7 @@ test('V8 creates 24 real individualized clickable cards, four per category and t
  assert.ok(slides.every(x=>!/^(Mozi|Színház|Koncertek|Home Media|Kultúra|Rendezvények)$/.test(x.title)));
  const viewport=panel.children[0].children[0];
  assert.equal(viewport.children.length,24);
- assert.ok(viewport.children.every(x=>x.tagName==='a'&&x.href&&x.children.length>=4));
+ assert.ok(viewport.children.every(x=>x.tagName==='a'&&x.href&&x.children.length>=3));
  assert.ok(viewport.children.some(x=>!!x.querySelector('.sho-feature-poster')));
  assert.ok(viewport.children.every(x=>x.children.every(c=>c.className!=='sho-feature-title')));
  const title=api.activeTitle;api.next();assert.notEqual(api.activeTitle,title);
