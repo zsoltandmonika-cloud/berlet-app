@@ -303,6 +303,11 @@ async function flushPending(){
   if(!ready||config?.account!==account||pid()!==p)return;
   const book=entries.find(x=>x.drive_item_id===item.drive_item_id);
   if(!book||book.drive_id!==item.drive_id)continue;
+  // A newer cloud change from another phone wins over a stale pending write.
+  if(book.updated_at&&Number(item.at)<Date.parse(book.updated_at)){
+   await OFFLINE.ackPending(account,p,item.drive_item_id,item.at);
+   continue;
+  }
   const patch=item.patch||{};
   const row={
    profile_key:p,drive_id:book.drive_id,item_id:book.drive_item_id,
