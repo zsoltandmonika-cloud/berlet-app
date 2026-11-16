@@ -16,6 +16,7 @@
 <link rel="stylesheet" href="./book-studio-reader-compact-v14.css?v=14-s24-more-reading-space">
 <link rel="stylesheet" href="./book-studio-shelf-sort-v17.css?v=17-sort-custom">
 <link rel="stylesheet" href="./book-studio-page-curl-v19.css?v=19-3d-sheet">
+<link rel="stylesheet" href="./book-studio-offline-v21.css?v=21">
 </head>
 <body class="bshelf-v10-page">
 <div class="shell">
@@ -42,6 +43,7 @@
   <div class="bshelf-settings-menu" id="bshelfSettingsMenu" hidden role="group" aria-label="Könyvtár beállításai">
    <div class="bshelf-menu-title">⚙ BOOK STUDIO · BEÁLLÍTÁSOK</div>
    <button type="button" id="bshelfMenuOneDrive">☁️ OneDrive kapcsolat</button>
+   <button type="button" id="bshelfMenuOffline">📱 Offline könyvtár</button>
    <button type="button" id="bshelfMenuManage">📚 Könyvtár szerkesztése</button>
    <button type="button" id="bshelfMenuCovers">🖼️ Borítók, címek, duplikációk</button>
    <button type="button" id="bshelfMenuUploads">＋ Külön feltöltött könyvek</button>
@@ -85,6 +87,23 @@
  <label class="bshelf-manage-search">⌕ <input id="bshelfManageFilter" type="search" placeholder="Keresés a könyveid között…" autocomplete="off"></label>
  <div id="bshelfManageList" class="bshelf-manage-list"></div>
  <p class="bshelf-manage-warning">⚠️ A végleges fájltörlést a OneDrive-ban végezheted. Az SHO kizárólag olvasási jogosultsággal csatlakozik, ezért itt nem töröl eredeti fájlokat.</p>
+</section>
+<section id="bshelfOfflinePanel" class="bshelf-offline-panel" hidden aria-label="Offline olvasás kezelése">
+ <span class="bshelf-offline-kicker">📱 BOOK STUDIO · HELYI GYŰJTEMÉNY</span>
+ <h2>Offline könyvtár</h2>
+ <p class="bshelf-offline-lead">A könyvek, borítók és a könyvespolc a telefonon tárolódhatnak. Bekapcsolás után azonnal a helyi polc nyílik meg, a OneDrive csak frissítéshez kell.</p>
+ <div id="bshelfOfflineState" class="bshelf-offline-state" role="status" aria-live="polite">Állapot ellenőrzése…</div>
+ <div class="bshelf-offline-meter" aria-hidden="true"><span id="bshelfOfflineBar"></span></div>
+ <div class="bshelf-offline-actions">
+  <button type="button" id="bshelfOfflineEnable">📱 Offline mód bekapcsolása</button>
+  <button type="button" id="bshelfOfflineDownload" disabled>⬇ Összes könyv letöltése</button>
+  <button type="button" id="bshelfOfflineCancel" hidden>⏹ Letöltés leállítása</button>
+  <button type="button" id="bshelfOfflineRefresh" disabled>↻ Könyvtár frissítése</button>
+  <button type="button" id="bshelfOfflineDisable" hidden>Online módra váltás</button>
+ </div>
+ <p id="bshelfOfflineStorage" class="bshelf-offline-storage">Tárhelyadatok betöltése…</p>
+ <div class="bshelf-offline-warning"><strong>🔒 Adatvédelem:</strong> az offline könyvek a böngésző privát tárhelyén vannak, de külön nem titkosítottak. A készülék feloldása után hozzáférhetők. Az offline mód ugyanabban a böngészőben működik, ahol letöltötted. A böngésző adatainak törlése eltávolítja őket; a Microsoft OneDrive eredeti fájljai változatlanok.</div>
+ <p class="bshelf-offline-note">Az első letöltéshez Wi-Fi ajánlott. A tárolható mennyiséget a telefon szabad tárhelye és a böngésző korlátai határozzák meg. Csak a már letöltött EPUB/PDF könyvek olvashatók internet nélkül.</p>
 </section>
 <section class="hero">
  <div class="hero-copy"><span class="eyebrow">✦ SHO · GOLDEN STANDARD · PRIVÁT KÖNYVTÁR</span><h1>Book <em>Studio</em></h1><p>Az összes történetetek, egy gyönyörű könyvespolcon. Ott folytatod, ahol abbahagytad.</p>
@@ -145,11 +164,12 @@
 <script defer src="https://cdn.jsdelivr.net/npm/epubjs@0.3.93/dist/epub.min.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
 <script defer src="./onedrive-session-v3.js?v=3"></script>
-<script defer src="./book-cache-v3.js?v=3"></script>
+<script defer src="./book-cache-v3.js?v=21-offline-catalog"></script>
 <script defer src="../book-studio-preview-v4.js?v=4"></script>
 <script defer src="./book-metadata-v4.js?v=4"></script>
 <script defer src="./book-studio.js?v=20-sepia-explicit-bookmarks"></script>
-<script defer src="./book-studio-wood-shelf-v10.js?v=17-shelf-sort"></script>
-<script defer src="./onedrive-books-v2.js?v=20-sepia-explicit-bookmarks"></script>
+<script defer src="./book-studio-wood-shelf-v10.js?v=21-offline-controls"></script>
+<script defer src="./book-studio-offline-v21.js?v=21"></script>
+<script defer src="./onedrive-books-v2.js?v=21-offline-first"></script>
 </body>
 </html>

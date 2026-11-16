@@ -16,7 +16,7 @@ test('Book Studio exposes accessible management view inside settings, without Gr
  assert.doesNotMatch(drive,/Files\.ReadWrite|graph\.microsoft\.com.*DELETE/);
  assert.doesNotMatch(js,/method:\s*['"]DELETE['"]/);
  assert.match(drive,/web_url:item\.webUrl\|\|''/);
- assert.match(drive,/update\(ready\?source:\[\],config\?\.account\|\|'',pid\(\)\)/);
+ assert.match(drive,/update\(\(ready\|\|localMode\)\?source:\[\],config\?\.account\|\|'',pid\(\)\)/);
 });
 class Node{
  constructor(tag='div'){
@@ -50,7 +50,7 @@ function env(){
   'bshelfSearchToggle','bshelfSortToggle','bshelfSortMenu','bshelfSortTitle','bshelfSortTitleDesc',
   'bshelfSortAuthor','bshelfSortFavorites','bshelfSortReading','bshelfSortManual',
   'bshelfSearchBox','bshelfSearch','bshelfEmpty','bshelfStatus','bshelfCount',
-  'bshelfAdminTitle','bshelfMenuOneDrive','bshelfMenuCovers','bshelfMenuUploads','bshelfMenuManage',
+  'bshelfOfflinePanel','bshelfMenuOffline','bshelfAdminTitle','bshelfMenuOneDrive','bshelfMenuCovers','bshelfMenuUploads','bshelfMenuManage',
   'bshelfManagePanel','bshelfManageCount','bshelfManageList','bshelfManageFilter',
   'bshelfSearchClear','bshelfConnectAction','bshelfAdminBack','bookStudioSettings',
   'onedriveBooks','library','profileSwitch'];
