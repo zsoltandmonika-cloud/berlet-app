@@ -451,13 +451,35 @@ function zipPath(base,href){
 }
 async function thumbFromBlob(blob){
  if(!blob?.size||!blob.type.startsWith('image/'))return null;
+ let source=null,url=null,cleanup=()=>{};
  try{
-  const bit=await w.createImageBitmap(blob);
-  const ratio=Math.min(1,420/bit.width,630/bit.height);
-  const cv=d.createElement('canvas');cv.width=Math.max(1,Math.round(bit.width*ratio));cv.height=Math.max(1,Math.round(bit.height*ratio));
-  cv.getContext('2d').drawImage(bit,0,0,cv.width,cv.height);bit.close();
+  if(typeof w.createImageBitmap==='function'){
+   try{
+    source=await w.createImageBitmap(blob);
+    cleanup=()=>source.close?.();
+   }catch(_){source=null}
+  }
+  // Some Android/Samsung browsers cannot decode specific EPUB cover formats
+  // through createImageBitmap. A normal Image + canvas still works.
+  if(!source&&typeof w.Image==='function'){
+   url=URL.createObjectURL(blob);
+   source=await new Promise((resolve,reject)=>{
+    const img=new w.Image();img.onload=()=>resolve(img);
+    img.onerror=()=>reject(Error('A borítókép nem dekódolható.'));
+    img.src=url;
+   });
+  }
+  if(!source)return null;
+  const width=source.width||source.naturalWidth,height=source.height||source.naturalHeight;
+  if(!width||!height)return null;
+  const ratio=Math.min(1,420/width,630/height);
+  const cv=d.createElement('canvas');
+  cv.width=Math.max(1,Math.round(width*ratio));cv.height=Math.max(1,Math.round(height*ratio));
+  cv.getContext('2d').drawImage(source,0,0,cv.width,cv.height);
   return await new Promise(resolve=>cv.toBlob(resolve,'image/jpeg',.85));
- }catch(_){return null}
+ }catch(_){return null}finally{
+  cleanup();if(url)URL.revokeObjectURL(url);
+ }
 }
 async function graphCover(b){
  // Microsoft Graph's thumbnail API is read-only and accepts existing Files.Read.
