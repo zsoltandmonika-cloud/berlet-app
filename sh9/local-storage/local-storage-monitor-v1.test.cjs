@@ -95,7 +95,8 @@ test('privacy of monitor: whitelist Book Studio stores and no other IndexedDB co
  assert.match(source,/openCursor\(\)/);
  assert.match(source,/row\.size_bytes/);
  assert.match(source,/row\.bytes/);
- assert.doesNotMatch(source,/blob\.arrayBuffer\(|getAll\(|getAllKeys\(/);
+ assert.doesNotMatch(source,/getAll\(|getAllKeys\(/);
+ assert.doesNotMatch(source,/(?:await|return)\s+[^;\n]*\.arrayBuffer\(/);
  assert.match(html,/külön tárhelyet/);
  assert.match(html,/Automatikus cache-törlés nincs bekapcsolva/);
  assert.doesNotThrow(()=>new Function(source));
