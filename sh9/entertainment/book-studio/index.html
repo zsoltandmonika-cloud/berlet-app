@@ -12,6 +12,7 @@
 <link rel="stylesheet" href="./book-studio-golden-v3.css?v=3">
 <link rel="stylesheet" href="./book-studio-tuning-v4.css?v=4">
 <link rel="stylesheet" href="./book-studio-wood-shelf-v10.css?v=12-cover-display-fix">
+<link rel="stylesheet" href="./book-studio-library-manage-v13.css?v=13">
 </head>
 <body class="bshelf-v10-page">
 <div class="shell">
@@ -27,6 +28,7 @@
   <div class="bshelf-settings-menu" id="bshelfSettingsMenu" hidden role="group" aria-label="Könyvtár beállításai">
    <div class="bshelf-menu-title">⚙ BOOK STUDIO · BEÁLLÍTÁSOK</div>
    <button type="button" id="bshelfMenuOneDrive">☁️ OneDrive kapcsolat</button>
+   <button type="button" id="bshelfMenuManage">📚 Könyvtár szerkesztése</button>
    <button type="button" id="bshelfMenuCovers">🖼️ Borítók, címek, duplikációk</button>
    <button type="button" id="bshelfMenuUploads">＋ Külön feltöltött könyvek</button>
    <div class="bshelf-menu-divider"></div>
@@ -59,6 +61,17 @@
 </section>
 <section class="bshelf-admin" id="bsAdminView" aria-label="Book Studio rendszerbeállítások" hidden>
  <div class="bshelf-admin-toolbar"><button type="button" id="bshelfAdminBack">← Vissza a könyvespolcra</button><h2 id="bshelfAdminTitle">Beállítások</h2></div>
+<section id="bshelfManagePanel" class="bshelf-manage-panel" hidden aria-label="Könyvespolc szerkesztése">
+ <div class="bshelf-manage-intro">
+  <span class="bshelf-manage-kicker">✦ SAJÁT KÖNYVTÁR · SZERKESZTÉS</span>
+  <h2>📚 Könyveim kezelése</h2>
+  <p>Elrejtheted a könyveket a polcról, és bármikor visszahelyezheted őket. Az eredeti OneDrive-fájlok változatlanok.</p>
+  <div id="bshelfManageCount" class="bshelf-manage-count" role="status" aria-live="polite">Könyvek betöltése…</div>
+ </div>
+ <label class="bshelf-manage-search">⌕ <input id="bshelfManageFilter" type="search" placeholder="Keresés a könyveid között…" autocomplete="off"></label>
+ <div id="bshelfManageList" class="bshelf-manage-list"></div>
+ <p class="bshelf-manage-warning">⚠️ A végleges fájltörlést a OneDrive-ban végezheted. Az SHO kizárólag olvasási jogosultsággal csatlakozik, ezért itt nem töröl eredeti fájlokat.</p>
+</section>
 <section class="hero">
  <div class="hero-copy"><span class="eyebrow">✦ SHO · GOLDEN STANDARD · PRIVÁT KÖNYVTÁR</span><h1>Book <em>Studio</em></h1><p>Az összes történetetek, egy gyönyörű könyvespolcon. Ott folytatod, ahol abbahagytad.</p>
  <div class="hero-actions"><a class="btn primary" href="#onedriveBooks">☁️ OneDrive könyveim</a><label for="uploadFile" class="btn subtle">＋ Külön feltöltés</label><input id="uploadFile" type="file" accept=".epub,.pdf,application/epub+zip,application/pdf" hidden></div>
@@ -122,7 +135,7 @@
 <script defer src="../book-studio-preview-v4.js?v=4"></script>
 <script defer src="./book-metadata-v4.js?v=4"></script>
 <script defer src="./book-studio.js?v=4-page-sound-contrast"></script>
-<script defer src="./book-studio-wood-shelf-v10.js?v=12-visible-cover-load"></script>
-<script defer src="./onedrive-books-v2.js?v=11-auto-authentic-covers"></script>
+<script defer src="./book-studio-wood-shelf-v10.js?v=13-library-manager"></script>
+<script defer src="./onedrive-books-v2.js?v=13-library-manager"></script>
 </body>
 </html>
