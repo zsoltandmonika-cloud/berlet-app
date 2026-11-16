@@ -1,0 +1,479 @@
+{
+  "generated_utc": "2026-11-16T08:24:28Z",
+  "public_tables": 57,
+  "storage_buckets": [
+    {
+      "bytes": 70680761,
+      "bucket": "hh-kb-visuals",
+      "public": false,
+      "objects": 164
+    },
+    {
+      "bytes": 0,
+      "bucket": "hh-mkb-originals",
+      "public": false,
+      "objects": 0
+    },
+    {
+      "bytes": 411577,
+      "bucket": "hh-my-trip-tickets",
+      "public": false,
+      "objects": 1
+    },
+    {
+      "bytes": 2332889,
+      "bucket": "hh-smart-valet-private",
+      "public": false,
+      "objects": 13
+    },
+    {
+      "bytes": 3326143,
+      "bucket": "hh-smart-valet-id-encrypted-v11",
+      "public": false,
+      "objects": 15
+    },
+    {
+      "bytes": 0,
+      "bucket": "hh-book-studio",
+      "public": false,
+      "objects": 0
+    }
+  ],
+  "postgres_version": "17.11",
+  "tables_without_rls": [],
+  "database_total_bytes": 29062835,
+  "public_table_relations": [
+    {
+      "name": "hh_ask_lena_feedback",
+      "total_bytes": 49152,
+      "live_rows_estimate": 8
+    },
+    {
+      "name": "hh_ask_lena_history",
+      "total_bytes": 221184,
+      "live_rows_estimate": 63
+    },
+    {
+      "name": "hh_ask_lena_usage",
+      "total_bytes": 49152,
+      "live_rows_estimate": 87
+    },
+    {
+      "name": "hh_book_studio_books",
+      "total_bytes": 40960,
+      "live_rows_estimate": 0
+    },
+    {
+      "name": "hh_book_studio_drive_progress_v2",
+      "total_bytes": 49152,
+      "live_rows_estimate": 10
+    },
+    {
+      "name": "hh_briefing_preferences",
+      "total_bytes": 16384,
+      "live_rows_estimate": 0
+    },
+    {
+      "name": "hh_collector_telemetry",
+      "total_bytes": 24576,
+      "live_rows_estimate": 0
+    },
+    {
+      "name": "hh_daily_health_ai_reports",
+      "total_bytes": 245760,
+      "live_rows_estimate": 78
+    },
+    {
+      "name": "hh_daily_health_settings",
+      "total_bytes": 32768,
+      "live_rows_estimate": 2
+    },
+    {
+      "name": "hh_family_device_credentials_v1",
+      "total_bytes": 49152,
+      "live_rows_estimate": 2
+    },
+    {
+      "name": "hh_family_device_pair_requests_v1",
+      "total_bytes": 49152,
+      "live_rows_estimate": 2
+    },
+    {
+      "name": "hh_family_devices_v1",
+      "total_bytes": 81920,
+      "live_rows_estimate": 2
+    },
+    {
+      "name": "hh_family_task_categories",
+      "total_bytes": 49152,
+      "live_rows_estimate": 21
+    },
+    {
+      "name": "hh_family_task_events",
+      "total_bytes": 106496,
+      "live_rows_estimate": 76
+    },
+    {
+      "name": "hh_family_task_hidden",
+      "total_bytes": 49152,
+      "live_rows_estimate": 24
+    },
+    {
+      "name": "hh_family_task_logbook_hidden",
+      "total_bytes": 24576,
+      "live_rows_estimate": 0
+    },
+    {
+      "name": "hh_family_task_presets",
+      "total_bytes": 65536,
+      "live_rows_estimate": 52
+    },
+    {
+      "name": "hh_family_task_sticky_ack",
+      "total_bytes": 73728,
+      "live_rows_estimate": 2
+    },
+    {
+      "name": "hh_family_task_sticky_notes",
+      "total_bytes": 16384,
+      "live_rows_estimate": 0
+    },
+    {
+      "name": "hh_family_tasks",
+      "total_bytes": 98304,
+      "live_rows_estimate": 17
+    },
+    {
+      "name": "hh_google_drive_oauth_connections",
+      "total_bytes": 32768,
+      "live_rows_estimate": 2
+    },
+    {
+      "name": "hh_google_drive_oauth_pending",
+      "total_bytes": 49152,
+      "live_rows_estimate": 3
+    },
+    {
+      "name": "hh_guardian_active_transit",
+      "total_bytes": 32768,
+      "live_rows_estimate": 1
+    },
+    {
+      "name": "hh_guardian_live_locations",
+      "total_bytes": 65536,
+      "live_rows_estimate": 1
+    },
+    {
+      "name": "hh_guardian_location_settings",
+      "total_bytes": 65536,
+      "live_rows_estimate": 2
+    },
+    {
+      "name": "hh_guardian_place_alert_rules_v2",
+      "total_bytes": 32768,
+      "live_rows_estimate": 4
+    },
+    {
+      "name": "hh_guardian_shared_landmarks",
+      "total_bytes": 32768,
+      "live_rows_estimate": 7
+    },
+    {
+      "name": "hh_interfood_bridge_config_v1",
+      "total_bytes": 32768,
+      "live_rows_estimate": 1
+    },
+    {
+      "name": "hh_interfood_confirmed_orders_v1",
+      "total_bytes": 65536,
+      "live_rows_estimate": 4
+    },
+    {
+      "name": "hh_interfood_graph_connections_v1",
+      "total_bytes": 49152,
+      "live_rows_estimate": 1
+    },
+    {
+      "name": "hh_interfood_graph_oauth_pending_v1",
+      "total_bytes": 32768,
+      "live_rows_estimate": 0
+    },
+    {
+      "name": "hh_kb_documents",
+      "total_bytes": 270336,
+      "live_rows_estimate": 219
+    },
+    {
+      "name": "hh_kb_pages",
+      "total_bytes": 1835008,
+      "live_rows_estimate": 337
+    },
+    {
+      "name": "hh_kb_visuals",
+      "total_bytes": 114688,
+      "live_rows_estimate": 164
+    },
+    {
+      "name": "hh_mkb_evidence",
+      "total_bytes": 65536,
+      "live_rows_estimate": 12
+    },
+    {
+      "name": "hh_mkb_facts",
+      "total_bytes": 98304,
+      "live_rows_estimate": 7
+    },
+    {
+      "name": "hh_mkb_image_annotations",
+      "total_bytes": 24576,
+      "live_rows_estimate": 0
+    },
+    {
+      "name": "hh_mkb_ingest_jobs",
+      "total_bytes": 32768,
+      "live_rows_estimate": 0
+    },
+    {
+      "name": "hh_mkb_json_records",
+      "total_bytes": 40960,
+      "live_rows_estimate": 0
+    },
+    {
+      "name": "hh_mkb_sources",
+      "total_bytes": 294912,
+      "live_rows_estimate": 218
+    },
+    {
+      "name": "hh_my_trip_attachments",
+      "total_bytes": 65536,
+      "live_rows_estimate": 1
+    },
+    {
+      "name": "hh_my_trip_packs",
+      "total_bytes": 98304,
+      "live_rows_estimate": 10
+    },
+    {
+      "name": "hh_profile_access",
+      "total_bytes": 49152,
+      "live_rows_estimate": 6
+    },
+    {
+      "name": "hh_profiles",
+      "total_bytes": 32768,
+      "live_rows_estimate": 2
+    },
+    {
+      "name": "hh_shopping_favorites_v1",
+      "total_bytes": 49152,
+      "live_rows_estimate": 5
+    },
+    {
+      "name": "hh_shopping_list_v1",
+      "total_bytes": 81920,
+      "live_rows_estimate": 3
+    },
+    {
+      "name": "hh_shopping_merchant_links_v1",
+      "total_bytes": 24576,
+      "live_rows_estimate": 0
+    },
+    {
+      "name": "hh_shopping_tesco_bridge_v1",
+      "total_bytes": 49152,
+      "live_rows_estimate": 1
+    },
+    {
+      "name": "hh_smart_trip_google_quota",
+      "total_bytes": 65536,
+      "live_rows_estimate": 4
+    },
+    {
+      "name": "hh_sport_watch_settings",
+      "total_bytes": 16384,
+      "live_rows_estimate": 0
+    },
+    {
+      "name": "hh_travel_family_places",
+      "total_bytes": 32768,
+      "live_rows_estimate": 8
+    },
+    {
+      "name": "hh_travel_favorite_places",
+      "total_bytes": 24576,
+      "live_rows_estimate": 0
+    },
+    {
+      "name": "hh_valet_extra_cards_v15",
+      "total_bytes": 5898240,
+      "live_rows_estimate": 7
+    },
+    {
+      "name": "hh_valet_identity_cards_v11",
+      "total_bytes": 81920,
+      "live_rows_estimate": 8
+    },
+    {
+      "name": "hh_valet_items",
+      "total_bytes": 98304,
+      "live_rows_estimate": 13
+    },
+    {
+      "name": "sho_push_devices_v3",
+      "total_bytes": 65536,
+      "live_rows_estimate": 2
+    },
+    {
+      "name": "sho_push_vapid_v3",
+      "total_bytes": 32768,
+      "live_rows_estimate": 1
+    }
+  ],
+  "project_ref": "vhsrupphzcjkdrusonzh",
+  "project_name": "HealthHub-Core",
+  "region": "eu-central-1",
+  "status": "ACTIVE_HEALTHY",
+  "source_code_commit": "812c23a0cbb124263c9e02836a93f8bf5814191b",
+  "git_backup_branch": "backup/sho-pre-offline-core-2026-11-16",
+  "edge_functions": [
+    {
+      "slug": "healthhub-personal-ai",
+      "version": 16,
+      "status": "ACTIVE",
+      "verify_jwt": false
+    },
+    {
+      "slug": "quick-responder",
+      "version": 12,
+      "status": "ACTIVE",
+      "verify_jwt": true
+    },
+    {
+      "slug": "smooth-endpoint",
+      "version": 16,
+      "status": "ACTIVE",
+      "verify_jwt": false
+    },
+    {
+      "slug": "smooth-endpoint-v395",
+      "version": 19,
+      "status": "ACTIVE",
+      "verify_jwt": false
+    },
+    {
+      "slug": "smooth-endpoint-v405-preview",
+      "version": 12,
+      "status": "ACTIVE",
+      "verify_jwt": false
+    },
+    {
+      "slug": "smooth-endpoint-v406-preview",
+      "version": 12,
+      "status": "ACTIVE",
+      "verify_jwt": false
+    },
+    {
+      "slug": "hh-drive-oauth-v682",
+      "version": 17,
+      "status": "ACTIVE",
+      "verify_jwt": false
+    },
+    {
+      "slug": "hh-mkb-search-preview",
+      "version": 10,
+      "status": "ACTIVE",
+      "verify_jwt": false
+    },
+    {
+      "slug": "hh-sol-full-corpus-preview",
+      "version": 8,
+      "status": "ACTIVE",
+      "verify_jwt": false
+    },
+    {
+      "slug": "hh-medical-master-golden-v710",
+      "version": 8,
+      "status": "ACTIVE",
+      "verify_jwt": false
+    },
+    {
+      "slug": "hh-bkk-live-v793-preview",
+      "version": 24,
+      "status": "ACTIVE",
+      "verify_jwt": false
+    },
+    {
+      "slug": "hh-github-billing-v873",
+      "version": 8,
+      "status": "ACTIVE",
+      "verify_jwt": true
+    },
+    {
+      "slug": "hh-lena-handover-preview",
+      "version": 6,
+      "status": "ACTIVE",
+      "verify_jwt": true
+    },
+    {
+      "slug": "hh-lena-mcp-preview",
+      "version": 6,
+      "status": "ACTIVE",
+      "verify_jwt": false
+    },
+    {
+      "slug": "hh-lena-native-search-preview",
+      "version": 6,
+      "status": "ACTIVE",
+      "verify_jwt": true
+    },
+    {
+      "slug": "sho-webpush-v3",
+      "version": 6,
+      "status": "ACTIVE",
+      "verify_jwt": true
+    },
+    {
+      "slug": "hh-smart-trip-routes-v1",
+      "version": 8,
+      "status": "ACTIVE",
+      "verify_jwt": true
+    },
+    {
+      "slug": "hh-smart-trip-real-pilot-v1",
+      "version": 8,
+      "status": "ACTIVE",
+      "verify_jwt": true
+    },
+    {
+      "slug": "hh-smart-trip-usage-v881",
+      "version": 5,
+      "status": "ACTIVE",
+      "verify_jwt": true
+    },
+    {
+      "slug": "hh-family-device-heartbeat-v1",
+      "version": 5,
+      "status": "ACTIVE",
+      "verify_jwt": false
+    },
+    {
+      "slug": "hh-smart-trip-universal-v1",
+      "version": 6,
+      "status": "ACTIVE",
+      "verify_jwt": true
+    },
+    {
+      "slug": "hh-interfood-outlook-bridge-v1179",
+      "version": 6,
+      "status": "ACTIVE",
+      "verify_jwt": false
+    },
+    {
+      "slug": "sho-shopping-products-v1",
+      "version": 2,
+      "status": "ACTIVE",
+      "verify_jwt": false
+    }
+  ],
+  "notice": "READ-ONLY METADATA INVENTORY. Not a restorable backup. No user data rows, tokens, secrets or Storage binary files."
+}
