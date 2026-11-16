@@ -659,6 +659,13 @@ $('odCacheClear').addEventListener('click',async()=>{
  status('A helyi gyorsítótár kiürítve. Az eredeti OneDrive-könyvek érintetlenek.');
 });
 w.SH9_BOOK_STUDIO_DRIVE_V2=Object.freeze({getBook,download,saveProgress,render,reload:async()=>{entries=[];await loadLibrary()}});
+// V11: the user explicitly requested automatic cover collection.
+ // Switch it ON once for existing browsers; subsequent manual OFF is respected.
+const AUTO_V11_INIT='sh9-book-auto-v11-initialized';
+if(load(w.localStorage,AUTO_V11_INIT)!=='yes'){
+ store(w.localStorage,AUTO_COVER_KEY,'on');
+ store(w.localStorage,AUTO_V11_INIT,'yes');
+}
 displayConfig();setConnected(false);
 (async()=>{
  if(await handleCallback())return;
