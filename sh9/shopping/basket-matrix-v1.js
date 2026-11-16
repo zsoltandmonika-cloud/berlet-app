@@ -116,10 +116,15 @@ function render(){
   for(const shop of active){
    const row=node('div','shop'),label=node('div');
    label.append(node('strong',null,shop.name),node('small',null,search.native(shop.key)?'Hivatalos bolti találatok':'Bolt domainjére szűrt webkeresés'));
-   const action=node('a',null,'🔎 Keresés');
+   // Make the entire retailer surface a real, keyboard-accessible link.
+   // The saved SKU shortcut remains a separate sibling link, never a nested anchor.
+   const action=node('a','shop-main');
    action.href=search.url(shop.key,shop,item.name);
-   action.rel='noopener noreferrer external';action.target='_blank';action.title='Az áruház vagy külső kereső találati listája, nem automatikusan kiválasztott termék';
-   row.append(label,action);list.append(row);
+   action.rel='noopener noreferrer external';action.target='_blank';
+   action.title=shop.name+' · a termék keresési találatainak megnyitása';
+   action.setAttribute('aria-label',shop.name+' · '+item.name+' keresési találatok megnyitása');
+   action.append(label,node('span','shop-cta','🔎 Keresés'));
+   row.append(action);list.append(row);
    const existing=saved(item,shop);
    if(existing){
     const direct=node('a','saved','🔗 Mentett');
