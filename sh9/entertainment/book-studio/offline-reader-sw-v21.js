@@ -4,7 +4,7 @@
  * or authenticated response bodies. EPUB/PDF book blobs are in IndexedDB.
  */
 'use strict';
-const VERSION='sho-book-studio-offline-shell-v21';
+const VERSION='sho-book-studio-offline-shell-v22';
 const ROOT=new URL('./',self.registration.scope);
 const local=[
  './','./index.html',
@@ -18,6 +18,7 @@ const local=[
  './book-studio-shelf-sort-v17.css?v=17-sort-custom',
  './book-studio-page-curl-v19.css?v=19-3d-sheet',
  './book-studio-offline-v21.css?v=21',
+ './book-local-v22.css?v=22',
  './onedrive-session-v3.js?v=3',
  './book-cache-v3.js?v=21-offline-catalog',
  '../book-studio-preview-v4.js?v=4',
@@ -25,6 +26,7 @@ const local=[
  './book-studio.js?v=20-sepia-explicit-bookmarks',
  './book-studio-wood-shelf-v10.js?v=21-offline-controls',
  './book-studio-offline-v21.js?v=21',
+ './book-local-v22.js?v=22',
  './onedrive-books-v2.js?v=21-offline-first',
  './assets/wood-shelf-v10.webp',
  '../../sho-preview/favicon.svg'
