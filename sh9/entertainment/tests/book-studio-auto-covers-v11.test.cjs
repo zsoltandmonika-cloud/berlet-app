@@ -54,8 +54,8 @@ test('New fullscreen wood shelf visibly updates as original covers arrive',()=>{
  assert.match(shelf,/function setCoverProgress\(completed,total\)/);
  assert.match(shelf,/function finishCoverProgress\(\)/);
  assert.match(shelf,/Eredeti borítók automatikusan/);
- assert.match(shelf,/state\.covers\.size\+' borító/);
- assert.match(html,/book-studio-wood-shelf-v10\.js\?v=11-auto-cover-status/);
+ assert.match(shelf,/state\.displayed\.size\+' borító/);
+ assert.match(html,/book-studio-wood-shelf-v10\.js\?v=(11-auto-cover-status|12-visible-cover-load)/);
 });
 test('V11 scripts parse without syntax errors',()=>{
  assert.doesNotThrow(()=>new Function(js));
