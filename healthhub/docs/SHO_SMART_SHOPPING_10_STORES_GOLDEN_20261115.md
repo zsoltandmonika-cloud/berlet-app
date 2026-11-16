@@ -68,3 +68,10 @@
 - **Keresési útvonal:** natív ALDI kereső URL-séma nem hitelesíthető, ezért transzparens `site:shop.aldi.hu <termék>` külső webkeresés. Dupla koppintás / szabad keresés így működik; nem önkényes egyedi terméklapra lépés.
 - **Vizuális standard:** Golden kártyamagasság és kategóriák változatlanok; az előző, páratlan számú (11) boltos Shoperia-széthúzás CSS-e már csak páratlan darabszámnál aktiválódik. A termékkatalógus továbbra is külön panel.
 - **QA:** 12 kártya, két ALDI-mintakeresés (arabica kávé + laktózmentes tej), JS + inline HTML script syntax, belső és inline keresőegyezés, 2×6 CSS és cache-busting ellenőrzés: PASS. Teljes mobilos, élő ALDI oldali UAT és GitHub Pages publikáció végponttól végpontig még nyitott.
+
+## 12 boltos közös Smart List belépő javítása · 2026-11-16
+- **Felhasználói hiba:** a Smart Shopping gombon át a Tesco a közös bevásárlólistát nyitotta meg, a másik 11 bolt viszont korábbi `demo` nézetet tarthatott meg a boltonként külön tárolt `sessionStorage` miatt.
+- **Javítás:** `merchant-smart-v1.html` és az azonos logikájú `.js` most mindig a közös, felhős Smart Listtel indul; a 10 demótermék csak manuális opció, és nem írhatja felül a következő boltnál a közös lista alapértelmezését. A boltkártyák útvonala explicit `view=shared` és HTML cache-busting `rev` paramétert kapott.
+- **Adatbetöltés:** a közös lista külön, elsődleges Supabase-olvasás; a mentett merchant-specifikus SKU-linkek opcionális második betöltése nem blokkolhatja a listát. Látható szinkron-, bejelentkezési és hibastátuszok.
+- **Érintetlen:** Tesco Golden Bridge v3, családi lista írási funkciói, RLS, mentett termékkapcsolatok, keresési URL-sémák, alap Golden csempegeometria.
+- **QA:** mind a 11 másik áruházra szimulált, bejelentkezett családi felhőbetöltés (4 tétel) 11/11 sikeres; link API hiba mellett is 4 tétel betöltve; nincs bejelentkezés esetén nem jelenik meg megtévesztő 10 mintatermék. A tényleges Android és GitHub Pages UI-UAT még nyitott.
