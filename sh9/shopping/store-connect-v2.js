@@ -7,7 +7,7 @@
 const $=id=>document.getElementById(id);
 const API="https://vhsrupphzcjkdrusonzh.supabase.co/functions/v1/sho-shopping-products-v1";
 const DEFAULT_MERCHANTS=[
- {name:"Tesco",domain:"bevasarlas.tesco.hu",url:"https://bevasarlas.tesco.hu/shop/hu-hu/",cats:["Élelmiszer","Drogéria & Szépség","Otthon & Háztartás"]},
+ {name:"Tesco",domain:"bevasarlas.tesco.hu",url:"https://bevasarlas.tesco.hu/shop/hu-hu/",cats:["Élelmiszer","Drogéria & Szépség","Otthon & Háztartás","Divat & Stílus"]},
  {name:"ALDI",domain:"shop.aldi.hu",url:"https://shop.aldi.hu/kezdooldal",cats:["Élelmiszer","Drogéria & Szépség","Otthon & Háztartás"]},
  {name:"Auchan",domain:"auchan.hu",url:"https://auchan.hu/shop",cats:["Élelmiszer","Elektronika","Otthon & Háztartás","Drogéria & Szépség"]},
  {name:"Kifli",domain:"kifli.hu",url:"https://www.kifli.hu/",cats:["Élelmiszer","Drogéria & Szépség","Otthon & Háztartás"]},
