@@ -102,8 +102,10 @@ async function save(row){
 function fromInput(name,urlText,cats){
  let url;
  try{url=new URL(String(urlText||'').trim())}catch(_){throw Error('Érvényes https:// webáruház-cím szükséges.')}
- if(url.protocol!=='https:'||url.username||url.password||url.port||url.search||url.hash)
-  throw Error('Csak tiszta, HTTPS-es webáruház-címet adj meg, követőkódok nélkül.');
+ if(url.protocol!=='https:'||url.username||url.password||url.port)
+  throw Error('Csak biztonságos HTTPS webáruház-cím használható.');
+ // Pasted advertisement / tracking URLs are cleaned automatically.
+ url.search='';url.hash='';
  const domain=url.hostname.toLowerCase();
  if(!/^[a-z0-9-]+(?:\.[a-z0-9-]+)+$/.test(domain))throw Error('Hibás domain.');
  const key='custom-'+domain.replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,74);
