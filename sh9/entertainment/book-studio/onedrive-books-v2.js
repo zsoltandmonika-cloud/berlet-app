@@ -259,7 +259,7 @@ function mapBook(item,stored={}){
   size_bytes:item.size,etag:item.eTag||item.cTag||'',last_modified:item.lastModifiedDateTime||'',
   progress_locator:stored.progress_locator||'',progress_percent:stored.progress_percent||0,
   bookmarks:Array.isArray(stored.bookmarks)?stored.bookmarks:[],is_favorite:!!stored.is_favorite,
-  theme:stored.theme||'dark',font_size:stored.font_size||100,updated_at:stored.updated_at||''};
+  theme:stored.theme||'sepia',font_size:stored.font_size||100,updated_at:stored.updated_at||''};
 }
 async function progressRecords(){
  try{
@@ -330,7 +330,7 @@ function render(){
  $('odDedupStatus').textContent=groups.hidden.length?groups.hidden.length+' ismétlődő könyv elrejtve, az eredeti OneDrive-fájlok érintetlenek.':'Nincsenek felismert duplikátumok.';
  $('odEmpty').hidden=!!list.length;
  $('odEmpty').textContent=entries.length?'Nincs ilyen cím vagy szerző.':'Ebben az EBOOKS mappában nem találtam EPUB/PDF könyvet.';
- const recent=source.filter(x=>x.progress_locator).sort((a,b)=>(b.updated_at||'').localeCompare(a.updated_at||''))[0];
+ const recent=source.filter(x=>Array.isArray(x.bookmarks)&&x.bookmarks.some(m=>typeof m?.locator==='string'&&m.locator.trim())).sort((a,b)=>(b.updated_at||'').localeCompare(a.updated_at||''))[0];
  $('odResume').hidden=!recent;
  if(recent){$('odResumeName').textContent=recent.title;$('odResume').onclick=()=>void w.SH9_BOOK_STUDIO_V1.openBook(recent.id)}
  for(const b of list){
@@ -365,7 +365,7 @@ async function saveProgress(b,patch={}){
    progress_locator:patch.progress_locator??b.progress_locator??null,
    progress_percent:patch.progress_percent??b.progress_percent??0,
    bookmarks:patch.bookmarks??b.bookmarks??[],is_favorite:b.is_favorite,
-   theme:patch.theme??b.theme??'dark',font_size:patch.font_size??b.font_size??100,
+   theme:patch.theme??b.theme??'sepia',font_size:patch.font_size??b.font_size??100,
    updated_at:new Date().toISOString()};
   const {error}=await api.from(PROGRESS).upsert(entry,{onConflict:'profile_key,drive_id,item_id'});
   if(error)throw error;
