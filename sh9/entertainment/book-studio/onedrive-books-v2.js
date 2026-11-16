@@ -361,12 +361,13 @@ async function prepareOffline({cancelled=()=>false,onProgress=()=>{}}={}){
     const space=await w.navigator?.storage?.estimate?.();
     if(space?.quota&&space.quota-(space.usage||0)<book.size_bytes*1.2+20*1024*1024)
      throw Error('Nincs elegendő böngésző-tárhely.');
-    blob=await download(book);
+    blob=await download(book,{pinned:true});
    }
    if(!blob?.size||!await CACHE.put(account,book,'file',blob,{pinned:true}))
     throw Error('Az offline könyvfájl helyi mentése sikertelen.');
    cached++;
-   if(!coverUrls.has(book.id))void extractCover(book,blob);
+   if(!coverUrls.has(book.id))await extractCover(book,blob);
+   await CACHE.pin(account,book,'cover');
   }catch(_){failed++}
   done++;
   onProgress({done,total:catalog.length,cached,failed});
@@ -534,7 +535,7 @@ async function freshDownloadUrl(b){
   'A Microsoft Graph nem küldött letöltési hivatkozást ehhez a fájlhoz. Könyvtár frissítése, majd újrapróbálás szükséges.':
   'A könyvfájl metaadata nem elérhető: '+(lastError?.message||'ismeretlen hiba'));
 }
-async function download(b){
+async function download(b,options={}){
  if(!config?.account||!b||b.profile_key!==pid()||!getBook(b.id))
   throw Error('A könyv nem tartozik az aktuális könyvtárhoz vagy profilhoz.');
  if(b.size_bytes>MAX_DOWNLOAD)throw Error('Túl nagy könyv mobilos olvasáshoz (80 MB limit).');
@@ -548,6 +549,7 @@ async function download(b){
   // book. Even an airplane-mode launch opens it immediately from IndexedDB.
   const old=CACHE?await CACHE.get(account,b,'file'):null;
   if(old?.size){
+   if(options.pinned)await CACHE?.pin(account,b,'file');
    if(!coverUrls.has(b.id))void extractCover(b,old);
    return old;
   }
@@ -566,7 +568,11 @@ async function download(b){
    throw e;
   }
   if(blob.size>MAX_DOWNLOAD)throw Error('Túl nagy könyvfájl.');
-  if(CACHE)void CACHE.put(account,b,'file',blob).then(updateCacheInfo);
+  if(CACHE){
+   const saved=await CACHE.put(account,b,'file',blob,{pinned:!!options.pinned});
+   if(options.pinned&&!saved)throw Error('A könyv nem menthető a telefon tárhelyére.');
+   void updateCacheInfo();
+  }
   void extractCover(b,blob);
   return blob;
  })().finally(()=>{pendingDownloads.delete(cacheKey)});
