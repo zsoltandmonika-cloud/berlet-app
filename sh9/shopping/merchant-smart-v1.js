@@ -1,5 +1,5 @@
 /* SHO Smart Shopping · multi-store engine v1
-  Nine merchant-specific handoffs. The Tesco v3 Golden flow stays untouched.
+  Ten merchant-specific handoffs. The Tesco v3 Golden flow stays untouched.
   No merchant basket/price APIs. Family list is read-only; URLs are RLS-protected.
 */
 (function(w,d){'use strict';
@@ -10,6 +10,7 @@ const STORES={
  kifli:{name:'Kifli',domain:'kifli.hu',home:'https://www.kifli.hu/',group:'food'},
  dm:{name:'dm',domain:'dm.hu',home:'https://www.dm.hu/',group:'beauty'},
  rossmann:{name:'Rossmann',domain:'shop.rossmann.hu',home:'https://shop.rossmann.hu/',group:'beauty'},
+ shoperia:{name:'Shoperia',domain:'shoperia.hu',home:'https://shoperia.hu/',group:'beauty'},
  emag:{name:'eMAG',domain:'emag.hu',home:'https://www.emag.hu/',group:'tech'},
  alza:{name:'Alza',domain:'alza.hu',home:'https://www.alza.hu/',group:'tech'},
  allegro:{name:'Allegro',domain:'allegro.hu',home:'https://allegro.hu/',group:'tech'},
@@ -68,6 +69,7 @@ function searchUrl(term){
   case 'allegro':return 'https://allegro.hu/kereses?string='+encoded;
   case 'temu':return 'https://www.temu.com/hu/search_result.html?search_key='+encoded;
   case 'shein':return 'https://hu.shein.com/pdsearch/'+encoded+'/';
+  case 'shoperia':return 'https://www.google.com/search?q='+encodeURIComponent('site:shoperia.hu '+q); // Native search route not verified
   default:return store.home;
  }
 }
@@ -110,7 +112,7 @@ function draw(a){
  for(let i=0;i<total;i++){
   const p=a.all[i],row=mk('button','product'+(i===a.i?' chosen':''));row.type='button';row.onclick=()=>activateRow(i);
   row.setAttribute('aria-label','Termék: '+p.name+'. Egy koppintás kiválaszt, dupla koppintás az áruház keresési találatait nyitja meg.');
-  row.title='Dupla kattintás: a bolt saját találati listája';
+  row.title=key==='shoperia'?'Dupla kattintás: Shoperia-ra szűrt webkeresés':'Dupla kattintás: a bolt saját találati listája';
   const icon=mk('span','product-icon',emoji(p));const info=mk('span','product-info');info.append(mk('strong',null,p.name),mk('small',null,qty(p)));
   row.append(icon,info,mk('span','product-link',directUrlFor(p)?'🔗':'⌕'));box.append(row);
  }
@@ -129,8 +131,10 @@ function render(){
  $('itemName').textContent=a.p?a.p.name:'Nincs termék';
  $('itemQty').textContent=a.p?qty(a.p):'';
  const saved=a.p?directUrlFor(a.p):'';
- const go=$('go');go.href=a.p?(saved||linkFor(a.p)):store.home;go.textContent=saved?'↗ Mentett termék · külön':'↗ Találatok a boltban';
- $('searchMethod').textContent='🔎 '+store.name+' saját találati listája · termék kiválasztása a boltban';
+ const go=$('go');go.href=a.p?(saved||linkFor(a.p)):store.home;go.textContent=saved?'↗ Mentett termék · külön':key==='shoperia'?'↗ Shoperia webkeresés':'↗ Találatok a boltban';
+ $('searchMethod').textContent=key==='shoperia'?'🔎 Shoperia termékek · boltra szűrt webkeresés (a saját keresőútvonal még nem igazolt)':'🔎 '+store.name+' saját találati listája · termék kiválasztása a boltban';
+  if($('searchCaption'))$('searchCaption').textContent=key==='shoperia'?'👆 Dupla koppintás: Shoperia-termékek webes találatai; a bolti oldalon választhatsz és rendezhetsz ár szerint.':'👆 Dupla koppintás: az összes megfelelő áruházi találat, nem egy előre kiválasztott termék. Az ár szerinti rendezést a bolt oldalán állíthatod.';
+  if($('freeSearchHelp'))$('freeSearchHelp').textContent=key==='shoperia'?'Shoperia.hu-ra szűrt külső webkeresést nyitunk. A rendelés a Shoperia oldalán történik.':'A keresés a kiválasztott áruház saját webhelyének találati listáját nyitja meg. A rendezés és a kosárba helyezés a bolt oldalán történik, nem a SHO-ban.';
  $('prev').disabled=!a.p||a.all.length<2;$('next').disabled=!a.p||a.all.length<2;
  $('edit').disabled=!a.p;
  $('editor').hidden=!showLink||!a.p;
