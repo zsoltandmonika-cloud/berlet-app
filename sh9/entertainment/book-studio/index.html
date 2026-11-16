@@ -11,11 +11,54 @@
 <link rel="stylesheet" href="./onedrive-books-v2.css?v=3">
 <link rel="stylesheet" href="./book-studio-golden-v3.css?v=3">
 <link rel="stylesheet" href="./book-studio-tuning-v4.css?v=4">
+<link rel="stylesheet" href="./book-studio-wood-shelf-v10.css?v=10-wood-fullscreen">
 </head>
-<body>
+<body class="bshelf-v10-page">
 <div class="shell">
-<header class="top"><a href="../" class="back" aria-label="Vissza a Szórakozás oldalra">‹ <strong>SHO</strong> / Smart Entertainment</a><div class="top-controls"><span class="online" id="cloudState" role="status">Kapcsolódás…</span><button id="profileSwitch" class="profile" type="button" title="Profilváltás">Zsolt ⟲</button></div></header>
+<header class="top bshelf-appbar">
+ <a class="bshelf-back" href="../" aria-label="Vissza a Szórakozás oldalra">‹</a>
+ <div class="bshelf-brand" aria-label="Book Studio · Saját könyvtár">
+  <span class="bshelf-brand-mark" aria-hidden="true">📖</span>
+  <div><strong>Book <em>Studio</em></strong><small>SAJÁT E-KÖNYVTÁRAM</small></div>
+ </div>
+ <div class="bshelf-toolbar">
+  <button id="bshelfSearchToggle" type="button" aria-expanded="false" aria-controls="bshelfSearchBox" aria-label="Könyv keresése">⌕</button>
+  <button id="bshelfSettingsToggle" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="bshelfSettingsMenu" aria-label="Book Studio beállítások">⚙</button>
+  <div class="bshelf-settings-menu" id="bshelfSettingsMenu" hidden role="group" aria-label="Könyvtár beállításai">
+   <div class="bshelf-menu-title">⚙ BOOK STUDIO · BEÁLLÍTÁSOK</div>
+   <button type="button" id="bshelfMenuOneDrive">☁️ OneDrive kapcsolat</button>
+   <button type="button" id="bshelfMenuCovers">🖼️ Borítók, címek, duplikációk</button>
+   <button type="button" id="bshelfMenuUploads">＋ Külön feltöltött könyvek</button>
+   <div class="bshelf-menu-divider"></div>
+   <span id="cloudState" class="online" role="status">Kapcsolódás…</span>
+   <button id="profileSwitch" class="profile" type="button" title="Profilváltás">Zsolt ⟲</button>
+  </div>
+ </div>
+</header>
 <main>
+<section class="bshelf-front" id="bshelfFront" aria-label="Saját könyvespolc">
+ <div class="bshelf-wooden-frame" id="bshelfWoodenFrame">
+  <div class="bshelf-strip">
+   <span class="bshelf-collection-name">✦ AZ ÉN KÖNYVESPOLCOM</span>
+   <span class="bshelf-count" id="bshelfCount">OneDrive könyvek</span>
+  </div>
+  <div id="bshelfSearchBox" class="bshelf-search-panel" hidden>
+   <label for="bshelfSearch" class="sr-only">Cím vagy szerző keresése</label>
+   <input id="bshelfSearch" type="search" placeholder="Könyvcím vagy szerző…" autocomplete="off">
+   <button type="button" id="bshelfSearchClear" aria-label="Keresés törlése">×</button>
+  </div>
+  <div id="bshelfStatus" class="bshelf-connection-status" role="status" aria-live="polite">☁️ Könyvtár előkészítése…</div>
+  <div id="bshelfRows" class="bshelf-rows" aria-label="Könyvespolc, kattints egy könyvre az olvasáshoz"></div>
+  <div id="bshelfEmpty" class="bshelf-empty" hidden>
+   <strong>📚 A polc készen áll.</strong>
+   <span>A meglévő OneDrive-könyveid itt jelennek meg.</span>
+   <button type="button" id="bshelfConnectAction">⚙ OneDrive kapcsolat beállítása</button>
+  </div>
+  <div class="bshelf-wooden-foot" aria-hidden="true"></div>
+ </div>
+</section>
+<section class="bshelf-admin" id="bsAdminView" aria-label="Book Studio rendszerbeállítások" hidden>
+ <div class="bshelf-admin-toolbar"><button type="button" id="bshelfAdminBack">← Vissza a könyvespolcra</button><h2 id="bshelfAdminTitle">Beállítások</h2></div>
 <section class="hero">
  <div class="hero-copy"><span class="eyebrow">✦ SHO · GOLDEN STANDARD · PRIVÁT KÖNYVTÁR</span><h1>Book <em>Studio</em></h1><p>Az összes történetetek, egy gyönyörű könyvespolcon. Ott folytatod, ahol abbahagytad.</p>
  <div class="hero-actions"><a class="btn primary" href="#onedriveBooks">☁️ OneDrive könyveim</a><label for="uploadFile" class="btn subtle">＋ Külön feltöltés</label><input id="uploadFile" type="file" accept=".epub,.pdf,application/epub+zip,application/pdf" hidden></div>
@@ -51,6 +94,7 @@
  </div>
 
 </section>
+</section>
 </main>
 </div>
 <div class="reader" id="reader" hidden role="dialog" aria-modal="true" aria-label="Könyvolvasó">
@@ -78,6 +122,7 @@
 <script defer src="../book-studio-preview-v4.js?v=4"></script>
 <script defer src="./book-metadata-v4.js?v=4"></script>
 <script defer src="./book-studio.js?v=4-page-sound-contrast"></script>
-<script defer src="./onedrive-books-v2.js?v=4-covers-dedup-hu"></script>
+<script defer src="./book-studio-wood-shelf-v10.js?v=10-one-click-settings"></script>
+<script defer src="./onedrive-books-v2.js?v=10-wood-shelf-sync"></script>
 </body>
 </html>
