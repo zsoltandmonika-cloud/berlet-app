@@ -1,0 +1,50 @@
+<!doctype html><html lang="hu"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#111c36">
+<title>SHO · Full Basket Match</title>
+<link rel="icon" type="image/svg+xml" href="../sho-preview/favicon.svg">
+<style>
+:root{color-scheme:dark;color:#fff0fb;font:14px/1.42 system-ui,-apple-system,"Segoe UI",sans-serif}
+*{box-sizing:border-box}body{margin:0;min-height:100dvh;background:radial-gradient(ellipse at 95% 0%,#823c7366,transparent 47%),linear-gradient(155deg,#22192e,#0b1c34);color:#fff0fb}
+a{text-decoration:none;color:#ffdeef}button{cursor:pointer;color:inherit;font:inherit}
+main{max-width:650px;margin:auto;padding:13px 12px 110px}
+nav{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px}nav a{border:1px solid #af76a6;background:#322544;border-radius:10px;padding:8px 11px;font-weight:720;font-size:11px}
+.kicker{font-size:9px;font-weight:900;letter-spacing:1px;color:#ffb6e1}
+h1{font-size:27px;line-height:1.1;margin:7px 0 9px}h2{font-size:16px;margin:0 0 9px}
+.hero,.panel{background:linear-gradient(135deg,#2d233fd8,#14263edb);border:1px solid #bf78ada0;border-radius:17px;box-shadow:0 10px 27px #0005;padding:14px;margin:10px 0}
+.hero p,.hint{font-size:11px;line-height:1.5;color:#d7c2d6;margin:0}
+.counts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:12px 0}.count{min-width:0;background:#1a2c42;border:1px solid #6d6698;border-radius:12px;padding:10px 7px;text-align:center}
+.count strong{display:block;font-size:22px;color:#fce2fc}.count small{font-size:9px;color:#cdbed2}
+.status{border:1px solid #6791af;background:#142c43;color:#d6effe;border-radius:11px;font-size:11px;padding:10px;margin:12px 0;line-height:1.45}
+.run{width:100%;min-height:49px;padding:10px;background:linear-gradient(115deg,#cf4c9a,#703f99);border:1px solid #ffd0ed;border-radius:12px;font-size:14px;font-weight:890;box-shadow:0 7px 19px #da428a3f}
+.run:disabled{opacity:.5;cursor:default}
+.results{display:grid;gap:9px;margin-top:12px}
+.product{border:1px solid #8e7296;background:#1b263f;border-radius:12px;overflow:hidden}
+.product summary{cursor:pointer;padding:11px 12px;font-size:12px;font-weight:790;list-style:none;display:flex;justify-content:space-between;gap:8px}
+.product summary::-webkit-details-marker{display:none}.product summary small{color:#d5c7da;font-size:9px;font-weight:540;display:block}
+.product summary span{min-width:0}.product summary b{white-space:nowrap;font-size:10px;color:#8cdec8}
+.product .shops{display:grid;gap:6px;padding:8px}
+.shop{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px;border:1px solid #657c98;border-radius:10px;background:#172d47}
+.shop strong{font-size:11px}.shop small{display:block;font-size:9px;color:#c1cce1}
+.shop a{min-width:80px;display:grid;place-items:center;border:1px solid #9db8d5;border-radius:8px;padding:7px;font-size:10px;font-weight:790;text-align:center}
+.shop a.saved{border-color:#d7a9c9;color:#ffdeef}
+.more{padding:12px;border:1px solid #db9fcf;background:#453152;border-radius:11px;font-size:12px;font-weight:770}
+.footer-note{font-size:10px;line-height:1.55;color:#cdb9d1;padding:10px 1px}
+[hidden]{display:none!important}button:focus-visible,a:focus-visible,summary:focus-visible{outline:2px solid #ffd8ed;outline-offset:2px}
+@media(max-width:360px){.count strong{font-size:18px}.shop{gap:5px}.shop a{min-width:68px}}
+</style></head><body><main>
+<nav><a href="./">‹ Shopping</a><strong style="font-size:11px">SHO · BASKET INTELLIGENCE</strong><a href="./store-manager-v1.html">⚙ Boltok</a></nav>
+<section class="hero"><div class="kicker">FULL BASKET MATCH · GOLDEN V1</div><h1>⚡ Teljes kosár párosítása</h1>
+<p>A közös bevásárlólista összes aktív termékéhez előkészítjük az engedélyezett áruházak keresési útvonalait. Már mentett terméklinkeket újrahasznosítunk. Nincs kitalált ár, és nem választunk automatikusan terméket.</p>
+<div class="counts"><div class="count"><strong id="productsCount">…</strong><small>Aktív termék</small></div><div class="count"><strong id="storesCount">…</strong><small>Aktív bolt</small></div><div class="count"><strong id="routesCount">…</strong><small>Lehetséges keresés</small></div></div>
+<button id="runMatch" class="run" type="button" disabled>🛒 Teljes kosár előkészítése</button></section>
+<div class="status" id="syncStatus" role="status" aria-live="polite">☁️ A családi lista és az áruházbeállítások ellenőrzése…</div>
+<section class="panel"><h2>📋 Párosítások és áruházi találatok</h2><p class="hint" id="matchSummary">A keresési lista előkészítéséhez nyomd meg a gombot.</p><div class="results" id="results"></div></section>
+<p class="footer-note">📱 Helyi IndexedDB-másolatból offline is előkészíthetők a már tárolt termékek keresési hivatkozásai, de az áruházi találatok internet nélkül nem nyílnak meg. ☁️ A Supabase a hiteles lista. A bolti kosár és az aktuális árak csak az áruház saját oldalán érhetők el, amíg nincs ellenőrzött integráció.</p>
+</main>
+<script defer src="../../healthhub/central-vault/config.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.2/dist/umd/supabase.min.js"></script>
+<script defer src="./store-registry-v1.js?v=1"></script>
+<script defer src="./shopping-local-v1.js?v=1"></script>
+<script defer src="./merchant-search-v1.js?v=1"></script>
+<script defer src="./basket-matrix-v1.js?v=1"></script>
+</body></html>
