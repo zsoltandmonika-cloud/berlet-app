@@ -172,3 +172,6 @@
 .shop-connect.store-screen .sho-actions button,
 .shop-connect.store-screen .sho-actions .sho-basket-matrix{flex:1 1 0;min-width:0;min-height:34px;display:flex;align-items:center;justify-content:center;padding:6px 7px;white-space:normal;text-align:center;line-height:1.2;font-size:10px}
 @media(max-width:360px){.shop-connect.store-screen .sho-actions button,.shop-connect.store-screen .sho-actions .sho-basket-matrix{font-size:9px;padding:5px 4px}}
+
+/* Golden brand-detail correction: larger Allegro artwork, unchanged white icon tile. */
+.shop-connect .sho-store-logo.sho-store-logo--allegro img{transform:scale(1.15);transform-origin:center}
