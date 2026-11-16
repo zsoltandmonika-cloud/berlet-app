@@ -60,3 +60,11 @@
 - **Keresési bizonyíték:** a webáruház saját, paraméterezett keresőútvonala még nincs hitelesítve. Emiatt a dupla koppintás és a szabad keresés egyértelműen jelzett `site:shoperia.hu` webkeresést nyit, nem egy kiválasztott SKU-t és nem feltételezett bolti kosarat.
 - **Vizuális Golden:** a boltkártyák száma 10→11; mobilon 6 kompakt sor, a Shoperia utolsó, kéthasábos csempén, a katalógus a következő panelen marad. Felső Hero és 6 kategóriacsempe nem módosult.
 - **Kód:** `store-connect-v2.js`, `merchant-smart-v1.html` és `.js`, `visual-cards-v3.css`, `index.html` cache-busting. GitHub forrásoknál JavaScript- és HTML-be ágyazott script-szintaxis ellenőrzés sikeres; tényleges készülékes UAT / Pages publikálási ellenőrzés még nyitott.
+
+## 12. bolt: ALDI Online Shop · 2026-11-16
+- **Új webshop:** `https://shop.aldi.hu/kezdooldal` (a felhasználó által megadott UTM/hirdetési azonosítók nélkül). Kategóriák: Élelmiszer, Drogéria & Szépség, Otthon & Háztartás.
+- **Áruházválasztó:** az ALDI a Tesco melletti új kártya; kártyán belüli Smart Shopping CTA `merchant-smart-v1.html?store=aldi`, hiteles áruházdomain `shop.aldi.hu`. 12 áruház, hat 2-oszlopos mobil sor.
+- **Közös lista + terméklinkek:** a meglévő csak olvasható Smart List és jogosultságvédett `hh_shopping_merchant_links_v1` bolt-specifikus mentés; semmilyen kosárba helyezési vagy automatikus megrendelési állítás nincs.
+- **Keresési útvonal:** natív ALDI kereső URL-séma nem hitelesíthető, ezért transzparens `site:shop.aldi.hu <termék>` külső webkeresés. Dupla koppintás / szabad keresés így működik; nem önkényes egyedi terméklapra lépés.
+- **Vizuális standard:** Golden kártyamagasság és kategóriák változatlanok; az előző, páratlan számú (11) boltos Shoperia-széthúzás CSS-e már csak páratlan darabszámnál aktiválódik. A termékkatalógus továbbra is külön panel.
+- **QA:** 12 kártya, két ALDI-mintakeresés (arabica kávé + laktózmentes tej), JS + inline HTML script syntax, belső és inline keresőegyezés, 2×6 CSS és cache-busting ellenőrzés: PASS. Teljes mobilos, élő ALDI oldali UAT és GitHub Pages publikáció végponttól végpontig még nyitott.
