@@ -469,20 +469,31 @@ function render(){
  }
 }
 async function saveProgress(b,patch={}){
- if(!progressCloud)return;
- const p=pid();if(b.profile_key!==p)return;
+ const p=pid();
+ if(!config?.account||b.profile_key!==p)return;
+ const snapshot={
+  progress_locator:patch.progress_locator??b.progress_locator??null,
+  progress_percent:patch.progress_percent??b.progress_percent??0,
+  bookmarks:patch.bookmarks??b.bookmarks??[],
+  is_favorite:patch.is_favorite??b.is_favorite,
+  theme:patch.theme??b.theme??'sepia',
+  font_size:patch.font_size??b.font_size??100
+ };
+ // Offline progress and bookmarks are written to IndexedDB immediately.
+ // The outbox survives browser restarts until a verified cloud sync succeeds.
+ const pending=await OFFLINE?.queueProgress(config.account,p,b,snapshot);
+ if(!progressCloud||!ready)return;
  try{
   const api=await w.SH9_BOOK_STUDIO_V1.authorized(p);
   const entry={profile_key:p,drive_id:b.drive_id,item_id:b.drive_item_id,
-   progress_locator:patch.progress_locator??b.progress_locator??null,
-   progress_percent:patch.progress_percent??b.progress_percent??0,
-   bookmarks:patch.bookmarks??b.bookmarks??[],is_favorite:b.is_favorite,
-   theme:patch.theme??b.theme??'sepia',font_size:patch.font_size??b.font_size??100,
-   updated_at:new Date().toISOString()};
+   ...snapshot,updated_at:new Date().toISOString()};
   const {error}=await api.from(PROGRESS).upsert(entry,{onConflict:'profile_key,drive_id,item_id'});
   if(error)throw error;
   b.updated_at=entry.updated_at;
- }catch(e){status('Olvasási állapot mentési hiba: '+e.message,true)}
+  if(pending)await OFFLINE.ackPending(config.account,p,b.drive_item_id,pending.at);
+ }catch(e){
+  status('Az olvasási állapot helyben mentve. Felhőszinkron a következő kapcsolódáskor. '+e.message,true);
+ }
 }
 function getBook(id){return entries.find(x=>x.id===id&&x.profile_key===pid())||null}
 // Microsoft Graph's downloadUrl is an INSTANCE ANNOTATION. It is not a normal
@@ -807,7 +818,16 @@ $('odCacheClear').addEventListener('click',async()=>{
  await CACHE.clear(config.account);render();await updateCacheInfo();
  status('A helyi gyorsítótár kiürítve. Az eredeti OneDrive-könyvek érintetlenek.');
 });
-w.SH9_BOOK_STUDIO_DRIVE_V2=Object.freeze({getBook,download,saveProgress,render,reload:async()=>{entries=[];await loadLibrary()}});
+w.SH9_BOOK_STUDIO_DRIVE_V2=Object.freeze({
+ getBook,download,saveProgress,render,
+ isReady:()=>!!(ready&&entries.length),
+ saveOfflineCatalog,prepareOffline,
+ disableOfflineView:()=>{
+  localMode=false;
+  if(!ready){entries=[];w.SH9_BOOKSHELF_V10?.setConnected(false);render()}
+ },
+ reload:async()=>{if(!ready)throw Error('Microsoft-kapcsolat szükséges a frissítéshez.');await loadLibrary()}
+});
 // V11: the user explicitly requested automatic cover collection.
  // Switch it ON once for existing browsers; subsequent manual OFF is respected.
 const AUTO_V11_INIT='sh9-book-auto-v11-initialized';
