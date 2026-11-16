@@ -14,9 +14,9 @@ const SILENT_GAP_MS=4*60*60*1000,REFRESH_MAX_MS=23*60*60*1000;
 const PROGRESS='hh_book_studio_drive_progress_v2';
 const ID_RE=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const MAX_ITEMS=900,MAX_FOLDERS=65,MAX_DEPTH=5,MAX_DOWNLOAD=80*1024*1024;
-let config=null,token='',expires=0,found=[],entries=[],folderId='',driveId='',ready=false,scanning=false,progressCloud=false;
+let config=null,token='',expires=0,found=[],entries=[],folderId='',driveId='',ready=false,scanning=false,progressCloud=false,localMode=false;
 let refreshToken='',refreshIssuedAt=0,renewing=null;
-const CACHE=w.SH9_BOOK_CACHE_V3,META=w.SH9_BOOK_METADATA_V4;
+const CACHE=w.SH9_BOOK_CACHE_V3,META=w.SH9_BOOK_METADATA_V4,OFFLINE=w.SH9_BOOK_OFFLINE_V21;
 const coverUrls=new Map(),pendingDownloads=new Map(),pendingCovers=new Map();
 let coverLoading=false,coverJob=0,showDuplicates=false,autoCoverTimer=0,editorBook=null;
 const AUTO_COVER_KEY='sh9-book-auto-covers-v4',MAX_AUTO_TRANSFER=95*1024*1024;
@@ -125,7 +125,9 @@ function setConnected(on){
  $('odRefresh').hidden=!on;
  $('odDisconnect').hidden=!on;
  $('odConfigToggle').hidden=!config;
- w.SH9_BOOKSHELF_V10?.setConnected(on);
+ const localAllowed=!!(localMode&&OFFLINE?.isEnabled(config?.account,pid())&&entries.length);
+ w.SH9_BOOKSHELF_V10?.setConnected(on||localAllowed);
+ w.SH9_BOOKSHELF_V10?.setOffline(!!OFFLINE?.isEnabled(config?.account,pid()));
 }
 async function json(url,options={}){
  const u=new URL(url,GRAPH);
@@ -273,13 +275,21 @@ async function progressRecords(){
 }
 async function loadLibrary(){
  if(!ready||scanning)return;
- scanning=true;w.SH9_BOOKSHELF_V10?.setLoading(true);status('📂 OneDrive könyvek keresése…',false);$('odGrid').replaceChildren();
+ scanning=true;if(!localMode)w.SH9_BOOKSHELF_V10?.setLoading(true);status('📂 OneDrive könyvek keresése…',false);$('odGrid').replaceChildren();
  try{
   if(!await findFolders()){scanning=false;return}
   status('📚 Könyvek beolvasása…',false);
   const items=await scanFolder(),progress=await progressRecords();
   entries=items.map(item=>mapBook(item,progress.get(item.id))).sort((a,b)=>a.title.localeCompare(b.title,'hu-HU'));
+  if(OFFLINE?.isEnabled(config?.account,pid())){
+   localMode=true;
+   await mergePending();
+  }
   render();
+  if(OFFLINE?.isEnabled(config?.account,pid())){
+   void saveOfflineCatalog();
+   if(progressCloud)void flushPending();
+  }
   const preview=w.SH9_BOOK_PREVIEW_V4;
   if(preview){
    const groups=distinctBooks();
@@ -319,10 +329,10 @@ function render(){
  const groups=distinctBooks(),source=showDuplicates?entries:groups.primary;
  // The full-screen wooden bookcase reuses the actual verified OneDrive
  // collection and all original image blob URLs, without a duplicate upload.
- w.SH9_BOOKSHELF_V10?.update(ready?source:[],config?.account||'',pid());
+ w.SH9_BOOKSHELF_V10?.update((ready||localMode)?source:[],config?.account||'',pid());
  // Cached covers must populate the visible wood bookcase even when the old
  // admin list has an active search filter or has never been opened.
- if(ready)for(const book of source)if(!coverUrls.has(book.id))void cachedCover(book);
+ if(ready||localMode)for(const book of source)if(!coverUrls.has(book.id))void cachedCover(book);
  const list=source.filter(b=>(b.title+' '+b.author).toLocaleLowerCase('hu-HU').includes(f));
  $('odCount').textContent=groups.primary.length+' könyv'+(groups.hidden.length?' · '+groups.hidden.length+' duplikátum elrejtve':'');
  $('odDedup').hidden=!groups.hidden.length;
@@ -550,7 +560,7 @@ async function extractCover(b,blob){
   }
   // Never show a cover from another account/profile after switching.
   if(!image||!config||config.account!==account||pid()!==profileAtStart||
-     !ready||!entries.some(x=>x.id===id)||coverUrls.has(id))return;
+     !(ready||localMode)||!entries.some(x=>x.id===id)||coverUrls.has(id))return;
   const url=URL.createObjectURL(image);
   coverUrls.set(id,url);paintCover(b);
  })().finally(()=>pendingCovers.delete(b.id));
