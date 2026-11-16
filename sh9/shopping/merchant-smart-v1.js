@@ -32,7 +32,7 @@ const STATE_KEY='sho-merchant-shopping-v1:'+key;
 const cfg=w.HH_CENTRAL_VAULT;
 const nativeOAuth=(()=>{try{return w.sessionStorage.getItem('hh-one-native-oauth-v1063')==='1'}catch(_){return false}})();
 const api=cfg?.enabled&&w.supabase?.createClient?w.supabase.createClient(cfg.supabaseUrl,cfg.publishableKey,{auth:{storageKey:'hh-guardian-family-auth-v785',persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,flowType:nativeOAuth?'pkce':'implicit'}}):null;
-let user=null,profiles=[],rows=[],mapped=new Map(),mode='demo',modeTouched=false,selected=null,showLink=false,loading=false,loadPending=false,channel=null,lastUpdate=0,visibleCount=40,lastRowTapKey='',lastRowTapAt=0;
+let user=null,profiles=[],rows=[],mapped=new Map(),mode='shared',cloudStatus='loading',cloudError='',selected=null,showLink=false,loading=false,loadPending=false,channel=null,lastUpdate=0,visibleCount=40,lastRowTapKey='',lastRowTapAt=0;
 function state(){try{const o=JSON.parse(w.sessionStorage.getItem(STATE_KEY)||'{}');return o&&typeof o==='object'?o:{}}catch(_){return {}}}
 function put(o){try{w.sessionStorage.setItem(STATE_KEY,JSON.stringify(o))}catch(_){}}
 function list(){return mode==='shared'?rows:samples}
@@ -109,7 +109,9 @@ function recordOpen(){
  put(s);selected=null;
 }
 function draw(a){
- const box=$('items');box.replaceChildren();if(!a.all.length){box.append(mk('p','empty','A közös Smart List jelenleg üres vagy nem elérhető.'));return}
+ const box=$('items');box.replaceChildren();if(!a.all.length){
+  const hint=mode==='shared'?(cloudStatus==='loading'?'☁️ A közös bevásárlólista betöltése…':cloudStatus==='auth'?'🔒 A közös listához jelentkezz be a családi fiókba.':cloudStatus==='error'?'⚠️ A családi felhőlista nem tölthető be. Próbáld újra az oldal frissítésével.':'A közös Smart Listben jelenleg nincs megvásárolandó termék.'):'Nincs mintatermék.';
+  box.append(mk('p','empty',hint));return}
  const total=Math.min(a.all.length,Math.max(visibleCount,a.i+1));
  for(let i=0;i<total;i++){
   const p=a.all[i],row=mk('button','product'+(i===a.i?' chosen':''));row.type='button';row.onclick=()=>activateRow(i);
@@ -143,10 +145,10 @@ function render(){
  $('linkInput').value=saved;
  $('auth').hidden=own();
  $('authMessage').textContent=user?'Ehhez a családi profilhoz nincs mentési jogosultság.':'A közös terméklink mentéséhez bejelentkezés szükséges.';
- $('modeHelp').textContent=mode==='shared'?'☁️ Teljes közös Smart List · '+rows.length+' aktív tétel.':'✨ 10 példatermék · nincs Smart List-módosítás.';
+ $('modeHelp').textContent=mode!=='shared'?'✨ 10 példatermék · nincs Smart List-módosítás.':cloudStatus==='loading'?'☁️ A közös Smart List szinkronizálása…':cloudStatus==='auth'?'🔒 A közös bevásárlólistához családi bejelentkezés szükséges.':cloudStatus==='error'?'⚠️ Felhőhiba: '+cloudError:rows.length?'☁️ Teljes közös Smart List · '+rows.length+' aktív tétel.':'☁️ A közös Smart List jelenleg üres.';
  draw(a);
 }
-function setMode(next){mode=next;modeTouched=true;selected=null;showLink=false;visibleCount=40;const s=state();s.mode=mode;put(s);render()}
+function setMode(next){mode=next;selected=null;showLink=false;visibleCount=40;const s=state();s.mode=mode;put(s);render()}
 async function fetchAll(table,cols,active){
  const out=[],size=250;
  for(let offset=0;offset<10000;offset+=size){
@@ -160,16 +162,25 @@ async function fetchAll(table,cols,active){
  throw Error('A lista meghaladja a 10 000 tételt; a hiányos betöltés nem megengedett.');
 }
 async function loadCloud(){
- if(!own())return;if(loading){loadPending=true;return}loading=true;
+ if(!own())return;
+ if(loading){loadPending=true;return}
+ loading=true;cloudStatus='loading';cloudError='';render();
  try{
-  const [listRows,links]=await Promise.all([
-   fetchAll(LIST,'id,name,quantity,unit,category,created_at',true),
-   fetchAll(LINKS,'id,store_key,source,item_key,product_url,name_snapshot',false)
-  ]);
-  rows=listRows;mapped=new Map(links.map(x=>[x.source+':'+x.item_key,x]));
-  if(!modeTouched&&!state().mode&&rows.length)mode='shared';
-  lastUpdate=Date.now();render();
- }catch(e){msg('Felhőadat nem elérhető: '+String(e.message||e).slice(0,110))}
+  // The shared list must never be blocked by the optional per-store SKU links.
+  const listRows=await fetchAll(LIST,'id,name,quantity,unit,category,created_at',true);
+  rows=listRows;
+  cloudStatus='ready';lastUpdate=Date.now();render();
+  try{
+   const links=await fetchAll(LINKS,'id,store_key,source,item_key,product_url,name_snapshot',false);
+   mapped=new Map(links.map(x=>[x.source+':'+x.item_key,x]));render();
+  }catch(e){
+   mapped.clear();
+   msg('☁️ A közös lista betöltve. A mentett terméklinkek most nem elérhetők.');
+  }
+ }catch(e){
+  cloudStatus='error';cloudError=String(e.message||e).slice(0,100);
+  render();msg('Felhőlista nem elérhető: '+cloudError);
+ }
  finally{loading=false;if(loadPending){loadPending=false;void loadCloud()}}
 }
 async function save(){
@@ -194,13 +205,13 @@ async function save(){
 }
 function subscribe(){if(channel||!own())return;channel=api.channel('sho-store-links-'+key+'-'+user.id).on('postgres_changes',{event:'*',schema:'public',table:LIST},()=>void loadCloud()).on('postgres_changes',{event:'*',schema:'public',table:LINKS},e=>{if(e.new?.store_key===key||e.old?.store_key===key)void loadCloud()}).subscribe()}
 async function authSync(){
- if(!api){render();msg('Keresés elérhető, a felhőkapcsolat most nem működik.');return}
+ if(!api){cloudStatus='error';cloudError='A családi felhőkapcsolat nem elérhető.';render();msg('Keresés elérhető, a felhőkapcsolat most nem működik.');return}
  try{
   const r=await api.auth.getUser();user=r.error?null:r.data?.user||null;profiles=[];
   if(user){const acl=await api.from('hh_profile_access').select('profile_key').eq('user_id',user.id);
    if(!acl.error)profiles=(acl.data||[]).map(x=>x.profile_key).filter(x=>x==='zsolt'||x==='monika')}
-  if(own()){await loadCloud();subscribe()}else{rows=[];mapped.clear();if(channel){api.removeChannel(channel);channel=null}render()}
- }catch(e){msg('Bejelentkezési hiba: '+String(e.message||e).slice(0,100))}
+  if(own()){await loadCloud();subscribe()}else{cloudStatus='auth';rows=[];mapped.clear();if(channel){api.removeChannel(channel);channel=null}render()}
+ }catch(e){cloudStatus='error';cloudError=String(e.message||e).slice(0,100);render();msg('Bejelentkezési hiba: '+cloudError)}
 }
 $('modeShared').onclick=()=>setMode('shared');
 $('modeDemo').onclick=()=>setMode('demo');
@@ -223,6 +234,7 @@ w.addEventListener('pageshow',()=>{selected=null;render();if(own()&&Date.now()-l
 d.addEventListener('visibilitychange',()=>{if(d.visibilityState==='visible'&&own()&&Date.now()-lastUpdate>5000)void loadCloud()});
 w.addEventListener('storage',e=>{if(e.key==='hh-guardian-family-auth-v785')void authSync()});
 if(api)api.auth.onAuthStateChange(e=>{if(e==='SIGNED_IN'||e==='SIGNED_OUT')setTimeout(()=>void authSync(),0)});
-const previousMode=state().mode;if(previousMode==='demo'||previousMode==='shared'){mode=previousMode;modeTouched=true}
+// Every Smart Shopping entry opens the real shared family list by default.
+// Demo remains explicitly selectable, but cannot persist over a later store entry.
 render();void authSync();
 })(window,document);
