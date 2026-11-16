@@ -11,7 +11,7 @@ function indexLinks(){
  tescoIndex=new Map(tesco.map(x=>[x.item_key,x.tesco_url]));
 }
 function node(tag,cls,value){const n=d.createElement(tag);if(cls)n.className=cls;if(value!==undefined)n.textContent=String(value);return n}
-function msg(s){$('syncStatus').textContent=s}
+function msg(s){const el=$('syncStatus');el.textContent=s;el.hidden=!/^(⚠️|🔒)/.test(s)}
 // A merchant can sell items from outside its primary catalog category.
  // Without verified per-shop search results, a category must NEVER hide a merchant.
  // The only filter here is the user's explicit enabled/disabled store setting.
@@ -72,7 +72,7 @@ async function localRead(uid){
 }
 async function refresh(){
  counters();
- if(!reg||!search){msg('A dinamikus áruházlista nem tölthető be.');return}
+ if(!reg||!search){msg('⚠️ A dinamikus áruházlista nem tölthető be.');return}
  try{
   const {db,user}=await getClient();
   authenticated=true;userId=user.id;
@@ -83,7 +83,7 @@ async function refresh(){
    items=list;source='ready';if(cache)void cache.write(userId,'list',{rows:list});
    msg('☁️ Közös Smart List szinkronizálva · '+items.length+' aktív termék.');
   }catch(e){
-   if(source==='cached')msg('📱 Helyi kosármásolatot használunk. Nincs új szinkron: '+String(e.message||e).slice(0,90));
+   if(source==='cached')msg('⚠️ Helyi kosármásolatot használunk. Nincs új szinkron: '+String(e.message||e).slice(0,90));
    else msg('⚠️ A családi bevásárlólista nem érhető el: '+String(e.message||e).slice(0,90));
   }
   const results=await Promise.allSettled([
@@ -103,9 +103,6 @@ async function refresh(){
 }
 function render(){
  const box=$('results');box.replaceChildren();
- let allPairs=0,knownPairs=0;
- for(const item of items){for(const shop of eligible(item)){allPairs++;if(saved(item,shop))knownPairs++}}
- $('matchSummary').textContent=source==='loading'&&!items.length?'A közös bevásárlólista betöltése…':items.length+' termék × '+shops.length+' aktív áruház = '+allPairs+' lehetséges keresés. '+knownPairs+' családilag mentett terméklink (ellenőrizendő). A kategória nem zár ki boltot. Találat nélküli boltot csak ellenőrzött 0 találat alapján lehet automatikusan elrejteni; élő bolti találati adat még nincs bekötve.';
  for(const item of items.slice(0,visible)){
   const active=eligible(item),known=active.filter(shop=>saved(item,shop)).length;
   const detail=node('details','product'),summary=node('summary'),heading=node('span');
