@@ -36,7 +36,7 @@ test('All books come from verified original OneDrive collection and open the exi
  assert.match(drive,/w\.SH9_BOOKSHELF_V10\?\.update\(\(ready\|\|localMode\)\?source:\[\]/);
  assert.match(drive,/w\.SH9_BOOKSHELF_V10\?\.coverReady\(b\.id,url\)/);
  assert.match(drive,/w\.SH9_BOOKSHELF_V10\?\.setLoading\(true\)/);
- assert.match(drive,/w\.SH9_BOOKSHELF_V10\?\.setConnected\(on\)/);
+ assert.match(drive,/w\.SH9_BOOKSHELF_V10\?\.setConnected\(on\|\|localAllowed\)/);
  assert.match(script,/reader\.openBook\(book\.id\)/);
  assert.match(script,/b\?\.source==='onedrive'/);
  assert.doesNotMatch(script,/Graph\s*\/content|Files\.ReadWrite|client_secret|Supabase\.storage\.upload/);
