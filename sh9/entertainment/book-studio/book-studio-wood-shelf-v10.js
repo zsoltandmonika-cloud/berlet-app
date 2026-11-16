@@ -8,7 +8,7 @@
  const $=id=>d.getElementById(id),CACHE=w.SH9_BOOK_CACHE_V3;
  if(!$('bshelfRows')||!$('bshelfSettingsToggle'))return;
  const palette=['#264e5c','#50364f','#605037','#293a5a','#5a3840','#34514b','#533c55','#4b3b39'];
- const state={books:[],covers:new Map(),connected:false,loading:true,error:false,message:'☁️ OneDrive-könyvtár előkészítése…',coverScanning:false,coverDone:0,coverTotal:0,displayed:new Set(),hidden:new Set(),scope:'',account:'',profile:'',sortMode:'title',customOrder:[],sortScope:''};
+ const state={books:[],covers:new Map(),connected:false,loading:true,error:false,message:'☁️ OneDrive-könyvtár előkészítése…',coverScanning:false,coverDone:0,coverTotal:0,displayed:new Set(),hidden:new Set(),scope:'',account:'',profile:'',sortMode:'title',customOrder:[],sortScope:'',offline:false};
  const main=$('bshelfFront'),admin=$('bsAdminView'),menu=$('bshelfSettingsMenu');
  const settingsBtn=$('bshelfSettingsToggle'),searchBtn=$('bshelfSearchToggle'),sortBtn=$('bshelfSortToggle'),sortMenu=$('bshelfSortMenu');
  const searchBox=$('bshelfSearchBox'),search=$('bshelfSearch');
@@ -234,8 +234,10 @@
  function adminView(target,caption){
   navMenu(false);
   main.hidden=true;admin.hidden=false;
-  admin.dataset.mode=target==='bshelfManagePanel'?'manage':'classic';
+  admin.dataset.mode=target==='bshelfManagePanel'?'manage':target==='bshelfOfflinePanel'?'offline':'classic';
   $('bshelfManagePanel').hidden=target!=='bshelfManagePanel';
+  $('bshelfOfflinePanel').hidden=target!=='bshelfOfflinePanel';
+  if(target==='bshelfOfflinePanel')void w.SH9_BOOK_OFFLINE_V21?.inspect();
   if(target==='bshelfManagePanel')renderManage();
   $('bshelfAdminTitle').textContent=caption||'Book Studio beállítások';
   // Do not shift the address bar to an OAuth redirect route or change search.
@@ -264,10 +266,11 @@
   const message=$('bshelfStatus'),count=$('bshelfCount');
   const n=state.books.filter(b=>!hiddenBook(b)).length;
   const hiddenCount=state.books.length-n;
-  count.textContent=n? n+' könyv'+(hiddenCount?' · '+hiddenCount+' elrejtve':'')+' · ☁️ OneDrive':state.loading?'Csatlakozás…':hiddenCount?hiddenCount+' elrejtett könyv':'OneDrive';
+  const source=state.offline?'📱 Helyi könyvtár':'☁️ OneDrive';
+  count.textContent=n? n+' könyv'+(hiddenCount?' · '+hiddenCount+' elrejtve':'')+' · '+source:state.loading?'Csatlakozás…':hiddenCount?hiddenCount+' elrejtett könyv':source;
   message.textContent=state.loading?'📚 '+(state.message.replace(/^[☁️📚📂\s]+/u,'')||'Könyvek beolvasása…'):
    n&&state.coverScanning?'🖼️ Eredeti borítók automatikusan: '+state.coverDone+'/'+state.coverTotal+' · '+state.displayed.size+' megjelenítve':
-   n?'✓ '+n+' könyv · '+state.displayed.size+' borító · OneDrive':state.message;
+   n?'✓ '+n+' könyv · '+state.displayed.size+' borító · '+source:state.message;
   message.dataset.error=state.error?'1':'0';
   if(!state.loading&&!n){
    empty.hidden=false;
@@ -279,6 +282,7 @@
    empty.querySelector('button').textContent=hiddenCount?'↩ Elrejtett könyvek kezelése':'⚙ OneDrive kapcsolat beállítása';
   }else empty.hidden=true;
  }
+ function setOffline(on){state.offline=!!on;statusOnly()}
  function setConnected(on){
   state.connected=!!on;
   if(!on){state.books=[];state.covers.clear();state.displayed.clear();state.coverScanning=false;state.scope='';state.account='';state.profile='';state.hidden.clear();state.sortScope='';state.sortMode='title';state.customOrder=[]}
@@ -410,6 +414,7 @@
    $(id).addEventListener('click',()=>setSortMode(mode));
   }
   $('bshelfMenuOneDrive').addEventListener('click',()=>adminView('bookStudioSettings','☁️ OneDrive kapcsolat'));
+  $('bshelfMenuOffline').addEventListener('click',()=>adminView('bshelfOfflinePanel','📱 Offline könyvtár'));
   $('bshelfMenuManage').addEventListener('click',()=>adminView('bshelfManagePanel','📚 Könyvtár szerkesztése'));
   manageSearch.addEventListener('input',renderManage);
   $('bshelfMenuCovers').addEventListener('click',()=>adminView('onedriveBooks','🖼️ Borítók és könyvtárkezelés'));
@@ -435,6 +440,6 @@
   },{passive:true});
   render();
  }
- w.SH9_BOOKSHELF_V10=Object.freeze({update,coverReady,setStatus,setConnected,setLoading,setCoverProgress,finishCoverProgress,frontView});
+ w.SH9_BOOKSHELF_V10=Object.freeze({update,coverReady,setStatus,setConnected,setOffline,setLoading,setCoverProgress,finishCoverProgress,frontView,openAdmin:adminView});
  init();
 })(window,document);
