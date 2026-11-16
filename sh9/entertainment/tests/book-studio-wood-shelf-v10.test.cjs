@@ -115,12 +115,15 @@ test('Browser simulation: renders actual OneDrive files on HD shelves, cover rea
  book.dispatch('click');
  assert.deepEqual(opened,['od_2']);
  const image=book.querySelector('.bshelf-real-cover');
- assert.ok(image.hidden);
+ assert.equal(image.loading,'eager');
+ assert.equal(image.hidden,false,'The real image must not be hidden during loading');
  api.coverReady('od_2','blob:https://example.net/realcover');
  assert.equal(image.src,'blob:https://example.net/realcover');
+ assert.match(nodes.get('bshelfStatus').textContent,/0 borító/,'No premature cover count before image load');
  image.onload();
- assert.equal(image.hidden,false);
+ assert.equal(image.classList.contains('is-loaded'),true);
  assert.equal(book.querySelector('.bshelf-title-fallback').hidden,true);
+ assert.match(nodes.get('bshelfStatus').textContent,/1 borító/,'Counter reflects actual visible images');
  const settings=nodes.get('bshelfSettingsToggle');
  settings.dispatch('click');
  assert.equal(nodes.get('bshelfSettingsMenu').hidden,false);
