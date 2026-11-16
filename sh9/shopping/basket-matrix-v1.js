@@ -148,7 +148,7 @@ function render(){
   for(const shop of active){
    const row=node('div','shop'),label=node('div');
    const count=verifiedCount(item,shop);
-   label.append(node('strong',null,shop.name),node('small','shop-count',count===null?'– találat':count.toLocaleString('hu-HU')+' találat'));
+   label.append(node('strong',null,shop.name));
    // Make the entire retailer surface a real, keyboard-accessible link.
    // The saved SKU shortcut remains a separate sibling link, never a nested anchor.
    const action=node('a','shop-main');
@@ -158,7 +158,9 @@ function render(){
    action.setAttribute('aria-label',shop.name+' · '+item.name+' keresési találatok megnyitása');
    const logo=merchantLogo(shop);
    if(logo)action.append(logo);
-   action.append(label,node('span','shop-cta','🔎 Találatok'));
+   const cta=node('span','shop-cta',count===null?'🔎 – találat':'🔎 '+count.toLocaleString('hu-HU')+' találat');
+   if(count===null)cta.title='Az áruház élő találatszáma még nem érhető el. Koppints a bolti kereséshez.';
+   action.append(label,cta);
    row.append(action);list.append(row);
    const existing=saved(item,shop);
    if(existing){
