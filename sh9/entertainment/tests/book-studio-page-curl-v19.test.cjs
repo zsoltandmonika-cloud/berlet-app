@@ -47,11 +47,12 @@ class Node {
  append(...a){this.children.push(...a)}
  replaceChildren(...a){this.children=[...a]}
  get firstElementChild(){return this.children[0]||null}
+ getContext(){return {setTransform(){}}}
  querySelector(){return new Node()}
  focus(){}
  matches(){return false}
 }
-function harness(reduced=false){
+function harness(reduced=false, bookOptions={}){
  const ids=['cloudState','bookGrid','emptyState','uploadFile','bookCount','resumeSection',
  'profileSwitch','toast','searchBooks','favOnly','closeReader','prevPage','nextPage','readerTheme',
  'smallerText','biggerText','addBookmark','bookmarkList','chapterList','readerFocus','readerSound',
@@ -63,13 +64,13 @@ function harness(reduced=false){
  nodes.get('chapterList').options=[];
  nodes.get('readerScrub').value='0';
  const book={id:'od_test',title:'Lapozás próba',source:'onedrive',author:'Teszt',
-  format:'epub',bookmarks:[],theme:'sepia',progress_percent:2,font_size:100};
- const calls={next:0,prev:0,displays:0};
+  format:'epub',bookmarks:[],theme:'sepia',progress_percent:2,font_size:100,...bookOptions};
+ const calls={next:0,prev:0,displays:0,lastDisplay:undefined,pdfPages:[]};
  const rendition={
   on(){},
   async next(){calls.next++},
   async prev(){calls.prev++},
-  async display(){calls.displays++},
+  async display(locator){calls.displays++;calls.lastDisplay=locator},
   getContents(){return []},
   themes:{default(){},fontSize(){}}
  };
@@ -85,11 +86,23 @@ function harness(reduced=false){
   createElement:tag=>new Node(tag),
   addEventListener(){}
  };
+ const stored=new Map();
  const window={
-  localStorage:{getItem:key=>key==='hh-profile'?'z':null,setItem(){}},
+  localStorage:{getItem:key=>key==='hh-profile'?'z':stored.get(key)||null,setItem:(key,val)=>stored.set(key,String(val))},
   matchMedia:()=>({matches:reduced}),setTimeout,clearTimeout,
   addEventListener(){},
   ePub:()=>epub,
+  pdfjsLib:{
+   GlobalWorkerOptions:{},
+   getDocument:()=>({promise:Promise.resolve({
+    numPages:20,
+    async getPage(n){calls.pdfPages.push(n);return {
+     getViewport:({scale})=>({width:450*scale,height:720*scale}),
+     render:()=>({promise:Promise.resolve()})
+    }},
+    async destroy(){}
+   })})
+  },
   SH9_BOOK_STUDIO_DRIVE_V2:{
    getBook:id=>id===book.id?book:null,
    async download(){return {async arrayBuffer(){return new Uint8Array([1,2,3]).buffer}}},
@@ -99,7 +112,7 @@ function harness(reduced=false){
  };
  vm.runInNewContext(js,{window,document,URL,Date,Math,Promise,setTimeout,clearTimeout},
   {timeout:5000});
- return {api:window.SH9_BOOK_STUDIO_V1,nodes,calls};
+ return {api:window.SH9_BOOK_STUDIO_V1,nodes,calls,book,stored};
 }
 const sleep=ms=>new Promise(resolve=>setTimeout(resolve,ms));
 test('Opening a valid EPUB still uses the actual EPUB.js rendition, no fake page content',async()=>{
