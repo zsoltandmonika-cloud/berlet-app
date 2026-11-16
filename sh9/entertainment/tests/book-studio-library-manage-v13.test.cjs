@@ -113,3 +113,61 @@ test('No unsafe external destinations in OneDrive management, code parses',()=>{
  assert.match(js,/w\.localStorage\.setItem\(state\.scope/);
  assert.doesNotThrow(()=>new Function(js));
 });
+
+
+test('V17 reorder UI sorts titles/authors/favorites and saves a personal manual arrangement',()=>{
+ const {api,nodes,storage}=env();
+ const books=[
+  {id:'od3',drive_item_id:'d3',title:'Tüskevár',author:'Fekete István',source:'onedrive',progress_percent:38,is_favorite:false},
+  {id:'od1',drive_item_id:'d1',title:'A bankár',author:'Frei Tamás',source:'onedrive',progress_percent:0,is_favorite:true},
+  {id:'od2',drive_item_id:'d2',title:'Az aranyláz',author:'Pierre Berton',source:'onedrive',progress_percent:0,is_favorite:false},
+  {id:'od4',drive_item_id:'d4',title:'Végállomás',author:'Alex Kava',source:'onedrive',progress_percent:0,is_favorite:false}
+ ];
+ const titles=()=>nodes.get('bshelfRows').children.flatMap(row=>row.children).map(book=>book.title.split(' · ')[0]);
+ api.setConnected(true);api.update(books,'example@outlook.com','monika');
+ assert.deepEqual(titles(),['A bankár','Az aranyláz','Tüskevár','Végállomás']);
+ nodes.get('bshelfSortToggle').dispatch('click');
+ assert.equal(nodes.get('bshelfSortMenu').hidden,false);
+ nodes.get('bshelfSortTitleDesc').dispatch('click');
+ assert.deepEqual(titles(),['Végállomás','Tüskevár','Az aranyláz','A bankár']);
+ nodes.get('bshelfSortToggle').dispatch('click');
+ nodes.get('bshelfSortFavorites').dispatch('click');
+ assert.equal(titles()[0],'A bankár');
+ nodes.get('bshelfSortToggle').dispatch('click');
+ nodes.get('bshelfSortReading').dispatch('click');
+ assert.equal(titles()[0],'Tüskevár');
+ nodes.get('bshelfMenuManage').dispatch('click');
+ const rows=nodes.get('bshelfManageList');
+ const row=rows.children.find(x=>x.querySelector('strong').textContent==='Tüskevár');
+ assert.ok(row);
+ const arrow=row.querySelectorAll('.bshelf-order-action')[1];
+ assert.equal(arrow.textContent,'↓');
+ arrow.dispatch('click');
+ assert.equal(titles()[1],'Tüskevár','After moving down, a currently-reading book shifts one position');
+ const key='sh9-book-sort-v17:example%40outlook.com:monika';
+ assert.equal(JSON.parse(storage.get(key)).mode,'manual');
+ assert.ok(JSON.parse(storage.get(key)).order.includes('d3'));
+ // Simulate another profile, then return: the manual layout must reappear.
+ api.update(books,'example@outlook.com','zsolt');
+ assert.deepEqual(titles(),['A bankár','Az aranyláz','Tüskevár','Végállomás']);
+ api.update(books,'example@outlook.com','monika');
+ assert.equal(titles()[1],'Tüskevár');
+ // New books added after manual order have a consistent place and remain movable.
+ const added={id:'od5',drive_item_id:'d5',title:'Új könyv',author:'Új szerző',source:'onedrive'};
+ api.update([...books,added],'example@outlook.com','monika');
+ const newRow=nodes.get('bshelfManageList').children.find(x=>x.querySelector('strong').textContent==='Új könyv');
+ assert.ok(newRow);
+ newRow.querySelectorAll('.bshelf-order-action')[0].dispatch('click');
+ assert.equal(JSON.parse(storage.get(key)).order.includes('d5'),true);
+});
+test('V17 sort settings are safe: the original OneDrive catalog is never reordered or overwritten',()=>{
+ for(const id of ['bshelfSortToggle','bshelfSortMenu','bshelfSortTitle','bshelfSortTitleDesc',
+  'bshelfSortAuthor','bshelfSortFavorites','bshelfSortReading','bshelfSortManual'])
+  assert.ok(html.includes('id="'+id+'"'),id+' exists');
+ assert.match(js,/function sortStorageKey\(hiddenScope\)/);
+ assert.match(js,/function sortBooks\(books\)/);
+ assert.match(js,/function moveBook\(book,direction\)/);
+ assert.match(js,/function ensureManualOrder\(\)/);
+ assert.match(js,/state\.sortMode='manual'/);
+ assert.doesNotMatch(js,/DELETE|Files\.ReadWrite/);
+});
