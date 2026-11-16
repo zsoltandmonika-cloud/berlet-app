@@ -27,7 +27,7 @@ const SAMPLES={
 };
 const registry=w.SHOP_STORE_REGISTRY_V1;
 for(const x of registry?.current()||[]){
- if(x.is_custom&&x.enabled)STORES[x.key]={name:x.name,domain:x.domain,home:x.url,group:'home',isCustom:true};
+ if(x.is_custom&&x.enabled)STORES[x.key]={name:x.name,domain:x.domain,home:x.url,group:x.cats.includes('Élelmiszer')?'food':x.cats.includes('Drogéria & Szépség')?'beauty':x.cats.includes('Elektronika')?'tech':x.cats.includes('Divat & Stílus')?'fashion':'home',isCustom:true};
 }
 let key=new URL(w.location.href).searchParams.get('store')||'auchan';
 if(!Object.prototype.hasOwnProperty.call(STORES,key)){
@@ -249,8 +249,8 @@ $('signIn').onclick=async()=>{
   if(r.error)throw r.error;
  }catch(e){msg('Belépés sikertelen: '+String(e.message||e).slice(0,90))}
 };
-w.addEventListener('pageshow',()=>{selected=null;render();if(own()&&Date.now()-lastUpdate>5*60*1000)void loadCloud()});
-d.addEventListener('visibilitychange',()=>{if(d.visibilityState==='visible'&&own()&&Date.now()-lastUpdate>5*60*1000)void loadCloud()});
+w.addEventListener('pageshow',e=>{selected=null;render();if(e.persisted&&own()&&!loading&&Date.now()-lastUpdate>5*60*1000)void loadCloud()});
+d.addEventListener('visibilitychange',()=>{if(d.visibilityState==='visible'&&own()&&!loading&&Date.now()-lastUpdate>5*60*1000)void loadCloud()});
 w.addEventListener('storage',e=>{if(e.key==='hh-guardian-family-auth-v785')void authSync()});
 if(api)api.auth.onAuthStateChange(e=>{if(e==='SIGNED_IN'||e==='SIGNED_OUT')setTimeout(()=>void authSync(),0)});
 // Read-only match snapshot for the independent full-basket UI. Never writes to the family list.
