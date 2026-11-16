@@ -17,7 +17,7 @@ const MAX_ITEMS=900,MAX_FOLDERS=65,MAX_DEPTH=5,MAX_DOWNLOAD=80*1024*1024;
 let config=null,token='',expires=0,found=[],entries=[],folderId='',driveId='',ready=false,scanning=false,progressCloud=false;
 let refreshToken='',refreshIssuedAt=0,renewing=null;
 const CACHE=w.SH9_BOOK_CACHE_V3,META=w.SH9_BOOK_METADATA_V4;
-const coverUrls=new Map(),pendingDownloads=new Map();
+const coverUrls=new Map(),pendingDownloads=new Map(),pendingCovers=new Map();
 let coverLoading=false,coverJob=0,showDuplicates=false,autoCoverTimer=0,editorBook=null;
 const AUTO_COVER_KEY='sh9-book-auto-covers-v4',MAX_AUTO_TRANSFER=95*1024*1024;
 const coversOn=()=>load(w.localStorage,AUTO_COVER_KEY)!=='off';
@@ -42,7 +42,7 @@ function trusted(){
 }
 function markTrusted(){if(config)store(w.localStorage,TRUST,JSON.stringify({clientId:config.clientId,account:config.account}))}
 async function clearCredentials(){
- resetSession();dropCoverUrls();pendingDownloads.clear();missingCovers.clear();++coverJob;refreshToken='';refreshIssuedAt=0;
+ resetSession();dropCoverUrls();pendingDownloads.clear();pendingCovers.clear();missingCovers.clear();++coverJob;refreshToken='';refreshIssuedAt=0;
  try{w.localStorage.removeItem(TRUST);w.localStorage.removeItem(SILENT_RETRY)}catch(_){}
  if(PERSIST)await PERSIST.clear(w);
 }
@@ -319,6 +319,9 @@ function render(){
  // The full-screen wooden bookcase reuses the actual verified OneDrive
  // collection and all original image blob URLs, without a duplicate upload.
  w.SH9_BOOKSHELF_V10?.update(ready?source:[]);
+ // Cached covers must populate the visible wood bookcase even when the old
+ // admin list has an active search filter or has never been opened.
+ if(ready)for(const book of source)if(!coverUrls.has(book.id))void cachedCover(book);
  const list=source.filter(b=>(b.title+' '+b.author).toLocaleLowerCase('hu-HU').includes(f));
  $('odCount').textContent=groups.primary.length+' könyv'+(groups.hidden.length?' · '+groups.hidden.length+' duplikátum elrejtve':'');
  $('odDedup').hidden=!groups.hidden.length;
@@ -448,12 +451,56 @@ function zipPath(base,href){
 }
 async function thumbFromBlob(blob){
  if(!blob?.size||!blob.type.startsWith('image/'))return null;
+ let source=null,url=null,cleanup=()=>{};
  try{
-  const bit=await w.createImageBitmap(blob);
-  const ratio=Math.min(1,420/bit.width,630/bit.height);
-  const cv=d.createElement('canvas');cv.width=Math.max(1,Math.round(bit.width*ratio));cv.height=Math.max(1,Math.round(bit.height*ratio));
-  cv.getContext('2d').drawImage(bit,0,0,cv.width,cv.height);bit.close();
+  if(typeof w.createImageBitmap==='function'){
+   try{
+    source=await w.createImageBitmap(blob);
+    cleanup=()=>source.close?.();
+   }catch(_){source=null}
+  }
+  // Some Android/Samsung browsers cannot decode specific EPUB cover formats
+  // through createImageBitmap. A normal Image + canvas still works.
+  if(!source&&typeof w.Image==='function'){
+   url=URL.createObjectURL(blob);
+   source=await new Promise((resolve,reject)=>{
+    const img=new w.Image();img.onload=()=>resolve(img);
+    img.onerror=()=>reject(Error('A borítókép nem dekódolható.'));
+    img.src=url;
+   });
+  }
+  if(!source)return null;
+  const width=source.width||source.naturalWidth,height=source.height||source.naturalHeight;
+  if(!width||!height)return null;
+  const ratio=Math.min(1,420/width,630/height);
+  const cv=d.createElement('canvas');
+  cv.width=Math.max(1,Math.round(width*ratio));cv.height=Math.max(1,Math.round(height*ratio));
+  cv.getContext('2d').drawImage(source,0,0,cv.width,cv.height);
   return await new Promise(resolve=>cv.toBlob(resolve,'image/jpeg',.85));
+ }catch(_){return null}finally{
+  cleanup();if(url)URL.revokeObjectURL(url);
+ }
+}
+async function graphCover(b){
+ // Microsoft Graph's thumbnail API is read-only and accepts existing Files.Read.
+ // Some EPUBs have no thumbnail, and some preview URLs fail browser CORS.
+ // We ONLY use a portrait thumbnail that looks like a real book page/cover.
+ // The signed thumbnail URL is never persisted; only a reduced image Blob is cached.
+ if(!b?.drive_item_id||!ready)return null;
+ try{
+  const id=encodeURIComponent(b.drive_item_id);
+  const data=await json(GRAPH+'me/drive/items/'+id+'/thumbnails?select=large');
+  const choices=(data.value||[]).flatMap(x=>[x.large,x.medium].filter(Boolean));
+  const thumbnail=choices.find(x=>x.url&&x.width>120&&x.height>180&&
+   x.height/x.width>=1.19&&x.height/x.width<=2.2);
+  if(!thumbnail)return null;
+  const u=new URL(thumbnail.url);
+  if(u.protocol!=='https:')return null;
+  const response=await w.fetch(u.href,{method:'GET',credentials:'omit'});
+  if(!response.ok)return null;
+  const image=await response.blob();
+  if(image.size>7*1024*1024||!image.type.startsWith('image/'))return null;
+  return await thumbFromBlob(image);
  }catch(_){return null}
 }
 async function epubCover(blob){
@@ -492,15 +539,22 @@ async function pdfCover(blob){
 }
 async function extractCover(b,blob){
  if(!CACHE||!config||coverUrls.has(b.id))return;
- // Never download files just to paint the shelf automatically. Use local copies only.
- const cached=await CACHE.get(config.account,b,'cover');
- let image=cached;
- if(!image){
-  try{image=b.format==='epub'?await epubCover(blob):await pdfCover(blob)}catch(_){image=null}
-  if(image)void CACHE.put(config.account,b,'cover',image).then(updateCacheInfo);
- }
- if(!image||!entries.some(x=>x.id===b.id)||coverUrls.has(b.id))return;
- const url=URL.createObjectURL(image);coverUrls.set(b.id,url);paintCover(b);
+ if(pendingCovers.has(b.id))return pendingCovers.get(b.id);
+ const task=(async()=>{
+  const account=config.account,profileAtStart=pid(),id=b.id;
+  let image=await CACHE.get(account,b,'cover');
+  if(!image){
+   try{image=b.format==='epub'?await epubCover(blob):await pdfCover(blob)}catch(_){image=null}
+   if(image)await CACHE.put(account,b,'cover',image);
+  }
+  // Never show a cover from another account/profile after switching.
+  if(!image||!config||config.account!==account||pid()!==profileAtStart||
+     !ready||!entries.some(x=>x.id===id)||coverUrls.has(id))return;
+  const url=URL.createObjectURL(image);
+  coverUrls.set(id,url);paintCover(b);
+ })().finally(()=>pendingCovers.delete(b.id));
+ pendingCovers.set(b.id,task);
+ return task;
 }
 async function updateCacheInfo(){
  if(!CACHE||!config)return;
@@ -509,36 +563,59 @@ async function updateCacheInfo(){
 }
 async function prepareCovers(automatic=false){
  if(coverLoading||!ready||!CACHE)return;
- coverLoading=true;const id=++coverJob;const btn=$('odCoverSync');
+ coverLoading=true;const job=++coverJob;
+ const account=config.account,profileAtStart=pid();
  const source=distinctBooks().primary;
- const work=source.filter(x=>!coverUrls.has(x.id)&&!missingCovers.has(x.id)&&x.size_bytes>0&&x.size_bytes<(automatic?20:28)*1024*1024);
- let done=0,transferred=0,success=0;
+ const work=source.filter(x=>!coverUrls.has(x.id)&&!missingCovers.has(x.id)&&
+  x.size_bytes>0&&x.size_bytes<(automatic?20:28)*1024*1024);
+ let scanned=0,transferred=0,success=0;
  try{
   for(const book of work){
-   if(id!==coverJob||!ready||(automatic&&!coversOn()))break;
-   if(automatic&&transferred+book.size_bytes>MAX_AUTO_TRANSFER)break;
+   if(job!==coverJob||!ready||config?.account!==account||pid()!==profileAtStart||
+      (automatic&&!coversOn()))break;
+   let budgetSkipped=false;
    try{
-    const old=await CACHE.get(config.account,book,'cover');
-    if(old){await cachedCover(book);success++}
+    // 1. Instantly restore already cached authentic book cover.
+    const cachedImage=await CACHE.get(account,book,'cover');
+    if(cachedImage){await cachedCover(book)}
     else{
-     const cached=await CACHE.get(config.account,book,'file');
-     if(!cached)transferred+=book.size_bytes;
-     const blob=cached||await download(book);
-     await extractCover(book,blob);
-     if(coverUrls.has(book.id))success++;
-     else missingCovers.add(book.id);
+     // 2. Prefer a tiny, original OneDrive portrait thumbnail, if provided.
+     // A failed thumbnail does not stop normal EPUB / PDF cover extraction.
+     const thumb=await graphCover(book);
+     if(thumb){
+      await CACHE.put(account,book,'cover',thumb);
+      await cachedCover(book);
+     }
+     if(!coverUrls.has(book.id)){
+      // 3. Existing cached EPUB/PDF: extract original cover locally.
+      // Last resort is one-time download, limited to the 95 MiB auto budget.
+      const cachedFile=await CACHE.get(account,book,'file');
+      let blob=cachedFile;
+      if(!blob&&(!automatic||transferred+book.size_bytes<=MAX_AUTO_TRANSFER)){
+       if(automatic)transferred+=book.size_bytes;
+       blob=await download(book);
+      }
+      if(blob)await extractCover(book,blob);
+      // A book skipped by the mobile-data limit is NOT a failed cover:
+      // allow it to finish automatically on the next authenticated visit.
+      if(!blob)budgetSkipped=true;
+     }
     }
+    if(coverUrls.has(book.id))success++;
+    else if(!budgetSkipped)missingCovers.add(book.id);
    }catch(_){missingCovers.add(book.id)}
-   done++;
-   if(done%4===0||done===work.length)status('📚 Automatikus borítók: '+done+'/'+work.length+' · '+success+' eredeti borító');
-   await new Promise(resolve=>w.setTimeout(resolve,automatic?160:55));
+   scanned++;
+   // Surface progress in the new wood shelf, not only in hidden admin settings.
+   w.SH9_BOOKSHELF_V10?.setCoverProgress(scanned,work.length,success);
+   await new Promise(resolve=>w.setTimeout(resolve,automatic?95:45));
   }
  }finally{
   coverLoading=false;await updateCacheInfo();
-  if(ready)status('✓ '+distinctBooks().primary.length+' könyv · '+success+' új borító · OneDrive');
+  w.SH9_BOOKSHELF_V10?.finishCoverProgress(scanned,work.length,success);
+  if(ready&&job===coverJob)status('✓ '+distinctBooks().primary.length+
+   ' könyv · '+success+' új borító · OneDrive');
  }
 }
-
 
 function updateCoverToggle(){
  const btn=$('odCoverSync');if(!btn)return;
@@ -608,6 +685,13 @@ $('odCacheClear').addEventListener('click',async()=>{
  status('A helyi gyorsítótár kiürítve. Az eredeti OneDrive-könyvek érintetlenek.');
 });
 w.SH9_BOOK_STUDIO_DRIVE_V2=Object.freeze({getBook,download,saveProgress,render,reload:async()=>{entries=[];await loadLibrary()}});
+// V11: the user explicitly requested automatic cover collection.
+ // Switch it ON once for existing browsers; subsequent manual OFF is respected.
+const AUTO_V11_INIT='sh9-book-auto-v11-initialized';
+if(load(w.localStorage,AUTO_V11_INIT)!=='yes'){
+ store(w.localStorage,AUTO_COVER_KEY,'on');
+ store(w.localStorage,AUTO_V11_INIT,'yes');
+}
 displayConfig();setConnected(false);
 (async()=>{
  if(await handleCallback())return;
