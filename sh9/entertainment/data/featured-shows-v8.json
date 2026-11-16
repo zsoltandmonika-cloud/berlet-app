@@ -1,0 +1,75 @@
+{
+  "verified": "2026-11-16",
+  "region": "Budapest, HU",
+  "notice": "Dates from official organizer pages, not real-time availability. Generic event art is decorative on some items.",
+  "shows": {
+    "theatre": [
+      {
+        "title": "Titkosszolgák",
+        "startDate": "2026-11-21",
+        "endDate": "2026-11-23",
+        "note": "Loupe · RaM-ArT · nov. 21. és 23.",
+        "image": "https://ramart.hu/wp-content/uploads/2026/03/loupe_titkosszolgak.jpg",
+        "href": "https://ramart.hu/vinnai-andras-titkosszolgak/"
+      },
+      {
+        "title": "A kezdet/vége",
+        "startDate": "2026-11-24",
+        "endDate": "2026-12-20",
+        "note": "Loupe · RaM-ArT · nov. 24. és dec. 2.",
+        "image": "https://telekom-spots-prod.s3.eu-central-1.amazonaws.com/473378726_585012490968311_8359736798382492495_n_png_d97851c890.jpeg",
+        "href": "https://ramart.hu/a-kezdet-vege/"
+      },
+      {
+        "title": "Emberek, helyek és dolgok",
+        "startDate": "2026-11-25",
+        "endDate": "2026-12-15",
+        "note": "Loupe · RaM-ArT · nov. 25.",
+        "image": "https://cdn.sanity.io/images/dkxb6lca/production/5af602b6b6d195d0c5a488cebfb6799e229f86ef-1054x1492.png?auto=format&fit=max&h=960",
+        "href": "https://loupe.hu/repertoar/emberek-helyek"
+      },
+      {
+        "title": "Elvált nők klubja",
+        "startDate": "2026-12-13",
+        "endDate": "2026-12-14",
+        "note": "Musical · RaM-ArT · dec. 13.",
+        "image": "https://ramart.hu/wp-content/uploads/2026/06/elvalt-nok-klubja.jpg",
+        "href": "https://ramart.hu/elvalt-nok-klubja/"
+      }
+    ],
+    "concert": [
+      {
+        "title": "Petar Pejčić · Rising Stars",
+        "startDate": "2026-11-21",
+        "endDate": "2026-11-22",
+        "note": "Müpa · Fesztivál Színház · nov. 21.",
+        "image": "https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=1200&auto=format&fit=crop&q=86",
+        "href": "https://mupa.hu/jegyek-berletek/2026-osz-tel"
+      },
+      {
+        "title": "Z’Zi Labor 40 + Anita",
+        "startDate": "2026-12-06",
+        "endDate": "2026-12-07",
+        "note": "Adventi koncert · RaM-ArT · dec. 6.",
+        "image": "https://ramart.hu/wp-content/uploads/2026/06/zzi-labor-40-anita-adventi-koncert-original-295955.webp",
+        "href": "https://ramart.hu/zzi-labor-40/"
+      },
+      {
+        "title": "Koncz Zsuzsa-koncert",
+        "startDate": "2026-12-13",
+        "endDate": "2026-12-14",
+        "note": "Müpa · dec. 13. 20:00",
+        "image": "https://images.unsplash.com/photo-1459749411175-04bf5292ceea?w=1200&auto=format&fit=crop&q=85",
+        "href": "https://mupa.hu/programok/naptar/2026/12"
+      },
+      {
+        "title": "Karácsonyi Keringővarázs",
+        "startDate": "2026-12-19",
+        "endDate": "2026-12-20",
+        "note": "Budapesti Strauss Zenekar · RaM-ArT · dec. 19.",
+        "image": "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=1200&auto=format&fit=crop&q=85",
+        "href": "https://ramart.hu/"
+      }
+    ]
+  }
+}
