@@ -8,7 +8,7 @@
  const $=id=>d.getElementById(id),CACHE=w.SH9_BOOK_CACHE_V3;
  if(!$('bshelfRows')||!$('bshelfSettingsToggle'))return;
  const palette=['#264e5c','#50364f','#605037','#293a5a','#5a3840','#34514b','#533c55','#4b3b39'];
- const state={books:[],covers:new Map(),connected:false,loading:true,error:false,message:'☁️ OneDrive-könyvtár előkészítése…',coverScanning:false,coverDone:0,coverTotal:0};
+ const state={books:[],covers:new Map(),connected:false,loading:true,error:false,message:'☁️ OneDrive-könyvtár előkészítése…',coverScanning:false,coverDone:0,coverTotal:0,displayed:new Set()};
  const main=$('bshelfFront'),admin=$('bsAdminView'),menu=$('bshelfSettingsMenu');
  const settingsBtn=$('bshelfSettingsToggle'),searchBtn=$('bshelfSearchToggle');
  const searchBox=$('bshelfSearchBox'),search=$('bshelfSearch');
@@ -61,8 +61,8 @@
   const n=state.books.length;
   count.textContent=n? n+' könyv · ☁️ OneDrive':state.loading?'Csatlakozás…':'OneDrive';
   message.textContent=state.loading?'📚 '+(state.message.replace(/^[☁️📚📂\s]+/u,'')||'Könyvek beolvasása…'):
-   n&&state.coverScanning?'🖼️ Eredeti borítók automatikusan: '+state.coverDone+'/'+state.coverTotal+' · '+state.covers.size+' megjelenítve':
-   n?'✓ '+n+' könyv · '+state.covers.size+' borító · OneDrive':state.message;
+   n&&state.coverScanning?'🖼️ Eredeti borítók automatikusan: '+state.coverDone+'/'+state.coverTotal+' · '+state.displayed.size+' megjelenítve':
+   n?'✓ '+n+' könyv · '+state.displayed.size+' borító · OneDrive':state.message;
   message.dataset.error=state.error?'1':'0';
   if(!state.loading&&!n){
    empty.hidden=false;
@@ -73,7 +73,7 @@
  }
  function setConnected(on){
   state.connected=!!on;
-  if(!on){state.books=[];state.covers.clear();state.coverScanning=false}
+  if(!on){state.books=[];state.covers.clear();state.displayed.clear();state.coverScanning=false}
   statusOnly();render();
  }
  function setLoading(on){
@@ -101,12 +101,21 @@
   const img=button.querySelector('.bshelf-real-cover'),placeholder=button.querySelector('.bshelf-title-fallback');
   if(!img||img.dataset.url===url)return;
   img.dataset.url=url;
+  // Never combine loading="lazy" and hidden/display:none. On Samsung Internet
+  // that deadlocks: the invisible image is never fetched, so onload never fires.
+  img.loading='eager';
   img.onload=()=>{
    if(img.dataset.url!==url)return;
-   img.hidden=false;placeholder.hidden=true;
+   img.classList.add('is-loaded');
+   placeholder.hidden=true;
+   state.displayed.add(button.dataset.bookId);
+   statusOnly();
   };
   img.onerror=()=>{
-   img.hidden=true;placeholder.hidden=false;
+   img.classList.remove('is-loaded');
+   placeholder.hidden=false;
+   state.displayed.delete(button.dataset.bookId);
+   statusOnly();
   };
   img.src=url;
  }
@@ -122,7 +131,7 @@
    elem('span','bshelf-fallback-title',book.title));
   if(book.author)placeholder.append(elem('span','bshelf-fallback-author',book.author));
   const image=elem('img','bshelf-real-cover');
-  image.alt='';image.decoding='async';image.loading='lazy';image.hidden=true;
+  image.alt='';image.decoding='async';image.loading='eager';
   face.append(placeholder,image);
   if((Number(book.progress_percent)||0)>0){
    const pct=Math.min(100,Math.max(0,Number(book.progress_percent)||0));
@@ -142,6 +151,8 @@
   return button;
  }
  function render(){
+  // Fresh DOM book faces need their own decoded image load events.
+  state.displayed.clear();
   const key=clean(search.value);
   const visible=state.books.filter(b=>!key||clean(b.title+' '+(b.author||'')).includes(key));
   const perRow=cols();
