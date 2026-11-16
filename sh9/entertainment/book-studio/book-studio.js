@@ -12,7 +12,7 @@ let api=null,books=[],busy=false,favoritesOnly=false,loadedProfile='',readerVers
 let current=null,currentLocation='',epubBook=null,rendition=null,pdfDoc=null,pdfPage=1,pdfTask=null,pdfVersion=0,fontSize=100;
 let saveTimer=0,writeQueue=Promise.resolve(),openCoverUrls=new Map(),refreshToken=0,toastTimer=0;
 let epubLocsReady=false,pageChanging=false,turnTimer=0,curlEpoch=0;
-const SOUND_KEY='sh9-book-page-sound-v4';let pageAudio=null;
+const SOUND_KEY='sh9-book-page-sound-v4',THEME_PREF_KEY='sh9-book-explicit-theme-v20:';let pageAudio=null;
 const profile=()=>{try{return w.localStorage.getItem('hh-profile')==='m'?'monika':'zsolt'}catch(_){return'zsolt'}};
 const short=p=>p==='monika'?'m':'z';
 const setStatus=(s,warn)=>{$('cloudState').textContent=s;$('cloudState').classList.toggle('warn',!!warn)};
@@ -84,7 +84,7 @@ function renderBooks(){
  $('emptyState').hidden=!!shown.length;
  $('emptyState').querySelector('h3').textContent=books.length?'Nincs találat.':'A könyvespolc még üres.';
  $('emptyState').querySelector('p').textContent=books.length?'Módosítsd a keresést vagy a kedvencek szűrőjét.':'Adj hozzá egy DRM-mentes EPUB-ot vagy PDF-et.';
- const recent=books.find(b=>b.progress_locator&&Number(b.progress_percent)>=0);
+ const recent=books.find(b=>lastExplicitBookmark(b));
  $('resumeSection').hidden=!recent;
  if(recent){
   $('resumeTitle').textContent=recent.title;$('resumeAuthor').textContent=recent.author||'Ismeretlen szerző';
@@ -202,7 +202,7 @@ async function importBook(file){
   }
   const row={id,profile_key:p,title:meta.title,author:meta.author,file_name:clean(file.name),
    format:ext,storage_path:path,cover_path:coverPath,size_bytes:file.size,progress_locator:null,
-   progress_percent:0,bookmarks:[],is_favorite:false,theme:'dark',font_size:100};
+   progress_percent:0,bookmarks:[],is_favorite:false,theme:'sepia',font_size:100};
   const {error}=await c.from(TABLE).insert(row);
   if(error)throw Error(error.message);
   $('importStatus').textContent='✓ A könyv biztonságosan mentve';
@@ -213,10 +213,41 @@ async function importBook(file){
   $('importStatus').textContent='Feltöltési hiba: '+e.message;toast('Feltöltési hiba: '+e.message);
  }finally{busy=false;$('uploadFile').value='';$('uploadFile').disabled=!!(!loadedProfile)}
 }
+// V20: opening position is determined by an EXPLICIT saved bookmark.
+// Automatic reading progress is still recorded for the UI, but it never
+// silently becomes the next opening location.
+function lastExplicitBookmark(book){
+ const marks=Array.isArray(book?.bookmarks)?book.bookmarks:[];
+ for(let i=marks.length-1;i>=0;i--){
+  const loc=marks[i]?.locator;
+  if(typeof loc!=='string'||!loc.trim())continue;
+  if(book.format==='pdf'&&!/^[1-9]\d*$/.test(loc.trim()))continue;
+  return loc.trim();
+ }
+ return '';
+}
+// Historic "dark" values were populated by the old default on every book.
+// Only an explicit V20 selection of dark can override the new Sepia default.
+// Existing Light/Sepia selections remain intact.
+const themePrefKey=book=>THEME_PREF_KEY+
+ encodeURIComponent(String(book?.profile_key||profile()))+':'+
+ encodeURIComponent(String(book?.drive_id||'upload'))+':'+
+ encodeURIComponent(String(book?.id||''));
+function initialTheme(book){
+ try{
+  const selected=w.localStorage.getItem(themePrefKey(book));
+  if(['dark','light','sepia'].includes(selected))return selected;
+ }catch(_){}
+ return book?.theme==='light'?'light':'sepia';
+}
+function rememberTheme(book,theme){
+ if(!book||!['dark','light','sepia'].includes(theme))return;
+ try{w.localStorage.setItem(themePrefKey(book),theme)}catch(_){}
+}
 function updateReaderUI(){
  if(!current)return;
  $('readerTitle').textContent=current.title;$('readerAuthor').textContent=current.author||'Ismeretlen szerző';
- $('readerTheme').value=current.theme||'dark';$('reader').dataset.theme=current.theme||'dark';
+ $('readerTheme').value=current.theme||'sepia';$('reader').dataset.theme=current.theme||'sepia';
  fontSize=current.font_size||100;
  showBookmarks();
 }
@@ -243,7 +274,7 @@ function queueSave(){
  if(!current)return writeQueue;
  const p=profile(),id=current.id,patch={
   progress_locator:current.progress_locator,progress_percent:current.progress_percent,
-  bookmarks:current.bookmarks||[],theme:current.theme||'dark',font_size:current.font_size||100,
+  bookmarks:current.bookmarks||[],theme:current.theme||'sepia',font_size:current.font_size||100,
   updated_at:new Date().toISOString()
  };
  const snapshot={...current,bookmarks:current.bookmarks?.slice()||[]};
@@ -329,7 +360,7 @@ function previewCurl(dx,width){
  layer.style.setProperty('--curl-peek-angle',(forward?-15-strength*69:15+strength*69).toFixed(1)+'deg');
 }
 function applyTheme(){
- const theme=current?.theme||'dark';$('reader').dataset.theme=theme;
+ const theme=current?.theme||'sepia';$('reader').dataset.theme=theme;
  if(rendition){
   const ink=theme==='dark'?'#fff7ed':theme==='sepia'?'#34281f':'#1d2230';
   const bg=theme==='dark'?'#252d3c':theme==='sepia'?'#f1e5c9':'#fffdf8';
@@ -350,7 +381,13 @@ async function openBook(id){
  await closeReader();
  const version=++readerVersion;
  current={...b,bookmarks:Array.isArray(b.bookmarks)?b.bookmarks.slice():[]};
- currentLocation=current.progress_locator||'';pdfPage=1;pdfDoc=null;rendition=null;epubBook=null;epubLocsReady=false;
+ // A fresh open starts at the beginning unless the reader actually added
+ // a bookmark with the 🔖 + control; use the latest such bookmark if present.
+ const openAt=lastExplicitBookmark(current);
+ current.theme=initialTheme(current);
+ current.progress_locator=openAt;
+ current.progress_percent=openAt?Math.max(0,Number(current.progress_percent)||0):0;
+ currentLocation=openAt;pdfPage=1;pdfDoc=null;rendition=null;epubBook=null;epubLocsReady=false;
  $('reader').classList.remove('focus-mode','turn-forward','turn-backward');
  $('readerFocus').setAttribute('aria-pressed','false');
  $('readerScrub').disabled=true;$('readerScrub').value=String(current.progress_percent||0);
@@ -387,7 +424,7 @@ async function openBook(id){
     position(loc.start.cfi,precise,'EPUB · '+Math.round(precise)+'%');
    });
    $('readerMessage').hidden=true;applyTheme();
-   await rendition.display(b.progress_locator||undefined);
+   await rendition.display(openAt||undefined);
    void epubBook.loaded.navigation.then(navigation=>{
     if(version!==readerVersion)return;
     const select=$('chapterList');select.replaceChildren();
@@ -402,7 +439,7 @@ async function openBook(id){
    w.pdfjsLib.GlobalWorkerOptions.workerSrc=PDF_WORKER;
    pdfDoc=await w.pdfjsLib.getDocument({data:new Uint8Array(bytes)}).promise;
    if(version!==readerVersion)return;
-   pdfPage=Math.min(pdfDoc.numPages,Math.max(1,Number.parseInt(b.progress_locator,10)||1));
+   pdfPage=Math.min(pdfDoc.numPages,Math.max(1,Number.parseInt(openAt,10)||1));
    $('pdfStage').hidden=false;$('readerMessage').hidden=true;
    $('readerScrub').disabled=false;
    await renderPDF();
@@ -550,7 +587,7 @@ $('favOnly').addEventListener('click',()=>{favoritesOnly=!favoritesOnly;$('favOn
 $('closeReader').addEventListener('click',()=>void closeReader());
 $('prevPage').addEventListener('click',()=>void pageMove(-1));
 $('nextPage').addEventListener('click',()=>void pageMove(1));
-$('readerTheme').addEventListener('change',()=>{if(!current)return;current.theme=$('readerTheme').value;applyTheme();void queueSave()});
+$('readerTheme').addEventListener('change',()=>{if(!current)return;current.theme=$('readerTheme').value;rememberTheme(current,current.theme);applyTheme();void queueSave()});
 $('smallerText').addEventListener('click',()=>setFont(-10));
 $('biggerText').addEventListener('click',()=>setFont(10));
 $('addBookmark').addEventListener('click',()=>void mark());

@@ -124,9 +124,9 @@
 </section>
 </main>
 </div>
-<div class="reader" id="reader" hidden role="dialog" aria-modal="true" aria-label="Könyvolvasó">
+<div class="reader" id="reader" data-theme="sepia" hidden role="dialog" aria-modal="true" aria-label="Könyvolvasó">
  <header class="reader-bar"><button type="button" id="closeReader" class="square" aria-label="Olvasó bezárása">←</button><div class="reader-meta"><strong id="readerTitle"></strong><small id="readerAuthor"></small></div><span class="reader-status" id="readerProgress" aria-live="polite"></span><button type="button" id="readerFocus" class="focus-toggle" title="Zavartalan olvasás / eszköztár megjelenítése" aria-pressed="false">⛶</button></header>
- <div class="reader-tools" role="toolbar" aria-label="Olvasó beállításai"><label class="sr-only" for="readerTheme">Olvasási megjelenés</label><select id="readerTheme"><option value="dark">🌙 Sötét</option><option value="light">☀️ Világos</option><option value="sepia">📜 Szépia</option></select><button type="button" id="smallerText" aria-label="Kisebb betűméret">A−</button><button type="button" id="biggerText" aria-label="Nagyobb betűméret">A＋</button><button type="button" id="addBookmark" title="Könyvjelző mentése">🔖 ＋</button><label class="sr-only" for="bookmarkList">Mentett könyvjelzők</label><select id="bookmarkList" aria-label="Mentett könyvjelzők"><option value="">Könyvjelzők…</option></select><label class="sr-only" for="chapterList">Fejezetek</label><select id="chapterList" aria-label="Fejezetválasztó" hidden><option value="">Fejezetek…</option></select><button type="button" id="readerSound" class="reader-sound" title="Halk könyvlap hang be/ki" aria-pressed="true">🔊 Lapozóhang: BE</button></div>
+ <div class="reader-tools" role="toolbar" aria-label="Olvasó beállításai"><label class="sr-only" for="readerTheme">Olvasási megjelenés</label><select id="readerTheme"><option value="sepia" selected>📜 Szépia</option><option value="light">☀️ Világos</option><option value="dark">🌙 Sötét</option></select><button type="button" id="smallerText" aria-label="Kisebb betűméret">A−</button><button type="button" id="biggerText" aria-label="Nagyobb betűméret">A＋</button><button type="button" id="addBookmark" title="Könyvjelző mentése">🔖 ＋</button><label class="sr-only" for="bookmarkList">Mentett könyvjelzők</label><select id="bookmarkList" aria-label="Mentett könyvjelzők"><option value="">Könyvjelzők…</option></select><label class="sr-only" for="chapterList">Fejezetek</label><select id="chapterList" aria-label="Fejezetválasztó" hidden><option value="">Fejezetek…</option></select><button type="button" id="readerSound" class="reader-sound" title="Halk könyvlap hang be/ki" aria-pressed="true">🔊 Lapozóhang: BE</button></div>
  <div class="reader-content" id="readerContent"><div class="reader-paper-glow" aria-hidden="true"></div><div id="readerPageCurl" class="reader-page-curl" hidden aria-hidden="true"><div class="reader-page-curl-sheet"></div><div class="reader-page-curl-shadow"></div><div class="reader-page-curl-edge"></div></div><div id="epubStage" hidden></div><div id="pdfStage" hidden></div><p id="readerMessage" role="status">Könyv betöltése…</p></div>
  <div class="reader-progress-bar"><label for="readerScrub" class="sr-only">Ugrás a könyvben</label><input id="readerScrub" type="range" min="0" max="100" value="0" step="1" disabled aria-label="Olvasási pozíció" title="Ugrás a könyvben"><span class="reader-scrub-percentage" id="readerScrubPercent">0%</span></div>
  <footer class="reader-footer"><button type="button" id="prevPage" class="page-turn-prev" aria-label="Előző oldal">‹ <span>Előző</span></button><span id="pageLabel">Olvasás</span><button type="button" id="nextPage" class="page-turn-next" aria-label="Következő oldal"><span>Következő</span> ›</button></footer>
@@ -148,8 +148,8 @@
 <script defer src="./book-cache-v3.js?v=3"></script>
 <script defer src="../book-studio-preview-v4.js?v=4"></script>
 <script defer src="./book-metadata-v4.js?v=4"></script>
-<script defer src="./book-studio.js?v=19-ibooks-page-curl"></script>
+<script defer src="./book-studio.js?v=20-sepia-explicit-bookmarks"></script>
 <script defer src="./book-studio-wood-shelf-v10.js?v=17-shelf-sort"></script>
-<script defer src="./onedrive-books-v2.js?v=13-library-manager"></script>
+<script defer src="./onedrive-books-v2.js?v=20-sepia-explicit-bookmarks"></script>
 </body>
 </html>
