@@ -1,0 +1,48 @@
+/* SHO Smart Entertainment · Book Studio Golden V18
+ * Calm, warm wooden library instead of vibrant neon.
+ * User-approved photomontage is cropped to 1596 × 985 (1.6203:1),
+ * matching the existing Etele-standard 1.62:1 Book Studio tile.
+ * No duplicate headline, overlays or buttons: the entire tile is the link.
+ */
+.bs-entertainment-feature .books-promo.books-promo--immersive {
+  background-color:#20130c !important;
+  background-image:url('./assets/sho-book-studio-warm-wood-v18.webp') !important;
+  background-position:50% 50% !important;
+  background-size:cover !important;
+  background-repeat:no-repeat !important;
+  border-color:rgba(184,139,84,.83) !important;
+  box-shadow:0 11px 26px rgba(10,6,3,.62),
+             0 0 0 1px rgba(203,164,107,.2) !important;
+  filter:none !important;
+  cursor:pointer;
+  isolation:isolate;
+  -webkit-tap-highlight-color:transparent;
+}
+.bs-entertainment-feature .books-promo--immersive:hover {
+  filter:brightness(1.04) !important;
+}
+.bs-entertainment-feature .books-promo--immersive:focus-visible {
+  outline:3px solid #f6d5a1 !important;
+  outline-offset:3px;
+}
+/* The HD image already has Book Studio and Saját könyvtáram typography. */
+.bs-entertainment-feature .books-promo--immersive .bs-photo-film,
+.bs-entertainment-feature .books-promo--immersive .bs-photo-books,
+.bs-entertainment-feature .books-promo--immersive .bs-text,
+.bs-entertainment-feature .books-promo--immersive::after {
+  display:none !important;
+  visibility:hidden !important;
+}
+@media(max-width:650px) {
+  .bs-entertainment-feature .books-promo.books-promo--immersive {
+    aspect-ratio:1.62 !important;
+    background-position:center !important;
+    background-size:cover !important;
+    border-radius:17px !important;
+  }
+}
+@media(prefers-reduced-motion:reduce) {
+  .bs-entertainment-feature .books-promo--immersive {
+    transition:none !important;
+  }
+}
