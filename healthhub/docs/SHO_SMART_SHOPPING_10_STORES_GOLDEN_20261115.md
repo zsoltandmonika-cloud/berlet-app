@@ -53,3 +53,10 @@
 - **Ár szerinti rendezés:** cél a megfelelő termékek egységár szerinti, növekvő sorrendű ajánlása eredeti fotóval, aktuális árral, készlettel és direkt terméklinkkel. Ez **NEM működő funkció**, mert a Bridge-nek még nincs mind a 10 boltra hiteles, engedélyezett termék-/ár-/készlet-feedje. Jelenleg a kereskedő oldalán használható annak saját rendezése.
 - **Kosár:** a Bridge átadja a vásárlási szándékot és gyorsítja a soron következő termék keresését, de **nem tölti fel automatikusan** a bolti kosarat. A konkrét terméket a felhasználó a kereskedő weboldalán választja és helyezi a kosárba. A Smart List vásárlási állapota változatlan.
 - Implementáció: `merchant-smart-v1.js` és a HTML-be beépített azonos szkript (9 natív útvonal), `tesco-bridge-v3.js` és saját HTML-be beépített szkript (Tesco natív találatok + opcionális SKU-link).
+
+## 11. bolt: Shoperia · 2026-11-16
+- **Új bolt:** https://shoperia.hu/; kategóriák: Drogéria & Szépség, Otthon & Háztartás. Kártya, hivatalos domain/favikon és külön `?store=shoperia` Smart Shopping útvonal.
+- **Közös lista:** azonos, csak olvasó Smart List; boltonként külön linkmentés az eddigi RLS-védett `hh_shopping_merchant_links_v1` táblában; 10 termékes drogéria-demo.
+- **Keresési bizonyíték:** a webáruház saját, paraméterezett keresőútvonala még nincs hitelesítve. Emiatt a dupla koppintás és a szabad keresés egyértelműen jelzett `site:shoperia.hu` webkeresést nyit, nem egy kiválasztott SKU-t és nem feltételezett bolti kosarat.
+- **Vizuális Golden:** a boltkártyák száma 10→11; mobilon 6 kompakt sor, a Shoperia utolsó, kéthasábos csempén, a katalógus a következő panelen marad. Felső Hero és 6 kategóriacsempe nem módosult.
+- **Kód:** `store-connect-v2.js`, `merchant-smart-v1.html` és `.js`, `visual-cards-v3.css`, `index.html` cache-busting. GitHub forrásoknál JavaScript- és HTML-be ágyazott script-szintaxis ellenőrzés sikeres; tényleges készülékes UAT / Pages publikálási ellenőrzés még nyitott.
