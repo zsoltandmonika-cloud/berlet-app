@@ -1,0 +1,51 @@
+/* SHO Szórakozás · Book Studio Golden V18.
+   User-approved restrained wooden-library photomontage.
+   1597x985 (1.621:1) HD source compressed to ~200 KB WebP.
+   Use the original full-card link, size and text baked into the artwork.
+   This overrides only the library tile, not the vibrant concert/cinema cards. */
+.bs-entertainment-feature .books-promo.books-promo--immersive{
+ background-color:#170e09!important;
+ background-image:url('./assets/book-studio-warm-library-v18.webp')!important;
+ background-repeat:no-repeat!important;
+ background-position:center center!important;
+ background-size:cover!important;
+ border:1px solid #bc8650cf!important;
+ border-radius:18px!important;
+ box-shadow:0 11px 25px #0008,0 0 0 1px #ccad7b36!important;
+ filter:none!important;
+ isolation:isolate;
+ cursor:pointer;
+ -webkit-tap-highlight-color:transparent;
+}
+.bs-entertainment-feature .books-promo--immersive:hover{
+ filter:brightness(1.035)!important;
+}
+.bs-entertainment-feature .books-promo--immersive:focus-visible{
+ outline:3px solid #f3cf90!important;
+ outline-offset:3px;
+}
+/* The image itself carries "Book Studio" and "SAJÁT KÖNYVTÁRAM";
+   avoid duplicate HTML titles, colored ribbons, and faux books. */
+.bs-entertainment-feature .books-promo--immersive .bs-photo-film,
+.bs-entertainment-feature .books-promo--immersive .bs-photo-books,
+.bs-entertainment-feature .books-promo--immersive .bs-text,
+.bs-entertainment-feature .books-promo--immersive::after{
+ display:none!important;
+ visibility:hidden!important;
+}
+@media(max-width:650px){
+ .bs-entertainment-feature .books-promo.books-promo--immersive{
+  width:100%!important;
+  height:calc((100vw - 24px)/1.62)!important;
+  min-height:0!important;
+  aspect-ratio:1.62!important;
+  background-size:cover!important;
+  background-position:center center!important;
+  border-radius:15px!important;
+ }
+}
+@media(prefers-reduced-motion:reduce){
+ .bs-entertainment-feature .books-promo.books-promo--immersive{
+  transition:none!important;
+ }
+}

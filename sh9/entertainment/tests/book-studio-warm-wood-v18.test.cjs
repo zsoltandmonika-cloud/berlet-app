@@ -1,0 +1,42 @@
+'use strict';
+const {test}=require('node:test');
+const assert=require('node:assert/strict');
+const fs=require('node:fs'),path=require('node:path');
+const root=path.resolve(__dirname,'../../..');
+const text=p=>fs.readFileSync(path.join(root,p),'utf8');
+const image=fs.readFileSync(path.join(root,'sh9/entertainment/assets/book-studio-warm-library-v18.webp'));
+const page=text('sh9/entertainment/index.html');
+const css=text('sh9/entertainment/book-studio-warmwood-v18.css');
+test('Approved warm library is a real optimized 1.62:1 HD WebP source',()=>{
+ assert.ok(image.length>=60000&&image.length<=300000);
+ assert.equal(image.toString('ascii',0,4),'RIFF');
+ assert.equal(image.toString('ascii',8,12),'WEBP');
+ const kind=image.toString('ascii',12,16);
+ assert.ok(['VP8 ','VP8L','VP8X'].includes(kind),'WebP format marker');
+});
+test('New artwork overrides the neon Book Studio card and keeps the whole card clickable',()=>{
+ assert.match(css,/book-studio-warm-library-v18\.webp/);
+ assert.match(css,/background-size:cover!important/);
+ assert.match(css,/border:1px solid #bc8650cf!important/);
+ assert.match(css,/box-shadow:0 11px 25px #0008,0 0 0 1px #ccad7b36!important/);
+ assert.match(css,/background-position:center center!important/);
+ assert.match(css,/\.bs-photo-books,/);
+ assert.match(css,/\.bs-text,/);
+ assert.match(css,/display:none!important/);
+ assert.match(page,/<a class="books-promo books-promo--immersive" href="\.\/book-studio\/"/);
+ assert.match(page,/aria-label="SHO Book Studio/);
+ assert.equal((page.match(/class="books-promo books-promo--immersive"/g)||[]).length,1);
+});
+test('S24 Ultra layout retains Etele-sized tile, original sections and fast image preload',()=>{
+ assert.match(css,/height:calc\(\(100vw - 24px\)\/1\.62\)!important/);
+ assert.match(css,/aspect-ratio:1\.62!important/);
+ assert.match(page,/rel="preload" as="image" href="\.\/assets\/book-studio-warm-library-v18\.webp"/);
+ assert.ok(page.indexOf('book-studio-warmwood-v18.css')>page.indexOf('entertainment-book-first-v16.css'));
+ const books=page.indexOf('class="bs-entertainment-feature"');
+ const programs=page.indexOf('class="section sh9-program-feature"');
+ const movies=page.indexOf('id="mozi"');
+ assert.ok(books>0&&programs>books&&movies>programs);
+ assert.match(page,/E-Könyvtár<\/h2>/);
+ assert.match(page,/Programajánló<\/h2>/);
+ assert.match(page,/Most a mozikban/);
+});
