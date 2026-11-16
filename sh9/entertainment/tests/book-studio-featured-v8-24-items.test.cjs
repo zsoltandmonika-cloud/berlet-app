@@ -10,7 +10,7 @@ const cinema=JSON.parse(read('sh9/entertainment/data/featured-cinema-v8.json'));
 const shows=JSON.parse(read('sh9/entertainment/data/featured-shows-v8.json'));
 const media=JSON.parse(read('sh9/entertainment/data/featured-media-snapshot-v8.json'));
 test('V8 is activated after V7 and old duplicate large white heading is no longer created',()=>{
- assert.match(html,/featured-slideshow-v8\.js\?v=8-4s-real-items-rtl/);
+ assert.match(html,/featured-slideshow-v8\.js\?v=(8-4s-real-items-rtl|16-book-first-program-after)/);
  assert.match(html,/featured-slideshow-v8\.css\?v=8-4s-new-items-rtl/);
  assert.doesNotMatch(html,/<script defer src="\.\/featured-slideshow-v6\.js/);
  assert.match(carousel,/const DELAY=4000,TRANSITION_MS=570,MAX_PER_KIND=4/);
