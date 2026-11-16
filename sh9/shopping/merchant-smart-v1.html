@@ -159,7 +159,7 @@ main{max-width:580px;margin:auto;padding:12px 12px calc(98px + env(safe-area-ins
 <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.2/dist/umd/supabase.min.js"></script>
 <script defer src="../../healthhub/guardian/guardian-native-auth-v1063.js"></script>
 <script defer src="../../healthhub/chatgpt-project-shortcut-v712.js?v=756-central-open"></script>
-<script defer src="./store-registry-v1.js?v=1"></script>
+<script defer src="./store-registry-v1.js?v=2"></script>
 <script defer src="./shopping-local-v1.js?v=1"></script>
 <script defer src="./merchant-basket-v1.js?v=1"></script>
 <script>
@@ -194,7 +194,7 @@ const SAMPLES={
 };
 const registry=w.SHOP_STORE_REGISTRY_V1;
 for(const x of registry?.current()||[]){
- if(x.is_custom&&x.enabled)STORES[x.key]={name:x.name,domain:x.domain,home:x.url,group:'home',isCustom:true};
+ if(x.is_custom&&x.enabled)STORES[x.key]={name:x.name,domain:x.domain,home:x.url,group:x.cats.includes('Élelmiszer')?'food':x.cats.includes('Drogéria & Szépség')?'beauty':x.cats.includes('Elektronika')?'tech':x.cats.includes('Divat & Stílus')?'fashion':'home',isCustom:true};
 }
 let key=new URL(w.location.href).searchParams.get('store')||'auchan';
 if(!Object.prototype.hasOwnProperty.call(STORES,key)){
@@ -416,8 +416,8 @@ $('signIn').onclick=async()=>{
   if(r.error)throw r.error;
  }catch(e){msg('Belépés sikertelen: '+String(e.message||e).slice(0,90))}
 };
-w.addEventListener('pageshow',()=>{selected=null;render();if(own()&&Date.now()-lastUpdate>5*60*1000)void loadCloud()});
-d.addEventListener('visibilitychange',()=>{if(d.visibilityState==='visible'&&own()&&Date.now()-lastUpdate>5*60*1000)void loadCloud()});
+w.addEventListener('pageshow',e=>{selected=null;render();if(e.persisted&&own()&&!loading&&Date.now()-lastUpdate>5*60*1000)void loadCloud()});
+d.addEventListener('visibilitychange',()=>{if(d.visibilityState==='visible'&&own()&&!loading&&Date.now()-lastUpdate>5*60*1000)void loadCloud()});
 w.addEventListener('storage',e=>{if(e.key==='hh-guardian-family-auth-v785')void authSync()});
 if(api)api.auth.onAuthStateChange(e=>{if(e==='SIGNED_IN'||e==='SIGNED_OUT')setTimeout(()=>void authSync(),0)});
 // Read-only match snapshot for the independent full-basket UI. Never writes to the family list.
