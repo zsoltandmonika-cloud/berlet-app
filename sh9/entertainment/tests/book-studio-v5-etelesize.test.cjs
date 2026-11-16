@@ -33,8 +33,9 @@ test('Existing entertainment content and Etele card remain unchanged',()=>{
  assert.match(css,/@media \(max-width:650px\)/);
  assert.doesNotMatch(css,/\.section \.carousel > \.card\s*\{/);
 });
-test('Mobile Book Studio preview shelf remains a separate section',()=>{
- assert.ok(page.indexOf('class="bs-preview-shelf"')>page.indexOf('books-promo books-promo--immersive'));
+test('Mobile Book Studio remains a full clickable tile without a redundant homepage bookshelf preview',()=>{
+ assert.ok(page.indexOf('books-promo books-promo--immersive')>0);
+ assert.doesNotMatch(page,/class="bs-preview-shelf"|id="bsPreviewGrid"/);
  assert.match(css,/\.bs-entertainment-feature \.books-promo/);
  assert.doesNotMatch(css,/\.bs-preview-shelf\s*\{/);
 });
