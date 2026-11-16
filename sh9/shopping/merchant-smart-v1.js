@@ -126,7 +126,7 @@ function render(){
  $('storeTitle').textContent=store.name+' Smart Shopping';
  $('storeName').textContent=store.name;
  $('storeHome').href=store.home;
- $('storeDomain').textContent=store.domain;
+ // Store domain is displayed through the linked shop URL and dynamic search help.
  $('modeShared').setAttribute('aria-pressed',String(mode==='shared'));
  $('modeDemo').setAttribute('aria-pressed',String(mode==='demo'));
  $('sharedCount').textContent=rows.length+' aktív tétel';
