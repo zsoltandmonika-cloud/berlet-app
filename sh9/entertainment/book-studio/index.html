@@ -17,6 +17,7 @@
 <link rel="stylesheet" href="./book-studio-shelf-sort-v17.css?v=17-sort-custom">
 <link rel="stylesheet" href="./book-studio-page-curl-v19.css?v=19-3d-sheet">
 <link rel="stylesheet" href="./book-studio-offline-v21.css?v=21">
+<link rel="stylesheet" href="./book-local-v22.css?v=22">
 </head>
 <body class="bshelf-v10-page">
 <div class="shell">
@@ -92,6 +93,17 @@
  <span class="bshelf-offline-kicker">📱 BOOK STUDIO · HELYI GYŰJTEMÉNY</span>
  <h2>Offline könyvtár</h2>
  <p class="bshelf-offline-lead">A könyvek, borítók és a könyvespolc a telefonon tárolódhatnak. Bekapcsolás után azonnal a helyi polc nyílik meg, a OneDrive csak frissítéshez kell.</p>
+ <div class="bs-local-import" aria-label="Telefonos saját EPUB/PDF könyvek">
+  <h3>📥 Könyvek importálása a telefonról</h3>
+  <p>A Samsung fájlválasztójából kiválasztott EPUB/PDF a telefon böngészőjébe kerül. Nincs OneDrive- vagy Supabase-feltöltés, és az eredeti fájl megmarad.</p>
+  <label for="bsLocalFileInput" class="bs-local-import-button">＋ EPUB / PDF hozzáadása</label>
+  <input id="bsLocalFileInput" type="file" accept=".epub,.pdf,application/epub+zip,application/pdf" multiple hidden>
+  <button type="button" id="bsLocalShell" class="bs-local-shell">⚡ Offline olvasó előkészítése</button>
+  <div id="bsLocalStatus" class="bshelf-offline-state" role="status" aria-live="polite">A telefon helyi könyvei azonnal a fa könyvespolcon is megjelennek.</div>
+  <div id="bsLocalList" class="bs-local-list"></div>
+  <p class="bs-local-warning">A helyi könyvek csak ebben a böngészőben érhetők el, és nincsenek külön titkosítva. A böngésző adatainak törlése a másolatokat is törli. Az offline olvasó első előkészítése internetet igényel; utána a helyi könyvek hálózat nélkül megnyithatók.</p>
+ </div>
+ <h3 class="bs-local-onedrive-title">☁️ OneDrive könyvek offline másolatai</h3>
  <div id="bshelfOfflineState" class="bshelf-offline-state" role="status" aria-live="polite">Állapot ellenőrzése…</div>
  <div class="bshelf-offline-meter" aria-hidden="true"><span id="bshelfOfflineBar"></span></div>
  <div class="bshelf-offline-actions">
@@ -170,6 +182,7 @@
 <script defer src="./book-studio.js?v=20-sepia-explicit-bookmarks"></script>
 <script defer src="./book-studio-wood-shelf-v10.js?v=21-offline-controls"></script>
 <script defer src="./book-studio-offline-v21.js?v=21"></script>
+<script defer src="./book-local-v22.js?v=22"></script>
 <script defer src="./onedrive-books-v2.js?v=21-offline-first"></script>
 </body>
 </html>

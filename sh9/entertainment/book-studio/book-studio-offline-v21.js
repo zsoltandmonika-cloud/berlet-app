@@ -59,6 +59,8 @@
     './','./book-studio.js?v=20-sepia-explicit-bookmarks',
     './book-studio-wood-shelf-v10.js?v=21-offline-controls',
     './book-studio-offline-v21.js?v=21',
+    './book-local-v22.js?v=22',
+    './book-local-v22.css?v=22',
     'https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js',
     'https://cdn.jsdelivr.net/npm/epubjs@0.3.93/dist/epub.min.js',
     'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js',

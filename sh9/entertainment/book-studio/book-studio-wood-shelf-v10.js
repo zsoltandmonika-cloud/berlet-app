@@ -8,7 +8,7 @@
  const $=id=>d.getElementById(id),CACHE=w.SH9_BOOK_CACHE_V3;
  if(!$('bshelfRows')||!$('bshelfSettingsToggle'))return;
  const palette=['#264e5c','#50364f','#605037','#293a5a','#5a3840','#34514b','#533c55','#4b3b39'];
- const state={books:[],covers:new Map(),connected:false,loading:true,error:false,message:'☁️ OneDrive-könyvtár előkészítése…',coverScanning:false,coverDone:0,coverTotal:0,displayed:new Set(),hidden:new Set(),scope:'',account:'',profile:'',sortMode:'title',customOrder:[],sortScope:'',offline:false};
+ const state={books:[],remoteBooks:[],localBooks:[],covers:new Map(),connected:false,loading:true,error:false,message:'☁️ OneDrive-könyvtár előkészítése…',coverScanning:false,coverDone:0,coverTotal:0,displayed:new Set(),hidden:new Set(),scope:'',account:'',profile:'',sortMode:'title',customOrder:[],sortScope:'',offline:false};
  const main=$('bshelfFront'),admin=$('bsAdminView'),menu=$('bshelfSettingsMenu');
  const settingsBtn=$('bshelfSettingsToggle'),searchBtn=$('bshelfSearchToggle'),sortBtn=$('bshelfSortToggle'),sortMenu=$('bshelfSortMenu');
  const searchBox=$('bshelfSearchBox'),search=$('bshelfSearch');
@@ -285,7 +285,7 @@
  function setOffline(on){state.offline=!!on;statusOnly()}
  function setConnected(on){
   state.connected=!!on;
-  if(!on){state.books=[];state.covers.clear();state.displayed.clear();state.coverScanning=false;state.scope='';state.account='';state.profile='';state.hidden.clear();state.sortScope='';state.sortMode='title';state.customOrder=[]}
+  if(!on){state.remoteBooks=[];state.books=state.localBooks.slice();for(const id of [...state.covers.keys()])if(!state.localBooks.some(b=>b.id===id))state.covers.delete(id);state.displayed.clear();state.coverScanning=false;state.scope='';state.account='';state.profile='';state.hidden.clear();state.sortScope='';state.sortMode='title';state.customOrder=[]}
   statusOnly();render();
  }
  function setLoading(on){
@@ -353,7 +353,7 @@
   button.append(face);
   if(book.is_favorite)button.append(elem('span','bshelf-book-mark','♥'));
   button.addEventListener('click',()=>{
-   if(!state.connected)return setStatus('Microsoft-kapcsolat szükséges a könyv megnyitásához.',true);
+   if(book.source!=='local'&&!state.connected)return setStatus('Microsoft-kapcsolat szükséges a könyv megnyitásához.',true);
    const reader=w.SH9_BOOK_STUDIO_V1;
    if(!reader?.openBook)return setStatus('A könyvolvasó nem töltődött be. Frissítsd az oldalt.',true);
    void reader.openBook(book.id);
@@ -391,15 +391,28 @@
   // The integration only calls update AFTER Microsoft account verification.
   const nextScope=hiddenKey(account,profile);
   if(state.scope!==nextScope){state.scope=nextScope;state.account=String(account||'').toLowerCase();state.profile=String(profile||'');state.hidden=readHidden(nextScope);loadSort(nextScope)}
-  state.books=Array.isArray(books)?books.filter(b=>b?.source==='onedrive'&&b?.id&&b?.title).map(b=>({
+  state.remoteBooks=Array.isArray(books)?books.filter(b=>b?.source==='onedrive'&&b?.id&&b?.title).map(b=>({
    id:String(b.id),title:title(b.title).slice(0,200),
    author:title(b.author).slice(0,200),
    is_favorite:!!b.is_favorite,progress_percent:Number(b.progress_percent)||0,
-   drive_item_id:String(b.drive_item_id||''),web_url:String(b.web_url||'')
+   drive_item_id:String(b.drive_item_id||''),web_url:String(b.web_url||''),source:'onedrive'
   })):[];
+  state.books=[...state.localBooks,...state.remoteBooks];
   state.loading=false;
   state.error=false;
   state.connected=true;
+  render();renderManage();
+ }
+ function setLocalBooks(books,profile){
+  const current=(()=>{try{return w.localStorage.getItem('hh-profile')==='m'?'monika':'zsolt'}catch(_){return'zsolt'}})();
+  if(profile!==current)return;
+  state.localBooks=Array.isArray(books)?books.filter(b=>b?.source==='local'&&b?.profile_key===current&&b?.id&&b?.title).map(b=>({
+   id:String(b.id),title:title(b.title).slice(0,200),author:title(b.author).slice(0,200),
+   source:'local',profile_key:current,is_favorite:!!b.is_favorite,
+   progress_percent:Number(b.progress_percent)||0,drive_item_id:''
+  })):[];
+  state.books=[...state.localBooks,...state.remoteBooks];
+  if(state.localBooks.length)state.loading=false;
   render();renderManage();
  }
  function init(){
@@ -421,7 +434,7 @@
   $('bshelfMenuUploads').addEventListener('click',()=>adminView('library','＋ Külön feltöltött könyvek'));
   $('bshelfConnectAction').addEventListener('click',()=>state.books.some(hiddenBook)?adminView('bshelfManagePanel','📚 Könyvtár szerkesztése'):adminView('bookStudioSettings','☁️ OneDrive kapcsolat'));
   $('bshelfAdminBack').addEventListener('click',frontView);
-  $('profileSwitch').addEventListener('click',()=>{navMenu(false);setLoading(true);state.books=[];render()});
+  $('profileSwitch').addEventListener('click',()=>{navMenu(false);setLoading(true);state.localBooks=[];state.remoteBooks=[];state.books=[];render()});
   d.addEventListener('keydown',e=>{
    if(e.key!=='Escape')return;
    if(!sortMenu.hidden){closeSort();sortBtn.focus()}
@@ -440,6 +453,6 @@
   },{passive:true});
   render();
  }
- w.SH9_BOOKSHELF_V10=Object.freeze({update,coverReady,setStatus,setConnected,setOffline,setLoading,setCoverProgress,finishCoverProgress,frontView,openAdmin:adminView});
+ w.SH9_BOOKSHELF_V10=Object.freeze({update,setLocalBooks,coverReady,setStatus,setConnected,setOffline,setLoading,setCoverProgress,finishCoverProgress,frontView,openAdmin:adminView});
  init();
 })(window,document);

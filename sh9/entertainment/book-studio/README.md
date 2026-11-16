@@ -117,3 +117,19 @@ QA forrás: `node --test sh9/entertainment/tests/book-studio-onedrive-v2.test.cj
 - Kapcsolat hiányában könyvcímek nem jelennek meg előzetes auth nélkül; egyetlen beállítási gomb nyitja az admin nézetet, nincs hard-coded Microsoft token, fájltörlés, extra OneDrive másolás.
 - A fa polcsor háttere `assets/wood-shelf-v10.webp`, az éles CSS `book-studio-wood-shelf-v10.css`, a megjelenítő `book-studio-wood-shelf-v10.js`. A `onedrive-books-v2.js` csak minimális UI hookokkal szinkronizálja a már meglévő, hitelesített elemlistát és blob cover URL-ket.
 - Célzott QA: `node --test sh9/entertainment/tests/book-studio-wood-shelf-v10.test.cjs`. Élő S24 Ultra Samsung Internet teszt a felhasználó valódi Microsoft-fiókjával szükséges.
+
+
+## V22 · Telefonról importált helyi könyvek (Local-First pilot · 2026-11-16)
+
+Ez a fejlesztői ág az eredeti feladatot oldja meg. A OneDrive könyvgyűjtemény és az opcionális Supabase-feltöltés **változatlanul külön** marad.
+
+- ⚙ → **Offline könyvtár** → **＋ EPUB / PDF hozzáadása**: a Samsung / Chrome rendszerfájlválasztójával több könyv is kijelölhető.
+- Az EPUB/PDF fájl **a böngésző IndexedDB-jében kap helyi másolatot**; sem a Microsoft Graph, sem a Supabase Storage felé nincs feltöltés. Az eredeti telefonos fájlt soha nem módosítja vagy törli.
+- A helyi címek ugyanazon a fa könyvespolcon jelennek meg a OneDrive-címek mellett, OneDrive-belépés nélkül is megnyithatók a meglévő EPUB.js/PDF.js olvasóban.
+- A pozíció, könyvjelző és megjelenítési beállítások **kizárólag a készüléken** tárolódnak a helyi könyvekhez. Zsolt/Mónika logikai profilkülönválasztás van, de ez **nem külön titkosítás / nem eszközbiztonsági határ**.
+- A helyi fájlok csak a jelenlegi böngészőpéldányban vannak. Másik telefonra nem szinkronizálódnak, és böngészőadat-törlés vagy tárhelyevikció elveszítheti őket. A forrásfájlt külön meg kell őrizni.
+- **⚡ Offline olvasó előkészítése**: explicit, egyszeri PWA shell cache; a JavaScript/CSS és a külső olvasókönyvtárak letöltése első alkalommal hálózatot használ. Később a helyi könyv offline is olvasható. A Service Worker nem cache-el privát Graph/Supabase-válaszokat.
+- A PDF/EPUB ellenőrzése tartalomaláírással indul; egy fájl 80 MiB-ig importálható. A könyvborító kinyerése best-effort; ha nem sikerül, marad az elegáns, valós címet megjelenítő tipográfiai borító.
+- Az esetleges automatizált OneDrive-változásfigyelés / más SHO-modulok Local-First migrációja **nem része** ennek a V22 pilotnak. A helyi könyvekhez nem szükséges periodikus hálózati polling.
+
+**QA / nem élesített állapot:** `node --test sh9/entertainment/tests/book-studio-local-first-v22.test.cjs` plusz meglévő könyvstúdió-tesztek. Manuálisan ellenőrizendő S24 Ultra Samsung Interneten: import EPUB+PDF, polcon megjelenés, olvasás, könyvjelző után újranyitás, repülő mód, profilváltás, könyvtörlés és OneDrive-regresszió. A fejlesztői ág önmagában nem bizonyítja az éles mobilos működést, amíg a tesztek nem futnak le.
