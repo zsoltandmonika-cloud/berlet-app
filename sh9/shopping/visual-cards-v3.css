@@ -153,7 +153,7 @@
  }
 }
 
-/* 11 stores in six compact rows; the new Shoperia tile fills the last row. */
+/* 12 stores in six compact rows; last tile spans only if merchant count becomes odd. */
 @media(max-width:600px){
- .shop-connect.store-screen.all-stores .sho-store:last-child{grid-column:1 / -1}
+ .shop-connect.store-screen.all-stores .sho-store:last-child:nth-child(odd){grid-column:1 / -1}
 }
