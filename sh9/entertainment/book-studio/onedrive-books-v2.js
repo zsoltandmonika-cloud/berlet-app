@@ -573,6 +573,7 @@ async function prepareCovers(automatic=false){
   for(const book of work){
    if(job!==coverJob||!ready||config?.account!==account||pid()!==profileAtStart||
       (automatic&&!coversOn()))break;
+   let budgetSkipped=false;
    try{
     // 1. Instantly restore already cached authentic book cover.
     const cachedImage=await CACHE.get(account,book,'cover');
@@ -597,11 +598,11 @@ async function prepareCovers(automatic=false){
       if(blob)await extractCover(book,blob);
       // A book skipped by the mobile-data limit is NOT a failed cover:
       // allow it to finish automatically on the next authenticated visit.
-      if(!blob)continue;
+      if(!blob)budgetSkipped=true;
      }
     }
     if(coverUrls.has(book.id))success++;
-    else missingCovers.add(book.id);
+    else if(!budgetSkipped)missingCovers.add(book.id);
    }catch(_){missingCovers.add(book.id)}
    scanned++;
    // Surface progress in the new wood shelf, not only in hidden admin settings.
