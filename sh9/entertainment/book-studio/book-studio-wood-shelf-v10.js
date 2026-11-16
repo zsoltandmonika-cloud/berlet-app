@@ -37,21 +37,21 @@
   // Do not shift the address bar to an OAuth redirect route or change search.
   w.requestAnimationFrame?.(()=>{
    const section=$(target)||$('bshelfAdminBack');
-   section?.scrollIntoView({behavior:'instant',block:'start'});
+   section?.scrollIntoView({behavior:'auto',block:'start'});
   });
   if(!w.requestAnimationFrame)$(target)?.scrollIntoView();
  }
  function frontView(){
   navMenu(false);
   admin.hidden=true;main.hidden=false;
-  w.scrollTo?.({top:0,behavior:'instant'});
+  w.scrollTo?.({top:0,behavior:'auto'});
   render();
  }
  function setStatus(message,error){
   state.message=title(message)||'☁️ Könyvtár előkészítése…';
   state.error=!!error;
   // When connection genuinely requires interaction, show the one-tap settings path.
-  if(error||/kapcsolat szükséges|bejelentkezés szükséges|beállítása szükséges|nem sikerült|nem engedélyezte|kapcsolat bontva/i.test(state.message)){
+  if(error||/kapcsolat szükséges|bejelentkezés szükséges|megerősítés szükséges|beállítása szükséges|nem sikerült|nem engedélyezte|kapcsolat bontva/i.test(state.message)){
    state.loading=false;
   }
   statusOnly();
