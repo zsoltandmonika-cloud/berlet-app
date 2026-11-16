@@ -122,6 +122,7 @@
    w.localStorage.setItem(key(account,p),'on');
    const ok=await w.SH9_BOOK_STUDIO_DRIVE_V2?.saveOfflineCatalog?.();
    if(!ok)throw Error('A könyvkatalógus helyi mentése nem sikerült.');
+   w.SH9_BOOKSHELF_V10?.setOffline(true);
    say('✓ Offline mód bekapcsolva. Az összes EPUB/PDF letöltéséhez használd az alábbi gombot.',false,0);
    return true;
   }catch(e){
@@ -157,6 +158,8 @@
  async function disable(){
   const account=configAccount(),p=profile();
   try{w.localStorage.removeItem(key(account,p))}catch(_){}
+  w.SH9_BOOKSHELF_V10?.setOffline(false);
+  w.SH9_BOOK_STUDIO_DRIVE_V2?.disableOfflineView?.();
   say('☁️ Offline mód KI. A már lementett könyvek gyorsítótárként megmaradnak.',false,0);
   await inspect();
  }
