@@ -102,3 +102,12 @@
 **QA:** 12 alapbolt és új 13. tesztbolt merge, kikapcsolt ALDI kizárása és biztonságtalan URL blokkolása sikeres. 11/11 nem Tesco Bridge: 4/4 családi tétel és 4/4 kötegelt keresés mock teszt sikeres; egy új custom bolttal és offline helyi cache-fallbackkel is. Az all-store mátrix 2 termék/4 aktív bolt/4 releváns keresési útvonal/1 Tesco-link online és cached-offline mock tesztje sikeres. DB RLS aktív, 3 policy, kezdeti üres boltprefs tábla; próbaadat nem került a felhőbe.
 
 **Nem kész / UAT:** nincs hitelesen összekötött bolti ár- és készletfeed, automatikus SKU-egyezés, bolti kosárfeltöltés vagy garantált offline hidegindítás. A GitHub Pages közvetlen elérése e környezetből nem ellenőrizhető; Samsung Internet/HH ONE éles teszt nyitott.
+
+
+## Full Basket Match V2: minden termék × minden aktív áruház · 2026-11-16
+
+- Felhasználói hiba: az élelmiszerek (például 1 kg arabica szemes kávé) csak Tesco/Auchan/Kifli/ALDI boltokra szűrődtek, így kimaradt eMAG/Allegro/Alza/dm/Rossmann. A bolti kategória nem zárhat ki potenciális kereskedőt.
+- Javítás: a basket-matrix-v1.js minden közös listás terméket minden aktív áruházzal párosít a bolti kategóriáktól függetlenül. Kizárólag a felhasználói enabled=false állapot zár ki boltot. A Tesco alapadatában a Divat & Stílus is szerepel. A Golden formátum és teljes felületű kattintható kereskedői kártyák megmaradtak.
+- A 3. Golden stat csempe száma a lehetséges keresési utak száma, nem igazolt terméktalálat. A bolti találatok tényleges darabszámának/céltárgyának megállapításához új, ellenőrzött kereskedői adatforrás szükséges. Amíg nincs 0 találatot igazoló adat, az oldalon nem szabad nulla terméket állítani, és egy boltot sem szabad automatikusan tévesen elrejteni. Az ilyen automatikus 0 találatos rejtés továbbra is nyitott fejlesztés.
+- A felületi szövegek a keresési útvonalat egyértelműen megkülönböztetik az igazolt találattól. Cache-bust: basket-matrix-v1.js?v=4, valamint a főoldali store-registry és store-connect verziója frissítve.
+- QA: mock Supabase 18 aktív termékkel és 12 aktív bolttal 216 keresési útvonalat ad; az arabica kávé mind a 12 boltnál szerepel, beleértve eMAG, Allegro, Alza, dm, Rossmann. ALDI kikapcsolva: 11 aktív bolt, 198 útvonal, ALDI nélkül. DOM hivatkozások, script szintaxis rendben. Valódi bolti találati visszaellenőrzés és Samsung UAT külön lépés.
