@@ -1,192 +1,224 @@
 {
   "schemaVersion": 1,
-  "date": "2026-11-15",
-  "generatedAt": "2026-11-15T12:59:36+01:00",
-  "headline": "A reggel fő témái: US has floated Ukraine ceding Donbas for Nato membership, Zelensky says; Copper wire upgrade behind US flight suspension, transport secretary says",
+  "date": "2026-11-16",
+  "generatedAt": "2026-11-16T13:50:58+01:00",
+  "headline": "A reggel fő témái: Yemeni forces retreat to defend port city from Houthis; Elon Musk joins 'Bring Jensen Back' campaign to reinstate the ex-Nvidia boss",
   "sections": [
     {
       "id": "executive",
       "title": "Vezetői összefoglaló",
       "items": [
-        "BBC World: US has floated Ukraine ceding Donbas for Nato membership, Zelensky says",
-        "BBC World: Copper wire upgrade behind US flight suspension, transport secretary says",
-        "BBC World: Judge temporarily blocks Trump from closing Washington DC golf course for renovation",
-        "BBC World: Fifth Canadian soldier dies from injuries caused by large fire at military base"
+        "BBC World: Yemeni forces retreat to defend port city from Houthis",
+        "BBC World: Elon Musk joins 'Bring Jensen Back' campaign to reinstate the ex-Nvidia boss",
+        "BBC World: Five EU countries expected to announce migrant deportation centre in Rwanda",
+        "BBC World: Man sentenced over 'horrific' attempted murder of three children"
       ]
     },
     {
       "id": "overnight",
       "title": "Éjszakai fejlemények",
       "items": [
-        "BBC World: Copper wire upgrade behind US flight suspension, transport secretary says",
-        "BBC World: Judge temporarily blocks Trump from closing Washington DC golf course for renovation",
-        "BBC World: Fifth Canadian soldier dies from injuries caused by large fire at military base"
+        "BBC World: Yemeni forces retreat to defend port city from Houthis",
+        "BBC World: Elon Musk joins 'Bring Jensen Back' campaign to reinstate the ex-Nvidia boss",
+        "BBC World: Five EU countries expected to announce migrant deportation centre in Rwanda"
       ]
     },
     {
       "id": "geopolitics",
       "title": "Külpolitika / Geopolitika",
       "items": [
-        "BBC World: US has floated Ukraine ceding Donbas for Nato membership, Zelensky says",
-        "BBC World: Copper wire upgrade behind US flight suspension, transport secretary says",
-        "BBC World: Judge temporarily blocks Trump from closing Washington DC golf course for renovation"
+        "BBC World: Yemeni forces retreat to defend port city from Houthis",
+        "BBC World: Elon Musk joins 'Bring Jensen Back' campaign to reinstate the ex-Nvidia boss",
+        "BBC World: Five EU countries expected to announce migrant deportation centre in Rwanda"
       ]
     },
     {
       "id": "hungary",
       "title": "Magyarország",
       "items": [
-        "MédiaKlikk: UEFA Labdarúgó Nemzetek Ligája Georgia - Magyarország mérkőzés - MédiaKlikk",
-        "| hvg.hu: Sport: Nehezen indult, de megvan: Tbilisziben is győzött a magyar válogatott - | hvg.hu",
-        "444: Magyarország nagy hajrával tarolta le a grúzokat - 444"
+        "Magyarország Kormánya: Megkezdi a jövő évi költségvetés általános vitáját az Országgyűlés - Magyarország Kormánya",
+        "Facebook: December 31-én lejárnak a régi, könyvformátumú személyi igazolványok. Cseréjük az ország bármely kormányablakában kezdeményezhető 2026. december 31-ig. - Facebook",
+        "Portfolio.hu: Zelenszkij: Putyin Magyarország kérdését is alku tárgyává akarja tenni a békefolyamatban - Portfolio.hu"
       ]
     },
     {
       "id": "economy",
       "title": "Gazdaság / Piacok",
       "items": [
-        "BBC Business: Beauty advent calendars can cost hundreds but are they value for money?",
-        "BBC Business: Microsoft says services fully restored after day-long global outage"
+        "BBC Business: Elon Musk joins 'Bring Jensen Back' campaign to reinstate the ex-Nvidia boss",
+        "BBC Business: Create more jobs for under-25s by cutting National Insurance, key report urges",
+        "BBC Business: Intel sued by investors after PC sales slump hits share price"
       ]
     },
     {
       "id": "technology",
       "title": "Technológia / AI",
       "items": [
-        "BBC Technology: Italy fines Meta €805m over accessing users' photos",
-        "BBC Technology: Microsoft says services fully restored after day-long global outage"
+        "BBC Technology: Elon Musk joins 'Bring Jensen Back' campaign to reinstate the ex-Nvidia boss",
+        "BBC Technology: Intel sued by investors after PC sales slump hits share price",
+        "BBC Technology: Suspected China spy linked to Nvidia's ex-boss left in 2025, Megaspeed says"
       ]
     },
     {
       "id": "risks",
       "title": "Mai kockázatok",
       "items": [
-        "Figyelmi pont: Israel kills Hamas commander in strike on Gaza camp, officials say (BBC World)."
+        "Figyelmi pont: Australian MP 'full of gratitude' upon leaving hospital after alleged car attack (BBC World)."
       ]
     },
     {
       "id": "watch",
       "title": "Mi számít igazán / Figyelmi szint",
       "items": [
-        "BBC World: US has floated Ukraine ceding Donbas for Nato membership, Zelensky says",
-        "BBC World: Copper wire upgrade behind US flight suspension, transport secretary says"
+        "BBC World: Yemeni forces retreat to defend port city from Houthis",
+        "BBC World: Elon Musk joins 'Bring Jensen Back' campaign to reinstate the ex-Nvidia boss"
       ]
     }
   ],
   "sources": [
     {
-      "title": "US has floated Ukraine ceding Donbas for Nato membership, Zelensky says",
+      "title": "Yemeni forces retreat to defend port city from Houthis",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cwvg2l312ylqo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-14"
+      "url": "https://www.bbc.co.uk/news/articles/cqvg2xgyvnjpo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-16"
     },
     {
-      "title": "Copper wire upgrade behind US flight suspension, transport secretary says",
+      "title": "Elon Musk joins 'Bring Jensen Back' campaign to reinstate the ex-Nvidia boss",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/c6wy9lynq4qno?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-15"
+      "url": "https://www.bbc.co.uk/news/articles/cry49plv8v3go?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-16"
     },
     {
-      "title": "Judge temporarily blocks Trump from closing Washington DC golf course for renovation",
+      "title": "Five EU countries expected to announce migrant deportation centre in Rwanda",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/c6j9mn7l14y0o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-15"
+      "url": "https://www.bbc.co.uk/news/articles/cw987343352go?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-16"
     },
     {
-      "title": "Fifth Canadian soldier dies from injuries caused by large fire at military base",
+      "title": "Man sentenced over 'horrific' attempted murder of three children",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cmrlgn4x2xw8o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-15"
+      "url": "https://www.bbc.co.uk/news/articles/cr0qj0nzwj34o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-16"
     },
     {
-      "title": "Three men sentenced to death in Jordan over fatal church mass shooting",
+      "title": "UK and allies call on Israel to allow rapid humanitarian access to Gaza",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/c3rrg9xgqlwpo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-15"
+      "url": "https://www.bbc.co.uk/news/articles/cwm2mllj1pp8o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-16"
     },
     {
-      "title": "Israel kills Hamas commander in strike on Gaza camp, officials say",
+      "title": "Two mass shootings in South Africa leave 17 dead",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cqrkg4r6mg7xo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-15"
+      "url": "https://www.bbc.co.uk/news/articles/c8y5x3n4kywpo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-16"
     },
     {
-      "title": "Philippines wins first Eurovision Song Contest Asia",
+      "title": "Australian MP 'full of gratitude' upon leaving hospital after alleged car attack",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cqrlgnx9dx6eo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-14"
+      "url": "https://www.bbc.co.uk/news/articles/cmpqr9j81888o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-16"
     },
     {
-      "title": "Pope Leo speaks of community 'suffering' on visit to remote Andes town",
+      "title": "Mexican drug lord Miguel Ángel Félix Gallardo dies age 80",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cr4gnz0lv2vlo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-15"
+      "url": "https://www.bbc.co.uk/news/articles/c51k9nkwrndxo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-16"
     },
     {
-      "title": "UEFA Labdarúgó Nemzetek Ligája Georgia - Magyarország mérkőzés - MédiaKlikk",
-      "publisher": "MédiaKlikk",
-      "url": "https://news.google.com/rss/articles/CBMioAFBVV95cUxPVndTSGVZU3dobjVDSzN2NnZ6UUVva3ZQTzBKamk0Mk52bF9KSDNPMXR0WnhQMDQ5b2dXNUNlTHcySmJ1dkN3bVg1QTI2dXJrZXc3VEhMVHRIT0ZwaDhRNElFandpMW9vZzYxUkplRG9yLS1qTVljbzJqV3RVS2VtNzduUFZVM2pMWlNQWHBjWXJmbDlXYXk5TnZUUWNrM0g3?oc=5",
-      "publishedAt": "2026-11-14"
-    },
-    {
-      "title": "Sport: Nehezen indult, de megvan: Tbilisziben is győzött a magyar válogatott - | hvg.hu",
-      "publisher": "| hvg.hu",
-      "url": "https://news.google.com/rss/articles/CBMi0wFBVV95cUxQcFF6WjdETHByai05WGF3NFh4WW4tRWJMdlE2bXJWMTFJUzR3ZnVZbDE1OFRmQ0QxZ0hrNTE5X1JJSFpqWkpxUFZaNi1manhZN0p6LVNKUHdIajcyNVR2X0UtaDdJcjc2c2I5SXNZRHdWcXhWWC1LQTdXa0ZHY1ZVNWVqOVA4d2dkd1V2NGc4VXh5azVwLWstaVgzaE1obFU5ZGxFMmg1b1RrNTR2QmdaQlhqMUVselN6Z3NtemJOdTNHV2JGS3V5Z1lSd3o1dXpwVzVv?oc=5",
-      "publishedAt": "2026-11-14"
-    },
-    {
-      "title": "Magyarország nagy hajrával tarolta le a grúzokat - 444",
-      "publisher": "444",
-      "url": "https://news.google.com/rss/articles/CBMif0FVX3lxTE9rTm5jcFJFQ3FyMEZyZFd0d2ZSWElCSEI2TjZsbVMyWUNMbHlvR3FNR3hhUTRoSFZzZE1kS2NjcXF6OG5wcS1mMkZXTTVYb1BoTmJoYkVaZlZSb3gtN0dhWlRDbEV5TngzY3ZoWkh2WWVDZ0NmWTRrdnFVdXQxUDQ?oc=5",
-      "publishedAt": "2026-11-14"
-    },
-    {
-      "title": "Kétgólos győzelem Grúziában, Magyarország kedden visszajuthat az NL elit divíziójába - Telex",
-      "publisher": "Telex",
-      "url": "https://news.google.com/rss/articles/CBMieEFVX3lxTE5CdWl4V1F5YnpwdzhmMzhaTWh4aTNpejRMRHpKOFRhRGYxUXRhWmNPNEQ5c1lOR2dhdXJBSFBLWmNKZ0s5YVdTMmpKQUFYalJPVlB0dGRGTy1xeDFXZHA5VEx2eVJ6bWo4N1R5TVVvZElCQUlGNzJuZw?oc=5",
-      "publishedAt": "2026-11-14"
-    },
-    {
-      "title": "Nem megérdemelt győzelem? A grúz kapitány alaposan odaszúrt a magyar válogatottnak - Index.hu",
-      "publisher": "Index.hu",
-      "url": "https://news.google.com/rss/articles/CBMizwFBVV95cUxQcEg4ODVBT0tNNzNxZ2pSa290MnlWenRkYjNDNS1FNjNlZ1NKVkk0MVRBejRDLXdUdThLdWRXTEV0d1c5ZzhZOUN2eGRZLVpabUdTYmVkLTVZbUhvMzdBOTBhdGZnU0lVSENZdnAya1VIUjdGa3hENExLbDVLaDJXQTd6NWhmS3Q2X0Z2M3FnS1RnV2d2UjJidWYyZEROSXBkMzRCSDh1a3M2YjY2NFZDM0l4dUdreGtGaW5CQy12N3VCSkgzVW5vcDlaLXdyRms?oc=5",
-      "publishedAt": "2026-11-15"
+      "title": "Megkezdi a jövő évi költségvetés általános vitáját az Országgyűlés - Magyarország Kormánya",
+      "publisher": "Magyarország Kormánya",
+      "url": "https://news.google.com/rss/articles/CBMilgFBVV95cUxPRXNSUFdmYUtPNFJSSWVMNWVhYlhvLW5VeGIzUTFLSEdxZnIzZ29fTkpib2h4NDF2Q3Z3aFhUaEtMZWdiZkRKbldvYXJXWXdDVXlCNXJZWEdleGVGVV9NRl9QdDUzTkVQMmFTdTlUUjAyVlBqZjdYdlFEczJCTG80Q0lvUjI4eWp2Y0JTeU9CRXZmckxPOXc?oc=5",
+      "publishedAt": "2026-11-16"
     },
     {
       "title": "December 31-én lejárnak a régi, könyvformátumú személyi igazolványok. Cseréjük az ország bármely kormányablakában kezdeményezhető 2026. december 31-ig. - Facebook",
       "publisher": "Facebook",
       "url": "https://news.google.com/rss/articles/CBMimgJBVV95cUxPcDdXU1MtdE9yeUxUR0FpcTJOOU9YTEdCbEthT2NXNjF5YzZLWjVTNEctTk5CaDZwcDhydVZGTXNseUJxOWk0NkJQTUpOb0l5Tk4ta2JrSTJNSEJfMnJ6UDZsck9PNFNpaFFMU0dKX2hQaFRUWUF0ZklIMHc1c2c3WVFQQWZaakhUN2Y1Qk0tMl9CVHNqLXpxeGxfUTZmOTlJS0JHT1JXcU1QanNOSmliZ1JTZHBWbWVoV0s2d1gzQ1VNTldGZlN0WHFnNTJ2V2xvTWJBcDVuMVgwRXhZWGNKLXM1aHRuTXhQYUpIN2xYb2RaLTVUeUgtaEcxeldKUzFZSnFRcVVGem1UWlJuWmt3eGtYT1NMVXdaSnc?oc=5",
-      "publishedAt": "2026-11-15"
+      "publishedAt": "2026-11-16"
     },
     {
-      "title": "Grúzia-Magyarország: a kezdőcsapatok! - NB1.hu",
-      "publisher": "NB1.hu",
-      "url": "https://news.google.com/rss/articles/CBMibEFVX3lxTE94Nmh5VWFrTzBNUHI3Q0tTU1E0OHNTeVZmMURONzhSS1I2aHJxbUFHeEZhWE1ZbXR5VmFUY0QyYk9kcnR4dG5ON1ZPZFhQQ213Q0hOOEtrT0RlZ0FGNmhUeFhnS1dBcVJzekJ3cA?oc=5",
-      "publishedAt": "2026-11-14"
+      "title": "Zelenszkij: Putyin Magyarország kérdését is alku tárgyává akarja tenni a békefolyamatban - Portfolio.hu",
+      "publisher": "Portfolio.hu",
+      "url": "https://news.google.com/rss/articles/CBMi1gFBVV95cUxOQUlxenNfaG5CMDVHUmdrUEZSZi1DT2t0Wl90eHZIUGl5Ymc2bE83eHNJdUN4SExjemdtYmFYYXBLM29Xa3VzUWkxZ3I2cnVuWGVQUkptSWx3Q3U5UEZ2ZHBpNFdSbU5PQU4xdFItNW4yQnpITm9TNmFYOHhvMS1iRmJxallBUnVyUTR5RUJxQ0hlcXk1TFBZMkRWTDV5c0lSOWVMcjhkWHBESXFQQXptblFtNFBpdjhFVzFCdF9DclJ5aU44ZGpnRTRLTlQzWUhVV2xlRDFn0gHWAUFVX3lxTE5BSXF6c19obkIwNUdSZ2tQRlJmLUNPa3RaX3R4dkhQaXliZzZsTzd4c0l1Q3hITGN6Z21iYVhhcEszb1drdXNRaTFncjZydW5YZVBSSm1JbHdDdTlQRnZkcGk0V1JtTk9BTjF0Ui01bjJCekhOb1M2YVg4eG8xLWJGYnFqWUFSdXJRNHlFQnFDSGVxeTVMUFkyRFZMNXlzSVI5ZUxyOGRYcERJcVBBem1uUW00UGl2OEVXMUJ0X0NyUnlpTjhkamdFNEtOVDNZSFVXbGVEMWc?oc=5",
+      "publishedAt": "2026-11-16"
     },
     {
-      "title": "„Kereszteződéshez ért a válogatott, nehogy a mocsárban ragadjon” – grúz lapszemle - Nemzeti Sport",
-      "publisher": "Nemzeti Sport",
-      "url": "https://news.google.com/rss/articles/CBMiygFBVV95cUxNN29Cd3JtY3FsYnNFZmlQNTNuWWtQSDFGbFRtSWduYnRCcHRicjFDZ3ctd013a2lKZm9GQjVjZWhBdDdlVFJvUXJGZjBBbFJRSWtXbTJ0cWNDVXlBNzFfX1NlOGlVaDYyb0xCbFIwU2xSTS1KMWI3X3VKSHM4YmZ1Tkd0YnFwa0VDT01halNRM2FQcXR5YVBWUVlGNDBLdmZ4ejE2anc5dzh6SlFCNlk1M25kb0FhS3d5UHdqVWRndHZoMHZIeEdIS0x3?oc=5",
-      "publishedAt": "2026-11-15"
+      "title": "2026, Magyarország, közélet: Boldog István elindult ásni - 444",
+      "publisher": "444",
+      "url": "https://news.google.com/rss/articles/CBMihgFBVV95cUxPX1ZTSDJCRFY3MVRGY0hnaUQybmVqTlhwQU9kaVNSWTNOMGVlbE00aENQbm5WR1lWa052Q3F0TGRleENYYlRzTlprQ2dHTXVEbDY2Nm1Sd3JyNThTR3hyMGUyc2QxTmxTMXl3Zm9qNVNVdFBPVk9MZjE5cWNHVFFud25sTW4zUQ?oc=5",
+      "publishedAt": "2026-11-16"
     },
     {
-      "title": "Beauty advent calendars can cost hundreds but are they value for money?",
+      "title": "176 új mentőautót vesz Magyarország, az áruktól sokan dobnak majd egy hátast - Vezess",
+      "publisher": "Vezess",
+      "url": "https://news.google.com/rss/articles/CBMitgFBVV95cUxQSG1QeHJXelZ4TXptYjZqSUZGdElaNktWVWtWaDBrVWZQMmlBdVp2anBmRUJfNmdMcDlxR3BaazFsVlFTcGVqc0lVY0JwQ2h5V2xrU24zR1NtYzNLbGFNdnF5emlOUHJhaGRZTlJBcUxqUEVaX09kZDFCeDNzVDRCcnJsWXRrLXJLSzBYU19OdVlsSkJUZlY1V0pGQUw4bXhzQWtySVNzWlJsRlIxTk14ZFRiRDBRQQ?oc=5",
+      "publishedAt": "2026-11-16"
+    },
+    {
+      "title": "Történelmi esély előtt Magyarország: ez lehet a vidék nagy kitörési potenciálja a következő 5-10 évben - Pénzcentrum",
+      "publisher": "Pénzcentrum",
+      "url": "https://news.google.com/rss/articles/CBMi5wFBVV95cUxQTi1iUzYwdHhFanIzQllYVlM1MnNlSWNWZFlueE44MXJFaW0yektWcDVlYXBnU3RaQV92SmFNRjdoaHM4MjdqY0t2ckQycVVGbkF3WFVETmU4VXFoSF9FMXpCVGI3TlRZXzNHTzBZZVUxSU44dGtyanNZSnRka2xoZHhCYnRaRU9WaktTdkFUcHo2SHpJeXNkLTE4MTVVdEtiSGs5VUR3dk5ZUk5URTgxOWV2V1gxV2RiODZhY0trZm0yOGlHYlRaNDJYdkF5MXRHek1IczRSWmhUbVRvQU1Wdl9kR3Rncjg?oc=5",
+      "publishedAt": "2026-11-16"
+    },
+    {
+      "title": "Generál: Csöngess be hozzám jó barát | Magyarország, szeretlek! zenekara - MédiaKlikk",
+      "publisher": "MédiaKlikk",
+      "url": "https://news.google.com/rss/articles/CBMisAFBVV95cUxNdDBfbElENDZmc0ppdGJQOERWejRTRUdGNTVGYXZhdDcyQno2dDM1SkstajZKdFlDZnZZaTNyRmlmV3ZmTDVHWk5HMUJwYWhLUW03MlhaSjlLUzVmSHRPZnVHNHQwOWdBTnMyOHVPSi1OUTBYRXN2c3JRa0JaQ3o5cHM5NDJrbmlwQlhNVXMxVVU3ZThKdjNwd0VsSW8tZ295UTYwdzRpQk9oc3g0Y2xKNg?oc=5",
+      "publishedAt": "2026-11-16"
+    },
+    {
+      "title": "„Magyarország nem lesz többé a gengszterek paradicsoma” – Magyar Péter kemény üzenetet küldött a Parlamentben a kiásott milliárdokról - Economx.hu",
+      "publisher": "Economx.hu",
+      "url": "https://news.google.com/rss/articles/CBMirgFBVV95cUxPelFnd3lUT0NnYnJwWU5DcDF3N3RLWXFnVHpWX1UtV3ZGMXFOM3p3amVaRnk2bGtoM1BvOXV1YWtEanM0aU1CRDRURzY2b0VDOVdtemdWUnQyT1AtUTRTM2p2S3cyRVc1TTNqMHQwQkJpSUdBVnRwRjJCT251bmhOdVQ5bGNpTGVENmg5SDE0SUVHWE14bVQ2cDdhQkhSbno0aTBvVXJybWFzdmY3WEE?oc=5",
+      "publishedAt": "2026-11-16"
+    },
+    {
+      "title": "Create more jobs for under-25s by cutting National Insurance, key report urges",
       "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/cqn83l442724o?at_medium=RSS&at_campaign=rss",
+      "url": "https://www.bbc.co.uk/news/articles/c6p9dzmj514ko?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-16"
+    },
+    {
+      "title": "Intel sued by investors after PC sales slump hits share price",
+      "publisher": "BBC Business",
+      "url": "https://www.bbc.co.uk/news/articles/cw62p42p288do?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-16"
+    },
+    {
+      "title": "UK will have 'voice' but no vote on EU food rules in Brexit reset",
+      "publisher": "BBC Business",
+      "url": "https://www.bbc.co.uk/news/articles/c6wy4l8nl42wo?at_medium=RSS&at_campaign=rss",
       "publishedAt": "2026-11-15"
     },
     {
-      "title": "Microsoft says services fully restored after day-long global outage",
+      "title": "Gas starts flowing from Jackdaw after government green light",
       "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/c6rrg51rkz09o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-14"
+      "url": "https://www.bbc.co.uk/news/articles/c9x2elzm047po?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-16"
     },
     {
-      "title": "Italy fines Meta €805m over accessing users' photos",
+      "title": "Avoid this Black Friday scam - how to check it's a real deal",
+      "publisher": "BBC Business",
+      "url": "https://www.bbc.co.uk/news/articles/cm4gnlz2p61ko?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-16"
+    },
+    {
+      "title": "Suspected China spy linked to Nvidia's ex-boss left in 2025, Megaspeed says",
+      "publisher": "BBC Business",
+      "url": "https://www.bbc.co.uk/news/articles/cmdx1vpprk9vo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-16"
+    },
+    {
+      "title": "Minister backs legal right to job support for young people",
+      "publisher": "BBC Business",
+      "url": "https://www.bbc.co.uk/news/articles/cqr7gn1zmlj1o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-15"
+    },
+    {
+      "title": "South Korea's top scorer in tax accountancy exam admits cheating",
       "publisher": "BBC Technology",
-      "url": "https://www.bbc.co.uk/news/articles/cwn83gxemk35o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-14"
+      "url": "https://www.bbc.co.uk/news/articles/ckvg2ezvpe08o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-15"
     }
   ]
 }
