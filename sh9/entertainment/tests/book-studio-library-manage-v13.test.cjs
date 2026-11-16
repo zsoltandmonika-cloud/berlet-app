@@ -47,13 +47,15 @@ class Node{
 }
 function env(){
  const ids=['bshelfRows','bshelfSettingsToggle','bshelfFront','bsAdminView','bshelfSettingsMenu',
-  'bshelfSearchToggle','bshelfSearchBox','bshelfSearch','bshelfEmpty','bshelfStatus','bshelfCount',
+  'bshelfSearchToggle','bshelfSortToggle','bshelfSortMenu','bshelfSortTitle','bshelfSortTitleDesc',
+  'bshelfSortAuthor','bshelfSortFavorites','bshelfSortReading','bshelfSortManual',
+  'bshelfSearchBox','bshelfSearch','bshelfEmpty','bshelfStatus','bshelfCount',
   'bshelfAdminTitle','bshelfMenuOneDrive','bshelfMenuCovers','bshelfMenuUploads','bshelfMenuManage',
   'bshelfManagePanel','bshelfManageCount','bshelfManageList','bshelfManageFilter',
   'bshelfSearchClear','bshelfConnectAction','bshelfAdminBack','bookStudioSettings',
   'onedriveBooks','library','profileSwitch'];
  const nodes=new Map(ids.map(id=>[id,new Node()]));
- for(const id of ['bshelfSettingsMenu','bsAdminView','bshelfSearchBox','bshelfEmpty','bshelfManagePanel'])
+ for(const id of ['bshelfSettingsMenu','bshelfSortMenu','bsAdminView','bshelfSearchBox','bshelfEmpty','bshelfManagePanel'])
   nodes.get(id).hidden=true;
  const connect=new Node('button');nodes.set('bshelfConnectAction',connect);
  nodes.get('bshelfEmpty').append(new Node('strong'),new Node('span'),connect);
