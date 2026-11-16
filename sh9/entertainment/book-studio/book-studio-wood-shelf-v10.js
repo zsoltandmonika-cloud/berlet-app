@@ -285,7 +285,7 @@
  function setOffline(on){state.offline=!!on;statusOnly()}
  function setConnected(on){
   state.connected=!!on;
-  if(!on){state.remoteBooks=[];state.books=state.localBooks.slice();state.covers.clear();state.displayed.clear();state.coverScanning=false;state.scope='';state.account='';state.profile='';state.hidden.clear();state.sortScope='';state.sortMode='title';state.customOrder=[]}
+  if(!on){state.remoteBooks=[];state.books=state.localBooks.slice();for(const id of [...state.covers.keys()])if(!state.localBooks.some(b=>b.id===id))state.covers.delete(id);state.displayed.clear();state.coverScanning=false;state.scope='';state.account='';state.profile='';state.hidden.clear();state.sortScope='';state.sortMode='title';state.customOrder=[]}
   statusOnly();render();
  }
  function setLoading(on){
