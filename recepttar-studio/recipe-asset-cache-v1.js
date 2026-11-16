@@ -61,12 +61,18 @@
    return row.blob;
   }catch(_){return null}
  }
+ let trimTimer=null;
+ function scheduleTrim(){
+  if(trimTimer)clearTimeout(trimTimer);
+  // Batch writes: scanning the cache after EACH downloaded image stalls Android.
+  trimTimer=setTimeout(()=>{trimTimer=null;void trim()},2500);
+ }
  async function put(account,r,blob){
   if(!account||!r?.id||!(blob instanceof Blob)||!blob.size||blob.size>MAX_FILE)return false;
   try{
    await tx(ASSETS,'readwrite',s=>s.put({key:scope(account,r.id),account:norm(account),
     version:version(r),bytes:blob.size,savedAt:Date.now(),blob}));
-   void trim();return true;
+   scheduleTrim();return true;
   }catch(_){return false}
  }
  async function trim(){
