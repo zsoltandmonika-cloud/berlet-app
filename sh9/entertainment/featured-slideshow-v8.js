@@ -169,7 +169,7 @@ function homeSlides(data,spec){
  }
  return chosen.map(x=>({
   id:'home:'+x.id,kind:'home',category:spec.name,icon:spec.icon,
-  title:text(x.title),note:text((x.platform||'Streaming')+' · '+(x.contentKind==='series'?'Új sorozat':'Új film')),
+  title:text(x.title),note:text((x.platform||'Streaming')+' · '+((x.contentKind||x.type)==='series'?'Új sorozat':'Új film')),
   image:art(x.backdrop),poster:art(x.poster),
   href:href(x.url||x.href||x.tmdbUrl),
   source:data.fallback?'MediaRadar válogatás (mentett)':'MediaRadar élő',
