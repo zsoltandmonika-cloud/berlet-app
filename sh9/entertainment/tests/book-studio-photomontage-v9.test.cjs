@@ -25,6 +25,7 @@ test('The Etele-sized tile remains clickable on its entire surface and the books
  assert.match(html,/<a class="books-promo books-promo--immersive" href="\.\/book-studio\/"/);
  assert.match(html,/aria-label="SHO Book Studio/);
  assert.match(css,/aspect-ratio:1\.62 !important/);
- assert.match(html,/id="bsPreviewGrid"/);
+ assert.doesNotMatch(html,/id="bsPreviewGrid"/);
+ assert.match(html,/id="mozi"/);
  assert.doesNotMatch(css,/pointer-events:none !important;\s*cursor:pointer;/);
 });
