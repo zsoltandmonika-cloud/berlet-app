@@ -35,12 +35,12 @@ function verifiedCount(item,shop){
  return count.total;
 }
 function merchantLogo(shop){
- if(shop.key!=='tesco')return null;
+ if(!['tesco','aldi','shein'].includes(shop.key))return null;
+ const asset=w.SHOP_MERCHANT_BRAND_ICONS_V1?.byKey?.(shop.key,shop.domain);
  const img=node('img','shop-logo');
- // Reuse the exact official-store favicon source already displayed on the Shopping card.
- img.src='https://www.google.com/s2/favicons?domain=bevasarlas.tesco.hu&sz=128';
- img.alt='Tesco logó';img.loading='lazy';img.referrerPolicy='no-referrer';
- img.addEventListener('error',()=>{const fallback=node('span','shop-logo-fallback','T');img.replaceWith(fallback)},{once:true});
+ img.src=asset?.url||'https://www.google.com/s2/favicons?domain='+encodeURIComponent(shop.domain)+'&sz=128';
+ img.alt='';img.loading='lazy';img.referrerPolicy='no-referrer';
+ img.addEventListener('error',()=>{const fallback=node('span','shop-logo-fallback',shop.name.slice(0,1).toUpperCase());img.replaceWith(fallback)},{once:true});
  return img;
 }
 // A merchant can sell items from outside its primary catalog category.
