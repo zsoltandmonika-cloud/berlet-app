@@ -36,7 +36,7 @@ test('Seek bar has a thin visual rail but finger-draggable thumb and preserved n
  assert.match(js,/\$\('nextPage'\)\.addEventListener/);
 });
 test('EPUB legibility is maintained but excessively large vertical spacing is reduced',()=>{
- assert.match(html,/book-studio\.js\?v=(14-epub-compact-readable|19-ibooks-page-curl)/);
+ assert.match(html,/book-studio\.js\?v=(14-epub-compact-readable|19-ibooks-page-curl|20-sepia-explicit-bookmarks)/);
  assert.match(js,/'line-height':'1\.62'/);
  assert.match(js,/'padding':'0 3\.5%'/);
  assert.match(js,/'margin-bottom':'\.7em'/);
