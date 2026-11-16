@@ -3,7 +3,7 @@
    No live merchant price, result-count API, automatic order, or guessed SKU. */
 (function(w,d){'use strict';
 const FAMILY='zsolt-monika',LIST='hh_shopping_list_v1',LINKS='hh_shopping_merchant_links_v1',TESCO='hh_shopping_tesco_bridge_v1';
-const reg=w.SHOP_STORE_REGISTRY_V1,cache=w.SHOP_LOCAL_FIRST_V1,search=w.SHOP_MERCHANT_SEARCH_V1,$=id=>d.getElementById(id);
+const reg=w.SHOP_STORE_REGISTRY_V1,cache=w.SHOP_LOCAL_FIRST_V1,search=w.SHOP_MERCHANT_SEARCH_V1,icons=w.SHOP_SMART_LIST_ICONS_V1,$=id=>d.getElementById(id);
 let shops=reg?.current().filter(s=>s.enabled)||[],items=[],links=[],tesco=[],authenticated=false,userId='',source='loading',lastCache='',visible=50;
 let merchantIndex=new Map(),tescoIndex=new Map();
 function indexLinks(){
@@ -12,6 +12,37 @@ function indexLinks(){
 }
 function node(tag,cls,value){const n=d.createElement(tag);if(cls)n.className=cls;if(value!==undefined)n.textContent=String(value);return n}
 function msg(s){const el=$('syncStatus');el.textContent=s;el.hidden=!/^(⚠️|🔒)/.test(s)}
+function visual(item){
+ const box=node('span','product-icon'),cat=String(item.category||'');
+ const fallback=()=>box.replaceChildren(node('span',null,icons?.forProduct(item.name,cat)||'🛒'));
+ const raw=String(item.image_url||'').trim();
+ try{
+  const u=new URL(raw);
+  if(u.protocol!=='https:'||u.username||u.password||u.href.length>800)throw Error('Invalid product image');
+  const img=node('img');img.src=u.href;img.alt='';img.loading='lazy';img.referrerPolicy='no-referrer';
+  img.addEventListener('error',fallback,{once:true});
+  box.append(img);
+ }catch(_){fallback()}
+ box.setAttribute('aria-hidden','true');return box;
+}
+// Counts must originate from a supported, fresh, merchant-specific result provider.
+// No provider is connected yet; an unknown count is NOT zero and is never fabricated.
+function verifiedCount(item,shop){
+ const count=w.SHOP_VERIFIED_MERCHANT_COUNTS_V1?.get?.(String(item.id),shop.key);
+ if(!count||count.status!=='verified'||count.source!=='merchant'||!Number.isInteger(count.total)||count.total<0||count.total>1000000)return null;
+ const at=Date.parse(count.checkedAt||'');
+ if(!Number.isFinite(at)||Date.now()-at<0||Date.now()-at>15*60*1000)return null;
+ return count.total;
+}
+function merchantLogo(shop){
+ if(shop.key!=='tesco')return null;
+ const img=node('img','shop-logo');
+ // Reuse the exact official-store favicon source already displayed on the Shopping card.
+ img.src='https://www.google.com/s2/favicons?domain=bevasarlas.tesco.hu&sz=128';
+ img.alt='Tesco logó';img.loading='lazy';img.referrerPolicy='no-referrer';
+ img.addEventListener('error',()=>{const fallback=node('span','shop-logo-fallback','T');img.replaceWith(fallback)},{once:true});
+ return img;
+}
 // A merchant can sell items from outside its primary catalog category.
  // Without verified per-shop search results, a category must NEVER hide a merchant.
  // The only filter here is the user's explicit enabled/disabled store setting.
@@ -79,7 +110,7 @@ async function refresh(){
   await localRead(userId);
   const storePromise=reg.sync().then(x=>{shops=x.filter(s=>s.enabled);counters()}).catch(()=>{});
   try{
-   const list=await fetchEvery(db,LIST,'id,name,quantity,unit,category,created_at');
+   const list=await fetchEvery(db,LIST,'id,name,quantity,unit,category,image_url,created_at');
    items=list;source='ready';if(cache)void cache.write(userId,'list',{rows:list});
    msg('☁️ Közös Smart List szinkronizálva · '+items.length+' aktív termék.');
   }catch(e){
@@ -104,15 +135,20 @@ async function refresh(){
 function render(){
  const box=$('results');box.replaceChildren();
  for(const item of items.slice(0,visible)){
-  const active=eligible(item),known=active.filter(shop=>saved(item,shop)).length;
+  const active=eligible(item).filter(shop=>verifiedCount(item,shop)!==0);
+  const counts=active.map(shop=>verifiedCount(item,shop));
+  const known=counts.every(n=>n!==null),total=known?counts.reduce((sum,n)=>sum+n,0):null;
   const detail=node('details','product'),summary=node('summary'),heading=node('span');
-  heading.append(node('strong',null,item.name),node('small',null,(item.quantity||1)+' '+(item.unit||'db')+' · '+active.length+' aktív áruház · keresésre vár'));
-  summary.append(heading,node('b',null,known+' mentett'));
+  heading.append(node('strong',null,item.name),node('small',null,(item.quantity||1)+' '+(item.unit||'db')+' · '+active.length+' áruház'));
+  const badge=node('b','match-hit-badge',total===null?'– találat':total.toLocaleString('hu-HU')+' találat');
+  if(total===null)badge.title='A boltok még nem adnak hiteles találatszámot. A keresési linkek működnek.';
+  summary.append(visual(item),heading,badge);
   detail.append(summary);
   const list=node('div','shops');
   for(const shop of active){
    const row=node('div','shop'),label=node('div');
-   label.append(node('strong',null,shop.name),node('small',null,search.native(shop.key)?'Bolti keresés · találatok még nem ellenőrzöttek':'Webkeresés · találatok még nem ellenőrzöttek'));
+   const count=verifiedCount(item,shop);
+   label.append(node('strong',null,shop.name),node('small','shop-count',count===null?'– találat':count.toLocaleString('hu-HU')+' találat'));
    // Make the entire retailer surface a real, keyboard-accessible link.
    // The saved SKU shortcut remains a separate sibling link, never a nested anchor.
    const action=node('a','shop-main');
@@ -120,7 +156,9 @@ function render(){
    action.rel='noopener noreferrer external';action.target='_blank';
    action.title=shop.name+' · a termék keresési találatainak megnyitása';
    action.setAttribute('aria-label',shop.name+' · '+item.name+' keresési találatok megnyitása');
-   action.append(label,node('span','shop-cta','🔎 Keresés'));
+   const logo=merchantLogo(shop);
+   if(logo)action.append(logo);
+   action.append(label,node('span','shop-cta','🔎 Találatok'));
    row.append(action);list.append(row);
    const existing=saved(item,shop);
    if(existing){
