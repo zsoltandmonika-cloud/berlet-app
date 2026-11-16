@@ -1,0 +1,48 @@
+{
+  "curatedAt": "2026-11-16",
+  "region": "HU",
+  "expires": "2026-12-04",
+  "basis": "Official film and cinema showtimes checked 2026-11-16. Static editorial fallback, no live seat/price claim.",
+  "items": [
+    {
+      "title": "Hogyan tudnék élni nélküled? 2.",
+      "releaseDate": "2026-11-12",
+      "endDate": "2026-12-04",
+      "subtitle": "Magyar zenés romantikus vígjáték · premier",
+      "image": "https://media.port.hu/images/001/836/930.webp",
+      "poster": "https://media.port.hu/images/001/836/930.webp",
+      "href": "https://nfi.hu/filmek/hogyan-tudnek-elni-nelkuled-2.html",
+      "source": "Nemzeti Filmintézet"
+    },
+    {
+      "title": "Vadló Kilenc",
+      "releaseDate": "2026-11-05",
+      "endDate": "2026-12-04",
+      "subtitle": "Bűnügyi thriller · aktuális mozibemutató",
+      "image": "https://cdn.kinocheck.com/i/w%3D1200/reuet34zil.jpg",
+      "poster": "https://cdn.kinocheck.com/i/w%3D1200/reuet34zil.jpg",
+      "href": "https://etelecinema.hu/",
+      "source": "ETELE Cinema műsor"
+    },
+    {
+      "title": "Kalapos Macska",
+      "releaseDate": "2026-11-05",
+      "endDate": "2026-12-04",
+      "subtitle": "Animációs premier · aktuális moziműsor",
+      "image": "https://images.squarespace-cdn.com/content/v1/5692dd1b0e4c1197d24a353a/1751524412267-FX9JF3GNLNZWRVOMJCU9/AU_CATHAT_INSTA_TSR_1936x1936_INTL.jpg",
+      "poster": "https://images.squarespace-cdn.com/content/v1/5692dd1b0e4c1197d24a353a/1751524412267-FX9JF3GNLNZWRVOMJCU9/AU_CATHAT_INSTA_TSR_1936x1936_INTL.jpg",
+      "href": "https://etelecinema.hu/",
+      "source": "ETELE Cinema műsor"
+    },
+    {
+      "title": "Értelem és érzelem",
+      "releaseDate": "2026-11-05",
+      "endDate": "2026-12-04",
+      "subtitle": "Jane Austen adaptáció · romantikus dráma",
+      "image": "https://images.justwatch.com/poster/345831179/s718/raison-et-sentiments-2026.jpg",
+      "poster": "https://images.justwatch.com/poster/345831179/s718/raison-et-sentiments-2026.jpg",
+      "href": "https://www.bemmozi.hu/filmek/ertelem-es-erzelem",
+      "source": "Bem Mozi"
+    }
+  ]
+}
