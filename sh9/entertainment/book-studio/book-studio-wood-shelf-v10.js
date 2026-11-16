@@ -183,23 +183,33 @@
   paintSortSelection();
  }
  function closeSort(){openSort(false)}
+ function ensureManualOrder(){
+  // Keep manual placement for existing books; newly imported books are
+  // appended. The OneDrive scan can gain books between sessions.
+  const reference=sortBooks(state.books);
+  if(state.sortMode!=='manual'||!state.customOrder.length){
+   state.customOrder=reference.map(bookKey);
+  }else{
+   const known=new Set(state.customOrder);
+   for(const book of reference){
+    const key=bookKey(book);
+    if(!known.has(key)){state.customOrder.push(key);known.add(key)}
+   }
+  }
+ }
  function setSortMode(mode){
   if(!SORT_MODES.has(mode))return;
-  if(mode==='manual'&&!state.customOrder.length)
-   state.customOrder=sortBooks(state.books).map(bookKey);
+  if(mode==='manual')ensureManualOrder();
   state.sortMode=mode;
   if(saveSort()){render();renderManage()}
   closeSort();
  }
  function moveBook(book,direction){
-  const visible=sortBooks(state.books.filter(b=>!hiddenBook(b)));
-  if(!visible.length)return;
-  // On first arrow press, preserve the CURRENT visible sort before switching
-  // to 'Saját sorrend'. No accidental jump back to initial A–Z ordering.
-  if(state.sortMode!=='manual'||!state.customOrder.length)
-   state.customOrder=sortBooks(state.books).map(bookKey);
-  const full=sortBooksManual(state.books);
-  const visibleOrdered=full.filter(b=>!hiddenBook(b));
+  if(!state.books.length)return;
+  // On first arrow press, preserve the CURRENT visible order before switching
+  // to 'Saját sorrend'; imported new books can also be moved.
+  ensureManualOrder();
+  const visibleOrdered=sortBooksManual(state.books).filter(b=>!hiddenBook(b));
   const index=visibleOrdered.findIndex(b=>bookKey(b)===bookKey(book));
   const other=visibleOrdered[index+direction];
   if(index<0||!other)return;
