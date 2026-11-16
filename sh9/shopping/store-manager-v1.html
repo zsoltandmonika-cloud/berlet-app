@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="hu"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#111b33"><title>SHO · Áruházak kezelése</title>
+<link rel="icon" type="image/svg+xml" href="../sho-preview/favicon.svg">
+<style>
+:root{color-scheme:dark;font:14px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif;color:#fff0fa;background:#101a32}
+*{box-sizing:border-box}body{margin:0;min-height:100dvh;background:radial-gradient(circle at 100% 0%,#703a6b66,transparent 42%),linear-gradient(145deg,#221b35,#0b1c32)}
+main{max-width:610px;margin:auto;padding:13px 13px 110px}
+a{color:#fcd0e9;text-decoration:none}button,input{font:inherit}button{color:inherit;cursor:pointer}
+.header{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:13px}.header a{padding:9px 11px;border:1px solid #b87db0;border-radius:10px;background:#342842;font-weight:730}
+.hero,.panel{border:1px solid #c982b9a3;background:linear-gradient(135deg,#35213edc,#18253cde);border-radius:18px;box-shadow:0 8px 26px #0005;padding:14px;margin:10px 0}
+.kicker{color:#ffaedc;font-size:10px;font-weight:880;letter-spacing:1px}
+h1{font-size:23px;margin:5px 0}h2{font-size:16px;margin:0 0 10px}
+p{font-size:12px;color:#d8c5dc;line-height:1.55;margin:6px 0}
+.status{padding:8px 10px;border-radius:11px;background:#1c3045;border:1px solid #638caf;color:#d8eaff;font-size:11px;margin:11px 0}
+.store-list{display:grid;gap:8px}.store-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px;background:#171f38;border:1px solid #755e87;border-radius:13px}
+.store-row strong{display:block;font-size:13px}.store-row small{display:block;color:#c3b1cd;font-size:10px;overflow-wrap:anywhere}
+.store-row button{flex:none;min-width:85px;min-height:37px;border:1px solid #9f7ca6;background:#423349;border-radius:11px;font-size:11px;font-weight:800}
+.store-row button[aria-pressed=true]{border-color:#89dfc6;background:#23574d;color:#dafff1}
+.store-row button:disabled,.submit:disabled{opacity:.55}
+.form{display:grid;gap:10px}.form label{display:grid;gap:5px;font-size:11px;font-weight:750}
+.form input[type=text],.form input[type=url]{width:100%;min-height:43px;border:1px solid #bd86b0;border-radius:10px;background:#101b2d;padding:10px;color:#fff}
+.cat-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.cat-list label{display:flex;align-items:center;gap:6px;background:#253049;padding:8px;border-radius:8px;font-size:10px}
+.submit{min-height:43px;background:linear-gradient(120deg,#e153a3,#723e91);border:1px solid #ffcbec;border-radius:12px;font-size:12px;font-weight:860}
+.hint{font-size:10px;color:#ccbcd0}
+[hidden]{display:none!important}button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid #ffd4ec;outline-offset:2px}
+</style></head><body><main>
+<header class="header"><a href="./" aria-label="Vissza a Smart Shoppinghoz">‹ Shopping</a><strong>SHO · STORE CONTROL</strong><a href="../" aria-label="SHO kezdőlap">⌂</a></header>
+<section class="hero"><div class="kicker">GOLDEN · DINAMIKUS ÁRUHÁZAK</div><h1>🛍️ Áruházak kezelése</h1>
+<p>Az aktív boltok bekerülnek a Smart Shopping keresési körébe. Kikapcsoláskor a korábbi beállítások megmaradnak. A teljes kosár árai csak ellenőrzött bolti adatforrás esetén hasonlíthatók össze.</p></section>
+<div class="status" id="stateMessage" role="status" aria-live="polite">Áruházlista betöltése helyi másolatból…</div>
+<section class="panel"><h2>Aktív áruházak <span id="storeCount"></span></h2><div class="store-list" id="storeRows"></div></section>
+<section class="panel"><h2>＋ Új webáruház</h2>
+<form class="form" id="newStore"><label>Áruház neve<input type="text" id="newName" required maxlength="80" placeholder="Például: Kedvenc webshop"></label>
+<label>Hivatalos webáruház URL<input type="url" id="newUrl" required maxlength="400" placeholder="https://bolt.hu/" pattern="https://.*"></label>
+<strong style="font-size:11px">Kategóriák</strong>
+<div class="cat-list" id="newCats">
+<label><input type="checkbox" value="Élelmiszer" checked> Élelmiszer</label>
+<label><input type="checkbox" value="Drogéria & Szépség"> Drogéria</label>
+<label><input type="checkbox" value="Otthon & Háztartás"> Otthon</label>
+<label><input type="checkbox" value="Elektronika"> Elektronika</label>
+<label><input type="checkbox" value="Divat & Stílus"> Divat</label>
+</div>
+<button class="submit" type="submit" id="addStore">＋ Áruház hozzáadása</button>
+<small class="hint">Biztonság: csak ellenőrzött formátumú HTTPS-cím, családi fiókos mentés. Új bolthoz a rendszer először saját oldalára szűrt webkeresést használ. Ez még nem élő ár- vagy kosárintegráció.</small>
+</form></section>
+<div class="status">☁️ Családi Supabase a hiteles forrás. 📱 Helyi áruházlista csak offline gyorsítótár; böngészőadat-törléskor eltűnhet. Nem módosítja a Smart List termékeit.</div>
+</main>
+<script defer src="../../healthhub/central-vault/config.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.2/dist/umd/supabase.min.js"></script>
+<script defer src="./store-registry-v1.js?v=1"></script>
+<script defer src="./store-manager-v1.js?v=1"></script>
+</body></html>
