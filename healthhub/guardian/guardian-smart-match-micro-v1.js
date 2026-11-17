@@ -1,4 +1,4 @@
-/* Family Guard Smart Match micro-screen v1.
+/* Family Guard Smart Match information display V2.
  * Presentation-only mirror of the existing Smart Match pin.
  * Zero independent BKK/API/GPS/DB calls, zero controls and zero navigation.
  * The golden 8-signal dashboard, glass dimensions and hero remain immutable.
@@ -17,8 +17,6 @@
   display.className="hh-smart-match-micro-v1";
   display.setAttribute("role","group");
   display.setAttribute("aria-label","Smart Match · tájékoztató indulási kijelző");
-  const left=d.createElement("div");
-  left.className="hh-smm-left-v1";
   const heading=d.createElement("span");
   heading.className="hh-smm-heading-v1";
   heading.textContent="SMART MATCH";
@@ -31,8 +29,23 @@
   const time=d.createElement("strong");
   time.className="hh-smm-time-v1";
   time.textContent="–:–";
-  left.append(heading,route,note);
-  display.append(left,time);
+  // Fully fill the EXISTING brand/header cell; never touch its grid track.
+  const source=d.createElement("span");
+  source.className="hh-smm-source-v2";
+  source.textContent="BKK MENETREND";
+  const top=d.createElement("div");
+  top.className="hh-smm-top-v2";
+  top.append(heading,source);
+  const core=d.createElement("div");
+  core.className="hh-smm-core-v2";
+  core.append(route,time);
+  const transfer=d.createElement("span");
+  transfer.className="hh-smm-transfer-v2";
+  transfer.hidden=true;
+  const foot=d.createElement("div");
+  foot.className="hh-smm-foot-v2";
+  foot.append(note,transfer);
+  display.append(top,core,foot);
   // The original logo remains in the DOM, for instant CSS rollback.
   host.appendChild(display);
   host.classList.add("hh-smart-match-micro-active-v1");
@@ -50,7 +63,14 @@
    time.textContent=valid?candidate:"–:–";
    heading.textContent="SMART MATCH";
    route.textContent=valid?(line.replace("🚌 ","")||"MENETREND"):"260 · MENETREND";
-   note.textContent=valid?(detail||"Menetrendi idő"):
+   // Only an explicitly matched tram segment from the CURRENT Smart Match
+   // note may appear here. Do not invent or infer 17/19 connections.
+   const pieces=valid?detail.split(/\\s*·\\s*/).map(x=>x.trim()).filter(Boolean):[];
+   const matched=pieces.find(x=>/^🚋\\s+/.test(x))||"";
+   const remaining=pieces.filter(x=>x!==matched).join(" · ");
+   transfer.textContent=matched;
+   transfer.hidden=!matched;
+   note.textContent=valid?(remaining||"Menetrendi idő"):
     state==="loading"?"Menetrend betöltése":
     state==="error"?"Menetrend nem elérhető":
     state==="empty"?"Nincs következő indulás":
@@ -80,6 +100,17 @@
   }
   // Existing pin owns the schedule and can now activate its same cached data
   // when this read-only hero screen is on screen.
+  // Pure layout adaptation within the existing fixed-size header cell.
+  // No timers, clicks, additional GPS, BKK or network operations.
+  function fit(){
+   const r=host.getBoundingClientRect();
+   display.dataset.fit=r.height<34?"short":r.width<165?"narrow":"full";
+  }
+  if(typeof ResizeObserver==="function"){
+   const sizeObserver=new ResizeObserver(fit);
+   sizeObserver.observe(host);
+  }
+  fit();
   w.dispatchEvent(new Event("hh-smart-match-hero-mounted-v1"));
   return true;
  }
