@@ -41,6 +41,7 @@ function manualHarness({pinned=true,loading=false,initial='monika-home-to-office
   DEFAULT:{id:'monika-260'},REVERSE:{id:'monika-home-to-office'},
   localStorage,history,location,
   toast:x=>notes.push(x),
+  persist:()=>{localStorage.setItem('sh9-smart-match-templates-v1-m',JSON.stringify(state.items));return true},
   isPinned:()=>pinned,
   hydrate:()=>called.push(['hydrate',state.current]),
   computeRoute:()=>called.push(['compute',state.current]),
@@ -69,6 +70,10 @@ test('one tap reverses morning to homebound route even WHILE a prior BKK fetch i
   'Manual override explicitly turns Smart Location off until re-enabled');
  assert.equal(h.storage.get('sh9-smart-match-active-pin-v1-m'),'monika-260',
   'The same active pin consumed by Family Guard is updated');
+ assert.ok(JSON.parse(h.storage.get('sh9-smart-match-templates-v1-m')).some(t=>t.id==='monika-260'));
+ assert.ok(h.writes.findIndex(([k])=>k==='sh9-smart-match-templates-v1-m')<
+  h.writes.findIndex(([k])=>k==='sh9-smart-match-active-pin-v1-m'),
+  'Guardian must see the template library BEFORE the new active pin');
  assert.equal(new URL(h.history.urls.at(-1),'https://example.test').searchParams.get('id'),'monika-260');
  assert.equal(new URL(h.history.urls.at(-1),'https://example.test').searchParams.get('pinned'),'1');
  assert.equal(h.state.recomputePending,true,'old in-flight route will be recomputed after loading');
@@ -111,6 +116,8 @@ test('full view queues and rejects old in-flight timetable; Guardian rejects old
  assert.match(guardian,/readDepartureFocus\(activeProfile\(\),state\.item\?\.id\|\|null,now\)/);
  assert.match(guardian,/note:"⇄ "\+stageText\(item\)\+" · menetrend ellenőrzése"/);
  assert.match(guardian,/if\(!active\)\{/);
+ assert.match(guardian,/if\(active==="monika-260"\)return OFFICE_TO_HOME/);
+ assert.match(guardian,/if\(active==="monika-home-to-office"\)return HOME_TO_OFFICE/);
  assert.doesNotMatch(guardian,/if\(!active\|\|active==="monika-260"\)/);
  assert.match(guardianHtml,/manualSync=1/);
 });
