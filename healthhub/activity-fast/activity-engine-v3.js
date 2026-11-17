@@ -12,7 +12,7 @@ var activityRenderSeq=0;
 
 /* SHO Activity Fast Preview v2: profile-isolated local-only Activity snapshot.
    The canonical HealthHub module and Dropbox files are NEVER modified.
-   Only dailyActivity, exerciseSessions, heartRate are stored on this device.
+   Only bounded dailyActivity and exerciseSessions are cached on this device.
    This read-only presentation cache never replaces newer Dropbox records. */
 var fastDiag=window.hhActivityFastDiag={localMs:null,cloudMs:null,localData:false,cacheData:false,cloudStatus:'pending',firstSource:null,localMode:'pending',profile:'',startAt:performance.now(),phase:'starting'};
 function fastDb(){return new Promise(function(resolve,reject){
