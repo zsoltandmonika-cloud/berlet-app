@@ -25,7 +25,7 @@ async function fastReadSnapshot(profile){
  var db=await fastDb();try{
   return await new Promise(function(resolve,reject){
    var tx=db.transaction('activity','readonly'),r=tx.objectStore('activity').get(profile);
-   r.onsuccess=function(){var x=r.result;resolve(x&&x.profile===profile&&x.bundle&&x.bundle.profile===profile?x:null)};
+   r.onsuccess=function(){var x=r.result,age=x&&Date.now()-Date.parse(x.bundle?.exportedAt||'');resolve(x&&x.profile===profile&&x.bundle&&x.bundle.profile===profile&&Number.isFinite(age)&&age>=-300000&&age<=45*86400000?x:null)};
    r.onerror=function(){reject(r.error)};
   })
  }finally{db.close()}
@@ -75,7 +75,7 @@ function activeProfileCode(){
 function pkey(){return activeProfileCode()==='m'?'monika':'zsolt'}
 function n(v,d){v=Number(v);return Number.isFinite(v)?v.toLocaleString('hu-HU',{maximumFractionDigits:d==null?0:d}):'—'}
 function req(r){return new Promise(function(ok,no){r.onsuccess=function(){ok(r.result)};r.onerror=function(){no(r.error)}})}
-function openDb(){return new Promise(function(ok,no){var r=indexedDB.open(DB,3);r.onupgradeneeded=function(){var d=r.result;if(!d.objectStoreNames.contains('imports'))d.createObjectStore('imports',{keyPath:'id'});if(!d.objectStoreNames.contains('activity'))d.createObjectStore('activity',{keyPath:'id'})};r.onsuccess=function(){ok(r.result)};r.onerror=function(){no(r.error)}})}
+function openDb(){return new Promise(function(ok,no){var r=indexedDB.open(DB);r.onsuccess=function(){ok(r.result)};r.onerror=function(){no(r.error)};r.onblocked=function(){no(new Error('IDB blocked'))}})}
 function dayKey(v){var d=new Date(v);return Number.isFinite(d.getTime())?d.toISOString().slice(0,10):''}
 function mins(a,b){var m=(Date.parse(b)-Date.parse(a))/60000;return Number.isFinite(m)&&m>0?m:0}
 function dur(m){m=Math.round(Number(m)||0);var h=Math.floor(m/60),x=m%60;return h?(h+':'+String(x).padStart(2,'0')):(m+'p')}
