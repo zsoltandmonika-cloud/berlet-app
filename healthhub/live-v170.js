@@ -109,11 +109,15 @@ async function sleepSessions(profile){
     if(fast&&typeof fast.save==='function')fast.save(profile,raw).catch(function(){});
 
     hhSelectNightVitals384(profile,raw.records,Array.from(map.values()).sort(function(a,b){return Date.parse(a.endTime)-Date.parse(b.endTime)}));
-    window.hhSleepSourceMeta={profile:profile,source:'Dropbox / Health Connect',exportedAt:raw.exportedAt||null};
+    // An older in-flight Dropbox response must never change the visible
+    // household member's source label after a profile switch.
+    if(pkey()===profile){
+     window.hhSleepSourceMeta={profile:profile,source:'Dropbox / Health Connect',exportedAt:raw.exportedAt||null};
+     window.hhSleepDataSource='Dropbox Cloud · '+profile;
+    }
     cloudUsed=true;
     localStorage.setItem('hh-sleep-cloud-last-'+profile,new Date().toISOString());
     localStorage.setItem('hh-sleep-cloud-path-'+profile,path);
-    window.hhSleepDataSource='Dropbox Cloud · '+profile;
     return Array.from(map.values()).sort(function(a,b){return Date.parse(a.endTime)-Date.parse(b.endTime)});
    }
   }
@@ -145,9 +149,11 @@ async function sleepSessions(profile){
  }catch(e){}
 
  hhSelectNightVitals384(profile,localVitals,Array.from(map.values()).sort(function(a,b){return Date.parse(a.endTime)-Date.parse(b.endTime)}));
- window.hhSleepDataSource='Helyi Health Connect cache · '+profile;
  var fallbackDates=Array.from(map.values()).map(function(x){return Date.parse(x._importedAt||'')}).filter(Number.isFinite);
- window.hhSleepSourceMeta={profile:profile,source:'helyi Health Connect cache',exportedAt:fallbackDates.length?new Date(Math.max.apply(null,fallbackDates)).toISOString():null};
+ if(pkey()===profile){
+  window.hhSleepDataSource='Helyi Health Connect cache · '+profile;
+  window.hhSleepSourceMeta={profile:profile,source:'helyi Health Connect cache',exportedAt:fallbackDates.length?new Date(Math.max.apply(null,fallbackDates)).toISOString():null};
+ }
  return Array.from(map.values()).sort(function(a,b){return Date.parse(a.endTime)-Date.parse(b.endTime)});
 }
 function periodDays(){return sleepState.period==='30d'?30:sleepState.period==='90d'?90:7}
