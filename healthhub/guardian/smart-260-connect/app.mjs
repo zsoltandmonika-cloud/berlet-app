@@ -932,7 +932,6 @@ function updateFull260Timeline(now=Date.now(),redraw=false){
   $("ring").style.setProperty("--progress","0%");
  }
  syncDeparturePinButtons(now);
- syncDeparturePinButtons(now);
  if(state.lastNext!==next||redraw){
   state.lastNext=next;
   if(next>=0){
@@ -1025,6 +1024,7 @@ function updateTimeline(now=Date.now(),redraw=false){
   $("countdown").textContent="--:--";
   $("ring").style.setProperty("--progress","0%");
  }
+ syncDeparturePinButtons(now);
  if(state.lastNext!==next||redraw){
   state.lastNext=next;
   if(next>=0){
