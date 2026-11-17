@@ -58,6 +58,14 @@ android {
         }
     }
     buildTypes {
+        debug {
+            // Private SDK pilot installs beside HH One rather than replacing its
+            // signed package or wiping the owner's Health Connect credentials.
+            if (hhSamsungPilotEnabled) {
+                applicationIdSuffix = ".samsungpilot"
+                versionNameSuffix = "-samsungpilot"
+            }
+        }
         release {
             isMinifyEnabled = false
             if (signingConfigs.findByName("ota") != null) {
