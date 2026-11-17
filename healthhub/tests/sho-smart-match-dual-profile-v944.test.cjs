@@ -111,7 +111,7 @@ test('Family Guard uses profile-specific pinned route and does not fake a depart
  assert.match(guardian,/if\(state\.item\.multiLegDraft===true\)/);
  assert.match(guardian,/3 járatos útvonal · menetrendi párosítás még nincs/);
  assert.match(guardian,/b\.hidden=activeProfile\(\)!=="monika"/);
- assert.match(guardianHtml,/guardian-smart-match-pin-v1\.mjs\?v=948-tram1-morgan-target1340/);
+ assert.match(guardianHtml,/guardian-smart-match-pin-v1\.mjs\?v=949-temporary-departure&smartLocation=2-same-site-aliases&manualSync=1/);
 });
 
 test('Interview day uses actual 260 and tram 1, 13:40 goal is NOT claimed as computed ETA',()=>{
@@ -190,7 +190,7 @@ test('Interview countdown is from suggested home departure, not unverified tram 
 
 test('Zsolt is blue, Mónika styling remains untouched, and app is cache-busted',()=>{
  assert.match(html,/id="smProfileBadgeV944"/);
- assert.match(html,/app\.mjs\?v=950-morgan-usable-timeline/);
+ assert.match(html,/app\.mjs\?v=1142-inline-pin&manualDirection=1/);
  assert.match(html,/style\.css\?v=950-zsolt-interview-timeline/);
  assert.match(css,/body\[data-smart-match-profile="z"\]\{--pink:#79bfff/);
  assert.doesNotMatch(css,/body\[data-smart-match-profile="m"\]/);
