@@ -863,14 +863,19 @@ function updateFull260Timeline(now=Date.now(),redraw=false){
  // not the scheduled 260 stop time. A bus without a confirmed timetable
  // connection stays in the scrollable list, never as a travel recommendation.
  const workToHome=state.full260?.direction==="home";
- const next=pastDay?-1:rows.findIndex(x=>
+ const pinned=readDepartureFocus(PROFILE,state.current,now);
+ const pinnedIndex=pinned?.kind==="260"&&pinned.serviceDate===day?
+  rows.findIndex(x=>x.departMs===pinned.departMs&&x.connectionOk&&
+   Number.isFinite(x.leaveMs)&&x.leaveMs===pinned.leaveMs):-1;
+ const next=pinnedIndex>=0?pinnedIndex:pastDay?-1:rows.findIndex(x=>
   x.connectionOk&&x.match?.best&&Number.isFinite(x.leaveMs)&&
   (!isToday||x.leaveMs>=now));
  const marker=$("nowMarker");if(marker)marker.remove();
  all.forEach((el,i)=>{
-  el.classList.toggle("past",pastDay||isToday&&rows[i].departMs<now);
+  el.classList.toggle("past",(pastDay||isToday&&rows[i].departMs<now)&&i!==pinnedIndex);
   el.classList.toggle("next",i===next);
-  el.classList.toggle("v34-unreachable",isToday&&rows[i].departMs>=now&&
+  el.classList.toggle("sm-departure-focused-v1",i===pinnedIndex);
+  el.classList.toggle("v34-unreachable",i!==pinnedIndex&&isToday&&rows[i].departMs>=now&&
    (!rows[i].connectionOk||Number.isFinite(rows[i].leaveMs)&&rows[i].leaveMs<now));
  });
  if(isToday){
@@ -884,7 +889,7 @@ function updateFull260Timeline(now=Date.now(),redraw=false){
  const bus=next>=0?rows[next]:null;
  const cfg=state.result?.config;
  const connection=bus?.connectionOk&&bus.match?.best&&Number.isFinite(bus.leaveMs)&&
-  (!isToday||bus.leaveMs>=now)?bus.match:null;
+  (pinnedIndex>=0||!isToday||bus.leaveMs>=now)?bus.match:null;
  const goingToWork=bus?.direction==="work";
  updateFlowTimes(cfg,connection?{
   connected:true,direction:bus.direction,leaveMs:bus.leaveMs,
@@ -897,16 +902,20 @@ function updateFull260Timeline(now=Date.now(),redraw=false){
   busDepartMs:bus.departMs
  }:{direction:bus?.direction,busDepartMs:bus?.departMs});
  $("countdownLabel").textContent=workToHome?"irodai indulásig":"otthoni indulásig";
+ const focusLabel=(pinnedIndex>=0?"📌 Kitűzött indulás":"Következő ajánlott indulás")+
+  (workToHome?" az irodából":" otthonról");
+ if($("heroLabel").textContent!==focusLabel)$("heroLabel").textContent=focusLabel;
  if(bus){
   // Both routes have already passed the verified connection and
   // leave-from-home/office checks above.
   const focusMs=bus.leaveMs;
   $("heroTime").textContent=clockFmt(focusMs);
   $("heroDetail").textContent=workToHome?
-   "🏢 Irodai indulás "+clockFmt(focusMs)+
+   (pinnedIndex>=0?"📌 Kitűzve · ":"")+"🏢 Irodai indulás "+clockFmt(focusMs)+
     " · 🚋 "+bus.match.best.feederLine+"-es "+clockFmt(bus.match.best.feederDepartMs)+
     " · 🚌 260-as "+clockFmt(bus.departMs)+" (menetrend)":
-   "🏠 Otthon "+clockFmt(focusMs)+
+   (pinnedIndex>=0?"📌 Kitűzve · ":"")+"🏠 Otthon "+clockFmt(focusMs)+
+    (focusMs<now?" · indulási idő elmúlt":"")+
     " · 🚶 "+cfg.originWalkMin+" perc séta + "+cfg.originSafetyMin+"p tartalék"+
     " · 🚌 260 Citronella "+clockFmt(bus.departMs)+
     " · 🚋 "+bus.match.line+" "+clockFmt(bus.match.departMs)+" (menetrend)";
@@ -922,6 +931,8 @@ function updateFull260Timeline(now=Date.now(),redraw=false){
    "Nincs már elérhető, megfelelő csatlakozás otthonról. A 260-asok alább csak menetrendi adatok.";
   $("ring").style.setProperty("--progress","0%");
  }
+ syncDeparturePinButtons(now);
+ syncDeparturePinButtons(now);
  if(state.lastNext!==next||redraw){
   state.lastNext=next;
   if(next>=0){
@@ -934,7 +945,8 @@ function updateFull260Timeline(now=Date.now(),redraw=false){
   }
  }
  if(state.reminderEnabled&&isToday){
-  const recommended=rows.find(x=>x.connectionOk&&Number.isFinite(x.leaveMs)&&x.leaveMs>=now);
+  const recommended=pinnedIndex>=0?rows[pinnedIndex]:
+   rows.find(x=>x.connectionOk&&Number.isFinite(x.leaveMs)&&x.leaveMs>=now);
   if(recommended){
    const remaining=recommended.leaveMs-now,id=day+"/260/"+recommended.leaveMs;
    if(remaining>0&&remaining<=5*60000&&!state.notificationFired.has(id)){
@@ -957,13 +969,18 @@ function updateTimeline(now=Date.now(),redraw=false){
  const result=state.result,rows=result.rows,day=result.date;
  const isToday=day===budapestDay(now);
  const isPastDate=day<budapestDay(now);
- let next=rows.findIndex(r=>r.best&&r.best.leaveOfficeMs>=now);
- if(isPastDate)next=-1;
+ const pinned=readDepartureFocus(PROFILE,state.current,now);
+ const pinnedIndex=pinned?.kind==="other"&&pinned.serviceDate===day?
+  rows.findIndex(r=>r.departMs===pinned.departMs&&
+   r.best?.leaveOfficeMs===pinned.leaveMs):-1;
+ let next=pinnedIndex>=0?pinnedIndex:rows.findIndex(r=>r.best&&r.best.leaveOfficeMs>=now);
+ if(isPastDate&&pinnedIndex<0)next=-1;
  const all=$("timeline").querySelectorAll(".timeline-row");
  all.forEach((el,i)=>{
   const r=rows[i];
-  el.classList.toggle("past",isPastDate||(isToday&&(r.best?r.best.leaveOfficeMs:r.departMs)<now));
+  el.classList.toggle("past",(isPastDate||(isToday&&(r.best?r.best.leaveOfficeMs:r.departMs)<now))&&i!==pinnedIndex);
   el.classList.toggle("next",i===next);
+  el.classList.toggle("sm-departure-focused-v1",i===pinnedIndex);
  });
  // Time marker follows the actual clock and sits before the next future arrival.
  const oldMarker=$("nowMarker");
@@ -982,6 +999,8 @@ function updateTimeline(now=Date.now(),redraw=false){
  const progress=isToday?Math.max(0,Math.min(100,(now-from)/(to-from)*100)):isPastDate?100:0;
  $("dayProgress").style.setProperty("--percentage",progress.toFixed(1)+"%");
  const row=next>=0?rows[next]:null;
+ const focusLabel=pinnedIndex>=0?"📌 Kitűzött indulás":"Következő ajánlott indulás";
+ if($("heroLabel").textContent!==focusLabel)$("heroLabel").textContent=focusLabel;
  updateFlowTimes(result.config,row?.best?{
   connected:true,leaveMs:row.best.leaveOfficeMs,feederLine:row.best.feederLine,
   feederDepartMs:row.best.feederDepartMs,feederArriveMs:row.best.feederArriveMs,
@@ -990,7 +1009,7 @@ function updateTimeline(now=Date.now(),redraw=false){
  }:null);
  if(row){
   $("heroTime").textContent=clockFmt(row.best.leaveOfficeMs);
-  $("heroDetail").textContent=(result.config.type==="walk"?
+  $("heroDetail").textContent=(pinnedIndex>=0?"📌 Kitűzve · ":"")+(result.config.type==="walk"?
    "🚶 "+result.config.originWalkMin+" perc séta → ":
    (row.best.feederMode==="bus"?"🚌 ":"🚋 ")+row.best.feederLine+"-es → ")+
    (row.mode==="tram"?"🚋 ":row.mode==="bus"?"🚌 ":"🚆 ")+row.line+"-es "+clockFmt(row.departMs)+" · "+row.headsign;
