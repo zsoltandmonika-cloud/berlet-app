@@ -539,6 +539,26 @@ class MainActivity : ComponentActivity() {
             text = "🔄 SYNC MOST · kézi adatlekérés"
             setOnClickListener { syncNow() }
         })
+        // Private Samsung Data SDK pilot is never visible in standard signed OTA.
+        // Only an explicit local SDK build enables this separate opt-in source.
+        if (BuildConfig.HH_SAMSUNG_DIRECT_PILOT) {
+            root.addView(Button(this).apply {
+                text = "🟢 Samsung Direct · aktív percek tesztolvasása"
+                setOnClickListener {
+                    try {
+                        val pilot = Class.forName(
+                            "hu.zsoltmonika.healthhubbridge.SamsungHealthDirectPilot"
+                        )
+                        pilot.getMethod(
+                            "launch", MainActivity::class.java, String::class.java
+                        ).invoke(null, this@MainActivity, selectedProfile())
+                    } catch (e: Exception) {
+                        status.text = "Samsung Direct tesztolvasó nem elérhető. " +
+                            "A Health Connect szinkron változatlan."
+                    }
+                }
+            })
+        }
         // Separate native device reporting from Health Connect's SYNC NOW.
         registryCheckButton = Button(this).apply {
             text = "📱 Eszközregisztráció ellenőrzése"
