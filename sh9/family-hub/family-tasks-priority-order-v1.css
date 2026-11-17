@@ -1,0 +1,98 @@
+/* Family Tasks Priority + Order Editor V1.
+ * RAG = importance, never the todo / progress / done task status.
+ * Scope strictly to preset tiles, editor rows and active task priority marker.
+ */
+.fh-category-field .fh-preset-chip[data-importance="high"]{
+ border-color:rgba(250,125,137,.82)!important;
+ background:linear-gradient(115deg,rgba(119,38,58,.76),rgba(31,37,77,.87))!important;
+ box-shadow:inset 3px 0 rgba(252,111,130,.92)!important;
+}
+.fh-category-field .fh-preset-chip[data-importance="medium"]{
+ border-color:rgba(246,181,85,.72)!important;
+ background:linear-gradient(115deg,rgba(113,78,30,.75),rgba(33,40,74,.84))!important;
+ box-shadow:inset 3px 0 rgba(251,188,89,.94)!important;
+}
+.fh-category-field .fh-preset-chip[data-importance="normal"]{
+ border-color:rgba(111,222,166,.54)!important;
+ background:linear-gradient(115deg,rgba(28,93,73,.50),rgba(21,42,73,.80))!important;
+ box-shadow:inset 3px 0 rgba(87,217,153,.76)!important;
+}
+.fh-category-field .fh-preset-chip.selected[data-importance]{
+ outline:2px solid var(--accent)!important;outline-offset:-2px!important;
+ box-shadow:inset 3px 0 currentColor,0 0 11px var(--accent-soft)!important;
+}
+.fh-category-editor .fh-preset-editor-help{
+ margin:4px 3px 9px;color:#d9e5f8;
+ font:650 11px/1.42 system-ui,sans-serif;
+}
+.fh-category-editor .fh-preset-edit-row{
+ display:grid!important;
+ grid-template-columns:minmax(0,1fr) auto auto!important;
+ align-items:center!important;column-gap:6px!important;row-gap:7px!important;
+ padding:8px!important;margin:8px 0!important;min-width:0;
+ border:1px solid rgba(178,209,246,.28);border-radius:13px;
+ background:linear-gradient(125deg,rgba(32,60,99,.55),rgba(16,31,59,.68));
+}
+.fh-category-editor .fh-preset-edit-row .fh-preset-edit-title{
+ grid-column:1;min-width:0!important;width:100%!important;min-height:42px!important;
+ font-size:12px!important;
+}
+.fh-category-editor .fh-preset-edit-row .fh-preset-edit-save{
+ grid-column:2;min-height:42px!important;
+ padding:8px 9px!important;background:rgba(32,105,117,.73)!important;
+}
+.fh-category-editor .fh-preset-edit-row .fh-preset-edit-delete{
+ grid-column:3;min-width:40px!important;min-height:42px!important;
+}
+.fh-category-editor .fh-preset-order-actions{
+ grid-column:1;display:flex;gap:6px;align-items:center;
+}
+.fh-category-editor .fh-preset-priority-actions{
+ grid-column:2/4;display:flex;gap:5px;justify-content:flex-end;
+}
+.fh-category-editor .fh-preset-order-button,
+.fh-category-editor .fh-preset-priority-button{
+ display:inline-flex;align-items:center;justify-content:center;
+ width:38px!important;min-width:38px!important;height:38px!important;
+ min-height:38px!important;padding:5px!important;
+ border-radius:11px!important;
+ font-size:16px!important;line-height:1!important;
+ background:rgba(11,34,65,.85)!important;
+ color:#ecf6ff!important;
+ border:1px solid rgba(191,219,251,.37)!important;
+}
+.fh-category-editor .fh-preset-priority-button[aria-pressed="true"]{
+ outline:2px solid rgba(255,255,255,.86);
+ outline-offset:-4px;
+ background:rgba(109,119,165,.48)!important;
+}
+.fh-category-editor .fh-preset-priority-button[data-importance="high"]{border-color:#f17d93!important}
+.fh-category-editor .fh-preset-priority-button[data-importance="medium"]{border-color:#efb85d!important}
+.fh-category-editor .fh-preset-priority-button[data-importance="normal"]{border-color:#7ae3ad!important}
+.fh-category-editor .fh-preset-order-button:disabled{opacity:.35!important}
+.fh-category-editor .fh-preset-edit-row :is(button,input):focus-visible{
+ outline:2px solid #a6e9ff;outline-offset:2px;
+}
+.fh-card .fh-priority-badge{
+ display:inline-flex;align-items:center;
+ padding:3px 7px;border-radius:9px;
+ font:750 10px/1.1 system-ui,sans-serif;
+ background:rgba(38,57,83,.75);
+ border:1px solid rgba(185,213,234,.30);
+ color:#fff;
+}
+.fh-card[data-importance="high"]{border-left:3px solid #ee758a}
+.fh-card[data-importance="medium"]{border-left:3px solid #f1bb68}
+.fh-card[data-importance="normal"]{border-left:3px solid #77d9ab}
+.fh-card[data-importance="high"] .fh-priority-badge{border-color:rgba(240,124,145,.67)}
+.fh-card[data-importance="medium"] .fh-priority-badge{border-color:rgba(244,180,102,.67)}
+.fh-card[data-importance="normal"] .fh-priority-badge{border-color:rgba(125,221,167,.61)}
+@media(max-width:355px){
+ .fh-category-editor .fh-preset-edit-row{gap:5px!important;padding:6px!important}
+ .fh-category-editor .fh-preset-order-button,
+ .fh-category-editor .fh-preset-priority-button{width:35px!important;min-width:35px!important}
+ .fh-category-editor .fh-preset-edit-row .fh-preset-edit-title{font-size:11px!important}
+}
+@media(prefers-reduced-motion:reduce){
+ .fh-category-editor .fh-preset-edit-row *{transition:none!important}
+}

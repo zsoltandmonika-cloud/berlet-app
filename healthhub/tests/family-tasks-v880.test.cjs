@@ -142,3 +142,76 @@ test('assigned shopping-list preparation task opens the EXISTING shared Smart Li
  assert.match(shop,/storageKey:'hh-guardian-family-auth-v785'/);
  assert.match(source,/storageKey:'hh-guardian-family-auth-v785'/);
 });
+
+
+test('V1 RAG priority is separate from status; manual sorting uses cloud-backed display_rank',async()=>{
+ const css=read('sh9/family-hub/family-tasks-priority-order-v1.css');
+ const sql=read('supabase/migrations/20261117104547_family_tasks_preset_importance_order_v1.sql');
+ assert.match(html,/family-tasks-priority-order-v1\.css\?v=1/);
+ assert.match(html,/&priorityOrder=1/);
+ assert.match(html,/▲ ▼ Sorrend/);
+ assert.match(sql,/add column if not exists importance text not null default 'normal'/);
+ assert.match(sql,/add column if not exists display_rank numeric\(14,4\)/);
+ assert.match(sql,/check \(importance in \('high','medium','normal'\)\)/);
+ assert.match(sql,/row_number\(\) over\(order by c\.sort_order,p\.sort_order/);
+ assert.doesNotMatch(sql,/drop table|disable row level security|grant .* to anon/i);
+ assert.match(css,/fh-preset-chip\[data-importance="high"\]/);
+ assert.match(css,/fh-preset-chip\[data-importance="medium"\]/);
+ assert.match(css,/fh-preset-chip\[data-importance="normal"\]/);
+ assert.match(css,/fh-preset-order-button/);
+ assert.match(css,/fh-priority-badge/);
+ assert.match(app,/\.select\('id,category_id,title,sort_order,active,importance,display_rank'\)/);
+ assert.match(app,/btn\.setAttribute\('aria-pressed',String\(importanceOf\(p\)===key\)\)/);
+ assert.match(app,/if\(!panel\.hidden\)void loadCategories\(\)/);
+ assert.match(app,/card\.dataset\.importance=kind/);
+ assert.match(app,/if\(t\.status!=='todo'\)/); // existing completion-state RAG still independent
+ const categories=[{id:'cat',sort_order:10,active:true}];
+ const presets=[
+  {id:'a',category_id:'cat',title:'A',sort_order:10,display_rank:1000,importance:'normal',active:true},
+  {id:'b',category_id:'cat',title:'B',sort_order:20,display_rank:2000,importance:'medium',active:true},
+  {id:'c',category_id:'cat',title:'C',sort_order:30,display_rank:3000,importance:'high',active:true}
+ ];
+ const begin=app.indexOf('const IMPORTANCE='), end=app.indexOf('function defaultCategory(){',begin);
+ assert.ok(begin>0&&end>begin);
+ const model=new Function('categoryRows','presetRows',
+  app.slice(begin,end)+'\nreturn {IMPORTANCE,importanceOf,activeTaskTemplates,priorityRank,taskTemplate};')(categories,presets);
+ assert.deepEqual(model.activeTaskTemplates().map(x=>x.id),['a','b','c']);
+ assert.equal(model.importanceOf(presets[1]),'medium');
+ assert.equal(model.importanceOf({importance:'bad'}),'normal');
+ const changes=[];const notifications=[];
+ const mockApi={
+  from:table=>{
+   assert.equal(table,'hh_family_task_presets');
+   return {update:patch=>({
+    eq:(column,id)=>{
+     assert.equal(column,'id');
+     return {select:async columns=>{
+      assert.equal(columns,'id');
+      Object.assign(presets.find(x=>x.id===id),patch);
+      changes.push({id,...patch});
+      return {data:[{id}],error:null};
+     }};
+    }
+   })};
+  }
+ };
+ const saveStart=app.indexOf('async function updatePresetImportance(p,next){');
+ const saveEnd=app.indexOf('function renderPresetEditor(){',saveStart);
+ assert.ok(saveStart>0&&saveEnd>saveStart);
+ const actions=new Function('api','user','authorized','self','PRESET_TABLE','categoryFeedback',
+  'loadCategories','IMPORTANCE','importanceOf','activeTaskTemplates','priorityRank',
+  'let presetEditBusy=false;\n'+app.slice(saveStart,saveEnd)+'\nreturn {updatePresetImportance,movePreset};')(
+   mockApi,{id:'user'},['monika'],()=> 'monika','hh_family_task_presets',
+   value=>notifications.push(value),async()=>{},model.IMPORTANCE,model.importanceOf,
+   model.activeTaskTemplates,model.priorityRank
+  );
+ await actions.movePreset(presets[2],-1);
+ assert.deepEqual(model.activeTaskTemplates().map(x=>x.id),['a','c','b']);
+ assert.equal(presets[2].display_rank,1500);
+ await actions.updatePresetImportance(presets[0],'high');
+ assert.equal(presets[0].importance,'high');
+ assert.equal(changes.length,2);
+ assert.ok(notifications.some(x=>/✓/.test(x)));
+ // Saved task status remains a completely separate property.
+ assert.equal(Object.hasOwn(presets[0],'status'),false);
+});
