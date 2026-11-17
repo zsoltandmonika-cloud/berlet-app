@@ -10,7 +10,7 @@ body.pinned #timeline{
 body.pinned #timeline > .timeline-row{
  scroll-snap-align:start!important;
  scroll-snap-stop:normal!important;
- scroll-margin-top:10px!important;
+ scroll-margin-top:0!important;
 }
 /* A card might be taller than a short display in landscape. Never trap
  * the user above its bottom controls. Keep only a gentle optional snap there. */
