@@ -111,14 +111,29 @@ test('assigned shopping-list preparation task opens the EXISTING shared Smart Li
  assert.equal(match({...task,status:'failed'}),false,'Failed tasks do not show CTA');
  assert.equal(match({...task,title:'Bevásárlás a Tescóban'}),false,'Other shopping tasks remain normal');
  const linkBlock=app.slice(app.indexOf("if(isSmartListAssignment(t)){"),app.indexOf("const provenance=element",app.indexOf("if(isSmartListAssignment(t)){")));
- assert.match(linkBlock,/element\('a','fh-smart-list-task-link'/);
- assert.match(linkBlock,/listLink\.href='\.\.\/shopping\/smart-list\.html'/);
+ assert.match(linkBlock,/button\('🛒 Közös Smart List megnyitása','fh-smart-list-task-link'/);
+ assert.match(linkBlock,/w\.location\.assign\('\/berlet-app\/sh9\/shopping\/smart-list\.html'\)/);
  assert.match(linkBlock,/card\.append\(listLink\)/);
- assert.doesNotMatch(linkBlock,/location\.assign|fetch\(|from\(TABLE\)/);
- const resolved=new URL('../shopping/smart-list.html','https://example.test/berlet-app/sh9/family-hub/');
- assert.equal(resolved.pathname,'/berlet-app/sh9/shopping/smart-list.html');
+ assert.doesNotMatch(linkBlock,/fetch\(|from\(TABLE\)|changeTask\(/);
+ const navigations=[];
+ const buttons=[];
+ const fakeCard={append(node){buttons.push(node)}};
+ const fakeButton=(text,cls,handler)=>({
+  text,cls,type:'button',
+  setAttribute(){},title:'',click:handler
+ });
+ const simulate=new Function('t','isSmartListAssignment','button','card','w',linkBlock);
+ simulate(task,match,fakeButton,fakeCard,{location:{assign:url=>navigations.push(url)}});
+ assert.equal(buttons.length,1,'Assignee sees one actionable Smart List button');
+ buttons[0].click();
+ assert.deepEqual(navigations,['/berlet-app/sh9/shopping/smart-list.html'],
+  'Actual user click navigates to the existing shared list');
+ assert.equal(task.status,'todo','Navigation never mutates task status');
+ buttons.length=0;
+ simulate({...task,assigned_profile:'zsolt'},match,fakeButton,fakeCard,{location:{assign:url=>navigations.push(url)}});
+ assert.equal(buttons.length,0,'Wrong profile sees no button');
  assert.match(html,/family-tasks-smart-list-link-v1\.css\?v=1/);
- assert.match(html,/family-tasks-v880\.js\?v=1066-status-note-voice&smartList=1/);
+ assert.match(html,/family-tasks-v880\.js\?v=1066-status-note-voice&smartList=2-direct-click/);
  assert.match(style,/\.fh-card \.fh-smart-list-task-link/);
  assert.match(shop,/hh_shopping_list_v1/);
  assert.match(shop,/storageKey:'hh-guardian-family-auth-v785'/);

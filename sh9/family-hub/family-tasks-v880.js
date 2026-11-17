@@ -135,10 +135,13 @@ function render(){
    const dt=element('span','fh-due'+(isOverdue(t)?' overdue':''),t.due_at?'📅 '+formatDate(t.due_at):'');
    meta.append(dt);card.append(meta);
    if(isSmartListAssignment(t)){
-     // Direct, same-tab deep link to the real shared Smart List for the
-     // assigned person; don't redirect until the user explicitly taps.
-     const listLink=element('a','fh-smart-list-task-link','🛒 Közös Smart List megnyitása');
-     listLink.href='../shopping/smart-list.html';
+     // Use the same explicit same-origin module navigation as the existing
+     // Family Tasks and Golden SH9 taskbar buttons. A plain <a> link could
+     // be ignored by embedded mobile WebViews.
+     // The click does not change the task's status or create a new list.
+     const listLink=button('🛒 Közös Smart List megnyitása','fh-smart-list-task-link',()=>{
+       w.location.assign('/berlet-app/sh9/shopping/smart-list.html');
+     });
      listLink.setAttribute('aria-label','Közös bevásárlólista megnyitása: '+t.title);
      listLink.title='Ugrás a közös, élő bevásárlólistára';
      card.append(listLink);
