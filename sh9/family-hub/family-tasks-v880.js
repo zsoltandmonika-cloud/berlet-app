@@ -44,6 +44,15 @@ function formatDate(s){if(!s)return 'Nincs határidő';return new Date(s).toLoca
 function formatTime(s){return new Date(s).toLocaleString('hu-HU',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'})}
 function isClosed(t){return t.status==='done'||t.status==='failed'}
 function isOverdue(t){return t.due_at&&!isClosed(t)&&Date.parse(t.due_at)<Date.now()}
+/* A Family Task may describe the shared shopping-list preparation, but the
+ * shopping list itself remains the single existing Supabase family list.
+ * No task data is copied to Shopping and no new list is created.
+ */
+function isSmartListAssignment(t){
+ if(!t||!t.title||t.assigned_agent||t.assigned_profile!==self()||isClosed(t))return false;
+ const name=String(t.title).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+ return /\b(?:bevasarlo|bevasarlasi)\s*lista\b/.test(name)||/\bsmart\s*list(?:a)?\b/.test(name);
+}
 function setStats(){
  const mine=tasks.filter(t=>t.assigned_profile===self()&&!t.assigned_agent&&!hiddenTasks.has(String(t.id)));
  for(const [id,key] of [['fhTodoCount','todo'],['fhProgressCount','progress'],['fhDoneCount','done'],['fhFailedCount','failed']]){
@@ -125,6 +134,15 @@ function render(){
      element('span',null,'Felelős: '+(t.assigned_agent?'Léna · AI Concierge':label(t.assigned_profile))));
    const dt=element('span','fh-due'+(isOverdue(t)?' overdue':''),t.due_at?'📅 '+formatDate(t.due_at):'');
    meta.append(dt);card.append(meta);
+   if(isSmartListAssignment(t)){
+     // Direct, same-tab deep link to the real shared Smart List for the
+     // assigned person; don't redirect until the user explicitly taps.
+     const listLink=element('a','fh-smart-list-task-link','🛒 Közös Smart List megnyitása');
+     listLink.href='../shopping/smart-list.html';
+     listLink.setAttribute('aria-label','Közös bevásárlólista megnyitása: '+t.title);
+     listLink.title='Ugrás a közös, élő bevásárlólistára';
+     card.append(listLink);
+   }
    const provenance=element('div','fh-provenance');
    const from=element('span',null,'Feladó: '+label(t.creator_profile));
    const created=element('time',null,formatTime(t.created_at));created.dateTime=t.created_at;
