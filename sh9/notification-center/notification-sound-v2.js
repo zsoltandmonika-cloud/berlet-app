@@ -22,6 +22,8 @@ function bell(){
  if(!unlocked||!visible()||!ctx||ctx.state!=='running')return false;
  const now=Date.now();
  if(now-lastPlayed<600)return false; // Rapid burst: at most one tiny ding.
+ const loudness=w.SHO_SOUND_STUDIO_V1?.volume("notifications")??1;
+ if(loudness<=0)return false;
  try{
   const t=ctx.currentTime;
   const tone=(freq,offset,volume,duration)=>{
@@ -30,7 +32,7 @@ function bell(){
    osc.frequency.setValueAtTime(freq,t+offset);
    osc.frequency.exponentialRampToValueAtTime(freq*.988,t+offset+duration);
    gain.gain.setValueAtTime(.0001,t+offset);
-   gain.gain.exponentialRampToValueAtTime(volume,t+offset+.008);
+   gain.gain.exponentialRampToValueAtTime(volume*loudness,t+offset+.008);
    gain.gain.exponentialRampToValueAtTime(.0001,t+offset+duration);
    osc.connect(gain);gain.connect(ctx.destination);
    osc.start(t+offset);osc.stop(t+offset+duration+.006);

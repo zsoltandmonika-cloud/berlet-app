@@ -11,6 +11,7 @@ const GROUPS=[
  {id:'cloud',label:'☁️ Cloud Vault és ChatGPT Analytics',subtitle:'Dropbox · szinkron · forrásellenőrzés · AI-adatkapcsolat',order:20},
  {id:'data',label:'📥 Import, export és adatkezelés',subtitle:'A meglévő Admin Data Hub eszközei közvetlenül ezen az oldalon',order:30},
  {id:'recovery',label:'🛡️ Biztonság és helyreállítás',subtitle:'Mentések · visszaállítás · privát karton és előzmények',order:40},
+ {id:'sound',label:'🎛️ Hangok és visszajelzések',subtitle:'SHO Sound Studio · Hangerő · Próbahangok',order:45},
  {id:'other',label:'⚙️ További rendszereszközök',subtitle:'Megőrzött beállítások és kiegészítők',order:90}
 ];
 let pending=false,lastRoot=null,watcher=null,overlayRef=null,portalActive=false,settleTimer=null;
@@ -89,6 +90,7 @@ function category(el){
  if(el.id==='hhArchitectureGrandDesign744')return 'architecture';
  if(['hhUnifiedCloudVaultCard','hhAnalytics732','hhTargetAuth739','hhSyncV742','hhAskLenaProjectAdminV756','sh9VersionCenterV1'].includes(el.id))return 'cloud';
  if(el.id===ID)return 'data';
+ if(el.id==='hhSoundStudioV1')return 'sound';
  if(el.id==='hhDocsRecoveryCard'||el.classList.contains('hrSectionCard'))return 'recovery';
  return 'other';
 }
@@ -123,6 +125,80 @@ function inlineTools(root){
  }
  return box;
 }
+function soundStudio(root){
+ const api=w.SHO_SOUND_STUDIO_V1;
+ if(!api||root.querySelector('#hhSoundStudioV1'))return;
+ const panel=d.createElement('details');panel.id='hhSoundStudioV1';
+ panel.dataset.hhAdminGroup='sound';panel.style.order='46';
+ const sum=d.createElement('summary');sum.textContent='🎛️ SHO Sound Studio';
+ const intro=d.createElement('small');
+ intro.textContent='Smart Match · Shopping · Értesítések · Helyi hangprofil';
+ sum.append(intro);
+ const body=d.createElement('div');body.className='sho-sound-body';
+ const topline=d.createElement('div');topline.className='sho-sound-topline';
+ const profile=d.createElement('span');profile.className='sho-sound-profile';
+ const mute=d.createElement('button');mute.type='button';mute.className='sho-sound-muted';
+ topline.append(profile,mute);body.append(topline);
+ const values=new Map();
+ const status=d.createElement('p');status.className='sho-sound-status';
+ status.setAttribute('role','status');status.setAttribute('aria-live','polite');
+ function stateMsg(ok){
+  status.textContent=ok?'✓ Mentve ezen az eszközön':'⚠️ A beállítás nem menthető ebben a böngészőben';
+ }
+ function slider(key,title,preview){
+  const row=d.createElement('div');row.className='sho-sound-row';
+  const id='hhShoSoundV1'+key;
+  const label=d.createElement('label');label.htmlFor=id;label.textContent=title;
+  const number=d.createElement('output');number.className='sho-sound-value';number.htmlFor=id;
+  const controls=d.createElement('div');controls.className='sho-sound-range-wrap';
+  const input=d.createElement('input');input.type='range';input.min='0';input.max='100';
+  input.step='5';input.id=id;input.setAttribute('aria-label',title);
+  input.addEventListener('input',()=>{
+   number.textContent=input.value+'%';
+   stateMsg(api.change(key,Number(input.value)));
+  });
+  controls.append(input);
+  if(preview){
+   const button=d.createElement('button');button.type='button';
+   button.className='sho-sound-preview';button.textContent='▶ Teszt';
+   button.setAttribute('aria-label',title+' hangpróba');
+   button.addEventListener('click',()=>{
+    const settings=api.get(),vol=api.volume(key);
+    if(settings.muted||vol<=0){status.textContent='🔕 A hang jelenleg némítva van';return}
+    status.textContent=api.preview(key)?'▶ Hangpróba · '+title:
+     '🔈 A böngésző vagy a telefon most nem engedélyezte a hangot';
+   });
+   controls.append(button);
+  }
+  row.append(label,number,controls);
+  controls.style.gridColumn='1 / -1';
+  body.append(row);values.set(key,{input,number});
+ }
+ slider('master','Fő hangerő',false);
+ slider('match','Smart Match · Timeline kattintás',true);
+ slider('shopping','Smart Shopping · Snap',true);
+ slider('notifications','Értesítési központ · Csengő',true);
+ const actions=d.createElement('div');actions.className='sho-sound-actions';
+ const reset=d.createElement('button');reset.type='button';reset.textContent='↺ Alapértékek';
+ reset.addEventListener('click',()=>{const ok=api.reset();refresh();stateMsg(ok)});
+ actions.append(reset);body.append(actions);
+ const note=d.createElement('p');note.className='sho-sound-note';
+ note.textContent='100% = eredeti hangerő. A Family Guard Buddy hangja külön szerkeszthető a saját stúdiójában. A rendszerhangerőt ez a panel nem változtatja meg.';
+ body.append(note,status);panel.append(sum,body);root.append(panel);
+ function refresh(){
+  const state=api.get();
+  profile.textContent='Profil: '+(api.profile()==='m'?'Mónika 💗':'Zsolt 💙')+' · ez a böngésző';
+  mute.textContent=state.muted?'🔕 Hang BE':'🔊 Némítás';
+  mute.setAttribute('aria-pressed',String(state.muted));
+  for(const [key,view]of values){
+   const v=key==='master'?state.master:state.levels[key];
+   view.input.value=String(v);view.number.textContent=v+'%';
+  }
+ }
+ mute.addEventListener('click',()=>{const ok=api.change('muted',!api.get().muted);refresh();stateMsg(ok)});
+ panel.addEventListener('toggle',()=>{if(panel.open)refresh()});
+ refresh();
+}
 function hideObsoleteInfo(){
  const body=d.getElementById('haBody');
  if(!body||typeof body.querySelectorAll!=='function')return;
@@ -142,7 +218,7 @@ function layout(){
  const enabled=w.healthSectionKind==='more'&&!!root&&root.isConnected;
  d.documentElement.dataset.hhInlineAdmin=enabled?'yes':'no';
  if(!enabled){detach();return;}
- stylesheet();inlineTools(root);hideObsoleteInfo();
+ stylesheet();inlineTools(root);soundStudio(root);hideObsoleteInfo();
  for(const group of GROUPS)label(root,group);
  const ids=new Set(GROUPS.map(g=>'hhAdminGroup'+g.id+'V745'));
  let unknownCount=0;
@@ -154,7 +230,7 @@ function layout(){
   child.dataset.hhAdminGroup=group;
   const preferred=child.id==='hhArchitectureGrandDesign744'?11:
    child.id==='hhUnifiedCloudVaultCard'?21:child.id==='sh9VersionCenterV1'?23:child.id===ID?31:
-   child.id==='hhDocsRecoveryCard'?41:g.order+2;
+   child.id==='hhDocsRecoveryCard'?41:child.id==='hhSoundStudioV1'?46:g.order+2;
   if(child.style.order!==String(preferred))child.style.order=String(preferred);
   if(group==='other')unknownCount++;
  }

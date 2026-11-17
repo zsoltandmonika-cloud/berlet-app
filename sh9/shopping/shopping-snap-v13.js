@@ -66,6 +66,8 @@
     lastTickAt = time;
     try { navigator.vibrate?.(8); } catch (_) {}
     if (!audio || audio.state !== "running") return;
+    const loudness = window.SHO_SOUND_STUDIO_V1?.volume("shopping") ?? 1;
+    if (loudness <= 0) return;
     try {
       const t = audio.currentTime;
       const oscillator = audio.createOscillator();
@@ -74,7 +76,7 @@
       oscillator.frequency.setValueAtTime(820, t);
       oscillator.frequency.exponentialRampToValueAtTime(610, t + 0.035);
       gain.gain.setValueAtTime(0.0001, t);
-      gain.gain.exponentialRampToValueAtTime(0.028, t + 0.004);
+      gain.gain.exponentialRampToValueAtTime(0.028 * loudness, t + 0.004);
       gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.045);
       oscillator.connect(gain);
       gain.connect(audio.destination);

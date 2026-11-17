@@ -1,0 +1,34 @@
+name: SHO Sound Studio V1
+on:
+  pull_request:
+    paths:
+      - 'sh9/shared/sho-sound-settings-v1.js'
+      - 'sh9/shopping/shopping-snap-v13.js'
+      - 'sh9/notification-center/notification-sound-v2.js'
+      - 'healthhub/guardian/smart-260-connect/timeline-snap-click-v1.js'
+      - 'healthhub/hh-unified-admin-v745.js'
+      - 'healthhub/hh-sound-studio-v1.css'
+      - 'healthhub/index.html'
+      - 'sh9/shopping/index.html'
+      - 'sh9/notification-center/index.html'
+      - 'healthhub/guardian/smart-260-connect/index.html'
+      - 'sh9/tests/sho-sound-studio-v1.test.cjs'
+      - '.github/workflows/sho-sound-studio-v1.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'sh9/shared/sho-sound-settings-v1.js'
+      - 'sh9/shopping/shopping-snap-v13.js'
+      - 'sh9/notification-center/notification-sound-v2.js'
+      - 'healthhub/guardian/smart-260-connect/timeline-snap-click-v1.js'
+      - 'healthhub/hh-unified-admin-v745.js'
+      - 'sh9/tests/sho-sound-studio-v1.test.cjs'
+  workflow_dispatch:
+jobs:
+  sound-regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify actual module gain, two profiles, mute, sound previews and Admin bindings
+        run: node --test sh9/tests/sho-sound-studio-v1.test.cjs
