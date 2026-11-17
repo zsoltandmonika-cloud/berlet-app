@@ -132,7 +132,10 @@ test('assigned shopping-list preparation task opens the EXISTING shared Smart Li
  buttons.length=0;
  simulate({...task,assigned_profile:'zsolt'},match,fakeButton,fakeCard,{location:{assign:url=>navigations.push(url)}});
  assert.equal(buttons.length,0,'Wrong profile sees no button');
- assert.match(html,/family-tasks-smart-list-link-v1\.css\?v=1/);
+ assert.match(html,/family-tasks-smart-list-link-v1\.css\?v=2-highlight/);
+ assert.match(style,/rgba\(34,111,119,\.88\)/);
+ assert.match(style,/rgba\(144,63,133,\.84\)/);
+ assert.match(style,/min-height:45px!important/);
  assert.match(html,/family-tasks-v880\.js\?v=1066-status-note-voice&smartList=2-direct-click/);
  assert.match(style,/\.fh-card \.fh-smart-list-task-link/);
  assert.match(shop,/hh_shopping_list_v1/);
