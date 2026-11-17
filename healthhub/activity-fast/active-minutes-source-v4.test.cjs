@@ -11,8 +11,8 @@ for(const file of ['activity-fast/activity-engine-v3.js','live-v191.js']){
    cutMs:()=>Date.parse('2026-11-17T00:00:00Z'),periodDays:()=>1,
    mins:(a,b)=>Math.max(0,(Date.parse(b)-Date.parse(a))/60000),
    caloriesOf:()=>null,distanceOf:()=>null,pace:()=> '—',infer:()=> 'other',
-   hrIn:()=>[],avg:()=>0,sumIfRecorded:()=>null,Number,Date,Math,Array,Object,console};
-  vm.createContext(context);vm.runInContext(metricsCode+'\nthis.result=metrics({daily:[row],sessions:session,heart:[]},\'zsolt\',170);',context);
+   hrIn:()=>[],avg:()=>0,sumIfRecorded:()=>null,Number,Date,Math,Array,Object,console,dataRow:row,sessionData:session};
+  vm.createContext(context);vm.runInContext(metricsCode+'\nthis.result=metrics({daily:[dataRow],sessions:sessionData,heart:[]},\'zsolt\',170);',context);
   return context.result;
  }
  test(file+' · missing Samsung active minutes remains unknown, not zero',()=>{
