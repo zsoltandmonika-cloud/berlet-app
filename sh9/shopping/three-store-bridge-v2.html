@@ -8,6 +8,7 @@
 <title>SHO · 3 boltos Smart Search</title>
 <link rel="icon" type="image/svg+xml" href="../sho-preview/favicon.svg">
 <link rel="stylesheet" href="./three-store-bridge-v2.css?v=1">
+<link rel="stylesheet" href="./product-match-v21.css?v=1">
 </head>
 <body>
 <main class="app">
@@ -34,6 +35,13 @@
   </div>
   <p class="truth" id="sourceNote">Ezek valódi áruházi oldalak, nem lekért árlisták. Az ár, készlet, kiszerelés, termékkép és a kosár a kereskedő oldalán ellenőrizhető.</p>
  </section>
+ <section class="panel product-match" id="productMatchPanel" aria-labelledby="productMatchTitle">
+  <div class="section-head"><div><small>SMART PRODUCT MATCH · V2.1</small><h2 id="productMatchTitle">📸 Képes termékjelöltek</h2></div><span class="badge" id="matchCount">OFF katalógus</span></div>
+  <p id="matchStatus" class="cloud-status" role="status" aria-live="polite">Válassz terméket a kereséshez. A képek és terméknevek az Open Food Facts adatbázisából származnak, nem a webshopokból.</p>
+  <div class="match-tools"><label for="matchSort">↕ Rendezés <select id="matchSort"><option value="relevance">Egyezés szerint</option><option value="name">Név A–Z</option><option value="quantity">Kiszerelés-egyezés</option><option disabled>Bolti ár szerint · nincs hiteles adat</option></select></label></div>
+  <div id="productMatchCards" class="match-grid" aria-label="Forrásazonosított termékjelöltek"></div>
+  <p class="truth">Adatforrás: Open Food Facts (ODbL, termékképek CC BY-SA). A termékadatok nem jelentenek Tesco-, Auchan- vagy SPAR-készletet, árat vagy biztos egyezést. A tényleges választást a kereskedő saját oldalán végezheted.</p>
+ </section>
  <section class="panel family" aria-labelledby="familyTitle">
   <div class="section-head"><div><small>KÖZÖS · CSAK OLVASÁS</small><h2 id="familyTitle">🛒 Smart List</h2></div><button id="reloadList" type="button" class="refresh" title="Közös lista frissítése">↻ Frissítés</button></div>
   <p id="cloudStatus" class="cloud-status" role="status" aria-live="polite">Családi lista ellenőrzése…</p>
@@ -52,5 +60,7 @@
 <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.2/dist/umd/supabase.min.js"></script>
 <script defer src="./three-store-links-v2.js?v=1"></script>
 <script defer src="./three-store-bridge-v2.js?v=1"></script>
+<script defer src="./product-match-core-v21.js?v=1"></script>
+<script defer src="./product-match-v21.js?v=1"></script>
 </body>
 </html>
