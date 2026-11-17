@@ -314,9 +314,9 @@ function metrics(c,profile,heightCm){
  var sessionActive=sessions.reduce(function(a,s){return a+mins(s.startTime,s.endTime)},0);
  // A missing Health Connect active-time series is NOT a measured 0.
  // Samsung's daily activity tracker requires the separate Samsung Health Data SDK.
- var active=measuredActiveDays.length?dailyActive:(sessionActive>0?sessionActive:null);
- var hasHcActiveTime=measuredActiveDays.some(function(x){return !x._hhFieldSources||x._hhFieldSources.activeMinutes!=='samsung-direct'});
- var hasOnlySessionActiveTime=!measuredActiveDays.length&&sessionActive>0;
+ var active=dailyActive>0?dailyActive:(sessionActive>0?sessionActive:(measuredActiveDays.length?0:null));
+ var hasOnlySessionActiveTime=dailyActive<=0&&sessionActive>0;
+ var hasHcActiveTime=!hasOnlySessionActiveTime&&measuredActiveDays.some(function(x){return !x._hhFieldSources||x._hhFieldSources.activeMinutes!=='samsung-direct'});
  var hasManualActiveTime=hasOnlySessionActiveTime&&sessions.some(function(x){return x._manual&&mins(x.startTime,x.endTime)>0});
  var moving=sessions.filter(function(s){var k=infer(s);return (k==='walk'||k==='run')&&(distanceOf(s)||0)>0});
  var movingMin=moving.reduce(function(a,s){return a+mins(s.startTime,s.endTime)},0),movingKm=moving.reduce(function(a,s){return a+(distanceOf(s)||0)},0);
