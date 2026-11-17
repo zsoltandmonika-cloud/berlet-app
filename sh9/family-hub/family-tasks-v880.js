@@ -352,7 +352,8 @@ async function updatePresetImportance(p,next){
   if(error||!data?.length){categoryFeedback('⚠️ A fontosság nem menthető. '+(error?.message||'Nincs jogosultság.'));return}
   categoryFeedback('✓ Fontosság mentve: '+IMPORTANCE[next].symbol+' '+IMPORTANCE[next].label);
   await loadCategories();
- }finally{presetEditBusy=false}
+ }catch(e){categoryFeedback('⚠️ Fontosság mentési hiba: '+String(e.message||e).slice(0,130))}
+ finally{presetEditBusy=false}
 }
 async function movePreset(p,direction){
  if(presetEditBusy||![1,-1].includes(direction)||!api||!user||!authorized.includes(self()))return;
@@ -375,7 +376,8 @@ async function movePreset(p,direction){
    .eq('id',p.id).select('id');
   if(error||!data?.length){categoryFeedback('⚠️ A sorrend nem menthető. '+(error?.message||'Nincs jogosultság.'));return}
   await loadCategories();categoryFeedback('✓ Új sorrend mentve a közös feladatlistába.');
- }finally{presetEditBusy=false}
+ }catch(e){categoryFeedback('⚠️ Sorrend mentési hiba: '+String(e.message||e).slice(0,130))}
+ finally{presetEditBusy=false}
 }
 function renderPresetEditor(){
  const host=$('fhPresetRows');if(!host)return;host.replaceChildren();
@@ -780,7 +782,7 @@ function wire(){
  wireStandardNav();
  wireTaskScrollClicks();
  $('fhCategoryManage').addEventListener('click',()=>{
-  const panel=$('fhCategoryEditor');panel.hidden=!panel.hidden;if(!panel.hidden)renderPresetEditor();
+  const panel=$('fhCategoryEditor');panel.hidden=!panel.hidden;if(!panel.hidden)void loadCategories();
  });
  $('fhPresetAdd').addEventListener('click',addPreset);
  $('fhProfileSwitch').addEventListener('click',()=>{
