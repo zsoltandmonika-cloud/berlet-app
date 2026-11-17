@@ -19,6 +19,8 @@ test('SH9 Admin has accessible single-tap categories including Sound Studio and 
  assert.match(ux,/min-height:54px/);
  assert.match(ux,/font-size:13px/);
  assert.match(ux,/hhAdminScrollActiveV748/);
+ assert.match(ux,/studio\.open=true/);
+ assert.match(ux,/w\.HH_UNIFIED_ADMIN_V745\?\.layout\?\.\(\)/);
  assert.match(ux,/sound:\['#4b2f60'/);
  assert.match(ux,/button\[data-group="sound"\]/);
  assert.doesNotMatch(ux,/location\.reload\(|localStorage\.clear|innerHTML\s*=|indexedDB\.deleteDatabase/);
@@ -47,6 +49,8 @@ test('header is inserted once, categories filter in place, and user tap never re
  }
  function all(n){return [n,...n.children.flatMap(all)]}
  const root=new E('div','healthSubContent'),head=new E('head');
+ const studio=new E('details','hhSoundStudioV1');
+ root.appendChild(studio);
  let reloads=0,draws=0;
  const D={readyState:'complete',head,documentElement:{dataset:{}},
   createElement:t=>new E(t),getElementById:id=>[...all(root),...all(head)].find(x=>x.id===id)||null,
@@ -66,6 +70,7 @@ test('header is inserted once, categories filter in place, and user tap never re
  assert.equal(D.documentElement.dataset.hhAdminFocus,'devices');
  categories[6].listeners.click();
  assert.equal(D.documentElement.dataset.hhAdminFocus,'sound');
+ assert.equal(studio.open,true,'One tap must expand the real Sound Studio details panel');
  assert.equal(categories[6].textContent,'🎛️ Hangok · Sound Studio');
  categories[0].listeners.click();
  assert.equal(D.documentElement.dataset.hhAdminFocus,'registry');
