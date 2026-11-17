@@ -8,7 +8,7 @@
   .replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,' ').trim().slice(0,180);
  const tokens=s=>[...new Set(normalize(s).split(/[^a-z0-9]+/g).filter(x=>x.length>1&&!/^\d+$/.test(x)))];
  const volume=s=>{
-  const v=normalize(s).match(/(?:^|[^a-z0-9])(\d+(?:[.,]\d+)?)\s*(kg|g|ml|cl|liter|l)(?:$|[^a-z])/i);
+  const v=normalize(s).replace(/(\d)\s+(?=\d{3}\b)/g,'$1').match(/(?:^|[^a-z0-9])(\d+(?:[.,]\d+)?)\s*(kg|g|ml|cl|liter|l)(?:$|[^a-z])/i);
   if(!v)return null;
   const n=Number(v[1].replace(',','.'));
   const unit=v[2]==='kg'||v[2]==='g'?'g':'ml';
