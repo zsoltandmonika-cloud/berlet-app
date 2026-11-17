@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="hu">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#110e24">
+<meta name="description" content="SHO Smart Shopping V2: közös Smart List, valódi Tesco és Auchan áruházi keresés, SPAR Wolt áruházválasztás">
+<title>SHO · 3 boltos Smart Search</title>
+<link rel="icon" type="image/svg+xml" href="../sho-preview/favicon.svg">
+<link rel="stylesheet" href="./three-store-bridge-v2.css?v=1">
+</head>
+<body>
+<main class="app">
+ <header class="mast">
+  <a class="back" href="./" aria-label="Vissza a Smart Shoppinghoz">‹</a>
+  <div class="mast-copy"><small>SHO · SMART SHOPPING V2</small><h1>3 boltos <em>Smart Search</em></h1></div>
+  <a class="list-link" href="./smart-list.html" title="Közös bevásárlólista megnyitása" aria-label="Smart List">🛒</a>
+ </header>
+ <section class="panel hero" aria-label="Termékkereső">
+  <div class="hero-title"><span>🔎</span><div><strong>Mit keressünk?</strong><small>Ugyanaz a termék három vásárlási csatornán</small></div></div>
+  <form id="searchForm" class="search" role="search">
+   <label class="sr" for="searchInput">Termék neve vagy kiszerelése</label>
+   <input id="searchInput" type="search" minlength="2" maxlength="140" enterkeyhint="search" autocomplete="off" placeholder="Pl. laktózmentes UHT tej 1,5% 1 l">
+   <button type="submit">Keresés</button>
+  </form>
+  <p class="selected" id="selection" role="status" aria-live="polite">Írj be egy terméket, vagy válassz a közös Smart Listből.</p>
+ </section>
+ <section class="panel merchants" aria-labelledby="resultTitle">
+  <div class="section-head"><div><small>KÖZVETLEN ÁRUHÁZI ÁTADÁS</small><h2 id="resultTitle">Áruházak</h2></div><span class="badge">3 csatorna</span></div>
+  <div id="storeResults" class="results">
+   <article class="merchant" data-shop="tesco"><div class="logo">T</div><div class="info"><strong>Tesco</strong><small>Hivatalos találati lista</small></div><span class="arrow">↗</span></article>
+   <article class="merchant" data-shop="auchan"><div class="logo">A</div><div class="info"><strong>Auchan</strong><small>Hivatalos találati lista</small></div><span class="arrow">↗</span></article>
+   <article class="merchant" data-shop="spar"><div class="logo">S</div><div class="info"><strong>SPAR / INTERSPAR</strong><small>Wolt · válassz áruházat</small></div><span class="arrow">↗</span></article>
+  </div>
+  <p class="truth" id="sourceNote">Ezek valódi áruházi oldalak, nem lekért árlisták. Az ár, készlet, kiszerelés, termékkép és a kosár a kereskedő oldalán ellenőrizhető.</p>
+ </section>
+ <section class="panel family" aria-labelledby="familyTitle">
+  <div class="section-head"><div><small>KÖZÖS · CSAK OLVASÁS</small><h2 id="familyTitle">🛒 Smart List</h2></div><button id="reloadList" type="button" class="refresh" title="Közös lista frissítése">↻ Frissítés</button></div>
+  <p id="cloudStatus" class="cloud-status" role="status" aria-live="polite">Családi lista ellenőrzése…</p>
+  <div id="familyItems" class="family-items"></div>
+  <button id="moreItems" type="button" class="more" hidden>＋ További termékek</button>
+ </section>
+ <p class="footer-note">A Smart Search nem változtatja a közös lista „Megvettem” állapotát, és nem állítja, hogy a termék a bolti kosárba került. Élő ár szerinti összehasonlítás még nem elérhető.</p>
+</main>
+<nav class="bottom" aria-label="SHO navigáció">
+ <a href="../"><span>⌂</span>Kezdőlap</a>
+ <a href="../../healthhub/index.html?sh9nav=admin&amp;sh9cfg=asklena"><span>💬</span>Ask Léna</a>
+ <a href="./smart-list.html"><span>🛒</span>Smart List</a>
+ <a href="./" class="active"><span>🛍️</span>Shopping</a>
+</nav>
+<script defer src="../../healthhub/central-vault/config.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.2/dist/umd/supabase.min.js"></script>
+<script defer src="./three-store-links-v2.js?v=1"></script>
+<script defer src="./three-store-bridge-v2.js?v=1"></script>
+</body>
+</html>
