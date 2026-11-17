@@ -108,8 +108,14 @@ function readPin(){
    if(desired==="monika-home-to-office")return HOME_TO_OFFICE;
   }
   const preferred=active&&items.find(x=>x.id===active);
+  // The active ID can be stored before the original sample library has
+  // finished its first local save. These two known route templates are safe
+  // immutable fallbacks; never substitute a different travel direction.
+  if(preferred)return preferred;
+  if(active==="monika-260")return OFFICE_TO_HOME;
+  if(active==="monika-home-to-office")return HOME_TO_OFFICE;
   // When no reliable fix is available, keep the saved manual selection.
-  return preferred||items.find(x=>x.id==="home-citronella-260")||MONIKA_DEFAULT;
+  return items.find(x=>x.id==="home-citronella-260")||MONIKA_DEFAULT;
  }catch(_){return MONIKA_DEFAULT}
 }
 function stageText(item){
