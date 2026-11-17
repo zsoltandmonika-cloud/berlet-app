@@ -133,7 +133,16 @@ function render(){
    meta.append(avatar(t.assigned_agent?'lena':t.assigned_profile),
      element('span',null,'Felelős: '+(t.assigned_agent?'Léna · AI Concierge':label(t.assigned_profile))));
    const dt=element('span','fh-due'+(isOverdue(t)?' overdue':''),t.due_at?'📅 '+formatDate(t.due_at):'');
-   meta.append(dt);card.append(meta);
+   meta.append(dt);
+   const template=!isClosed(t)?taskTemplate(t):null;
+   if(template){
+    const kind=importanceOf(template),info=IMPORTANCE[kind];
+    card.dataset.importance=kind;
+    const badge=element('span','fh-priority-badge',info.symbol+' '+info.label+' fontosság');
+    badge.setAttribute('aria-label','Fontosság: '+info.label);
+    meta.append(badge);
+   }
+   card.append(meta);
    if(isSmartListAssignment(t)){
      // Use the same explicit same-origin module navigation as the existing
      // Family Tasks and Golden SH9 taskbar buttons. A plain <a> link could
@@ -233,11 +242,19 @@ async function hideLogEntry(event){
 
 /* v894 · Flat editable task picker, using the already-saved common preset catalog. */
 function categoryFeedback(message){const el=$('fhCategoryMessage');if(el)el.textContent=message}
+const IMPORTANCE={high:{label:'Kiemelt',symbol:'🔴'},medium:{label:'Közepes',symbol:'🟠'},normal:{label:'Normál',symbol:'🟢'}};
+let presetEditBusy=false;
+function importanceOf(p){return Object.hasOwn(IMPORTANCE,p?.importance)?p.importance:'normal'}
+function priorityRank(p){const value=p?.display_rank;return value===null||value===undefined?Number.MAX_SAFE_INTEGER:Number(value)}
+function taskTemplate(t){
+ return presetRows.find(p=>p.active&&p.title.toLocaleLowerCase('hu-HU')===String(t.title).toLocaleLowerCase('hu-HU')&&
+  categoryRows.some(c=>c.id===p.category_id&&c.name===t.category))||null;
+}
 function activeTaskTemplates(){
  const activeCategories=new Map(categoryRows.filter(c=>c.active).map(c=>[c.id,c]));
  return presetRows.filter(p=>p.active&&activeCategories.has(p.category_id)).sort((a,b)=>{
   const ac=activeCategories.get(a.category_id),bc=activeCategories.get(b.category_id);
-  return (ac.sort_order-bc.sort_order)||(a.sort_order-b.sort_order)||a.title.localeCompare(b.title,'hu-HU');
+  return (priorityRank(a)-priorityRank(b))||(ac.sort_order-bc.sort_order)||(a.sort_order-b.sort_order)||a.title.localeCompare(b.title,'hu-HU');
  });
 }
 function defaultCategory(){
@@ -247,14 +264,14 @@ async function loadCategories(){
  if(!api||!user||!authorized.includes(self()))return;
  const [cats,presets]=await Promise.all([
   api.from(CAT_TABLE).select('id,name,sort_order,active').order('sort_order',{ascending:true}),
-  api.from(PRESET_TABLE).select('id,category_id,title,sort_order,active').order('sort_order',{ascending:true})
+  api.from(PRESET_TABLE).select('id,category_id,title,sort_order,active,importance,display_rank').order('sort_order',{ascending:true})
  ]);
  if(cats.error||presets.error){
   categoryFeedback('A feladatlista nem tölthető be: '+(cats.error?.message||presets.error?.message));return;
  }
  categoryRows=cats.data||[];presetRows=presets.data||[];
  category=defaultCategory()?.name||'❤️ CSALÁD & EGYÉB';
- renderPresets();renderPresetEditor();
+ renderPresets();renderPresetEditor();render();
 }
 /* v903 · Same subtle mechanical scroll detent as HH Buddy scroll companion v595.
    Lazy WebAudio, only following real interaction. 1 click per 48px task row,
@@ -318,15 +335,53 @@ function renderPresets(){
     tile.setAttribute('aria-pressed',String(tile===b));
    });
   });
-  b.setAttribute('aria-pressed','false');b.title=p.title;host.append(b);
+  b.dataset.importance=importanceOf(p);
+  b.setAttribute('aria-label',p.title+' · '+IMPORTANCE[importanceOf(p)].label+' fontosság');
+  b.setAttribute('aria-pressed','false');b.title=p.title+' · '+IMPORTANCE[importanceOf(p)].label+' fontosság';host.append(b);
  });
  const group=$('fhPresetGroup');if(group)group.hidden=!items.length;
  if(!items.length)categoryFeedback('Nincs feladat a listában. A Szerkesztés gombbal felvehetsz újat.');
 }
+async function updatePresetImportance(p,next){
+ if(presetEditBusy||!IMPORTANCE[next]||importanceOf(p)===next)return;
+ if(!api||!user||!authorized.includes(self()))return;
+ presetEditBusy=true;categoryFeedback('Fontosság mentése…');
+ try{
+  const {data,error}=await api.from(PRESET_TABLE).update({importance:next,updated_at:new Date().toISOString()})
+   .eq('id',p.id).select('id');
+  if(error||!data?.length){categoryFeedback('⚠️ A fontosság nem menthető. '+(error?.message||'Nincs jogosultság.'));return}
+  categoryFeedback('✓ Fontosság mentve: '+IMPORTANCE[next].symbol+' '+IMPORTANCE[next].label);
+  await loadCategories();
+ }finally{presetEditBusy=false}
+}
+async function movePreset(p,direction){
+ if(presetEditBusy||![1,-1].includes(direction)||!api||!user||!authorized.includes(self()))return;
+ const ordered=activeTaskTemplates(),at=ordered.findIndex(item=>item.id===p.id),nextIndex=at+direction;
+ if(at<0||nextIndex<0||nextIndex>=ordered.length)return;
+ const before=direction<0?ordered[nextIndex-1]:ordered[nextIndex];
+ const after=direction<0?ordered[nextIndex]:ordered[nextIndex+1];
+ const left=before?priorityRank(before):null,right=after?priorityRank(after):null;
+ if((left!==null&&!Number.isFinite(left))||(right!==null&&!Number.isFinite(right))){
+  categoryFeedback('⚠️ A sorrend nem rendezhető. Frissítsd a feladatlistát.');return;
+ }
+ const position=left!==null&&right!==null?(left+right)/2:left!==null?left+1000:right!==null?right-1000:1000;
+ const target=Math.round(position*10000)/10000;
+ if((left!==null&&target<=left)||(right!==null&&target>=right)){
+  categoryFeedback('⚠️ A sorrend ezen a helyen nem bővíthető.');return;
+ }
+ presetEditBusy=true;categoryFeedback('Sorrend mentése…');
+ try{
+  const {data,error}=await api.from(PRESET_TABLE).update({display_rank:target,updated_at:new Date().toISOString()})
+   .eq('id',p.id).select('id');
+  if(error||!data?.length){categoryFeedback('⚠️ A sorrend nem menthető. '+(error?.message||'Nincs jogosultság.'));return}
+  await loadCategories();categoryFeedback('✓ Új sorrend mentve a közös feladatlistába.');
+ }finally{presetEditBusy=false}
+}
 function renderPresetEditor(){
  const host=$('fhPresetRows');if(!host)return;host.replaceChildren();
  activeTaskTemplates().forEach(p=>{
-  const row=element('div','fh-category-row'),input=element('input');
+  const row=element('div','fh-category-row fh-preset-edit-row'),input=element('input');
+  row.dataset.importance=importanceOf(p);input.className='fh-preset-edit-title';
   input.value=p.title;input.maxLength=90;input.setAttribute('aria-label','Feladat átnevezése');
   const save=button('Mentés','',async()=>{
    const title=input.value.trim();
@@ -344,7 +399,25 @@ function renderPresetEditor(){
    categoryFeedback('✓ Feladat elrejtve.');await loadCategories();
   });
   hide.setAttribute('aria-label','Feladat elrejtése: '+p.title);
-  row.append(input,save,hide);host.append(row);
+  save.classList.add('fh-preset-edit-save');hide.classList.add('fh-preset-edit-delete');
+  const sequence=element('div','fh-preset-order-actions');
+  const ordered=activeTaskTemplates(),idx=ordered.findIndex(item=>item.id===p.id);
+  for(const [movement,labelText] of [[-1,'▲'],[1,'▼']]){
+   const move=button(labelText,'fh-preset-order-button',()=>movePreset(p,movement));
+   move.disabled=movement<0?idx===0:idx===ordered.length-1;
+   move.setAttribute('aria-label',(movement<0?'Előrébb':'Hátrébb')+' helyezés: '+p.title);
+   move.title=movement<0?'Egy hellyel előrébb':'Egy hellyel hátrébb';
+   sequence.append(move);
+  }
+  const importance=element('div','fh-preset-priority-actions');
+  for(const key of ['high','medium','normal']){
+   const meta=IMPORTANCE[key];
+   const btn=button(meta.symbol,'fh-preset-priority-button',()=>updatePresetImportance(p,key));
+   btn.dataset.importance=key;btn.setAttribute('aria-pressed',String(importanceOf(p)===key));
+   btn.setAttribute('aria-label',meta.label+' fontosság: '+p.title);btn.title=meta.label+' fontosság';
+   importance.append(btn);
+  }
+  row.append(input,save,hide,sequence,importance);host.append(row);
  });
 }
 async function addPreset(){
@@ -359,7 +432,7 @@ async function addPreset(){
  const inactive=presetRows.find(p=>p.category_id===chosen.id&&p.title===title&&!p.active);
  const query=inactive
   ?api.from(PRESET_TABLE).update({active:true,updated_at:new Date().toISOString()}).eq('id',inactive.id)
-  :api.from(PRESET_TABLE).insert({category_id:chosen.id,title,sort_order:(presetRows.reduce((max,p)=>Math.max(max,p.sort_order||0),0)+10)});
+  :api.from(PRESET_TABLE).insert({category_id:chosen.id,title,sort_order:(presetRows.reduce((max,p)=>Math.max(max,p.sort_order||0),0)+10),importance:'normal',display_rank:(Math.max(0,...presetRows.map(p=>Number(p.display_rank)||0))+1000)});
  const {error}=await query;b.disabled=false;
  if(error){categoryFeedback('Mentési hiba: '+error.message);return}
  field.value='';categoryFeedback('✓ Új feladat felvéve a közös listába.');await loadCategories();
