@@ -65,8 +65,8 @@
    route.textContent=valid?(line.replace("🚌 ","")||"MENETREND"):"260 · MENETREND";
    // Only an explicitly matched tram segment from the CURRENT Smart Match
    // note may appear here. Do not invent or infer 17/19 connections.
-   const pieces=valid?detail.split(/\\s*·\\s*/).map(x=>x.trim()).filter(Boolean):[];
-   const matched=pieces.find(x=>/^🚋\\s+/.test(x))||"";
+   const pieces=valid?detail.split(/\s*·\s*/).map(x=>x.trim()).filter(Boolean):[];
+   const matched=pieces.find(x=>/^🚋\s+/.test(x))||"";
    const remaining=pieces.filter(x=>x!==matched).join(" · ");
    transfer.textContent=matched;
    transfer.hidden=!matched;
