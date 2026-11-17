@@ -77,6 +77,24 @@ test('the entire verified badge and pin control sit side-by-side in the SAME row
  assert.match(app,/const nextLabel=selected\?"✓ Kitűzve":"📌 Kitűzöm"/);
  assert.match(app,/A kitűzött járat feloldása, visszaállás az automatikus követésre/);
 });
+test('pinned Timeline date stays in the same compact row as the heading, with original calendar input and day handler',()=>{
+ const css=read('guardian/smart-260-connect/timeline-inline-date-v1.css');
+ const page=read('guardian/smart-260-connect/index.html');
+ const script=read('guardian/smart-260-connect/app.mjs');
+ assert.match(css,/body\.pinned #timelinePanel > \.section-head\{/);
+ assert.match(css,/grid-template-columns:minmax\(0,1fr\) minmax\(104px,120px\)/);
+ assert.match(css,/body\.pinned #timelinePanel > \.section-head > \.toolbar\{/);
+ assert.match(css,/body\.pinned #timelinePanel #day\{/);
+ assert.match(css,/margin:0 0 5px!important/);
+ assert.match(page,/timeline-inline-date-v1\.css\?v=1-compact-header/);
+ const heading=page.slice(page.indexOf('id="timelinePanel"'),page.indexOf('id="dayProgress"'));
+ assert.match(heading,/<h2>✨ Smart Match Timeline<\/h2>/);
+ assert.match(heading,/<input type="date" id="day"/);
+ assert.equal((page.match(/id="day"/g)||[]).length,1);
+ assert.match(script,/\$\("day"\)\.addEventListener\("change",\(\)=>computeRoute\(\)\)/);
+ assert.match(css,/@media\(max-width:355px\)/);
+ assert.doesNotMatch(css,/body:not\(\.pinned\)/);
+});
 test('Family Guard mirrors focus and expires without new network or GPS',()=>{
  const guardian=read('guardian/guardian-smart-match-pin-v1.mjs');
  const hero=read('guardian/guardian-smart-match-micro-v1.js');
