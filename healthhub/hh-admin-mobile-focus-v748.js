@@ -141,6 +141,26 @@ function apply(){
 function select(group,scroll){
  if(!CATEGORIES.some(g=>g.id===group))return;
  const changed=selected!==group;selected=group;apply();
+ if(group==='sound'){
+  // The category filter alone is not an "open" action: the Sound Studio
+  // itself is a native <details> element, initially collapsed. One user tap
+  // must reveal its real controls, not merely switch to an empty-looking tab.
+  let studio=q('hhSoundStudioV1');
+  if(!studio){
+   // The Admin and its settings module sometimes mount in separate passes.
+   // Reconcile once on a user action, never in a background polling loop.
+   w.HH_UNIFIED_ADMIN_V745?.layout?.();
+   studio=q('hhSoundStudioV1');
+  }
+  if(studio){
+   studio.open=true;
+   if(scroll&&typeof studio.scrollIntoView==='function')
+    studio.scrollIntoView({behavior:'smooth',block:'nearest'});
+   help('✓ SHO Sound Studio megnyitva · állítsd a hangerőt vagy próbáld ki a hangokat.');
+  }else{
+   help('⚠️ A Sound Studio nem töltődött be. Frissítsd a HealthHub oldalt; a többi Admin-funkció változatlan.');
+  }
+ }
  // Category selection never jumps to the top of the long Admin page.
  if(changed&&group==='registry'&&Date.now()-lastRegistryLoad>12000){
   lastRegistryLoad=Date.now();w.setTimeout(()=>w.hhDeviceRegistry401?.reload?.(false),180);
