@@ -44,6 +44,8 @@
  }
  function tick(){
   if(!ctx||ctx.state!=="running")return;
+  const loudness=w.SHO_SOUND_STUDIO_V1?.volume("match")??1;
+  if(loudness<=0)return;
   try{
    const t=ctx.currentTime;
    const osc=ctx.createOscillator(),gain=ctx.createGain();
@@ -51,7 +53,7 @@
    osc.frequency.setValueAtTime(730,t);
    osc.frequency.exponentialRampToValueAtTime(340,t+.032);
    gain.gain.setValueAtTime(.0001,t);
-   gain.gain.exponentialRampToValueAtTime(.016,t+.003);
+   gain.gain.exponentialRampToValueAtTime(.016*loudness,t+.003);
    gain.gain.exponentialRampToValueAtTime(.0001,t+.043);
    osc.connect(gain);gain.connect(ctx.destination);
    osc.start(t);osc.stop(t+.046);
