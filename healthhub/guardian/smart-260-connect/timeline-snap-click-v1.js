@@ -31,11 +31,14 @@
  // Unlock Web Audio from a real touch/mouse/keyboard user gesture only.
  // Browser and device output/mute policies remain authoritative.
  function prepareAudio(){
-  if(ctx||reduced())return;
+  if(reduced())return;
   try{
-   const Audio=w.AudioContext||w.webkitAudioContext;
-   if(!Audio)return;
-   ctx=new Audio();
+   if(!ctx){
+    const Audio=w.AudioContext||w.webkitAudioContext;
+    if(!Audio)return;
+    ctx=new Audio();
+   }
+   // A fresh gesture may unlock audio even after a previous suspended state.
    if(ctx.state==="suspended")ctx.resume().catch(()=>{});
   }catch(_){ctx=null}
  }
