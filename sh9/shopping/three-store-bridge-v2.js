@@ -35,17 +35,24 @@
   $('selection').textContent=ready?'🔎 '+term+' · teljes találati listák, nincs automatikus árválasztás':
    'Írj be egy terméket, vagy válassz a közös Smart Listből.';
   for(const merchant of links.stores){
-   const card=node('article','merchant'+(!ready&&merchant.key!=='spar'?' waiting':''));card.dataset.shop=merchant.key;
+   const card=node('article','merchant'+(!ready?' waiting':''));card.dataset.shop=merchant.key;
    const logo=node('span','logo',merchant.key==='tesco'?'T':merchant.key==='auchan'?'A':'S');
    logo.setAttribute('aria-hidden','true');
    const info=node('div','info');info.append(node('strong',null,merchant.name));
    info.append(node('small',null,merchant.note));
+   if(merchant.key==='spar'){
+    const venue=node('a','merchant-venue','🏬 SPAR üzletek a Wolton ↗');
+    venue.href=links.SPAR_URL;venue.target='_blank';venue.rel='noopener noreferrer external';
+    venue.title='Hivatalos Wolt SPAR áruházválasztó · nem terméktalálati lista';
+    venue.setAttribute('aria-label',venue.title);
+    info.append(venue);
+   }
    const href=links.destination(merchant.key,term);
-   const action=node('a','merchant-link',merchant.key==='spar'?'Wolt üzletek ↗':'Találatok ↗');
+   const action=node('a','merchant-link',merchant.key==='spar'?'Webes találatok ↗':'Találatok ↗');
    action.href=href||'#';action.target='_blank';action.rel='noopener noreferrer external';
    action.title=merchant.key==='spar'?
-    'A Wolt SPAR üzletlistája: előbb válassz üzletet, majd ott keress terméket':
-    merchant.name+' teljes találati listája erre a termékre: '+term;
+    'Google webes keresés: kizárólag Wolt SPAR termékoldalak · nem élő SPAR kereső':
+    merchant.name+' keresési találati listája · termék és kiszerelés ellenőrizendő: '+term;
    action.setAttribute('aria-label',action.title);
    if(!href){action.setAttribute('aria-disabled','true');action.tabIndex=-1}
    action.addEventListener('click',()=>{try{w.navigator.vibrate?.(7)}catch(_){}});

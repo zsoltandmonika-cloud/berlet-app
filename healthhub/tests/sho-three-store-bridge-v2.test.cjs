@@ -17,21 +17,30 @@ test('Native Tesco and Auchan links contain exact multiword search, not a select
  const q='laktózmentes UHT tej 1,5% 1 l';
  assert.equal(core.destination('tesco',q),
   'https://bevasarlas.tesco.hu/shop/hu-HU/search?query='+encodeURIComponent(q));
+ assert.equal(core.browseTerms(q),'laktózmentes UHT tej');
  assert.equal(core.destination('auchan',q),
-  'https://auchan.hu/shop/search?q%5B%5D='+encodeURIComponent(encodeURIComponent(q)));
+  'https://auchan.hu/shop/search?q%5B%5D='+encodeURIComponent(encodeURIComponent('laktózmentes UHT tej')));
  assert.match(core.destination('auchan',q),/lakt%25C3%25B3zmentes/);
- assert.match(core.destination('auchan','  100% arabica   szemes kávé 1 kg '),/100%2525%2520arabica/);
+ assert.equal(core.browseTerms('100% arabica szemes kávé 1 kg'),'arabica szemes kávé');
+ assert.ok(!core.destination('auchan',q).includes('1%252C5'));
+ assert.equal(core.destination('auchan','100% arabica szemes kávé 1 kg'),
+  'https://auchan.hu/shop/search?q%5B%5D='+encodeURIComponent(encodeURIComponent('arabica szemes kávé')));
  assert.equal(core.destination('tesco','x'),'');
  assert.equal(core.destination('auchan','x'),'');
  assert.equal(core.destination('other','tej'),'');
  assert.equal(core.stores.length,3);
  assert.deepEqual(core.stores.map(s=>s.key),['tesco','auchan','spar']);
 });
-test('SPAR is Wolt venue selection, NOT fake direct product/search API',()=>{
- assert.equal(core.destination('spar','laktózmentes tej'), 'https://wolt.com/hu/hun/budapest/brand/spar');
- assert.equal(core.destination('spar','kávé'),core.destination('spar','tej'));
- assert.equal(core.stores[2].type,'venue');
- assert.match(core.stores[2].note,/előbb válassz áruházat/);
+test('SPAR actually transfers the query to a clearly labeled Wolt-only external web search, keeping official venue link separate',()=>{
+ const q='laktózmentes UHT tej 1,5% 1 l',url=core.destination('spar',q);
+ assert.ok(url.startsWith('https://www.google.com/search?q='));
+ assert.ok(decodeURIComponent(url).includes('site:wolt.com/hu/hun/budapest/venue/spar laktózmentes UHT tej'));
+ assert.notEqual(core.destination('spar','kávé'),core.destination('spar','tej'));
+ assert.equal(core.SPAR_URL,'https://wolt.com/hu/hun/budapest/brand/spar');
+ assert.equal(core.destination('spar',''),'');
+ assert.equal(core.stores[2].type,'indexed');
+ assert.match(core.stores[2].note,/Google webes találatok/);
+ assert.match(app,/merchant-venue/);
  assert.doesNotMatch(app,/wolt\.com[^'"]*\?q=|spar\.hu\/onlineshop/);
 });
 test('Golden home still has exactly one fixed-height action row, 12-store grid and existing connections',()=>{
@@ -106,7 +115,8 @@ test('RLS-authenticated Smart List appears as selectable, read-only products; no
  assert.equal(ids.storeResults.children.length,3);
  const tesco=ids.storeResults.children[0].children[2];
  assert.ok(tesco.href.includes('query=arabica'));
- assert.equal(ids.storeResults.children[2].children[2].href,'https://wolt.com/hu/hun/budapest/brand/spar');
+ assert.ok(ids.storeResults.children[2].children[2].href.startsWith('https://www.google.com/search?q='));
+ assert.equal(ids.storeResults.children[2].children[1].children[2].href,core.SPAR_URL);
  ids.familyItems.children[0].click();
  assert.ok(w.location.href.includes('item=a'));
  assert.ok(w.location.href.includes('q=Lakt'));
@@ -125,12 +135,13 @@ test('No login means no displayed private list; manual Tesco and Auchan search s
  assert.match(ids.familyItems.children[0].textContent,/csak bejelentkezve/);
  assert.ok(ids.storeResults.children[0].children[2].href.includes('query=tej'));
 });
-test('No query means only SPAR venue link active; empty list cannot be misrepresented as real offers',async()=>{
+test('No query disables 3 search actions but SPAR official Wolt venue remains separately accessible',async()=>{
  const {ids}=harness({signed:true});
  await settle();await settle();
  assert.equal(ids.storeResults.children[0].children[2].attrs['aria-disabled'],'true');
  assert.equal(ids.storeResults.children[1].children[2].attrs['aria-disabled'],'true');
- assert.equal(ids.storeResults.children[2].children[2].href,core.SPAR_URL);
+ assert.equal(ids.storeResults.children[2].children[2].attrs['aria-disabled'],'true');
+ assert.equal(ids.storeResults.children[2].children[1].children[2].href,core.SPAR_URL);
  assert.match(html,/nem változtatja a közös lista/);
  assert.match(html,/Élő ár szerinti összehasonlítás még nem elérhető/);
 });

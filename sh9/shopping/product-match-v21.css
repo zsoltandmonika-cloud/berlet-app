@@ -35,3 +35,10 @@
 @media(min-width:520px){.product-match .match-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:355px){.product-match .match-grid{gap:7px}.product-match .pm-media{height:115px}.product-match .pm-card{padding:6px}.product-match .pm-actions a{font-size:9px}.product-match .pm-name{font-size:11px}}
 @media(prefers-reduced-motion:reduce){.product-match *{transition:none!important}}
+
+/* V2.2 · searchable Wolt SPAR product results are explicitly external. */
+.product-match .pm-actions .pm-spar-link{
+ flex-basis:100%;color:#dfffee;
+ border-color:rgba(110,215,164,.76);
+ background:linear-gradient(125deg,#246953,#364d77);
+}

@@ -60,9 +60,9 @@ test('page mounts premium product photography and source labels without changing
  assert.match(html,/id="matchSort"/);
  assert.match(html,/id="familyItems"/);
  assert.match(html,/id="storeResults"/);
- assert.match(html,/product-match-v21.css\?v=1/);
+ assert.match(html,/product-match-v21.css\?v=2-results/);
  assert.match(html,/product-match-core-v21.js\?v=1/);
- assert.match(html,/product-match-v21.js\?v=1/);
+ assert.match(html,/product-match-v21.js\?v=2-results/);
  assert.match(html,/Open Food Facts \(ODbL, termékképek CC BY-SA\)/);
  assert.match(css,/\.product-match \.pm-media img/);
  assert.match(css,/object-fit:contain/);
@@ -113,9 +113,12 @@ test('real product card DOM: original OFF photo, honest no-price label and disti
  const media=c.children[0],img=media.children[0];
  assert.ok(img.src.startsWith('https://images.openfoodfacts.org/'));
  const action=c.children[1].children.find(x=>x.className==='pm-actions');
- const [tesco,auchan,off]=action.children;
+ const [tesco,auchan,spar,off]=action.children;
  assert.equal(tesco.href,store.destination('tesco','Laktózmentes UHT tej 1,5% Próbamárka 1 l'));
- assert.equal(auchan.href,store.destination('auchan','Laktózmentes UHT tej 1,5% Próbamárka 1 l'));
+ assert.equal(auchan.href,store.destination('auchan','Laktózmentes UHT tej 1,5%'));
+ assert.ok(!decodeURIComponent(decodeURIComponent(auchan.href)).includes('Próbamárka'));
+ assert.ok(spar.href.startsWith('https://www.google.com/search?q='));
+ assert.ok(decodeURIComponent(spar.href).includes('site:wolt.com/hu/hun/budapest/venue/spar'));
  assert.match(off.href,/world\.openfoodfacts\.org\/product\/1234567890123/);
  assert.ok(c.children[1].children.some(x=>x.className==='pm-no-price'&&x.children[1].textContent==='Nincs ellenőrzött bolti ár'));
  assert.equal(b.win.SHOP_PRODUCT_MATCH_V21.getState().merchantPrices,false);
