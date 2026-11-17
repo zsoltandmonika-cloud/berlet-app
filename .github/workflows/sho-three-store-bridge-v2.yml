@@ -1,0 +1,35 @@
+name: SHO Shopping V2 3-Store Bridge QA
+on:
+  pull_request:
+    paths:
+      - 'sh9/shopping/three-store-*'
+      - 'sh9/shopping/index.html'
+      - 'sh9/shopping/store-connect-v2.js'
+      - 'healthhub/tests/sho-three-store-bridge-v2.test.cjs'
+      - '.github/workflows/sho-three-store-bridge-v2.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'sh9/shopping/three-store-*'
+      - 'sh9/shopping/index.html'
+      - 'sh9/shopping/store-connect-v2.js'
+      - 'healthhub/tests/sho-three-store-bridge-v2.test.cjs'
+      - '.github/workflows/sho-three-store-bridge-v2.yml'
+permissions:
+  contents: read
+jobs:
+  three-store-search-qa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate all Shopping V2 JavaScript
+        run: |
+          node --check sh9/shopping/three-store-links-v2.js
+          node --check sh9/shopping/three-store-bridge-v2.js
+          node --check sh9/shopping/store-connect-v2.js
+      - name: Execute three store URL contract and shared Smart List integration tests
+        run: node --test healthhub/tests/sho-three-store-bridge-v2.test.cjs
