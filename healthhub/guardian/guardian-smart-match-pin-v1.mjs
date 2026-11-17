@@ -94,7 +94,7 @@ function readPin(){
   if(!localStorage.getItem(CITRONELLA_DEFAULT_APPLIED)){
    // Correct the previous rollout's mistaken "office" default exactly once.
    // Any route pinned AFTER this migration remains the user's explicit choice.
-   if(!active||active==="monika-260"){
+   if(!active){
     active="home-citronella-260";
     localStorage.setItem(ACTIVE,active);
    }
@@ -108,8 +108,14 @@ function readPin(){
    if(desired==="monika-home-to-office")return HOME_TO_OFFICE;
   }
   const preferred=active&&items.find(x=>x.id===active);
+  // The active ID can be stored before the original sample library has
+  // finished its first local save. These two known route templates are safe
+  // immutable fallbacks; never substitute a different travel direction.
+  if(preferred)return preferred;
+  if(active==="monika-260")return OFFICE_TO_HOME;
+  if(active==="monika-home-to-office")return HOME_TO_OFFICE;
   // When no reliable fix is available, keep the saved manual selection.
-  return preferred||items.find(x=>x.id==="home-citronella-260")||MONIKA_DEFAULT;
+  return items.find(x=>x.id==="home-citronella-260")||MONIKA_DEFAULT;
  }catch(_){return MONIKA_DEFAULT}
 }
 function stageText(item){
@@ -215,7 +221,10 @@ function currentLink(item){
  return target?FULL+"?pinned=1&id="+encodeURIComponent(target)+"&profile=m":FULL+"?profile=m";
 }
 function renderTemporaryDeparture(now=Date.now()){
- const focus=readDepartureFocus(activeProfile(),null,now);
+ // Exact-departure focus only belongs to its own route. Without this,
+ // an older morning 260 departure keeps replacing the current homebound
+ // card even after a successful manual/automatic direction change.
+ const focus=readDepartureFocus(activeProfile(),state.item?.id||null,now);
  if(!focus)return false;
  const profile=activeProfile()==="zsolt"?"z":"m";
  const direction=focus.direction==="home"?"Irodából":focus.direction==="work"?"Otthonról":"Indulás";
@@ -270,7 +279,7 @@ function renderClock(){
  const link=currentLink(state.item);
  if(!future){
   const reason=state.loaded?"Nincs több indulás ma":"Menetrend ellenőrzése";
-  setView({time:"–:–",note:reason,status:"empty",
+  setView({time:"–:–",note:stageText(state.item)+" · "+reason,status:"empty",
    title:stageText(state.item)+" · "+reason,link});
   if(state.loaded&&budapestDay(now)!==state.day)refresh({force:true});
   return;
@@ -375,8 +384,8 @@ async function updateSchedule({force=false}={}){
  }catch(_){
   if(state.id!==requestedId)return;
   state.entries=[];state.loaded=null;
-  setView({time:"–:–",note:"Menetrend nem elérhető",status:"error",
-   title:"Smart Match · nem sikerült ellenőrizni a BKK-menetrendet",
+  setView({time:"–:–",note:stageText(item)+" · Menetrend nem elérhető",status:"error",
+   title:"Smart Match · "+stageText(item)+" · nem sikerült ellenőrizni a BKK-menetrendet",
    link:currentLink(item)});
  }finally{
   state.loading=false;
@@ -397,7 +406,13 @@ function refresh({force=false}={}){
  }
  const change=state.id!==item.id||JSON.stringify(state.item)!==JSON.stringify(item);
  state.item=item;state.id=item.id;
- if(change){state.entries=[];state.loaded=null}
+ if(change){
+  state.entries=[];state.loaded=null;
+  // The pinned direction and link must be correct immediately, before the
+  // old/new BKK feed returns, including while another route is loading.
+  setView({time:"…",note:"⇄ "+stageText(item)+" · menetrend ellenőrzése",
+   status:"loading",title:"Smart Match · "+stageText(item),link:currentLink(item)});
+ }
  if(renderTemporaryDeparture())return;
  if(change||force)updateSchedule({force:true});
  else renderClock();

@@ -15,12 +15,13 @@ const PROFILE=requestedProfile==="z"?"zsolt":requestedProfile==="m"?"monika":sto
 // Keep all existing Mónika storage and preferences unchanged.
 const STORAGE=PROFILE==="monika"?"sh9-smart-match-templates-v1-m":"sh9-smart-match-templates-v1-z";
 const ACTIVE_PIN_KEY=PROFILE==="monika"?"sh9-smart-match-active-pin-v1-m":"sh9-smart-match-active-pin-v1-z";
+const SMART_LOCATION_M_KEY="sh9-smart-location-switch-v1-m";
 const DELETED_SAMPLES_KEY=PROFILE==="monika"?"sh9-smart-match-deleted-samples-v940":"sh9-smart-match-deleted-samples-v940-z";
 let selectedFeeders=new Set();
 // v939: isolated favorite-address draft. Existing saved itineraries are immutable until explicit save.
 let favoriteAddressDraft=null;
 const state={items:[],current:null,data:null,manifest:null,catalog:FALLBACK,stopNames:null,result:null,full260:null,morganPlan:null,
- reminderEnabled:false,notificationFired:new Set(),lastNext:null,loading:false};
+ reminderEnabled:false,notificationFired:new Set(),lastNext:null,loading:false,recomputePending:false};
 const timeFmt=new Intl.DateTimeFormat("hu-HU",{timeZone:"Europe/Budapest",hour:"2-digit",minute:"2-digit",hourCycle:"h23"});
 const dateFmt=new Intl.DateTimeFormat("en-GB",{timeZone:"Europe/Budapest",year:"numeric",month:"2-digit",day:"2-digit"});
 const clockFmt=ms=>timeFmt.format(new Date(ms));
@@ -214,10 +215,12 @@ function persist(){
  try{localStorage.setItem(STORAGE,JSON.stringify(state.items));return true}
  catch(_){toast("A böngésző nem engedi a sablon tárolását.");return false}
 }
-function publishActivePin(){
+function publishActivePin({force=false}={}){
  // Same-origin browser-local preference; no GPS or Dropbox writes.
- const item=current();if(!item||!isPinned())return;
- try{localStorage.setItem(ACTIVE_PIN_KEY,item.id)}catch(_){}
+ const item=current();if(!item||(!isPinned()&&!force))return false;
+ try{localStorage.setItem(ACTIVE_PIN_KEY,item.id);return true}catch(_){
+  toast("⚠️ Az aktív kitűzés nem menthető a telefonon.");return false;
+ }
 }
 function current(){return state.items.find(x=>x.id===state.current)||state.items[0]}
 function displayName(item){return String(item.title||"Smart Match útvonal").slice(0,85)}
@@ -245,21 +248,51 @@ function updateTitle(item){
  $("heading").setAttribute("aria-label",displayName(item));
  const opposite=pairedTemplate(item),b=$("reverseBtn");
  b.hidden=!opposite;
- b.disabled=Boolean(state.loading);
+ // Switching must remain available even while the old direction's GTFS loads.
+ b.disabled=false;
  if(opposite){
   const label="Irányváltás: "+shortTitle(opposite);
   b.setAttribute("aria-label",label);
   b.title=label;
  }
 }
+function chooseManualRoute(item){
+ // A real user route selection is authoritative until Smart Location is
+ // deliberately turned back ON. No background GPS access or cloud mutation.
+ if(!item||!state.items.some(x=>x.id===item.id))return false;
+ const changed=state.current!==item.id;
+ if(PROFILE==="monika"){
+  try{localStorage.setItem(SMART_LOCATION_M_KEY,"off")}catch(_){
+   toast("⚠️ A kézi mód nem menthető, a Smart Location újra válthat.");
+  }
+ }
+ state.current=item.id;
+ // Built-in templates may be present only in memory on first use.
+ // Publish the current local library BEFORE announcing the active route id,
+ // so Family Guard can resolve the new direction on re-open or another tab.
+ persist();
+ publishActivePin({force:true});
+ try{history.replaceState(null,"",pinnedRouteUrl(isPinned()))}catch(_){}
+ if(!changed){hydrate();return true}
+ // Never show the previous route's ring or timetable under a new direction.
+ state.result=null;state.full260=null;state.lastNext=null;state.morganPlan=null;
+ hydrate();
+ $("heroTime").textContent="--:--";$("countdown").textContent="--:--";
+ $("heroDetail").textContent="Az új irány menetrendjének ellenőrzése…";
+ $("ring").style.setProperty("--progress","0%");
+ $("timeline").replaceChildren();
+ const wait=document.createElement("div");wait.className="empty";
+ wait.textContent="Új útvonal betöltése…";$("timeline").append(wait);
+ $("status").textContent="⇄ Kézi útvonal: "+shortTitle(item)+" · "+(PROFILE==="monika"?"Smart Location KI":"kiválasztva");
+ if(state.loading)state.recomputePending=true;
+ else void computeRoute();
+ toast("⇄ "+shortTitle(item)+(PROFILE==="monika"?" · Smart Location KI":""));
+ return true;
+}
 function reverseCommute(){
- if(!isPinned()||state.loading)return;
  const opposite=pairedTemplate(current());
  if(!opposite){toast("Ehhez az útvonalhoz még nincs ellenirányú mentett sablon.");return}
- state.current=opposite.id;
- publishActivePin();
- hydrate();
- computeRoute();
+ chooseManualRoute(opposite);
 }
 function chipButtons(){
  const host=$("templates");host.replaceChildren();
@@ -270,7 +303,7 @@ function chipButtons(){
   b.setAttribute("aria-pressed",String(item.id===state.current));
   b.addEventListener("click",()=>{
    if(isPinned())leavePinned();
-   state.current=item.id;hydrate();computeRoute();
+   chooseManualRoute(item);
   });
   host.append(b);
  }
@@ -1173,6 +1206,7 @@ function showMorganInterview(item,date){
 async function computeRoute({useForm=false}={}){
  if(state.loading)return;
  state.loading=true;
+ const routeAtRequest=state.current;
  $("status").textContent="📡 A BKK hivatalos menetrendi állományának ellenőrzése…";
  try{
   const item=useForm?readForm():current();
@@ -1221,6 +1255,9 @@ async function computeRoute({useForm=false}={}){
    return;
   }
   await loadFeed();
+  // A direction button can be tapped while the old GTFS read is pending.
+  // Discard its stale result, then compute the newly selected route in finally.
+  if(current()?.id!==item.id)return;
   const busDir=bus260DirectionForTemplate(item);
   // Apply the existing walk / transfer safety policy to the FULL day,
   // without changing the user's saved preference for reminder windows.
@@ -1244,6 +1281,7 @@ async function computeRoute({useForm=false}={}){
    $("windowMetric").textContent="Teljes nap · 260";}
   renderResults(item);
  }catch(e){
+  if(current()?.id!==routeAtRequest)return;
   state.full260=null;
   state.result=null;state.lastNext=null;updateFlowTimes(current());$("heroTime").textContent="--:--";$("countdown").textContent="--:--";
   $("heroDetail").textContent="Nincs ellenőrzött menetrendi eredmény.";
@@ -1252,7 +1290,13 @@ async function computeRoute({useForm=false}={}){
   box.textContent="Nem jelenítek meg ellenőrizetlen indulási időpontokat.";
   $("timeline").append(box);
   $("status").textContent="⚠️ "+(e?.message||"A BKK menetrend nem érhető el.");
- }finally{state.loading=false;if(current())updateTitle(current())}
+ }finally{
+  state.loading=false;if(current())updateTitle(current());
+  if(state.recomputePending){
+   state.recomputePending=false;
+   void computeRoute();
+  }
+ }
 }
 function updatePinReminderUi(){
  const button=$("pinReminder");
@@ -1379,7 +1423,7 @@ function initEvents(){
  $("pinTemplateSelect")?.addEventListener("change",e=>{
   const id=e.target.value;
   if(!state.items.some(x=>x.id===id))return;
-  state.current=id;publishActivePin();hydrate();computeRoute();
+  chooseManualRoute(state.items.find(x=>x.id===id));
  });
  $("dayNext").addEventListener("click",()=>stepDay(1));
  $("day").addEventListener("change",()=>computeRoute());
@@ -1406,7 +1450,10 @@ async function start(){
  state.items=safeLoad();
  const params=new URLSearchParams(location.search);
  const chosen=params.get("id");
+ let savedActive=null;
+ try{savedActive=localStorage.getItem(ACTIVE_PIN_KEY)}catch(_){}
  state.current=state.items.some(x=>x.id===chosen)?chosen:
+  params.get("pinned")==="1"&&state.items.some(x=>x.id===savedActive)?savedActive:
   (state.items.find(x=>x.id===(PROFILE==="monika"?DEFAULT.id:ZS_SAMPLES[0].id))?.id||state.items[0]?.id);
  $("day").value=freshDate();
  initEvents();
