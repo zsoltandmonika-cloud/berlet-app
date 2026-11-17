@@ -150,7 +150,7 @@ function periodDays(){return sleepState.period==='30d'?30:sleepState.period==='9
 function filtered(rows){var min=Date.now()-periodDays()*86400000;return rows.filter(function(x){return Date.parse(x.endTime)>=min})}
 function heroHtml(){
  var date=document.getElementById('dateH')||document.getElementById('dateHome');
- return '<div class="hhSleepDoctorHero"><button class="hhSleepProfileHit" onclick="hhSleepToggleProfile(event)" aria-label="Egy kattintás: váltás '+esc(otherName())+' profiljára" title="Váltás '+esc(otherName())+' profiljára"></button><div class="hhSleepHeroActions"><button onclick="hhCloseSleep()" aria-label="Kezdőlap">⌂</button><button onclick="hhRenderSleep()" aria-label="Frissítés">↻</button></div><div class="hhSleepDoctorTitle"><button class="hhSleepProfileName" onclick="hhSleepToggleProfile(event)" aria-label="Váltás '+esc(otherName())+' profiljára">'+esc(pname())+'</button><h1>Sleep</h1><span>'+esc(date&&date.textContent||'')+'</span></div></div>';
+ return '<div class="hhSleepDoctorHero"><button class="hhSleepProfileHit" onclick="hhSleepToggleProfile(event)" aria-label="Egy kattintás: váltás '+esc(otherName())+' profiljára" title="Váltás '+esc(otherName())+' profiljára"></button><div class="hhSleepHeroActions"><button onclick="hhCloseSleep()" aria-label="Kezdőlap">⌂</button><button onclick="hhRefreshSleepNowV1018()" aria-label="Frissítés">↻</button></div><div class="hhSleepDoctorTitle"><button class="hhSleepProfileName" onclick="hhSleepToggleProfile(event)" aria-label="Váltás '+esc(otherName())+' profiljára">'+esc(pname())+'</button><h1>Sleep</h1><span>'+esc(date&&date.textContent||'')+'</span></div></div>';
 }
 function bottomNav(){
  return '<nav class="hhSleepNav"><button onclick="hhCloseSleep()"><span>⌂</span><b>Kezdőlap</b></button><button class="on"><span>🌙</span><b>Sleep</b></button><button onclick="hhCloseSleep();if(window.show)show(\'health\')"><span>♡</span><b>HealthRadar</b></button><button onclick="hhCloseSleep();if(window.show)show(\'timeline\')"><span>▥</span><b>Idővonal</b></button></nav>';
@@ -500,7 +500,7 @@ window.hhSleepTrendPick386=function(el){
 };
 async function render(profileOverride){
  var page=document.getElementById('hhSleepPage');if(!page)return;
- var renderId=++sleepRenderSeq,requestedProfile=profileOverride||pkey(),perfStarted=performance.now();
+ var renderId=++sleepRenderSeq,requestedProfile=profileOverride||pkey(),perfStarted=Date.now();
  page.innerHTML=heroHtml()+'<div class="surface hhSleepSurface"><div class="hhSleepTop"><div><small>HEALTH CONNECT · <span id="hhSleepSourceLabel">ALVÁS</span></small><h2>Alvás és regeneráció</h2></div><button class="hhSleepProfile" onclick="hhSleepToggleProfile(event)" aria-label="Váltás '+esc(otherName())+' profiljára">'+esc(pname())+'</button></div><div class="hhSleepCard hhSleepLoading"><div class="hhSleepSpinner"></div><b>Alvásadatok betöltése…</b><small>Health Connect adatok feldolgozása</small></div></div>'+bottomNav();
  var rows=await sleepSessions(requestedProfile);
  if(renderId!==sleepRenderSeq||pkey()!==requestedProfile)return;
@@ -552,7 +552,7 @@ async function render(profileOverride){
   sleepBuddy.setAttribute('aria-label','Buddy, tájékoztató alvásidő-jelzés: '+sleepRagDesc[sleepRag]);
   sleepBuddy.title='Az éjjeli alvásidő RAG-jelzését követi, nem orvosi minősítés.';
  }
- window.hhSleepPerfV1={totalMs:Math.round(performance.now()-perfStarted),sourceKind:window.hhSleepSourceMeta?.source||'nem ellenőrizhető',completedAt:Date.now()};
+ window.hhSleepPerfV1={totalMs:Math.max(0,Date.now()-perfStarted),sourceKind:window.hhSleepSourceMeta?.source||'nem ellenőrizhető',completedAt:Date.now()};
 }
 function ensurePage(){
  if(document.getElementById('hhSleepPage'))return;
@@ -571,6 +571,12 @@ function delegatedSleepClick(e){
 window.hhOpenSleep=function(){ensurePage();var p=document.getElementById('hhSleepPage');p.classList.add('on');p.innerHTML=heroHtml()+'<div class="surface hhSleepSurface"><div class="hhSleepTop"><div><small>HEALTH CONNECT · ALVÁS</small><h2>Alvás és regeneráció</h2></div><button class="hhSleepProfile" onclick="hhSleepToggleProfile(event)" aria-label="Váltás '+esc(otherName())+' profiljára">'+esc(pname())+'</button></div><div class="hhSleepCard hhSleepLoading"><div class="hhSleepSpinner"></div><div><b>Alvásadatok betöltése…</b><small>Health Connect adatok feldolgozása</small></div></div></div>'+bottomNav();requestAnimationFrame(function(){render().catch(function(e){console.error(e);var q=document.getElementById('hhSleepPage');if(q)q.innerHTML=heroHtml()+'<div class="surface hhSleepSurface"><div class="hhSleepEmpty big">Az alvásadatok betöltése nem sikerült. Frissítsd az oldalt, majd próbáld újra.</div></div>'})})};
 window.hhCloseSleep=function(){stopHelper();var p=document.getElementById('hhSleepPage');if(p)p.classList.remove('on')};
 window.hhRenderSleep=render;
+// The explicit ↻ action bypasses the 45-second in-tab source memo.
+window.hhRefreshSleepNowV1018=function(){
+ var source=window.HH_HEALTH_CONNECT_SOURCE_V1015;
+ if(source&&typeof source.invalidate==='function')source.invalidate(pkey());
+ return render();
+};
 window.hhSleepToggleProfile=function(e){
  if(e){e.preventDefault();e.stopPropagation();}
  sleepRenderSeq++;
