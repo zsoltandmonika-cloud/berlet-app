@@ -1,0 +1,60 @@
+/* Family Guard Smart Match micro-screen v1.
+   Strict containment inside the old logo grid cell; no sizing changes.
+   Existing 8 live indicators, hero and dock are entirely untouched. */
+html[data-hh-device-pack-live-v1056="on"]
+#guardianDevicePackLogoV1054.hh-smart-match-micro-active-v1>.fg-brand-image-v1056{
+ display:none!important;
+}
+html[data-hh-device-pack-live-v1056="on"]
+#guardianDevicePackLogoV1054.hh-smart-match-micro-active-v1{
+ min-width:0!important;min-height:0!important;
+ overflow:hidden!important;box-sizing:border-box!important;
+}
+html[data-hh-device-pack-live-v1056="on"]
+#guardianDevicePackLogoV1054 .hh-smart-match-micro-v1{
+ box-sizing:border-box!important;
+ width:100%!important;height:100%!important;
+ min-width:0!important;min-height:0!important;
+ display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;
+ align-items:center!important;gap:3px!important;
+ padding:1px 2px!important;margin:0!important;
+ overflow:hidden!important;pointer-events:none!important;
+ border-radius:4px!important;
+ background:linear-gradient(115deg,rgba(37,21,73,.92),rgba(25,23,65,.91))!important;
+ box-shadow:inset 0 0 0 1px rgba(247,186,231,.19)!important;
+ color:#f7e9fa!important;
+}
+html[data-hh-device-pack-live-v1056="on"] #guardianDevicePackLogoV1054
+.hh-smm-left-v1{
+ min-width:0!important;display:flex!important;flex-direction:column!important;
+ justify-content:center!important;gap:1px!important;overflow:hidden!important;
+}
+html[data-hh-device-pack-live-v1056="on"] #guardianDevicePackLogoV1054
+:is(.hh-smm-heading-v1,.hh-smm-route-v1,.hh-smm-note-v1){
+ display:block!important;min-width:0!important;max-width:100%!important;
+ overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important;
+ line-height:1.04!important;text-align:left!important;letter-spacing:0!important;
+}
+html[data-hh-device-pack-live-v1056="on"] #guardianDevicePackLogoV1054
+.hh-smm-heading-v1{font:800 clamp(6px,1.6vw,9px)/1.05 system-ui,sans-serif!important;color:#ffc0e5!important;letter-spacing:.045em!important}
+html[data-hh-device-pack-live-v1056="on"] #guardianDevicePackLogoV1054
+.hh-smm-route-v1{font:770 clamp(7px,1.8vw,10px)/1.08 system-ui,sans-serif!important;color:#b4eeeb!important}
+html[data-hh-device-pack-live-v1056="on"] #guardianDevicePackLogoV1054
+.hh-smm-note-v1{font:650 clamp(6px,1.4vw,8px)/1.06 system-ui,sans-serif!important;color:#d8ccf7!important}
+html[data-hh-device-pack-live-v1056="on"] #guardianDevicePackLogoV1054
+.hh-smm-time-v1{
+ flex:none!important;align-self:center!important;white-space:nowrap!important;
+ font:900 clamp(15px,4.6vw,26px)/1 system-ui,sans-serif!important;
+ font-variant-numeric:tabular-nums!important;letter-spacing:-.045em!important;
+ color:#ffe5f7!important;text-shadow:0 0 8px rgba(249,143,225,.19)!important;
+}
+html[data-hh-device-pack-live-v1056="on"][data-guardian-profile="z"]
+#guardianDevicePackLogoV1054 .hh-smm-heading-v1{color:#cae9ff!important}
+html[data-hh-device-pack-live-v1056="on"][data-guardian-profile="z"]
+#guardianDevicePackLogoV1054 .hh-smm-time-v1{color:#d6edff!important}
+@media(max-width:390px){
+ html[data-hh-device-pack-live-v1056="on"] #guardianDevicePackLogoV1054
+ .hh-smart-match-micro-v1{gap:2px!important;padding:0 1px!important}
+ html[data-hh-device-pack-live-v1056="on"] #guardianDevicePackLogoV1054
+ .hh-smm-time-v1{font-size:clamp(13px,4.2vw,19px)!important}
+}
