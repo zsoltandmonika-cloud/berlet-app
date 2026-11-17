@@ -59,7 +59,7 @@ test('Sleep renders stored stages before a slow canonical cloud, clearly marked 
  assert.ok(page,'Sleep screen was created');
  assert.match(page.innerHTML,/data-hh-sleep-source="local-preview"/);
  assert.match(page.innerHTML,/Korábbi, helyben mentett alvás/);
- assert.match(page.innerHTML,/Samsung Health/);
+ assert.match(page.innerHTML,/2 ó 0 p/,'measured stage duration is visible in local preview');
  assert.deepEqual(x.reads,['/HealthHub/profiles/monika-health-connect.json']);
  assert.deepEqual(x.writes,[],'preview never uploads any information');
  x.resolveMonika({profile:'monika',exportedAt:new Date().toISOString(),records:{sleepSessions:[row('verified-monika')],heartRate:[],oxygenSaturation:[]}});
