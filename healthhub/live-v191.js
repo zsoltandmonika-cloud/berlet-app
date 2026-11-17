@@ -172,7 +172,7 @@ async function scanLocalProfile(profile){
    });
   });
   var result=await Promise.all(reads);
-  out.imports=result[0].filter(function(x){return x.profile===profile&&x.bundle});
+  out.imports=result[0].filter(function(x){return x.profile===profile&&x.bundle&&(!x.bundle.profile||x.bundle.profile===profile)});
   out.activity=result[1].filter(function(x){return x.profile===profile});
  }catch(e){
   mode='local-unavailable';
@@ -377,8 +377,23 @@ async function render(profileOverride){
  var localPromise=readLocal(requestedProfile);
  var cloudPromise=cloudBundle(requestedProfile);
  var finalPainted=false;
- // Split validation: do not display a stale browser preview before Dropbox finishes.
- // The first Activity KPI paint is the resolved canonical source (or marked offline).
+ // Local-First V1: show previously measured profile-scoped data as a clearly
+ // marked older preview; the canonical Dropbox source always revalidates.
+ localPromise.then(function(localRows){
+  if(finalPainted||renderId!==activityRenderSeq||pkey()!==requestedProfile)return;
+  var measured=localRows.activity.some(function(x){return x&&x.date&&x.profile===requestedProfile})||
+   localRows.imports.some(function(row){
+    var rec=row?.bundle?.records;
+    return !!(row&&row.profile===requestedProfile&&rec&&
+     ((Array.isArray(rec.dailyActivity)&&rec.dailyActivity.length)||
+      (Array.isArray(rec.exerciseSessions)&&rec.exerciseSessions.length)));
+   });
+  if(!measured)return;
+  var diag=window.hhActivitySplitDiag||(window.hhActivitySplitDiag={});
+  diag.firstLocalMs=Math.round(performance.now()-renderStarted);
+  paintActivity(requestedProfile,attachCloud(localRows,null,requestedProfile),null,
+   {status:'pending',data:null,profile:requestedProfile},renderId,true);
+ }).catch(function(){});
  var sources=await Promise.all([localPromise,cloudPromise,heightPromise,samsungQuick]);
  if(renderId!==activityRenderSeq)return;
  finalPainted=true;
@@ -416,6 +431,7 @@ function paintActivity(requestedProfile,raw,profileHeight,samsungState,renderId,
  diag.renderedAt=new Date().toISOString();
  var sourceLine=source
   ?'✅ '+esc(requestedProfile==='monika'?'Mónika':'Zsolt')+' · Dropbox Health Connect · export: '+esc(fmtDate(diag.exportedAt))
+  :preview?'⏳ Korábbi, helyben mentett aktivitás · Dropbox-ellenőrzés folyamatban. Nem élő adat.'
   :'⚠️ Dropbox-export NEM igazolt. Az itt látható helyi adatok elavultak lehetnek.';
  var sourceBanner='<div class="a191MetricsHint" style="font-size:12px;line-height:1.55;padding:12px;margin:0 0 9px;border-radius:12px;background:'+
    (source?'#e5f7ed':'#ffefdf')+';color:#153e56" role="status">'+sourceLine+
