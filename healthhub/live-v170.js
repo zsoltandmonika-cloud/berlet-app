@@ -98,7 +98,10 @@ async function sleepSessions(profile){
   var v=window.HH_DROPBOX_VAULT;
   if(v&&v.connected&&v.connected()&&typeof v.downloadJson==='function'){
    var path='/HealthHub/profiles/'+profile+'-health-connect.json';
-   var raw=await v.downloadJson(path);
+   // Share the verified, profile-scoped Health Connect read with Activity.
+   var source=window.HH_HEALTH_CONNECT_SOURCE_V1015;
+   var got=source&&typeof source.read==='function'?await source.read(profile):null;
+   var raw=got?got.raw:await v.downloadJson(path);
    if(raw&&String(raw.profile||'').toLowerCase()===profile){
     addRows(raw.records&&raw.records.sleepSessions,raw.exportedAt);
     hhSelectNightVitals384(profile,raw.records,Array.from(map.values()).sort(function(a,b){return Date.parse(a.endTime)-Date.parse(b.endTime)}));
@@ -497,7 +500,7 @@ window.hhSleepTrendPick386=function(el){
 };
 async function render(profileOverride){
  var page=document.getElementById('hhSleepPage');if(!page)return;
- var renderId=++sleepRenderSeq,requestedProfile=profileOverride||pkey();
+ var renderId=++sleepRenderSeq,requestedProfile=profileOverride||pkey(),perfStarted=performance.now();
  page.innerHTML=heroHtml()+'<div class="surface hhSleepSurface"><div class="hhSleepTop"><div><small>HEALTH CONNECT · <span id="hhSleepSourceLabel">ALVÁS</span></small><h2>Alvás és regeneráció</h2></div><button class="hhSleepProfile" onclick="hhSleepToggleProfile(event)" aria-label="Váltás '+esc(otherName())+' profiljára">'+esc(pname())+'</button></div><div class="hhSleepCard hhSleepLoading"><div class="hhSleepSpinner"></div><b>Alvásadatok betöltése…</b><small>Health Connect adatok feldolgozása</small></div></div>'+bottomNav();
  var rows=await sleepSessions(requestedProfile);
  if(renderId!==sleepRenderSeq||pkey()!==requestedProfile)return;
@@ -549,6 +552,7 @@ async function render(profileOverride){
   sleepBuddy.setAttribute('aria-label','Buddy, tájékoztató alvásidő-jelzés: '+sleepRagDesc[sleepRag]);
   sleepBuddy.title='Az éjjeli alvásidő RAG-jelzését követi, nem orvosi minősítés.';
  }
+ window.hhSleepPerfV1={totalMs:Math.round(performance.now()-perfStarted),sourceKind:window.hhSleepSourceMeta?.source||'nem ellenőrizhető',completedAt:Date.now()};
 }
 function ensurePage(){
  if(document.getElementById('hhSleepPage'))return;
