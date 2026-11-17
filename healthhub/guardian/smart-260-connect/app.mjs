@@ -267,6 +267,10 @@ function chooseManualRoute(item){
   }
  }
  state.current=item.id;
+ // Built-in templates may be present only in memory on first use.
+ // Publish the current local library BEFORE announcing the active route id,
+ // so Family Guard can resolve the new direction on re-open or another tab.
+ persist();
  publishActivePin({force:true});
  try{history.replaceState(null,"",pinnedRouteUrl(isPinned()))}catch(_){}
  if(!changed){hydrate();return true}
