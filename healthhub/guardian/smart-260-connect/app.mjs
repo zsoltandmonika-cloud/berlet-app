@@ -688,7 +688,17 @@ function addDeparturePinButton(card,record){
   // and its pinned preview can show the same selected time immediately.
   location.assign("/berlet-app/healthhub/guardian/");
  });
- actions.append(btn);card.append(actions);
+ actions.append(btn);
+ // Keep the existing verification badge and the pin on the SAME horizontal
+ // row, directly beneath/alongside the departure title on narrow phones.
+ // Grouping them avoids the pin wandering to a separate card footer.
+ const top=card.querySelector(".row-top"),tag=top?.querySelector(".match-tag");
+ if(top&&tag){
+  const controls=document.createElement("div");
+  controls.className="sm-departure-pin-inline-v2";
+  controls.append(tag,actions); // Moves the original badge without cloning it.
+  top.append(controls);
+ }else card.append(actions);
 }
 function syncDeparturePinButtons(now=Date.now()){
  const focus=readDepartureFocus(PROFILE,state.current,now);
@@ -696,10 +706,13 @@ function syncDeparturePinButtons(now=Date.now()){
   const ms=Number(btn.dataset.departMs),leave=Number(btn.dataset.leaveMs);
   const selected=focus?.departMs===ms;
   const available=selected||(ms>now&&leave>=now);
-  const nextLabel=selected?"✓ Kitűzve · Feloldás":"📌 Kitűzöm";
+  const nextLabel=selected?"✓ Kitűzve":"📌 Kitűzöm";
   if(btn.textContent!==nextLabel)btn.textContent=nextLabel;
   if(btn.hidden===available)btn.hidden=!available;
   btn.setAttribute("aria-pressed",String(selected));
+  btn.setAttribute("aria-label",selected?
+   "A kitűzött járat feloldása, visszaállás az automatikus követésre":
+   "A kiválasztott menetrendi indulás kitűzése a Family Guard kijelzőire");
   btn.closest(".timeline-row")?.classList.toggle("sm-departure-focused-v1",selected);
  });
 }
