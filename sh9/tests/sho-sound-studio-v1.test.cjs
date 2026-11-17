@@ -38,7 +38,7 @@ test('original live volume is preserved at 100%; sound preference changes are pe
  assert.equal(api.volume('match'),1);
  assert.equal(api.change('match',35),true);
  assert.equal(api.change('master',70),true);
- assert.equal(api.volume('match'),.245);
+ assert.ok(Math.abs(api.volume('match')-.245)<1e-10);
  assert.equal(api.volume('notifications'),.7);
  assert.equal(api.profile(),'z');
  e.window.localStorage.setItem('hh-profile','m');
@@ -47,7 +47,7 @@ test('original live volume is preserved at 100%; sound preference changes are pe
  assert.equal(api.change('shopping',30),true);
  assert.equal(api.volume('shopping'),.3);
  e.window.localStorage.setItem('hh-profile','z');
- assert.equal(api.volume('match'),.245);
+ assert.ok(Math.abs(api.volume('match')-.245)<1e-10);
  assert.equal(api.volume('shopping'),.7);
  assert.ok(e.saved.has('sho-sound-studio-v1:z'));
  assert.ok(e.saved.has('sho-sound-studio-v1:m'));
