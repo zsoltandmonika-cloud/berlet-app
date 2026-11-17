@@ -32,6 +32,11 @@ android {
     defaultConfig {
         applicationId = "hu.zsoltmonika.healthhubbridge"
         minSdk = 26
+        // Samsung Health Data SDK 1.1.0 requires API 29. Keep standard HH One
+        // minSdk 26; raise it ONLY for the private Samsung Direct debug pilot.
+        if (hhSamsungPilotEnabled) {
+            minSdk = 29
+        }
         targetSdk = 35
         versionCode = 47
         versionName = "0.15.20"
