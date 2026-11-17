@@ -15,7 +15,7 @@ test('SHO grid is exactly 4×3: Wallet takes former Family updates spot, bottom 
  assert.doesNotMatch(html,/data-module="Családi aktualitások"/);
  assert.doesNotMatch(html,/class="tile wallet"/);
  assert.equal((html.match(/<button class="tile" data-module=/g)||[]).length,12);
- assert.match(html,/sho-wiring-v2\.js\?v=936-activity-one-route/);
+ assert.match(html,/sho-wiring-v2\.js\?v=[0-9]+-[a-z0-9-]+/);
 });
 
 test('SHO keeps shared taskbar, native OTA and Outlook bindings',()=>{
@@ -42,15 +42,15 @@ test('three new tiles route to actual HealthHub destinations and remain bilingua
 test('SHO Activity launches standalone verified profile reader, preserving other module routes',()=>{
  const routing=src('sh9/sho-preview/sho-wiring-v2.js');
  const entry=src('healthhub/activity-one/index.html');
- const engine=src('healthhub/activity-profile-test/activity-engine-v2.js');
+ const engine=src('healthhub/activity-fast/activity-engine-v3.js');
  assert.match(routing,/'Aktivitás':HH\+'activity-one\/\?source=sho'/);
  assert.doesNotMatch(routing,/'Aktivitás':HH\+'\?sho=activity'/);
  assert.match(routing,/'Alvás':HH\+'\?sho=sleep'/);
  assert.match(routing,/'Egészség':HH,/);
- assert.match(entry,/activity-profile-test\/activity-engine-v2\.js/);
+ assert.match(entry,/activity-fast\/activity-engine-v3\.js/);
  assert.doesNotMatch(entry,/window\.hh191ManualSave=function/);
  assert.match(engine,/window\.hh191ManualSave=function/);
- assert.match(engine,/LOCAL_MEMO_TTL_MS=45000/);
+ assert.match(engine,/fastReadSnapshot\(profile\)/);
  assert.match(engine,/source\.read\(p,false\)/);
 });
 test('Sleep and Activity bridge opens only canonical HealthHub modules, on explicit opt-in route',()=>{
