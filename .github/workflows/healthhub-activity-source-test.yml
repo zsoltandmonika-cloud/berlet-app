@@ -9,6 +9,10 @@ on:
       - "healthhub/tests/activity-local-first-v1014.test.cjs"
       - "healthhub/tests/activity-sync-storm-v1015.test.cjs"
       - "healthhub/live-v165.js"
+      - "healthhub/live-v170.js"
+      - "healthhub/hc-wear-history-v1150.js"
+      - "healthhub/intelligence-sleep-evidence-v651.js"
+      - "healthhub/tests/health-activity-sleep-shared-local-first-v1018.test.cjs"
       - "healthhub/live-v260.js"
       - ".github/workflows/healthhub-activity-source-test.yml"
   push:
@@ -20,6 +24,10 @@ on:
       - "healthhub/tests/activity-local-first-v1014.test.cjs"
       - "healthhub/tests/activity-sync-storm-v1015.test.cjs"
       - "healthhub/live-v165.js"
+      - "healthhub/live-v170.js"
+      - "healthhub/hc-wear-history-v1150.js"
+      - "healthhub/intelligence-sleep-evidence-v651.js"
+      - "healthhub/tests/health-activity-sleep-shared-local-first-v1018.test.cjs"
       - "healthhub/live-v260.js"
       - ".github/workflows/healthhub-activity-source-test.yml"
   workflow_dispatch:
@@ -42,3 +50,7 @@ jobs:
           node --check healthhub/live-v165.js
           node --check healthhub/live-v260.js
           node --test healthhub/tests/activity-sync-storm-v1015.test.cjs
+          node --check healthhub/live-v170.js
+          node --check healthhub/hc-wear-history-v1150.js
+          node --check healthhub/intelligence-sleep-evidence-v651.js
+          node --test healthhub/tests/health-activity-sleep-shared-local-first-v1018.test.cjs
