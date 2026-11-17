@@ -2,7 +2,7 @@
 <html lang="hu"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#091628"><title>Family Hub · Family Tasks</title>
-<link rel="stylesheet" href="./family-tasks-v880.css?v=880"><link rel="stylesheet" href="./family-tasks-v881.css?v=909-profile-quick"><link rel="stylesheet" href="./family-failed-buddy-v1.css?v=1"><link rel="stylesheet" href="./family-tasks-smart-list-link-v1.css?v=2-highlight"><link rel="stylesheet" href="./family-status-note-v882.css?v=883-dictation">
+<link rel="stylesheet" href="./family-tasks-v880.css?v=880"><link rel="stylesheet" href="./family-tasks-v881.css?v=909-profile-quick"><link rel="stylesheet" href="./family-failed-buddy-v1.css?v=1"><link rel="stylesheet" href="./family-tasks-smart-list-link-v1.css?v=2-highlight"><link rel="stylesheet" href="./family-tasks-priority-order-v1.css?v=1"><link rel="stylesheet" href="./family-status-note-v882.css?v=883-dictation">
 <link rel="stylesheet" href="/berlet-app/sh9/shared/sh9-golden-controls-v1.css?v=934-unified-glass-dock">
 <link rel="stylesheet" href="/berlet-app/sh9/shared/sh9-golden-bottom-nav-v924.css?v=924-unified">
 </head><body>
@@ -64,6 +64,7 @@
       <button type="button" id="fhCategoryManage" class="fh-category-manage">⚙ Feladatok szerkesztése</button>
       <section id="fhCategoryEditor" class="fh-category-editor glass" hidden aria-label="Közös családi feladatlista szerkesztése">
         <p>A módosítások Zsolt és Mónika közös listájába kerülnek.</p>
+        <p class="fh-preset-editor-help">▲ ▼ Sorrend · 🔴 Kiemelt · 🟠 Közepes · 🟢 Normál fontosság. A szín nem a feladat státusza.</p>
         <div id="fhPresetRows"></div>
         <div class="fh-category-create">
           <input id="fhPresetNew" maxlength="90" placeholder="Új feladat" aria-label="Új feladat a listába">
@@ -122,7 +123,7 @@
 <script src="../../healthhub/central-vault/config.js?v=785-family-live-publishable"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.2/dist/umd/supabase.min.js"></script>
 <script defer src="../../healthhub/guardian/guardian-native-auth-v1063.js?v=1063-pkce-external-browser"></script>
-<script defer src="./family-tasks-v880.js?v=1066-status-note-voice&smartList=2-direct-click"></script>
+<script defer src="./family-tasks-v880.js?v=1066-status-note-voice&smartList=2-direct-click&priorityOrder=1"></script>
 
 <script defer src="./family-notifier-v880.js?v=920-sticky-status-note"></script>
 <script defer src="/berlet-app/sh9/shared/sh9-golden-controls-v1.js?v=934-unified-glass-dock"></script>
