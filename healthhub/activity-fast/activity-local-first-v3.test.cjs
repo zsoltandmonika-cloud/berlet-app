@@ -17,7 +17,7 @@ test('production Activity One runs Local-First engine before slow network settle
  assert.match(engine,/data-hh-activity-source/);
  assert.match(engine,/Korábbi, helyben mentett aktivitás/);
  assert.match(engine,/Nincs friss Dropbox-ellenőrzés/);
- assert.match(engine,/String\(raw\.profile\|\|''\)\.toLowerCase\(\)===p/);
+ assert.match(engine,/String\(raw\.profile\|\|''\)\.toLowerCase\(\)!==p/);
  assert.match(engine,/function openDb\(\).*indexedDB\.open\(DB\)/);
  assert.doesNotMatch(engine,/indexedDB\.open\(DB,3\)/);
 });
