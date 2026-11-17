@@ -88,3 +88,39 @@ test('v917 Buddy anti-spike guard keeps notifications live and avoids fake profi
  assert.match(notice,/\.on\('postgres_changes',\{event:'\*',schema:'public',table:ACK_TABLE/);
  assert.doesNotMatch(notice,/setInterval/);
 });
+
+
+test('assigned shopping-list preparation task opens the EXISTING shared Smart List in one tap',()=>{
+ const source=read('sh9/family-hub/family-tasks-v880.js');
+ const shop=read('sh9/shopping/smart-list-v1.js');
+ const style=read('sh9/family-hub/family-tasks-smart-list-link-v1.css');
+ const start=app.indexOf('function isSmartListAssignment(t){');
+ const end=app.indexOf('function setStats(){',start);
+ assert.ok(start>=0&&end>start,'Task matching is isolated and explicit');
+ const match=new Function('self','isClosed',app.slice(start,end)+'\nreturn isSmartListAssignment;')(
+  ()=>'monika',task=>task.status==='done'||task.status==='failed'
+ );
+ const task={title:'Bevásárló lista összeállítása',assigned_profile:'monika',assigned_agent:null,status:'todo'};
+ assert.equal(match(task),true);
+ assert.equal(match({...task,title:'Bevásárlólista összeállítása'}),true);
+ assert.equal(match({...task,title:'Bevásárlási lista összeállítása'}),true);
+ assert.equal(match({...task,title:'Smart List előkészítése'}),true);
+ assert.equal(match({...task,assigned_profile:'zsolt'}),false,'Other assignee cannot get task CTA');
+ assert.equal(match({...task,assigned_agent:'lena'}),false,'AI tasks have no external task link');
+ assert.equal(match({...task,status:'done'}),false,'Completed tasks do not show CTA');
+ assert.equal(match({...task,status:'failed'}),false,'Failed tasks do not show CTA');
+ assert.equal(match({...task,title:'Bevásárlás a Tescóban'}),false,'Other shopping tasks remain normal');
+ const linkBlock=app.slice(app.indexOf("if(isSmartListAssignment(t)){"),app.indexOf("const provenance=element",app.indexOf("if(isSmartListAssignment(t)){")));
+ assert.match(linkBlock,/element\('a','fh-smart-list-task-link'/);
+ assert.match(linkBlock,/listLink\.href='\.\.\/shopping\/smart-list\.html'/);
+ assert.match(linkBlock,/card\.append\(listLink\)/);
+ assert.doesNotMatch(linkBlock,/location\.assign|fetch\(|from\(TABLE\)/);
+ const resolved=new URL('../shopping/smart-list.html','https://example.test/berlet-app/sh9/family-hub/');
+ assert.equal(resolved.pathname,'/berlet-app/sh9/shopping/smart-list.html');
+ assert.match(html,/family-tasks-smart-list-link-v1\.css\?v=1/);
+ assert.match(html,/family-tasks-v880\.js\?v=1066-status-note-voice&smartList=1/);
+ assert.match(style,/\.fh-card \.fh-smart-list-task-link/);
+ assert.match(shop,/hh_shopping_list_v1/);
+ assert.match(shop,/storageKey:'hh-guardian-family-auth-v785'/);
+ assert.match(source,/storageKey:'hh-guardian-family-auth-v785'/);
+});
