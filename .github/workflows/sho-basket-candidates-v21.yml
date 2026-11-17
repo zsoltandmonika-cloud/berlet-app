@@ -1,0 +1,42 @@
+name: SHO Basket Candidates V2.1 QA
+on:
+  pull_request:
+    paths:
+      - 'sh9/shopping/basket-matrix-v1.js'
+      - 'sh9/shopping/basket-matrix-v1.html'
+      - 'sh9/shopping/basket-candidates-v21.js'
+      - 'sh9/shopping/basket-candidates-v21.css'
+      - 'healthhub/tests/sho-basket-candidates-v21.test.cjs'
+      - 'healthhub/tests/sho-basket-match-v20.test.cjs'
+      - '.github/workflows/sho-basket-candidates-v21.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'sh9/shopping/basket-matrix-v1.js'
+      - 'sh9/shopping/basket-matrix-v1.html'
+      - 'sh9/shopping/basket-candidates-v21.js'
+      - 'sh9/shopping/basket-candidates-v21.css'
+      - 'healthhub/tests/sho-basket-candidates-v21.test.cjs'
+      - 'healthhub/tests/sho-basket-match-v20.test.cjs'
+      - '.github/workflows/sho-basket-candidates-v21.yml'
+permissions:
+  contents: read
+jobs:
+  photo-match:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Parse changed scripts
+        run: |
+          node --check sh9/shopping/basket-matrix-v1.js
+          node --check sh9/shopping/basket-candidates-v21.js
+      - name: Product photo matching, sources, rate limits and mobile UX
+        run: node --test healthhub/tests/sho-basket-candidates-v21.test.cjs
+      - name: Preserve Basket Match V2.0 direct store search and family security
+        run: node --test healthhub/tests/sho-basket-match-v20.test.cjs
+      - name: Preserve Golden entry and 3-store merchant URL semantics
+        run: node --test healthhub/tests/sho-three-store-bridge-v2.test.cjs

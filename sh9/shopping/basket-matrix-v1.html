@@ -1,6 +1,6 @@
 <!doctype html><html lang="hu"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#1c142c">
-<title>SHO · Full Basket Match</title>
+<title>SHO · Kosár Match V2.1</title>
 <link rel="icon" type="image/svg+xml" href="../sho-preview/favicon.svg">
 <style>
 :root{color-scheme:dark;color:#fff1fb;font:14px/1.42 system-ui,-apple-system,"Segoe UI",sans-serif;--sho-pink:#dda4cf;--sho-blue:#a8bce7;--sho-sage:#a5d8c6}
@@ -57,10 +57,10 @@ h2{font-size:16px;margin:0 0 9px}
 [hidden]{display:none!important}button:focus-visible,a:focus-visible,summary:focus-visible{outline:2px solid #f0bee5;outline-offset:2px}
 @media(max-width:360px){.count strong{font-size:20px}.count small{font-size:9px}.shop-main{gap:5px;padding:8px}.shop-main .shop-cta{min-width:64px;padding:6px}.shop a.saved{min-width:64px;margin-right:6px;padding:6px}.product summary>.product-icon{width:44px;height:44px;min-width:44px;max-width:44px;flex-basis:44px;font-size:26px}.shop-logo,.shop-logo-fallback{width:52px;height:52px;min-width:52px;max-width:52px;flex-basis:52px}.product summary .match-hit-badge{font-size:9px;padding:4px 6px}}
 @media(prefers-reduced-motion:reduce){.product summary::before{transition:none}}
-</style><link rel="stylesheet" href="./basket-match-v20.css?v=1"></head><body><main>
+</style><link rel="stylesheet" href="./basket-match-v20.css?v=1"><link rel="stylesheet" href="./basket-candidates-v21.css?v=1"></head><body><main>
 <nav><a href="./">‹ Shopping</a><strong style="font-size:11px">SHO · BASKET INTELLIGENCE</strong><a href="./store-manager-v1.html">⚙ Boltok</a></nav>
 <div class="status" id="syncStatus" role="alert" aria-live="assertive" hidden></div>
-<section class="panel"><h2>⚡ Kosár Match · Tesco + Auchan</h2><p class="hint">A teljes közös Smart List aktív termékei, két hivatalos bolti kereséssel. Nincs felesleges előkészítő kattintás.</p><div class="basket-modes" role="group" aria-label="Áruházak kiválasztása"><button type="button" class="basket-mode-active" id="focusDuo" aria-pressed="true">🛒 Tesco + Auchan</button><button type="button" id="focusAll" aria-pressed="false">Összes bolt</button></div><p id="basketModeCaption" class="basket-mode-caption">Tesco és Auchan · két közvetlen bolti keresés.</p><div class="counts" aria-label="Kosár áttekintése"><div class="count"><strong id="productsCount">…</strong><small>Termék</small></div><div class="count"><strong id="storesCount">…</strong><small>Aktív bolt</small></div><div class="count"><strong id="routesCount">…</strong><small>Lehetséges keresés</small></div></div><div class="basket-price-status" role="note"><strong>Árösszehasonlítás: még nem aktív</strong><small>Nincs összekötött, ellenőrzött Tesco/Auchan ár- és készletadatforrás. A bolti kereséseket megnyithatod, de nem mutatunk kitalált árat, legolcsóbb ajánlatot vagy kosárösszeget.</small></div><div class="results" id="results"></div></section>
+<section class="panel"><h2>⚡ Kosár Match · Tesco + Auchan</h2><p class="hint">A közös Smart List aktív tételei, közvetlen bolti kereséssel. Termékenként külön megnyithatók a valódi, vonalkódos képes katalógusjelöltek.</p><div class="basket-modes" role="group" aria-label="Áruházak kiválasztása"><button type="button" class="basket-mode-active" id="focusDuo" aria-pressed="true">🛒 Tesco + Auchan</button><button type="button" id="focusAll" aria-pressed="false">Összes bolt</button></div><p id="basketModeCaption" class="basket-mode-caption">Tesco és Auchan · két közvetlen bolti keresés.</p><div class="counts" aria-label="Kosár áttekintése"><div class="count"><strong id="productsCount">…</strong><small>Termék</small></div><div class="count"><strong id="storesCount">…</strong><small>Aktív bolt</small></div><div class="count"><strong id="routesCount">…</strong><small>Lehetséges keresés</small></div></div><div class="basket-price-status" role="note"><strong>Árösszehasonlítás: még nem aktív</strong><small>A képes termékadatok az Open Food Facts katalógusból származnak (ODbL; fotók CC BY-SA), nem a Tesco/Auchan kínálatából. Nincs összekötött, ellenőrzött Tesco/Auchan ár- és készletadatforrás; a bolti találatokat külön ellenőrizd.</small></div><div class="results" id="results"></div></section>
 <p class="footer-note">📱 Helyi IndexedDB-másolatból offline is előkészíthetők a már tárolt termékek keresési hivatkozásai, de az áruházi találatok internet nélkül nem nyílnak meg. ☁️ A Supabase a hiteles lista. A bolti kosár és az aktuális árak csak az áruház saját oldalán érhetők el, amíg nincs ellenőrzött integráció.</p>
 </main>
 <script defer src="../../healthhub/central-vault/config.js"></script>
@@ -69,7 +69,9 @@ h2{font-size:16px;margin:0 0 9px}
 <script defer src="./shopping-local-v1.js?v=1"></script>
 <script defer src="./merchant-search-v1.js?v=1"></script>
 <script defer src="./three-store-links-v2.js?v=2-results"></script>
+<script defer src="./product-match-core-v21.js?v=1"></script>
 <script defer src="./merchant-brand-icons-v1.js?v=2"></script>
 <script defer src="./smart-list-icons-shared-v1.js?v=1"></script>
-<script defer src="./basket-matrix-v1.js?v=20-tesco-auchan"></script>
+<script defer src="./basket-matrix-v1.js?v=21-photo-candidates"></script>
+<script defer src="./basket-candidates-v21.js?v=1"></script>
 </body></html>

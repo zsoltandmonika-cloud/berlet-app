@@ -183,7 +183,23 @@ function render(){
     row.append(direct);
    }
   }
-  detail.append(list);box.append(detail);
+  // On demand only: the shared OFF metadata endpoint is rate-limited and
+  // cannot responsibly be queried for every item on a 100+ product list.
+  // No page-layout change to the already working Tesco/Auchan direct links.
+  const candidateZone=node('section','basket-candidate-zone');
+  const candidateButton=node('button','basket-candidate-show','📸 Képes termékjelöltek');
+  candidateButton.type='button';
+  candidateButton.title='Vonalkódos Open Food Facts termékjelöltek, nem bolti ajánlatok';
+  const candidateStatus=node('p','basket-candidate-status');
+  candidateStatus.hidden=true;candidateStatus.setAttribute('role','status');
+  const candidateCards=node('div','basket-candidate-grid');
+  candidateButton.onclick=()=>{
+   const service=w.SHOP_BASKET_CANDIDATES_V21;
+   if(service?.show)void service.show(item,{button:candidateButton,status:candidateStatus,cards:candidateCards});
+   else{candidateStatus.hidden=false;candidateStatus.textContent='A képes katalógus nem töltődött be. A bolti keresőgombok továbbra is működnek.'}
+  };
+  candidateZone.append(candidateButton,candidateStatus,candidateCards);
+  detail.append(list,candidateZone);box.append(detail);
  }
  if(items.length>visible){const more=node('button','more','＋ További '+Math.min(50,items.length-visible)+' termék');more.type='button';more.onclick=()=>{visible+=50;render()};box.append(more)}
 }

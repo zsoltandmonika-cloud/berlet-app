@@ -83,7 +83,7 @@ test('Golden home keeps its one Basket Match shortcut; V2.0 changes only Basket 
  assert.match(html,/id="focusDuo"/);assert.match(html,/id="focusAll"/);
  assert.match(html,/basket-match-v20.css/);
  assert.match(html,/three-store-links-v2.js/);
- assert.match(html,/basket-matrix-v1.js\?v=20-tesco-auchan/);
+ assert.match(html,/basket-matrix-v1.js\?v=21-photo-candidates/);
  assert.match(css,/grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
  assert.match(css,/min-height:44px/);
  assert.match(html,/Árösszehasonlítás: még nem aktív/);
