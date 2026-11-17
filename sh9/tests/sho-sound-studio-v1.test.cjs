@@ -103,7 +103,7 @@ test('real module sounds are connected and shared preferences are loaded first',
   assert.ok(i>=0&&j>i,'Sound preferences MUST load before '+name);
  }
  const admin=read('healthhub/hh-unified-admin-v745.js'),main=read('healthhub/index.html');
- assert.ok(main.indexOf('sho-sound-settings-v1.js?v=1')<main.indexOf('hh-unified-admin-v745.js?v=748-sound-studio'));
+ assert.ok(main.indexOf('sho-sound-settings-v1.js?v=1')<main.indexOf('hh-unified-admin-v745.js?v=747-sh9-version-center&admin=748&steady=821&sound=1'));
  assert.ok(admin.includes('soundStudio(root)'));
  assert.ok(admin.includes("if(el.id==='hhSoundStudioV1')return 'sound'"));
  assert.ok(admin.includes("slider('match'")&&admin.includes("slider('shopping'")&&admin.includes("slider('notifications'"));
