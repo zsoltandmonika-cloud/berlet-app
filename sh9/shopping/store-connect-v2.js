@@ -246,7 +246,7 @@ $("shoStoreConnect")?.querySelector("[data-sho-connect-refresh]")?.addEventListe
 // No hidden browser scraping, no guessing a product/price, no extra request.
 $("shoThreeStoreV2")?.addEventListener("click",function(){
  const q=String($("searchInput")?.value||"").trim().replace(/\s+/g," ").slice(0,140);
- this.href="./three-store-bridge-v2.html"+(q.length>=2?"?q="+encodeURIComponent(q):"");
+ this.href="./three-store-bridge-v2.html?v=2-results"+(q.length>=2?"&q="+encodeURIComponent(q):"");
 });
 window.SHOP_CONNECTORS_V2=Object.freeze({search,selectCategory,getStores:()=>MERCHANTS.map(x=>({...x}))});
 const registry=window.SHOP_STORE_REGISTRY_V1;
