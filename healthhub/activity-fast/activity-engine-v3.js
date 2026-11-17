@@ -38,7 +38,7 @@ async function fastSaveSnapshot(profile,raw){
  if(!Number.isFinite(stamp)||stamp>now+300000||stamp<now-45*86400000)return false;
  var records=raw.records,lower=now-375*86400000;
  var daily=(Array.isArray(records.dailyActivity)?records.dailyActivity:[])
-  .filter(function(x){return x&&/^\\d{4}-\\d{2}-\\d{2}$/.test(x.date||'')&&Date.parse(x.date+'T12:00:00Z')>=lower})
+  .filter(function(x){return x&&/^\d{4}-\d{2}-\d{2}$/.test(x.date||'')&&Date.parse(x.date+'T12:00:00Z')>=lower})
   .sort(function(a,b){return a.date.localeCompare(b.date)}).slice(-375);
  var exercises=(Array.isArray(records.exerciseSessions)?records.exerciseSessions:[])
   .filter(function(x){return x&&Number.isFinite(Date.parse(x.endTime||x.startTime))&&Date.parse(x.endTime||x.startTime)>=lower})
