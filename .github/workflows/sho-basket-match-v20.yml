@@ -1,0 +1,36 @@
+name: SHO Basket Match V2.0 QA
+on:
+  pull_request:
+    paths:
+      - 'sh9/shopping/basket-matrix-v1.js'
+      - 'sh9/shopping/basket-matrix-v1.html'
+      - 'sh9/shopping/basket-match-v20.css'
+      - 'healthhub/tests/sho-basket-match-v20.test.cjs'
+      - '.github/workflows/sho-basket-match-v20.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'sh9/shopping/basket-matrix-v1.js'
+      - 'sh9/shopping/basket-matrix-v1.html'
+      - 'sh9/shopping/basket-match-v20.css'
+      - 'healthhub/tests/sho-basket-match-v20.test.cjs'
+      - '.github/workflows/sho-basket-match-v20.yml'
+permissions:
+  contents: read
+jobs:
+  full-basket-match:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate Basket Match scripts
+        run: |
+          node --check sh9/shopping/basket-matrix-v1.js
+          node --check sh9/shopping/three-store-links-v2.js
+      - name: Test active-only full Smart List, Tesco/Auchan first and offline fallback
+        run: node --test healthhub/tests/sho-basket-match-v20.test.cjs
+      - name: Regression test verified merchant search links and Golden entry
+        run: node --test healthhub/tests/sho-three-store-bridge-v2.test.cjs

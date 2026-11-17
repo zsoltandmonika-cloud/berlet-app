@@ -3,8 +3,8 @@
    No live merchant price, result-count API, automatic order, or guessed SKU. */
 (function(w,d){'use strict';
 const FAMILY='zsolt-monika',LIST='hh_shopping_list_v1',LINKS='hh_shopping_merchant_links_v1',TESCO='hh_shopping_tesco_bridge_v1';
-const reg=w.SHOP_STORE_REGISTRY_V1,cache=w.SHOP_LOCAL_FIRST_V1,search=w.SHOP_MERCHANT_SEARCH_V1,icons=w.SHOP_SMART_LIST_ICONS_V1,$=id=>d.getElementById(id);
-let shops=reg?.current().filter(s=>s.enabled)||[],items=[],links=[],tesco=[],authenticated=false,userId='',source='loading',lastCache='',visible=50;
+const reg=w.SHOP_STORE_REGISTRY_V1,cache=w.SHOP_LOCAL_FIRST_V1,search=w.SHOP_MERCHANT_SEARCH_V1,preferred=w.SHOP_THREE_STORE_LINKS_V2,icons=w.SHOP_SMART_LIST_ICONS_V1,$=id=>d.getElementById(id);
+let shops=reg?.current().filter(s=>s.enabled)||[],items=[],links=[],tesco=[],authenticated=false,userId='',source='loading',lastCache='',visible=24,mode='duo';
 let merchantIndex=new Map(),tescoIndex=new Map();
 function indexLinks(){
  merchantIndex=new Map(links.map(x=>[x.store_key+':'+x.source+':'+x.item_key,x.product_url]));
@@ -50,7 +50,7 @@ function merchantLogo(shop){
 // A merchant can sell items from outside its primary catalog category.
  // Without verified per-shop search results, a category must NEVER hide a merchant.
  // The only filter here is the user's explicit enabled/disabled store setting.
-function eligible(item){return shops}
+function eligible(item){return mode==='all'?shops:shops.filter(shop=>shop.key==='tesco'||shop.key==='auchan')}
 function exact(link,shop){
  if(!link)return '';
  try{const url=new URL(String(link));
@@ -66,7 +66,7 @@ function saved(item,shop){
 function routes(){return items.reduce((sum,item)=>sum+eligible(item).length,0)}
 function counters(){
  $('productsCount').textContent=items.length;
- $('storesCount').textContent=shops.length;
+ $('storesCount').textContent=eligible().length;
  $('routesCount').textContent=routes();
  render();
 }
@@ -83,10 +83,12 @@ async function getClient(){
  if(acl.error||!(acl.data||[]).some(x=>x.profile_key==='zsolt'||x.profile_key==='monika'))throw Error('Nincs családi hozzáférési jogosultság.');
  return {db,user};
 }
-async function fetchEvery(db,table,cols){
+async function fetchEvery(db,table,cols,activeOnly=false){
  const result=[],size=250;
  for(let offset=0;offset<10000;offset+=size){
-  const r=await db.from(table).select(cols).eq('household',FAMILY).order('created_at',{ascending:false}).range(offset,offset+size-1);
+  let q=db.from(table).select(cols).eq('household',FAMILY);
+  if(activeOnly)q=q.eq('done',false);
+  const r=await q.order('created_at',{ascending:false}).range(offset,offset+size-1);
   if(r.error)throw r.error;
   const batch=r.data||[];result.push(...batch);if(batch.length<size)return result;
  }
@@ -97,7 +99,7 @@ async function localRead(uid){
  try{
   const result=await Promise.all([cache.read(uid,'list'),cache.read(uid,'links:all'),cache.read(uid,'links:tesco')]);
   const [a,b,c]=result;
-  if(Array.isArray(a?.rows)){items=a.rows.filter(x=>x&&x.id&&x.name);source='cached';lastCache=a.syncedAt||''}
+  if(Array.isArray(a?.rows)){items=a.rows.filter(x=>x&&x.id&&x.name&&x.done!==true);source='cached';lastCache=a.syncedAt||''}
   if(Array.isArray(b?.rows))links=b.rows;
   if(Array.isArray(c?.rows))tesco=c.rows;
   indexLinks();
@@ -114,8 +116,8 @@ async function refresh(){
   await localRead(userId);
   const storePromise=reg.sync().then(x=>{shops=x.filter(s=>s.enabled);counters()}).catch(()=>{});
   try{
-   const list=await fetchEvery(db,LIST,'id,name,quantity,unit,category,image_url,created_at');
-   items=list;source='ready';if(cache)void cache.write(userId,'list',{rows:list});
+   const list=await fetchEvery(db,LIST,'id,name,quantity,unit,category,image_url,created_at',true);
+   items=list.filter(x=>x&&x.id&&x.name&&x.done!==true);source='ready';if(cache)void cache.write(userId,'list',{rows:list});
    msg('☁️ Közös Smart List szinkronizálva · '+items.length+' aktív termék.');
   }catch(e){
    if(source==='cached')msg('⚠️ Helyi kosármásolatot használunk. Nincs új szinkron: '+String(e.message||e).slice(0,90));
@@ -138,13 +140,20 @@ async function refresh(){
 }
 function render(){
  const box=$('results');box.replaceChildren();
+ if(!items.length){
+  box.append(node('p','basket-empty',source==='loading'?'A közös Smart List betöltése…':
+   source==='cached'?'A helyi másolatban nincs aktív bevásárolandó termék.':
+   'A közös bevásárlólistában nincs aktív tétel. A megvásárolt termékek nem kerülnek a Kosár Matchbe.'));
+  return;
+ }
  for(const item of items.slice(0,visible)){
   const active=eligible(item).filter(shop=>verifiedCount(item,shop)!==0);
   const counts=active.map(shop=>verifiedCount(item,shop));
   const known=counts.every(n=>n!==null),total=known?counts.reduce((sum,n)=>sum+n,0):null;
   const detail=node('details','product'),summary=node('summary'),heading=node('span');
-  heading.append(node('strong',null,item.name),node('small',null,(item.quantity||1)+' '+(item.unit||'db')+' · '+active.length+' áruház'));
-  const badge=node('b','match-hit-badge',total===null?'– találat':total.toLocaleString('hu-HU')+' találat');
+  detail.open=mode==='duo';
+  heading.append(node('strong',null,item.name),node('small',null,(item.quantity||1)+' '+(item.unit||'db')+' · '+active.length+' bolti keresés'));
+  const badge=node('b','match-hit-badge',total===null?'Keresés ↗':total.toLocaleString('hu-HU')+' ellenőrzött találat');
   if(total===null)badge.title='A boltok még nem adnak hiteles találatszámot. A keresési linkek működnek.';
   summary.append(visual(item),heading,badge);
   detail.append(summary);
@@ -156,14 +165,14 @@ function render(){
    // Make the entire retailer surface a real, keyboard-accessible link.
    // The saved SKU shortcut remains a separate sibling link, never a nested anchor.
    const action=node('a','shop-main');
-   action.href=search.url(shop.key,shop,item.name);
+   action.href=(shop.key==='tesco'||shop.key==='auchan')&&preferred?.destination?.(shop.key,item.name)||search.url(shop.key,shop,item.name);
    action.rel='noopener noreferrer external';action.target='_blank';
    action.title=shop.name+' · a termék keresési találatainak megnyitása';
    action.setAttribute('aria-label',shop.name+' · '+item.name+' keresési találatok megnyitása');
    const logo=merchantLogo(shop);
    if(logo)action.append(logo);
-   const cta=node('span','shop-cta'+(count===null?'':' count-known'),count===null?'🔎 – találat':'🔎 '+count.toLocaleString('hu-HU')+' találat');
-   if(count===null)cta.title='Az áruház élő találatszáma még nem érhető el. Koppints a bolti kereséshez.';
+   const cta=node('span','shop-cta'+(count===null?'':' count-known'),count===null?'🔎 Keresés':'🔎 '+count.toLocaleString('hu-HU')+' találat');
+   if(count===null)cta.title='Hivatalos bolti keresés; a termék, a kiszerelés és az ár a webshopban ellenőrizendő.';
    action.append(label,cta);
    row.append(action);list.append(row);
    const existing=saved(item,shop);
@@ -178,7 +187,23 @@ function render(){
  }
  if(items.length>visible){const more=node('button','more','＋ További '+Math.min(50,items.length-visible)+' termék');more.type='button';more.onclick=()=>{visible+=50;render()};box.append(more)}
 }
+function setMode(next){
+ mode=next==='all'?'all':'duo';
+ visible=24;
+ const duo=$('focusDuo'),all=$('focusAll');
+ duo?.setAttribute('aria-pressed',String(mode==='duo'));
+ all?.setAttribute('aria-pressed',String(mode==='all'));
+ duo?.classList.toggle('basket-mode-active',mode==='duo');
+ all?.classList.toggle('basket-mode-active',mode==='all');
+ const hint=$('basketModeCaption');
+ if(hint)hint.textContent=mode==='duo'?
+  'Tesco és Auchan · egy termék, két közvetlen bolti keresés. Mindkettő elsőre látható.':
+  'Minden engedélyezett bolt · a termékeket nyisd meg a többi áruház keresőjéhez.';
+ counters();
+}
+$('focusDuo')?.addEventListener('click',()=>setMode('duo'));
+$('focusAll')?.addEventListener('click',()=>setMode('all'));
 // The matrix is the result screen; opening it is already the user action.
-// No redundant second prepare click, and no extra network request.
-void refresh();
+// Neither storefront price feeds nor auto-cart APIs are connected.
+setMode('duo');void refresh();
 })(window,document);
