@@ -1,38 +1,40 @@
-/* Golden Shopping 12-store screen: 3 quick actions occupy exactly
- * the previous single action row, no new section and no change to cards.
+/* Shopping Golden V2.3 · single full-width Basket Match shortcut.
+ * The user-approved 12-store grid, hero and 6 categories remain untouched.
+ * Keep the original action row height so all store cards still fit.
  */
 .shop-connect.store-screen .sho-actions{
  display:grid!important;
- grid-template-columns:repeat(3,minmax(0,1fr))!important;
+ grid-template-columns:minmax(0,1fr)!important;
  align-items:stretch!important;
- column-gap:6px!important;
+ column-gap:0!important;
+ margin:5px 0 3px!important;
  min-width:0!important;
 }
-.shop-connect.store-screen .sho-actions button,
-.shop-connect.store-screen .sho-actions .sho-basket-matrix,
-.shop-connect.store-screen .sho-actions .sho-three-store-v2{
- display:flex!important;align-items:center!important;justify-content:center!important;
- width:100%!important;min-width:0!important;min-height:34px!important;
- height:34px!important;padding:4px 4px!important;
- border-radius:11px!important;
- font:850 clamp(9px,2.6vw,10px)/1.15 system-ui,sans-serif!important;
- white-space:normal!important;overflow-wrap:normal!important;
- text-align:center!important;
+.shop-connect.store-screen .sho-actions .sho-basket-matrix{
+ display:flex!important;
+ align-items:center!important;
+ justify-content:center!important;
+ width:100%!important;
+ min-width:0!important;
+ min-height:34px!important;
+ height:34px!important;
+ padding:5px 12px!important;
  box-sizing:border-box!important;
-}
-.shop-connect.store-screen .sho-actions .sho-three-store-v2{
- color:#fff3ff!important;
- background:linear-gradient(112deg,rgba(36,113,115,.91),rgba(77,55,124,.91))!important;
- border:1px solid rgba(150,235,215,.83)!important;
- box-shadow:inset 0 1px rgba(255,255,255,.19),0 0 12px rgba(73,193,179,.12)!important;
+ border:1px solid #ffb4e5!important;
+ border-radius:11px!important;
+ background:linear-gradient(115deg,#e63c9b,#9a3fd1)!important;
+ box-shadow:inset 0 1px rgba(255,255,255,.20)!important;
+ font:850 12px/1.15 system-ui,sans-serif!important;
+ color:#fff!important;
+ white-space:nowrap!important;
+ text-align:center!important;
  text-decoration:none!important;
 }
-.shop-connect.store-screen .sho-actions .sho-three-store-v2:focus-visible{
- outline:2px solid #a0f6d7;outline-offset:2px;
+.shop-connect.store-screen .sho-actions .sho-basket-matrix:hover,
+.shop-connect.store-screen .sho-actions .sho-basket-matrix:active{
+ filter:brightness(1.08);
 }
-@media(max-width:355px){
- .shop-connect.store-screen .sho-actions{column-gap:4px!important}
- .shop-connect.store-screen .sho-actions button,
- .shop-connect.store-screen .sho-actions .sho-basket-matrix,
- .shop-connect.store-screen .sho-actions .sho-three-store-v2{font-size:9px!important;padding:3px 2px!important}
+.shop-connect.store-screen .sho-actions .sho-basket-matrix:focus-visible{
+ outline:2px solid #9eeaff;
+ outline-offset:2px;
 }

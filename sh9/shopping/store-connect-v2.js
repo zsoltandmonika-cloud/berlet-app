@@ -241,13 +241,9 @@ $("shoProducts")?.addEventListener("click",e=>{
  if(!api||typeof api.addCatalogProduct!=="function"){feedback("A kosárkapcsolat még nem töltődött be.");return}
  if(api.addCatalogProduct(p)){button.textContent="✓ Kosárba mentve";try{navigator.vibrate?.(8)}catch(_){}}
 });
-$("shoStoreConnect")?.querySelector("[data-sho-connect-refresh]")?.addEventListener("click",()=>search($("searchInput")?.value||""));
-// Full 3-store handoff: copy an EXPLICIT user-entered query only.
-// No hidden browser scraping, no guessing a product/price, no extra request.
-$("shoThreeStoreV2")?.addEventListener("click",function(){
- const q=String($("searchInput")?.value||"").trim().replace(/\s+/g," ").slice(0,140);
- this.href="./three-store-bridge-v2.html?v=2-results"+(q.length>=2?"&q="+encodeURIComponent(q):"");
-});
+// Golden Shopping has one full-width Basket Match shortcut. The hero
+// search still calls SHOP_CONNECTORS_V2.search; store Smart Shopping CTAs
+// remain native and untouched. No redundant action handlers are registered.
 window.SHOP_CONNECTORS_V2=Object.freeze({search,selectCategory,getStores:()=>MERCHANTS.map(x=>({...x}))});
 const registry=window.SHOP_STORE_REGISTRY_V1;
 function installRegistry(stores){

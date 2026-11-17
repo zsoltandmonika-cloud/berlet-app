@@ -43,19 +43,26 @@ test('SPAR actually transfers the query to a clearly labeled Wolt-only external 
  assert.match(app,/merchant-venue/);
  assert.doesNotMatch(app,/wolt\.com[^'"]*\?q=|spar\.hu\/onlineshop/);
 });
-test('Golden home still has exactly one fixed-height action row, 12-store grid and existing connections',()=>{
+test('Golden home has a single full-width Basket Match shortcut; other working shop links and search remain',()=>{
  assert.match(home,/id="shoStoreGrid"/);
- assert.match(home,/id="shoThreeStoreV2"/);
- assert.match(home,/three-store-bridge-v2\.html/);
- assert.match(home,/basket-matrix-v1\.html/);
- assert.match(home,/data-sho-connect-refresh/);
- assert.match(home,/three-store-entry-v2\.css\?v=1/);
- assert.match(home,/threeStore=1/);
- assert.match(entry,/grid-template-columns:repeat\(3,minmax\(0,1fr\)\)/);
+ assert.match(home,/basket-matrix-v1\.html\?golden=merchant-icons-44-v1/);
+ assert.match(home,/three-store-entry-v2\.css\?v=single-basket-action-20261117/);
+ assert.match(entry,/grid-template-columns:minmax\(0,1fr\)!important/);
+ assert.match(entry,/width:100%!important/);
  assert.match(entry,/height:34px!important/);
  assert.doesNotMatch(entry,/\.sho-store-grid\s*\{/);
- assert.match(controller,/shoThreeStoreV2/);
- assert.match(controller,/encodeURIComponent\(q\)/);
+ const actions=home.match(/<div class="sho-actions">([\s\S]*?)<\/div>/);
+ assert.ok(actions);
+ assert.equal((actions[1].match(/<a\b/g)||[]).length,1);
+ assert.equal((actions[1].match(/<button\b/g)||[]).length,0);
+ assert.match(actions[1],/⚡ Kosár match/);
+ assert.doesNotMatch(home,/id="shoThreeStoreV2"|data-sho-connect-refresh/);
+ assert.doesNotMatch(controller,/shoThreeStoreV2|data-sho-connect-refresh/);
+ // Keep the existing standalone bridge and the catalog/hero search engine.
+ assert.match(app,/SHOP_THREE_STORE_BRIDGE_V2/);
+ assert.match(controller,/window\.SHOP_CONNECTORS_V2=Object\.freeze/);
+ assert.match(controller,/sho-store-open sho-store-smart/);
+ assert.match(home,/id="searchForm"/);
  assert.match(home,/id="shoCatalogSort"/);
 });
 class Node {
