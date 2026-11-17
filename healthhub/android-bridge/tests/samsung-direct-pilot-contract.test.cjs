@@ -10,12 +10,15 @@ test('production Android never compiles proprietary Samsung sources without an e
  assert.match(build,/hhSamsungPilotRequested && hhSamsungPilotAar\.isFile/);
  assert.match(build,/if \(hhSamsungPilotEnabled\) \{\s*sourceSets\.getByName\("main"\)\.java\.srcDir/);
  assert.match(build,/buildConfigField\("boolean", "HH_SAMSUNG_DIRECT_PILOT", hhSamsungPilotEnabled\.toString\(\)\)/);
+ assert.match(build,/applicationIdSuffix = "\.samsungpilot"/);
  assert.match(main,/if \(BuildConfig\.HH_SAMSUNG_DIRECT_PILOT\) \{/);
  assert.doesNotMatch(build,/implementation\("com\.samsung/);
 });
 test('Samsung direct requires separate explicit read permission and uses real SDK Duration',()=>{
  assert.match(sdk,/Permission\.of\(DataTypes\.ACTIVITY_SUMMARY, AccessType\.READ\)/);
  assert.match(sdk,/getGrantedPermissions\(required\)/);
+ assert.doesNotMatch(sdk,/getGrantedPermissions\(required\)\.grantedPermissions/);
+ assert.match(sdk,/val granted = store\.requestPermissions\(required, activity\)/);
  assert.match(sdk,/requestPermissions\(required, activity\)/);
  assert.match(sdk,/DataType\.ActivitySummaryType\.TOTAL_ACTIVE_TIME\.requestBuilder/);
  assert.match(sdk,/val measured: Duration\? = store\.aggregateData\(request\)\.dataList\.firstOrNull\(\)\?\.value/);
@@ -33,4 +36,13 @@ test('pilot cannot cross profiles, overwrite Health Connect, or fire without the
  assert.doesNotMatch(sdk,/PeriodicWorkRequest|WorkManager|SYNC NOW/);
  assert.match(web,/dailySummary/);
  assert.match(web,/activeMinutes/);
+});
+
+test('Windows SDK builder only ingests local official ZIP/AAR and never overwrites production package',()=>{
+ const script=read('scripts/build-samsung-pilot-windows.ps1');
+ assert.match(script,/samsung-health-data-api\.aar/);
+ assert.match(script,/Expand-Archive/);
+ assert.match(script,/hhSamsungDirectPilot=true/);
+ assert.match(script,/hu\.zsoltmonika\.healthhubbridge\.samsungpilot/);
+ assert.doesNotMatch(script,/(?:Invoke-WebRequest|curl|wget|git push|upload-artifact)/i);
 });
