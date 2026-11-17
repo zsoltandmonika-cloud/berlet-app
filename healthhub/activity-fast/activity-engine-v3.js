@@ -31,32 +31,46 @@ async function fastReadSnapshot(profile){
  }finally{db.close()}
 }
 async function fastSaveSnapshot(profile,raw){
- if(!raw||raw.profile!==profile||!raw.records)return;
- var records=raw.records;
- var safe={profile:profile,exportedAt:raw.exportedAt||'',schemaVersion:raw.schemaVersion||'',
-   records:{dailyActivity:Array.isArray(records.dailyActivity)?records.dailyActivity:[],
-            exerciseSessions:Array.isArray(records.exerciseSessions)?records.exerciseSessions:[],
-            heartRate:Array.isArray(records.heartRate)?records.heartRate:[]}};
- // Never store an empty snapshot over an existing measured one.
- if(!safe.records.dailyActivity.length&&!safe.records.exerciseSessions.length)return;
+ // Only an authenticated, matching verified Dropbox payload can seed this
+ // device cache. This is display-only and never uploaded or mixed with Sleep.
+ if(!['monika','zsolt'].includes(profile)||!raw||raw.profile!==profile||!raw.records)return false;
+ var stamp=Date.parse(raw.exportedAt||''),now=Date.now();
+ if(!Number.isFinite(stamp)||stamp>now+300000||stamp<now-45*86400000)return false;
+ var records=raw.records,lower=now-375*86400000;
+ var daily=(Array.isArray(records.dailyActivity)?records.dailyActivity:[])
+  .filter(function(x){return x&&/^\\d{4}-\\d{2}-\\d{2}$/.test(x.date||'')&&Date.parse(x.date+'T12:00:00Z')>=lower})
+  .sort(function(a,b){return a.date.localeCompare(b.date)}).slice(-375);
+ var exercises=(Array.isArray(records.exerciseSessions)?records.exerciseSessions:[])
+  .filter(function(x){return x&&Number.isFinite(Date.parse(x.endTime||x.startTime))&&Date.parse(x.endTime||x.startTime)>=lower})
+  .sort(function(a,b){return Date.parse(a.endTime||a.startTime)-Date.parse(b.endTime||b.startTime)}).slice(-500);
+ if(!daily.length&&!exercises.length)return false;
+ // Restrict persisted payload to Activity only. Heart-rate samples, Sleep,
+ // medical records, identifiers, tokens and raw full exports are not copied.
+ var safe={profile:profile,exportedAt:raw.exportedAt,schemaVersion:raw.schemaVersion||'',
+  records:{dailyActivity:daily,exerciseSessions:exercises,heartRate:[]}};
+ if(JSON.stringify(safe).length>750000)return false;
  var db=await fastDb();try{
-  await new Promise(function(resolve,reject){
-   var tx=db.transaction('activity','readwrite');
-   tx.objectStore('activity').put({profile:profile,bundle:safe,storedAt:new Date().toISOString()});
-   tx.oncomplete=function(){resolve()};
+  return await new Promise(function(resolve,reject){
+   var tx=db.transaction('activity','readwrite'),store=tx.objectStore('activity'),req=store.get(profile);
+   req.onsuccess=function(){
+    var old=req.result&&Date.parse(req.result.bundle?.exportedAt||'');
+    if(Number.isFinite(old)&&old>stamp)return;
+    store.put({profile:profile,bundle:safe,storedAt:new Date().toISOString()});
+   };
+   req.onerror=function(){reject(req.error)};
+   tx.oncomplete=function(){resolve(true)};
    tx.onerror=function(){reject(tx.error)};
    tx.onabort=function(){reject(tx.error)};
-  })
+  });
  }finally{db.close()}
 }
 
-
 function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
 function activeProfileCode(){
- try{
-  if(typeof cur!=='undefined'&&(cur==='m'||cur==='z'))return cur;
- }catch(e){}
- return localStorage.getItem('hh-profile')==='m'?'m':'z';
+ // Keep same canonical profile as the rest of HealthHub (cur may lag on a switch).
+ try{return localStorage.getItem('hh-profile')==='m'?'m':'z'}catch(e){}
+ try{if(typeof cur!=='undefined'&&(cur==='m'||cur==='z'))return cur}catch(e){}
+ return 'z';
 }
 function pkey(){return activeProfileCode()==='m'?'monika':'zsolt'}
 function n(v,d){v=Number(v);return Number.isFinite(v)?v.toLocaleString('hu-HU',{maximumFractionDigits:d==null?0:d}):'—'}
@@ -419,12 +433,19 @@ function paintActivity(requestedProfile,raw,profileHeight,samsungState,renderId,
  window.hhActivity191CurrentProfile=requestedProfile;
  window.hhActivity191Source={profile:requestedProfile,cloud:raw.latestCloud||null,rows:c.daily,samsung:samsungState,preview:!!preview};
  var f=periodDays(),g=m.goals;
- page.innerHTML=hero(requestedProfile)+'<div class="a191Body"><div class="a191ProfileDiag '+(requestedProfile==='monika'?'monika':'zsolt')+'">HEALTH CONNECT · '+(requestedProfile==='monika'?'MÓNIKA':'ZSOLT')+
+ var latestLocal=raw.imports.find(function(x){return x&&x.profile===requestedProfile&&x.bundle&&x.bundle.exportedAt;});
+ var sourceLine=preview?
+  '⏳ Korábbi, helyben mentett aktivitás · export: '+esc(fmtDate(latestLocal?.bundle?.exportedAt||latestLocal?.importedAt))+' · frissítés folyamatban':
+  raw.latestCloud?
+  '✅ Dropbox Health Connect ellenőrizve · export: '+esc(fmtDate(raw.latestCloud.bundle?.exportedAt||raw.latestCloud.importedAt)):
+  '⚠️ Nincs friss Dropbox-ellenőrzés. Korábban mentett aktivitás látható, nem élő adat.';
+ page.innerHTML=hero(requestedProfile)+'<div class="a191Body"><div class="a191MetricsHint" role="status" data-hh-activity-source="'+
+  (preview?'local-preview':raw.latestCloud?'verified-cloud':'offline-local')+'">'+sourceLine+'</div><div class="a191ProfileDiag '+(requestedProfile==='monika'?'monika':'zsolt')+'">HEALTH CONNECT · '+(requestedProfile==='monika'?'MÓNIKA':'ZSOLT')+
   '<button type="button" class="a191SourceButton" onclick="hh191SourceDetails()">ⓘ Adatforrások</button></div>'+ 
   '<div class="a191CalendarBar"><button type="button" class="a191CalendarOpen" onclick="hh191Calendar()" aria-label="Korábbi nap aktivitásának megtekintése">📅 Nap kiválasztása <span aria-hidden="true">›</span></button></div>'+
  (state.period==='1d'&&state.selectedDay?'<div class="a191CalendarBar"><div class="a191CalendarOpen" style="background:var(--soft)"><span>📅 '+esc(state.selectedDay)+' · kiválasztott nap</span><button type="button" onclick="hh191Today()" style="border:0;border-radius:9px;padding:6px 9px;background:var(--a);color:#fff;font-weight:800">Ma ↩</button></div></div>':'')+
  (state.period==='1d'&&state.selectedDay&&!view.daily.length?'<div class="a191MetricsHint">Nincs erre a napra aktivitási rekord. A hiányzó adat nem mért nulla.</div>':'')+
- (preview?'<div class="a191MetricsHint" role="status">⏳ Helyi gyorsnézet · korábban importált adatok. Frissítés a Dropboxból folyamatban…</div>':'')+
+ ''+
  '<div class="a191Top">'+
  kpi('steps','Lépések',(state.selectedDay&&state.period==='1d'&&!view.daily.length?'—':n(m.steps,0)),'lépés',pct(m.steps,g.steps),n(g.steps,0),'blue')+
  kpi('cal',m.hasSamsungCalories?'Kalória · Samsung':'Elégetett kalória',m.confirmedCalories?n(m.cal,0):(m.steps>0?'—':'0'),'kcal',pct(m.cal,g.cal),n(g.cal,0),'orange')+
