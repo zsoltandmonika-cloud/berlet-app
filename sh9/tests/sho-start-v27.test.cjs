@@ -30,7 +30,7 @@ test('SHO keeps shared taskbar, native OTA and Outlook bindings',()=>{
 
 test('three new tiles route to actual HealthHub destinations and remain bilingual',()=>{
  const js=src('sh9/sho-preview/sho-wiring-v2.js');
- for(const marker of ["'Táplálkozás':HH+'nutrition/'","'Aktivitás':HH+'activity-one/?source=sho'","'Alvás':HH+'?sho=sleep'"]){
+ for(const marker of ["'Táplálkozás':HH+'nutrition/'","'Aktivitás':HH+'activity-one/?source=sho'","'Alvás':HH+'sleep-one/?source=sho'"]){
   assert.ok(js.includes(marker),marker);
  }
  assert.match(js,/\[data-module\]/);
@@ -45,7 +45,7 @@ test('SHO Activity launches standalone verified profile reader, preserving other
  const engine=src('healthhub/activity-fast/activity-engine-v3.js');
  assert.match(routing,/'Aktivitás':HH\+'activity-one\/\?source=sho'/);
  assert.doesNotMatch(routing,/'Aktivitás':HH\+'\?sho=activity'/);
- assert.match(routing,/'Alvás':HH\+'\?sho=sleep'/);
+ assert.match(routing,/'Alvás':HH\+'sleep-one\/\?source=sho'/);
  assert.match(routing,/'Egészség':HH,/);
  assert.match(entry,/activity-fast\/activity-engine-v3\.js/);
  assert.doesNotMatch(entry,/window\.hh191ManualSave=function/);
@@ -134,7 +134,7 @@ test('SHO core tiles respond before deferred JS wiring is ready',()=>{
   'Wallet':'/berlet-app/sh9/wallet/',
   'Táplálkozás':'/berlet-app/healthhub/nutrition/',
   'Aktivitás':'/berlet-app/healthhub/activity-one/?source=sho',
-  'Alvás':'/berlet-app/healthhub/?sho=sleep'
+  'Alvás':'/berlet-app/healthhub/sleep-one/?source=sho'
  };
  for(const page of ['sh9/index.html','sh9/sho-preview/index.html']){
   const html=src(page);
