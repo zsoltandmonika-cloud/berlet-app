@@ -1,0 +1,29 @@
+name: HealthHub Samsung Direct private pilot contract QA
+on:
+  push:
+    branches: [main]
+    paths:
+      - "healthhub/android-bridge/app/build.gradle.kts"
+      - "healthhub/android-bridge/app/src/main/java/hu/zsoltmonika/healthhubbridge/MainActivity.kt"
+      - "healthhub/android-bridge/app/src/samsungDirectPilot/**"
+      - "healthhub/android-bridge/tests/samsung-direct-pilot-contract.test.cjs"
+      - ".github/workflows/healthhub-samsung-direct-pilot-qa.yml"
+  pull_request:
+    paths:
+      - "healthhub/android-bridge/app/build.gradle.kts"
+      - "healthhub/android-bridge/app/src/main/java/hu/zsoltmonika/healthhubbridge/MainActivity.kt"
+      - "healthhub/android-bridge/app/src/samsungDirectPilot/**"
+      - "healthhub/android-bridge/tests/samsung-direct-pilot-contract.test.cjs"
+      - ".github/workflows/healthhub-samsung-direct-pilot-qa.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  samsung-pilot-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate no production SDK inclusion or fabricated health measurements
+        run: |
+          node --test healthhub/android-bridge/tests/samsung-direct-pilot-contract.test.cjs
+          node healthhub/scripts/samsung-source.test.cjs
