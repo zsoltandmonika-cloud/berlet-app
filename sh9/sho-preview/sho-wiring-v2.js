@@ -16,7 +16,7 @@ const REAL_ROUTES=Object.freeze({
  'Sport':SH9+'sport/',
  'Táplálkozás':HH+'nutrition/',
  'Aktivitás':HH+'activity-one/?source=sho',
- 'Alvás':HH+'?sho=sleep'
+ 'Alvás':HH+'sleep-one/?source=sho'
 });
 const LABELS={
  hu:Object.freeze({Wallet:'Smart Wallet',Táplálkozás:'Táplálkozás',Aktivitás:'Aktivitás',Alvás:'Alvás'}),
