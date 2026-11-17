@@ -13,12 +13,20 @@ A v371 webes adatfogadó kódja és forrásszétválasztása kész. **A Samsung 
 - Hiányzó adat/engedély/Dropbox-kapcsolat esetén a pilot nem állít elő és nem tölthet fel kitalált számot; a normál Health Connect dolgozik tovább.
 - A tesztgomb **nem jelenik meg az általános Android-buildben**, és a pilot funkció még nem lett valódi Samsung SDK AAR-rel lefordítva, sem egyik telefonon kipróbálva.
 
-### Privát Samsung SDK teszt feloldásának előfeltételei
-1. A hivatalos Samsung Developer oldalról a **Samsung Health Data SDK** csomag és AAR letöltése. A licencelt fájlt kizárólag a saját fejlesztői gépen az `app/private-samsung-sdk/samsung-health-data-api.aar` útvonalon tárold (szükség esetén fájl átnevezése).
-2. Android Studio / helyi Gradle: `./gradlew :app:assembleDebug -PhhSamsungDirectPilot=true` és az opcionális forrás Samsung SDK-változathoz való fordítási ellenőrzése. Az AAR-t, az aláíró kulcsot és Dropbox-tokeneket nem szabad a GitHubra feltölteni.
-3. A Samsung által dokumentált **fejlesztői mód csak fejlesztői tesztre** való. Normál telefonos terjesztéshez külön Samsung-partnerjóváhagyás és regisztrált SHA-256 aláírás kell.
-4. A privát teszt APK-ban a tulajdonos kiválasztása és a külön Samsung Health-engedélyezés után a **„Samsung Direct · aktív percek tesztolvasása”** gombbal történik az első próba. A Dropbox napi Samsung-fájlban valódi, aktuális `activeMinutes` értéknek kell szerepelnie. A webes v371 forráskezelő a következő megnyitáskor tudja átvenni, ha nem elavult.
-5. Valós készülék- és jogosultsági teszt + Samsung partnerstátusz előtt **nincs OTA-előléptetés**, nincs háttérszinkron-bekötés, nincs automatikus Samsung-permission popup.
+### Privát Samsung SDK teszt · tényleges következő lépések (Windows)
+
+1. Samsung Developer: [SDK letöltése](https://developer.samsung.com/health/data/process.html) → **Samsung Health Data SDK v1.1.0**. A letöltött ZIP-et őrizd meg a saját gépen. A Samsung binárist a nyilvános GitHub repóba vagy Actions-artifactba **ne töltsd fel**.
+2. A projekt `healthhub/android-bridge` könyvtárában indíts PowerShellt, majd futtasd a helyi, biztonságos csomag-előkészítést:
+   ```powershell
+   powershell -ExecutionPolicy Bypass -File .\\scripts\\build-samsung-pilot-windows.ps1 -SamsungSdk "C:\\Users\\<FELHASZNÁLÓ>\\Downloads\\samsung-health-data-sdk-1.1.0.zip" -SkipBuild
+   ```
+   Ez csak a helyi, gitignore által védett `app/private-samsung-sdk/samsung-health-data-api.aar` fájlt helyezi el; még nem buildel APK-t. Az archívumban lévő AAR-t felismeri, de hibával leáll, ha hiányzik vagy kétértelmű.
+3. Android Studio / JDK 17 / Android SDK 36 / Gradle 8.13 megléte után ugyanaz a parancs `-SkipBuild` nélkül építi a privát, elkülönített teszt APK-t. A Samsung SDK engedélykérési API-ját a hivatalos v1.1.0 dokumentációhoz igazítottuk, de **valódi AAR-rel történő fordítás még nem történt**.
+4. A privát APK csomagneve `hu.zsoltmonika.healthhubbridge.samsungpilot`, ezért nem írja felül a már telepített, aláírt **HH One** alkalmazást és annak helyi adatbázisát. Figyelem: külön alkalmazásként **saját Dropbox-belépésre** is szüksége lehet, és Android deeplink ütközés lehetséges. A próba-APK nincs és nem kerül automatikusan OTA-ba.
+5. Egy fejlesztői teszttelefonon a Samsung [fejlesztői módját](https://developer.samsung.com/health/data/guide/developer-mode.html) és **Data Read** funkcióját csak teszteléshez kapcsold be. A kísérleti alkalmazásban a telefon tulajdonosát választva, majd a **„Samsung Direct · aktív percek tesztolvasása”** gombbal lehet a saját Samsung `ACTIVITY_SUMMARY / TOTAL_ACTIVE_TIME` értékét lekérni. A külön Samsung jogosultságot a telefon tulajdonosa adja meg.
+6. A jogosultság, dátum, export és a webes `v371` profilforrás-egyezés ellenőrzése után külön lehet dönteni az élesítésről. A Samsung [alkalmazásregisztrációja](https://developer.samsung.com/health/data/guide/app-verification.html) nélkül **nem helyezhető át a privát teszt működése a mindennapi, fejlesztői mód nélküli telefonokra**.
+
+**Jelenlegi validáció:** a JavaScript forrás- és build-kontrakttesztek sikeresek; ez nem bizonyítja az AAR-es Kotlin fordítást, Samsung Health hozzáférést vagy telefonos eredményt. A normál Health Connect ütemezést és az éles APK-t nem módosítjuk.
 
 ### Elővigyázatosság
 Nem cseréljük le a Samsung napi aktivitásidejét a Health Connect `EXERCISE_DURATION_TOTAL` értékére, mert ez két külön fogalom. Hiányzó Samsung adatot **„—”** jelöli, nem mért nulla. A Samsung-adatok beolvasási és felhőfrissítési ideje két eltérő mérőszám; az SDK-fájl nem írhatja át a Health Connect export idejét.
