@@ -60,7 +60,7 @@ test('timeline pin writes and verifies before automatic Family Guard return',()=
  assert.match(app,/syncDeparturePinButtons\(now\)/);
  assert.match(page,/departure-pin-v1\.css\?v=1/);
  assert.match(page,/app\.mjs\?v=1141-one-tap-departure-focus/);
- assert.match(core,/export .*full260Timetable/);
+ assert.match(core,/function full260Timetable\(/);
 });
 test('Family Guard mirrors focus and expires without new network or GPS',()=>{
  const guardian=read('guardian/guardian-smart-match-pin-v1.mjs');
@@ -69,7 +69,7 @@ test('Family Guard mirrors focus and expires without new network or GPS',()=>{
  assert.match(guardian,/function renderTemporaryDeparture\(/);
  assert.match(guardian,/if\(renderTemporaryDeparture\(\)\)return/);
  assert.match(guardian,/if\(wasManual&&state\.item&&!state\.loading&&!state\.loaded\)/);
- assert.match(guardian,/data\.temporaryPin="on"/);
+ assert.match(guardian,/dataset\.temporaryPin="on"/);
  assert.match(guardian,/setInterval\(\(\)=>\{if\(state\.visible\)renderClock\(\)\},10000\)/);
  assert.match(hero,/manual\?"📌 SMART MATCH":"SMART MATCH"/);
  assert.match(index,/guardian-smart-match-pin-v1\.mjs\?v=949-temporary-departure/);
