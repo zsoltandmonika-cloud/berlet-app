@@ -1,0 +1,4 @@
+# Samsung proprietary SDK stays on the developer machine only.
+*
+!.gitignore
+!README.md
