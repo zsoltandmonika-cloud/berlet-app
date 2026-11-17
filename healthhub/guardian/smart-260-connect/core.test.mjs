@@ -207,10 +207,29 @@ test("Smart Location reads only fresh, authorized native Monika fix near saved h
  assert.equal(chooseLocation({...home,accuracy:90},slots,now),null);
  assert.equal(chooseLocation({...home,ts:now-76000},slots,now),null);
  assert.equal(chooseLocation({...home,lat:47.53,lng:19.015},slots,now),null);
- assert.equal(chooseLocation(home,[...slots,slots[0]],now),null,
-  "Ambiguous home labels must never silently select a GPS route");
+ // Identical Home/Work aliases from the synced 40-place family catalog
+ // should not disable Smart Location. Coordinates below are synthetic.
+ const clustered=[
+  ...slots,
+  {label:"Otthon",place:{name:"Otthon",lat:47.5501,lng:19.0101}},
+  {label:"Otthon",place:{name:"Otthon",lat:47.55012,lng:19.01008}},
+  {label:"Munkahely",place:{name:"Bécsi Corner",lat:47.51008,lng:19.0201}},
+  {label:"Mónika Munkahely",place:{name:"Mónika Munkahely",lat:47.51011,lng:19.02012}},
+  {label:"Dávid & Anna Otthona",place:{name:"Dávid & Anna Otthona",lat:47.60,lng:19.12}}
+ ];
+ assert.equal(chooseLocation(office,clustered,now)?.routeId,"monika-260",
+  "At Mónika's office, same-site saved aliases must activate the homebound route");
+ assert.equal(chooseLocation(home,clustered,now)?.routeId,"monika-home-to-office");
+ assert.equal(chooseLocation(home,[...slots,slots[0]],now)?.routeId,"monika-home-to-office");
+ assert.equal(chooseLocation(home,[...slots,{label:"Otthon",place:{name:"Másik otthon",lat:47.57,lng:19.04}}],now),null,
+  "Conflicting Home saved locations must still be rejected");
+ assert.equal(chooseLocation(office,[...slots,{label:"Munkahely",place:{name:"Másik munkahely",lat:47.53,lng:19.06}}],now),null,
+  "Conflicting Work saved locations must still be rejected");
  assert.equal(chooseLocation(home,[],now),null);
  assert.equal(namedPlaces(slots).home.lat,47.55);
+ assert.ok(namedPlaces(clustered).work);
+ assert.equal(chooseLocation({...office,source:"Family Live"},clustered,now),null,
+  "An unverified browser-origin fix cannot activate auto-switch");
 });
 
 test("home-to-office default uses three genuine tram lines and five minutes, without changing reverse route",()=>{

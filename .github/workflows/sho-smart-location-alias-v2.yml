@@ -1,0 +1,34 @@
+name: SHO Smart Location alias safety QA
+on:
+  pull_request:
+    paths:
+      - 'healthhub/guardian/guardian-smart-location-v1.mjs'
+      - 'healthhub/guardian/guardian-smart-match-pin-v1.mjs'
+      - 'healthhub/guardian/smart-260-connect/core.test.mjs'
+      - 'healthhub/guardian/index.html'
+      - '.github/workflows/sho-smart-location-alias-v2.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'healthhub/guardian/guardian-smart-location-v1.mjs'
+      - 'healthhub/guardian/guardian-smart-match-pin-v1.mjs'
+      - 'healthhub/guardian/smart-260-connect/core.test.mjs'
+      - 'healthhub/guardian/index.html'
+      - '.github/workflows/sho-smart-location-alias-v2.yml'
+permissions:
+  contents: read
+jobs:
+  native-location-safety:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Pure native GPS decision module and Guardian pin syntax
+        run: |
+          node --check healthhub/guardian/guardian-smart-location-v1.mjs
+          node --check healthhub/guardian/guardian-smart-match-pin-v1.mjs
+      - name: Full Smart Match core and deterministic Smart Location route tests
+        run: node --test healthhub/guardian/smart-260-connect/core.test.mjs
