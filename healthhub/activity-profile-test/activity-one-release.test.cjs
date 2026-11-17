@@ -2,10 +2,10 @@
 const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
 const root=path.resolve(__dirname,'..');
 const production=fs.readFileSync(path.join(root,'activity-one/index.html'),'utf8');
-const engine=fs.readFileSync(path.join(__dirname,'activity-engine-v2.js'),'utf8');
+const engine=fs.readFileSync(path.join(root,'activity-fast/activity-engine-v3.js'),'utf8');
 const full=fs.readFileSync(path.join(root,'live-v191.js'),'utf8');
-test('Activity One is a full manual-capable lightweight route using the verified v2 engine',()=>{
- assert.match(production,/activity-profile-test\/activity-engine-v2\.js\?v=2/);
+test('Activity One is a manual-capable lightweight route using measured Local-First v3',()=>{
+ assert.match(production,/activity-fast\/activity-engine-v3\.js\?v=/);
  assert.match(production,/activity-fast\/vault-read-v3\.js/);
  assert.match(production,/activity-premium-glass-v533\.js/);
  assert.doesNotMatch(production,/window\.hh191ManualSave=function/);
@@ -14,15 +14,15 @@ test('Activity One is a full manual-capable lightweight route using the verified
  assert.match(engine,/MANUAL_KEY\+pkey\(\)/);
  assert.match(engine,/window\.hh191Profile=function/);
  assert.match(engine,/window\.hh191SourceDetails=function/);
- assert.match(engine,/async function downloadCanonicalCloud\(profile\)/);
+ assert.match(engine,/async function cloudBundle\(profile\)/);
  assert.match(full,/var LOCAL_MEMO_TTL_MS=45000/);
 });
 test('Activity One does not run the heavy Home bootstrap or introduce synthetic measurements',()=>{
  assert.doesNotMatch(production,/HHB13_0[0-9]|HH_CHUNKS|document\.open\(\)|premium-glass-home-v520/);
  assert.doesNotMatch(production,/\bfastReadSnapshot\b|\bfastSaveSnapshot\b/);
- assert.match(engine,/if\(row\.value&&row\.value\.profile===profile\)/);
+ assert.match(engine,/fastReadSnapshot\(profile\)/);
  assert.match(engine,/tx=db\.transaction\(\['imports','activity'\],'readonly'\)/);
- assert.match(engine,/Dropbox-export NEM igazolt/);
+ assert.match(engine,/Korábban mentett aktivitás látható, nem élő adat/);
 });
 
 test('Golden Standard Activity One bars are responsive native routes without new runtime dependencies',()=>{
@@ -49,10 +49,11 @@ test('Golden Standard Activity One bars are responsive native routes without new
  const scriptUrls=[...app.matchAll(/<script\b[^>]*src="([^"]+)"/g)].map(m=>m[1].split('?')[0]);
  assert.deepEqual(scriptUrls,[
   './activity-fast/vault-read-v3.js',
+  './activity-fast/single-profile-cloud-v3.js',
   './live-v369-distance.js',
   './live-v371-samsung.js',
   './live-v375-activity-timeline.js',
-  './activity-profile-test/activity-engine-v2.js',
+  './activity-fast/activity-engine-v3.js',
   './live-v363.js',
   './activity-premium-glass-v533.js',
   './hc-wear-history-v1150.js'
@@ -71,13 +72,14 @@ test('Hero-bottom Golden dock remains attached after rerenders, without network 
  assert.match(app,/#activityGoldenBottom\{--sho-a:[^}]*position:fixed/);
  assert.doesNotMatch(app,/#activityGoldenTop\{top:calc\(env\(safe-area-inset-top/);
  const scripts=[...app.matchAll(/<script\b[^>]*src="([^"]+)"/g)].map(m=>m[1].split('?')[0]);
- assert.equal(scripts.length,8,'keep exact eight original Activity dependencies');
+ assert.equal(scripts.length,9,'one small verified source dedup, without full HealthHub loader');
  assert.deepEqual(scripts,[
   './activity-fast/vault-read-v3.js',
+  './activity-fast/single-profile-cloud-v3.js',
   './live-v369-distance.js',
   './live-v371-samsung.js',
   './live-v375-activity-timeline.js',
-  './activity-profile-test/activity-engine-v2.js',
+  './activity-fast/activity-engine-v3.js',
   './live-v363.js',
   './activity-premium-glass-v533.js',
   './hc-wear-history-v1150.js'
