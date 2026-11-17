@@ -11,6 +11,8 @@ test('production Android never compiles proprietary Samsung sources without an e
  assert.match(build,/if \(hhSamsungPilotEnabled\) \{\s*sourceSets\.getByName\("main"\)\.java\.srcDir/);
  assert.match(build,/buildConfigField\("boolean", "HH_SAMSUNG_DIRECT_PILOT", hhSamsungPilotEnabled\.toString\(\)\)/);
  assert.match(build,/applicationIdSuffix = "\.samsungpilot"/);
+ assert.match(build,/it\.contains\("release", ignoreCase = true\)/);
+ assert.match(build,/Samsung Direct pilot is DEBUG-ONLY/);
  assert.match(main,/if \(BuildConfig\.HH_SAMSUNG_DIRECT_PILOT\) \{/);
  assert.doesNotMatch(build,/implementation\("com\.samsung/);
 });
