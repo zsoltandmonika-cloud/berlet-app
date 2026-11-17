@@ -46,9 +46,9 @@ object SamsungHealthDirectPilot {
             try {
                 val store = HealthDataService.getStore(activity.applicationContext)
                 val required = setOf(Permission.of(DataTypes.ACTIVITY_SUMMARY, AccessType.READ))
-                if (!store.getGrantedPermissions(required).grantedPermissions.containsAll(required)) {
-                    store.requestPermissions(required, activity)
-                    if (!store.getGrantedPermissions(required).grantedPermissions.containsAll(required)) {
+                if (!store.getGrantedPermissions(required).containsAll(required)) {
+                    val granted = store.requestPermissions(required, activity)
+                    if (!granted.containsAll(required)) {
                         toast(activity, "Samsung Health külön olvasási engedélye hiányzik.")
                         return@launch
                     }
