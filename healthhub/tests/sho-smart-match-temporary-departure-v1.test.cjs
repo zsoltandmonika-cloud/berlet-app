@@ -58,9 +58,24 @@ test('timeline pin writes and verifies before automatic Family Guard return',()=
  assert.match(app,/const pinnedIndex=pinned\?\.kind==="260"/);
  assert.match(app,/const pinnedIndex=pinned\?\.kind==="other"/);
  assert.match(app,/syncDeparturePinButtons\(now\)/);
- assert.match(page,/departure-pin-v1\.css\?v=1/);
- assert.match(page,/app\.mjs\?v=1141-one-tap-departure-focus/);
+ assert.match(page,/departure-pin-v1\.css\?v=2-inline/);
+ assert.match(page,/app\.mjs\?v=1142-inline-pin/);
  assert.match(core,/function full260Timetable\(/);
+});
+
+test('the entire verified badge and pin control sit side-by-side in the SAME row, not in the card footer',()=>{
+ const app=read('guardian/smart-260-connect/app.mjs');
+ const css=read('guardian/smart-260-connect/departure-pin-v1.css');
+ const addon=app.slice(app.indexOf('function addDeparturePinButton'),app.indexOf('function syncDeparturePinButtons'));
+ assert.match(addon,/const top=card\.querySelector\("\.row-top"\),tag=top\?\.querySelector\("\.match-tag"\)/);
+ assert.match(addon,/controls\.append\(tag,actions\)/);
+ assert.match(addon,/top\.append\(controls\)/);
+ assert.doesNotMatch(addon,/actions\.append\(btn\);card\.append\(actions\)/);
+ assert.match(css,/#timeline \.row-top > \.sm-departure-pin-inline-v2\{/);
+ assert.match(css,/#timeline \.sm-departure-pin-inline-v2 > \.match-tag\{/);
+ assert.match(css,/#timeline \.sm-departure-pin-inline-v2 \.sm-departure-pin-v1\{/);
+ assert.match(app,/const nextLabel=selected\?"✓ Kitűzve":"📌 Kitűzöm"/);
+ assert.match(app,/A kitűzött járat feloldása, visszaállás az automatikus követésre/);
 });
 test('Family Guard mirrors focus and expires without new network or GPS',()=>{
  const guardian=read('guardian/guardian-smart-match-pin-v1.mjs');
