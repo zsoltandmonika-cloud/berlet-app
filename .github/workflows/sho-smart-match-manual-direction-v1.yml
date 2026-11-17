@@ -1,0 +1,42 @@
+name: SHO Smart Match manual direction sync QA
+on:
+  pull_request:
+    paths:
+      - 'healthhub/guardian/smart-260-connect/app.mjs'
+      - 'healthhub/guardian/smart-260-connect/index.html'
+      - 'healthhub/guardian/smart-260-connect/manual-direction-sync-v1.css'
+      - 'healthhub/guardian/guardian-smart-match-pin-v1.mjs'
+      - 'healthhub/guardian/index.html'
+      - 'healthhub/tests/sho-smart-match-manual-direction-v1.test.cjs'
+      - '.github/workflows/sho-smart-match-manual-direction-v1.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'healthhub/guardian/smart-260-connect/app.mjs'
+      - 'healthhub/guardian/smart-260-connect/index.html'
+      - 'healthhub/guardian/smart-260-connect/manual-direction-sync-v1.css'
+      - 'healthhub/guardian/guardian-smart-match-pin-v1.mjs'
+      - 'healthhub/guardian/index.html'
+      - 'healthhub/tests/sho-smart-match-manual-direction-v1.test.cjs'
+      - '.github/workflows/sho-smart-match-manual-direction-v1.yml'
+permissions:
+  contents: read
+jobs:
+  direction-regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Syntax validation of full view and Guardian pin
+        run: |
+          node --check healthhub/guardian/smart-260-connect/app.mjs
+          node --check healthhub/guardian/guardian-smart-match-pin-v1.mjs
+      - name: Execute actual manual direction switching and pinned-card regressions
+        run: node --test healthhub/tests/sho-smart-match-manual-direction-v1.test.cjs
+      - name: Verify existing ring direction and two-profile separation
+        run: |
+          node --test healthhub/tests/sho-smart-match-ring-direction-v941.test.cjs
+          node --test healthhub/tests/sho-smart-match-dual-profile-v944.test.cjs
