@@ -236,7 +236,8 @@ function attachCloud(local,cloud,profile){
     ...(x.floorsClimbed!=null&&Number.isFinite(Number(x.floorsClimbed))?{floorsClimbed:Number(x.floorsClimbed)}:{}),
     caloriesKcal:Number(x.caloriesKcal)||Number(x.activeCaloriesKcal)||0,
     activeCaloriesKcal:Number(x.activeCaloriesKcal)||Number(x.caloriesKcal)||0,
-    activeMinutes:Number(x.activeMinutes)||0,
+    activeMinutes:x.activeMinutes==null||!Number.isFinite(Number(x.activeMinutes))?null:Math.max(0,Number(x.activeMinutes)),
+    activeMinutesSource:typeof x.activeMinutesSource==='string'?x.activeMinutesSource:'unavailable',
     source:'dropbox-health-connect',
     updatedAt:cloud.importedAt
    });
@@ -291,9 +292,15 @@ function metrics(c,profile,heightCm){
  var hasStepData=daily.some(function(x){return Number(x.steps)>0});
  var dist=hasStepData&&derived?derived.km:(hcDist>0?hcDist:null);
  var manual=sessions.filter(function(s){return s._manual});cal+=manual.reduce(function(a,s){return a+(caloriesOf(s)||0)},0);
- var dailyActive=daily.reduce(function(a,x){return a+(Number(x.activeMinutes)||0)},0);
+ var measuredActiveDays=daily.filter(function(x){return x.activeMinutes!=null&&Number.isFinite(Number(x.activeMinutes))&&Number(x.activeMinutes)>=0});
+ var dailyActive=measuredActiveDays.reduce(function(a,x){return a+Number(x.activeMinutes)},0);
  var sessionActive=sessions.reduce(function(a,s){return a+mins(s.startTime,s.endTime)},0);
- var active=dailyActive>0?dailyActive:sessionActive;
+ // A missing Health Connect active-time series is NOT a measured 0.
+ // Samsung's daily activity tracker requires the separate Samsung Health Data SDK.
+ var active=measuredActiveDays.length?dailyActive:(sessionActive>0?sessionActive:null);
+ var hasHcActiveTime=measuredActiveDays.some(function(x){return !x._hhFieldSources||x._hhFieldSources.activeMinutes!=='samsung-direct'});
+ var hasOnlySessionActiveTime=!measuredActiveDays.length&&sessionActive>0;
+ var hasManualActiveTime=hasOnlySessionActiveTime&&sessions.some(function(x){return x._manual&&mins(x.startTime,x.endTime)>0});
  var moving=sessions.filter(function(s){var k=infer(s);return (k==='walk'||k==='run')&&(distanceOf(s)||0)>0});
  var movingMin=moving.reduce(function(a,s){return a+mins(s.startTime,s.endTime)},0),movingKm=moving.reduce(function(a,s){return a+(distanceOf(s)||0)},0);
  var hv=hrIn(cut,c.heart),ah=avg(hv),mh=hv.length?Math.max.apply(null,hv):null;
@@ -304,7 +311,7 @@ function metrics(c,profile,heightCm){
  var factor=periodDays(),goals={steps:10000*factor,cal:500*factor,active:60*factor,dist:8*factor};
  return {cut:cut,daily:daily,sessions:sessions,steps:steps,cal:cal,confirmedCalories:confirmedCalories||cal>0,hasSamsungCalories:hasSamsungCalories,hasSamsungActiveTime:hasSamsungActiveTime,hasSamsungFloors:hasSamsungFloors,dist:dist,hcDist:hcDist,
   heightCm:heightCm,estimated:!!(hasStepData&&derived),strideCm:derived&&derived.strideCm,
-  calibrated:!!(derived&&derived.calibrated),active:active,avgHr:ah,maxHr:mh,
+  calibrated:!!(derived&&derived.calibrated),active:active,hasHcActiveTime:hasHcActiveTime,hasOnlySessionActiveTime:hasOnlySessionActiveTime,hasManualActiveTime:hasManualActiveTime,avgHr:ah,maxHr:mh,
   pace:pace(movingMin,movingKm),terrain:terrain,hasSamsungExerciseElevation:daily.some(function(x){return !!x._hhExerciseElevationOnly}),floors:floors,goals:goals};
 }
 function kpi(kind,label,val,unit,p,goal,accent){
@@ -445,7 +452,7 @@ function paintActivity(requestedProfile,raw,profileHeight,samsungState,renderId,
  '<div class="a191Top">'+
  kpi('steps','Lépések',(state.selectedDay&&state.period==='1d'&&!view.daily.length?'—':n(m.steps,0)),'lépés',pct(m.steps,g.steps),n(g.steps,0),'blue')+
  kpi('cal',m.hasSamsungCalories?'Kalória · Samsung':'Elégetett kalória',m.confirmedCalories?n(m.cal,0):(m.steps>0?'—':'0'),'kcal',pct(m.cal,g.cal),n(g.cal,0),'orange')+
- kpi('time',m.hasSamsungActiveTime?'Aktív idő · Samsung':'Aktív idő · HC',m.active>0?Math.round(m.active):(m.steps>0?'—':'0'),'perc',pct(m.active,g.active),n(g.active,0),'green')+
+ kpi('time',m.hasSamsungActiveTime?'Aktív idő · Samsung':m.hasHcActiveTime?'Aktív idő · HC':m.hasOnlySessionActiveTime?(m.hasManualActiveTime?'Edzésidő · naplózott':'Edzésidő · HC'):'Aktív idő · nincs forrás',m.active==null?'—':Math.round(m.active),'perc',m.active==null?0:pct(m.active,g.active),m.active==null?null:n(g.active,0),'green')+
  kpi('dist','Távolság'+(m.estimated?' ≈':''),m.dist==null?'—':n(m.dist,1),'km',pct(m.dist,g.dist),n(g.dist,1),'violet')+
  '</div>'+
  '<div class="a191Small">'+
@@ -522,7 +529,7 @@ window.hh191SourceDetails=function(){
  var html='<div class="a191SheetHead"><div><small>📡 HEALTHHUB · '+esc(profile.toUpperCase())+'</small><h3>Activity adatforrások</h3></div><button onclick="hh191CloseModal()">×</button></div>'+
  '<div class="a191Weather"><span>'+(src.preview?'⏳ Dropbox-forrás ellenőrzése folyamatban':cloud?'✅ Dropbox-export elérhető':'⚠️ Nincs elérhető aktuális Dropbox-export')+'</span>'+
  '<span>Vizsgált nap: '+esc(today)+' · Export ideje: '+esc(cloud?fmtDate(cloud.importedAt):'nincs információ')+'</span>'+
- '<span>Health Connect adat ≠ Samsung Health napi összesítő. Az eltérés nem jelenti automatikusan az óra hibáját.</span>'+
+ '<span>Samsung Health napi Aktív idő (Activity Tracker): a Samsung dokumentációja szerint nem szinkronizálódik Health Connectbe. Pontos értékhez külön Samsung Health Data SDK olvasó kell, nem elég a Health Connect engedély.</span>'+
  '<span>'+esc(directStatus)+(samsung.data&&samsung.data.exportedAt?' · '+esc(fmtDate(samsung.data.exportedAt)):'')+'</span>'+
  (samsung.data&&samsung.data.staleToday?'<span><b>Mai nap:</b> a frissebb Health Connect export élvez elsőbbséget. A régi Samsung kcal és aktív perc csak forrásadatként látható, nem kerül a fő kártyákra. Hiányzó kcal esetén csak külön jelölt becslés jelenhet meg.</span>':'')+'</div>'+
  '<div class="a191SourceTable">'+
@@ -534,7 +541,7 @@ window.hh191SourceDetails=function(){
  row('Aktív idő · HC',value(direct,'activeMinutes',0,'perc'))+
  row('Aktív idő · Samsung SDK',value(sd,'activeMinutes',0,'perc'))+
  row('Aktív idő forrása',direct&&direct.activeMinutesSource==='activeCaloriesIntervals'?'Kalória-időintervallum':direct&&direct.activeMinutesSource==='exerciseSessions'?'Edzésidő':'nem ismert')+
- row('Aktív idő · kijelzett',m.active>0?n(m.active,0)+' perc':'nincs adat')+
+ row('Aktív idő · kijelzett',m.active==null?'nincs mért adat':n(m.active,0)+' perc')+
  row('Távolság · HC',value(direct,'distanceMeters',0,'m'))+
  row('Távolság · saját becslés',m.estimated?n(m.dist,2)+' km':'nincs becslés')+
  row('Távolság · Samsung SDK',value(sd,'distanceMeters',0,'m'))+
