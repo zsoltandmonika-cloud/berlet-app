@@ -18,7 +18,7 @@ function pkey(){return activeProfileCode()==='m'?'monika':'zsolt'}
 function pname(){return pkey()==='monika'?'Mónika':'Zsolt'}
 function otherName(){return pkey()==='monika'?'Zsolt':'Mónika'}
 function reqP(r){return new Promise(function(ok,no){r.onsuccess=function(){ok(r.result)};r.onerror=function(){no(r.error)}})}
-function openBridgeDb(){return new Promise(function(ok,no){var r=indexedDB.open(BRIDGE_DB,2);r.onsuccess=function(){ok(r.result)};r.onerror=function(){no(r.error)}})}
+function openBridgeDb(){return new Promise(function(ok,no){var r=indexedDB.open(BRIDGE_DB);r.onsuccess=function(){ok(r.result)};r.onerror=function(){no(r.error)}})}
 function fmtTime(s){var d=new Date(s);return Number.isFinite(d.getTime())?d.toLocaleTimeString('hu-HU',{hour:'2-digit',minute:'2-digit'}):'—'}
 function fmtDateFull(s){var d=new Date(s);return Number.isFinite(d.getTime())?d.toLocaleDateString('hu-HU',{year:'numeric',month:'long',day:'numeric',weekday:'long'}):'Ismeretlen dátum'}
 function fmtDate(s){var d=new Date(s);return Number.isFinite(d.getTime())?d.toLocaleDateString('hu-HU',{month:'short',day:'numeric'}):'—'}
