@@ -27,8 +27,8 @@ test('unit conversion, fat percentage, Hungarian accented product names and prod
  const rows=core.rankProducts('laktózmentes UHT tej 1,5% 1 l',PRODUCT);
  assert.equal(rows[0].code,'1234567890123');
  assert.equal(rows[0].match.status,'likely');
- assert.equal(rows[1].match.status,'mismatch');
- assert.equal(rows[2].match.status,'mismatch');
+ assert.equal(rows.find(p=>p.code==='1234567890124').match.status,'mismatch');
+ assert.equal(rows.find(p=>p.code==='1234567890125').match.status,'mismatch');
  assert.equal(rows[0].match.quantityMatches,true);
  assert.equal(rows.find(p=>p.code==='1234567890124').match.quantityMismatch,true);
  assert.equal(rows.find(p=>p.code==='1234567890125').match.percentMismatch,true);
