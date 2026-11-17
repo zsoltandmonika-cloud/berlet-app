@@ -1,0 +1,29 @@
+/* SHO Smart Match · reliable manual direction toggle V1.
+ * Keep pinned Golden Standard geometry untouched. In normal view, an
+ * existing reverse pair is also a real, reachable action.
+ */
+body:not(.pinned) main>.v33-titlebar #reverseBtn:not([hidden]){
+ box-sizing:border-box;
+ display:grid!important;place-items:center!important;
+ flex:0 0 44px;width:44px;height:44px;min-width:44px;min-height:44px;
+ padding:0;border-radius:12px;
+ border:1px solid rgba(250,174,240,.80);
+ background:linear-gradient(138deg,rgba(127,59,137,.86),rgba(53,52,116,.94));
+ color:#ffe2f8;font:800 26px/1 system-ui;
+ box-shadow:0 0 14px rgba(248,98,208,.17),inset 0 1px rgba(255,255,255,.14);
+ cursor:pointer;touch-action:manipulation;
+}
+body:not(.pinned) main>.v33-titlebar #reverseBtn:not([hidden]):focus-visible{
+ outline:3px solid #88f8cb;outline-offset:2px;
+}
+body:not(.pinned) main>.v33-titlebar #reverseBtn:not([hidden]):active{
+ transform:scale(.96);
+}
+body.pinned main>.v33-titlebar #reverseBtn:not([hidden]){
+ touch-action:manipulation;
+}
+@media(max-width:390px){
+ body:not(.pinned) main>.v33-titlebar #reverseBtn:not([hidden]){
+  flex-basis:42px;width:42px;min-width:42px;height:42px;min-height:42px;
+ }
+}
