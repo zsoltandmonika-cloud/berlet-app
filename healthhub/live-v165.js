@@ -3,7 +3,7 @@
 /* HealthHub v1.108 — unified Health + Activity Cloud sync */
 var busy=false;
 // v1015: one profile-scoped Health Connect fetch shared by import + Activity.
-var sharedCloud=new Map(),SHARED_TTL_MS=12000;
+var sharedCloud=new Map(),SHARED_TTL_MS=45000;
 function pkey(){return localStorage.getItem('hh-profile')==='m'?'monika':'zsolt'}
 function pname(p){return p==='monika'?'Mónika':'Zsolt'}
 function toast(s){try{window.toast&&window.toast(s)}catch(e){}}
@@ -36,7 +36,12 @@ function readSharedCloud(profile,force){
  sharedCloud.set(profile,row);
  return row.promise;
 }
-window.HH_HEALTH_CONNECT_SOURCE_V1015={read:readSharedCloud,version:'1015'};
+// Shared verified Dropbox payload is retained ONLY in this tab for 45 seconds.
+// No persistent health cache, automatic polling, new permissions or tokens.
+window.HH_HEALTH_CONNECT_SOURCE_V1015={read:readSharedCloud,version:'1018-shared-health-read',
+ status:function(profile){var x=sharedCloud.get(profile);return {cached:!!x,pending:!!x?.pending,ageMs:x?Math.max(0,Date.now()-x.at):null}},
+ invalidate:function(profile){if(profile==='zsolt'||profile==='monika')sharedCloud.delete(profile);else sharedCloud.clear()}};
+
 async function processIncoming(profile,force){
  // Matched Dropbox account changes start read-only. Activity/Sleep can read
  // fresh canonical JSON, but no background import may modify local records.
