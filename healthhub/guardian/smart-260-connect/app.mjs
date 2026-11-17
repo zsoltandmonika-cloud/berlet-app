@@ -1202,6 +1202,7 @@ function showMorganInterview(item,date){
 async function computeRoute({useForm=false}={}){
  if(state.loading)return;
  state.loading=true;
+ const routeAtRequest=state.current;
  $("status").textContent="📡 A BKK hivatalos menetrendi állományának ellenőrzése…";
  try{
   const item=useForm?readForm():current();
@@ -1276,7 +1277,7 @@ async function computeRoute({useForm=false}={}){
    $("windowMetric").textContent="Teljes nap · 260";}
   renderResults(item);
  }catch(e){
-  if(current()?.id!==item?.id)return;
+  if(current()?.id!==routeAtRequest)return;
   state.full260=null;
   state.result=null;state.lastNext=null;updateFlowTimes(current());$("heroTime").textContent="--:--";$("countdown").textContent="--:--";
   $("heroDetail").textContent="Nincs ellenőrzött menetrendi eredmény.";
