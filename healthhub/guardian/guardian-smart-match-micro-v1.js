@@ -1,6 +1,6 @@
-/* Family Guard Smart Match information display V2.
+/* Family Guard Smart Match information display V3: legibility + full native-link header.
  * Presentation-only mirror of the existing Smart Match pin.
- * Zero independent BKK/API/GPS/DB calls, zero controls and zero navigation.
+ * Zero independent BKK/API/GPS/DB calls; the entire header is one native link.
  * The golden 8-signal dashboard, glass dimensions and hero remain immutable.
  */
 (function(w,d){
@@ -12,11 +12,11 @@
   const host=d.getElementById("guardianDevicePackLogoV1054");
   if(!host||!host.querySelector(".fg-brand-image-v1056"))return false;
   if(d.getElementById(PANEL))return true;
-  const display=d.createElement("div");
+  const display=d.createElement("a");
   display.id=PANEL;
   display.className="hh-smart-match-micro-v1";
-  display.setAttribute("role","group");
-  display.setAttribute("aria-label","Smart Match · tájékoztató indulási kijelző");
+  display.href="/berlet-app/healthhub/guardian/smart-260-connect/";
+  display.setAttribute("aria-label","Smart Match főoldal megnyitása");
   const heading=d.createElement("span");
   heading.className="hh-smm-heading-v1";
   heading.textContent="SMART MATCH";
@@ -49,7 +49,8 @@
   // The original logo remains in the DOM, for instant CSS rollback.
   host.appendChild(display);
   host.classList.add("hh-smart-match-micro-active-v1");
-  host.setAttribute("aria-label","Smart Match · következő menetrendi indulás");
+  host.setAttribute("role","group");
+  host.setAttribute("aria-label","Smart Match indulási információ és megnyitás");
 
   let observed=null, mirror=null;
   function update(){
@@ -79,6 +80,9 @@
    display.title="Smart Match · "+(valid?"260-as menetrendi indulás "+candidate+" · "+detail:note.textContent)+
     " · Tájékoztató kijelző, nem BKK Live";
    display.dataset.status=valid?"ready":"inactive";
+   display.setAttribute("aria-label",valid?
+    "Smart Match főoldal megnyitása · "+route.textContent+" · menetrend szerinti indulás "+candidate:
+    "Smart Match főoldal megnyitása");
   }
   function attach(){
    const source=d.getElementById(SOURCE);
@@ -101,7 +105,7 @@
   // Existing pin owns the schedule and can now activate its same cached data
   // when this read-only hero screen is on screen.
   // Pure layout adaptation within the existing fixed-size header cell.
-  // No timers, clicks, additional GPS, BKK or network operations.
+  // No timers, additional GPS, BKK or network operations. Native anchor handles tap and keyboard.
   function fit(){
    const r=host.getBoundingClientRect();
    display.dataset.fit=r.height<34?"short":r.width<165?"narrow":"full";
