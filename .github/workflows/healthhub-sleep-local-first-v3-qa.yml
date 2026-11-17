@@ -36,4 +36,4 @@ jobs:
           node --check healthhub/sleep-fast/sleep-local-v3.js
           node --check healthhub/live-v170.js
           node --check healthhub/sleep-three-views-v428.js
-          node --test healthhub/sleep-fast/sleep-local-v3.test.cjs
+          node --test healthhub/sleep-fast/sleep-local-v3.test.cjs healthhub/sleep-fast/sleep-verified-render-v3.test.cjs
