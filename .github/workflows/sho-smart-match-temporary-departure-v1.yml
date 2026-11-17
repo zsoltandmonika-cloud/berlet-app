@@ -1,0 +1,31 @@
+name: SHO Smart Match temporary departure pin V1
+on:
+  pull_request:
+    paths:
+      - 'healthhub/guardian/smart-match-departure-focus-v1.mjs'
+      - 'healthhub/guardian/smart-260-connect/app.mjs'
+      - 'healthhub/guardian/guardian-smart-match-pin-v1.mjs'
+      - 'healthhub/guardian/guardian-smart-match-micro-v1.js'
+      - 'healthhub/guardian/smart-260-connect/index.html'
+      - 'healthhub/guardian/index.html'
+      - 'healthhub/guardian/smart-260-connect/departure-pin-v1.css'
+      - 'healthhub/tests/sho-smart-match-temporary-departure-v1.test.cjs'
+      - '.github/workflows/sho-smart-match-temporary-departure-v1.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'healthhub/guardian/smart-match-departure-focus-v1.mjs'
+      - 'healthhub/guardian/smart-260-connect/app.mjs'
+      - 'healthhub/guardian/guardian-smart-match-pin-v1.mjs'
+      - 'healthhub/guardian/guardian-smart-match-micro-v1.js'
+      - 'healthhub/tests/sho-smart-match-temporary-departure-v1.test.cjs'
+      - '.github/workflows/sho-smart-match-temporary-departure-v1.yml'
+  workflow_dispatch:
+jobs:
+  isolated-departure-pin:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify temporary departure pin without BKK or GPS calls
+        run: node --test healthhub/tests/sho-smart-match-temporary-departure-v1.test.cjs
