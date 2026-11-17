@@ -71,3 +71,9 @@ html.shopping-snap-ready #shoCatalogPanel{scroll-margin-top:0}
 .bottomnav .ask-lena:active{background:transparent}
 .bottomnav .ask-lena:focus-visible{outline:2px solid #e9abd8;outline-offset:-3px;border-radius:7px}
 @media(max-width:370px){.hero-title .hero-kicker{font-size:8px;letter-spacing:.3px;padding:3px 5px}}
+
+/* Golden category grid: +4px breathing space only BETWEEN the three rows.
+   Existing column gap, card aspect ratios, images and snap behavior unchanged. */
+.categories{row-gap:15px}
+@media(max-width:370px){.categories{row-gap:13px}}
+@media(min-width:680px){.categories{row-gap:18px}}
