@@ -4,7 +4,7 @@
 (() => {
   "use strict";
   const sections = [
-    document.querySelector(".topbar"),
+    document.querySelector(".hero"),
     document.getElementById("shoStoreConnect"),
     document.getElementById("shoCatalogPanel")
   ].filter(Boolean);
