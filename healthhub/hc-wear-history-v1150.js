@@ -143,7 +143,9 @@
   var v=win.HH_DROPBOX_VAULT;
   if(v&&typeof v.connected==='function'&&v.connected()&&typeof v.downloadJson==='function'){
    try{
-    var raw=await v.downloadJson('/HealthHub/profiles/'+p+'-health-connect.json');
+    var source=win.HH_HEALTH_CONNECT_SOURCE_V1015;
+    var got=source&&typeof source.read==='function'?await source.read(p):null;
+    var raw=got?got.raw:await v.downloadJson('/HealthHub/profiles/'+p+'-health-connect.json');
     if(raw&&profile(raw.profile)===p&&raw.records&&typeof raw.records==='object')
      return {records:raw.records,exportedAt:raw.exportedAt||null,source:'Dropbox · Health Connect'};
    }catch(_){/* preserve local fallback, do not fabricate zero */}
