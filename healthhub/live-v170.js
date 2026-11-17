@@ -104,6 +104,10 @@ async function sleepSessions(profile){
    var raw=got?got.raw:await v.downloadJson(path);
    if(raw&&String(raw.profile||'').toLowerCase()===profile){
     addRows(raw.records&&raw.records.sleepSessions,raw.exportedAt);
+    // Seed a bounded local Sleep snapshot. This never delays canonical data.
+    var fast=window.HH_SLEEP_LOCAL_V3;
+    if(fast&&typeof fast.save==='function')fast.save(profile,raw).catch(function(){});
+
     hhSelectNightVitals384(profile,raw.records,Array.from(map.values()).sort(function(a,b){return Date.parse(a.endTime)-Date.parse(b.endTime)}));
     window.hhSleepSourceMeta={profile:profile,source:'Dropbox / Health Connect',exportedAt:raw.exportedAt||null};
     cloudUsed=true;
@@ -501,9 +505,43 @@ window.hhSleepTrendPick386=function(el){
 async function render(profileOverride){
  var page=document.getElementById('hhSleepPage');if(!page)return;
  var renderId=++sleepRenderSeq,requestedProfile=profileOverride||pkey(),perfStarted=Date.now();
- page.innerHTML=heroHtml()+'<div class="surface hhSleepSurface"><div class="hhSleepTop"><div><small>HEALTH CONNECT · <span id="hhSleepSourceLabel">ALVÁS</span></small><h2>Alvás és regeneráció</h2></div><button class="hhSleepProfile" onclick="hhSleepToggleProfile(event)" aria-label="Váltás '+esc(otherName())+' profiljára">'+esc(pname())+'</button></div><div class="hhSleepCard hhSleepLoading"><div class="hhSleepSpinner"></div><b>Alvásadatok betöltése…</b><small>Health Connect adatok feldolgozása</small></div></div>'+bottomNav();
- var rows=await sleepSessions(requestedProfile);
+ page.innerHTML=heroHtml()+'<div class="surface hhSleepSurface"><div class="hhSleepTop"><div><small>HEALTH CONNECT · ALVÁS</small><h2>Alvás és regeneráció</h2></div><div class="hhSleepCard hhSleepLoading"><div class="hhSleepSpinner"></div><b>Alvásadatok betöltése…</b><small>Health Connect ellenőrzése</small></div></div>'+bottomNav();
+ var authoritative=sleepSessions(requestedProfile),completed=false,previewShown=false;
+ var fast=window.HH_SLEEP_LOCAL_V3;
+ if(fast&&typeof fast.read==='function')Promise.resolve().then(function(){
+  return fast.read(requestedProfile);
+ }).then(function(saved){
+  if(!saved||!Array.isArray(saved.rows)||!saved.rows.length||completed||
+   renderId!==sleepRenderSeq||pkey()!==requestedProfile)return;
+  previewShown=true;
+  paintSleep(saved.rows,requestedProfile,renderId,perfStarted,true,saved.exportedAt);
+ }).catch(function(){});
+ var rows=await authoritative;
  if(renderId!==sleepRenderSeq||pkey()!==requestedProfile)return;
+ completed=true;
+ var verified=window.hhSleepSourceMeta?.source==='Dropbox / Health Connect';
+ if(!verified&&previewShown&&!rows.length){
+  var banner=page.querySelector('[data-hh-sleep-source="local-preview"]');
+  if(banner){banner.dataset.hhSleepSource='offline-local';banner.textContent='⚠️ Dropbox most nem érhető el. Korábbi, helyben mentett alvásadatok.'}
+  return;
+ }
+ paintSleep(rows,requestedProfile,renderId,perfStarted,false,null);
+}
+function paintSleep(rows,requestedProfile,renderId,perfStarted,preview,exportedAt){
+ var page=document.getElementById('hhSleepPage');
+ if(!page||renderId!==sleepRenderSeq||pkey()!==requestedProfile)return;
+ if(preview){
+  hhSleepVitals384[requestedProfile]=null; // never guess pulse or oxygen from cached stage records
+  window.hhSleepSourceMeta={profile:requestedProfile,source:'Korábbi helyi Sleep snapshot',exportedAt:exportedAt||null};
+  window.hhSleepDataSource='Helyi Sleep gyorsnézet · '+requestedProfile;
+ }
+ var sourceStatus=preview?'local-preview':
+  window.hhSleepSourceMeta?.source==='Dropbox / Health Connect'?'verified-cloud':'offline-local';
+ var sourceNotice=preview?
+  '⏳ Korábbi, helyben mentett alvás · export: '+esc(exportedAt?fmtDateFull(exportedAt):'nem ismert')+' · Dropbox ellenőrzése folyamatban':
+  sourceStatus==='verified-cloud'?
+  '✅ Dropbox Health Connect ellenőrizve · '+esc(requestedProfile==='monika'?'Mónika':'Zsolt'):
+  '⚠️ Dropbox nem igazolt · korábban importált alvásadatok, nem élő mérés';
  var latest=rows[rows.length-1]||null,night=latest?hhLatestNight(rows):null,period=filtered(rows),total=latest?durMin(latest.startTime,latest.endTime):0;var srcLabel=(window.hhSleepDataSource||'Health Connect').toUpperCase();
  // Sleep v433 Golden Standard is the default for both profiles.
  // Display-only fallback remains available at ?hh_sleep_v428_preview=0;
@@ -522,6 +560,7 @@ async function render(profileOverride){
   ):'<div class="hhSleepEmpty big">Még nincs Health Connect alvásadat ennél a profilnál.</div>';
  page.innerHTML=heroHtml()+'<div class="surface hhSleepSurface">'+
  '<div class="hhSleepTop"><div><small>HEALTH CONNECT · '+esc(requestedProfile==='monika'?'MÓNIKA':'ZSOLT')+'</small><h2>Alvás és regeneráció</h2></div><button class="hhSleepProfile" onclick="hhSleepToggleProfile(event)" aria-label="Váltás '+esc(otherName())+' profiljára">'+esc(pname())+'</button><span id="hhSleepRagBuddyV1146" class="hhSleepRagBuddyV1146" data-rag="unknown" role="img" aria-label="Buddy: az éjszakai alvásidő nem ismert"><span class="hhSleepRagBuddyFaceV1146" aria-hidden="true"></span></span></div>'+
+ '<div class="hhSleepCacheStatusV3" data-hh-sleep-source="'+sourceStatus+'" role="status" style="background:rgba(17,67,102,.08);border:1px solid rgba(53,105,153,.20);border-radius:12px;padding:9px 11px;font-size:10px;font-weight:800;color:#27506b;margin:3px 0 9px">'+sourceNotice+'</div>'+
  sleepContent+
  '<div class="hhSleepCard"><div class="hhSleepCardHead"><div><small>TREND</small><h3>Alvásidő</h3></div><div class="hhSleepPeriods"><button class="'+(sleepState.period==='7d'?'on':'')+'" onclick="hhSleepPeriod(\'7d\')">Heti</button><button class="'+(sleepState.period==='30d'?'on':'')+'" onclick="hhSleepPeriod(\'30d\')">Havi</button><button class="'+(sleepState.period==='90d'?'on':'')+'" onclick="hhSleepPeriod(\'90d\')">3 hónap</button></div></div>'+chart(period)+trendSummary(period)+'</div>'+
  (v428Enabled&&latest?window.HH_SLEEP_V428.calendar(rows,requestedProfile):'')+
@@ -554,6 +593,7 @@ async function render(profileOverride){
  }
  window.hhSleepPerfV1={totalMs:Math.max(0,Date.now()-perfStarted),sourceKind:window.hhSleepSourceMeta?.source||'nem ellenőrizhető',completedAt:Date.now()};
 }
+
 function ensurePage(){
  if(document.getElementById('hhSleepPage'))return;
  var s=document.createElement('section');s.id='hhSleepPage';s.className='hhSleepPage';document.body.appendChild(s);
