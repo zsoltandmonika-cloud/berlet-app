@@ -1,7 +1,27 @@
 # Samsung Health Data SDK: HealthHub közvetlen napi aktivitásadatok (v371)
 
-**Státusz: ELŐKÉSZÍTETT, MÉG NEM KAPCSOLÓDOTT.**
+**Státusz: ELŐKÉSZÍTETT, PRIVÁT SDK-PILOT VÁZÁVAL. MÉG NEM KAPCSOLÓDOTT.**
 A v371 webes adatfogadó kódja és forrásszétválasztása kész. **A Samsung Health Data SDK Android-olvasója nincs beépítve az APK-ba**, nincs Samsung jóváhagyás, és a v371 önmagában nem oldja meg a hiányzó kalória/aktív idő/emeletszám importját. A meglévő Health Connect → Dropbox kapcsolat továbbra is működik.
+
+## Fejlesztési állapot · 2026-11-17 (Samsung Direct privát tesztág)
+
+**Kód-előkészítés elkészült, ÉLES ADATKAPCSOLAT MÉG NINCS.** A gyári Samsung Health Data SDK AAR nincs a nyilvános repóban és nincs Samsung-partnerregisztráció; a jelenlegi 0.15.20-szal kiadott, aláírt telefonos alkalmazás **nem tartalmaz közvetlen SDK-olvasót**.
+
+- A `app/build.gradle.kts` kizárólag `-PhhSamsungDirectPilot=true` mellett teszi fordíthatóvá a külön `src/samsungDirectPilot/kotlin` forráskódot; a szokásos kiadások változatlanul SDK-mentesek.
+- A `SamsungHealthDirectPilot.kt` privát tesztolvasó csak a tulajdonos által megnyomott tesztgomb után, külön Samsung Health `ACTIVITY_SUMMARY` READ engedéllyel olvassa a `TOTAL_ACTIVE_TIME` pontos `Duration` értékét.
+- Az SDK-n keresztül ténylegesen kiolvasott **mai aktív perc** külön `/HealthHub/profiles/<owner>-samsung-health.json` fájlba kerül; a `<owner>-health-connect.json` változatlan marad. Más profil adatát sem olvassa/feltölti. A Samsung fájl előző, befejezett napjait megtartja.
+- Hiányzó adat/engedély/Dropbox-kapcsolat esetén a pilot nem állít elő és nem tölthet fel kitalált számot; a normál Health Connect dolgozik tovább.
+- A tesztgomb **nem jelenik meg az általános Android-buildben**, és a pilot funkció még nem lett valódi Samsung SDK AAR-rel lefordítva, sem egyik telefonon kipróbálva.
+
+### Privát Samsung SDK teszt feloldásának előfeltételei
+1. A hivatalos Samsung Developer oldalról a **Samsung Health Data SDK** csomag és AAR letöltése. A licencelt fájlt kizárólag a saját fejlesztői gépen az `app/private-samsung-sdk/samsung-health-data-api.aar` útvonalon tárold (szükség esetén fájl átnevezése).
+2. Android Studio / helyi Gradle: `./gradlew :app:assembleDebug -PhhSamsungDirectPilot=true` és az opcionális forrás Samsung SDK-változathoz való fordítási ellenőrzése. Az AAR-t, az aláíró kulcsot és Dropbox-tokeneket nem szabad a GitHubra feltölteni.
+3. A Samsung által dokumentált **fejlesztői mód csak fejlesztői tesztre** való. Normál telefonos terjesztéshez külön Samsung-partnerjóváhagyás és regisztrált SHA-256 aláírás kell.
+4. A privát teszt APK-ban a tulajdonos kiválasztása és a külön Samsung Health-engedélyezés után a **„Samsung Direct · aktív percek tesztolvasása”** gombbal történik az első próba. A Dropbox napi Samsung-fájlban valódi, aktuális `activeMinutes` értéknek kell szerepelnie. A webes v371 forráskezelő a következő megnyitáskor tudja átvenni, ha nem elavult.
+5. Valós készülék- és jogosultsági teszt + Samsung partnerstátusz előtt **nincs OTA-előléptetés**, nincs háttérszinkron-bekötés, nincs automatikus Samsung-permission popup.
+
+### Elővigyázatosság
+Nem cseréljük le a Samsung napi aktivitásidejét a Health Connect `EXERCISE_DURATION_TOTAL` értékére, mert ez két külön fogalom. Hiányzó Samsung adatot **„—”** jelöli, nem mért nulla. A Samsung-adatok beolvasási és felhőfrissítési ideje két eltérő mérőszám; az SDK-fájl nem írhatja át a Health Connect export idejét.
 
 ## Miért kell közvetlen SDK?
 A Health Connect nem feltétlen adja át a Samsung napi Activity Tracker összesített adatait; lehet, hogy az aktív idő, a kalória és az emeletek különböznek vagy hiányoznak a Samsung apphoz képest. A Samsung Health Data SDK `ActivitySummaryType` a **TOTAL_ACTIVE_TIME**, **TOTAL_ACTIVE_CALORIES_BURNED**, **TOTAL_DISTANCE** és **TOTAL_CALORIES_BURNED** aggregátumokat támogatja. `FloorsClimbedType.TOTAL` külön kérdezhető le. A magasságszint-emelkedés külön, nem garantált adat; a Samsung Data SDK támogatott listája nem jelöl önálló elevation gained típust.
