@@ -67,12 +67,14 @@ function make(profile='monika'){
   releaseSamsung(){completeSamsung({status:'not_connected',profile:'monika',data:null})},
   stats(){return {cloudReads,syncReads,dbOpens}}};
 }
-test('verified Dropbox metrics appear only after profile-scoped source completes',async()=>{
+test('local Activity preview is explicitly labelled; verified metrics replace it only after Dropbox completes',async()=>{
  const h=make();
  h.w.hhOpenActivity();
  for(let i=0;i<12;i++)await flush();
- assert.match(h.nodes.hhActivityPage191.innerHTML,/Dropbox ellenőrzése/);
- assert.equal(h.w.hhActivity191Cache,undefined,'stale local imports never shown as verified cloud values');
+ assert.match(h.nodes.hhActivityPage191.innerHTML,/Korábbi, helyben mentett aktivitás/);
+ assert.equal(h.w.hhActivity191Source.preview,true,'local import is only a preview');
+ assert.equal(h.w.hhActivity191Source.cloud,null,'no stale preview may masquerade as verified Dropbox');
+ assert.equal(h.w.hhActivity191Cache.daily.find(x=>x.date===h.today).steps,1200);
  assert.equal(h.stats().cloudReads,1,'one canonical Dropbox fetch');
  assert.equal(h.stats().syncReads,0,'opening Activity cannot start duplicate HC import');
  h.releaseCloud();h.releaseSamsung();
@@ -87,11 +89,11 @@ test('verified Dropbox metrics appear only after profile-scoped source completes
 test('slow optional Samsung export cannot delay verified Health Connect result',async()=>{
  const h=make();h.w.hhOpenActivity();
  for(let i=0;i<12;i++)await flush();
- assert.match(h.nodes.hhActivityPage191.innerHTML,/Dropbox ellenőrzése/);
+ assert.match(h.nodes.hhActivityPage191.innerHTML,/Korábbi, helyben mentett aktivitás/);
  h.releaseCloud(7100);
  await new Promise(resolve=>setTimeout(resolve,2650));
  for(let i=0;i<8;i++)await flush();
- assert.doesNotMatch(h.nodes.hhActivityPage191.innerHTML,/Helyi gyorsnézet/);
+ assert.equal(h.w.hhActivity191Source.preview,false);
  assert.equal(h.w.hhActivity191Cache.daily.find(x=>x.date===h.today).steps,7100);
  assert.equal(h.w.hhActivity191Source.samsung.status,'pending');
  h.releaseSamsung();
@@ -108,7 +110,9 @@ test('Activity source code is read-only, profile scoped, and HTML busts stale JS
  assert.match(script,/var cloudPromise=cloudBundle\(requestedProfile\)/);
  assert.match(script,/var finalRaw=attachCloud/);
  assert.match(script,/var samsungQuick=timelyOptional\(samsungPromise\)/);
- assert.doesNotMatch(script,/Promise\.all\(\[localPromise,heightPromise\]\)\.then/);
+ assert.match(script,/localPromise\.then\(function\(localRows\)/);
+ assert.match(script,/Korábbi, helyben mentett aktivitás/);
+ assert.match(script,/pkey\(\)!==requestedProfile/);
  assert.match(script,/Dropbox-export NEM igazolt/);
  assert.doesNotMatch(script,/window\.hhHealthCloudSync\(false\)/);
  assert.match(html,/live-v191\.js\?v=1017-profile-memory-verified/);
