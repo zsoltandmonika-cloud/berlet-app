@@ -44,6 +44,7 @@ jobs:
           node --check healthhub/activity-fast/activity-engine-v3.js
           node --check healthhub/activity-fast/single-profile-cloud-v3.js
           node --test healthhub/activity-fast/activity-local-first-v3.test.cjs
+          node --test healthhub/activity-fast/active-minutes-source-v4.test.cjs
           node --check healthhub/activity-profile-test/profile-isolation.test.cjs
           node --check healthhub/activity-profile-test/profile-memo-v2.test.cjs
           node --check healthhub/activity-profile-test/activity-one-release.test.cjs
