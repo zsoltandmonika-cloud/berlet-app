@@ -41,7 +41,7 @@
 /* Shopping screen-group snap v13 · approved SHO Golden Standard.
    Content alone snaps. Fixed bottom navigation and shell never animate. */
 html.shopping-snap-ready{scroll-snap-type:y proximity;scroll-padding-top:0}
-html.shopping-snap-ready .topbar,
+html.shopping-snap-ready .hero,
 html.shopping-snap-ready #shoStoreConnect,
 html.shopping-snap-ready #shoCatalogPanel{scroll-snap-align:start;scroll-snap-stop:normal}
 html.shopping-snap-ready #shoStoreConnect,
@@ -54,3 +54,20 @@ html.shopping-snap-ready #shoCatalogPanel{scroll-margin-top:0}
    Four meaningful bottom tabs remain; searching stays in the large main search bar. */
 .hero-title{justify-content:flex-end}
 .bottomnav{grid-template-columns:repeat(4,minmax(0,1fr))}
+
+/* SHO Golden v2 · one streamlined header; minimal pink Ask Léna icon.
+   No filled card behind the Ask tab. Existing other tabs and hero remain unchanged. */
+.hero-title{justify-content:space-between}
+.hero-title .hero-kicker{
+ display:inline-flex;align-items:center;min-width:0;max-width:calc(100% - 111px);
+ white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+ border:1px solid #f3bf7999;border-radius:40px;
+ color:#ffebbd;font-size:9px;font-weight:800;letter-spacing:.6px;
+ padding:3px 7px
+}
+.bottomnav{grid-template-columns:repeat(5,minmax(0,1fr))}
+.bottomnav .ask-lena{background:transparent;border:0;color:#d7d9eb;box-shadow:none}
+.bottomnav .ask-lena .ask-icon{font-size:23px;line-height:1;color:#ff85cf;text-shadow:0 0 4px #f43aa652}
+.bottomnav .ask-lena:active{background:transparent}
+.bottomnav .ask-lena:focus-visible{outline:2px solid #e9abd8;outline-offset:-3px;border-radius:7px}
+@media(max-width:370px){.hero-title .hero-kicker{font-size:8px;letter-spacing:.3px;padding:3px 5px}}
