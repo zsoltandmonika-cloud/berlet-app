@@ -79,13 +79,15 @@
    const candidate=source.querySelector("#hhSmartMatchPinTimeV1")?.textContent?.trim()||"";
    const line=source.querySelector(".hh-smart-match-pin-label")?.textContent?.trim()||"";
    const detail=source.querySelector("#hhSmartMatchPinNoteV1")?.textContent?.trim()||"";
+   const manual=source.dataset.temporaryPin==="on";
+   const cleanDetail=manual?detail.replace(/^📌\s*/,""):detail;
    const valid=state==="ready"&&/^[0-2]?[0-9]:[0-5][0-9]$/.test(candidate);
    time.textContent=valid?candidate:"–:–";
-   heading.textContent="SMART MATCH";
+   heading.textContent=manual?"📌 SMART MATCH":"SMART MATCH";
    route.textContent=valid?(line.replace("🚌 ","")||"MENETREND"):"260 · MENETREND";
    // Only an explicitly matched tram segment from the CURRENT Smart Match
    // note may appear here. Do not invent or infer 17/19 connections.
-   const pieces=valid?detail.split(/\s*·\s*/).map(x=>x.trim()).filter(Boolean):[];
+   const pieces=valid?cleanDetail.split(/\s*·\s*/).map(x=>x.trim()).filter(Boolean):[];
    const matched=pieces.find(x=>/^🚋\s+/.test(x))||"";
    const remaining=pieces.filter(x=>x!==matched).join(" · ");
    transfer.textContent=matched;
@@ -111,7 +113,7 @@
    if(mirror)mirror.disconnect();
    observed=source;
    mirror=new MutationObserver(update);
-   mirror.observe(source,{subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:["data-state","href"]});
+   mirror.observe(source,{subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:["data-state","href","data-temporary-pin"]});
    update();
    return true;
   }

@@ -12,6 +12,7 @@ const CITRONELLA_DEFAULT_APPLIED="hh-smart-match-citronella-default-v2-m";
 const FULL="/berlet-app/healthhub/guardian/smart-260-connect/";
 import {HOME as MONIKA_DEFAULT,DEFAULT as OFFICE_TO_HOME,REVERSE as HOME_TO_OFFICE,compute,bus260DirectionForTemplate,full260Timetable,pair260Connections} from "./smart-260-connect/core.mjs?v=45-multi-tram-5min";
 import {chooseLocation} from "./guardian-smart-location-v1.mjs?v=1";
+import {readDepartureFocus,focusKey} from "./smart-match-departure-focus-v1.mjs?v=1";
 const HOST_ID="hhSmartMatchPinV1";
 const AUTO_KEY="sh9-smart-location-switch-v1-m";
 const SWITCH_ID="hhSmartLocationSwitchV1";
@@ -213,8 +214,55 @@ function currentLink(item){
  if(profile==="zsolt")return target?FULL+"?profile=z&pinned=1&id="+encodeURIComponent(target):FULL+"?profile=z";
  return target?FULL+"?pinned=1&id="+encodeURIComponent(target)+"&profile=m":FULL+"?profile=m";
 }
+function renderTemporaryDeparture(now=Date.now()){
+ const focus=readDepartureFocus(activeProfile(),null,now);
+ if(!focus)return false;
+ const profile=activeProfile()==="zsolt"?"z":"m";
+ const direction=focus.direction==="home"?"Irodából":focus.direction==="work"?"Otthonról":"Indulás";
+ const leave=Number.isFinite(focus.leaveMs)?clock(focus.leaveMs):"";
+ const late=Number.isFinite(focus.leaveMs)&&focus.leaveMs<now?" · az indulási idő elmúlt":"";
+ const transfer=focus.tramLine&&Number.isFinite(focus.tramDepartMs)?
+  " · 🚋 "+focus.tramLine+" "+clock(focus.tramDepartMs):"";
+ const line=focus.line||"260";
+ const stop=focus.stop||"menetrend";
+ const pinnedLabel=focus.kind==="260"?"🚌 260 · "+stop.toLocaleUpperCase("hu-HU"):
+  "📌 "+line+" · "+stop.toLocaleUpperCase("hu-HU");
+ const pinnedNote=direction+(leave?" "+leave:"")+late+transfer;
+ const link=FULL+"?profile="+profile+"&pinned=1&id="+encodeURIComponent(focus.routeId);
+ const card=document.getElementById(HOST_ID);
+ if(card){
+  card.dataset.temporaryPin="on";
+  const label=card.querySelector(".hh-smart-match-pin-label");
+  if(label)label.textContent=pinnedLabel;
+ }
+ setView({time:clock(focus.displayMs),note:"📌 "+pinnedNote,
+  title:"Smart Match · IDEIGLENESEN KITŰZVE · "+line+" · "+stop+
+   " · menetrend szerinti indulás "+clock(focus.departMs)+
+   " · lejárat "+clock(focus.expiresAt)+" · nem élő járműadat",
+  status:"ready",link});
+ return true;
+}
 function renderClock(){
- if(!state.item)return;
+ if(renderTemporaryDeparture())return;
+ const card=document.getElementById(HOST_ID);
+ const wasManual=card?.dataset.temporaryPin==="on";
+ if(card){
+  card.dataset.temporaryPin="off";
+  if(wasManual){
+   const label=card.querySelector(".hh-smart-match-pin-label");
+   if(label)label.textContent="📌 SMART MATCH";
+  }
+ }
+ if(wasManual&&state.item&&!state.loading&&!state.loaded){
+  // First automatic refresh only after the scheduled pin has expired.
+  updateSchedule({force:true});return;
+ }
+ if(!state.item){
+  const z=activeProfile()==="zsolt";
+  setView({time:"–:–",note:"Útvonal kiválasztása",status:"inactive",
+   title:"Smart Match · nincs következő kijelzés",link:FULL+"?profile="+(z?"z":"m")});
+  return;
+ }
  const now=Date.now();
  // Match the full-size pinned card: focus the NEXT official 260 departure
  // at the selected stop, even if no short tram connection is possible.
@@ -253,6 +301,9 @@ function renderClock(){
 }
 async function updateSchedule({force=false}={}){
  if(!state.item||state.loading||!state.visible)return;
+ // Avoid redundant BKK fetches while a verified timetable departure is
+ // temporarily held on every Smart Match display.
+ if(renderTemporaryDeparture())return;
  // Save-only profile card: tram 1 is outside the current verified GTFS pilot.
  // The goal 13:40 is a desired arrival, not an actual bus/tram departure or ETA.
  if(state.item.targetRoute==="tram:1"||
@@ -337,6 +388,7 @@ function refresh({force=false}={}){
  const item=readPin();
  if(!item){
   state.item=null;state.id=null;state.entries=[];state.loaded=null;
+  if(renderTemporaryDeparture())return;
   const z=activeProfile()==="zsolt";
   setView({time:"Smart Match",note:z?"Zsolt · saját útvonal beállítása ↗":"Mónika-profilban aktív ↗",status:"inactive",
    title:z?"Smart Match · Zsolt saját útvonalai":"Smart Match · Mónika útvonala",
@@ -346,6 +398,7 @@ function refresh({force=false}={}){
  const change=state.id!==item.id||JSON.stringify(state.item)!==JSON.stringify(item);
  state.item=item;state.id=item.id;
  if(change){state.entries=[];state.loaded=null}
+ if(renderTemporaryDeparture())return;
  if(change||force)updateSchedule({force:true});
  else renderClock();
 }
@@ -390,13 +443,15 @@ function start(){
    paintSwitch();refresh({force:true});if(state.autoEnabled)considerLocation();
   }
   if(e.key===STORAGE||e.key===ACTIVE||e.key===Z_STORAGE||e.key===Z_ACTIVE)refresh({force:true});
+  if(e.key===focusKey(activeProfile()))renderClock();
  });
  window.addEventListener("pageshow",()=>{if(state.visible){considerLocation();refresh({force:true})}});
  document.addEventListener("visibilitychange",()=>{
   if(!document.hidden&&state.visible){considerLocation();refresh({force:false})}
  });
  window.addEventListener("focus",()=>{if(state.visible){considerLocation();refresh({force:false})}});
- setInterval(()=>{if(state.visible&&state.item)renderClock()},30000);
+ // Local display refresh only; the 10s interval never polls BKK or GPS.
+ setInterval(()=>{if(state.visible)renderClock()},10000);
  // Poll only an already cached verified Family Guard fix; no new GPS requests.
  setInterval(considerLocation,12000);
  // A local event enables deterministic QA and timely foreground refresh.

@@ -1,0 +1,50 @@
+/* SHO Smart Match · Temporary departure pin / V1
+   Isolated to source-backed timeline itinerary cards. No layout changes
+   to the Family Guard dashboard, eight status cards or map. */
+#timeline .sm-departure-pin-actions-v1{
+ display:flex!important;align-items:center!important;justify-content:flex-end!important;
+ position:relative!important;z-index:2!important;
+ margin-top:10px!important;gap:6px!important;
+}
+#timeline .sm-departure-pin-v1{
+ box-sizing:border-box!important;display:inline-flex;align-items:center;justify-content:center;
+ min-height:36px;min-width:103px;max-width:100%;
+ padding:8px 13px;border-radius:12px;
+ border:1px solid rgba(252,174,226,.62);
+ background:linear-gradient(136deg,rgba(202,76,157,.92),rgba(133,58,139,.96));
+ color:#fff;font:800 12px/1.1 system-ui,-apple-system,"Segoe UI",sans-serif;
+ text-align:center;white-space:nowrap;
+ box-shadow:inset 0 1px rgba(255,255,255,.26),0 3px 11px rgba(61,13,72,.24);
+ cursor:pointer;touch-action:manipulation;
+}
+#timeline .sm-departure-pin-v1[hidden]{display:none!important}
+#timeline .sm-departure-pin-v1:focus-visible{
+ outline:2px solid #fff!important;outline-offset:2px!important
+}
+#timeline .sm-departure-pin-v1:active{transform:scale(.98)}
+#timeline .sm-departure-pin-v1[aria-pressed="true"]{
+ border-color:rgba(118,255,202,.85);
+ background:linear-gradient(133deg,rgba(33,133,102,.94),rgba(17,93,88,.98));
+ color:#eafff6;
+}
+#timeline .timeline-row.sm-departure-focused-v1{
+ border-color:rgba(242,158,223,.95)!important;
+ box-shadow:0 0 0 1px rgba(236,135,216,.32),0 0 18px rgba(240,98,189,.28)!important;
+ opacity:1!important;
+}
+#timeline .timeline-row.sm-departure-focused-v1.next:after{
+ content:"📌 Kitűzött járat"!important;
+ background:linear-gradient(110deg,#ffc2e9,#e1adff)!important;
+ color:#4c225a!important;
+}
+body[data-smart-match-profile="z"] #timeline .sm-departure-pin-v1:not([aria-pressed="true"]){
+ border-color:rgba(156,218,255,.63);
+ background:linear-gradient(135deg,rgba(64,134,207,.94),rgba(45,89,156,.96));
+}
+@media(max-width:385px){
+ #timeline .sm-departure-pin-actions-v1{margin-top:7px!important}
+ #timeline .sm-departure-pin-v1{min-width:95px;min-height:34px;font-size:11px;padding:6px 10px}
+}
+@media(prefers-reduced-motion:reduce){
+ #timeline .sm-departure-pin-v1:active{transform:none}
+}
