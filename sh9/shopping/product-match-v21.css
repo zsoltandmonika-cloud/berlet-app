@@ -1,0 +1,37 @@
+
+/* SHO Smart Product Match V2.1. Scoped to new panel, preserve existing Golden screens. */
+.product-match{border-color:rgba(142,212,238,.50)!important;background:radial-gradient(ellipse at 0% 0%,rgba(55,100,127,.36),transparent 85%),linear-gradient(120deg,rgba(37,34,67,.94),rgba(14,37,60,.95))!important}
+.product-match .section-head{margin-bottom:8px}
+.product-match .section-head .badge{font-size:10px;color:#c3e9ff;border-color:rgba(125,210,236,.65);background:rgba(20,81,104,.58)}
+.product-match .match-tools{margin:9px 0 12px}
+.product-match .match-tools label{display:flex;align-items:center;gap:9px;color:#d2cde6;font-size:11px;font-weight:770}
+.product-match .match-tools select{flex:1;min-width:0;min-height:41px;padding:8px 10px;border:1px solid rgba(169,186,224,.56);border-radius:11px;background:#121d36;color:#f4f1fa;font-size:11px}
+.product-match .match-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.product-match .pm-card{min-width:0;border:1px solid rgba(202,159,207,.37);border-radius:16px;padding:8px;background:linear-gradient(138deg,rgba(60,39,75,.91),rgba(22,38,62,.94));box-shadow:inset 0 1px rgba(255,255,255,.13)}
+.product-match .pm-card[data-match="likely"]{border-color:rgba(104,219,169,.71)}
+.product-match .pm-card[data-match="mismatch"]{border-color:rgba(242,170,112,.71)}
+.product-match .pm-media{position:relative;width:100%;height:148px;border:1px solid rgba(255,255,255,.22);border-radius:11px;overflow:hidden;display:grid;place-items:center;background:radial-gradient(ellipse at top left,#644464,#23334c 75%)}
+.product-match .pm-media img{width:100%;height:100%;object-fit:contain;background:rgba(255,255,255,.98)}
+.product-match .pm-media .pm-placeholder{font-size:32px}
+.product-match .pm-source{position:absolute;left:6px;bottom:6px;padding:4px 6px;border-radius:8px;border:1px solid rgba(223,244,255,.65);background:rgba(17,31,58,.91);color:#e8f6ff;font-weight:850;font-size:9px;line-height:1}
+.product-match .pm-body{display:flex;flex-direction:column;gap:5px;padding:8px 1px 2px}
+.product-match .pm-name{font-size:12px;line-height:1.34;min-height:30px;word-break:break-word}
+.product-match .pm-info{font-size:10px;color:#cbbfd9;min-height:14px}
+.product-match .pm-match{font-size:10px;font-weight:820;border:1px solid rgba(197,184,216,.48);border-radius:9px;padding:4px 7px;align-self:flex-start;background:rgba(57,55,91,.83)}
+.product-match .pm-match[data-match="likely"]{color:#9ef2c5;border-color:#62c999}
+.product-match .pm-match[data-match="mismatch"]{color:#ffdbab;border-color:#e7aa72}
+.product-match .pm-no-price{margin-top:4px;border:1px solid rgba(157,181,207,.33);background:rgba(14,27,46,.70);border-radius:10px;padding:7px 9px}
+.product-match .pm-no-price small{display:block;color:#b9c3d9;font-size:9px;font-weight:800;letter-spacing:.55px}
+.product-match .pm-no-price strong{display:block;font-size:11px;margin-top:2px;color:#f4d2e6}
+.product-match .pm-actions{display:flex;flex-wrap:wrap;gap:5px;margin-top:4px}
+.product-match .pm-actions a{display:flex;flex:1 1 calc(50% - 5px);min-height:35px;min-width:0;align-items:center;justify-content:center;text-align:center;padding:6px 4px;border-radius:9px;border:1px solid rgba(188,192,231,.56);background:linear-gradient(130deg,#683b79,#31466d);color:#fff;font-weight:820;font-size:10px}
+.product-match .pm-actions a:nth-child(2){border-color:rgba(245,174,113,.68);background:linear-gradient(130deg,#835638,#4e4a6b)}
+.product-match .pm-actions .pm-off-link{flex-basis:100%;background:#202941;border-color:#6d819a;color:#c6def2;font-weight:720;font-size:10px}
+.product-match .pm-action-help{font-size:9px;line-height:1.35;color:#bbbdcd}
+.product-match .pm-loading{padding:19px;border:1px dashed rgba(147,209,221,.50);border-radius:13px;font-size:12px;line-height:1.5;color:#d8d9e6;text-align:center;grid-column:1/-1}
+.product-match .pm-loading strong{display:block;color:#e3bfdb;margin-bottom:3px}
+.product-match .pm-muted{color:#bac7d9;font-size:11px}
+.product-match .truth{line-height:1.45}
+@media(min-width:520px){.product-match .match-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:355px){.product-match .match-grid{gap:7px}.product-match .pm-media{height:115px}.product-match .pm-card{padding:6px}.product-match .pm-actions a{font-size:9px}.product-match .pm-name{font-size:11px}}
+@media(prefers-reduced-motion:reduce){.product-match *{transition:none!important}}
