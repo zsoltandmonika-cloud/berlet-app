@@ -394,14 +394,18 @@ async function render(profileOverride){
  var localPromise=readLocal(requestedProfile);
  var cloudPromise=cloudBundle(requestedProfile);
  var finalPainted=false;
- Promise.all([localPromise,heightPromise]).then(function(early){
-  if(renderId!==activityRenderSeq||finalPainted)return;
-  var hasMeasuredActivity=early[0].activity.length>0||early[0].imports.some(function(row){
-   return !!(row.bundle&&row.bundle.records&&Array.isArray(row.bundle.records.dailyActivity)&&row.bundle.records.dailyActivity.length);
+ // Fast path must not wait for a separate profile-height lookup: it may use Dropbox.
+ localPromise.then(function(early){
+  if(renderId!==activityRenderSeq||finalPainted||pkey()!==requestedProfile)return;
+  var hasMeasuredActivity=early.activity.length>0||early.imports.some(function(row){
+   var records=row?.bundle?.records;
+   return !!(row&&row.profile===requestedProfile&&records&&
+    ((Array.isArray(records.dailyActivity)&&records.dailyActivity.length)||
+     (Array.isArray(records.exerciseSessions)&&records.exerciseSessions.length)));
   });
   if(!hasMeasuredActivity)return;
   fastDiag.firstSource=fastDiag.cacheData?'local-snapshot':'existing-local';
-  paintActivity(requestedProfile,attachCloud(early[0],null,requestedProfile),early[1],
+  paintActivity(requestedProfile,attachCloud(early,null,requestedProfile),null,
    {status:'pending',data:null,profile:requestedProfile},renderId,true);
   fastDiag.phase='preview';
  }).catch(function(){});
