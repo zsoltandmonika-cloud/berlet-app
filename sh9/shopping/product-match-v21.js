@@ -77,11 +77,17 @@
    body.append(price);
    const actions=mk('div','pm-actions');
    const full=[p.name,p.brand,p.quantity].filter(Boolean).join(' ').slice(0,140);
-   for(const [key,label] of [['tesco','Tesco találatok ↗'],['auchan','Auchan találatok ↗']]){
-    const a=mk('a',null,label);
-    a.href=stores.destination(key,full);
+   for(const [key,label] of [['tesco','Tesco találatok ↗'],['auchan','Auchan találatok ↗'],['spar','SPAR / Wolt webes találatok ↗']]){
+    const a=mk('a',key==='spar'?'pm-spar-link':null,label);
+    // Tesco's existing successful exact search stays unchanged.
+    // Auchan: avoid concatenated OFF brand and quantity over-filtering.
+    // SPAR: Wolt venue pages are indexed via clearly labeled Google search.
+    const wanted=key==='tesco'?full:p.name;
+    a.href=stores.destination(key,wanted);
     a.target='_blank';a.rel='noopener noreferrer external';
-    a.setAttribute('aria-label',p.name+' keresése a '+key+' hivatalos találati listájában');
+    a.setAttribute('aria-label',key==='spar'?
+     'SPAR termékoldalak keresése Google-ban, a Wolt SPAR-oldalaira szűrve':
+     p.name+' keresése a '+key+' hivatalos találati listájában');
     actions.append(a);
    }
    const off=mk('a','pm-off-link','Open Food Facts adatlap ↗');
@@ -91,7 +97,7 @@
    body.append(actions);
    body.append(mk('small','pm-action-help',
     p.match.status==='mismatch'?'⚠️ Nem azonos kiszerelés/összetétel. A boltnál külön ellenőrizd.':
-    'A boltok teljes találati oldalai nyílnak meg. Az ár és a kosár ott ellenőrizhető.'));
+    'Tesco/Auchan: bolti kereső. SPAR: Wolt-oldalakra szűrt külső webkeresés. Kiszerelés, ár és kosár ellenőrizendő.'));
    card.append(body);box.append(card);
   }
  }
