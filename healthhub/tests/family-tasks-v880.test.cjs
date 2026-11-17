@@ -118,7 +118,7 @@ test('assigned shopping-list preparation task opens the EXISTING shared Smart Li
  const resolved=new URL('../shopping/smart-list.html','https://example.test/berlet-app/sh9/family-hub/');
  assert.equal(resolved.pathname,'/berlet-app/sh9/shopping/smart-list.html');
  assert.match(html,/family-tasks-smart-list-link-v1\.css\?v=1/);
- assert.match(html,/family-tasks-v880\.js\?v=1067-direct-smart-list-link/);
+ assert.match(html,/family-tasks-v880\.js\?v=1066-status-note-voice&smartList=1/);
  assert.match(style,/\.fh-card \.fh-smart-list-task-link/);
  assert.match(shop,/hh_shopping_list_v1/);
  assert.match(shop,/storageKey:'hh-guardian-family-auth-v785'/);
