@@ -6,6 +6,7 @@ on:
     paths:
       - "healthhub/activity-profile-test/**"
       - "healthhub/activity-one/**"
+      - "healthhub/activity-fast/**"
       - "healthhub/live-v191.js"
       - "sh9/index.html"
       - "sh9/sho-preview/index.html"
@@ -17,6 +18,7 @@ on:
     paths:
       - "healthhub/activity-profile-test/**"
       - "healthhub/activity-one/**"
+      - "healthhub/activity-fast/**"
       - "healthhub/live-v191.js"
       - "sh9/index.html"
       - "sh9/sho-preview/index.html"
@@ -39,6 +41,9 @@ jobs:
         run: |
           node --check healthhub/activity-profile-test/activity-engine-v1.js
           node --check healthhub/activity-profile-test/activity-engine-v2.js
+          node --check healthhub/activity-fast/activity-engine-v3.js
+          node --check healthhub/activity-fast/single-profile-cloud-v3.js
+          node --test healthhub/activity-fast/activity-local-first-v3.test.cjs
           node --check healthhub/activity-profile-test/profile-isolation.test.cjs
           node --check healthhub/activity-profile-test/profile-memo-v2.test.cjs
           node --check healthhub/activity-profile-test/activity-one-release.test.cjs
