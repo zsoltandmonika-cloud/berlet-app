@@ -363,11 +363,25 @@ function start(){
  setTimeout(()=>observer.disconnect(),20000);
  // No download until pinned card enters the user's viewport.
  if(typeof IntersectionObserver==="function"){
+  const shown=new Set();
   const io=new IntersectionObserver(entries=>{
-   state.visible=entries.some(x=>x.isIntersecting);
-   if(state.visible){refresh({force:true});considerLocation()}
+   for(const entry of entries){
+    if(entry.isIntersecting)shown.add(entry.target);
+    else shown.delete(entry.target);
+   }
+   const wasVisible=state.visible;
+   state.visible=shown.size>0;
+   if(state.visible&&!wasVisible){refresh({force:true});considerLocation()}
   },{rootMargin:"180px 0px"});
   io.observe(card);
+  // The passive hero preview shares this SAME official timetable and refresh;
+  // never create a second BKK downloader, controller or GPS observer.
+  const observeHero=()=>{
+   const hero=document.getElementById("guardianSmartMatchMicroV1");
+   if(hero)io.observe(hero);
+  };
+  observeHero();
+  window.addEventListener("hh-smart-match-hero-mounted-v1",observeHero);
  }else{state.visible=true;refresh({force:true});considerLocation()}
  window.addEventListener("storage",e=>{
   if(e.key===AUTO_KEY){
