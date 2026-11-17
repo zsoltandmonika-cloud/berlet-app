@@ -20,7 +20,7 @@ test('Native Tesco and Auchan links contain exact multiword search, not a select
  assert.equal(core.destination('auchan',q),
   'https://auchan.hu/shop/search?q%5B%5D='+encodeURIComponent(encodeURIComponent(q)));
  assert.match(core.destination('auchan',q),/lakt%25C3%25B3zmentes/);
- assert.match(core.destination('auchan','  100% arabica   szemes kávé 1 kg '),/100%2525arabica|100%2525%20arabica/);
+ assert.match(core.destination('auchan','  100% arabica   szemes kávé 1 kg '),/100%2525%2520arabica/);
  assert.equal(core.destination('tesco','x'),'');
  assert.equal(core.destination('auchan','x'),'');
  assert.equal(core.destination('other','tej'),'');
@@ -66,7 +66,8 @@ function harness({signed=true,query='',rows=null}={}){
   {id:'b',name:'100% arabica szemes kávé 1 kg',quantity:1,unit:'db'}
  ];
  const ops=[],location={href:'https://example.test/berlet-app/sh9/shopping/three-store-bridge-v2.html'+(query?'?q='+encodeURIComponent(query):'')};
- const history={state:null,replaceState(state,unused,url){location.href='https://example.test'+url}};
+ location.search=new URL(location.href).search;
+ const history={state:null,replaceState(state,unused,url){location.href='https://example.test'+url;location.search=new URL(location.href).search}};
  const cloud={
   auth:{async getUser(){return signed?{data:{user:{id:'member'}},error:null}:{data:{user:null},error:{message:'login'}}}},
   from(table){
