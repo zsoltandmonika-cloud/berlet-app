@@ -95,6 +95,67 @@ test('pinned Timeline date stays in the same compact row as the heading, with or
  assert.match(css,/@media\(max-width:355px\)/);
  assert.doesNotMatch(css,/body:not\(\.pinned\)/);
 });
+
+test('pinned timeline cards snap without resizing or changing normal editor layout',()=>{
+ const css=read('guardian/smart-260-connect/timeline-snap-click-v1.css');
+ const page=read('guardian/smart-260-connect/index.html');
+ assert.match(css,/body\.pinned #timeline\{/);
+ assert.match(css,/scroll-snap-type:y mandatory!important/);
+ assert.match(css,/body\.pinned #timeline > \.timeline-row\{/);
+ assert.match(css,/scroll-snap-align:start!important/);
+ assert.match(css,/max-height:740px/);
+ assert.match(css,/prefers-reduced-motion:reduce/);
+ assert.doesNotMatch(css,/body:not\(\.pinned\)/);
+ assert.doesNotMatch(css,/height:.*!important/);
+ assert.match(page,/timeline-snap-click-v1\.css\?v=1-card-lock/);
+ assert.match(page,/timeline-snap-click-v1\.js\?v=1-soft-tick/);
+});
+test('one quiet click only for user-driven settled NEW card, never for auto-scroll or redraw',()=>{
+ const {runInNewContext}=require('node:vm');
+ const source=read('guardian/smart-260-connect/timeline-snap-click-v1.js');
+ const handlers={};let starts=0,clock=1000,rows=[{index:'0',top:10},{index:'1',top:250},{index:'2',top:490}];
+ const rail={
+  onscrollend:null,
+  getBoundingClientRect:()=>({top:0}),
+  querySelectorAll:()=>rows.map(r=>({dataset:{index:r.index},getBoundingClientRect:()=>({top:r.top})})),
+  addEventListener:(type,handler)=>{handlers[type]=handler}
+ };
+ const document={
+  hidden:false,
+  body:{classList:{contains:()=>true}},
+  getElementById:id=>id==='timeline'?rail:null,
+  addEventListener:()=>{}
+ };
+ class FakeAudio{
+  state='running';currentTime=0;destination={};
+  createOscillator(){return {
+   frequency:{setValueAtTime:()=>{},exponentialRampToValueAtTime:()=>{}},
+   connect:()=>{},start:()=>{starts++},stop:()=>{},disconnect:()=>{}
+  }}
+  createGain(){return {gain:{setValueAtTime:()=>{},exponentialRampToValueAtTime:()=>{}},connect:()=>{},disconnect:()=>{}}}
+ }
+ const window={
+  AudioContext:FakeAudio,
+  matchMedia:()=>({matches:false}),
+  clearTimeout:()=>{},setTimeout:()=>1
+ };
+ runInNewContext(source,{window,document,Date:{now:()=>clock}});
+ // The existing 1-second timetable auto-follow never plays an audio tick.
+ handlers.scroll();
+ handlers.scrollend();
+ assert.equal(starts,0);
+ handlers.pointerdown();
+ rows=[{index:'0',top:-300},{index:'1',top:10},{index:'2',top:250}];
+ handlers.scroll();handlers.scrollend();
+ assert.equal(starts,1);
+ // Redundant scrollend notifications must not tick again.
+ handlers.scrollend();
+ assert.equal(starts,1);
+ clock+=400;handlers.pointerdown();
+ rows=[{index:'0',top:-550},{index:'1',top:-240},{index:'2',top:10}];
+ handlers.scroll();handlers.scrollend();
+ assert.equal(starts,2);
+});
 test('Family Guard mirrors focus and expires without new network or GPS',()=>{
  const guardian=read('guardian/guardian-smart-match-pin-v1.mjs');
  const hero=read('guardian/guardian-smart-match-micro-v1.js');

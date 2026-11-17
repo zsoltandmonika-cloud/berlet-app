@@ -1,0 +1,28 @@
+/* SHO Smart Match · Golden Timeline snap V1
+ * A single journey card settles neatly in the existing pinned viewport.
+ * No card/hero/header height change; no effect on the normal editor.
+ */
+body.pinned #timeline{
+ scroll-snap-type:y mandatory!important;
+ scroll-padding-top:10px!important;
+ overscroll-behavior-y:contain!important;
+}
+body.pinned #timeline > .timeline-row{
+ scroll-snap-align:start!important;
+ scroll-snap-stop:normal!important;
+ scroll-margin-top:0!important;
+}
+/* A card might be taller than a short display in landscape. Never trap
+ * the user above its bottom controls. Keep only a gentle optional snap there. */
+@media(max-height:740px),(orientation:landscape){
+ body.pinned #timeline{scroll-snap-type:y proximity!important}
+}
+@media(prefers-reduced-motion:reduce){
+ body.pinned #timeline{
+  scroll-snap-type:none!important;
+  scroll-behavior:auto!important;
+ }
+ body.pinned #timeline > .timeline-row{
+  scroll-snap-align:none!important;
+ }
+}
