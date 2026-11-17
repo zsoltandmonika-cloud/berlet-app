@@ -7,8 +7,8 @@
 <meta name="description" content="SHO Smart Shopping V2: közös Smart List, valódi Tesco és Auchan áruházi keresés, SPAR Wolt áruházválasztás">
 <title>SHO · 3 boltos Smart Search</title>
 <link rel="icon" type="image/svg+xml" href="../sho-preview/favicon.svg">
-<link rel="stylesheet" href="./three-store-bridge-v2.css?v=1">
-<link rel="stylesheet" href="./product-match-v21.css?v=1">
+<link rel="stylesheet" href="./three-store-bridge-v2.css?v=2-results">
+<link rel="stylesheet" href="./product-match-v21.css?v=2-results">
 </head>
 <body>
 <main class="app">
@@ -31,9 +31,9 @@
   <div id="storeResults" class="results">
    <article class="merchant" data-shop="tesco"><div class="logo">T</div><div class="info"><strong>Tesco</strong><small>Hivatalos találati lista</small></div><span class="arrow">↗</span></article>
    <article class="merchant" data-shop="auchan"><div class="logo">A</div><div class="info"><strong>Auchan</strong><small>Hivatalos találati lista</small></div><span class="arrow">↗</span></article>
-   <article class="merchant" data-shop="spar"><div class="logo">S</div><div class="info"><strong>SPAR / INTERSPAR</strong><small>Wolt · válassz áruházat</small></div><span class="arrow">↗</span></article>
+   <article class="merchant" data-shop="spar"><div class="logo">S</div><div class="info"><strong>SPAR / INTERSPAR</strong><small>Wolt termékoldalakra szűrt webes találatok · üzletválasztás külön</small></div><span class="arrow">↗</span></article>
   </div>
-  <p class="truth" id="sourceNote">Ezek valódi áruházi oldalak, nem lekért árlisták. Az ár, készlet, kiszerelés, termékkép és a kosár a kereskedő oldalán ellenőrizhető.</p>
+  <p class="truth" id="sourceNote">Tesco és Auchan: a boltok saját keresője, széles találati listával. SPAR: külső Google-keresés, kizárólag Wolt SPAR-termékoldalakra szűrve; a Wolt üzletválasztó külön nyílik meg. Az ár, készlet és kiszerelés a bolt oldalán ellenőrizendő.</p>
  </section>
  <section class="panel product-match" id="productMatchPanel" aria-labelledby="productMatchTitle">
   <div class="section-head"><div><small>SMART PRODUCT MATCH · V2.1</small><h2 id="productMatchTitle">📸 Képes termékjelöltek</h2></div><span class="badge" id="matchCount">OFF katalógus</span></div>
@@ -58,9 +58,9 @@
 </nav>
 <script defer src="../../healthhub/central-vault/config.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.2/dist/umd/supabase.min.js"></script>
-<script defer src="./three-store-links-v2.js?v=1"></script>
-<script defer src="./three-store-bridge-v2.js?v=1"></script>
+<script defer src="./three-store-links-v2.js?v=2-results"></script>
+<script defer src="./three-store-bridge-v2.js?v=2-results"></script>
 <script defer src="./product-match-core-v21.js?v=1"></script>
-<script defer src="./product-match-v21.js?v=1"></script>
+<script defer src="./product-match-v21.js?v=2-results"></script>
 </body>
 </html>
