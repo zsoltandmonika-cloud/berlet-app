@@ -5,6 +5,7 @@ import {readOfficialSnapshot} from "../../../sh9/smart-travel/lena-native/bkk/bk
 import {DEFAULT,HOME,REVERSE,FAMILY_OUTBOUND,FAMILY_RETURN,SAMPLES,compute,bus260DirectionForTemplate,full260Timetable,pair260Connections} from "./core.mjs?v=943-family-verified-stops";
 import {wallEpoch} from "../../../sh9/smart-travel/lena-native/bkk/bkk-gtfs-core-v1105.mjs";
 import {ringDirection} from "./ring-direction-v941.mjs?v=950-morgan-compact";
+import {saveDepartureFocus,readDepartureFocus,clearDepartureFocus,canonicalFocusRoute,focusDate} from "../smart-match-departure-focus-v1.mjs?v=1";
 import {FALLBACK,loadCatalog,keyOf,valueOf,label as fleetLabel,norm,coverage} from "./fleet-catalog-v940.mjs?v=946-temporary-4-6-tram";
 const $=id=>document.getElementById(id);
 const storedProfile=()=>{try{const p=localStorage.getItem("hh-profile");return p==="z"?"zsolt":p==="m"?"monika":null}catch(_){return null}};
@@ -649,6 +650,60 @@ function addMini(host,time,label){
  const small=document.createElement("small");small.textContent=label;
  div.append(b,small);host.append(div);
 }
+/* Exact verified row pin: one tap stores the departure and returns to Family Guard.
+ * Unavailable rows / passed home departure may NEVER be advertised as pinnable.
+ * This is independent of the route template pin and existing BKK matcher. */
+function addDeparturePinButton(card,record){
+ const actions=document.createElement("div");actions.className="sm-departure-pin-actions-v1";
+ const btn=document.createElement("button");btn.type="button";btn.className="sm-departure-pin-v1";
+ btn.dataset.departMs=String(record.departMs);
+ btn.dataset.leaveMs=String(record.leaveMs);
+ btn.setAttribute("aria-label","A kiválasztott menetrendi indulás kitűzése a Family Guard kijelzőire");
+ btn.textContent="📌 Kitűzöm";
+ btn.addEventListener("click",event=>{
+  event.preventDefault();event.stopPropagation();
+  const now=Date.now(),focus=readDepartureFocus(PROFILE,state.current,now);
+  if(focus?.departMs===record.departMs&&focus.routeId===canonicalFocusRoute(record.routeId)){
+   if(!clearDepartureFocus(PROFILE)){toast("⚠️ A járat kitűzését nem sikerült feloldani.");return}
+   updateTimeline(now);toast("Kitűzés feloldva · automatikus következő indulás");
+   return;
+  }
+  const routeMatches=canonicalFocusRoute(current()?.id)===canonicalFocusRoute(record.routeId);
+  if(!routeMatches||$("day").value!==focusDate(record.departMs)||
+     record.departMs<=now||record.leaveMs<now){
+   toast("⚠️ Ez az indulás már nem választható. Frissítsd a menetrendet.");
+   updateTimeline(now);return;
+  }
+  // Check that the exact verified departure still occurs in current GTFS rows.
+  const inOfficialResults=record.kind==="260"?
+   state.full260?.rows.some(x=>x.departMs===record.departMs&&x.connectionOk&&
+    Number.isFinite(x.leaveMs)&&x.leaveMs===record.leaveMs):
+   state.result?.rows.some(x=>x.departMs===record.departMs&&
+    x.best?.leaveOfficeMs===record.leaveMs);
+  if(!inOfficialResults){toast("⚠️ A járatot nem sikerült ellenőrizni.");return}
+  if(!saveDepartureFocus(PROFILE,record,now)){
+   toast("⚠️ A kitűzés mentése sikertelen. Maradunk a Smart Match oldalon.");return;
+  }
+  // Navigating only after successful read-back guarantees the Guardian hero
+  // and its pinned preview can show the same selected time immediately.
+  location.assign("/berlet-app/healthhub/guardian/");
+ });
+ actions.append(btn);card.append(actions);
+}
+function syncDeparturePinButtons(now=Date.now()){
+ const focus=readDepartureFocus(PROFILE,state.current,now);
+ document.querySelectorAll("#timeline .sm-departure-pin-v1").forEach(btn=>{
+  const ms=Number(btn.dataset.departMs),leave=Number(btn.dataset.leaveMs);
+  const selected=focus?.departMs===ms;
+  const available=selected||(ms>now&&leave>=now);
+  const nextLabel=selected?"✓ Kitűzve · Feloldás":"📌 Kitűzöm";
+  if(btn.textContent!==nextLabel)btn.textContent=nextLabel;
+  if(btn.hidden===available)btn.hidden=!available;
+  btn.setAttribute("aria-pressed",String(selected));
+  btn.closest(".timeline-row")?.classList.toggle("sm-departure-focused-v1",selected);
+ });
+}
+
 function timelineRow(row,item,index){
  const article=document.createElement("article");
  article.className="timeline-row"+(row.best?"":" unmatched");
@@ -688,6 +743,14 @@ function timelineRow(row,item,index){
   const detail=document.createElement("div");detail.className="row-foot";
   detail.textContent="Ehhez az induláshoz a beállított feltételekkel nincs igazolt csatlakozás.";
   article.append(detail);
+ }
+ if(row.best&&Number.isSafeInteger(row.departMs)&&Number.isSafeInteger(row.best.leaveOfficeMs)){
+  addDeparturePinButton(article,{
+   routeId:item.id,serviceDate:focusDate(row.departMs),kind:"other",
+   departMs:row.departMs,displayMs:row.best.leaveOfficeMs,leaveMs:row.best.leaveOfficeMs,
+   stop:item.targetStop||"",direction:"other",line:String(row.line||""),
+   tramLine:"",tramDepartMs:null
+  });
  }
  return article;
 }
@@ -766,6 +829,15 @@ function renderFull260Row(bus,item,index){
     bus.match.best.waitMin+" perc várakozás · menetrend")):
   "CSAK MENETREND. Ehhez a 260-ashoz nincs igazolt csatlakozás; ne ez alapján indulj el.";
  a.append(foot);
+ if(connected&&Number.isSafeInteger(bus.departMs)&&Number.isSafeInteger(bus.leaveMs)){
+  addDeparturePinButton(a,{
+   routeId:item.id,serviceDate:focusDate(bus.departMs),kind:"260",
+   departMs:bus.departMs,displayMs:bus.departMs,leaveMs:bus.leaveMs,
+   stop:bus.stop||"",direction:bus.direction,line:"260",
+   tramLine:bus.direction==="work"?String(bus.match?.line||""):"",
+   tramDepartMs:bus.direction==="work"&&Number.isSafeInteger(bus.match?.departMs)?bus.match.departMs:null
+  });
+ }
  return a;
 }
 function renderFull260Results(item){
