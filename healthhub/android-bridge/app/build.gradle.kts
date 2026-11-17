@@ -1,7 +1,18 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+    id("kotlin-parcelize")
 }
+
+// Proprietary Samsung Health Data SDK is never published in this repository.
+// Production APKs remain Health Connect-only unless an owner explicitly builds
+// a private, opted-in Samsung Direct pilot using Samsung's local AAR.
+val hhSamsungPilotAar = file("private-samsung-sdk/samsung-health-data-api.aar")
+val hhSamsungPilotRequested = providers.gradleProperty("hhSamsungDirectPilot").orNull == "true"
+if (hhSamsungPilotRequested && !hhSamsungPilotAar.isFile) {
+    error("Samsung pilot needs app/private-samsung-sdk/samsung-health-data-api.aar downloaded from Samsung Developer.")
+}
+val hhSamsungPilotEnabled = hhSamsungPilotRequested && hhSamsungPilotAar.isFile
 
 android {
     namespace = "hu.zsoltmonika.healthhubbridge"
@@ -21,6 +32,12 @@ android {
 
     buildFeatures {
         buildConfig = true
+    }
+    defaultConfig {
+        buildConfigField("boolean", "HH_SAMSUNG_DIRECT_PILOT", hhSamsungPilotEnabled.toString())
+    }
+    if (hhSamsungPilotEnabled) {
+        sourceSets.getByName("main").java.srcDir("src/samsungDirectPilot/kotlin")
     }
 
     // OTA key is created once, stored only in GitHub Actions encrypted secrets.
@@ -56,6 +73,10 @@ android {
 }
 
 dependencies {
+    if (hhSamsungPilotEnabled) {
+        implementation(files(hhSamsungPilotAar))
+        implementation("com.google.code.gson:gson:2.13.1")
+    }
     implementation("androidx.activity:activity-ktx:1.10.1")
     implementation("androidx.health.connect:connect-client:1.1.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.1")
