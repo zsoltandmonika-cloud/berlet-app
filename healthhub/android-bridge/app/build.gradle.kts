@@ -9,6 +9,17 @@ plugins {
 // a private, opted-in Samsung Direct pilot using Samsung's local AAR.
 val hhSamsungPilotAar = file("private-samsung-sdk/samsung-health-data-api.aar")
 val hhSamsungPilotRequested = providers.gradleProperty("hhSamsungDirectPilot").orNull == "true"
+// Samsung Direct is only for an isolated DEBUG test APK. Never compile it into
+// a signed production release, OTA or a broad task which may build a release.
+if (hhSamsungPilotRequested && gradle.startParameter.taskNames.any {
+    it.contains("release", ignoreCase = true) ||
+    it.contains("bundle", ignoreCase = true) ||
+    it.contains("publish", ignoreCase = true) ||
+    it.equals("build", ignoreCase = true) ||
+    it.equals("assemble", ignoreCase = true)
+}) {
+    error("Samsung Direct pilot is DEBUG-ONLY. Use :app:assembleDebug -PhhSamsungDirectPilot=true.")
+}
 if (hhSamsungPilotRequested && !hhSamsungPilotAar.isFile) {
     error("Samsung pilot needs app/private-samsung-sdk/samsung-health-data-api.aar downloaded from Samsung Developer.")
 }
