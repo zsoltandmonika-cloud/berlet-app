@@ -46,10 +46,10 @@
    const candidate=source.querySelector("#hhSmartMatchPinTimeV1")?.textContent?.trim()||"";
    const line=source.querySelector(".hh-smart-match-pin-label")?.textContent?.trim()||"";
    const detail=source.querySelector("#hhSmartMatchPinNoteV1")?.textContent?.trim()||"";
-   const valid=state==="ready"&&/^\\d{1,2}:\\d{2}$/.test(candidate);
+   const valid=state==="ready"&&/^[0-2]?[0-9]:[0-5][0-9]$/.test(candidate);
    time.textContent=valid?candidate:"–:–";
    heading.textContent="SMART MATCH";
-   route.textContent=valid?(line.replace(/^[^\\w\\dÀ-ž]*\\s*/u,"")||"MENETREND"):"260 · MENETREND";
+   route.textContent=valid?(line.replace("🚌 ","")||"MENETREND"):"260 · MENETREND";
    note.textContent=valid?(detail||"Menetrendi idő"):
     state==="loading"?"Menetrend betöltése":
     state==="error"?"Menetrend nem elérhető":
