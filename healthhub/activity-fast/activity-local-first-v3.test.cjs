@@ -10,11 +10,12 @@ test('production Activity One runs Local-First engine before slow network settle
  assert.match(page,/activity-fast\/activity-engine-v3\.js\?v=/);
  assert.doesNotMatch(page,/activity-profile-test\/activity-engine-v2\.js/);
  assert.match(page,/activity-fast\/single-profile-cloud-v3\.js/);
- assert.match(engine,/Promise\.all\(\[localPromise,heightPromise\]\)\.then/);
+ assert.match(engine,/localPromise\.then\(function\(early\)/);
  assert.match(engine,/var sources=await Promise\.all\(\[localPromise,cloudPromise,heightPromise,samsungQuick\]\)/);
- assert.ok(engine.indexOf('Promise.all([localPromise,heightPromise]).then')<
+ assert.ok(engine.indexOf('localPromise.then(function(early)')<
   engine.indexOf('var sources=await Promise.all([localPromise,cloudPromise,heightPromise,samsungQuick])'));
  assert.match(engine,/data-hh-activity-source/);
+ assert.match(engine,/attachCloud\(early,null,requestedProfile\),null,/);
  assert.match(engine,/Korábbi, helyben mentett aktivitás/);
  assert.match(engine,/Nincs friss Dropbox-ellenőrzés/);
  assert.match(engine,/String\(raw\.profile\|\|''\)\.toLowerCase\(\)!==p/);
