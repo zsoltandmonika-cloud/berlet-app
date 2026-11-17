@@ -246,12 +246,23 @@ function renderClock(){
  if(renderTemporaryDeparture())return;
  const card=document.getElementById(HOST_ID);
  const wasManual=card?.dataset.temporaryPin==="on";
- if(card)card.dataset.temporaryPin="off";
+ if(card){
+  card.dataset.temporaryPin="off";
+  if(wasManual){
+   const label=card.querySelector(".hh-smart-match-pin-label");
+   if(label)label.textContent="📌 SMART MATCH";
+  }
+ }
  if(wasManual&&state.item&&!state.loading&&!state.loaded){
   // First automatic refresh only after the scheduled pin has expired.
   updateSchedule({force:true});return;
  }
- if(!state.item)return;
+ if(!state.item){
+  const z=activeProfile()==="zsolt";
+  setView({time:"–:–",note:"Útvonal kiválasztása",status:"inactive",
+   title:"Smart Match · nincs következő kijelzés",link:FULL+"?profile="+(z?"z":"m")});
+  return;
+ }
  const now=Date.now();
  // Match the full-size pinned card: focus the NEXT official 260 departure
  // at the selected stop, even if no short tram connection is possible.
