@@ -31,6 +31,8 @@
  :root:not([data-sh9-transit="on"]) body
  .map-card.hh-map-typing-v832:not(.hh-map-full-v819) > #guardianMapSearchV819.hh-map-search-v819{
   position:fixed!important;
+  top:var(--hh-map-typing-top-v832,calc(100dvh - 64px))!important;
+  bottom:auto!important;
   left:50%!important;right:auto!important;
   transform:translateX(-50%)!important;
   width:calc(100vw - 12px)!important;
