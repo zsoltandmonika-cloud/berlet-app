@@ -86,7 +86,9 @@ assert.equal(recovery.hidden,false);
 assert.equal(cloud.dataset.hhAdminGroup,'cloud');
 assert.equal(docs.dataset.hhAdminGroup,'architecture');
 assert.equal(recovery.dataset.hhAdminGroup,'recovery');
-assert.equal(rootE.children.filter(x=>x.className==='hhAdminGroupLabelV745').length,5);
+// The sixth group is the dedicated Sound Studio; legacy Admin sections remain intact.
+assert.equal(rootE.children.filter(x=>x.className==='hhAdminGroupLabelV745').length,6);
+assert.ok(rootE.querySelector('#hhAdminGroupsoundV745'));
 const count=rootE.children.length;admin.layout();
 assert.equal(rootE.children.length,count);
 assert.equal(overlayOpens,1);
