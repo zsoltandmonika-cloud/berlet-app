@@ -200,7 +200,7 @@ test('V1 RAG priority is separate from status; manual sorting uses cloud-backed 
  assert.ok(saveStart>0&&saveEnd>saveStart);
  const actions=new Function('api','user','authorized','self','PRESET_TABLE','categoryFeedback',
   'loadCategories','IMPORTANCE','importanceOf','activeTaskTemplates','priorityRank',
-  app.slice(saveStart,saveEnd)+'\nreturn {updatePresetImportance,movePreset};')(
+  'let presetEditBusy=false;\n'+app.slice(saveStart,saveEnd)+'\nreturn {updatePresetImportance,movePreset};')(
    mockApi,{id:'user'},['monika'],()=> 'monika','hh_family_task_presets',
    value=>notifications.push(value),async()=>{},model.IMPORTANCE,model.importanceOf,
    model.activeTaskTemplates,model.priorityRank
