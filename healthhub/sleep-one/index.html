@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="hu">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#071a36">
+<meta name="robots" content="noindex,nofollow">
+<title>SHO · Alvás · gyors indítás</title>
+<base href="/berlet-app/healthhub/">
+<link rel="icon" href="./assets/icons/favicon-v146.ico">
+<style>
+html,body{margin:0;min-height:100%;background:#08172d;color:#ecf7ff;font:15px/1.5 system-ui,-apple-system,Segoe UI,sans-serif}
+#splitBoot{box-sizing:border-box;min-height:100dvh;display:grid;place-items:center;padding:24px;text-align:center}
+#splitBoot>div{max-width:360px}
+#splitBoot b{display:block;font-size:21px;margin-bottom:9px}
+#splitBoot span{font-size:12px;opacity:.85}
+#splitBoot a{display:block;margin-top:16px;color:#a8ddff}
+#splitBoot[hidden],#splitTools[hidden]{display:none!important}
+/* SHO Golden Standard · lightweight Sleep One replica.
+   Inline only: no external CSS/JS, no additional network calls or data work. */
+#sleepGoldenBottom{--sho-a:#a2d2ff;position:fixed;left:50%;transform:translateX(-50%);width:min(420px,calc(100% - 8px));box-sizing:border-box;z-index:8900}
+#sleepGoldenTop{--sho-a:#a2d2ff;position:absolute;left:4px;right:4px;width:auto;transform:none;box-sizing:border-box;z-index:30}
+#sleepGoldenTop[data-profile="m"],#sleepGoldenBottom[data-profile="m"]{--sho-a:#f8b4d7;--sho-soft:rgba(249,166,211,.25)}
+#sleepGoldenTop[data-profile="z"],#sleepGoldenBottom[data-profile="z"]{--sho-a:#a2d2ff;--sho-soft:rgba(121,191,255,.22)}
+#sleepGoldenTop{top:auto;bottom:4px;height:50px;display:grid;grid-template-columns:1.1fr 1.15fr .95fr .92fr;align-items:stretch;overflow:hidden;border:1px solid rgba(174,208,241,.30);border-radius:14px;background:rgba(8,42,80,.60);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);box-shadow:inset 0 1px 0 rgba(255,255,255,.12),0 6px 20px rgba(0,8,24,.30)}
+#sleepGoldenTop .sho-cell{position:relative;min-width:0;height:100%;display:flex;align-items:center;justify-content:center}
+#sleepGoldenTop .sho-cell+.sho-cell::before{content:"";position:absolute;left:0;top:13px;bottom:13px;width:1px;background:rgba(178,215,247,.22);pointer-events:none}
+#sleepGoldenTop .sho-action{appearance:none;text-decoration:none;border:0;background:transparent;color:#f2f8ff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;height:100%;width:100%;min-width:0;padding:4px 1px;font:750 10.4px/1.12 system-ui,sans-serif;cursor:pointer}
+#sleepGoldenTop .sho-action svg{display:block;flex:none;width:20px;height:20px;fill:none;stroke:var(--sho-a);stroke-width:1.8;stroke-linejoin:round;stroke-linecap:round;filter:drop-shadow(0 1px 3px rgba(0,0,0,.3))}
+#sleepGoldenTop .sho-action span,#sleepGoldenTop .sho-language>span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font:750 10.4px/1.12 system-ui,sans-serif;color:#f4f8ff}
+#sleepGoldenTop .sho-action .switch{color:var(--sho-a)}
+#sleepGoldenTop .sho-action:active,#sleepGoldenTop .sho-flags button:active{background:var(--sho-soft)}
+#sleepGoldenTop .sho-language{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;min-width:0}
+#sleepGoldenTop .sho-flags{display:flex;align-items:center;justify-content:center;gap:1px;height:29px}
+#sleepGoldenTop .sho-flags button{appearance:none;display:grid;place-items:center;width:32px;height:30px;padding:0;border:1px solid transparent;border-radius:9px;background:transparent;font:23px/1 "Segoe UI Emoji","Apple Color Emoji",system-ui;cursor:pointer}
+#sleepGoldenTop .sho-flags button.chosen{background:var(--sho-soft);border-color:var(--sho-a)}
+#sleepGoldenBottom{bottom:0;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));height:calc(65px + env(safe-area-inset-bottom,0px));padding:4px 4px calc(5px + env(safe-area-inset-bottom,0px));background:#0e1d38;border-top:1px solid rgba(136,197,245,.27);box-shadow:0 -5px 13px rgba(0,0,0,.3)}
+#sleepGoldenBottom :is(button,a){appearance:none;text-decoration:none;min-width:0;border:0;background:transparent;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:3px;color:#b9d0e8;font:700 10px/1.2 system-ui,sans-serif;cursor:pointer;padding:1px 0}
+#sleepGoldenBottom svg{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:1.85;stroke-linecap:round;stroke-linejoin:round}
+#sleepGoldenBottom .golden-primary svg,#sleepGoldenBottom .golden-primary span{color:var(--sho-a)}
+#sleepGoldenBottom :is(button,a) span{font-size:10px;text-align:center;white-space:nowrap}
+#sleepGoldenTop :is(button,a):focus-visible,#sleepGoldenBottom :is(button,a):focus-visible{outline:2px solid var(--sho-a);outline-offset:-3px;border-radius:7px}
+#sleepGoldenTop[hidden],#sleepGoldenBottom[hidden]{display:none!important}
+body .hhSleepNav{display:none!important}
+body .hhSleepPage{padding-top:0!important;padding-bottom:calc(80px + env(safe-area-inset-bottom,0px))!important;box-sizing:border-box!important}
+body .hhSleepPage{background:#eef5fb!important;max-height:100dvh;--a:#178ed8;--wash:#eef5fb;--wash2:#e7f0fa;--soft:#e9f4ff;--hh-role-atlas:url('./assets/health-medical-lena-approved-v548.webp')}\nbody .hhSleepDoctorHero{background-image:var(--hh-role-atlas)!important;background-size:cover!important;background-position:center center!important}\nbody .hhSleepPage .hhSleepNav{display:none!important}\nbody .hhSleepPage .hhSleepCacheStatusV3{line-height:1.35}
+@media(max-width:350px){#sleepGoldenTop{grid-template-columns:1fr 1.1fr .9fr .93fr}#sleepGoldenTop .sho-action span,#sleepGoldenTop .sho-language>span{font-size:9.7px}#sleepGoldenTop .sho-flags button{width:29px;font-size:21px}}
+</style>
+<link rel="stylesheet" href="./sleep-three-views-v428.css?v=1154-sleep-data-audit">
+<link rel="stylesheet" href="./sleep-rag-v569.css?v=579-night-only">
+<link rel="stylesheet" href="./sleep-rag-buddy-v1146.css?v=1146-fullbody-night-rag">
+<script defer src="./activity-fast/vault-read-v3.js?v=3-read-only"></script>
+<script defer src="./activity-fast/single-profile-cloud-v3.js?v=20261117-dedup"></script>
+<script defer src="./sleep-fast/sleep-local-v3.js?v=20261117-v3-profile-bounded"></script>
+<script defer src="./sleep-three-views-v428.js?v=1154-sleep-golden"></script>
+<script defer src="./live-v170.js?v=20261117-sleep-localfirst-v3"></script>
+<script defer src="./hc-wear-history-v1150.js?v=20261117-cache-per-profile"></script>
+<script defer src="./chatgpt-project-shortcut-v712.js?v=756-central-open"></script>
+</head>
+<body>
+<main id="splitBoot" role="status">
+ <div><b>🌙 SHO · Alvás · gyors indítás</b>
+ <span>Korábbi, ellenőrzött alvásadatok azonnali helyi megjelenítése, utána Dropbox-ellenőrzés. A két profil elkülönül.</span>
+ <a href="/berlet-app/healthhub/">Eredeti HealthHub megnyitása</a></div>
+</main>
+<nav id="sleepGoldenTop" data-sh9-golden-top="on" data-profile="z" aria-label="SHO Golden Standard felső taskbar" hidden>
+ <div class="sho-cell"><button type="button" id="sOneProfile" class="sho-action" aria-label="Profilváltás"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.4"/><path d="M5 20v-2.3A5.2 5.2 0 0 1 10.2 12.5h3.6A5.2 5.2 0 0 1 19 17.7V20m-1-15 2 2-2 2m2-2h-5"/></svg><span><span id="sOneProfileName">Zsolt</span> <span class="switch" aria-hidden="true">⇄</span></span></button></div>
+ <div class="sho-cell"><a id="sOneTasks" href="/berlet-app/sh9/family-hub/" class="sho-action" aria-label="Feladatok"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="m7.5 9 1.5 1.5 2.5-3M13.5 9H17M7.5 15h9"/></svg><span id="sOneTasksLabel">Feladatok</span></a></div>
+ <div class="sho-cell"><a id="sOneWallet" href="/berlet-app/sh9/wallet/" class="sho-action" aria-label="Smart Wallet"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="6" width="18" height="14" rx="3"/><path d="M3 10h18M15 15h3M6 6V4h12"/></svg><span>Wallet</span></a></div>
+ <div class="sho-cell sho-language"><div class="sho-flags"><button type="button" id="sOneHU" aria-label="Magyar" aria-pressed="true" class="chosen">🇭🇺</button><button type="button" id="sOneEN" aria-label="Canadian English" aria-pressed="false">🇨🇦</button></div><span id="sOneLangLabel">Nyelv</span></div>
+</nav>
+<nav id="sleepGoldenBottom" data-sh9-golden-bottom-nav="on" data-profile="z" aria-label="SHO Golden Standard navigáció" hidden>
+ <a id="sOneHome" href="/berlet-app/sh9/" class="golden-primary" data-sh9-bottom-role="home" aria-label="SHO kezdőlap"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 11 9-8 9 8v10h-7v-7h-4v7H3z"/></svg><span id="sOneHomeLabel">Kezdőlap</span></a>
+ <a id="sOneAsk" href="/berlet-app/healthhub/index.html?sh9nav=admin&sh9cfg=asklena" class="golden-primary" data-sh9-bottom-role="ask" aria-label="Kérdezd Lénát"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 11.3c0 4.5-3.7 8.2-8.2 8.2-1.5 0-3-.4-4.2-1.1L3 20l1.5-4.6A8.25 8.25 0 1 1 20.5 11.3Z"/><path d="M9 11h6"/></svg><span id="sOneAskLabel">Kérdezd Lénát</span></a>
+ <button type="button" id="sOneBack" aria-label="Vissza"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5m7-7-7 7 7 7"/></svg><span id="sOneBackLabel">Vissza</span></button>
+ <a id="sOneAlerts" href="/berlet-app/sh9/notification-center/" aria-label="Értesítések"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 17h12l-2-3V9a4 4 0 0 0-8 0v5zM10 20a2 2 0 0 0 4 0"/></svg><span id="sOneAlertsLabel">Értesítések</span></a>
+ <a id="sOneAdmin" href="/berlet-app/healthhub/index.html?sh9nav=admin" aria-label="Admin"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="m9 2 1 3h4l1-3 3 2-1 3 3 2v4l-3 1 1 3-3-2-2-3h-3l-2 3-3-2 1-3-3-2V9l3-2-1-3z"/></svg><span>Admin</span></a>
+</nav>
+<script>
+(function(){
+'use strict';
+var started=performance.now(),dock=document.getElementById('sleepGoldenTop'),boot=document.getElementById('splitBoot');
+function home(){location.assign('/berlet-app/sh9/')}
+function mount(){
+ var page=document.getElementById('hhSleepPage'),hero=page&&page.querySelector('.hhSleepDoctorHero');
+ if(!hero)return false;
+ if(dock.parentElement!==hero)hero.appendChild(dock);
+ dock.hidden=false;return true;
+}
+function profile(){
+ var current=localStorage.getItem('hh-profile')==='m'?'m':'z',other=current==='m'?'Zsolt':'Mónika';
+ var name=current==='m'?'Mónika':'Zsolt';
+ document.getElementById('sleepGoldenTop').dataset.profile=current;
+ document.getElementById('sleepGoldenBottom').dataset.profile=current;
+ document.getElementById('sOneProfileName').textContent=name;
+ document.getElementById('sOneProfile').setAttribute('aria-label',other+' profiljára váltás');
+ // A shared stylesheet still uses the profile-specific theme accent.
+ var page=document.getElementById('hhSleepPage');
+ if(page){page.style.setProperty('--a',current==='m'?'#ef3f89':'#178ed8');page.style.setProperty('--soft',current==='m'?'#fff1f8':'#e9f4ff')}
+}
+function language(){
+ var en=localStorage.getItem('sh9-language-v1')==='en';
+ document.getElementById('sOneHU').classList.toggle('chosen',!en);
+ document.getElementById('sOneEN').classList.toggle('chosen',en);
+ document.getElementById('sOneHU').setAttribute('aria-pressed',String(!en));
+ document.getElementById('sOneEN').setAttribute('aria-pressed',String(en));
+ for(var label of [['Tasks','Feladatok','sOneTasksLabel'],['Language','Nyelv','sOneLangLabel'],['Home','Kezdőlap','sOneHomeLabel'],['Ask Léna','Kérdezd Lénát','sOneAskLabel'],['Back','Vissza','sOneBackLabel'],['Notifications','Értesítések','sOneAlertsLabel']])
+  document.getElementById(label[2]).textContent=en?label[0]:label[1];
+}
+function bind(){
+ document.getElementById('sOneProfile').onclick=function(e){
+  if(typeof window.hhSleepToggleProfile==='function')window.hhSleepToggleProfile(e);
+  profile();mount();
+ };
+ document.getElementById('sOneHU').onclick=function(){localStorage.setItem('sh9-language-v1','hu');language()};
+ document.getElementById('sOneEN').onclick=function(){localStorage.setItem('sh9-language-v1','en');language()};
+ document.getElementById('sOneBack').onclick=function(){
+  if(document.getElementById('hhSleepHelperOverlay')?.classList.contains('on')){window.hhStopSleepHelper();return;}
+  home();
+ };
+ document.getElementById('sOneAsk').addEventListener('click',function(e){
+  if(window.HH_CHATGPT_PROJECT_SHORTCUT_V712&&typeof window.HH_CHATGPT_PROJECT_SHORTCUT_V712.openProject==='function'){
+   e.preventDefault();window.HH_CHATGPT_PROJECT_SHORTCUT_V712.openProject(e);
+  }
+ });
+ window.addEventListener('healthhub:profile-changed',profile);
+ window.addEventListener('storage',function(e){if(e.key==='hh-profile')profile();if(e.key==='sh9-language-v1')language()});
+ profile();language();
+}
+function start(){
+ if(typeof window.hhOpenSleep!=='function'){
+  boot.innerHTML='<div><b>Az Alvás modul nem indult.</b><a href="/berlet-app/healthhub/?sho=sleep">Eredeti Sleep megnyitása</a></div>';
+  return;
+ }
+ // The canonical Sleep engine owns all stage/timeline calculations and helper.
+ var originalClose=window.hhCloseSleep;
+ window.hhCloseSleep=function(){if(originalClose)originalClose();home()};
+ window.show=function(target){location.assign('/berlet-app/healthhub/index.html?sh9nav='+(target==='health'?'health':'home'))};
+ bind();
+ try{
+  window.hhOpenSleep();
+  var page=document.getElementById('hhSleepPage');
+  mount();
+  var observer=new MutationObserver(mount);
+  observer.observe(page,{childList:true,subtree:false});
+  window.addEventListener('pagehide',function(){observer.disconnect()},{once:true});
+  boot.hidden=true;
+  document.getElementById('sleepGoldenBottom').hidden=false;
+ }catch(e){
+  console.error('Sleep Local-First launch',e);
+  boot.innerHTML='<div><b>Az Alvás megnyitása nem sikerült.</b><a href="/berlet-app/healthhub/?sho=sleep">Eredeti Sleep megnyitása</a></div>';
+  return;
+ }
+ var once=false,watch=new MutationObserver(function(){
+  if(once)return;
+  var page=document.getElementById('hhSleepPage');
+  var source=page&&page.querySelector('[data-hh-sleep-source]');
+  if(!source)return;
+  once=true;watch.disconnect();
+  window.hhSleepOneFirstPaintMs=Math.round(performance.now()-started);
+ });
+ watch.observe(document.getElementById('hhSleepPage')||document.body,{childList:true,subtree:true});
+ setTimeout(function(){watch.disconnect()},90000);
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});
+else start();
+})();
+</script>
+</body>
+</html>
