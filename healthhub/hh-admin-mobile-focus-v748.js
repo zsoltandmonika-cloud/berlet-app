@@ -13,6 +13,7 @@ const CATEGORIES=[
  {id:'data',title:'📥 Adatkezelés',note:'Import, export, diagnosztika és audit'},
  {id:'architecture',title:'📐 Rendszerterv',note:'Grand Design és Project Control'},
  {id:'recovery',title:'🛡️ Biztonság',note:'Mentések és helyreállítás'},
+ {id:'sound',title:'🎛️ Hangok · Sound Studio',note:'SHO Sound Studio · hangerők, némítás és hangpróbák'},
  {id:'other',title:'⚙️ Egyéb',note:'A meglévő további beállítások'}
 ];
 let selected='registry',mountedRoot=null,lastTouchScroll=0,lastRegistryLoad=0;
@@ -34,6 +35,7 @@ function style(){
  css.push('#'+ID+' button[data-group="data"]{background:#39315e;border-color:#baabe4}');
  css.push('#'+ID+' button[data-group="architecture"]{background:#29496d;border-color:#9ebde5}');
  css.push('#'+ID+' button[data-group="recovery"]{background:#53422e;border-color:#d6bc88}');
+  css.push('#'+ID+' button[data-group="sound"]{background:linear-gradient(115deg,#513461,#293d69);border-color:#efb4e5}');
  css.push('#'+ID+' button[data-group="other"]{background:#32455e;border-color:#a6b8cf}');
  css.push('#'+ID+' button[aria-pressed="true"]{outline:2px solid #f1e6fa;outline-offset:1px;box-shadow:0 0 0 4px #dc9fea30}');
  // v822: direct actions must not shrink into tall, unreadable slivers.
@@ -53,7 +55,7 @@ function style(){
   css.push('#'+ID+' .hhRegistryActionV809 button{background:#663c70;min-height:46px;color:#fff}');
   css.push('#'+ID+' .hhRegistryActionV809[hidden]{display:none!important}');
  css.push('html[data-hh-inline-admin="yes"] #'+ROOT+' .hhAdminGroupLabelV745{margin:2px 0 0!important;padding:13px!important}');
- const colors={architecture:['#203b65','#33578a'],cloud:['#104254','#256b78'],data:['#3c305b','#655183'],recovery:['#4c402f','#7a633f'],other:['#2b3a4e','#52647c']};
+ const colors={architecture:['#203b65','#33578a'],cloud:['#104254','#256b78'],data:['#3c305b','#655183'],recovery:['#4c402f','#7a633f'],sound:['#4b2f60','#875a8c'],other:['#2b3a4e','#52647c']};
  for(const group of CATEGORIES.filter(g=>g.id!=='devices'&&g.id!=='registry')){
   const c=colors[group.id];
   css.push('#hhAdminGroup'+group.id+'V745{background:linear-gradient(125deg,'+c[0]+','+c[1]+')!important;border-color:'+c[1]+'!important}');

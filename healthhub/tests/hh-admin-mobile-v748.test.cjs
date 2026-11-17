@@ -10,8 +10,8 @@ const ux=read('hh-admin-mobile-focus-v748.js'),old=read('hh-unified-admin-v745.j
   reg=read('device-registry-v401.js'),orch=read('live-v305.js'),
   home=read('index.html');
 
-test('SH9 Admin has six color-coded, accessible single-tap categories and direct device actions',()=>{
- for(const k of ['registry','devices','cloud','data','architecture','recovery','other'])
+test('SH9 Admin has accessible single-tap categories including Sound Studio and direct device actions',()=>{
+ for(const k of ['registry','devices','cloud','data','architecture','recovery','sound','other'])
   assert.match(ux,new RegExp("id:'"+k+"'"));
  for(const k of ['📱 Eszközregiszter megnyitása','📦 APK és OTA állapot','📱 HH One Connect megnyitása','SH9 · Admin Control Center'])
   assert.ok(ux.includes(k));
@@ -19,6 +19,8 @@ test('SH9 Admin has six color-coded, accessible single-tap categories and direct
  assert.match(ux,/min-height:54px/);
  assert.match(ux,/font-size:13px/);
  assert.match(ux,/hhAdminScrollActiveV748/);
+ assert.match(ux,/sound:\['#4b2f60'/);
+ assert.match(ux,/button\[data-group="sound"\]/);
  assert.doesNotMatch(ux,/location\.reload\(|localStorage\.clear|innerHTML\s*=|indexedDB\.deleteDatabase/);
 });
 
@@ -56,12 +58,15 @@ test('header is inserted once, categories filter in place, and user tap never re
  assert.equal(W.HH_ADMIN_MOBILE_V748.category(),'registry');
  const menu=D.getElementById('hhAdminQuickV748');assert.ok(menu);
  const categories=menu.querySelectorAll('button[data-group]');
- assert.equal(categories.length,7);
+ assert.equal(categories.length,8);
  assert.equal(D.documentElement.dataset.hhAdminFocus,'registry');
  categories[2].listeners.click();
  assert.equal(D.documentElement.dataset.hhAdminFocus,'cloud');
  categories[1].listeners.click();
  assert.equal(D.documentElement.dataset.hhAdminFocus,'devices');
+ categories[6].listeners.click();
+ assert.equal(D.documentElement.dataset.hhAdminFocus,'sound');
+ assert.equal(categories[6].textContent,'🎛️ Hangok · Sound Studio');
  categories[0].listeners.click();
  assert.equal(D.documentElement.dataset.hhAdminFocus,'registry');
  assert.equal(reloads,1);assert.equal(draws,1);
