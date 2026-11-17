@@ -1,4 +1,4 @@
-/* Family Guard Smart Match information display V3: legibility + full native-link header.
+/* Family Guard Smart Match V4: current-route deep link, legible native-link header.
  * Presentation-only mirror of the existing Smart Match pin.
  * Zero independent BKK/API/GPS/DB calls; the entire header is one native link.
  * The golden 8-signal dashboard, glass dimensions and hero remain immutable.
@@ -15,7 +15,8 @@
   const display=d.createElement("a");
   display.id=PANEL;
   display.className="hh-smart-match-micro-v1";
-  display.href="/berlet-app/healthhub/guardian/smart-260-connect/";
+  const ROUTE_HOME="/berlet-app/healthhub/guardian/smart-260-connect/";
+  display.href=ROUTE_HOME;
   display.setAttribute("aria-label","Smart Match főoldal megnyitása");
   const heading=d.createElement("span");
   heading.className="hh-smm-heading-v1";
@@ -53,10 +54,28 @@
   host.setAttribute("aria-label","Smart Match indulási információ és megnyitás");
 
   let observed=null, mirror=null;
+  function routeHref(source){
+   // Reuse the existing pinned Smart Match card's profile-bound route URL.
+   // This card already resolves Citronella to the full home-to-work journey.
+   const profile=d.documentElement.dataset.guardianProfile==="m"?"m":"z";
+   const fallback=ROUTE_HOME+"?profile="+profile;
+   const raw=source?.getAttribute("href")||source?.href;
+   if(!raw)return fallback;
+   try{
+    const link=new URL(raw,w.location.href);
+    if(link.origin!==w.location.origin||link.pathname!==ROUTE_HOME||
+       link.searchParams.get("profile")!==profile)return fallback;
+    const id=link.searchParams.get("id");
+    if(link.searchParams.get("pinned")==="1"&&
+       (!id||!/^[\w-]{1,90}$/.test(id)))return fallback;
+    return link.pathname+link.search+link.hash;
+   }catch(_){return fallback}
+  }
   function update(){
    const source=d.getElementById(SOURCE);
    if(!source)return;
    const state=source.dataset.state||"idle";
+   display.href=routeHref(source);
    const candidate=source.querySelector("#hhSmartMatchPinTimeV1")?.textContent?.trim()||"";
    const line=source.querySelector(".hh-smart-match-pin-label")?.textContent?.trim()||"";
    const detail=source.querySelector("#hhSmartMatchPinNoteV1")?.textContent?.trim()||"";
@@ -80,9 +99,10 @@
    display.title="Smart Match · "+(valid?"260-as menetrendi indulás "+candidate+" · "+detail:note.textContent)+
     " · Tájékoztató kijelző, nem BKK Live";
    display.dataset.status=valid?"ready":"inactive";
+   const isRouteLink=new URL(display.href,w.location.href).searchParams.get("pinned")==="1";
    display.setAttribute("aria-label",valid?
-    "Smart Match főoldal megnyitása · "+route.textContent+" · menetrend szerinti indulás "+candidate:
-    "Smart Match főoldal megnyitása");
+    "Aktuális Smart Match "+(isRouteLink?"útvonal":"főoldal")+" megnyitása · "+route.textContent+" · menetrend szerinti indulás "+candidate:
+    "Aktuális Smart Match "+(isRouteLink?"útvonal":"főoldal")+" megnyitása");
   }
   function attach(){
    const source=d.getElementById(SOURCE);
@@ -91,7 +111,7 @@
    if(mirror)mirror.disconnect();
    observed=source;
    mirror=new MutationObserver(update);
-   mirror.observe(source,{subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:["data-state"]});
+   mirror.observe(source,{subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:["data-state","href"]});
    update();
    return true;
   }
