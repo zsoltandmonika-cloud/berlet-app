@@ -35,12 +35,16 @@ function verifiedCount(item,shop){
  return count.total;
 }
 function merchantLogo(shop){
- if(!['tesco','aldi','shein'].includes(shop.key))return null;
+ // Match the full Shopping storefront: every enabled retailer gets its brand icon.
+ // Unknown/custom shops use their official domain favicon, never an empty slot.
  const asset=w.SHOP_MERCHANT_BRAND_ICONS_V1?.byKey?.(shop.key,shop.domain);
  const img=node('img','shop-logo');
  img.src=asset?.url||'https://www.google.com/s2/favicons?domain='+encodeURIComponent(shop.domain)+'&sz=128';
  img.alt='';img.loading='lazy';img.referrerPolicy='no-referrer';
- img.addEventListener('error',()=>{const fallback=node('span','shop-logo-fallback',shop.name.slice(0,1).toUpperCase());img.replaceWith(fallback)},{once:true});
+ img.addEventListener('error',()=>{
+  const initials=String(shop.name||shop.key||'Bolt').trim().slice(0,2).toLocaleUpperCase('hu-HU');
+  img.replaceWith(node('span','shop-logo-fallback',initials));
+ },{once:true});
  return img;
 }
 // A merchant can sell items from outside its primary catalog category.
