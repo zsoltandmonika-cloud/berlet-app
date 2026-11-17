@@ -60,7 +60,9 @@ async function select(profile,now){
  var vault=window.HH_DROPBOX_VAULT,warning='';
  if(vault&&typeof vault.connected==='function'&&vault.connected()&&typeof vault.downloadJson==='function'){
   try{
-   var raw=await vault.downloadJson('/HealthHub/profiles/'+profile+'-health-connect.json');
+   var source=window.HH_HEALTH_CONNECT_SOURCE_V1015;
+   var got=source&&typeof source.read==='function'?await source.read(profile):null;
+   var raw=got?got.raw:await vault.downloadJson('/HealthHub/profiles/'+profile+'-health-connect.json');
    if(raw!=null){
     if(String(raw.profile||'').toLowerCase()!==profile)
      throw Error('Sleep source profile mismatch');
