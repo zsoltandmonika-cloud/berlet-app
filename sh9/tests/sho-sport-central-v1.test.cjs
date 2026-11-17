@@ -47,7 +47,7 @@ test('SHO 4×3 grid and existing routes unchanged, Sport icon activated',()=>{
  assert.doesNotMatch(sho,/\.tile\[data-module="Sport"\] \.sym svg/);
  for(const name of ['Szórakozás','Bevásárlás','Kapcsolatok','Életmód'])
   assert.ok(sho.includes('.module-grid .tile[data-module="'+name+'"] .sym svg'));
- for(const dest of ["'Egészség':HH","'Biztonság':HH+'guardian/'","'Utazás':SH9+'smart-travel/'","'Táplálkozás':HH+'nutrition/'","'Aktivitás':HH+'?sho=activity'","'Alvás':HH+'?sho=sleep'"])
+ for(const dest of ["'Egészség':HH","'Biztonság':HH+'guardian/'","'Utazás':SH9+'smart-travel/'","'Táplálkozás':HH+'nutrition/'","'Aktivitás':HH+'activity-one/?source=sho'","'Alvás':HH+'sleep-one/?source=sho'"])
   assert.ok(wiring.includes(dest),'Existing route changed: '+dest);
  assert.match(wiring,/\$\('heroWallet'\)\.onclick=wallet/);
 });
