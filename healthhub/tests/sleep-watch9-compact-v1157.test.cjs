@@ -71,7 +71,7 @@ test('Source/profile isolation: never borrow another owner measured Samsung reco
  const e=env('zsolt');
  const invalid=e.hhSleepWatch9Markup('zsolt',sample('monika'));
  assert.match(invalid,/Forrás hiányzik/);
- assert.match(invalid,/Samsung-adatforrás nem indult/);
+ assert.match(invalid,/Samsung-fájl hibás vagy más profilú/);
  assert.doesNotMatch(invalid,/87\s*<small>\/100<\/small>/);
  const unavailable=e.hhSleepWatch9Markup('zsolt',{status:'unavailable',data:null});
  assert.match(unavailable,/Samsung-fájl nem érhető el/);
