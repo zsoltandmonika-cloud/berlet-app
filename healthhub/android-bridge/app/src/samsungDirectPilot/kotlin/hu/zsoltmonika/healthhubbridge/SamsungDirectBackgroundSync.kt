@@ -158,6 +158,29 @@ class SamsungDirectBackgroundWorker(
             stage = "Dropbox"
             val measuredDay = day
             val activeMinutes = minutes
+            // The old Samsung Beta exports active kcal and distance as well.
+            // Read real Samsung aggregates; never infer them from steps or minutes.
+            val until = if (measuredDay == today) LocalDateTime.now() else today.atStartOfDay()
+            val dayFilter = LocalTimeFilter.of(measuredDay.atStartOfDay(), until)
+            val activeCalories = runCatching {
+                val request = DataType.ActivitySummaryType.TOTAL_ACTIVE_CALORIES_BURNED.requestBuilder
+                    .setLocalTimeFilter(dayFilter).build()
+                val value: Float? = store.aggregateData(request).dataList.firstOrNull()?.value
+                value?.takeIf { it.isFinite() && it >= 0f && it <= 25000f }
+            }.getOrNull()
+            val distance = runCatching {
+                val request = DataType.ActivitySummaryType.TOTAL_DISTANCE.requestBuilder
+                    .setLocalTimeFilter(dayFilter).build()
+                val value: Float? = store.aggregateData(request).dataList.firstOrNull()?.value
+                value?.takeIf { it.isFinite() && it >= 0f && it <= 250000f }
+            }.getOrNull()
+            val freshRow = JSONObject()
+                .put("date", measuredDay.toString())
+                .put("activeMinutes", activeMinutes)
+                .apply {
+                    if (activeCalories != null) put("activeCaloriesKcal", activeCalories.toDouble())
+                    if (distance != null) put("distanceMeters", distance.toDouble())
+                }
             SamsungHealthDirectPilot.writer.withLock {
                 check(prefs.getBoolean(SamsungDirectBackgroundSync.KEY_ENABLED, false) &&
                     prefs.getString("device_owner_profile", null) == owner) {
@@ -165,19 +188,22 @@ class SamsungDirectBackgroundWorker(
                 }
                 val localFile = File(applicationContext.filesDir, "samsung-direct-$owner.json")
                 val entries = linkedMapOf<String, JSONObject>()
+                var supplemental: JSONObject? = null
                 if (localFile.isFile) {
                     val local = JSONObject(withContext(Dispatchers.IO) {
                         localFile.readText(Charsets.UTF_8)
                     })
                     validateOwner(local, owner)
+                    supplemental = local
                     addPrevious(entries, local, today, measuredDay)
+                    entries[measuredDay.toString()] = mergeDay(sameDay(local, measuredDay), freshRow)
+                } else {
+                    entries[measuredDay.toString()] = freshRow
                 }
 
-                // Save every real measurement locally before network operations.
-                entries[measuredDay.toString()] = JSONObject()
-                    .put("date", measuredDay.toString())
-                    .put("activeMinutes", activeMinutes)
-                val localSnapshot = snapshot(owner, entries, Instant.now())
+                // Save the verified reading before network activity, keeping any
+                // previously collected Samsung Beta supplementary records.
+                val localSnapshot = snapshot(owner, entries, Instant.now(), supplemental)
                 withContext(Dispatchers.IO) {
                     val temp = File.createTempFile("samsung-direct-", ".tmp", applicationContext.filesDir)
                     try {
@@ -203,8 +229,13 @@ class SamsungDirectBackgroundWorker(
                     val historical = linkedMapOf<String, JSONObject>()
                     historical.putAll(entries)
                     addPrevious(historical, cloud, today, measuredDay)
+                    historical[measuredDay.toString()] = mergeDay(
+                        sameDay(cloud, measuredDay),
+                        entries.getValue(measuredDay.toString())
+                    )
                     entries.clear()
                     entries.putAll(historical)
+                    supplemental = cloud
                 }
                 check(prefs.getBoolean(SamsungDirectBackgroundSync.KEY_ENABLED, false) &&
                     prefs.getString("device_owner_profile", null) == owner) {
@@ -212,8 +243,17 @@ class SamsungDirectBackgroundWorker(
                 }
                 DropboxVaultClient.ensureFolder(prefs, DropboxVaultClient.ROOT)
                 DropboxVaultClient.ensureFolder(prefs, DropboxVaultClient.PROFILES_DIR)
-                DropboxVaultClient.uploadText(prefs, cloudPath,
-                    snapshot(owner, entries, Instant.now()).toString(2) + "\n")
+                val uploaded = snapshot(owner, entries, Instant.now(), supplemental)
+                DropboxVaultClient.uploadText(prefs, cloudPath, uploaded.toString(2) + "\n")
+                // Upload acceptance is not a success: verify the persisted owner
+                // and exact snapshot before recording a green status.
+                val readBack = DropboxVaultClient.downloadTextOrNull(prefs, cloudPath)
+                    ?: error("Samsung Dropbox visszaolvasás hiányzik")
+                val confirmed = JSONObject(readBack)
+                validateOwner(confirmed, owner)
+                check(confirmed.optString("exportedAt") == uploaded.optString("exportedAt")) {
+                    "Samsung Dropbox feltöltés nem igazolt"
+                }
                 prefs.edit()
                     .putLong(SamsungDirectBackgroundSync.KEY_LAST_SUCCESS, System.currentTimeMillis())
                     .remove(SamsungDirectBackgroundSync.KEY_LAST_ERROR)
@@ -253,15 +293,47 @@ class SamsungDirectBackgroundWorker(
         }
     }
 
-    private fun snapshot(owner: String, days: Map<String, JSONObject>, time: Instant): JSONObject {
+    private fun sameDay(raw: JSONObject, day: LocalDate): JSONObject? {
+        val days = raw.optJSONObject("records")?.optJSONArray("dailySummary") ?: return null
+        for (i in 0 until days.length()) {
+            val row = days.optJSONObject(i) ?: continue
+            if (row.optString("date") == day.toString()) return row
+        }
+        return null
+    }
+
+    private fun mergeDay(existing: JSONObject?, update: JSONObject): JSONObject {
+        val result = if (existing != null) JSONObject(existing.toString()) else JSONObject()
+        val keys = update.keys()
+        while (keys.hasNext()) {
+            val key = keys.next()
+            result.put(key, update.get(key))
+        }
+        return result
+    }
+
+    private fun snapshot(
+        owner: String,
+        days: Map<String, JSONObject>,
+        time: Instant,
+        carry: JSONObject?
+    ): JSONObject {
+        val records = JSONObject().put("dailySummary", JSONArray().also { array ->
+            days.toSortedMap().values.forEach { array.put(it) }
+        })
+        // Retain Beta's hourly steps and exercise sessions until the unified
+        // collector has proven parity. A new daily reading must not delete them.
+        val oldRecords = carry?.optJSONObject("records")
+        for (field in listOf("hourlySteps", "exerciseSessions")) {
+            val existing = oldRecords?.optJSONArray(field)
+            if (existing != null) records.put(field, existing)
+        }
         return JSONObject()
             .put("schemaVersion", "healthhub.samsung.daily/1")
             .put("profile", owner)
             .put("exportedAt", time.toString())
             .put("source", "samsung-health-data-sdk-1.1.0")
-            .put("records", JSONObject().put("dailySummary", JSONArray().also { array ->
-                days.toSortedMap().values.forEach { array.put(it) }
-            }))
+            .put("records", records)
     }
 
     private fun note(prefs: SharedPreferences, detail: String) {
