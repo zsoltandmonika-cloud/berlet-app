@@ -336,3 +336,83 @@ test('Samsung unified build49 keeps existing production OTA at build47 and start
  assert.match(main,/val intervals = arrayOf\("1 óra \(alapértelmezett\)", "2 óra", "3 óra"\)/);
  assert.doesNotMatch(bg,/requestPermissions\(/);
 });
+
+
+test('Samsung Watch9 wellness SDK records preserve missing values and require separate read consent',()=>{
+ const w=read('app/src/samsungDirectPilot/kotlin/hu/zsoltmonika/healthhubbridge/SamsungWellnessCollector.kt');
+ for(const field of ['SLEEP','ENERGY_SCORE','BLOOD_OXYGEN','SKIN_TEMPERATURE']){
+   assert.match(w,new RegExp('Permission\\.of\\(DataTypes\\.'+field+', AccessType\\.READ\\)'));
+ }
+ assert.match(w,/DataType\.SleepType\.SLEEP_SCORE/);
+ assert.match(w,/DataType\.EnergyScoreType\.ENERGY_SCORE/);
+ assert.match(w,/DataTypes\.SLEEP\.associatedReadRequestBuilder/);
+ assert.match(w,/IdFilter\.fromDataUid\(uid\)/);
+ assert.match(w,/DataType\.BloodOxygenType\.MIN_OXYGEN_SATURATION/);
+ assert.match(w,/DataType\.SkinTemperatureType\.MIN_SKIN_TEMPERATURE/);
+ assert.match(w,/if \(fresh == null \|\| fresh\.length\(\) == 0\) return old/);
+ assert.match(w,/fun mergeInto\(records: JSONObject, previous: JSONObject\?, snapshot: Snapshot\?\)/);
+ assert.doesNotMatch(w,/writeData|insertData|updateData|deleteData|uploadText/);
+ assert.match(sdk,/SamsungWellnessCollector\.read\(store, today\)/);
+ assert.match(sdk,/SamsungWellnessCollector\.mergeInto\(/);
+ assert.match(bg,/SamsungWellnessCollector\.read\(store, today\)/);
+ assert.match(bg,/SamsungWellnessCollector\.mergeInto\(/);
+ assert.match(bg,/6L \* 60L \* 60L \* 1000L/);
+ assert.doesNotMatch(bg,/requestPermissions\(/);
+});
+
+test('Samsung Watch9 optional scores and night vitals normalize and remain profile isolated',()=>{
+ const vm=require('node:vm'),ctx={window:{}};
+ vm.runInNewContext(web,ctx,{timeout:1500});
+ const today=new Date().toISOString().slice(0,10);
+ const start=new Date(Date.now()-7*3600*1000).toISOString();
+ const end=new Date(Date.now()-3600*1000).toISOString();
+ const record={schemaVersion:'healthhub.samsung.daily/1',profile:'monika',
+   exportedAt:new Date().toISOString(),records:{
+     dailySummary:[{date:today,activeMinutes:11}],
+     samsungSleepSessions:[{uid:'sleep-1',date:today,startTime:start,endTime:end,
+       sleepMinutes:360,sleepScore:84,sessions:[]}],
+     samsungEnergyScores:[{date:today,energyScore:76}],
+     samsungNightOxygen:[{sleepUid:'sleep-1',startTime:start,endTime:end,
+       minPercent:92,maxPercent:98}],
+     samsungNightSkinTemperature:[{sleepUid:'sleep-1',startTime:start,endTime:end,
+       minCelsius:32.2,maxCelsius:34.9}]
+   }};
+ assert.equal(ctx.window.HH_SAMSUNG_SOURCE_V371.normalize('zsolt',record),null);
+ const parsed=ctx.window.HH_SAMSUNG_SOURCE_V371.normalize('monika',record);
+ assert.equal(parsed.sleepSessions[0].sleepScore,84);
+ assert.equal(parsed.energyScores[0].energyScore,76);
+ assert.equal(parsed.nightOxygen[0].minPercent,92);
+ assert.equal(parsed.nightSkinTemperature[0].maxCelsius,34.9);
+ const c={daily:[{date:today,activeMinutes:11}],sessions:[],sleepSessions:[{id:'hc-sleep'}]};
+ const mixed=ctx.window.HH_SAMSUNG_SOURCE_V371.merge(c,{status:'ready',data:parsed},'monika');
+ assert.equal(mixed.samsungWellnessSource.profile,'monika');
+ assert.equal(mixed.samsungWellnessSource.sleepScore.sleepScore,84);
+ assert.deepEqual(mixed.sleepSessions,c.sleepSessions);
+ assert.strictEqual(ctx.window.HH_SAMSUNG_SOURCE_V371.merge(c,{status:'ready',data:parsed},'zsolt'),c);
+});
+
+test('Samsung Watch9 invalid, absent or stale optional data must not be invented',()=>{
+ const vm=require('node:vm'),ctx={window:{}};
+ vm.runInNewContext(web,ctx,{timeout:1500});
+ const today=new Date().toISOString().slice(0,10);
+ const a=new Date(Date.now()-4*3600*1000).toISOString();
+ const b=new Date(Date.now()-3600*1000).toISOString();
+ const parsed=ctx.window.HH_SAMSUNG_SOURCE_V371.normalize('zsolt',{
+   schemaVersion:'healthhub.samsung.daily/1',profile:'zsolt',
+   exportedAt:new Date().toISOString(),records:{dailySummary:[],
+     samsungSleepSessions:[{uid:'s1',date:today,startTime:a,endTime:b,sleepScore:101}],
+     samsungEnergyScores:[{date:today,energyScore:101}],
+     samsungNightOxygen:[{sleepUid:'s1',startTime:a,endTime:b,minPercent:30,maxPercent:99}],
+     samsungNightSkinTemperature:[{sleepUid:'s1',startTime:a,endTime:b,minCelsius:52}]
+   }});
+ assert.equal(parsed.sleepSessions[0].sleepScore,undefined);
+ assert.equal(parsed.energyScores.length,0);
+ assert.equal(parsed.nightOxygen[0].minPercent,undefined);
+ assert.equal(parsed.nightOxygen[0].maxPercent,99);
+ assert.equal(parsed.nightSkinTemperature.length,0);
+ const merged=ctx.window.HH_SAMSUNG_SOURCE_V371.merge(
+   {daily:[],sessions:[]},{status:'ready',data:parsed},'zsolt');
+ assert.equal(merged.samsungWellnessSource.sleepScore,null);
+ assert.equal(merged.samsungWellnessSource.energyScore,null);
+ assert.equal(merged.samsungWellnessSource.nightSkinTemperature,null);
+});
