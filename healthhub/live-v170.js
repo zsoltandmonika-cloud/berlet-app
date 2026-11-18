@@ -633,10 +633,11 @@ function hhEnsureSamsungAdapter(){
  if(installed)return Promise.resolve(installed);
  if(hhSamsungSourceReadyPromise)return hhSamsungSourceReadyPromise;
  hhSamsungSourceReadyPromise=new Promise(function(resolve){
-  var script=document.createElement('script'),settled=false;
+  var script=document.createElement('script'),settled=false,timeout=null;
   function done(){
    if(settled)return;
    settled=true;
+   if(timeout!==null)clearTimeout(timeout);
    script.onload=null;script.onerror=null;
    resolve(hhSamsungAdapterCurrent());
   }
@@ -644,6 +645,7 @@ function hhEnsureSamsungAdapter(){
   script.src='./live-v371-samsung.js?v=390-watch9-loader-ready';
   script.onload=done;
   script.onerror=done;
+  timeout=setTimeout(done,7000);
   document.head.appendChild(script);
  }).then(function(result){hhSamsungSourceReadyPromise=null;return result;},
    function(){hhSamsungSourceReadyPromise=null;return null});
