@@ -417,3 +417,18 @@ test('Samsung Watch9 invalid, absent or stale optional data must not be invented
  assert.equal(merged.samsungWellnessSource.energyScore,null);
  assert.equal(merged.samsungWellnessSource.nightSkinTemperature,null);
 });
+
+
+test('one-shot Watch9 consolidated version advances build50 without changing existing 0.15.22 candidate or normal OTA',()=>{
+ assert.match(build,/val hhSamsungConsolidatedCandidateRequested =/);
+ assert.match(build,/gradleProperty\("hhSamsungConsolidatedCandidate"\)/);
+ assert.match(build,/if \(hhSamsungConsolidatedCandidateRequested && !hhSamsungIntegratedCandidateRequested\)/);
+ assert.match(build,/if \(hhSamsungIntegratedCandidateEnabled && hhSamsungConsolidatedCandidateRequested\) \{\s*versionCode = 50\s*versionName = "0\.15\.23"/);
+ assert.match(build,/versionCode = 47[\s\S]*versionName = "0\.15\.20"/);
+ assert.match(build,/versionCode = 49[\s\S]*versionName = "0\.15\.22"/);
+ const privateWorkflow=fs.readFileSync(path.join(root,'../../.github/workflows/hh-one-samsung-private-apk.yml'),'utf8');
+ assert.match(privateWorkflow,/0\.15\.23/);
+ assert.match(privateWorkflow,/-PhhSamsungConsolidatedCandidate=true/);
+ assert.match(privateWorkflow,/PRIVATE-TEST-NOT-OTA/);
+ assert.doesNotMatch(privateWorkflow,/gh release create|git push origin HEAD:main/);
+});
