@@ -13,6 +13,10 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.io.File
+import java.nio.file.Files
+import java.nio.file.StandardCopyOption
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import org.json.JSONArray
@@ -85,12 +89,59 @@ object SamsungHealthDirectPilot {
                     return@launch
                 }
                 val dayLabel = if (day == today) "mai" else "tegnapi"
+                // Always persist a verified source-only snapshot in the Pilot's
+                // private storage. No Dropbox OAuth, browser or manual number entry.
+                // Export to an Android-selected document is a separate owner tap.
+                stage = "HELYI_MENTÉS"
+                writer.withLock {
+                    check(prefs.getString("device_owner_profile", null) == profile) {
+                        "A készülék tulajdonosa közben megváltozott"
+                    }
+                    withContext(Dispatchers.IO) {
+                        val target = File(activity.filesDir, "samsung-direct-$profile.json")
+                        val entries = LinkedHashMap<String, JSONObject>()
+                        if (target.isFile) {
+                            val old = JSONObject(target.readText(Charsets.UTF_8))
+                            check(old.optString("profile") == profile) {
+                                "Eltérő tulajdonosú helyi Samsung-export"
+                            }
+                            check(Regex("^healthhub\\\\.samsung\\\\.daily/1(\\\\.\\\\d+)?$").matches(old.optString("schemaVersion"))) {
+                                "Ismeretlen helyi Samsung-formátum"
+                            }
+                            val days = old.optJSONObject("records")?.optJSONArray("dailySummary")
+                            if (days != null) for (i in 0 until days.length()) {
+                                val row = days.optJSONObject(i) ?: continue
+                                val key = row.optString("date")
+                                val date = runCatching { LocalDate.parse(key) }.getOrNull()
+                                if (date != null && !date.isBefore(today.minusDays(29)) &&
+                                    !date.isAfter(today) && key != day.toString()) entries[key] = row
+                            }
+                        }
+                        entries[day.toString()] = JSONObject()
+                            .put("date", day.toString())
+                            .put("activeMinutes", minutes)
+                        val payload = JSONObject()
+                            .put("schemaVersion", "healthhub.samsung.daily/1")
+                            .put("profile", profile)
+                            .put("exportedAt", Instant.now().toString())
+                            .put("source", "samsung-health-data-sdk-1.1.0")
+                            .put("records", JSONObject().put("dailySummary", JSONArray().also { array ->
+                                entries.toSortedMap().values.forEach { array.put(it) }
+                            }))
+                        val tmp = File.createTempFile("samsung-direct-", ".tmp", activity.filesDir)
+                        try {
+                            tmp.writeText(payload.toString(2) + "\\n", Charsets.UTF_8)
+                            Files.move(tmp.toPath(), target.toPath(),
+                                StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING)
+                        } finally { if (tmp.exists()) tmp.delete() }
+                    }
+                }
                 // The pilot is a separate Android package. It does not inherit
                 // the signed HH One app's Dropbox OAuth credentials.
                 // Still report verified local SDK data, without claiming an upload.
                 if (!DropboxVaultClient.hasRefreshToken(prefs)) {
                     toast(activity, "Samsung Direct: $minutes mért $dayLabel aktív perc. " +
-                        "Dropbox nincs csatlakoztatva a Pilothoz; nem történt feltöltés.")
+                        "Helyben mentve. Dropbox nélkül; exportálás a külön gombbal.")
                     return@launch
                 }
                 stage = "DROPBOX_ELŐKÉSZÍTÉS"
