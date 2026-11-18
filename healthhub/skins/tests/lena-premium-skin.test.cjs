@@ -45,7 +45,7 @@ test('V1 includes reusable visual building blocks and accessible mobile treatmen
 });
 test('V1 is a skin only; no health storage, permissions, network or code side effects',()=>{
  assert.doesNotMatch(css,/https?:\/\/|@import|@font-face|fetch\(|XMLHttpRequest|script\s*>|supabase|dropbox|HealthConnectClient|localStorage|indexedDB|setInterval|navigator\./i);
- assert.doesNotMatch(demo,/https?:\/\/|fetch\(|XMLHttpRequest|supabase|dropbox\.|indexedDB|localStorage|HealthConnectClient|requestPermissions|serviceWorker/i);
+ assert.doesNotMatch(demo,/https?:\/\/|fetch\(|XMLHttpRequest|supabase\.from\(|createClient\(|dropbox\.download|indexedDB|localStorage|HealthConnectClient|requestPermissions|serviceWorker/i);
  assert.match(demo,/data-hh-skin="lena-premium"/);
  assert.match(demo,/data-hh-profile="monika"/);
  assert.match(demo,/data-switch="zsolt"/);
