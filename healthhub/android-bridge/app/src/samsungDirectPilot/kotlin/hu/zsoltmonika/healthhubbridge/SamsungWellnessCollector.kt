@@ -56,13 +56,13 @@ internal object SamsungWellnessCollector {
         val skinRows = JSONArray()
         val now = java.time.Instant.now().plusSeconds(300)
 
-        sleeps?.sortedByDescending { it.endTime }?.take(18)?.forEach { point ->
-            val begin = point.startTime
-            val end = point.endTime
+        sleeps?.sortedByDescending { it.endTime }?.take(18)?.forEach sleepLoop@ { point ->
+            val begin = point.startTime ?: return@sleepLoop
+            val end = point.endTime ?: return@sleepLoop
             if (!end.isAfter(begin) || end.isAfter(now) ||
-                Duration.between(begin, end).toHours() > 24) return@forEach
+                Duration.between(begin, end).toHours() > 24) return@sleepLoop
             val uid = point.uid
-            if (uid.isBlank()) return@forEach
+            if (uid.isBlank()) return@sleepLoop
             val row = JSONObject()
                 .put("uid", uid)
                 .put("startTime", begin.toString())
@@ -73,18 +73,22 @@ internal object SamsungWellnessCollector {
             point.getValue(DataType.SleepType.SLEEP_SCORE)
                 ?.takeIf { it in 0..100 }?.let { row.put("sleepScore", it) }
             val intervals = JSONArray()
-            point.getValue(DataType.SleepType.SESSIONS)?.forEach { session ->
-                if (!session.endTime.isAfter(session.startTime)) return@forEach
+            point.getValue(DataType.SleepType.SESSIONS)?.forEach sessionLoop@ { session ->
+                val sessionStart = session.startTime ?: return@sessionLoop
+                val sessionEnd = session.endTime ?: return@sessionLoop
+                if (!sessionEnd.isAfter(sessionStart)) return@sessionLoop
                 val stages = JSONArray()
-                session.stages.forEach { stage ->
-                    if (stage.endTime.isAfter(stage.startTime)) stages.put(JSONObject()
-                        .put("startTime", stage.startTime.toString())
-                        .put("endTime", stage.endTime.toString())
+                session.stages?.forEach stageLoop@ { stage ->
+                    val stageStart = stage.startTime ?: return@stageLoop
+                    val stageEnd = stage.endTime ?: return@stageLoop
+                    if (stageEnd.isAfter(stageStart)) stages.put(JSONObject()
+                        .put("startTime", stageStart.toString())
+                        .put("endTime", stageEnd.toString())
                         .put("stage", stage.stage.name))
                 }
                 intervals.put(JSONObject()
-                    .put("startTime", session.startTime.toString())
-                    .put("endTime", session.endTime.toString())
+                    .put("startTime", sessionStart.toString())
+                    .put("endTime", sessionEnd.toString())
                     .put("stages", stages))
             }
             if (intervals.length() > 0) row.put("sessions", intervals)
@@ -149,15 +153,16 @@ internal object SamsungWellnessCollector {
                 .setLocalDateFilter(LocalDateFilter.of(today.minusDays(8), today.plusDays(1)))
                 .build()
             store.readData(request).dataList.forEach { point ->
+                val energyStart = point.startTime ?: return@forEach
                 val score = point.getValue(DataType.EnergyScoreType.ENERGY_SCORE)
                     ?.takeIf { it.isFinite() && it in 0f..100f } ?: return@forEach
-                val date = point.startTime.atZone(point.zoneOffset)
+                val date = energyStart.atZone(point.zoneOffset ?: ZoneId.systemDefault())
                     .toLocalDate()
                 if (date.isBefore(today.minusDays(8)) || date.isAfter(today)) return@forEach
                 energyRows.put(JSONObject()
                     .put("date", date.toString())
                     .put("energyScore", score)
-                    .put("measuredAt", point.startTime.toString()))
+                    .put("measuredAt", energyStart.toString()))
             }
         }
 
