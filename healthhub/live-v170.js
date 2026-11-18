@@ -620,10 +620,13 @@ function hhSleepWatch9Oxygen1157(profile,result){
 }
 
 async function hhLoadWatch9Sleep(profile,renderId){
+ // Samsung is an independently owner-verified Dropbox source. A cached or
+ // temporarily unavailable HC Sleep export must not block its own online read.
+ // Keep render sequence, selected owner and current panel guards intact.
  var current=function(){return renderId===sleepRenderSeq&&pkey()===profile&&
-   window.hhSleepSourceMeta&&window.hhSleepSourceMeta.profile===profile&&
-   window.hhSleepSourceMeta.source==='Dropbox / Health Connect'&&
-   document.getElementById('hhSleepWatch9Panel')};
+   document.getElementById('hhSleepWatch9Panel')&&
+   document.getElementById('hhSleepWatch9Panel').getAttribute('data-hh-watch9-profile')===profile?
+   document.getElementById('hhSleepWatch9Panel'):null};
  if(!current())return;
  var source=window.HH_SAMSUNG_SOURCE_V371,vault=window.HH_DROPBOX_VAULT;
  var result=null;
@@ -731,8 +734,9 @@ function paintSleep(rows,requestedProfile,renderId,perfStarted,preview,exportedA
   sleepBuddy.setAttribute('aria-label','Buddy, tájékoztató alvásidő-jelzés: '+sleepRagDesc[sleepRag]);
   sleepBuddy.title='Az éjjeli alvásidő RAG-jelzését követi, nem orvosi minősítés.';
  }
- if(!preview&&sourceStatus==='verified-cloud'&&['zsolt','monika'].includes(requestedProfile)){
-  // Asynchronous optional read, never part of Sleep's critical paint path.
+ if(!preview&&['zsolt','monika'].includes(requestedProfile)){
+  // Independently verified Samsung source. Do not depend on Health Connect's
+  // separate cloud freshness, and do not block Sleep's critical first paint.
   Promise.resolve(hhLoadWatch9Sleep(requestedProfile,renderId)).catch(function(){});
  }
  window.hhSleepPerfV1={totalMs:Math.max(0,Date.now()-perfStarted),sourceKind:window.hhSleepSourceMeta?.source||'nem ellenőrizhető',completedAt:Date.now()};
