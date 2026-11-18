@@ -10,6 +10,7 @@ const script=fs.readFileSync(path.join(__dirname,'..','live-v371-samsung.js'),'u
 const window={};
 vm.runInNewContext(script,{window,Date,Map,Number,Array,Object,Promise});
 const api=window.HH_SAMSUNG_SOURCE_V371;
+assert.equal(api.version,'390-watch9-loader-ready');
 const today=new Date().toISOString().slice(0,10);
 const payload=(p='monika')=>({
  schemaVersion:'healthhub.samsung.daily/1',profile:p,exportedAt:new Date().toISOString(),
