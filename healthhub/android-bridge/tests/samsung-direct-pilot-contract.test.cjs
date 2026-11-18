@@ -95,15 +95,15 @@ test('fresh second Samsung Pilot needs explicit confirmed owner binding, not HC 
  assert.match(sdk,/if \(prefs\.getString\("device_owner_profile", null\) != profile\)/);
 });
 
-test('candidate HH One 0.15.21 uses the same signed identity and Dropbox, but default OTA stays Samsung-free',()=>{
+test('candidate HH One 0.15.22 upgrades installed 0.15.21 with the same signed identity and Dropbox',()=>{
  assert.match(build,/gradleProperty\("hhSamsungIntegratedCandidate"\)/);
  assert.match(build,/val hhSamsungDirectEnabled = hhSamsungPilotEnabled \|\| hhSamsungIntegratedCandidateEnabled/);
- assert.match(build,/versionCode = 47[\s\S]*if \(hhSamsungIntegratedCandidateEnabled\) \{\s*versionCode = 48\s*versionName = "0\.15\.21"/);
+ assert.match(build,/versionCode = 47[\s\S]*if \(hhSamsungIntegratedCandidateEnabled\) \{\s*versionCode = 49\s*versionName = "0\.15\.22"/);
  assert.match(build,/buildConfigField\("boolean", "HH_SAMSUNG_DIRECT_AVAILABLE", hhSamsungDirectEnabled\.toString\(\)\)/);
  assert.match(build,/buildConfigField\("boolean", "HH_SAMSUNG_DIRECT_CANDIDATE", hhSamsungIntegratedCandidateEnabled\.toString\(\)\)/);
  assert.match(main,/if \(BuildConfig\.HH_SAMSUNG_DIRECT_AVAILABLE\) \{/);
  assert.match(main,/if \(BuildConfig\.HH_SAMSUNG_DIRECT_CANDIDATE\) \{/);
- assert.match(main,/Samsung Direct · 0\.15\.21 canary/);
+ assert.match(main,/Samsung Direct · 0\.15\.22 tesztfrissítés/);
  assert.match(build,/applicationId = "hu\.zsoltmonika\.healthhubbridge"/);
  assert.match(build,/if \(hhSamsungPilotEnabled\) \{\s*applicationIdSuffix = "\.samsungpilot"/);
 });
@@ -117,7 +117,7 @@ test('integrated Samsung Direct export and Dropbox use canonical source marker',
 });
 
 
-test('0.15.21 Samsung background sync is opt-in, owner-bound, and disabled in normal OTA or separate Pilot',()=>{
+test('0.15.22 Samsung background sync is opt-in, owner-bound, and disabled in normal OTA or separate Pilot',()=>{
  assert.match(bg,/check\(BuildConfig\.HH_SAMSUNG_DIRECT_CANDIDATE\)/);
  assert.match(bg,/const val KEY_ENABLED = "samsung_direct_background_enabled"/);
  assert.match(bg,/const val KEY_MANUAL_CLOUD_VERIFIED_OWNER = "samsung_direct_manual_cloud_verified_owner"/);
@@ -324,4 +324,15 @@ test('Samsung OTA cadence defaults to hourly, is owner editable without reinstal
  // Owner permissions + consent remain mandatory. No silent cross-profile reads.
  assert.match(bg,/prefs\.getString\(KEY_MANUAL_CLOUD_VERIFIED_OWNER, null\) == owner/);
  assert.match(bg,/prefs\.getString\("device_owner_profile", null\) == owner/);
+});
+
+test('Samsung unified build49 keeps existing production OTA at build47 and starts both owners at 1 hour',()=>{
+ assert.match(build,/versionCode = 47[\s\S]*versionName = "0\.15\.20"/);
+ assert.match(build,/if \(hhSamsungIntegratedCandidateEnabled\) \{\s*versionCode = 49\s*versionName = "0\.15\.22"/);
+ assert.match(bg,/prefs\.getInt\("\$\{KEY_INTERVAL_HOURS\}_\$owner", 1\)/);
+ assert.match(bg,/saved in 1\.\.3/);
+ assert.match(bg,/fun reconcileHourlyDefault\(context: Context\)/);
+ assert.match(main,/getMethod\("reconcileHourlyDefault", Context::class\.java\)/);
+ assert.match(main,/val intervals = arrayOf\("1 óra \(alapértelmezett\)", "2 óra", "3 óra"\)/);
+ assert.doesNotMatch(bg,/requestPermissions\(/);
 });
