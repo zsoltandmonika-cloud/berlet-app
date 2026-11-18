@@ -3,7 +3,8 @@ const test=require('node:test'),assert=require('node:assert/strict'),fs=require(
 const root=path.join(__dirname,'..');
 const read=name=>fs.readFileSync(path.join(root,name),'utf8');
 const build=read('app/build.gradle.kts'),sdk=read('app/src/samsungDirectPilot/kotlin/hu/zsoltmonika/healthhubbridge/SamsungHealthDirectPilot.kt'),
- main=read('app/src/main/java/hu/zsoltmonika/healthhubbridge/MainActivity.kt');
+ main=read('app/src/main/java/hu/zsoltmonika/healthhubbridge/MainActivity.kt'),
+ bg=read('app/src/samsungDirectPilot/kotlin/hu/zsoltmonika/healthhubbridge/SamsungDirectBackgroundSync.kt');
 const web=fs.readFileSync(path.join(root,'../live-v371-samsung.js'),'utf8');
 test('production Android never compiles proprietary Samsung sources without an explicit opt-in and local AAR',()=>{
  assert.match(build,/gradleProperty\("hhSamsungDirectPilot"\)/);
@@ -113,4 +114,34 @@ test('integrated Samsung Direct export and Dropbox use canonical source marker',
  assert.match(main,/if \(uri != null && owner != null && BuildConfig\.HH_SAMSUNG_DIRECT_AVAILABLE\) \{/);
  assert.match(main,/if \(BuildConfig\.HH_SAMSUNG_DIRECT_AVAILABLE\) \{\s*root\.addView\(TextView\(this\)/);
  assert.match(build,/Samsung integrated candidate requires the existing HH One OTA signing credentials/);
+});
+
+
+test('0.15.21 Samsung background sync is opt-in, owner-bound, and disabled in normal OTA or separate Pilot',()=>{
+ assert.match(bg,/check\(BuildConfig\.HH_SAMSUNG_DIRECT_CANDIDATE\)/);
+ assert.match(bg,/const val KEY_ENABLED = "samsung_direct_background_enabled"/);
+ assert.match(bg,/const val KEY_MANUAL_CLOUD_VERIFIED_OWNER = "samsung_direct_manual_cloud_verified_owner"/);
+ assert.match(bg,/prefs\.getString\(KEY_MANUAL_CLOUD_VERIFIED_OWNER, null\) == owner/);
+ assert.match(bg,/getString\("device_owner_profile", null\) == owner/);
+ assert.match(bg,/if \(!enabled\) \{\s*wm\.cancelUniqueWork\(PERIODIC\)\s*wm\.cancelUniqueWork\(ONCE\)/);
+ assert.match(bg,/PeriodicWorkRequestBuilder<SamsungDirectBackgroundWorker>\(3, TimeUnit\.HOURS\)/);
+ assert.match(main,/if \(BuildConfig\.HH_SAMSUNG_DIRECT_CANDIDATE\) \{\s*root\.addView\(Button\(this\)/);
+ assert.match(main,/Samsung automatikus szinkron · BEKAPCSOLÁS/);
+ assert.match(main,/Samsung automatikus szinkron · KIKAPCSOLÁS/);
+ assert.match(sdk,/putString\(SamsungDirectBackgroundSync\.KEY_MANUAL_CLOUD_VERIFIED_OWNER, profile\)/);
+});
+
+test('Samsung background worker reads only pre-approved real SDK activity and cannot overwrite canonical HC file',()=>{
+ assert.match(bg,/if \(!BuildConfig\.HH_SAMSUNG_DIRECT_CANDIDATE\) return Result\.success\(\)/);
+ assert.match(bg,/if \(!prefs\.getBoolean\(SamsungDirectBackgroundSync\.KEY_ENABLED, false\)\) return Result\.success\(\)/);
+ assert.match(bg,/getGrantedPermissions\(needed\)\.containsAll\(needed\)/);
+ assert.doesNotMatch(bg,/\.requestPermissions\(/);
+ assert.match(bg,/for \(date in listOf\(today, today\.minusDays\(1\)\)\)/);
+ assert.match(bg,/val measured: Duration\? = store\.aggregateData\(request\)\.dataList\.firstOrNull\(\)\?\.value/);
+ assert.match(bg,/SamsungHealthDirectPilot\.writer\.withLock/);
+ assert.match(bg,/File\(applicationContext\.filesDir, "samsung-direct-\$owner\.json"\)/);
+ assert.match(bg,/val cloudPath = DropboxVaultClient\.PROFILES_DIR \+ "\/\$owner-samsung-health\.json"/);
+ assert.doesNotMatch(bg,/uploadHealthConnectSnapshot\(|healthConnectPath\(/);
+ assert.match(bg,/\.put\("source", "samsung-health-data-sdk-1\.1\.0"\)/);
+ assert.match(bg,/if \(cloudTime\.isAfter\(readStartedAt\)\)/);
 });
