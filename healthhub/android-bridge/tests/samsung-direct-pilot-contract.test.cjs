@@ -70,3 +70,17 @@ test('a valid Samsung activity reading is reported locally without falsely claim
  assert.match(sdk,/stage = "DROPBOX_FELTÖLTÉS"/);
  assert.match(sdk,/Samsung Direct hiba \(\$stage\)/);
 });
+
+
+test('Samsung Pilot local-first transport requires no browser, persists measured data and supports explicit Android file export',()=>{
+ assert.match(sdk,/stage = "HELYI_MENTÉS"/);
+ assert.match(sdk,/File\(activity\.filesDir, "samsung-direct-\$profile\.json"\)/);
+ assert.match(sdk,/StandardCopyOption\.ATOMIC_MOVE/);
+ assert.match(sdk,/\.put\("source", "samsung-health-data-sdk-1\.1\.0"\)/);
+ assert.match(sdk,/Dropbox nélkül; exportálás a külön gombbal/);
+ assert.match(main,/ActivityResultContracts\.CreateDocument\("application\/json"\)/);
+ assert.match(main,/samsungExportLauncher\.launch\("\$owner-samsung-health\.json"\)/);
+ assert.match(main,/!BuildConfig\.HH_SAMSUNG_DIRECT_PILOT &&/);
+ assert.match(main,/Samsung Direct · mentett adatok exportálása/);
+ assert.match(main,/!File\(filesDir, "samsung-direct-\$owner\.json"\)\.isFile/);
+});
