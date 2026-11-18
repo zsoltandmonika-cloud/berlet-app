@@ -114,7 +114,7 @@ def main():
             install_sdk(fetch(source))
             return
         except Exception as exc:
-            errors.append(type(exc).__name__)
+            errors.append(type(exc).__name__ + ": " + str(exc)[:160])
     raise RuntimeError(
         "Samsung SDK could not be obtained securely (" + ",".join(errors) +
         "). APK candidate blocked, existing release unaffected."
