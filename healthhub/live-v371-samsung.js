@@ -80,6 +80,9 @@ function normalize(p,raw){
  // Optional Samsung Watch9 source arrays. These are NOT Health Connect
  // records and are never inferred from steps or other people's profile.
  var rawRecords=raw.records||{};
+ var wellnessReadStamp=dateMs(rawRecords.samsungWellnessReadAt);
+ var wellnessReadAt=wellnessReadStamp!=null&&wellnessReadStamp<=now+300000&&
+    wellnessReadStamp>=now-45*86400000?rawRecords.samsungWellnessReadAt:null;
  var sleepSessions=[],seenSleep=new Set();
  var sleepRaw=rawRecords.samsungSleepSessions;
  if(Array.isArray(sleepRaw))sleepRaw.forEach(function(r){
@@ -143,7 +146,7 @@ function normalize(p,raw){
  return {profile:p,exportedAt:raw.exportedAt,days:days,rawVersion:raw.schemaVersion,
   file:path(p),hourlySteps:hourly,exerciseSessions:sessions,
   sleepSessions:sleepSessions,energyScores:energyScores,nightOxygen:nightOxygen,
-  nightSkinTemperature:nightSkinTemperature};
+  nightSkinTemperature:nightSkinTemperature,wellnessReadAt:wellnessReadAt};
 }
 async function load(profile,vault){
  if(!profileOk(profile)||!vault||typeof vault.downloadJson!=='function'||!vault.connected||!vault.connected())
@@ -188,6 +191,7 @@ function merge(c, result, requestedProfile){
  // These independently sourced fields coexist with Health Connect sleep records.
  // A missing measurement produces an empty array, never a synthetic value.
  out.samsungWellnessSource={profile:requestedProfile,exportedAt:result.data.exportedAt,
+   wellnessReadAt:result.data.wellnessReadAt||null,
    sleepScore:out.samsungSleepSessions.find(function(x){return x.sleepScore!=null})||null,
    energyScore:out.samsungEnergyScores[0]||null,
    nightOxygen:out.samsungNightOxygen[0]||null,
