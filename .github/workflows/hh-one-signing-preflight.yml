@@ -7,6 +7,13 @@ on:
       - "healthhub/tests/hh-one-signing-preflight.test.cjs"
       - "healthhub/data/bridge-ota.json"
       - "healthhub/android-bridge/app/build.gradle.kts"
+      # Samsung integration changes must verify the EXISTING release key.
+      # Read-only gate; never publishes an SDK-less OTA or signs a candidate.
+      - "healthhub/android-bridge/app/src/samsungDirectPilot/**"
+      - "healthhub/android-bridge/app/src/main/AndroidManifest.xml"
+      - "healthhub/android-bridge/app/src/main/java/hu/zsoltmonika/healthhubbridge/HealthConnectExporter.kt"
+      - "healthhub/android-bridge/app/src/main/java/hu/zsoltmonika/healthhubbridge/DropboxVaultClient.kt"
+      - "healthhub/android-bridge/tests/samsung-direct-pilot-contract.test.cjs"
   workflow_dispatch:
 
 permissions:
