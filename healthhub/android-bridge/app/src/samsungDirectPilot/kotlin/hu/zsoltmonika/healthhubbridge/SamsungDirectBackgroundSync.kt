@@ -245,6 +245,15 @@ class SamsungDirectBackgroundWorker(
                     )
                 } else null
             }.getOrNull()
+            // Additional Samsung Watch9 sources refresh at most every six hours.
+            // Activity sync remains hourly and independent of optional permission failures.
+            val wellnessNow = System.currentTimeMillis()
+            val wellnessKey = "samsung_direct_wellness_last_attempt_ms"
+            val lastWellness = prefs.getLong(wellnessKey, 0L)
+            val freshWellness = if (wellnessNow - lastWellness >= 6L * 60L * 60L * 1000L) {
+                prefs.edit().putLong(wellnessKey, wellnessNow).apply()
+                runCatching { SamsungWellnessCollector.read(store, today) }.getOrNull()
+            } else null
             val freshRow = JSONObject()
                 .put("date", measuredDay.toString())
                 .put("activeMinutes", activeMinutes)
@@ -276,7 +285,7 @@ class SamsungDirectBackgroundWorker(
                 // previously collected Samsung Beta supplementary records.
                 val localSnapshot = snapshot(
                     owner, entries, Instant.now(), supplemental, freshHourlySteps,
-                    freshExerciseSessions, measuredDay
+                    freshExerciseSessions, freshWellness, measuredDay
                 )
                 withContext(Dispatchers.IO) {
                     val temp = File.createTempFile("samsung-direct-", ".tmp", applicationContext.filesDir)
@@ -319,7 +328,7 @@ class SamsungDirectBackgroundWorker(
                 DropboxVaultClient.ensureFolder(prefs, DropboxVaultClient.PROFILES_DIR)
                 val uploaded = snapshot(
                     owner, entries, Instant.now(), supplemental, freshHourlySteps,
-                    freshExerciseSessions, measuredDay
+                    freshExerciseSessions, freshWellness, measuredDay
                 )
                 DropboxVaultClient.uploadText(prefs, cloudPath, uploaded.toString(2) + "\n")
                 // Upload acceptance is not a success: verify the persisted owner
@@ -396,6 +405,7 @@ class SamsungDirectBackgroundWorker(
         carry: JSONObject?,
         freshHourlySteps: JSONArray?,
         freshExerciseSessions: JSONArray?,
+        freshWellness: SamsungWellnessCollector.Snapshot?,
         measuredDay: LocalDate
     ): JSONObject {
         val records = JSONObject().put("dailySummary", JSONArray().also { array ->
@@ -410,6 +420,7 @@ class SamsungDirectBackgroundWorker(
         SamsungExerciseCollector.mergeSessions(
             oldRecords?.optJSONArray("exerciseSessions"), freshExerciseSessions
         )?.let { records.put("exerciseSessions", it) }
+        SamsungWellnessCollector.mergeInto(records, oldRecords, freshWellness)
         return JSONObject()
             .put("schemaVersion", "healthhub.samsung.daily/1")
             .put("profile", owner)
