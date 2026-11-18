@@ -219,10 +219,28 @@ test('Samsung SDK consolidated hourly steps are permission-scoped, never guessed
  assert.match(steps,/record\.startTime\.atZone\(ZoneId\.systemDefault\(\)\)/);
  assert.match(steps,/result\.takeIf \{ it\.length\(\) > 0 \}/);
  assert.match(steps,/if \(fresh == null \|\| fresh\.length\(\) == 0\) return old/);
- assert.match(steps,/if \(item\.optString\("date"\) != day\.toString\(\)\) out\.put\(item\)/);
+ assert.match(steps,/val replacementHours = HashSet<Int>\(\)/);
+ assert.match(steps,/item\.optInt\("hour", -1\) in replacementHours\) continue/);
  assert.match(sdk,/SamsungStepCollector\.readHourly\(store, day, until\)/);
  assert.match(sdk,/SamsungStepCollector\.mergeHourly\(/);
  assert.match(bg,/SamsungStepCollector\.readHourly\(store, measuredDay, until\)/);
  assert.match(bg,/SamsungStepCollector\.mergeHourly\(/);
  assert.doesNotMatch(bg,/requestPermissions\(/);
+});
+
+test('Samsung web reader prioritizes newly measured hourly records over old Beta history',()=>{
+ const vm=require('node:vm'),ctx={window:{}};
+ vm.runInNewContext(web,ctx,{timeout:1000});
+ const now=Date.now(),rows=[];
+ const dayAt=days=>new Date(now-days*86400000).toISOString().slice(0,10);
+ // More than 72 hours, oldest first: old code would silently hide today.
+ for(let d=5;d>=0;d--)for(let h=0;h<20;h++)rows.push({date:dayAt(d),hour:h,steps:h+1});
+ const payload={schemaVersion:'healthhub.samsung.daily/1',profile:'zsolt',
+   exportedAt:new Date(now).toISOString(),records:{dailySummary:[],hourlySteps:rows}};
+ const parsed=ctx.window.HH_SAMSUNG_SOURCE_V371.normalize('zsolt',payload);
+ assert.ok(parsed);
+ assert.equal(parsed.hourlySteps.length,72);
+ assert.equal(parsed.hourlySteps[0].date,dayAt(0));
+ assert.equal(parsed.hourlySteps[0].hour,19);
+ assert.equal(parsed.hourlySteps.some(r=>r.date===dayAt(5)),false);
 });
