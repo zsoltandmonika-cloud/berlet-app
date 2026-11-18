@@ -1,3 +1,15 @@
+## 2026-11-18 · 0.15.21 signed OTA release gate
+
+**Current official status: 0.15.20/build47 on both profiles; 0.15.21 is NOT released.**
+
+The official Samsung Health Data SDK 1.1.0 ZIP supplied in the conversation contains `libs/samsung-health-data-api-1.1.0.aar`. The exact local AAR SHA-256 was checked: `f5d3d83cf00b97d0bb1d1db4da076e861eb1c3e6e704d89a34e68909d2f38654`. No proprietary SDK binary is committed into the public repository.
+
+A conservative Windows **signed candidate** script was produced as a downloadable conversation artifact `HealthHub-HHOne-OTA21-Candidate-Build.ps1`. It reads that exact original SDK ZIP and the original HH One signing keystore **locally** on the owner's machine, uses a pinned source revision, validates the published 0.15.20 APK hash, builds an integrated `0.15.21/build48` candidate and checks its signing certificate against the current OTA baseline. The script does not publish or install any APK. Build execution, private keystore availability and resulting APK checks are **not yet verified**. Passwords must never be sent to the chat.
+
+The existing generic signed OTA workflow now refuses an attempted integrated-candidate release through its standard Health Connect-only build path. It cannot accidentally turn an SDK-less output into a purported Samsung 0.15.21 release. No OTA manifest mutation occurred.
+
+**Next mandatory gates:** (1) original signing key available in the user's private Windows machine or an appropriately secured build path; (2) integrated 0.15.21 build succeeds with official proprietary SDK; (3) Zsolt phone manually validates Samsung reading, cloud upload and 3h WorkManager opt-in; (4) Samsung partner/package/certificate approval before app distribution; (5) Zsolt-only signed release and manifest after the above gates; (6) Mónika follows only after proven canary success. The Samsung developer mode is for testing only.
+
 **2026-11-18 – Privát, böngészőmentes Pilot V5:** A Samsung SDK valódi aktívperc-olvasása telefonon sikeresen visszaadott **44 percet**. A külön Pilot nem örökli a normál, aláírt HH One Dropbox OAuth-ját, a webes Dropbox-fiókvég pedig nem elérhető. Ezért a privát Pilot V5 az érvényes méréseket **alkalmazáson belüli tárhelyen, profilhoz kötve, 30 napig** tárolja, és külön, tulajdonos által indított **Android JSON-dokumentumexportot** kínál. Nem indít SHO beépített böngészőt, és nincs szüksége Dropbox-bejelentkezésre az olvasáshoz vagy a helyi mentéshez. A helyi mentés **nem jelent felhőfeltöltést**. A JSON mezői megfelelnek a webes `live-v373-samsung-import.js` ellenőrzési formátumának, de a webes importhoz külön HealthHub/Vault hozzáférés kell. Ezt a V5 APK-t még helyben újra kell fordítani és telefonon tesztelni; az éles OTA változatlan és Samsung SDK-mentes.
 
 # Samsung Health Data SDK: HealthHub közvetlen napi aktivitásadatok (v371)
