@@ -61,4 +61,25 @@ function hc(exportedAt,kcal=0,minutes=39){
  const out=api.merge(hc('2026-10-11T15:25:00+02:00'),result,'zsolt');
  assert.equal(out.daily[1].activeMinutes,39,'do not mix patient profiles');
 }
+{
+ // Regression: HC steps uploaded later than Samsung must not erase an
+ // independently measured, still-fresh SDK active-time value that HC lacks.
+ const result=candidate('2026-10-11T15:25:00+02:00');
+ const out=api.merge(hc('2026-10-11T15:40:00+02:00',137,null),result,'monika');
+ assert.equal(out.daily[1].activeMinutes,16,'fresh measured Samsung minutes recover a missing HC field');
+ assert.equal(out.daily[1].activeCaloriesKcal,137,'newer HC calories remain untouched');
+ assert.equal(out.daily[1]._hhFieldSources.activeMinutes,'samsung-direct','field provenance is explicit');
+ assert.equal(result.data.staleToday,false,'recovered fresh Samsung measurement is not falsely marked stale');
+}
+{
+ const old=candidate('2026-10-11T12:28:00+02:00');
+ const out=api.merge(hc('2026-10-11T16:05:00+02:00',137,null),old,'monika');
+ assert.equal(out.daily[1].activeMinutes,null,'old SDK snapshots cannot fill current-day missing minutes');
+ assert.equal(old.data.staleToday,true,'old SDK remains marked stale');
+}
+{
+ const result=candidate('2026-10-11T15:25:00+02:00');
+ const out=api.merge(hc('2026-10-11T15:40:00+02:00',137,0),result,'monika');
+ assert.equal(out.daily[1].activeMinutes,0,'a measured HC zero must not be overwritten');
+}
 console.log('PASS: Samsung/HC daily provenance, freshness, historical days, profile isolation');
