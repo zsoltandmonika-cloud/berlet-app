@@ -357,6 +357,7 @@ test('Samsung Watch9 wellness SDK records preserve missing values and require se
  assert.match(bg,/SamsungWellnessCollector\.read\(store, today\)/);
  assert.match(bg,/SamsungWellnessCollector\.mergeInto\(/);
  assert.match(bg,/6L \* 60L \* 60L \* 1000L/);
+ assert.match(bg,/samsung_direct_wellness_last_attempt_ms_\$owner/);
  assert.doesNotMatch(bg,/requestPermissions\(/);
 });
 
