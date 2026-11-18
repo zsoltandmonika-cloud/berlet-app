@@ -2,6 +2,23 @@
 
 # Samsung Health Data SDK: HealthHub közvetlen napi aktivitásadatok (v371)
 
+## 2026-11-18 · HH One 0.15.21 OTA előkészítés (NEM kiadott változat)
+
+**Bizonyított telefonos alap:** Zsolt Samsung Direct V6 privát alkalmazása valódi, 2026-11-17-i 44 perc aktív időt olvasott, helyben tárolt, majd Android JSON-dokumentumként exportált. A JSON `healthhub.samsung.daily/1` formátumú, a webes importtal kompatibilis. Ez **nem jelenti** az automatikus felhőszinkron vagy a normál HH One Samsung SDK-kapcsolatának működését.
+
+**Elkészített, inaktív fejlesztői integráció a repóban:**
+
+- A Gradle támogatja a külön `-PhhSamsungIntegratedCandidate=true` **release candidate** építést. Csak helyi, nem GitHubra felvitt eredeti SDK AAR-rel és a meglévő aláírókulccsal engedhető. A külön Debug Pilot `.samsungpilot` csomagneve megmarad.
+- A candidate az **eredeti HH One applicationId-t** (`hu.zsoltmonika.healthhubbridge`), belső profilkötést és natív Dropbox tokeneket használja, így nincs második böngészős OAuth. A candidate verziója `0.15.21 / build 48`, az éles alapértelmezett build továbbra is `0.15.20 / build 47`.
+- A candidate-ben külön engedéllyel, kézi tulajdonosi gombbal elérhető a Samsung Direct tesztolvasás. Az eredeti Health Connect szinkron, saját felület és OTA-folyamat változatlan. A candidate-et az alapértelmezett workflow **nem buildeli és nem publikálja**.
+- A `.github/workflows/healthhub-samsung-ota21-readiness.yml` kézzel indítható, kizárólag olvasó ellenőrzés: a publikált 0.15.20 APK hashét és aláíró tanúsítványának SHA-256 lenyomatát vizsgálja Samsung-partnerregisztrációhoz. Nem vesz át gyártói AAR-t, nem tölt fel APK-t, és nem állítja, hogy a Samsung jóváhagyott minket.
+- **Hátravan:** Samsung partner jóváhagyása az éles csomagnévre és aláíró tanúsítványra, privát AAR-rel és aláírással candidate-build, fizikai telefonos kézi SDK→meglévő Dropbox validáció, háttérben futó közös szinkron implementálása és mérése, később Mónika canary, külön ellenőrzött OTA publikálás.
+- A jogosultságokat csak jóváhagyás után lehet éles terjesztésre alkalmasnak tekinteni; a Samsung fejlesztői mód nem éles megoldás.
+
+**Kiadási tiltás:** a `healthhub/data/bridge-ota.json` és a ténylegesen publikált 0.15.20 OTA változatlan. A 0.15.21 megnevezés itt fejlesztési cél, **nem telepíthető új OTA**.
+
+
+
 **Státusz: ELŐKÉSZÍTETT, PRIVÁT SDK-PILOT VÁZÁVAL. MÉG NEM KAPCSOLÓDOTT.**
 A v371 webes adatfogadó kódja és forrásszétválasztása kész. **A Samsung Health Data SDK Android-olvasója nincs beépítve az APK-ba**, nincs Samsung jóváhagyás, és a v371 önmagában nem oldja meg a hiányzó kalória/aktív idő/emeletszám importját. A meglévő Health Connect → Dropbox kapcsolat továbbra is működik.
 
