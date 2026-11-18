@@ -84,7 +84,7 @@ assert.match(css,/#hhSleepPage \.hhSleepFactorsV432 \.hhSleepFactors381\{[^}]*gr
  'Preview tiles must stay two columns at mobile widths');
 assert.match(css,/#hhSleepPage \.hhSleepFactorsV432 \.hhSleepFactor381\{[^}]*grid-column:auto!important/,
  'The light-sleep card cannot expand to full row in the preview');
-assert.match(source,/id="hhSleepOxygenCard1157"/,
+assert.match(source,/\x27hhSleepOxygenCard1157\x27/,
  'Single SpO2 card must be bound to the Samsung overlay by stable id');
 assert.match(html,/sleep-three-views-v428\.css\?v=1154-sleep-data-audit/,
  'New preview CSS must not be served from old cache');
