@@ -105,7 +105,7 @@ object SamsungHealthDirectPilot {
                             check(old.optString("profile") == profile) {
                                 "Eltérő tulajdonosú helyi Samsung-export"
                             }
-                            check(Regex("^healthhub\\\\.samsung\\\\.daily/1(\\\\.\\\\d+)?$").matches(old.optString("schemaVersion"))) {
+                            check(Regex("^healthhub\\.samsung\\.daily/1(\\.\\d+)?$").matches(old.optString("schemaVersion"))) {
                                 "Ismeretlen helyi Samsung-formátum"
                             }
                             val days = old.optJSONObject("records")?.optJSONArray("dailySummary")
@@ -130,7 +130,7 @@ object SamsungHealthDirectPilot {
                             }))
                         val tmp = File.createTempFile("samsung-direct-", ".tmp", activity.filesDir)
                         try {
-                            tmp.writeText(payload.toString(2) + "\\n", Charsets.UTF_8)
+                            tmp.writeText(payload.toString(2) + "\n", Charsets.UTF_8)
                             Files.move(tmp.toPath(), target.toPath(),
                                 StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING)
                         } finally { if (tmp.exists()) tmp.delete() }
