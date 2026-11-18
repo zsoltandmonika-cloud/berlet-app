@@ -34,7 +34,7 @@ test('Activity V1 only loads CSS on Activity open, never on Home',async()=>{
   addEventListener(k,fn){events[k]=fn}
  };
  const consoleMock={warn(){}};
- vm.runInNewContext(adapter,{document:doc,window:w,location:w.location,URLSearchParams,Promise,console:consoleMock,Error});
+ vm.runInNewContext(adapter,{document:doc,window:w,location:w.location,localStorage:w.localStorage,URLSearchParams,Promise,console:consoleMock,Error});
  assert.equal(links.length,1,'only the existing v533 CSS loaded on startup');
  assert.match(links[0].href,/activity-premium-glass-v533\.css/);
  links[0].listeners.load(); // Existing Activity Glass successfully available.
@@ -67,7 +67,7 @@ test('Existing glass and new Léna theme can be independently disabled',()=>{
    createElement(){return {addEventListener(k,fn){this[k]=fn}}}
   };
   const w={location:{search},localStorage:{getItem(){return 'm'}},hhOpenActivity(){},addEventListener(){}};
-  vm.runInNewContext(adapter,{document:doc,window:w,location:w.location,URLSearchParams,Promise,console:{warn(){}}});
+  vm.runInNewContext(adapter,{document:doc,window:w,location:w.location,localStorage:w.localStorage,URLSearchParams,Promise,console:{warn(){}}});
   assert.equal(links.length,expectedLinks);
   if(links[0])links[0].load();
   w.hhOpenActivity();
