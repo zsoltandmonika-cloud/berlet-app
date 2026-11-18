@@ -21,4 +21,4 @@ jobs:
         with:
           node-version: '22'
       - name: Verify namespacing, profiles, preview, accessibility, Sleep isolation
-        run: node --test healthhub/skins/tests/lena-premium-skin.test.cjs
+        run: node --test healthhub/skins/tests/*.test.cjs
