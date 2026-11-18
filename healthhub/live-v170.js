@@ -554,7 +554,8 @@ function hhSleepWatch9Markup(profile,result){
  }
  // Never confuse the last successful activity upload with an actual overnight read.
  // Reuse each tile's existing detail text so the compact 12-tile layout is unchanged.
- var samsungState=result&&result.status||'not_loaded';
+ var samsungState=result&&result.status==='ready'&&!data?'invalid':
+   result&&result.status||'not_loaded';
  var sourceDetail={
    unavailable:'Samsung-fájl nem érhető el',
    not_connected:'Samsung-fájl nem kapcsolódik',
