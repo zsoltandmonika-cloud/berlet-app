@@ -83,3 +83,16 @@ A CSS automatikusan színez; a valódi adatokat, profilazonosítást és a navig
 A demófájl a kódtárban: `healthhub/skins/preview.html`. A profilt a két felső gombbal lehet váltani, az adatértékek csak minták.
 
 A Sleep demó hűségét továbbra is az **élő v1173** CSS és a jóváhagyott kép határozza meg. A skin packból egy másik modul felülete nem válik varázsütésre pixelazonossá, mert a modulok DOM-szerkezete és tartalma eltér. A cél az azonos vizuális nyelv és komponensszintű design quality.
+
+## Aktivitás modul · Léna Premium V1 (2026-11-19)
+
+Az első valódi átvétel a HealthHub / SHO **Aktivitás** modul. A megvalósítás megtartja a `live-v191.js` / `activity-fast/activity-engine-v3.js` eredeti adatkezelését és a meglévő `activity-premium-glass-v533.js` visszaállítási lehetőségét.
+
+- **A Skin Pack alkalmazása:** `activity-premium-glass-v533.js` megnyitáskor, csak a már látható `#hhActivityPage191` elemnél, lusta betöltéssel importálja a `skins/lena-premium-v1.css` és `skins/activity-lena-premium-v1.css` fájlokat.
+- **Aktiválás:** csak mindkét CSS sikeres letöltése után `data-hh-skin="lena-premium"` a lap gyökerén; a régi Activity Glass marad a hibabiztos alternatíva.
+- **Profil:** Mónika / Zsolt váltásakor a `data-hh-profile` frissül. A szinkron kizárólag a megjelenést érinti.
+- **Érintett elemek:** hero keret, időszakgombok, 4+3 KPI, forrás- és dátumkártyák, diagramok, edzéslista, idővonal, kalóriapanel, manuális gombok, modális űrlap és SHO navigáció.
+- **Amit nem módosít:** Health Connect és Samsung SDK mérések, Dropbox export, helyi cache, számítások, adatok pontossága, frissítési gyakoriság, click actionök, APK, engedélyek és a Sleep v1173 felület.
+- **Visszaállítás:** `?hhlenaactivity=0` megtartja a meglévő Activity Glass kinézetet; a régi `?hhactivityglass=0` változatlanul teljesen kikapcsolja azt.
+- **Sebesség:** nincs új JS-fájl a központi vagy a gyors Aktivitás-oldalon, a két CSS csak az Aktivitás első megnyitásakor töltődik le, majd a böngésző cache-eli.
+- **QA:** `node --test healthhub/skins/tests/*.test.cjs`; a korábbi Activity One és HC-forrásregressziós tesztek változatlanok.
