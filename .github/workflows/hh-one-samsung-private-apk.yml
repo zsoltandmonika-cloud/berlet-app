@@ -5,6 +5,8 @@ on:
     paths:
       - ".github/workflows/hh-one-samsung-private-apk.yml"
       - "healthhub/android-bridge/scripts/acquire-samsung-sdk-private.py"
+      - "healthhub/android-bridge/scripts/load-samsung-sdk-secrets.py"
+      - "healthhub/android-bridge/scripts/private-samsung-sdk-ready.txt"
       - "healthhub/android-bridge/app/build.gradle.kts"
       - "healthhub/android-bridge/app/src/samsungDirectPilot/**"
       - "healthhub/android-bridge/tests/samsung-direct-pilot-contract.test.cjs"
@@ -65,10 +67,33 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.13'
-      - name: Load official SDK only inside ephemeral runner
+      - name: Load verified Samsung SDK from encrypted secrets or official vendor
+        # No AAR/ZIP enters source control or public artifacts.
+        env:
+          HH_SAMSUNG_SDK_AAR_B64_00: ${{ secrets.HH_SAMSUNG_SDK_AAR_B64_00 }}
+          HH_SAMSUNG_SDK_AAR_B64_01: ${{ secrets.HH_SAMSUNG_SDK_AAR_B64_01 }}
+          HH_SAMSUNG_SDK_AAR_B64_02: ${{ secrets.HH_SAMSUNG_SDK_AAR_B64_02 }}
+          HH_SAMSUNG_SDK_AAR_B64_03: ${{ secrets.HH_SAMSUNG_SDK_AAR_B64_03 }}
+          HH_SAMSUNG_SDK_AAR_B64_04: ${{ secrets.HH_SAMSUNG_SDK_AAR_B64_04 }}
+          HH_SAMSUNG_SDK_AAR_B64_05: ${{ secrets.HH_SAMSUNG_SDK_AAR_B64_05 }}
+          HH_SAMSUNG_SDK_AAR_B64_06: ${{ secrets.HH_SAMSUNG_SDK_AAR_B64_06 }}
+          HH_SAMSUNG_SDK_AAR_B64_07: ${{ secrets.HH_SAMSUNG_SDK_AAR_B64_07 }}
+          HH_SAMSUNG_SDK_AAR_B64_08: ${{ secrets.HH_SAMSUNG_SDK_AAR_B64_08 }}
+          HH_SAMSUNG_SDK_AAR_B64_09: ${{ secrets.HH_SAMSUNG_SDK_AAR_B64_09 }}
+          HH_SAMSUNG_SDK_AAR_B64_10: ${{ secrets.HH_SAMSUNG_SDK_AAR_B64_10 }}
+          HH_SAMSUNG_SDK_AAR_B64_11: ${{ secrets.HH_SAMSUNG_SDK_AAR_B64_11 }}
+          HH_SAMSUNG_SDK_AAR_B64_12: ${{ secrets.HH_SAMSUNG_SDK_AAR_B64_12 }}
+          HH_SAMSUNG_SDK_AAR_B64_13: ${{ secrets.HH_SAMSUNG_SDK_AAR_B64_13 }}
+          HH_SAMSUNG_SDK_AAR_B64_14: ${{ secrets.HH_SAMSUNG_SDK_AAR_B64_14 }}
+          HH_SAMSUNG_SDK_AAR_B64_15: ${{ secrets.HH_SAMSUNG_SDK_AAR_B64_15 }}
+          HH_SAMSUNG_SDK_AAR_B64_16: ${{ secrets.HH_SAMSUNG_SDK_AAR_B64_16 }}
         run: |
           set -euo pipefail
-          python3 healthhub/android-bridge/scripts/acquire-samsung-sdk-private.py
+          if [[ -n "${HH_SAMSUNG_SDK_AAR_B64_00:-}" ]]; then
+            python3 healthhub/android-bridge/scripts/load-samsung-sdk-secrets.py
+          else
+            python3 healthhub/android-bridge/scripts/acquire-samsung-sdk-private.py
+          fi
           test -s healthhub/android-bridge/app/private-samsung-sdk/samsung-health-data-api.aar
       - name: Compile and verify signed Samsung-native private candidate
         shell: bash
