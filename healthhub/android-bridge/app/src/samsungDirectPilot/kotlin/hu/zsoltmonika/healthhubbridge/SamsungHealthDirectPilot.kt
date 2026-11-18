@@ -53,18 +53,34 @@ object SamsungHealthDirectPilot {
                         return@launch
                     }
                 }
-                val day = LocalDate.now()
-                val filter = LocalTimeFilter.of(day.atStartOfDay(), LocalDateTime.now())
-                val request = DataType.ActivitySummaryType.TOTAL_ACTIVE_TIME.requestBuilder
-                    .setLocalTimeFilter(filter)
-                    .build()
-                // The SDK returns java.time.Duration, not a step-derived guess.
-                val measured: Duration? = store.aggregateData(request).dataList.firstOrNull()?.value
-                if (measured == null || measured.isNegative || measured.toMinutes() > 1440) {
-                    toast(activity, "Samsung Health: mára nincs hiteles aktív perc adat.")
+                // Read today first. Just after midnight Samsung Health can have
+                // no ACTIVITY_SUMMARY for the new day, so try yesterday as a
+                // *separately dated* fallback. Never relabel yesterday as today.
+                val today = LocalDate.now()
+                var measuredDay: LocalDate? = null
+                var measuredMinutes: Long? = null
+                for (candidate in listOf(today, today.minusDays(1))) {
+                    val end = if (candidate == today) LocalDateTime.now() else today.atStartOfDay()
+                    val filter = LocalTimeFilter.of(candidate.atStartOfDay(), end)
+                    val request = DataType.ActivitySummaryType.TOTAL_ACTIVE_TIME.requestBuilder
+                        .setLocalTimeFilter(filter)
+                        .build()
+                    // The SDK returns java.time.Duration, not a step-derived guess.
+                    val measured: Duration? = store.aggregateData(request).dataList.firstOrNull()?.value
+                    if (measured == null || measured.isNegative || measured.toMinutes() > 1440) {
+                        continue
+                    }
+                    val minutes = measured.toMinutes()
+                    measuredDay = candidate
+                    measuredMinutes = minutes
+                    break
+                }
+                val day = measuredDay
+                val minutes = measuredMinutes
+                if (day == null || minutes == null) {
+                    toast(activity, "Samsung Health: sem ma, sem tegnap nincs hiteles aktív perc adat.")
                     return@launch
                 }
-                val minutes = measured.toMinutes()
                 writer.withLock {
                     // Recheck identity immediately before cloud write, after permissions.
                     check(prefs.getString("device_owner_profile", null) == profile) {
@@ -87,15 +103,15 @@ object SamsungHealthDirectPilot {
                                 val row = existing.optJSONObject(i) ?: continue
                                 val key = row.optString("date")
                                 val localDate = runCatching { LocalDate.parse(key) }.getOrNull()
-                                if (localDate != null && !localDate.isBefore(day.minusDays(29)) &&
-                                    !localDate.isAfter(day) && key != day.toString()) {
+                                if (localDate != null && !localDate.isBefore(today.minusDays(29)) &&
+                                    !localDate.isAfter(today) && key != day.toString()) {
                                     entries[key] = row
                                 }
                             }
                         }
                     }
-                    // Never copy other fields into today's row. A previous Samsung
-                    // calorie snapshot could be old even if this minute reading is new.
+                    // Do not copy old fields onto the freshly read day's row:
+                    // a previously saved calorie snapshot may be stale.
                     entries[day.toString()] = JSONObject()
                         .put("date", day.toString())
                         .put("activeMinutes", minutes)
@@ -111,7 +127,8 @@ object SamsungHealthDirectPilot {
                     DropboxVaultClient.ensureFolder(prefs, DropboxVaultClient.PROFILES_DIR)
                     DropboxVaultClient.uploadText(prefs, path, output.toString(2) + "\n")
                 }
-                toast(activity, "Samsung Direct: $minutes mért aktív perc átadva a saját Dropbox-profilnak.")
+                val dayLabel = if (day == today) "mai" else "tegnapi"
+                toast(activity, "Samsung Direct: $minutes mért $dayLabel aktív perc átadva a saját Dropbox-profilnak.")
             } catch (cancel: CancellationException) {
                 throw cancel
             } catch (e: Exception) {
