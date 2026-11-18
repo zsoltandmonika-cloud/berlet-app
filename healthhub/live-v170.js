@@ -588,7 +588,7 @@ function hhSleepWatch9Oxygen1157(profile,result){
  var status=el.querySelector('.hhSleepFactorStatus381');
  var hc=el.getAttribute('data-hh-oxygen-hc');
  if(main&&hc==='none')main.textContent=value.toLocaleString('hu-HU')+'% min';
- if(meta)meta.textContent=(hc==='none'?'Samsung éjszakai minimum':'HC átlag '+hc+' · Samsung min '+value.toLocaleString('hu-HU')+'%');
+ if(meta)meta.textContent=(hc==='none'?'Samsung éjszakai minimum':'HC-mérés '+hc+' · Samsung min '+value.toLocaleString('hu-HU')+'%');
  if(status)status.textContent=hc==='none'?'Samsung Health':'HC + Samsung';
 }
 
@@ -866,18 +866,18 @@ document.documentElement.dataset.healthhubSleep='1.386';window.HH_LIVE_BUILD='v3
  if(document.getElementById('hhSleepWatchCompact1157Css'))return;
  var st=document.createElement('style');st.id='hhSleepWatchCompact1157Css';
  st.textContent=(
- '.hhSleepPage .hhSleepFactorsV432 .hhSleepFactors381{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:5px!important;align-items:stretch!important}'+
+ '#hhSleepPage .hhSleepFactorsV432 .hhSleepFactors381{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:5px!important;align-items:stretch!important}'+
  '.hhSleepPage .hhSleepWatch9Integrated1157{display:contents!important}'+
- '.hhSleepPage .hhSleepFactorsV432 .hhSleepFactor381,.hhSleepPage .hhSleepFactorsV432 .hhSleepWatchExtra1157{box-sizing:border-box!important;min-width:0!important;min-height:70px!important;height:auto!important;padding:6px 8px!important;gap:2px!important;border-radius:12px!important;box-shadow:none!important;grid-column:auto!important}'+
- '.hhSleepPage .hhSleepFactorsV432 .hhSleepWatch9Integrated1157>.hhSleepFactor381:last-child{grid-column:auto!important}'+
- '.hhSleepPage .hhSleepFactorsV432 .hhSleepFactor381 .hhSleepFactorLabel381{font-size:10px!important;line-height:1.1!important;min-height:12px!important;white-space:normal!important}'+
- '.hhSleepPage .hhSleepFactorsV432 .hhSleepFactor381 .hhSleepFactorIcon381{font-size:12px!important;line-height:1!important}'+
- '.hhSleepPage .hhSleepFactorsV432 .hhSleepFactor381 .hhSleepFactorValue381{font-size:21px!important;line-height:1.06!important;margin:1px 0!important;min-height:22px!important}'+
- '.hhSleepPage .hhSleepFactorsV432 .hhSleepFactor381 .hhSleepFactorValue381 small{font-size:10px!important;font-weight:650!important}'+
- '.hhSleepPage .hhSleepFactorsV432 .hhSleepFactor381 .hhSleepFactorStatus381{font-size:9px!important;line-height:1.1!important;padding:2px 5px!important;min-height:15px!important;margin:0!important;max-width:100%!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}'+
- '.hhSleepPage .hhSleepFactorsV432 .hhSleepFactor381 .hhSleepFactorDetail381{font-size:8px!important;line-height:1.12!important;margin:0!important;max-width:100%!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}'+
- '.hhSleepPage .hhSleepFactorsV432 .hhSleepIndexMethod382{margin:3px 0!important}'+
- '.hhSleepPage .hhSleepFactorsV432 .hhSleepFactorFoot381{font-size:9px!important;margin:4px 0!important}'+
+ '#hhSleepPage .hhSleepFactorsV432 .hhSleepFactor381,.hhSleepPage .hhSleepFactorsV432 .hhSleepWatchExtra1157{box-sizing:border-box!important;min-width:0!important;min-height:70px!important;height:auto!important;padding:6px 8px!important;gap:2px!important;border-radius:12px!important;box-shadow:none!important;grid-column:auto!important}'+
+ '#hhSleepPage .hhSleepFactorsV432 .hhSleepWatch9Integrated1157>.hhSleepFactor381:last-child{grid-column:auto!important}'+
+ '#hhSleepPage .hhSleepFactorsV432 .hhSleepFactor381 .hhSleepFactorLabel381{font-size:10px!important;line-height:1.1!important;min-height:12px!important;white-space:normal!important}'+
+ '#hhSleepPage .hhSleepFactorsV432 .hhSleepFactor381 .hhSleepFactorIcon381{font-size:12px!important;line-height:1!important}'+
+ '#hhSleepPage .hhSleepFactorsV432 .hhSleepFactor381 .hhSleepFactorValue381{font-size:21px!important;line-height:1.06!important;margin:1px 0!important;min-height:22px!important}'+
+ '#hhSleepPage .hhSleepFactorsV432 .hhSleepFactor381 .hhSleepFactorValue381 small{font-size:10px!important;font-weight:650!important}'+
+ '#hhSleepPage .hhSleepFactorsV432 .hhSleepFactor381 .hhSleepFactorStatus381{font-size:9px!important;line-height:1.1!important;padding:2px 5px!important;min-height:15px!important;margin:0!important;max-width:100%!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}'+
+ '#hhSleepPage .hhSleepFactorsV432 .hhSleepFactor381 .hhSleepFactorDetail381{font-size:8px!important;line-height:1.12!important;margin:0!important;max-width:100%!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}'+
+ '#hhSleepPage .hhSleepFactorsV432 .hhSleepIndexMethod382{margin:3px 0!important}'+
+ '#hhSleepPage .hhSleepFactorsV432 .hhSleepFactorFoot381{font-size:9px!important;margin:4px 0!important}'+
  '@media(max-width:355px){.hhSleepPage .hhSleepFactorsV432 .hhSleepFactor381{min-height:73px!important;padding:6px!important}.hhSleepPage .hhSleepFactorsV432 .hhSleepFactor381 .hhSleepFactorValue381{font-size:18px!important}}'
  );
  document.head.appendChild(st);
