@@ -608,7 +608,7 @@ class MainActivity : ComponentActivity() {
             }
             if (BuildConfig.HH_SAMSUNG_DIRECT_CANDIDATE) {
                 root.addView(TextView(this).apply {
-                    text = "Samsung Direct · 0.15.21 canary. Külön Samsung engedély, meglévő HH One Dropbox. Nem aktivál automatikus háttérszinkront."
+                    text = "Samsung Direct · 0.15.21 canary. Külön Samsung engedély, meglévő HH One Dropbox. Automata háttérszinkron alapból KI, külön kapcsolható be."
                     textSize = 13f
                     setTextColor(0xFF315F98.toInt())
                 })
@@ -629,6 +629,60 @@ class MainActivity : ComponentActivity() {
                     }
                 }
             })
+            // Private opt-in canary only. No Samsung SDK background sync in the
+            // normal 0.15.20 OTA or in the standalone .samsungpilot package.
+            if (BuildConfig.HH_SAMSUNG_DIRECT_CANDIDATE) {
+                root.addView(Button(this).apply {
+                    text = if (prefs.getBoolean("samsung_direct_background_enabled", false))
+                        "🕒 Samsung automatikus szinkron · KIKAPCSOLÁS"
+                    else
+                        "🕒 Samsung automatikus szinkron · BEKAPCSOLÁS"
+                    setOnClickListener {
+                        val owner = deviceOwnerProfile()
+                        if (owner == null || owner != selectedProfile()) {
+                            status.text = "Samsung szinkron: a telefon tulajdonosát kell használni."
+                            return@setOnClickListener
+                        }
+                        val next = !prefs.getBoolean("samsung_direct_background_enabled", false)
+                        try {
+                            val bridge = Class.forName(
+                                "hu.zsoltmonika.healthhubbridge.SamsungDirectBackgroundSync"
+                            )
+                            bridge.getMethod(
+                                "setEnabled",
+                                Context::class.java,
+                                String::class.java,
+                                Boolean::class.javaPrimitiveType!!
+                            ).invoke(null, this@MainActivity, owner, next)
+                            text = if (next)
+                                "🕒 Samsung automatikus szinkron · KIKAPCSOLÁS"
+                            else
+                                "🕒 Samsung automatikus szinkron · BEKAPCSOLÁS"
+                            status.text = if (next)
+                                "✓ Samsung Direct háttérszinkron bekapcsolva (3 óránként). A Health Connect szinkron változatlan."
+                            else
+                                "✓ Samsung Direct háttérszinkron kikapcsolva. A Health Connect szinkron változatlan."
+                        } catch (e: Exception) {
+                            val reason = (e.cause?.message ?: e.message ?: "ismeretlen hiba").take(190)
+                            status.text = "Samsung Direct: $reason"
+                        }
+                    }
+                })
+                root.addView(Button(this).apply {
+                    text = "🔎 Samsung automatikus szinkron állapota"
+                    setOnClickListener {
+                        try {
+                            val bridge = Class.forName(
+                                "hu.zsoltmonika.healthhubbridge.SamsungDirectBackgroundSync"
+                            )
+                            status.text = bridge.getMethod("status", Context::class.java)
+                                .invoke(null, this@MainActivity).toString()
+                        } catch (_: Exception) {
+                            status.text = "Samsung automatikus szinkron állapota nem érhető el."
+                        }
+                    }
+                })
+            }
         }
         if (BuildConfig.HH_SAMSUNG_DIRECT_AVAILABLE) {
             root.addView(TextView(this).apply {
