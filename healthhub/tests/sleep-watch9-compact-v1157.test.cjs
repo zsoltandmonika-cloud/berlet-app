@@ -120,13 +120,21 @@ test('Léna Premium: source status is at scroll-content bottom, same 12-tile gri
  const footer=sleep.indexOf("'+sourceFooter+'</div>'+bottomNav()");
  assert.ok(privacy>0&&footer>privacy,'Status should be placed after measured Sleep content and disclaimer');
  assert.equal((sleep.match(/class="hhSleepCacheStatusV3 hhSleepPremiumSync"/g)||[]).length,1,'one live sync status');
- assert.match(index,/sleep-premium-v1172\.css\?v=1172-lena-premium-glass/);
- assert.match(split,/sleep-premium-v1172\.css\?v=1172-lena-premium-glass/);
+ assert.match(index,/sleep-premium-v1172\.css\?v=1173-lena-demo-fidelity/);
+ assert.match(split,/sleep-premium-v1172\.css\?v=1173-lena-demo-fidelity/);
  assert.match(premiumCss,/#hhSleepPage\.hhSleepPage \.hhSleepFactorsV432 \.hhSleepFactors381/);
  assert.match(premiumCss,/grid-template-columns:repeat\(2,minmax\(0,1fr\)\)!important/);
  assert.match(premiumCss,/hhSleepWatch9Integrated1157\{display:contents!important\}/);
  assert.match(premiumCss,/hhSleepPremiumSync/);
  assert.match(premiumCss,/prefers-reduced-motion/);
+ assert.match(premiumCss,/v1173 · Approved Léna Premium demo-fidelity/);
+ assert.match(premiumCss,/\.hh428Card--night:after/);
+ assert.match(premiumCss,/\.hhSleepTop:after/);
+ assert.match(premiumCss,/hhSleepPremiumSync:before/);
+ assert.match(premiumCss,/min-height:118px!important/);
+ assert.match(premiumCss,/data:image\/svg\+xml/);
+ assert.equal((premiumCss.match(/\.hhSleepWatch9Integrated1157\{display:contents!important\}/g)||[]).length,1);
+
  assert.doesNotMatch(premiumCss,/\.writeRecords\(|\.uploadJson\(|supabase\.from\(/);
  let depth=0;for(const ch of premiumCss){if(ch==='{')depth++;if(ch==='}')depth--;assert.ok(depth>=0)}
  assert.equal(depth,0,'Premium CSS block nesting is balanced');
