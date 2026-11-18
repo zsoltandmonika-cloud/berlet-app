@@ -42,7 +42,18 @@ function hhSelectNightVitals384(profile,records,sessions){
  var oxy=Array.isArray(records.oxygenSaturation)?records.oxygenSaturation.filter(function(r){
   var t=Date.parse(r&&r.time);return Number.isFinite(t)&&t>=start&&t<=end;
  }).slice(-800):[];
- hhSleepVitals384[profile]={nightKey:night.startTime+'|'+night.endTime,heartRate:heart,oxygenSaturation:oxy};
+ // Keep only one source-verified, nighttime record for each optional Watch9 metric.
+ function latestVital(key,valueKey,low,high){
+  var list=Array.isArray(records[key])?records[key]:[];
+  return list.filter(function(r){
+   var t=Date.parse(r&&r.time),v=Number(r&&r[valueKey]);
+   return Number.isFinite(t)&&t>=start&&t<=end&&t>=Date.now()-72*3600000&&
+    Number.isFinite(v)&&v>=low&&v<=high;
+  }).sort(function(a,b){return Date.parse(b.time)-Date.parse(a.time)})[0]||null;
+ }
+ hhSleepVitals384[profile]={nightKey:night.startTime+'|'+night.endTime,heartRate:heart,oxygenSaturation:oxy,
+  hrv:latestVital('heartRateVariabilityRmssd','rmssdMs',1,500),
+  respiratory:latestVital('respiratoryRate','breathsPerMinute',4,45)};
 }
 function hhNightBiometrics384(night,profile){
  var stored=hhSleepVitals384[profile],out={pulse:null,oxygen:null};
@@ -508,6 +519,76 @@ window.hhSleepTrendPick386=function(el){
  box.querySelectorAll('.hhSleepTrendPoint386').forEach(function(g){g.classList.toggle('on',g===el)});
  value.textContent='Kijelölt '+(periodDays()===90?'hét':'nap')+': '+(el.dataset.dateLabel||el.dataset.date)+' · '+durText(minutes)+(periodDays()===90?' ('+count+' mért éjszaka átlaga)':'');
 };
+
+/* Watch9 wellness: optional profile-verified Samsung source, NEVER blocks the Sleep view.
+   Canonical HC Sleep remains authoritative for stage timelines and aggregate durations.
+   A separate timestamp identifies the last genuine Samsung wellness read. */
+function hhSleepWatch9Markup(profile,result){
+ var data=result&&result.status==='ready'&&result.data&&result.data.profile===profile?
+  result.data:null;
+ var recentCut=Date.now()-72*3600000;
+ var sleeps=data&&Array.isArray(data.sleepSessions)?data.sleepSessions:[];
+ var sleep=sleeps.filter(function(x){return x&&Date.parse(x.endTime)>=recentCut &&
+    Date.parse(x.endTime)<=Date.now()+300000}).sort(function(a,b){
+    return Date.parse(b.endTime)-Date.parse(a.endTime)})[0]||null;
+ var scores=data&&Array.isArray(data.energyScores)?data.energyScores:[];
+ var energy=scores.filter(function(x){return x&&
+    Date.parse(x.date+'T23:59:59Z')>=recentCut &&
+    Date.parse(x.date+'T00:00:00Z')<=Date.now()+86400000
+ }).sort(function(a,b){return b.date.localeCompare(a.date)})[0]||null;
+ function night(key){return sleep&&data&&Array.isArray(data[key])?
+   data[key].find(function(x){return x&&x.sleepUid===sleep.uid})||null:null}
+ var oxygen=night('nightOxygen'),skin=night('nightSkinTemperature');
+ var hc=hhSleepVitals384[profile]||{};
+ function num(v,d){return v!=null&&Number.isFinite(Number(v))?
+    Number(v).toLocaleString('hu-HU',{minimumFractionDigits:d,maximumFractionDigits:d}):'—'}
+ function date(v){return v?fmtDate(v):'nincs mért dátum'}
+ function tile(label,value,unit,meta){
+  return '<div style="min-width:0;border-radius:14px;border:1px solid rgba(103,128,170,.20);'+
+   'background:rgba(105,135,183,.07);padding:11px 9px;display:flex;flex-direction:column;gap:5px">'+
+   '<small style="font-size:10px;line-height:1.4;opacity:.85">'+esc(label)+'</small>'+
+   '<strong style="font-size:20px;font-weight:850;line-height:1.2;font-variant-numeric:tabular-nums">'+
+   esc(value)+(value==='—'?'':' <span style="font-size:11px;font-weight:650">'+esc(unit)+'</span>')+
+   '</strong><small style="font-size:9px;opacity:.75">'+esc(meta)+'</small></div>';
+ }
+ var sn=sleep&&sleep.sleepScore!=null?num(sleep.sleepScore,0):'—';
+ var en=energy&&energy.energyScore!=null?num(energy.energyScore,0):'—';
+ var ox=oxygen&&oxygen.minPercent!=null?num(oxygen.minPercent,0):'—';
+ var temp=skin&&skin.minCelsius!=null&&skin.maxCelsius!=null?
+  num(skin.minCelsius,1)+'–'+num(skin.maxCelsius,1):
+  skin&&skin.celsius!=null?num(skin.celsius,1):'—';
+ var hr=hc.hrv?num(hc.hrv.rmssdMs,1):'—';
+ var breath=hc.respiratory?num(hc.respiratory.breathsPerMinute,1):'—';
+ var stamp=data&&data.wellnessReadAt?fmtDateFull(data.wellnessReadAt):'még nem ellenőrizhető';
+ var cloudMsg=!data?'A Samsung extra adatok még nem érhetők el ennél a profilnál.':
+  'Samsung extra adatlekérés: '+stamp+' · Hiányzó érték = nincs igazolt mérés.';
+ return '<section class="hhSleepCard hhSleepWatch9Panel" data-hh-watch9-profile="'+esc(profile)+'" aria-label="Samsung Watch extra alvási mérések">'+
+  '<div class="hhSleepCardHead"><div><small>⌚ SAMSUNG HEALTH · EXTRA ADATOK</small><h3>Watch · alvás és regeneráció</h3></div></div>'+
+  '<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin:8px 0">'+
+  tile('Sleep Score',sn,'/ 100',sleep?date(sleep.date):'nincs mért éjszaka')+
+  tile('Energy Score',en,'/ 100',energy?date(energy.date):'nincs mért nap')+
+  tile('Éjszakai SpO₂ minimum',ox,'%',sleep?date(sleep.date):'nincs éjszakai mérés')+
+  tile('Éjszakai bőrhőmérséklet',temp,'°C',sleep?date(sleep.date):'nincs éjszakai mérés')+
+  tile('HRV · Health Connect',hr,'ms',hc.hrv?fmtDate(hc.hrv.time):'nincs éjjeli mérés')+
+  tile('Légzésszám · Health Connect',breath,'/perc',hc.respiratory?fmtDate(hc.respiratory.time):'nincs éjjeli mérés')+
+  '</div><p style="font-size:10px;line-height:1.5;opacity:.78;margin:8px 0 0">'+esc(cloudMsg)+
+  ' A Samsung és Health Connect eltérő méréseket biztosíthat; a pontszámokat nem becsüljük.</p></section>';
+}
+async function hhLoadWatch9Sleep(profile,renderId){
+ var current=function(){return renderId===sleepRenderSeq&&pkey()===profile&&
+   window.hhSleepSourceMeta&&window.hhSleepSourceMeta.profile===profile&&
+   window.hhSleepSourceMeta.source==='Dropbox / Health Connect'&&
+   document.getElementById('hhSleepWatch9Panel')};
+ if(!current())return;
+ var source=window.HH_SAMSUNG_SOURCE_V371,vault=window.HH_DROPBOX_VAULT;
+ var result=null;
+ if(source&&typeof source.load==='function'&&vault){
+  try{result=await source.load(profile,vault)}catch(e){result=null}
+ }
+ var target=current();
+ if(target)target.innerHTML=hhSleepWatch9Markup(profile,result);
+}
+
 async function render(profileOverride){
  var page=document.getElementById('hhSleepPage');if(!page)return;
  var renderId=++sleepRenderSeq,requestedProfile=profileOverride||pkey(),perfStarted=Date.now();
@@ -568,6 +649,7 @@ function paintSleep(rows,requestedProfile,renderId,perfStarted,preview,exportedA
  '<div class="hhSleepTop"><div><small>HEALTH CONNECT · '+esc(requestedProfile==='monika'?'MÓNIKA':'ZSOLT')+'</small><h2>Alvás és regeneráció</h2></div><button class="hhSleepProfile" onclick="hhSleepToggleProfile(event)" aria-label="Váltás '+esc(otherName())+' profiljára">'+esc(pname())+'</button><span id="hhSleepRagBuddyV1146" class="hhSleepRagBuddyV1146" data-rag="unknown" role="img" aria-label="Buddy: az éjszakai alvásidő nem ismert"><span class="hhSleepRagBuddyFaceV1146" aria-hidden="true"></span></span></div>'+
  '<div class="hhSleepCacheStatusV3" data-hh-sleep-source="'+sourceStatus+'" role="status" style="background:rgba(17,67,102,.08);border:1px solid rgba(53,105,153,.20);border-radius:12px;padding:9px 11px;font-size:10px;font-weight:800;color:#27506b;margin:3px 0 9px">'+sourceNotice+'</div>'+
  sleepContent+
+ (sourceStatus==='verified-cloud'?'<div id="hhSleepWatch9Panel" data-hh-watch9-profile="'+esc(requestedProfile)+'"></div>':'')+
  '<div class="hhSleepCard"><div class="hhSleepCardHead"><div><small>TREND</small><h3>Alvásidő</h3></div><div class="hhSleepPeriods"><button class="'+(sleepState.period==='7d'?'on':'')+'" onclick="hhSleepPeriod(\'7d\')">Heti</button><button class="'+(sleepState.period==='30d'?'on':'')+'" onclick="hhSleepPeriod(\'30d\')">Havi</button><button class="'+(sleepState.period==='90d'?'on':'')+'" onclick="hhSleepPeriod(\'90d\')">3 hónap</button></div></div>'+chart(period)+trendSummary(period)+'</div>'+
  (v428Enabled&&latest?window.HH_SLEEP_V428.calendar(rows,requestedProfile):'')+
  '<div class="hhSleepCard helperCard"><div class="hhSleepCardHead"><div><small>SLEEP HELPER</small><h3>Elalvássegítő</h3></div><span>API-mentes</span></div><p>Válassz időt és hangot. A meleg fény lassan elsötétül, a hang pedig fokozatosan elhalkul.</p>'+
@@ -596,6 +678,10 @@ function paintSleep(rows,requestedProfile,renderId,perfStarted,preview,exportedA
   };
   sleepBuddy.setAttribute('aria-label','Buddy, tájékoztató alvásidő-jelzés: '+sleepRagDesc[sleepRag]);
   sleepBuddy.title='Az éjjeli alvásidő RAG-jelzését követi, nem orvosi minősítés.';
+ }
+ if(!preview&&sourceStatus==='verified-cloud'){
+  // Asynchronous optional read, never part of Sleep's critical paint path.
+  Promise.resolve(hhLoadWatch9Sleep(requestedProfile,renderId)).catch(function(){});
  }
  window.hhSleepPerfV1={totalMs:Math.max(0,Date.now()-perfStarted),sourceKind:window.hhSleepSourceMeta?.source||'nem ellenőrizhető',completedAt:Date.now()};
 }
