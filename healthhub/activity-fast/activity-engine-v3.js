@@ -578,6 +578,13 @@ window.hh191SourceDetails=function(){
  var we=(wd.energyScores||[]).find(function(x){return x.date===today})||null;
  var wo=ws&&(wd.nightOxygen||[]).find(function(x){return x.sleepUid===ws.uid})||null;
  var wt=ws&&(wd.nightSkinTemperature||[]).find(function(x){return x.sleepUid===ws.uid})||null;
+ var hcRecords=bundle.records||{};
+ function latestHc(key){var list=hcRecords[key];if(!Array.isArray(list))return null;
+  return list.filter(function(x){return x&&x.time&&dayKey(x.time)===today})
+   .sort(function(a,b){return Date.parse(b.time)-Date.parse(a.time)})[0]||null;
+ }
+ var hcHrv=latestHc('heartRateVariabilityRmssd');
+ var hcBreath=latestHc('respiratoryRate');
  var directStatus=samsung.status==='pending'?'⏳ Samsung-export ellenőrzése folyamatban':samsung.status==='ready'?
    (samsung.data&&samsung.data.staleToday?'⚠️ Samsung SDK-export mai napi adatai elavultak, ezért nem használjuk őket':'✅ Samsung Data SDK export betöltve'):
    samsung.status==='not_connected'?'Még nincs Samsung SDK exportfájl':
@@ -611,6 +618,8 @@ window.hh191SourceDetails=function(){
  row('⌚ Alvási idő · Samsung Watch',value(ws,'sleepMinutes',0,'perc'))+
  row('⌚ Sleep Score · Samsung Watch',value(ws,'sleepScore',0,'/ 100'))+
  row('⌚ Energy Score · Samsung Watch',value(we,'energyScore',0,'/ 100'))+
+ row('⌚ HRV · Health Connect',value(hcHrv,'rmssdMs',1,'ms'))+
+ row('⌚ Légzésszám · Health Connect',value(hcBreath,'breathsPerMinute',1,'/perc'))+
  row('⌚ Éjszakai SpO₂ minimum · Samsung',value(wo,'minPercent',0,'%'))+
  row('⌚ Éjszakai SpO₂ maximum · Samsung',value(wo,'maxPercent',0,'%'))+
  row('⌚ Bőrhőmérséklet minimum · Samsung',value(wt,'minCelsius',1,'°C'))+
