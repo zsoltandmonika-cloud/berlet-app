@@ -28,5 +28,12 @@
   },function(error){if(pending.get(path)===entry)pending.delete(path);throw error});
   pending.set(path,entry);return entry.promise;
  };
+ // Manual reload may discard only completed, same-owner 12s memo rows.
+ // In-flight reads remain shared to avoid request storms.
+ vault.activityFastInvalidate=function(profile){
+  if(profile!==current())return false;
+  pending.forEach(function(row,path){if(row.owner===profile&&!row.pending)pending.delete(path)});
+  return true;
+ };
  vault.__activityFastDedupV3=true;
 })(window);
