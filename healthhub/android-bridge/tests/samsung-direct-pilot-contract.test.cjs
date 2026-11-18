@@ -84,3 +84,12 @@ test('Samsung Pilot local-first transport requires no browser, persists measured
  assert.match(main,/Samsung Direct · mentett adatok exportálása/);
  assert.match(main,/!File\(filesDir, "samsung-direct-\$owner\.json"\)\.isFile/);
 });
+
+test('fresh second Samsung Pilot needs explicit confirmed owner binding, not HC sync or Dropbox',()=>{
+ assert.match(main,/Samsung Pilot · telefon tulajdonosának rögzítése/);
+ assert.match(main,/if \(deviceOwnerProfile\(\) == null\) \{/);
+ assert.match(main,/\.setPositiveButton\("✅ \$label telefonja"\)/);
+ assert.match(main,/bindOwnerIfNeeded\(chosen\)/);
+ assert.match(main,/val chosen = selectedProfile\(\)/);
+ assert.match(sdk,/if \(prefs\.getString\("device_owner_profile", null\) != profile\)/);
+});
