@@ -190,7 +190,8 @@ object DropboxVaultClient {
                         val allowedKeys = setOf(
                             "bloodPressure", "weight", "bodyFat", "bloodGlucose",
                             "oxygenSaturation", "activeCaloriesRecords", "heartRate",
-                            "restingHeartRate", "exerciseSessions", "sleepSessions", "vo2Max"
+                            "restingHeartRate", "exerciseSessions", "sleepSessions", "vo2Max",
+                            "heartRateVariabilityRmssd", "respiratoryRate", "skinTemperature"
                         )
                         val counts = snapshot.optJSONObject("counts")
                         val countNames = mapOf(
@@ -202,6 +203,9 @@ object DropboxVaultClient {
                             "activeCaloriesRecords" to "activeCaloriesRecords",
                             "heartRate" to "heartRateRecords",
                             "restingHeartRate" to "restingHeartRate",
+                            "heartRateVariabilityRmssd" to "heartRateVariabilityRmssd",
+                            "respiratoryRate" to "respiratoryRate",
+                            "skinTemperature" to "skinTemperature",
                             "exerciseSessions" to "exerciseSessions",
                             "sleepSessions" to "sleepSessions",
                             "vo2Max" to "vo2Max"
@@ -214,6 +218,25 @@ object DropboxVaultClient {
                             countNames[key]?.let { count ->
                                 if (counts != null) counts.put(count, previousRecords.length())
                             }
+                        }
+                    }
+                    // Optional Watch9 sources must never be mistaken for an empty
+                    // measurement after the owner revokes a specific permission.
+                    // Keep previously measured records, while the new snapshot's
+                    // syncDiagnostics retains the actual permission state.
+                    val optionalAccess = diagnostics.optJSONObject("optionalVitalsPermissions")
+                    val optionalFields = mapOf(
+                        "hrv" to "heartRateVariabilityRmssd",
+                        "respiratoryRate" to "respiratoryRate",
+                        "skinTemperature" to "skinTemperature"
+                    )
+                    if (optionalAccess != null) {
+                        val counts = snapshot.optJSONObject("counts")
+                        for ((permission, field) in optionalFields) {
+                            if (optionalAccess.optBoolean(permission, false)) continue
+                            val priorRecords = existing.optJSONArray(field) ?: continue
+                            incoming.put(field, JSONArray(priorRecords.toString()))
+                            counts?.put(field, priorRecords.length())
                         }
                     }
                     recoverFailedDays(

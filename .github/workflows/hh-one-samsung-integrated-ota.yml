@@ -1,0 +1,226 @@
+name: HH One · Samsung-integrated signed OTA (partner gated)
+
+# The ONLY publish path for the private Samsung SDK native 0.15.23 package.
+# The generic OTA workflow is intentionally not used for Samsung releases.
+on:
+  workflow_dispatch:
+    inputs:
+      rollout:
+        type: choice
+        required: true
+        default: all
+        options: [all]
+        description: "Approved household owners, both phones only"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: hh-one-samsung-integrated-ota
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      GH_TOKEN: ${{ github.token }}
+      ROLLOUT: ${{ inputs.rollout }}
+      HH_SAMSUNG_PARTNER_APPROVED_CERT_SHA256: ${{ vars.HH_SAMSUNG_PARTNER_APPROVED_CERT_SHA256 }}
+      HH_SAMSUNG_PARTNER_APPROVAL_REFERENCE: ${{ vars.HH_SAMSUNG_PARTNER_APPROVAL_REFERENCE }}
+      HH_SAMSUNG_PARTNER_APPROVED_READ_SCOPES: ${{ vars.HH_SAMSUNG_PARTNER_APPROVED_READ_SCOPES }}
+      HH_OTA_KEYSTORE_B64: ${{ secrets.HH_OTA_KEYSTORE_B64 }}
+      HH_OTA_KEYSTORE_PASSWORD: ${{ secrets.HH_OTA_KEYSTORE_PASSWORD }}
+      HH_OTA_KEY_ALIAS: ${{ secrets.HH_OTA_KEY_ALIAS }}
+      HH_OTA_KEY_PASSWORD: ${{ secrets.HH_OTA_KEY_PASSWORD }}
+      HH_SAMSUNG_SDK_ZIP_URL: ${{ secrets.HH_SAMSUNG_SDK_ZIP_URL }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: true
+
+      - name: Hard stop until Samsung officially approves exact package and release signer
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$ROLLOUT" = "all"
+          python3 - <<'PY'
+          import os, re
+          pkg='hu.zsoltmonika.healthhubbridge'
+          expected='1045e5cc520eded12ebdec76eaf946cda0888f8cbccc7a2cdfc62a6aec92eb1e'
+          approved=os.environ.get('HH_SAMSUNG_PARTNER_APPROVED_CERT_SHA256','').lower().replace(':','').strip()
+          ref=os.environ.get('HH_SAMSUNG_PARTNER_APPROVAL_REFERENCE','').strip()
+          scopes=set(x.strip().upper() for x in os.environ.get('HH_SAMSUNG_PARTNER_APPROVED_READ_SCOPES','').split(',') if x.strip())
+          required={'ACTIVITY_SUMMARY','STEPS','EXERCISE','SLEEP','ENERGY_SCORE','BLOOD_OXYGEN','SKIN_TEMPERATURE'}
+          if approved != expected or not re.fullmatch(r'[a-f0-9]{64}',approved):
+              raise SystemExit('NO-GO: Samsung partner approval of original installed release SHA-256 not evidenced.')
+          if len(ref)<6:
+              raise SystemExit('NO-GO: official Samsung partnership approval reference missing.')
+          if not required.issubset(scopes):
+              raise SystemExit('NO-GO: Samsung registered permission scopes do not cover all enabled Samsung SDK readers.')
+          print('Partner approval attestation gates PRESENT. Signed APK and certificate checked again below.')
+          PY
+          for name in HH_OTA_KEYSTORE_B64 HH_OTA_KEYSTORE_PASSWORD HH_OTA_KEY_ALIAS HH_OTA_KEY_PASSWORD; do
+            test -n "${!name:-}" || { echo "::error::Original signing credentials missing"; exit 1; }
+          done
+          python3 - <<'PY'
+          import json,pathlib
+          m=json.loads(pathlib.Path('healthhub/data/bridge-ota.json').read_text())
+          assert m['applicationId']=='hu.zsoltmonika.healthhubbridge'
+          assert m['channel']=='signed-release' and m['schema']=='healthhub.connect.ota/1'
+          assert int(m['versionCode'])<50, '0.15.23 already on OTA; do not overwrite release'
+          assert m['version']=='0.15.20', 'Unexpected OTA baseline: review required'
+          PY
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Run Watch9, Sleep, profile isolation and source freshness contracts
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --test healthhub/android-bridge/tests/samsung-direct-pilot-contract.test.cjs
+          node --test healthhub/sleep-fast/sleep-verified-render-v3.test.cjs
+          node --test healthhub/tests/activity-samsung-freshness.test.cjs
+          node --test healthhub/activity-profile-test/profile-isolation.test.cjs
+          node --check healthhub/live-v170.js
+          node --check healthhub/live-v371-samsung.js
+          node --check healthhub/activity-fast/activity-engine-v3.js
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Prepare Android SDK and Gradle
+        shell: bash
+        run: |
+          set -euo pipefail
+          SDKMANAGER="$(find "$ANDROID_HOME/cmdline-tools" -type f -name sdkmanager | head -1)"
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" "platforms;android-36" "build-tools;35.0.0" >/dev/null
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.13'
+
+      - name: Restore proprietary Samsung SDK only from secure Actions secrets
+        env:
+          HH_SAMSUNG_SDK_AAR_B64_00: ${{ secrets.HH_SAMSUNG_SDK_AAR_B64_00 }}
+          HH_SAMSUNG_SDK_AAR_B64_01: ${{ secrets.HH_SAMSUNG_SDK_AAR_B64_01 }}
+          HH_SAMSUNG_SDK_AAR_B64_02: ${{ secrets.HH_SAMSUNG_SDK_AAR_B64_02 }}
+          HH_SAMSUNG_SDK_AAR_B64_03: ${{ secrets.HH_SAMSUNG_SDK_AAR_B64_03 }}
+          HH_SAMSUNG_SDK_AAR_B64_04: ${{ secrets.HH_SAMSUNG_SDK_AAR_B64_04 }}
+          HH_SAMSUNG_SDK_AAR_B64_05: ${{ secrets.HH_SAMSUNG_SDK_AAR_B64_05 }}
+          HH_SAMSUNG_SDK_AAR_B64_06: ${{ secrets.HH_SAMSUNG_SDK_AAR_B64_06 }}
+          HH_SAMSUNG_SDK_AAR_B64_07: ${{ secrets.HH_SAMSUNG_SDK_AAR_B64_07 }}
+          HH_SAMSUNG_SDK_AAR_B64_08: ${{ secrets.HH_SAMSUNG_SDK_AAR_B64_08 }}
+          HH_SAMSUNG_SDK_AAR_B64_09: ${{ secrets.HH_SAMSUNG_SDK_AAR_B64_09 }}
+          HH_SAMSUNG_SDK_AAR_B64_10: ${{ secrets.HH_SAMSUNG_SDK_AAR_B64_10 }}
+          HH_SAMSUNG_SDK_AAR_B64_11: ${{ secrets.HH_SAMSUNG_SDK_AAR_B64_11 }}
+          HH_SAMSUNG_SDK_AAR_B64_12: ${{ secrets.HH_SAMSUNG_SDK_AAR_B64_12 }}
+          HH_SAMSUNG_SDK_AAR_B64_13: ${{ secrets.HH_SAMSUNG_SDK_AAR_B64_13 }}
+          HH_SAMSUNG_SDK_AAR_B64_14: ${{ secrets.HH_SAMSUNG_SDK_AAR_B64_14 }}
+          HH_SAMSUNG_SDK_AAR_B64_15: ${{ secrets.HH_SAMSUNG_SDK_AAR_B64_15 }}
+          HH_SAMSUNG_SDK_AAR_B64_16: ${{ secrets.HH_SAMSUNG_SDK_AAR_B64_16 }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ -n "${HH_SAMSUNG_SDK_AAR_B64_00:-}" ]]; then
+            python3 healthhub/android-bridge/scripts/load-samsung-sdk-secrets.py
+          else
+            python3 healthhub/android-bridge/scripts/acquire-samsung-sdk-private.py
+          fi
+          test -s healthhub/android-bridge/app/private-samsung-sdk/samsung-health-data-api.aar
+
+      - name: Build 0.15.23/build50 + verify original release certificate
+        working-directory: healthhub/android-bridge
+        shell: bash
+        run: |
+          set -euo pipefail
+          export HH_OTA_KEYSTORE_PATH="$RUNNER_TEMP/hh-one-ota-signer.jks"
+          trap 'rm -f "$HH_OTA_KEYSTORE_PATH"' EXIT
+          printf '%s' "$HH_OTA_KEYSTORE_B64" | base64 --decode > "$HH_OTA_KEYSTORE_PATH"
+          chmod 600 "$HH_OTA_KEYSTORE_PATH"
+          gradle :app:assembleRelease -PhhSamsungIntegratedCandidate=true -PhhSamsungConsolidatedCandidate=true --no-daemon
+          APK="app/build/outputs/apk/release/app-release.apk"
+          SIGNER="$ANDROID_HOME/build-tools/35.0.0/apksigner"
+          AAPT="$ANDROID_HOME/build-tools/35.0.0/aapt"
+          test -s "$APK"
+          "$SIGNER" verify --verbose "$APK"
+          BADGE="$("$AAPT" dump badging "$APK" | head -1)"
+          [[ "$BADGE" == *"name='hu.zsoltmonika.healthhubbridge'"* ]]
+          [[ "$BADGE" == *"versionCode='50'"* ]]
+          [[ "$BADGE" == *"versionName='0.15.23'"* ]]
+          CERT="$("$SIGNER" verify --print-certs "$APK" | awk -F': ' '/Signer #1 certificate SHA-256 digest/{print $2; exit}' | tr 'A-F' 'a-f' | tr -d '\r\n')"
+          test "$CERT" = "1045e5cc520eded12ebdec76eaf946cda0888f8cbccc7a2cdfc62a6aec92eb1e"
+          test "$CERT" = "$(echo "$HH_SAMSUNG_PARTNER_APPROVED_CERT_SHA256" | tr 'A-F' 'a-f' | tr -d ':')"
+          gh release download healthhub-connect-ota-v0.15.20 --repo "$GITHUB_REPOSITORY" \
+            --pattern 'HealthHub-Connect-v0.15.20-ota.apk' --dir "$RUNNER_TEMP"
+          BASE="$RUNNER_TEMP/HealthHub-Connect-v0.15.20-ota.apk"
+          EXPECTED_SHA="$(python3 -c 'import json;print(json.load(open("../data/bridge-ota.json"))["sha256"])')"
+          test "$(sha256sum "$BASE" | cut -d' ' -f1)" = "$EXPECTED_SHA"
+          BASE_CERT="$("$SIGNER" verify --print-certs "$BASE" | awk -F': ' '/Signer #1 certificate SHA-256 digest/{print $2; exit}' | tr 'A-F' 'a-f' | tr -d '\r\n')"
+          test "$BASE_CERT" = "$CERT"
+          DEST="$GITHUB_WORKSPACE/HealthHub-Connect-v0.15.23-ota.apk"
+          cp "$APK" "$DEST"
+          echo "VERIFIED_SHA256=$(sha256sum "$DEST" | cut -d' ' -f1)" >> "$GITHUB_ENV"
+          echo "PASS: original installed signing identity + partner attested certificate + build50" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Publish immutable Samsung-integrated GitHub release
+        shell: bash
+        run: |
+          set -euo pipefail
+          TAG=healthhub-connect-ota-v0.15.23
+          APK=HealthHub-Connect-v0.15.23-ota.apk
+          if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            mkdir -p "$RUNNER_TEMP/existing"
+            gh release download "$TAG" --repo "$GITHUB_REPOSITORY" --pattern "$APK" --dir "$RUNNER_TEMP/existing"
+            test "$(sha256sum "$RUNNER_TEMP/existing/$APK" | cut -d' ' -f1)" = "$VERIFIED_SHA256" || {
+              echo "::error::An immutable release tag already contains a different APK. Hard stop."; exit 1;
+            }
+          else
+            gh release create "$TAG" "$APK" --repo "$GITHUB_REPOSITORY" \
+              --title "HH One 0.15.23 · Samsung Watch9 · signed OTA" \
+              --notes "Samsung Health Data SDK 1.1.0; official partner-registered package/cert; owner-approved OTA system installation required."
+          fi
+          mkdir -p "$RUNNER_TEMP/download-check"
+          gh release download "$TAG" --repo "$GITHUB_REPOSITORY" --pattern "$APK" --dir "$RUNNER_TEMP/download-check"
+          test "$(sha256sum "$RUNNER_TEMP/download-check/$APK" | cut -d' ' -f1)" = "$VERIFIED_SHA256"
+
+      - name: Publish same-version checked rollout for BOTH owners
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json,os,pathlib
+          p=pathlib.Path('healthhub/data/bridge-ota.json')
+          old=json.loads(p.read_text())
+          assert old['version']=='0.15.20' and old['versionCode']==47, 'OTA state moved since preflight'
+          assert os.environ['ROLLOUT']=='all'
+          data={
+            'schema':'healthhub.connect.ota/1',
+            'channel':'signed-release',
+            'applicationId':'hu.zsoltmonika.healthhubbridge',
+            'version':'0.15.23',
+            'versionCode':50,
+            'rolloutProfiles':['zsolt','monika'],
+            'downloadUrl':'https://github.com/zsoltandmonika-cloud/berlet-app/releases/download/healthhub-connect-ota-v0.15.23/HealthHub-Connect-v0.15.23-ota.apk',
+            'sha256':os.environ['VERIFIED_SHA256'],
+          }
+          p.write_text(json.dumps(data,ensure_ascii=False,indent=2)+'\n')
+          PY
+          git config user.name "healthhub-ota-bot"
+          git config user.email "healthhub-ota-bot@users.noreply.github.com"
+          git add healthhub/data/bridge-ota.json
+          git commit -m "release: Samsung Watch9 signed HH One 0.15.23 OTA to both owners"
+          git pull --rebase origin main
+          # Fail closed if upstream manually changed the manifest during pull.
+          python3 - <<'PY'
+          import json
+          m=json.load(open('healthhub/data/bridge-ota.json'))
+          assert m['versionCode']==50 and m['rolloutProfiles']==['zsolt','monika']
+          assert m['sha256']==__import__('os').environ['VERIFIED_SHA256']
+          PY
+          git push origin HEAD:main
+          echo "Signed Samsung release published for both owner profiles; handset confirmation still required." >> "$GITHUB_STEP_SUMMARY"

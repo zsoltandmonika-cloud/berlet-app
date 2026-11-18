@@ -1,0 +1,3 @@
+Private Samsung SDK 1.1.0 CI secret provisioning: owner confirmed 17/17 segments via GitHub CLI.
+This is a NON-SECRET build trigger only. No SDK bytes in source control.
+Requested target: HH One v0.15.21/build48 signed private test APK (no OTA).

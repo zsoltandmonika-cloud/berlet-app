@@ -11,6 +11,9 @@ import androidx.health.connect.client.records.ElevationGainedRecord
 import androidx.health.connect.client.records.FloorsClimbedRecord
 import androidx.health.connect.client.aggregate.AggregateMetric
 import androidx.health.connect.client.records.ExerciseSessionRecord
+import androidx.health.connect.client.records.HeartRateVariabilityRmssdRecord
+import androidx.health.connect.client.records.RespiratoryRateRecord
+import androidx.health.connect.client.records.SkinTemperatureRecord
 import androidx.health.connect.client.records.HeartRateRecord
 import androidx.health.connect.client.records.NutritionRecord
 import androidx.health.connect.client.records.OxygenSaturationRecord
@@ -57,6 +60,14 @@ class HealthConnectExporter(private val client: HealthConnectClient) {
         val OPTIONAL_TERRAIN_PERMISSIONS = setOf(
             HealthPermission.getReadPermission(ElevationGainedRecord::class),
             HealthPermission.getReadPermission(FloorsClimbedRecord::class)
+        )
+
+        // Watch9 vitals are strictly opt-in. Denial or unsupported HC source
+        // never blocks the already working required Health Connect sync.
+        val OPTIONAL_WATCH_VITALS_PERMISSIONS = setOf(
+            HealthPermission.getReadPermission(HeartRateVariabilityRmssdRecord::class),
+            HealthPermission.getReadPermission(RespiratoryRateRecord::class),
+            HealthPermission.getReadPermission(SkinTemperatureRecord::class)
         )
 
         fun requiredPermissions(@Suppress("UNUSED_PARAMETER") client: HealthConnectClient): Set<String> =
@@ -155,6 +166,19 @@ class HealthConnectExporter(private val client: HealthConnectClient) {
         return items
     }
 
+    // Different Health Connect providers may not support every optional record
+    // even when the Android permission exists. Keep the core export independent.
+    private suspend fun <T : Record> readOptionalSource(
+        recordType: KClass<T>, range: TimeRangeFilter,
+        sourceKey: String, failedSources: MutableSet<String>
+    ): List<T> = try {
+        readSource(recordType, range, sourceKey, failedSources, paginated = true)
+    } catch (e: Exception) {
+        if (e is kotlinx.coroutines.CancellationException) throw e
+        failedSources.add(sourceKey)
+        emptyList()
+    }
+
     suspend fun export(profile: String, days: Long = 30): JSONObject {
         val end = Instant.now()
         val start = end.minusSeconds(days * 86400)
@@ -162,6 +186,9 @@ class HealthConnectExporter(private val client: HealthConnectClient) {
         val granted = client.permissionController.getGrantedPermissions()
         val elevationAllowed = granted.contains(HealthPermission.getReadPermission(ElevationGainedRecord::class))
         val floorsAllowed = granted.contains(HealthPermission.getReadPermission(FloorsClimbedRecord::class))
+        val hrvAllowed = granted.contains(HealthPermission.getReadPermission(HeartRateVariabilityRmssdRecord::class))
+        val respiratoryAllowed = granted.contains(HealthPermission.getReadPermission(RespiratoryRateRecord::class))
+        val skinAllowed = granted.contains(HealthPermission.getReadPermission(SkinTemperatureRecord::class))
 
         // Failed record categories are never represented as an empty measurement:
         // the cloud merge will preserve their last valid snapshots.
@@ -184,6 +211,15 @@ class HealthConnectExporter(private val client: HealthConnectClient) {
         val exercise = readSource(ExerciseSessionRecord::class, range, "exerciseSessions", failedSources)
         val sleep = readSource(SleepSessionRecord::class, range, "sleepSessions", failedSources)
         val vo2 = readSource(Vo2MaxRecord::class, range, "vo2Max", failedSources)
+        val hrv = if (hrvAllowed) readOptionalSource(
+            HeartRateVariabilityRmssdRecord::class, range, "heartRateVariabilityRmssd", failedSources
+        ) else emptyList()
+        val respiratory = if (respiratoryAllowed) readOptionalSource(
+            RespiratoryRateRecord::class, range, "respiratoryRate", failedSources
+        ) else emptyList()
+        val skin = if (skinAllowed) readOptionalSource(
+            SkinTemperatureRecord::class, range, "skinTemperature", failedSources
+        ) else emptyList()
 
         val root = JSONObject()
             .put("schemaVersion", "healthhub.healthconnect.bridge/1.3")
@@ -255,6 +291,47 @@ class HealthConnectExporter(private val client: HealthConnectClient) {
                     .put("id", r.metadata.id)
                     .put("startTime", r.startTime.toString())
                     .put("endTime", r.endTime.toString())
+                    .put("samples", samples)
+                    .put("sourcePackage", r.metadata.dataOrigin.packageName))
+            }
+        })
+
+        records.put("heartRateVariabilityRmssd", JSONArray().also { arr ->
+            hrv.forEach { r ->
+                arr.put(JSONObject()
+                    .put("id", r.metadata.id)
+                    .put("time", r.time.toString())
+                    .put("rmssdMs", r.heartRateVariabilityMillis)
+                    .put("sourcePackage", r.metadata.dataOrigin.packageName))
+            }
+        })
+
+        records.put("respiratoryRate", JSONArray().also { arr ->
+            respiratory.forEach { r ->
+                arr.put(JSONObject()
+                    .put("id", r.metadata.id)
+                    .put("time", r.time.toString())
+                    .put("breathsPerMinute", r.rate)
+                    .put("sourcePackage", r.metadata.dataOrigin.packageName))
+            }
+        })
+
+        records.put("skinTemperature", JSONArray().also { arr ->
+            skin.forEach { r ->
+                val samples = JSONArray()
+                r.deltas.forEach { sample ->
+                    samples.put(JSONObject()
+                        .put("time", sample.time.toString())
+                        // Deltas are not absolute skin temperature if the
+                        // optional provider baseline is absent.
+                        .put("deltaCelsius", sample.delta.inCelsius))
+                }
+                arr.put(JSONObject()
+                    .put("id", r.metadata.id)
+                    .put("startTime", r.startTime.toString())
+                    .put("endTime", r.endTime.toString())
+                    .put("baselineCelsius", r.baseline?.inCelsius ?: JSONObject.NULL)
+                    .put("measurementLocation", r.measurementLocation)
                     .put("samples", samples)
                     .put("sourcePackage", r.metadata.dataOrigin.packageName))
             }
@@ -494,6 +571,10 @@ class HealthConnectExporter(private val client: HealthConnectClient) {
         }
 
         root.put("syncDiagnostics", JSONObject()
+            .put("optionalVitalsPermissions", JSONObject()
+                .put("hrv", hrvAllowed)
+                .put("respiratoryRate", respiratoryAllowed)
+                .put("skinTemperature", skinAllowed))
             .put("failedDailyActivityDates", failedActivityDates)
             .put("failedDailyNutritionDates", failedNutritionDates)
             .put("failedRecordTypes", JSONArray().also { arr -> failedSources.forEach { arr.put(it) } })
@@ -537,6 +618,9 @@ class HealthConnectExporter(private val client: HealthConnectClient) {
             .put("heartRateRecords", heart.size)
             .put("activeCaloriesRecords", activeCaloriesRecords.size)
             .put("restingHeartRate", restingHeart.size)
+            .put("heartRateVariabilityRmssd", hrv.size)
+            .put("respiratoryRate", respiratory.size)
+            .put("skinTemperature", skin.size)
             .put("vo2Max", vo2.size)
             .put("exerciseSessions", exercise.size)
             .put("exerciseInvalidTimeWindows", skippedInvalidExerciseWindows)

@@ -194,3 +194,46 @@ Official Android references:
 - https://developer.android.com/develop/background-work/background-tasks/persistent
 - https://developer.android.com/develop/background-work/background-tasks/persistent/getting-started/define-work
 - https://developer.android.com/reference/android/content/pm/PackageInstaller.SessionParams
+
+
+## 2026-11-18 Watch9 vs Watch4: complete supported-source audit (HH One single-phone-app gate)
+
+**Scope:** HealthHub-owned Android phone package \`hu.zsoltmonika.healthhubbridge\` only. Reference device: Galaxy Watch9 (40 mm LTE) synchronized through Samsung Health on Galaxy S24 Ultra. Earlier reference: Galaxy Watch4. The distinction is between (a) watch capabilities, (b) Samsung Health stored records, (c) Samsung Health Data SDK / Health Connect readable records, and (d) HH One's current export. A marketed feature is never evidence of a readable record. A new feature may also have been backported to Watch4 via software updates.
+
+### Readable from Samsung Health Data SDK 1.1.0 in the *same HH One phone app*
+
+| Group | Detailed candidates | Existing HH One coverage | Migration action |
+|---|---|---|---|
+| Activity | Active minutes, active calories, total calories, distance, steps, floors, exercise time, exercise sessions, activity/step/calorie goals | HC partially; Samsung direct active minutes + active kcal + distance in private integration branch | Verify the entire activity row and session parity; no step-based synthetic values |
+| Sleep | Actual bedtime/wake, total duration, session list, stages, Samsung sleep score, overnight associated SpO2 time series and skin-temperature readings | HC sleep sessions/stages only; Samsung sleep score and associated series not imported | HIGH: explicit Samsung \`SLEEP\` permission and readAssociatedData, compare each night with HC |
+| Recovery | Samsung Energy Score | Not imported | HIGH: SDK \`ENERGY_SCORE\`, separate measured date |
+| Physiology | HR time series, body composition: weight, fat %, fat mass, fat-free %, skeletal muscle %, skeletal muscle mass, total body water, BMR, BMI | HC HR/resting HR/weight/body-fat only, with availability varying | HIGH: Samsung \`HEART_RATE\` + \`BODY_COMPOSITION\` read, provenance and optional source selection |
+| Monitoring events | Sleep-apnea *detected sign*, irregular heart-rhythm notification *status* (not raw ECG) | Neither in HH One | OPTIONAL: two independent permissions; source exists only if Samsung Health Monitor sync is enabled; separate sensitive-event controls |
+| Other Samsung Health data | Blood pressure, blood glucose, body temperature, nutrition, water intake, goals and Samsung Health user profile | Some HC and HH food/water modules | Only where actually present/needed. These are not necessarily Watch9 sensor measurements; avoid a duplicated nutrition store |
+
+**Watch9-era differentiators** compared with the older Watch4 hardware or original 2021 feature set: IR skin temperature; Vitals (overnight HR, HRV, respiratory rate, SpO2 and skin temp), Energy Score, advanced sleep context, Antioxidant Index, AGEs Index, Vascular Load, Fitness Index, Daily Cardio Load and Heart Health Score. Some features are Watch8-era, software-dependent, region-dependent or backported to Watch4 (e.g. sleep apnea); do not present every Watch9 feature as Watch9-exclusive. ECG, basic BP, basic SpO2, HR, body composition, steps and sleep existed on Watch4.
+
+**Health Connect possible but NOT guaranteed supplied by Samsung Health:** HRV RMSSD, respiratory rate, skin temperature, activity intensity (feature-gated), exercise detail, VO2 max. Current \`HealthConnectExporter.kt\` requests HR, resting HR, sleep/stages, SpO2, BP, body fat, VO2 max etc., **but does not request/read HRV RMSSD, respiratory rate or skin temperature**. Add each only as an OPTIONAL permission/collector with explicit missing/permission-denied/unsupported states. Never mislabel HC intensity minutes as Samsung total active time.
+
+**Samsung Health UI only, no documented Samsung Health Data SDK 1.1.0 data type:** Watch9 Vitals baseline/alert synthesis, Heart Health Score, Fitness Index, Daily Cardio Load, Vascular Load, Antioxidant Index, AGEs Index, Samsung coaching outputs, stress composite, actual Samsung Health Monitor ECG trace, snoring sound. Do not promise SDK export or fabricate a surrogate. It is acceptable to separately derive an HH One estimate from permitted underlying data, but label it **HH One estimate**, never Samsung's original score.
+
+**Not in this single-phone-app OTA:** raw sensor streams (accelerometer, EDA, PPG red/IR/green, inter-beat interval, raw ECG, MF-BIA, sweat-loss sensor). These require Samsung Health *Sensor* SDK in a separate Wear OS watch app and a distinct device-side permission/deployment/energy/partner programme. No stealth watch companion, no new Pilot APK.
+
+### Release design / privacy / source truth
+
+1. Baseline Samsung Beta exports and currently available HC data; inventory all owner-specific installed packages before cleanup. Keep current Beta active until signed integrated HH One passes live readback.
+2. First prove activity-session parity and source attribution with the already prepared native Samsung SDK integration. Zero/unknown must remain distinct. Preserve original \`hourlySteps\` and \`exerciseSessions\` during first merge. Avoid double-counting steps/workouts across SDK+HC.
+3. Add **opt-in, independently permissioned** Samsung Sleep + Energy Score + body composition/HR read paths. Save source type, source device ID, measured timestamps, zone offset, import timestamps, and per-field availability/errors. Night is attributed to actual sleep period, not current export day. Prefer source-native sleep score over reusing duplicated HC figures.
+4. Samsung Health Monitor sensitive results (sleep apnea signs / irregular rhythm notices) require an explicit individual opt-in and confirmation of Health Monitor -> Samsung Health synchronization. Do not present these as diagnosis or push clinical alarms.
+5. In \`HealthHub\` display a matrix \`Available / No record / Permission denied / Source unsupported / Last verified\` for Zsolt and Mónika separately, with no silent fallback or profile sharing. Local cache first, background sync efficient and scoped. Check Samsung SDK device manager for watch origin.
+6. Preflight Samsung package/signing SHA-256 verification and private official SDK AAR; compile on authorized signing path. Samsung partnership approval remains mandatory for non-developer-mode distribution. Until then **OTA stays on 0.15.20**.
+7. Validate on Zsolt's real phone, repeat on Mónika's Watch9 and phone, require verified first/manual and 2 unattended periodic read-and-upload cycles; only afterwards prompt owner to uninstall Beta / V1-V6 remnants. Android must approve each app uninstall. Never delete private history as a planned cleanup action.
+
+**References:** 
+- https://developer.samsung.com/health/data/guide/features/data-types.html
+- https://developer.samsung.com/health/data/api-reference/-shd/com.samsung.android.sdk.health.data.request/-data-type/-sleep-type/index.html
+- https://developer.samsung.com/health/data/api-reference/-shd/com.samsung.android.sdk.health.data.request/-data-type/-sleep-apnea-type/index.html
+- https://developer.samsung.com/health/data/api-reference/-shd/com.samsung.android.sdk.health.data.request/-data-type/-irregular-heart-rhythm-notification-type/index.html
+- https://developer.samsung.com/health/sensor/guide/introduction.html
+- https://developer.android.com/health-and-fitness/health-connect/data-types
+- https://www.samsung.com/us/watches/galaxy-watch9/

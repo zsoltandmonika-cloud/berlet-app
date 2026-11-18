@@ -1,0 +1,147 @@
+name: HH One · Private Samsung 0.15.23 consolidated QA (NOT OTA)
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/hh-one-samsung-private-apk.yml"
+      - "healthhub/android-bridge/scripts/acquire-samsung-sdk-private.py"
+      - "healthhub/android-bridge/scripts/load-samsung-sdk-secrets.py"
+      - "healthhub/android-bridge/scripts/private-samsung-sdk-ready.txt"
+      - "healthhub/android-bridge/app/build.gradle.kts"
+      - "healthhub/android-bridge/app/src/samsungDirectPilot/**"
+      - "healthhub/android-bridge/tests/samsung-direct-pilot-contract.test.cjs"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  private-samsung-signed-candidate:
+    name: Compile official Samsung SDK and sign existing HH One package (no OTA)
+    if: >-
+      github.event_name == 'pull_request' &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      github.event.pull_request.head.ref == 'fix/hh-one-samsung-unified-20261118'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      HH_SAMSUNG_SDK_ZIP_URL: ${{ secrets.HH_SAMSUNG_SDK_ZIP_URL }}
+      HH_OTA_KEYSTORE_B64: ${{ secrets.HH_OTA_KEYSTORE_B64 }}
+      HH_OTA_KEYSTORE_PASSWORD: ${{ secrets.HH_OTA_KEYSTORE_PASSWORD }}
+      HH_OTA_KEY_ALIAS: ${{ secrets.HH_OTA_KEY_ALIAS }}
+      HH_OTA_KEY_PASSWORD: ${{ secrets.HH_OTA_KEY_PASSWORD }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - name: Guard Samsung candidate safety and existing OTA identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --test healthhub/android-bridge/tests/samsung-direct-pilot-contract.test.cjs
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          m=json.loads(Path("healthhub/data/bridge-ota.json").read_text())
+          build=Path("healthhub/android-bridge/app/build.gradle.kts").read_text()
+          assert m["applicationId"]=="hu.zsoltmonika.healthhubbridge"
+          assert m["version"]=="0.15.20" and m["versionCode"]==47
+          assert 'applicationId = "hu.zsoltmonika.healthhubbridge"' in build
+          assert 'versionCode = 50' in build and 'versionName = "0.15.23"' in build
+          assert 'hhSamsungIntegratedCandidate' in build and 'hhSamsungConsolidatedCandidate' in build
+          print("PASS: 0.15.20/build47 baseline -> 0.15.23/build49 signed test candidate, upgrades installed 0.15.22/build49; no OTA.")
+          PY
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Prepare Android 36 and Gradle
+        shell: bash
+        run: |
+          set -euo pipefail
+          SDKMANAGER="$(find "$ANDROID_HOME/cmdline-tools" -type f -name sdkmanager | head -1)"
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" "platforms;android-36" "build-tools;35.0.0" >/dev/null
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.13'
+      - name: Load verified Samsung SDK from encrypted secrets or official vendor
+        # No AAR/ZIP enters source control or public artifacts.
+        env:
+          HH_SAMSUNG_SDK_AAR_B64_00: ${{ secrets.HH_SAMSUNG_SDK_AAR_B64_00 }}
+          HH_SAMSUNG_SDK_AAR_B64_01: ${{ secrets.HH_SAMSUNG_SDK_AAR_B64_01 }}
+          HH_SAMSUNG_SDK_AAR_B64_02: ${{ secrets.HH_SAMSUNG_SDK_AAR_B64_02 }}
+          HH_SAMSUNG_SDK_AAR_B64_03: ${{ secrets.HH_SAMSUNG_SDK_AAR_B64_03 }}
+          HH_SAMSUNG_SDK_AAR_B64_04: ${{ secrets.HH_SAMSUNG_SDK_AAR_B64_04 }}
+          HH_SAMSUNG_SDK_AAR_B64_05: ${{ secrets.HH_SAMSUNG_SDK_AAR_B64_05 }}
+          HH_SAMSUNG_SDK_AAR_B64_06: ${{ secrets.HH_SAMSUNG_SDK_AAR_B64_06 }}
+          HH_SAMSUNG_SDK_AAR_B64_07: ${{ secrets.HH_SAMSUNG_SDK_AAR_B64_07 }}
+          HH_SAMSUNG_SDK_AAR_B64_08: ${{ secrets.HH_SAMSUNG_SDK_AAR_B64_08 }}
+          HH_SAMSUNG_SDK_AAR_B64_09: ${{ secrets.HH_SAMSUNG_SDK_AAR_B64_09 }}
+          HH_SAMSUNG_SDK_AAR_B64_10: ${{ secrets.HH_SAMSUNG_SDK_AAR_B64_10 }}
+          HH_SAMSUNG_SDK_AAR_B64_11: ${{ secrets.HH_SAMSUNG_SDK_AAR_B64_11 }}
+          HH_SAMSUNG_SDK_AAR_B64_12: ${{ secrets.HH_SAMSUNG_SDK_AAR_B64_12 }}
+          HH_SAMSUNG_SDK_AAR_B64_13: ${{ secrets.HH_SAMSUNG_SDK_AAR_B64_13 }}
+          HH_SAMSUNG_SDK_AAR_B64_14: ${{ secrets.HH_SAMSUNG_SDK_AAR_B64_14 }}
+          HH_SAMSUNG_SDK_AAR_B64_15: ${{ secrets.HH_SAMSUNG_SDK_AAR_B64_15 }}
+          HH_SAMSUNG_SDK_AAR_B64_16: ${{ secrets.HH_SAMSUNG_SDK_AAR_B64_16 }}
+        run: |
+          set -euo pipefail
+          if [[ -n "${HH_SAMSUNG_SDK_AAR_B64_00:-}" ]]; then
+            python3 healthhub/android-bridge/scripts/load-samsung-sdk-secrets.py
+          else
+            python3 healthhub/android-bridge/scripts/acquire-samsung-sdk-private.py
+          fi
+          test -s healthhub/android-bridge/app/private-samsung-sdk/samsung-health-data-api.aar
+      - name: Compile and verify signed Samsung-native private candidate
+        shell: bash
+        working-directory: healthhub/android-bridge
+        run: |
+          set -euo pipefail
+          for name in HH_OTA_KEYSTORE_B64 HH_OTA_KEYSTORE_PASSWORD HH_OTA_KEY_ALIAS HH_OTA_KEY_PASSWORD; do
+            if [[ -z "${!name:-}" ]]; then
+              echo "::error::Original OTA signing credentials not available; no APK published."
+              exit 1
+            fi
+          done
+          export HH_OTA_KEYSTORE_PATH="$RUNNER_TEMP/hh-one-samsung-signer.jks"
+          trap 'rm -f "$HH_OTA_KEYSTORE_PATH"' EXIT
+          printf '%s' "$HH_OTA_KEYSTORE_B64" | base64 --decode > "$HH_OTA_KEYSTORE_PATH"
+          chmod 600 "$HH_OTA_KEYSTORE_PATH"
+          gradle :app:assembleRelease -PhhSamsungIntegratedCandidate=true -PhhSamsungConsolidatedCandidate=true --no-daemon --stacktrace
+          APK="app/build/outputs/apk/release/app-release.apk"
+          test -s "$APK"
+          SIGNER="$ANDROID_HOME/build-tools/35.0.0/apksigner"
+          AAPT="$ANDROID_HOME/build-tools/35.0.0/aapt"
+          "$SIGNER" verify --verbose "$APK"
+          BADGE="$("$AAPT" dump badging "$APK" | head -1)"
+          [[ "$BADGE" == *"name='hu.zsoltmonika.healthhubbridge'"* ]]
+          [[ "$BADGE" == *"versionCode='50'"* ]]
+          [[ "$BADGE" == *"versionName='0.15.23'"* ]]
+          APK_CERT="$("$SIGNER" verify --print-certs "$APK" | awk -F': ' '/Signer #1 certificate SHA-256 digest/{print $2; exit}' | tr 'A-F' 'a-f' | tr -d '\r\n')"
+          keytool -exportcert -alias "$HH_OTA_KEY_ALIAS" -keystore "$HH_OTA_KEYSTORE_PATH" \
+            -storepass "$HH_OTA_KEYSTORE_PASSWORD" -keypass "$HH_OTA_KEY_PASSWORD" > "$RUNNER_TEMP/hh-one-cert.der"
+          KEY_CERT="$(sha256sum "$RUNNER_TEMP/hh-one-cert.der" | cut -d' ' -f1)"
+          [[ "$APK_CERT" =~ ^[a-f0-9]{64}$ && "$KEY_CERT" == "$APK_CERT" ]]
+          gh release download healthhub-connect-ota-v0.15.20 \
+            --repo "$GITHUB_REPOSITORY" --pattern 'HealthHub-Connect-v0.15.20-ota.apk' --dir "$RUNNER_TEMP"
+          BASE="$RUNNER_TEMP/HealthHub-Connect-v0.15.20-ota.apk"
+          test -s "$BASE"
+          EXPECTED_SHA="$(python3 -c 'import json;print(json.load(open("../data/bridge-ota.json"))["sha256"])')"
+          [[ "$(sha256sum "$BASE" | cut -d' ' -f1)" == "$EXPECTED_SHA" ]]
+          BASE_CERT="$("$SIGNER" verify --print-certs "$BASE" | awk -F': ' '/Signer #1 certificate SHA-256 digest/{print $2; exit}' | tr 'A-F' 'a-f' | tr -d '\r\n')"
+          [[ "$BASE_CERT" == "$APK_CERT" ]]
+          cp "$APK" "$GITHUB_WORKSPACE/HH-One-Samsung-0.15.23-PRIVATE-TEST-NOT-OTA.apk"
+          echo "Signed private Samsung SDK APK: PASS" >> "$GITHUB_STEP_SUMMARY"
+          echo "Original 0.15.20 release certificate compatible: PASS" >> "$GITHUB_STEP_SUMMARY"
+          echo "SHA256: $(sha256sum "$APK" | cut -d' ' -f1)" >> "$GITHUB_STEP_SUMMARY"
+          echo "Not an OTA or public release. Do not remove legacy Beta before device checks." >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: HH-One-Samsung-0.15.23-PRIVATE-TEST-NOT-OTA
+          path: HH-One-Samsung-0.15.23-PRIVATE-TEST-NOT-OTA.apk
+          if-no-files-found: error
+          retention-days: 7
+          compression-level: 0

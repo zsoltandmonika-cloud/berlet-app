@@ -46,7 +46,7 @@ jobs:
           const index=fs.readFileSync('healthhub/index.html','utf8');
           assert.match(index,/live-v147\.js\?v=20261016-hc-v13-import/);
           assert.match(index,/live-v148\.js\?v=20261016-measurement-freshness/);
-          assert.match(index,/live-v170\.js\?v=20261016-sleep-cloud-refresh/);
+          assert.match(index,/live-v170\.js\?v=1155-watch9-sleep-panel/);
           const imp=fs.readFileSync('healthhub/live-v147.js','utf8');
           assert.match(imp,/raw\.schemaVersion!==SCHEMA13/);
           const sleep=fs.readFileSync('healthhub/live-v170.js','utf8');

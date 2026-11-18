@@ -574,6 +574,17 @@ window.hh191SourceDetails=function(){
  var direct=Array.isArray(bundle.records&&bundle.records.dailyActivity)?bundle.records.dailyActivity.find(function(x){return x.date===today}):null;
  var displayed=(src.rows||[]).find(function(x){return x.date===today});
  var samsung=src.samsung||{},sd=samsung.data&&samsung.data.days&&samsung.data.days.get(today);
+ var wd=samsung.data||{},ws=(wd.sleepSessions||[]).find(function(x){return x.date===today})||null;
+ var we=(wd.energyScores||[]).find(function(x){return x.date===today})||null;
+ var wo=ws&&(wd.nightOxygen||[]).find(function(x){return x.sleepUid===ws.uid})||null;
+ var wt=ws&&(wd.nightSkinTemperature||[]).find(function(x){return x.sleepUid===ws.uid})||null;
+ var hcRecords=bundle.records||{};
+ function latestHc(key){var list=hcRecords[key];if(!Array.isArray(list))return null;
+  return list.filter(function(x){return x&&x.time&&dayKey(x.time)===today})
+   .sort(function(a,b){return Date.parse(b.time)-Date.parse(a.time)})[0]||null;
+ }
+ var hcHrv=latestHc('heartRateVariabilityRmssd');
+ var hcBreath=latestHc('respiratoryRate');
  var directStatus=samsung.status==='pending'?'⏳ Samsung-export ellenőrzése folyamatban':samsung.status==='ready'?
    (samsung.data&&samsung.data.staleToday?'⚠️ Samsung SDK-export mai napi adatai elavultak, ezért nem használjuk őket':'✅ Samsung Data SDK export betöltve'):
    samsung.status==='not_connected'?'Még nincs Samsung SDK exportfájl':
@@ -604,9 +615,18 @@ window.hh191SourceDetails=function(){
  row('Szintemelkedés · HC',value(direct,'elevationGainMeters',1,'m'))+
  row('Emeletek · HC',value(direct,'floorsClimbed',1,'emelet'))+
  row('Emeletek · Samsung SDK',value(sd,'floorsClimbed',1,'emelet'))+
+ row('⌚ Alvási idő · Samsung Watch',value(ws,'sleepMinutes',0,'perc'))+
+ row('⌚ Sleep Score · Samsung Watch',value(ws,'sleepScore',0,'/ 100'))+
+ row('⌚ Energy Score · Samsung Watch',value(we,'energyScore',0,'/ 100'))+
+ row('⌚ HRV · Health Connect',value(hcHrv,'rmssdMs',1,'ms'))+
+ row('⌚ Légzésszám · Health Connect',value(hcBreath,'breathsPerMinute',1,'/perc'))+
+ row('⌚ Éjszakai SpO₂ minimum · Samsung',value(wo,'minPercent',0,'%'))+
+ row('⌚ Éjszakai SpO₂ maximum · Samsung',value(wo,'maxPercent',0,'%'))+
+ row('⌚ Bőrhőmérséklet minimum · Samsung',value(wt,'minCelsius',1,'°C'))+
+ row('⌚ Bőrhőmérséklet maximum · Samsung',value(wt,'maxCelsius',1,'°C'))+
  row('Szintemelkedés olvasás',counts.elevationPermissionGranted==null?'nem ismert':counts.elevationPermissionGranted?'engedélyezve':'nincs engedély')+
  row('Emeletek olvasás',counts.floorsPermissionGranted==null?'nem ismert':counts.floorsPermissionGranted?'engedélyezve':'nincs engedély')+
- '</div><p style="font-size:10px;color:#547084;line-height:1.6">A hiányzó aktív kalória, emelet vagy szintemelkedés nem tekinthető mért nullának. A Samsung saját napösszesítője ettől eltérhet.</p>'+
+ '</div><p style="font-size:10px;color:#547084;line-height:1.6">A hiányzó aktív kalória, emelet, szintemelkedés vagy Watch9-mérés nem mért nulla. A Watch9 alvási és éjszakai adatok csak külön Samsung-engedéllyel és valós mérés esetén jelennek meg; különbözhetnek a Health Connect adataitól.</p>'+
  '<div class="a191Weather" style="margin:12px 0 5px"><span><b>📱 Samsung Direct · kézi import</b></span><span>A HH Samsung Beta alkalmazásban mentett JSON-fájlt itt töltheted fel a kiválasztott profil elkülönített Dropbox Vault Samsung-fájljába. A feltöltést külön jóvá kell hagyni.</span><button type="button" style="background:var(--a);color:#fff;border:0;border-radius:10px;padding:12px;font-size:12px;font-weight:750" onclick="hh191SamsungImport()">📤 Samsung JSON kiválasztása</button><span>A Health Connect-archívumhoz nem nyúlunk. Ha a Samsung Beta automatikus Dropbox-szinkronja bekapcsolt, nincs szükség kézi JSON-importra. Ez a gomb tartalék megoldás.</span></div>';
  modal(html);
 };

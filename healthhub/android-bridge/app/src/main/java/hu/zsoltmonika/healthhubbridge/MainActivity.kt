@@ -147,6 +147,19 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    // Optional Watch9 vitals are owner-consented and remain isolated from
+    // required Health Connect permissions and automatic synchronization.
+    private val watchVitalsPermissionLauncher = registerForActivityResult(
+        PermissionController.createRequestPermissionResultContract()
+    ) { granted ->
+        val enabled = granted.intersect(HealthConnectExporter.OPTIONAL_WATCH_VITALS_PERMISSIONS)
+        status.text = if (enabled.isNotEmpty()) {
+            "✓ Watch9 extra adatok: ${enabled.size}/3 hozzáférés engedélyezve. Az elérhető rekordok a következő szinkronnál olvashatók."
+        } else {
+            "ℹ️ Watch9 extra adatok nem engedélyezve. A normál Health Connect és Dropbox változatlanul működik."
+        }
+    }
+
     private val backgroundPermissionLauncher = registerForActivityResult(
         PermissionController.createRequestPermissionResultContract()
     ) { granted ->
@@ -280,6 +293,17 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         if (completeNativeOAuth(intent)) return
         setContentView(buildUi())
+        // Upgrade the owner's existing Samsung 3-hour canary schedule to the
+        // new persisted 1/2/3-hour preference without resetting stored data.
+        if (BuildConfig.HH_SAMSUNG_DIRECT_CANDIDATE) {
+            runCatching {
+                val bridge = Class.forName(
+                    "hu.zsoltmonika.healthhubbridge.SamsungDirectBackgroundSync"
+                )
+                bridge.getMethod("reconcileHourlyDefault", Context::class.java)
+                    .invoke(bridge.getField("INSTANCE").get(null), this)
+            }
+        }
         DropboxVaultClient.ensureCredentialVersion(prefs)
         initHealthConnect()
         SyncScheduler.scheduleAll(this)
@@ -608,7 +632,7 @@ class MainActivity : ComponentActivity() {
             }
             if (BuildConfig.HH_SAMSUNG_DIRECT_CANDIDATE) {
                 root.addView(TextView(this).apply {
-                    text = "Samsung Direct · 0.15.21 canary. Külön Samsung engedély, meglévő HH One Dropbox. Automata háttérszinkron alapból KI, külön kapcsolható be."
+                    text = "Samsung Direct · 0.15.22 tesztfrissítés. Külön Samsung engedély, meglévő HH One Dropbox. Automata háttérszinkron alapból KI, külön kapcsolható be."
                     textSize = 13f
                     setTextColor(0xFF315F98.toInt())
                 })
@@ -620,9 +644,12 @@ class MainActivity : ComponentActivity() {
                         val pilot = Class.forName(
                             "hu.zsoltmonika.healthhubbridge.SamsungHealthDirectPilot"
                         )
+                        // Kotlin 'object' exposes an INSTANCE singleton, not
+                        // a Java static method unless explicitly @JvmStatic.
+                        val samsungInstance = pilot.getField("INSTANCE").get(null)
                         pilot.getMethod(
                             "launch", MainActivity::class.java, String::class.java
-                        ).invoke(null, this@MainActivity, selectedProfile())
+                        ).invoke(samsungInstance, this@MainActivity, selectedProfile())
                     } catch (e: Exception) {
                         status.text = "Samsung Direct tesztolvasó nem elérhető. " +
                             "A Health Connect szinkron változatlan."
@@ -632,6 +659,12 @@ class MainActivity : ComponentActivity() {
             // Private opt-in canary only. No Samsung SDK background sync in the
             // normal 0.15.20 OTA or in the standalone .samsungpilot package.
             if (BuildConfig.HH_SAMSUNG_DIRECT_CANDIDATE) {
+                val samsungStatusLabel = TextView(this).apply {
+                    text = "Samsung Direct · időzítés és utolsó sikeres szinkron"
+                    textSize = 14f
+                    setTextColor(0xFF315F98.toInt())
+                    setPadding(0, 10, 0, 12)
+                }
                 root.addView(Button(this).apply {
                     text = if (prefs.getBoolean("samsung_direct_background_enabled", false))
                         "🕒 Samsung automatikus szinkron · KIKAPCSOLÁS"
@@ -648,24 +681,74 @@ class MainActivity : ComponentActivity() {
                             val bridge = Class.forName(
                                 "hu.zsoltmonika.healthhubbridge.SamsungDirectBackgroundSync"
                             )
+                            val samsungBackgroundInstance = bridge.getField("INSTANCE").get(null)
                             bridge.getMethod(
                                 "setEnabled",
                                 Context::class.java,
                                 String::class.java,
                                 Boolean::class.javaPrimitiveType!!
-                            ).invoke(null, this@MainActivity, owner, next)
+                            ).invoke(samsungBackgroundInstance, this@MainActivity, owner, next)
                             text = if (next)
                                 "🕒 Samsung automatikus szinkron · KIKAPCSOLÁS"
                             else
                                 "🕒 Samsung automatikus szinkron · BEKAPCSOLÁS"
                             status.text = if (next)
-                                "✓ Samsung Direct háttérszinkron bekapcsolva (3 óránként). A Health Connect szinkron változatlan."
+                                "✓ Samsung Direct háttérszinkron bekapcsolva (választható 1/2/3 óra). A Health Connect szinkron változatlan."
                             else
                                 "✓ Samsung Direct háttérszinkron kikapcsolva. A Health Connect szinkron változatlan."
                         } catch (e: Exception) {
                             val reason = (e.cause?.message ?: e.message ?: "ismeretlen hiba").take(190)
                             status.text = "Samsung Direct: $reason"
                         }
+                        samsungStatusLabel.text = status.text
+                    }
+                })
+                // Editable on-device, per owner. No new APK is needed to switch
+                // the Samsung-only cadence between 1, 2 and 3 hours.
+                root.addView(Button(this).apply {
+                    fun currentHours(): Int = runCatching {
+                        val bridge = Class.forName(
+                            "hu.zsoltmonika.healthhubbridge.SamsungDirectBackgroundSync"
+                        )
+                        bridge.getMethod(
+                            "intervalHours", Context::class.java, String::class.java
+                        ).invoke(bridge.getField("INSTANCE").get(null),
+                            this@MainActivity, deviceOwnerProfile()).toString().toInt()
+                    }.getOrDefault(1)
+                    text = "⏱ Samsung szinkron gyakorisága · ${currentHours()} óra"
+                    setOnClickListener {
+                        val owner = deviceOwnerProfile()
+                        if (owner == null || owner != selectedProfile()) {
+                            samsungStatusLabel.text = "Csak a saját telefon Samsung-szinkronja állítható."
+                            return@setOnClickListener
+                        }
+                        val intervals = arrayOf("1 óra (alapértelmezett)", "2 óra", "3 óra")
+                        AlertDialog.Builder(this@MainActivity)
+                            .setTitle("Samsung szinkron gyakorisága")
+                            .setSingleChoiceItems(intervals, currentHours() - 1) { dialog, which ->
+                                val hours = which + 1
+                                try {
+                                    val bridge = Class.forName(
+                                        "hu.zsoltmonika.healthhubbridge.SamsungDirectBackgroundSync"
+                                    )
+                                    bridge.getMethod(
+                                        "setIntervalHours",
+                                        Context::class.java,
+                                        String::class.java,
+                                        Int::class.javaPrimitiveType!!
+                                    ).invoke(bridge.getField("INSTANCE").get(null),
+                                        this@MainActivity, owner, hours)
+                                    text = "⏱ Samsung szinkron gyakorisága · $hours óra"
+                                    samsungStatusLabel.text =
+                                        "✓ Samsung Direct: $hours óránként. Mentve erre a telefonra."
+                                } catch (e: Exception) {
+                                    samsungStatusLabel.text = "Samsung időzítés hiba: " +
+                                        (e.cause?.message ?: e.message ?: "ismeretlen hiba").take(160)
+                                }
+                                dialog.dismiss()
+                            }
+                            .setNegativeButton("Mégsem", null)
+                            .show()
                     }
                 })
                 root.addView(Button(this).apply {
@@ -675,13 +758,16 @@ class MainActivity : ComponentActivity() {
                             val bridge = Class.forName(
                                 "hu.zsoltmonika.healthhubbridge.SamsungDirectBackgroundSync"
                             )
+                            val samsungBackgroundInstance = bridge.getField("INSTANCE").get(null)
                             status.text = bridge.getMethod("status", Context::class.java)
-                                .invoke(null, this@MainActivity).toString()
+                                .invoke(samsungBackgroundInstance, this@MainActivity).toString()
                         } catch (_: Exception) {
                             status.text = "Samsung automatikus szinkron állapota nem érhető el."
                         }
+                        samsungStatusLabel.text = status.text
                     }
                 })
+                root.addView(samsungStatusLabel)
             }
         }
         if (BuildConfig.HH_SAMSUNG_DIRECT_AVAILABLE) {
@@ -1361,6 +1447,30 @@ class MainActivity : ComponentActivity() {
             }
         })
 
+
+        root.addView(Button(this).apply {
+            text = "⌚ Watch9 · HRV, légzésszám, bőrhőmérséklet engedélyezése"
+            setOnClickListener {
+                scope.launch {
+                    val hc = client ?: run {
+                        status.text = "Health Connect nem elérhető."
+                        return@launch
+                    }
+                    try {
+                        val granted = hc.permissionController.getGrantedPermissions()
+                        val optional = HealthConnectExporter.OPTIONAL_WATCH_VITALS_PERMISSIONS
+                        val missing = optional - granted
+                        if (missing.isEmpty()) {
+                            status.text = "✓ A Watch9 extra Health Connect hozzáférések már megvannak. Indíts SYNC NOW-t."
+                        } else {
+                            watchVitalsPermissionLauncher.launch(missing)
+                        }
+                    } catch (e: Exception) {
+                        status.text = "Watch9 extra jogosultság: " + e.javaClass.simpleName
+                    }
+                }
+            }
+        })
 
         root.addView(TextView(this).apply {
             text = "🛡️ Self-Healing Connect · automatikus újracsatlakozás"
