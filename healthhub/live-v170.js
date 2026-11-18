@@ -593,9 +593,9 @@ function hhSleepWatch9Markup(profile,result){
   tile('skin-temperature','🌡️','Bőrhőmérséklet',temp,'°C',
     skinDetail,skinBadge)+
   tile('hrv','💗','HRV',hrv,'ms',
-    hc.hrv?fmtDate(hc.hrv.time):'Nincs éjszakai HC-mérés','Health Connect')+
+    hc.hrv?fmtDate(hc.hrv.time):'Nincs HRV-rekord a HealthHub-exportban','Health Connect')+
   tile('respiratory-rate','🌬️','Légzésszám',respiration,'/perc',
-    hc.respiratory?fmtDate(hc.respiratory.time):'Nincs éjszakai HC-mérés','Health Connect');
+    hc.respiratory?fmtDate(hc.respiratory.time):'Nincs légzésszám-rekord a HealthHub-exportban','Health Connect');
 }
 function hhSleepWatch9Oxygen1157(profile,result){
  var data=result&&result.status==='ready'&&result.data&&result.data.profile===profile?result.data:null;

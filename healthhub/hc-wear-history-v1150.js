@@ -162,32 +162,11 @@
   function todayReading(row,now){
    return row&&budapestDay(row.t)===budapestDay(now)?row:null;
   }
-  function factorTile(icon,name,value,status,tone,detail,id){
-   return '<div class="hhSleepFactor381 hhSleepRag382 '+escaped(tone)+'"'+
-    (id?' id="'+escaped(id)+'"':'')+'>'+
-    '<div class="hhSleepFactorLabel381"><span class="hhSleepFactorIcon381" aria-hidden="true">'+icon+
-    '</span><span>'+escaped(name)+'</span></div>'+
-    '<strong class="hhSleepFactorValue381">'+escaped(value)+'</strong>'+
-    '<span class="hhSleepFactorStatus381 '+escaped(tone)+'">'+escaped(status)+'</span>'+
-    '<small class="hhSleepFactorDetail381">'+escaped(detail)+'</small></div>';
-  }
-  function sleepCards(summary,now,canonicalValue,canonicalInfo){
-   var oxygen=todayReading(summary.readings.oxygen,now);
-   var resting=todayReading(summary.readings.resting,now);
-   var oxygenText=oxygen&&canonicalValue?String(canonicalValue).trim():'';
-   if(oxygenText==='—')oxygenText='';
-   var oxygenDetail=oxygen&&oxygenText?
-    (canonicalInfo&&String(canonicalInfo).trim()||'Mért éjszakai adat')+
-    ' · '+time(oxygen.t):'Nincs mai mérés';
-   return factorTile('🫁','Véroxigén (SpO₂)',oxygenText||'—',
-    oxygenText?'Éjszakai mérés':'Nincs adat',oxygenText?'info':'muted',
-    oxygenDetail,'hhWearHistory1150-sleep')+
-    factorTile('💗','Nyugalmi pulzus',
-    resting?num(resting.value,0)+' /perc':'—',
-    resting?'Naplózott mérés':'Nincs adat',resting?'info':'muted',
-    resting?'Mérve: '+time(resting.t)+' · Health Connect':'Nincs mai mérés',
-    'hhWearHistory1150-sleep-resting');
-  }
+  // The Golden Standard Sleep page owns exactly 12 cells, including its
+  // canonical oxygen tile and the five Samsung/HC supplemental metrics.
+  // Do not append a second SpO2 or a resting-HR tile. Resting heart rate
+  // remains in the Activity wear-history panel when a real record exists.
+  function sleepCards(){return '';}
  function install(win){
   var doc=win.document,cache=new Map(),installed=new WeakSet(),pending={activity:null,sleep:null};
   var seq={activity:0,sleep:0};
@@ -203,28 +182,13 @@
    return kind==='activity'?!!page.querySelector('.hhActTopGrid,.a191Top'):
      (!!page.querySelector('.hhSleepTop')&&!page.querySelector('.hhSleepLoading'));
   }
-  function placeSleep(page,summary,now,doc,ownerCode){
-   var grid=page.querySelector('.hhSleepFactors381');
-   if(!grid)return false;
-   // Existing six tiles stay in the approved grid. Never add a separate section.
-   // The preview renderer's supplemental oxygen ribbon is retired after
-   // its canonical displayed value is read, to avoid a duplicate.
-   var original=page.querySelector('.hhSleepOxygenV432');
-   var originalValue=original&&original.querySelector('strong');
-   var originalMeta=original&&original.querySelector('small');
-   var html=sleepCards(summary,now,originalValue&&originalValue.textContent,originalMeta&&originalMeta.textContent);
-   var holder=doc.createElement('div');
-   holder.innerHTML=html;
-   var oxygenTile=holder.firstElementChild;
-   var restingTile=oxygenTile&&oxygenTile.nextElementSibling;
-   if(!oxygenTile||!restingTile)return false;
-   oxygenTile.dataset.owner=ownerCode;
-   restingTile.dataset.owner=ownerCode;
-   // If older code has already placed a separate glass section, clear it.
+  function placeSleep(page){
+   // Clean up extras from an earlier in-memory render, without touching
+   // the authoritative SpO2 tile or a measured Health Connect value.
+   ['hhWearHistory1150-sleep','hhWearHistory1150-sleep-resting'].forEach(function(id){
+    var el=page.querySelector('#'+id);if(el)el.remove();
+   });
    var legacy=page.querySelector('.hhWH1150Sleep');if(legacy)legacy.remove();
-   grid.appendChild(oxygenTile);
-   grid.appendChild(restingTile);
-   if(original)original.remove();
    return true;
   }
   function place(kind,page,node){
@@ -235,6 +199,9 @@
   async function update(kind){
    var page=active(kind),p=owner();
    if(!page||!page.classList.contains('on')||!ready(kind,page))return;
+   // Removing duplicate historical tiles is synchronous and read-only.
+   // Do not download the full HC cloud file merely to draw no extra cells.
+   if(kind==='sleep'){placeSleep(page);return;}
    var id='hhWearHistory1150-'+kind;
    var existing=page.querySelector('#'+id);
    if(existing&&existing.dataset.owner===p)return;
@@ -243,10 +210,6 @@
    if(token!==seq[kind]||owner()!==p||!page||!page.classList.contains('on')||!ready(kind,page))return;
    var old=page.querySelector('#'+id);if(old)old.remove();
    var now=Date.now(),summary=summarize(bundle||{records:{},source:'Nincs szinkronizált adat'},kind,now);
-   if(kind==='sleep'){
-    placeSleep(page,summary,now,doc,p);
-    return;
-   }
    var html=markup(summary,kind,p,now);
    if(!html)return;
    var shell=doc.createElement('div');

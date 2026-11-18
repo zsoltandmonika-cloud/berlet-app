@@ -50,32 +50,20 @@ assert.equal(api.profile('zsolt'),'zsolt');
 assert.equal(api.profile('unknown'),null);
 const empty=api.summarize({records:{},exportedAt:null},'sleep',t);
 assert.equal(empty.readings.nightHeart,null);
-// The canonical Sleep renderer still owns the original 6 cards. The overlay
-// inserts exactly TWO native factor tiles into the SAME grid, never a separate
-// premium section, and retires the old standalone oxygen ribbon.
+// The Golden Standard Sleep renderer owns its complete 12-tile grid.
+// Wear History may still display resting-HR in Activity, but must not inject
+// duplicate SpO2/resting-HR tiles into Sleep or perform an extra HC download.
 const emptyCards=api.sleepCards(empty,t,'94%','Egyetlen mért perc');
-assert.equal((emptyCards.match(/hhSleepFactor381 hhSleepRag382/g)||[]).length,2);
-assert.match(emptyCards,/Véroxigén \(SpO₂\)/);
-assert.match(emptyCards,/Nyugalmi pulzus/);
-assert.equal((emptyCards.match(/Nincs mai mérés/g)||[]).length,2);
-assert.equal((emptyCards.match(/hhSleepFactorValue381">—/g)||[]).length,2);
-const todayResting=api.sleepCards(night,t,'94%','Egyetlen mért perc');
-assert.equal((todayResting.match(/hhSleepFactor381 hhSleepRag382/g)||[]).length,2);
-assert.match(todayResting,/52 \/perc/);
-assert.match(todayResting,/Nincs mai mérés/); // The only valid SpO₂ in this fixture is from yesterday
-assert.doesNotMatch(todayResting,/94%/); // Do not revive an older oxygen measurement
-const currentOxygen={records:{
- oxygenSaturation:[{time:stamp(t-30*60000),percent:94}],
- restingHeartRate:[{time:stamp(t-10*60000),bpm:61}],
- sleepSessions:[{startTime:stamp(t-8*3600000),endTime:stamp(t-2*3600000)}]
-}};
-const current=api.summarize(currentOxygen,'sleep',t);
-const eight=api.sleepCards(current,t,'94%','Egyetlen mért perc');
-assert.match(eight,/94%/);
-assert.match(eight,/61 \/perc/);
-assert.equal((eight.match(/hhSleepFactor381 hhSleepRag382/g)||[]).length,2);
-assert.match(eight,/Egyetlen mért perc/);
-assert.match(eight,/hhWearHistory1150-sleep-resting/);
+assert.equal(emptyCards,'');
+const restingOnly=api.sleepCards(night,t,'94%','Egyetlen mért perc');
+assert.equal(restingOnly,'');
+assert.match(core,/function placeSleep\(page\)/);
+assert.match(core,/placeSleep\(page\);return;/);
+assert.match(core,/hhWearHistory1150-sleep-resting/);
+assert.match(core,/\.remove\(\)/);
+assert.doesNotMatch(core,/grid\.appendChild\(oxygenTile\)/);
+assert.doesNotMatch(core,/grid\.appendChild\(restingTile\)/);
+assert.match(core,/HH_DROPBOX_VAULT/);
 // Budapest date boundary, not the browser's UTC day: 00:30 local is "today".
 assert.equal(api.budapestDay(Date.parse('2026-11-02T23:30:00Z')),
              api.budapestDay(Date.parse('2026-11-03T09:00:00Z')));
@@ -83,11 +71,8 @@ const boundary={t:Date.parse('2026-11-02T23:30:00Z'),value:95};
 assert.equal(api.todayReading(boundary,t),boundary);
 const yesterday={t:Date.parse('2026-11-02T22:30:00Z'),value:95};
 assert.equal(api.todayReading(yesterday,t),null);
-assert.match(core,/page\.querySelector\('\.hhSleepFactors381'\)/);
-assert.match(core,/grid\.appendChild\(oxygenTile\)/);
-assert.match(core,/grid\.appendChild\(restingTile\)/);
-assert.match(core,/if\(original\)original\.remove\(\)/);
-assert.match(core,/oxygenTile\.dataset\.owner=ownerCode/);
+assert.doesNotMatch(core,/grid\.appendChild\(oxygenTile\)/);
+assert.doesNotMatch(core,/grid\.appendChild\(restingTile\)/);
 assert.doesNotMatch(core,/lena\.insertAdjacentElement\('beforebegin'/);
 assert.doesNotMatch(core,/oxygen\.cloneNode\(/);
 assert.doesNotMatch(core,/hhWH1152Pair/);
