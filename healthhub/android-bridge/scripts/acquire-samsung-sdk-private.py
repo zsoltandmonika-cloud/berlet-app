@@ -114,6 +114,11 @@ def main():
                 window = re.sub(r"(?i)(token|key|authorization|cookie)[^\\s]{0,55}", "[redacted]", window)
                 window = re.sub(r"https?://[^\\s\"'<>]+", "[url]", window)
                 print("Page marker", needle, ":", re.sub(r"\\s+", " ", window)[:260])
+        pos = document.find("Samsung Health Data SDK v1.1.0")
+        if pos >= 0:
+            neighborhood = document[max(0,pos-850):pos+800]
+            neighborhood = re.sub(r"https?://[^\\s\\\"'<>]+", "[url]", neighborhood)
+            print("Public Samsung download control markup:", neighborhood[:1650])
         raise RuntimeError("No official Samsung SDK ZIP URL found. Configure secure HH_SAMSUNG_SDK_ZIP_URL.")
     errors = []
     for source in sources[:8]:
