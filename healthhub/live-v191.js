@@ -140,6 +140,50 @@ function cloudBundle(profile){
  }).catch(function(){});
  return job;
 }
+// v1023: bounded foreground-only Activity refresh. Never infer new phone readings.
+var ACTIVITY_CLOUD_RECHECK_MS=180000;
+var activityLastCloudRecheck={};
+var activityCloudRecheckBusy=false;
+var activityManualRefreshBusy=false;
+var activityRestoreScroll=null;
+function activityCloudSignature(row){
+ if(!row||!row.bundle)return '';
+ var b=row.bundle,r=b.records||{},daily=Array.isArray(r.dailyActivity)?r.dailyActivity:[],
+  sessions=Array.isArray(r.exerciseSessions)?r.exerciseSessions:[];
+ return JSON.stringify([b.exportedAt||row.importedAt||'',
+  daily.slice(-14).map(function(d){return [d.date,d.steps,d.distanceMeters,d.activeMinutes,d.activeCaloriesKcal,d.caloriesKcal]}),
+  sessions.slice(-8).map(function(s){return [s.id,s.startTime,s.endTime,s.distanceKm,s.caloriesKcal]})]);
+}
+async function recheckActivityWhenVisible(){
+ var page=document.getElementById('hhActivityPage191'),profile=pkey();
+ if(!page||!page.classList.contains('on')||document.hidden||activityCloudRecheckBusy)return;
+ var now=Date.now();
+ if(now-(activityLastCloudRecheck[profile]||0)<ACTIVITY_CLOUD_RECHECK_MS)return;
+ if(window.hhActivity191CurrentProfile!==profile||!window.hhActivity191Source)return;
+ activityCloudRecheckBusy=true;activityLastCloudRecheck[profile]=now;
+ try{
+  var before=window.hhActivity191Source;
+  var prev=before&&before.profile===profile?activityCloudSignature(before.cloud):'';
+  var cloud=await cloudBundle(profile);
+  if(!page.classList.contains('on')||document.hidden||pkey()!==profile)return;
+  if(cloud&&activityCloudSignature(cloud)!==prev){
+   activityRestoreScroll={profile:profile,top:page.scrollTop};
+   await render(profile);
+  }
+ }catch(e){console.warn('Activity foreground recheck',e)}
+ finally{activityCloudRecheckBusy=false}
+}
+window.hh191RefreshData=function(){
+ var page=document.getElementById('hhActivityPage191'),profile=pkey();
+ if(!page||!page.classList.contains('on')||activityManualRefreshBusy)return;
+ activityManualRefreshBusy=true;activityLastCloudRecheck[profile]=Date.now();
+ activityRestoreScroll={profile:profile,top:page.scrollTop};
+ var source=window.HH_HEALTH_CONNECT_SOURCE_V1015;
+ if(source&&typeof source.invalidate==='function')source.invalidate(profile);
+ activityLocalMemo.delete(profile);
+ Promise.resolve(render(profile)).catch(function(e){console.warn('Activity manual refresh',e)})
+  .finally(function(){activityManualRefreshBusy=false});
+};
 function manualSession(x){return {id:x.id,title:cat(x.type).label,manualType:x.type,startTime:x.startTime,endTime:new Date(Date.parse(x.startTime)+(Number(x.duration)||0)*60000).toISOString(),distanceKm:Number(x.distance)||0,caloriesKcal:Number(x.calories)||0,avgBpm:Number(x.avgBpm)||0,_manual:true}}
 // v1014: The verified, profile-scoped local cache can paint before Dropbox.
 async function scanLocalProfile(profile){
@@ -405,6 +449,7 @@ async function render(profileOverride){
  if(renderId!==activityRenderSeq)return;
  finalPainted=true;
  var finalRaw=attachCloud(sources[0],sources[1],requestedProfile);
+ if(sources[1])activityLastCloudRecheck[requestedProfile]=Date.now();
  var diag=window.hhActivitySplitDiag||(window.hhActivitySplitDiag={});
  diag.totalMs=Math.round(performance.now()-renderStarted);
  diag.profile=requestedProfile;
@@ -437,12 +482,13 @@ function paintActivity(requestedProfile,raw,profileHeight,samsungState,renderId,
  diag.profile=requestedProfile;
  diag.renderedAt=new Date().toISOString();
  var sourceLine=source
-  ?'✅ '+esc(requestedProfile==='monika'?'Mónika':'Zsolt')+' · Dropbox Health Connect · export: '+esc(fmtDate(diag.exportedAt))
+  ?'✅ '+esc(requestedProfile==='monika'?'Mónika':'Zsolt')+' · Dropbox Health Connect · telefonos export: '+esc(fmtDate(diag.exportedAt))
   :preview?'⏳ Korábbi, helyben mentett aktivitás · Dropbox-ellenőrzés folyamatban. Nem élő adat.'
   :'⚠️ Dropbox-export NEM igazolt. Az itt látható helyi adatok elavultak lehetnek.';
  var sourceBanner='<div class="a191MetricsHint" style="font-size:12px;line-height:1.55;padding:12px;margin:0 0 9px;border-radius:12px;background:'+
    (source?'#e5f7ed':'#ffefdf')+';color:#153e56" role="status">'+sourceLine+
-   '<div style="font-size:10px;margin-top:4px">Aktivitás v2 · helyi '+esc(diag.localMode||'?')+' '+esc(String(diag.localMs==null?'…':diag.localMs))+' ms · Dropbox '+esc(String(diag.cloudMs==null?'…':diag.cloudMs))+' ms · teljes '+esc(String(diag.totalMs==null?'…':diag.totalMs))+' ms. Helyi memóriacache max. 45 mp, a Dropbox mindig újraellenőrizve.</div></div>';
+   ' <button type="button" class="a191SourceButton" onclick="hh191RefreshData()" aria-label="Aktivitásadatok újbóli lekérdezése">↻ Frissítés</button>'+
+   '<div style="font-size:10px;margin-top:4px">Aktivitás v2 · helyi '+esc(diag.localMode||'?')+' '+esc(String(diag.localMs==null?'…':diag.localMs))+' ms · Dropbox '+esc(String(diag.cloudMs==null?'…':diag.cloudMs))+' ms · teljes '+esc(String(diag.totalMs==null?'…':diag.totalMs))+' ms. Helyi memóriacache max. 45 mp, a Dropboxot nyitva 3 percenként újraellenőrizzük. A telefonos adat a következő HH One szinkronnal érkezik.</div></div>';
  page.innerHTML=hero(requestedProfile)+'<div class="a191Body">'+sourceBanner+'<div class="a191ProfileDiag '+(requestedProfile==='monika'?'monika':'zsolt')+'">HEALTH CONNECT · '+(requestedProfile==='monika'?'MÓNIKA':'ZSOLT')+
   '<button type="button" class="a191SourceButton" onclick="hh191SourceDetails()">ⓘ Adatforrások</button></div>'+ 
   '<div class="a191CalendarBar"><button type="button" class="a191CalendarOpen" onclick="hh191Calendar()" aria-label="Korábbi nap aktivitásának megtekintése">📅 Nap kiválasztása <span aria-hidden="true">›</span></button></div>'+
@@ -488,6 +534,9 @@ function paintActivity(requestedProfile,raw,profileHeight,samsungState,renderId,
  // Render the independent estimate only after the profile-specific Activity dashboard is ready.
  if(!preview&&window.HH_CALORIE_ENGINE_V363&&window.HH_CALORIE_ENGINE_V363.render)
   window.HH_CALORIE_ENGINE_V363.render(requestedProfile,view).catch(function(e){console.warn('Calorie Engine',e)});
+ if(!preview&&activityRestoreScroll&&activityRestoreScroll.profile===requestedProfile){
+  page.scrollTop=activityRestoreScroll.top;activityRestoreScroll=null;
+ }
 }
 function modal(html){var m=document.getElementById('hh191Modal');if(!m)return;m.innerHTML='<div class="a191Sheet">'+html+'</div>';m.classList.add('on')}
 window.hh191CloseModal=function(){var m=document.getElementById('hh191Modal');if(m)m.classList.remove('on')}
@@ -634,6 +683,9 @@ window.addEventListener('healthhub:healthconnect-imported',function(event){
  activityLocalInflight.clear();
  refreshIfOpen(event);
 });
+window.addEventListener('focus',function(){recheckActivityWhenVisible()});
+document.addEventListener('visibilitychange',function(){if(!document.hidden)recheckActivityWhenVisible()});
+setInterval(recheckActivityWhenVisible,60000);
 window.hhCloseActivity=function(){var p=document.getElementById('hhActivityPage191');if(p)p.classList.remove('on');window.hh191CloseModal()}
 function wire(){var btn=Array.from(document.querySelectorAll('.homeModule')).find(function(x){var b=x.querySelector('b');return b&&b.textContent.trim()==='Activity'});if(btn){btn.removeAttribute('onclick');btn.onclick=function(e){e.preventDefault();window.hhOpenActivity()};btn.style.cursor='pointer'}}
 
