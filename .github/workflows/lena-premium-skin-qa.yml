@@ -1,0 +1,24 @@
+name: Léna Premium Skin Pack V1 QA
+on:
+  pull_request:
+    paths:
+      - 'healthhub/skins/**'
+      - '.github/workflows/lena-premium-skin-qa.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'healthhub/skins/**'
+      - '.github/workflows/lena-premium-skin-qa.yml'
+permissions:
+  contents: read
+jobs:
+  isolated-skin-pack:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify namespacing, profiles, preview, accessibility, Sleep isolation
+        run: node --test healthhub/skins/tests/lena-premium-skin.test.cjs
