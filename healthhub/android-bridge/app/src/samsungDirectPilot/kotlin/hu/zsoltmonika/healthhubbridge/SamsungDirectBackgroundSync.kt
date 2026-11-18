@@ -46,8 +46,52 @@ object SamsungDirectBackgroundSync {
     const val KEY_MANUAL_CLOUD_VERIFIED_OWNER = "samsung_direct_manual_cloud_verified_owner"
     const val KEY_LAST_SUCCESS = "samsung_direct_background_last_success_ms"
     const val KEY_LAST_ERROR = "samsung_direct_background_last_error"
+    const val KEY_INTERVAL_HOURS = "samsung_direct_interval_hours"
+    private const val KEY_HOURLY_SCHEDULE_MIGRATED = "samsung_direct_hourly_schedule_migrated_v1"
     private const val PERIODIC = "hh-samsung-direct-periodic-v1"
     private const val ONCE = "hh-samsung-direct-once-v1"
+
+
+    /** Owner-scoped interval. Both phones default to hourly Samsung-only synchronization. */
+    @JvmStatic
+    fun intervalHours(context: Context, owner: String): Int {
+        val prefs = context.getSharedPreferences(SyncScheduler.PREFS, Context.MODE_PRIVATE)
+        check(owner in setOf("zsolt", "monika") &&
+            prefs.getString("device_owner_profile", null) == owner) {
+            "Csak a saját telefon szinkronja állítható"
+        }
+        val saved = prefs.getInt("${KEY_INTERVAL_HOURS}_$owner", 1)
+        return if (saved in 1..3) saved else 1
+    }
+
+    /** Changes the frequency without replacing owner data, Dropbox tokens or Health Connect. */
+    @JvmStatic
+    fun setIntervalHours(context: Context, owner: String, hours: Int) {
+        require(hours in 1..3) { "Csak 1, 2 vagy 3 óra választható" }
+        val previous = intervalHours(context, owner)
+        if (previous == hours) return
+        val prefs = context.getSharedPreferences(SyncScheduler.PREFS, Context.MODE_PRIVATE)
+        val key = "${KEY_INTERVAL_HOURS}_$owner"
+        prefs.edit().putInt(key, hours).apply()
+        try {
+            if (prefs.getBoolean(KEY_ENABLED, false)) setEnabled(context, owner, true)
+        } catch (e: Exception) {
+            prefs.edit().putInt(key, previous).apply()
+            throw e
+        }
+    }
+
+    /** On upgrade, update an existing 3-hour WorkManager request once to the hourly default. */
+    @JvmStatic
+    fun reconcileHourlyDefault(context: Context) {
+        if (!BuildConfig.HH_SAMSUNG_DIRECT_CANDIDATE) return
+        val prefs = context.getSharedPreferences(SyncScheduler.PREFS, Context.MODE_PRIVATE)
+        val owner = prefs.getString("device_owner_profile", null) ?: return
+        if (owner !in setOf("zsolt", "monika") || !prefs.getBoolean(KEY_ENABLED, false)) return
+        if (prefs.getString(KEY_HOURLY_SCHEDULE_MIGRATED, null) == owner) return
+        setEnabled(context, owner, true)
+        prefs.edit().putString(KEY_HOURLY_SCHEDULE_MIGRATED, owner).apply()
+    }
 
     @JvmStatic
     fun setEnabled(context: Context, owner: String, enabled: Boolean) {
@@ -77,13 +121,14 @@ object SamsungDirectBackgroundSync {
         val constraints = Constraints.Builder()
             .setRequiredNetworkType(NetworkType.CONNECTED)
             .build()
-        val periodic = PeriodicWorkRequestBuilder<SamsungDirectBackgroundWorker>(3, TimeUnit.HOURS)
+        val interval = intervalHours(context, owner)
+        val periodic = PeriodicWorkRequestBuilder<SamsungDirectBackgroundWorker>(interval.toLong(), TimeUnit.HOURS)
             .setConstraints(constraints)
             .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 1, TimeUnit.MINUTES)
             .addTag("samsung-direct-canary")
             .build()
         wm.enqueueUniquePeriodicWork(PERIODIC, ExistingPeriodicWorkPolicy.UPDATE, periodic)
-        // First run on consent, then at most every three hours. Both are guarded
+        // First run on consent, then configured 1/2/3-hour cadence. Both are guarded
         // by the shared Samsung writer and profile checks before remote writes.
         val once = OneTimeWorkRequestBuilder<SamsungDirectBackgroundWorker>()
             .setConstraints(constraints)
@@ -97,12 +142,20 @@ object SamsungDirectBackgroundSync {
     fun status(context: Context): String {
         val prefs = context.getSharedPreferences(SyncScheduler.PREFS, Context.MODE_PRIVATE)
         if (!prefs.getBoolean(KEY_ENABLED, false)) return "Samsung automatikus szinkron: KI"
+        val owner = prefs.getString("device_owner_profile", null)
+        if (owner !in setOf("zsolt", "monika")) return "Samsung szinkron: tulajdonos hiányzik"
+        val hours = intervalHours(context, owner!!)
         val error = prefs.getString(KEY_LAST_ERROR, null)
         val last = prefs.getLong(KEY_LAST_SUCCESS, 0L)
+        val lastText = if (last > 0L) {
+            java.time.Instant.ofEpochMilli(last)
+                .atZone(java.time.ZoneId.systemDefault())
+                .format(java.time.format.DateTimeFormatter.ofPattern("yyyy.MM.dd. HH:mm"))
+        } else null
         return when {
-            !error.isNullOrBlank() -> "Samsung automatikus szinkron: ellenőrzendő ($error)"
-            last > 0 -> "Samsung automatikus szinkron: BE, korábban sikeres"
-            else -> "Samsung automatikus szinkron: BE, első mérésre vár"
+            !error.isNullOrBlank() -> "Samsung szinkron: BE, $hours óránként; hiba: $error"
+            lastText != null -> "Samsung szinkron: BE, $hours óránként; utolsó sikeres: $lastText"
+            else -> "Samsung szinkron: BE, $hours óránként; első mérésre vár"
         }
     }
 }
