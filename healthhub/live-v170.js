@@ -619,6 +619,39 @@ function hhSleepWatch9Oxygen1157(profile,result){
  if(status)status.textContent=hc==='none'?'Samsung Health':'HC + Samsung';
 }
 
+// Readiness gate: late script load or a stale in-memory Samsung adapter must not
+// strand the Watch9 tiles after the Health Connect fast-paint. One same-origin
+// recheck is enough; never retry Dropbox uploads or change any permissions.
+var hhSamsungSourceReadyPromise=null;
+function hhSamsungAdapterCurrent(){
+ var source=window.HH_SAMSUNG_SOURCE_V371;
+ return source&&source.version==='390-watch9-loader-ready'&&
+   typeof source.load==='function'?source:null;
+}
+function hhEnsureSamsungAdapter(){
+ var installed=hhSamsungAdapterCurrent();
+ if(installed)return Promise.resolve(installed);
+ if(hhSamsungSourceReadyPromise)return hhSamsungSourceReadyPromise;
+ hhSamsungSourceReadyPromise=new Promise(function(resolve){
+  var script=document.createElement('script'),settled=false,timeout=null;
+  function done(){
+   if(settled)return;
+   settled=true;
+   if(timeout!==null)clearTimeout(timeout);
+   script.onload=null;script.onerror=null;
+   resolve(hhSamsungAdapterCurrent());
+  }
+  script.async=true;
+  script.src='./live-v371-samsung.js?v=390-watch9-loader-ready';
+  script.onload=done;
+  script.onerror=done;
+  timeout=setTimeout(done,7000);
+  document.head.appendChild(script);
+ }).then(function(result){hhSamsungSourceReadyPromise=null;return result;},
+   function(){hhSamsungSourceReadyPromise=null;return null});
+ return hhSamsungSourceReadyPromise;
+}
+
 async function hhLoadWatch9Sleep(profile,renderId){
  // Samsung is an independently owner-verified Dropbox source. A cached or
  // temporarily unavailable HC Sleep export must not block its own online read.
@@ -628,10 +661,14 @@ async function hhLoadWatch9Sleep(profile,renderId){
    document.getElementById('hhSleepWatch9Panel').getAttribute('data-hh-watch9-profile')===profile?
    document.getElementById('hhSleepWatch9Panel'):null};
  if(!current())return;
- var source=window.HH_SAMSUNG_SOURCE_V371,vault=window.HH_DROPBOX_VAULT;
- var result=null;
- if(source&&typeof source.load==='function'&&vault){
-  try{result=await source.load(profile,vault)}catch(e){result=null}
+ var vault=window.HH_DROPBOX_VAULT,source=null,result=null;
+ try{source=await hhEnsureSamsungAdapter()}catch(e){source=null}
+ if(!current())return;
+ if(!source)result={status:'unavailable',data:null,profile:profile,readError:'source-module'};
+ else if(!vault)result={status:'unavailable',data:null,profile:profile,readError:'browser-vault'};
+ else{
+  try{result=await source.load(profile,vault)}
+  catch(e){result={status:'unavailable',data:null,profile:profile,readError:'source-exception'}}
  }
  var target=current();
  if(target){
@@ -668,9 +705,13 @@ async function hhLoadWatch9Sleep(profile,renderId){
      'http-5xx':'Dropbox szerverhiba (HTTP 5xx)',
      'network':'hálózati hiba (NETWORK)',
      'missing-file':'fájl nem található (HTTP 409)',
+     'source-module':'Samsung webes adatolvasó modul nem tölthető be',
+     'browser-vault':'Webes Dropbox modul nem érhető el',
+     'source-exception':'Samsung adatolvasó futási hiba',
      'unknown':'ismeretlen olvasási hiba (UNKNOWN)'
    }[result&&result.readError];
    if(state!=='ready'&&errorLabel)message+=' · '+errorLabel;
+   message+=' · olvasó: '+(source&&source.version?'v390':'nem aktív');
    if(hint)message+=' · webes fiók: '+hint;
    line.textContent=message;
    status.appendChild(line);
