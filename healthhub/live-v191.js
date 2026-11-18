@@ -156,7 +156,7 @@ function activityCloudSignature(row){
 }
 async function recheckActivityWhenVisible(){
  var page=document.getElementById('hhActivityPage191'),profile=pkey();
- if(!page||!page.classList.contains('on')||document.hidden||activityCloudRecheckBusy)return;
+ if(!page||!page.classList.contains('on')||document.hidden||activityCloudRecheckBusy||activityManualRefreshBusy)return;
  var now=Date.now();
  if(now-(activityLastCloudRecheck[profile]||0)<ACTIVITY_CLOUD_RECHECK_MS)return;
  if(window.hhActivity191CurrentProfile!==profile||!window.hhActivity191Source)return;
