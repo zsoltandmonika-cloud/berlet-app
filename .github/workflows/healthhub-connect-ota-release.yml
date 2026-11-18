@@ -68,6 +68,29 @@ jobs:
         with:
           gradle-version: "8.13"
 
+      # The generic workflow must never publish an SDK-less 0.15.21 APK.
+      # Proprietary Samsung SDK lives only in the owner's private build environment.
+      # A separate verified packaging path is required for this release series.
+      - name: Guard Samsung OTA 0.15.21 against accidental SDK-less publication
+        if: steps.signing.outputs.ready == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ "${HH_SAMSUNG_INTEGRATED_CANDIDATE:-false}" == "true" ]]; then
+            echo "::error::The generic OTA workflow cannot compile proprietary Samsung SDK. Use a separately verified signed candidate process."
+            exit 1
+          fi
+          if grep -q 'versionCode = 48' healthhub/android-bridge/app/build.gradle.kts; then
+            # The integrated 0.15.21 candidate flag is present in source, but
+            # standard build intentionally remains 0.15.20/build47.
+            # Version checks after compilation still reject re-releasing build47.
+            echo "Integrated candidate code present but generic OTA remains on the 0.15.20 baseline."
+          fi
+          if [[ "$(python3 -c 'import json; print(json.load(open("healthhub/data/bridge-ota.json"))["versionCode"])')" -ge 48 ]]; then
+            echo "::error::Generic OTA release workflow is not approved to advance Samsung v0.15.21 or newer."
+            exit 1
+          fi
+
       - name: Build, verify and stage release
         if: steps.signing.outputs.ready == 'true'
         id: package
