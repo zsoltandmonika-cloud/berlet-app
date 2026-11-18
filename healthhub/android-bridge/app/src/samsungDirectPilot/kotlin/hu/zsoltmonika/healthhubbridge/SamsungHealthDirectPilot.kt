@@ -35,7 +35,8 @@ import java.time.Duration
  * No inferred minutes and no modifications to canonical Health Connect export.
  */
 object SamsungHealthDirectPilot {
-    private val writer = Mutex()
+    // Shared with the optional Samsung WorkManager capture to serialize cloud merges.
+    internal val writer = Mutex()
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
 
     @JvmStatic
@@ -193,6 +194,7 @@ object SamsungHealthDirectPilot {
                     DropboxVaultClient.ensureFolder(prefs, DropboxVaultClient.PROFILES_DIR)
                     DropboxVaultClient.uploadText(prefs, path, output.toString(2) + "\n")
                 }
+                prefs.edit().putBoolean(SamsungDirectBackgroundSync.KEY_MANUAL_CLOUD_VERIFIED, true).apply()
                 toast(activity, "Samsung Direct: $minutes mért $dayLabel aktív perc átadva a saját Dropbox-profilnak.")
             } catch (cancel: CancellationException) {
                 throw cancel
