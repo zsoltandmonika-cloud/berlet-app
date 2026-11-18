@@ -56,8 +56,13 @@ function normalize(p,raw){
  });
  var sessions=[],seenSession=new Set();
  var inputSessions=raw.records&&raw.records.exerciseSessions;
- if(Array.isArray(inputSessions))inputSessions.slice(0,600).forEach(function(r){
-  if(!r)return;var start=dateMs(r.startTime),end=dateMs(r.endTime);
+ // Prefer the latest 600 valid sessions, not the first 600 rows of an
+ // historical Beta archive. Keep the raw cloud archive untouched.
+ if(Array.isArray(inputSessions))inputSessions.filter(function(r){return r&&dateMs(r.endTime)!=null})
+  .sort(function(a,b){return dateMs(b.endTime)-dateMs(a.endTime)})
+  .forEach(function(r){
+  if(sessions.length>=600)return;
+  var start=dateMs(r.startTime),end=dateMs(r.endTime);
   if(start==null||end==null||end<=start||end-start>86400000||start>now+300000||start<now-400*86400000)return;
   var typ=String(r.exerciseType||'OTHER').toUpperCase();
   if(!/^[A-Z_]{2,50}$/.test(typ))typ='OTHER';
