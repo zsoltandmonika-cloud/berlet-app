@@ -153,8 +153,10 @@ test('unified HH One Samsung reader preserves Beta fields instead of rewriting a
  assert.match(bg,/DataType\.ActivitySummaryType\.TOTAL_DISTANCE\.requestBuilder/);
  assert.match(sdk,/mergeDay\(historicalDay, freshDay\)/);
  assert.match(bg,/mergeDay\(\s*sameDay\(cloud, measuredDay\)/);
- assert.match(sdk,/listOf\("hourlySteps", "exerciseSessions"\)/);
- assert.match(bg,/listOf\("hourlySteps", "exerciseSessions"\)/);
+ assert.match(sdk,/oldRecords\?\.optJSONArray\("exerciseSessions"\)/);
+ assert.match(bg,/oldRecords\?\.optJSONArray\("exerciseSessions"\)/);
+ assert.match(sdk,/SamsungStepCollector\.mergeHourly\(/);
+ assert.match(bg,/SamsungStepCollector\.mergeHourly\(/);
  assert.doesNotMatch(sdk,/steps\s*[/\*]\s*\d+/);
  assert.doesNotMatch(bg,/steps\s*[/\*]\s*\d+/);
 });
