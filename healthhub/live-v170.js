@@ -645,7 +645,7 @@ async function hhLoadWatch9Sleep(profile,renderId){
    if(previous)previous.remove();
    var line=document.createElement('span');
    line.setAttribute('data-hh-samsung-status','1');
-   line.style.cssText='display:block;margin-top:3px;font-size:10px;line-height:1.2';
+   line.style.cssText='display:block;margin-top:5px;font-size:12px;line-height:1.35;color:#D9EEFF;font-weight:750';
    var connected=!!(vault&&typeof vault.connected==='function'&&vault.connected());
    var hint='';
    try{if(vault&&typeof vault.accountHint==='function')hint=vault.accountHint()||''}catch(_){}
@@ -660,6 +660,17 @@ async function hhLoadWatch9Sleep(profile,renderId){
      state==='invalid'?'Samsung: az adatfájl formátuma vagy profilja hibás':
      state!=='ready'?'Samsung: a webes Dropbox-olvasás sikertelen':
      'Samsung: fájl OK · '+counts;
+   var errorLabel={
+     'auth':'hitelesítési hiba (AUTH)',
+     'http-401':'token elutasítva (HTTP 401)',
+     'http-403':'hozzáférés megtagadva (HTTP 403)',
+     'http-429':'Dropbox túlterhelés (HTTP 429)',
+     'http-5xx':'Dropbox szerverhiba (HTTP 5xx)',
+     'network':'hálózati hiba (NETWORK)',
+     'missing-file':'fájl nem található (HTTP 409)',
+     'unknown':'ismeretlen olvasási hiba (UNKNOWN)'
+   }[result&&result.readError];
+   if(state!=='ready'&&errorLabel)message+=' · '+errorLabel;
    if(hint)message+=' · webes fiók: '+hint;
    line.textContent=message;
    status.appendChild(line);
