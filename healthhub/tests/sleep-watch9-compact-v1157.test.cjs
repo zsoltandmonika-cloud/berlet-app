@@ -104,7 +104,10 @@ test('Renderer inserts five extra tiles inside same original factors grid, no se
  assert.match(sleep,/Samsung: a webes Dropbox-fiókban nincs Samsung-adatfájl/);
  assert.match(sleep,/webes fiók: /);
  assert.match(sleep,/data-hh-samsung-status/);
+ assert.match(sleep,/hhEnsureSamsungAdapter/);
+ assert.match(sleep,/source-module/);
+ assert.match(sleep,/390-watch9-loader-ready/);
  assert.ok(sleep.includes('hozzáférés megtagadva (HTTP 403)'));
  assert.ok(sleep.includes('hálózati hiba (NETWORK)'));
- assert.match(index,/live-v170\.js\?v=1160-watch9-http-diagnostics/);
+ assert.match(index,/live-v170\.js\?v=1170-watch9-loader-ready/);
 });
