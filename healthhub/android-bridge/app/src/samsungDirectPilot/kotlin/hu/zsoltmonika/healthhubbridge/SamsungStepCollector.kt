@@ -35,16 +35,22 @@ internal object SamsungStepCollector {
         val request = DataType.StepsType.TOTAL.requestBuilder
             .setLocalTimeFilterWithGroup(filter, group)
             .build()
-        val result = JSONArray()
-        val usedHours = HashSet<Int>()
+        // On the autumn DST change, 02:00 can occur twice in Budapest.
+        // Our v1 cloud schema has only date+hour, so combine both measured
+        // intervals instead of silently discarding the second observation.
+        val byLocalHour = linkedMapOf<Int, Long>()
         for (record in store.aggregateData(request).dataList) {
             val count = record.value ?: continue
             val local = record.startTime.atZone(ZoneId.systemDefault())
-            if (local.toLocalDate() != day || count < 0L || count > 100000L ||
-                !usedHours.add(local.hour)) continue
+            if (local.toLocalDate() != day || count < 0L || count > 100000L) continue
+            val total = (byLocalHour[local.hour] ?: 0L) + count
+            if (total <= 100000L) byLocalHour[local.hour] = total
+        }
+        val result = JSONArray()
+        byLocalHour.toSortedMap().forEach { (hour, count) ->
             result.put(JSONObject()
                 .put("date", day.toString())
-                .put("hour", local.hour)
+                .put("hour", hour)
                 .put("steps", count))
         }
         return result.takeIf { it.length() > 0 }
