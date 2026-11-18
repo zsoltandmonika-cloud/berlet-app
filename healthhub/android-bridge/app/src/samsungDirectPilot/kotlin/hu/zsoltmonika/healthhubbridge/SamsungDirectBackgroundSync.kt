@@ -77,13 +77,13 @@ object SamsungDirectBackgroundSync {
         val constraints = Constraints.Builder()
             .setRequiredNetworkType(NetworkType.CONNECTED)
             .build()
-        val periodic = PeriodicWorkRequestBuilder<SamsungDirectBackgroundWorker>(3, TimeUnit.HOURS)
+        val periodic = PeriodicWorkRequestBuilder<SamsungDirectBackgroundWorker>(1, TimeUnit.HOURS)
             .setConstraints(constraints)
             .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 1, TimeUnit.MINUTES)
             .addTag("samsung-direct-canary")
             .build()
         wm.enqueueUniquePeriodicWork(PERIODIC, ExistingPeriodicWorkPolicy.UPDATE, periodic)
-        // First run on consent, then at most every three hours. Both are guarded
+        // Test-only candidate: first run on consent, then approximately hourly. Both guarded
         // by the shared Samsung writer and profile checks before remote writes.
         val once = OneTimeWorkRequestBuilder<SamsungDirectBackgroundWorker>()
             .setConstraints(constraints)
@@ -99,10 +99,15 @@ object SamsungDirectBackgroundSync {
         if (!prefs.getBoolean(KEY_ENABLED, false)) return "Samsung automatikus szinkron: KI"
         val error = prefs.getString(KEY_LAST_ERROR, null)
         val last = prefs.getLong(KEY_LAST_SUCCESS, 0L)
+        val timestamp = if (last > 0L) {
+            java.time.Instant.ofEpochMilli(last)
+                .atZone(java.time.ZoneId.systemDefault())
+                .format(java.time.format.DateTimeFormatter.ofPattern("yyyy.MM.dd. HH:mm"))
+        } else null
         return when {
-            !error.isNullOrBlank() -> "Samsung automatikus szinkron: ellenőrzendő ($error)"
-            last > 0 -> "Samsung automatikus szinkron: BE, korábban sikeres"
-            else -> "Samsung automatikus szinkron: BE, első mérésre vár"
+            !error.isNullOrBlank() -> "Samsung automatikus szinkron: BE · 1 órás teszt, hiba: $error"
+            timestamp != null -> "Samsung automatikus szinkron: BE · 1 órás teszt, utolsó sikeres: $timestamp"
+            else -> "Samsung automatikus szinkron: BE · 1 órás teszt, első mérésre vár"
         }
     }
 }
