@@ -65,7 +65,11 @@ def candidates_from_official_page() -> list[str]:
     ) + re.findall(r"""["']([^"']+?\.zip(?:\?[^"']*)?)["']""", html, flags=re.I)
     found = []
     for val in values:
-        if "1.1.0" not in val or "zip" not in val.lower():
+        # Samsung uses a license-gated /SHealth/file/<uuid> endpoint,
+        # not a visible .zip URL; only follow the path observed on its
+        # official SDK v1.1.0 download page.
+        official_file = val.startswith("/SHealth/file/") or "/SHealth/file/" in val
+        if not official_file and ("1.1.0" not in val or "zip" not in val.lower()):
             continue
         # An onclick handler is not itself a URL.
         if val.lstrip().lower().startswith(("javascript:", "function", "download(")):
@@ -103,23 +107,7 @@ def main():
     url = os.environ.get("HH_SAMSUNG_SDK_ZIP_URL", "").strip()
     sources = [validated_url(url)] if url else candidates_from_official_page()
     if not sources:
-        # Diagnostics only for the public, unauthenticated official SDK page.
-        # Never print SDK binary, cookies, credentials or URL query strings.
-        document = fetch(PAGE, limit=5_000_000).decode("utf-8", errors="replace")
-        print("Samsung vendor page bytes:", len(document))
-        for needle in ("1.1.0", "downloadFile", "download_sdk", ".zip", "download", "sdkDownload"):
-            index = document.lower().find(needle.lower())
-            if index >= 0:
-                window = document[max(0, index-110):index+220]
-                window = re.sub(r"(?i)(token|key|authorization|cookie)[^\\s]{0,55}", "[redacted]", window)
-                window = re.sub(r"https?://[^\\s\"'<>]+", "[url]", window)
-                print("Page marker", needle, ":", re.sub(r"\\s+", " ", window)[:260])
-        pos = document.find("Samsung Health Data SDK v1.1.0")
-        if pos >= 0:
-            neighborhood = document[max(0,pos-850):pos+800]
-            neighborhood = re.sub(r"https?://[^\\s\\\"'<>]+", "[url]", neighborhood)
-            print("Public Samsung download control markup:", neighborhood[:1650])
-        raise RuntimeError("No official Samsung SDK ZIP URL found. Configure secure HH_SAMSUNG_SDK_ZIP_URL.")
+        raise RuntimeError("No official Samsung SDK download endpoint found on Samsung Developer.")
     errors = []
     for source in sources[:8]:
         try:
