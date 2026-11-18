@@ -61,6 +61,12 @@ object SamsungHealthDirectPilot {
                     }
                 }
                 stage = "SAMSUNG_ADATOLVASAS"
+                // Optional Samsung STEPS consent. Denial must not stop active minutes.
+                val stepsGranted = runCatching {
+                    val permission = SamsungStepCollector.readPermission
+                    store.getGrantedPermissions(permission).containsAll(permission) ||
+                        store.requestPermissions(permission, activity).containsAll(permission)
+                }.getOrDefault(false)
                 // Read today first. Just after midnight Samsung Health can have
                 // no ACTIVITY_SUMMARY for the new day, so try yesterday as a
                 // *separately dated* fallback. Never relabel yesterday as today.
@@ -104,6 +110,9 @@ object SamsungHealthDirectPilot {
                     val value: Float? = store.aggregateData(request).dataList.firstOrNull()?.value
                     value?.takeIf { it.isFinite() && it >= 0f && it <= 250000f }
                 }.getOrNull()
+                val freshHourlySteps = if (stepsGranted) runCatching {
+                    SamsungStepCollector.readHourly(store, day, until)
+                }.getOrNull() else null
                 val freshDay = JSONObject().put("date", day.toString())
                     .put("activeMinutes", minutes).apply {
                         if (activeCalories != null) put("activeCaloriesKcal", activeCalories.toDouble())
@@ -121,6 +130,7 @@ object SamsungHealthDirectPilot {
                         val target = File(activity.filesDir, "samsung-direct-$profile.json")
                         val entries = LinkedHashMap<String, JSONObject>()
                         var sameDay: JSONObject? = null
+                        var previousLocalRecords: JSONObject? = null
                         if (target.isFile) {
                             val old = JSONObject(target.readText(Charsets.UTF_8))
                             check(old.optString("profile") == profile) {
@@ -129,7 +139,8 @@ object SamsungHealthDirectPilot {
                             check(Regex("^healthhub\\.samsung\\.daily/1(\\.\\d+)?$").matches(old.optString("schemaVersion"))) {
                                 "Ismeretlen helyi Samsung-formátum"
                             }
-                            val days = old.optJSONObject("records")?.optJSONArray("dailySummary")
+                            previousLocalRecords = old.optJSONObject("records")
+                            val days = previousLocalRecords?.optJSONArray("dailySummary")
                             if (days != null) for (i in 0 until days.length()) {
                                 val row = days.optJSONObject(i) ?: continue
                                 val key = row.optString("date")
@@ -142,14 +153,21 @@ object SamsungHealthDirectPilot {
                             }
                         }
                         entries[day.toString()] = mergeDay(sameDay, freshDay)
+                        val localRecords = JSONObject().put("dailySummary", JSONArray().also { array ->
+                            entries.toSortedMap().values.forEach { array.put(it) }
+                        })
+                        SamsungStepCollector.mergeHourly(
+                            previousLocalRecords?.optJSONArray("hourlySteps"), freshHourlySteps, day
+                        )?.let { localRecords.put("hourlySteps", it) }
+                        previousLocalRecords?.optJSONArray("exerciseSessions")?.let {
+                            localRecords.put("exerciseSessions", it)
+                        }
                         val payload = JSONObject()
                             .put("schemaVersion", "healthhub.samsung.daily/1")
                             .put("profile", profile)
                             .put("exportedAt", Instant.now().toString())
                             .put("source", "samsung-health-data-sdk-1.1.0")
-                            .put("records", JSONObject().put("dailySummary", JSONArray().also { array ->
-                                entries.toSortedMap().values.forEach { array.put(it) }
-                            }))
+                            .put("records", localRecords)
                         val tmp = File.createTempFile("samsung-direct-", ".tmp", activity.filesDir)
                         try {
                             tmp.writeText(payload.toString(2) + "\n", Charsets.UTF_8)
@@ -208,9 +226,11 @@ object SamsungHealthDirectPilot {
                         entries.toSortedMap().values.forEach { array.put(it) }
                     })
                     val oldRecords = carry?.optJSONObject("records")
-                    for (field in listOf("hourlySteps", "exerciseSessions")) {
-                        val extra = oldRecords?.optJSONArray(field)
-                        if (extra != null) records.put(field, extra)
+                    SamsungStepCollector.mergeHourly(
+                        oldRecords?.optJSONArray("hourlySteps"), freshHourlySteps, day
+                    )?.let { records.put("hourlySteps", it) }
+                    oldRecords?.optJSONArray("exerciseSessions")?.let {
+                        records.put("exerciseSessions", it)
                     }
                     val output = JSONObject()
                         .put("schemaVersion", "healthhub.samsung.daily/1")
