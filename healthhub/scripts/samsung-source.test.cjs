@@ -40,5 +40,20 @@ assert.equal(api.merge(original,{status:'not_connected',data:null},'monika'),ori
  const ready=await api.load('monika',goodVault);assert.equal(ready.status,'ready');
  const offline=await api.load('monika',{connected:()=>false,downloadJson:()=>{throw Error('unexpected')}});assert.equal(offline.status,'unavailable');
  const absent=await api.load('monika',{connected:()=>true,downloadJson:async()=>{let e=Error('not found');e.status=409;throw e}});assert.equal(absent.status,'not_connected');
- console.log('Samsung Health v371 source-adapter tests: PASS (13 assertions/groups).');
+ assert.equal(absent.readError,'missing-file');
+ for(const [error,expected] of [
+   [{status:401},'http-401'],
+   [{status:403},'http-403'],
+   [{status:429},'http-429'],
+   [{status:503},'http-5xx'],
+   [new Error('invalid_grant'),'auth'],
+   [new Error('Failed to fetch'),'network'],
+   [new Error('Unexpected failure'),'unknown']
+ ]){
+   const actual=await api.load('monika',{connected:()=>true,downloadJson:async()=>{throw error}});
+   assert.equal(actual.status,'unavailable');
+   assert.equal(actual.readError,expected);
+   assert.equal(actual.data,null);
+ }
+ console.log('Samsung Health source-adapter: PASS (HTTP/auth/network failure classification).');
 })().catch(e=>{console.error(e);process.exitCode=1});

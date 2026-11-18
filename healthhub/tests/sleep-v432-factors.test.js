@@ -88,6 +88,6 @@ assert.match(source,/\x27hhSleepOxygenCard1157\x27/,
  'Single SpO2 card must be bound to the Samsung overlay by stable id');
 assert.match(html,/sleep-three-views-v428\.css\?v=1154-sleep-data-audit/,
  'New preview CSS must not be served from old cache');
-assert.match(html,/live-v170\.js\?v=1159-watch9-account-status/,
+assert.match(html,/live-v170\.js\?v=1160-watch9-http-diagnostics/,
  'New Sleep renderer must not be served from old cache');
 console.log('Sleep v1157 migration PASS: seven base tiles with one SpO2, compact source-aware 12-tile view, no cross-profile fallback');
