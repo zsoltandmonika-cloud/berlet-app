@@ -198,9 +198,11 @@ class SamsungDirectBackgroundWorker(
                         // data after this measurement began. Do not overwrite it.
                         return@withLock
                     }
+                    // Cloud wins for previously completed days; this device
+                    // only overwrites its newly measured date.
                     val historical = linkedMapOf<String, JSONObject>()
-                    addPrevious(historical, cloud, today, measuredDay)
                     historical.putAll(entries)
+                    addPrevious(historical, cloud, today, measuredDay)
                     entries.clear()
                     entries.putAll(historical)
                 }
