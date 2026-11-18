@@ -684,7 +684,7 @@ window.addEventListener('healthhub:healthconnect-imported',function(event){
  refreshIfOpen(event);
 });
 window.addEventListener('focus',function(){recheckActivityWhenVisible()});
-document.addEventListener('visibilitychange',function(){if(!document.hidden)recheckActivityWhenVisible()});
+if(typeof document.addEventListener==='function')document.addEventListener('visibilitychange',function(){if(!document.hidden)recheckActivityWhenVisible()});
 setInterval(recheckActivityWhenVisible,60000);
 window.hhCloseActivity=function(){var p=document.getElementById('hhActivityPage191');if(p)p.classList.remove('on');window.hh191CloseModal()}
 function wire(){var btn=Array.from(document.querySelectorAll('.homeModule')).find(function(x){var b=x.querySelector('b');return b&&b.textContent.trim()==='Activity'});if(btn){btn.removeAttribute('onclick');btn.onclick=function(e){e.preventDefault();window.hhOpenActivity()};btn.style.cursor='pointer'}}
