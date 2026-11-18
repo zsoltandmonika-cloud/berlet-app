@@ -648,12 +648,6 @@ class MainActivity : ComponentActivity() {
             // Private opt-in canary only. No Samsung SDK background sync in the
             // normal 0.15.20 OTA or in the standalone .samsungpilot package.
             if (BuildConfig.HH_SAMSUNG_DIRECT_CANDIDATE) {
-                val samsungBackgroundStatusLabel = TextView(this).apply {
-                    text = "Samsung Direct · tesztüzemmód: 1 óránként. Az állapot itt, a gomb alatt jelenik meg."
-                    textSize = 14f
-                    setTextColor(0xFF315F98.toInt())
-                    setPadding(0, 6, 0, 10)
-                }
                 root.addView(Button(this).apply {
                     text = if (prefs.getBoolean("samsung_direct_background_enabled", false))
                         "🕒 Samsung automatikus szinkron · KIKAPCSOLÁS"
@@ -682,14 +676,12 @@ class MainActivity : ComponentActivity() {
                             else
                                 "🕒 Samsung automatikus szinkron · BEKAPCSOLÁS"
                             status.text = if (next)
-                                "✓ Samsung Direct háttérszinkron bekapcsolva (1 óránként, csak teszt). A Health Connect szinkron változatlan."
+                                "✓ Samsung Direct háttérszinkron bekapcsolva (3 óránként). A Health Connect szinkron változatlan."
                             else
                                 "✓ Samsung Direct háttérszinkron kikapcsolva. A Health Connect szinkron változatlan."
-                            samsungBackgroundStatusLabel.text = status.text
                         } catch (e: Exception) {
                             val reason = (e.cause?.message ?: e.message ?: "ismeretlen hiba").take(190)
                             status.text = "Samsung Direct: $reason"
-                            samsungBackgroundStatusLabel.text = status.text
                         }
                     }
                 })
@@ -703,14 +695,11 @@ class MainActivity : ComponentActivity() {
                             val samsungBackgroundInstance = bridge.getField("INSTANCE").get(null)
                             status.text = bridge.getMethod("status", Context::class.java)
                                 .invoke(samsungBackgroundInstance, this@MainActivity).toString()
-                            samsungBackgroundStatusLabel.text = status.text
                         } catch (_: Exception) {
                             status.text = "Samsung automatikus szinkron állapota nem érhető el."
-                            samsungBackgroundStatusLabel.text = status.text
                         }
                     }
                 })
-                root.addView(samsungBackgroundStatusLabel)
             }
         }
         if (BuildConfig.HH_SAMSUNG_DIRECT_AVAILABLE) {
