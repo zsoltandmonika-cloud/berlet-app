@@ -67,6 +67,13 @@ object SamsungHealthDirectPilot {
                     store.getGrantedPermissions(permission).containsAll(permission) ||
                         store.requestPermissions(permission, activity).containsAll(permission)
                 }.getOrDefault(false)
+                // Separate, optional EXERCISE permission. A denial cannot block
+                // steps, active time, or existing Beta session history.
+                val exerciseGranted = runCatching {
+                    val permission = SamsungExerciseCollector.readPermission
+                    store.getGrantedPermissions(permission).containsAll(permission) ||
+                        store.requestPermissions(permission, activity).containsAll(permission)
+                }.getOrDefault(false)
                 // Read today first. Just after midnight Samsung Health can have
                 // no ACTIVITY_SUMMARY for the new day, so try yesterday as a
                 // *separately dated* fallback. Never relabel yesterday as today.
@@ -112,6 +119,11 @@ object SamsungHealthDirectPilot {
                 }.getOrNull()
                 val freshHourlySteps = if (stepsGranted) runCatching {
                     SamsungStepCollector.readHourly(store, day, until)
+                }.getOrNull() else null
+                val freshExerciseSessions = if (exerciseGranted) runCatching {
+                    SamsungExerciseCollector.readRecent(
+                        store, today.minusDays(30).atStartOfDay(), LocalDateTime.now()
+                    )
                 }.getOrNull() else null
                 val freshDay = JSONObject().put("date", day.toString())
                     .put("activeMinutes", minutes).apply {
@@ -159,9 +171,9 @@ object SamsungHealthDirectPilot {
                         SamsungStepCollector.mergeHourly(
                             previousLocalRecords?.optJSONArray("hourlySteps"), freshHourlySteps, day
                         )?.let { localRecords.put("hourlySteps", it) }
-                        previousLocalRecords?.optJSONArray("exerciseSessions")?.let {
-                            localRecords.put("exerciseSessions", it)
-                        }
+                        SamsungExerciseCollector.mergeSessions(
+                            previousLocalRecords?.optJSONArray("exerciseSessions"), freshExerciseSessions
+                        )?.let { localRecords.put("exerciseSessions", it) }
                         val payload = JSONObject()
                             .put("schemaVersion", "healthhub.samsung.daily/1")
                             .put("profile", profile)
@@ -229,9 +241,9 @@ object SamsungHealthDirectPilot {
                     SamsungStepCollector.mergeHourly(
                         oldRecords?.optJSONArray("hourlySteps"), freshHourlySteps, day
                     )?.let { records.put("hourlySteps", it) }
-                    oldRecords?.optJSONArray("exerciseSessions")?.let {
-                        records.put("exerciseSessions", it)
-                    }
+                    SamsungExerciseCollector.mergeSessions(
+                        oldRecords?.optJSONArray("exerciseSessions"), freshExerciseSessions
+                    )?.let { records.put("exerciseSessions", it) }
                     val output = JSONObject()
                         .put("schemaVersion", "healthhub.samsung.daily/1")
                         .put("profile", profile)
