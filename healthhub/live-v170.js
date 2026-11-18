@@ -552,6 +552,28 @@ function hhSleepWatch9Markup(profile,result){
    '<span class="hhSleepFactorStatus381 '+(value==='—'?'muted':'info')+'">'+esc(source)+'</span>'+
    '<small class="hhSleepFactorDetail381">'+esc(detail)+'</small></div>';
  }
+ // Never confuse the last successful activity upload with an actual overnight read.
+ // Reuse each tile's existing detail text so the compact 12-tile layout is unchanged.
+ var samsungState=result&&result.status||'not_loaded';
+ var sourceDetail={
+   unavailable:'Samsung-fájl nem érhető el',
+   not_connected:'Samsung-fájl nem kapcsolódik',
+   invalid:'Samsung-fájl hibás vagy más profilú',
+   not_loaded:'Samsung-adatforrás nem indult'
+ }[samsungState]||'';
+ if(samsungState==='ready'){
+   sourceDetail=sleeps.length||scores.length?
+     'Samsung-fájl megvan; hiányzó mért érték':
+     'Samsung-fájl megvan, nincs wellness-rekord';
+ }
+ var sleepDetail=sleep?
+   (sleep.sleepScore==null?'Samsung-alvás megvan, pontszám nincs':sleep.date||'Mért éjszaka'):
+   (sleeps.length?'Nincs friss Samsung-alvás (72 óra)':sourceDetail);
+ var energyDetail=energy?
+   (energy.energyScore==null?'Samsung-energia pontszám hiányzik':energy.date):
+   (scores.length?'Nincs friss Energy Score (72 óra)':sourceDetail);
+ var skinDetail=skin?'Mért éjszakai bőrhőmérséklet':
+   (sleep?'Samsung éjszakai hőmérséklet nincs':sourceDetail);
  var sleepScore=sleep&&sleep.sleepScore!=null?num(sleep.sleepScore,0):'—';
  var energyScore=energy&&energy.energyScore!=null?num(energy.energyScore,0):'—';
  var temp=skin&&skin.minCelsius!=null&&skin.maxCelsius!=null?
@@ -560,11 +582,11 @@ function hhSleepWatch9Markup(profile,result){
  var hrv=hc.hrv?num(hc.hrv.rmssdMs,1):'—';
  var respiration=hc.respiratory?num(hc.respiratory.breathsPerMinute,1):'—';
  return tile('sleep-score','🌙','Sleep Score',sleepScore,'/100',
-    sleep?sleep.date||'Utolsó mért éjszaka':'Nincs Samsung-pontszám','Samsung')+
+    sleepDetail,'Samsung')+
   tile('energy-score','⚡','Energy Score',energyScore,'/100',
-    energy?energy.date:'Nincs Samsung-pontszám','Samsung')+
+    energyDetail,'Samsung')+
   tile('skin-temperature','🌡️','Bőrhőmérséklet',temp,'°C',
-    skin?'Mért éjszakai bőrhőmérséklet':'Nincs éjszakai mérés','Samsung')+
+    skinDetail,'Samsung')+
   tile('hrv','💗','HRV',hrv,'ms',
     hc.hrv?fmtDate(hc.hrv.time):'Nincs éjszakai HC-mérés','Health Connect')+
   tile('respiratory-rate','🌬️','Légzésszám',respiration,'/perc',
