@@ -53,7 +53,7 @@ ctx=environment(true,{pulse:null,oxygen:null});render=ctx.sleepFactorCards381(ni
 assert.match(render,/Éjszakai pulzus/,'Empty pulse measurement still reserves matching card');
 assert.match(render,/Nincs éjszakai pulzusadat/,'Empty data must be clearly identified, not invented');
 assert.match(render,/Véroxigén \(SpO₂\)/,'All profiles keep the same supplemental measurement group');
-assert.match(render,/Nincs éjjeli mérés/,'Missing oxygen measurement is not filled with a guess');
+assert.match(render,/Nincs éjszakai HC-mérés/,'Missing oxygen measurement is not filled with a guess');
 assert.equal((render.match(/hhSleepFactor381 hhSleepRag382/g)||[]).length,7,
  'Seven stable core tiles when optional oxygen is absent, with no invented value');
 ctx=environment(false,{pulse:null,oxygen:null});render=ctx.sleepFactorCards381(night,'zsolt');
