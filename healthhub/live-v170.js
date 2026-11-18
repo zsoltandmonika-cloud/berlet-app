@@ -574,6 +574,10 @@ function hhSleepWatch9Markup(profile,result){
    (scores.length?'Nincs friss Energy Score (72 óra)':sourceDetail);
  var skinDetail=skin?'Mért éjszakai bőrhőmérséklet':
    (sleep?'Samsung éjszakai hőmérséklet nincs':sourceDetail);
+ var samsungBadge=samsungState!=='ready'?'Forrás hiányzik':'Samsung';
+ var sleepBadge=sleep&&sleep.sleepScore!=null?'Samsung':samsungBadge==='Samsung'?'Nincs pontszám':samsungBadge;
+ var energyBadge=energy&&energy.energyScore!=null?'Samsung':samsungBadge==='Samsung'?'Nincs pontszám':samsungBadge;
+ var skinBadge=skin?'Samsung':samsungBadge==='Samsung'?'Nincs mérés':samsungBadge;
  var sleepScore=sleep&&sleep.sleepScore!=null?num(sleep.sleepScore,0):'—';
  var energyScore=energy&&energy.energyScore!=null?num(energy.energyScore,0):'—';
  var temp=skin&&skin.minCelsius!=null&&skin.maxCelsius!=null?
@@ -582,11 +586,11 @@ function hhSleepWatch9Markup(profile,result){
  var hrv=hc.hrv?num(hc.hrv.rmssdMs,1):'—';
  var respiration=hc.respiratory?num(hc.respiratory.breathsPerMinute,1):'—';
  return tile('sleep-score','🌙','Sleep Score',sleepScore,'/100',
-    sleepDetail,'Samsung')+
+    sleepDetail,sleepBadge)+
   tile('energy-score','⚡','Energy Score',energyScore,'/100',
-    energyDetail,'Samsung')+
+    energyDetail,energyBadge)+
   tile('skin-temperature','🌡️','Bőrhőmérséklet',temp,'°C',
-    skinDetail,'Samsung')+
+    skinDetail,skinBadge)+
   tile('hrv','💗','HRV',hrv,'ms',
     hc.hrv?fmtDate(hc.hrv.time):'Nincs éjszakai HC-mérés','Health Connect')+
   tile('respiratory-rate','🌬️','Légzésszám',respiration,'/perc',
