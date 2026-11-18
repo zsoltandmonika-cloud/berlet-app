@@ -41,6 +41,14 @@ val hhSamsungPilotEnabled = hhSamsungPilotRequested && hhSamsungPilotAar.isFile
 val hhSamsungIntegratedCandidateEnabled =
     hhSamsungIntegratedCandidateRequested && hhSamsungPilotAar.isFile
 val hhSamsungDirectEnabled = hhSamsungPilotEnabled || hhSamsungIntegratedCandidateEnabled
+// A candidate bearing the actual HH One package must never be produced unsigned.
+// This does NOT establish Samsung partner approval, and it does NOT publish OTA.
+if (hhSamsungIntegratedCandidateEnabled &&
+    listOf("HH_OTA_KEYSTORE_PATH", "HH_OTA_KEYSTORE_PASSWORD",
+           "HH_OTA_KEY_ALIAS", "HH_OTA_KEY_PASSWORD")
+        .any { System.getenv(it).isNullOrBlank() }) {
+    error("Samsung integrated candidate requires the existing HH One OTA signing credentials.")
+}
 
 android {
     namespace = "hu.zsoltmonika.healthhubbridge"
