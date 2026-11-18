@@ -201,7 +201,7 @@ class MainActivity : ComponentActivity() {
     ) { uri ->
         val owner = pendingSamsungExportProfile
         pendingSamsungExportProfile = null
-        if (uri != null && owner != null && BuildConfig.HH_SAMSUNG_DIRECT_PILOT) {
+        if (uri != null && owner != null && BuildConfig.HH_SAMSUNG_DIRECT_AVAILABLE) {
             scope.launch {
                 try {
                     check(deviceOwnerProfile() == owner) { "Telefonprofil megváltozott" }
@@ -304,7 +304,7 @@ class MainActivity : ComponentActivity() {
         // Never rely on the legacy SH9_START_DEFAULT preference, which can be OFF
         // on already installed phones and otherwise traps users in two entrypoints.
         if (savedInstanceState == null &&
-            !BuildConfig.HH_SAMSUNG_DIRECT_PILOT &&
+            !BuildConfig.HH_SAMSUNG_DIRECT_AVAILABLE &&
             intent?.getBooleanExtra("openNativeSettings", false) != true &&
             intent?.data == null) {
             openSh9WithRemoteAdminConsent()
@@ -630,9 +630,12 @@ class MainActivity : ComponentActivity() {
                 }
             })
         }
-        if (BuildConfig.HH_SAMSUNG_DIRECT_PILOT) {
+        if (BuildConfig.HH_SAMSUNG_DIRECT_AVAILABLE) {
             root.addView(TextView(this).apply {
-                text = "Samsung Direct: valódi mérések helyben. Nem használ beépített böngészőt vagy Dropbox-belépést."
+                text = if (BuildConfig.HH_SAMSUNG_DIRECT_PILOT)
+                    "Samsung Direct: valódi mérések helyben. Nem használ beépített böngészőt vagy Dropbox-belépést."
+                else
+                    "Samsung Direct: helyi mentés és JSON-export tartalékként, a meglévő HH One Dropbox használata mellett."
                 textSize = 14f
                 setTextColor(0xFF315F98.toInt())
             })
