@@ -194,7 +194,7 @@ object SamsungHealthDirectPilot {
                     DropboxVaultClient.ensureFolder(prefs, DropboxVaultClient.PROFILES_DIR)
                     DropboxVaultClient.uploadText(prefs, path, output.toString(2) + "\n")
                 }
-                prefs.edit().putBoolean(SamsungDirectBackgroundSync.KEY_MANUAL_CLOUD_VERIFIED, true).apply()
+                prefs.edit().putString(SamsungDirectBackgroundSync.KEY_MANUAL_CLOUD_VERIFIED_OWNER, profile).apply()
                 toast(activity, "Samsung Direct: $minutes mért $dayLabel aktív perc átadva a saját Dropbox-profilnak.")
             } catch (cancel: CancellationException) {
                 throw cancel
