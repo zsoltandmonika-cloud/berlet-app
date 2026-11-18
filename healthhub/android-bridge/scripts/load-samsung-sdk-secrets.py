@@ -29,7 +29,7 @@ OUTPUT = (
 def load() -> None:
     chunks = []
     for i in range(CHUNK_COUNT):
-        value = os.getenv(f"HH_SAMSUNG_SDK_AAR_B64_{i:02d}", "")
+        value = os.getenv(f"HH_SAMSUNG_SDK_AAR_B64_{i:02d}", "").strip()
         if not value:
             raise ValueError(
                 "Samsung private SDK encrypted secrets are incomplete; "
