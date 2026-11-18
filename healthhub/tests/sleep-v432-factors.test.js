@@ -45,17 +45,17 @@ assert.doesNotMatch(render,/Saját, becsült pihenésindex · nem Samsung-pontsz
  'Redundant long index disclaimer is removed from visible card');
 assert.match(render,/Hogyan számoljuk az alvásindexet/,
  'Detailed disclosure remains in expandable explanation');
-assert.match(render,/Véroxigén \(SpO₂\)/,'Known oxygen reading remains available in a separate, compact information row');
-assert.match(render,/Egyetlen mért perc/,'One SpO2 measurement may not be described as an entire night average');
-assert.equal((render.match(/hhSleepFactor381 hhSleepRag382/g)||[]).length,6,
- 'Exactly six primary, paired cards even when supplemental SpO2 is measured');
+assert.match(render,/Véroxigén \(SpO₂\)/,'Measured oxygen remains available as one compact primary card');
+assert.match(render,/Egyetlen időpont/,'One SpO2 measurement may not be described as an entire night average');
+assert.equal((render.match(/hhSleepFactor381 hhSleepRag382/g)||[]).length,7,
+ 'Six historical primary cards plus one deduplicated SpO2 card');
 ctx=environment(true,{pulse:null,oxygen:null});render=ctx.sleepFactorCards381(night,'zsolt');
 assert.match(render,/Éjszakai pulzus/,'Empty pulse measurement still reserves matching card');
 assert.match(render,/Nincs éjszakai pulzusadat/,'Empty data must be clearly identified, not invented');
 assert.match(render,/Véroxigén \(SpO₂\)/,'All profiles keep the same supplemental measurement group');
 assert.match(render,/Nincs éjjeli mérés/,'Missing oxygen measurement is not filled with a guess');
-assert.equal((render.match(/hhSleepFactor381 hhSleepRag382/g)||[]).length,6,
- 'Exactly six paired basic tiles when optional oxygen is absent');
+assert.equal((render.match(/hhSleepFactor381 hhSleepRag382/g)||[]).length,7,
+ 'Seven stable core tiles when optional oxygen is absent, with no invented value');
 ctx=environment(false,{pulse:null,oxygen:null});render=ctx.sleepFactorCards381(night,'zsolt');
 assert.ok(render.indexOf('Könnyű alvás')>0 && !render.includes('Éjszakai pulzus'),
  'Stable Sleep remains unchanged when preview is off');
@@ -84,10 +84,10 @@ assert.match(css,/#hhSleepPage \.hhSleepFactorsV432 \.hhSleepFactors381\{[^}]*gr
  'Preview tiles must stay two columns at mobile widths');
 assert.match(css,/#hhSleepPage \.hhSleepFactorsV432 \.hhSleepFactor381\{[^}]*grid-column:auto!important/,
  'The light-sleep card cannot expand to full row in the preview');
-assert.match(css,/#hhSleepPage \.hhSleepFactorsV432 \.hhSleepOxygenV432\{/,
- 'Supplemental SpO2 must have a consistent separate layout on both profiles');
+assert.match(source,/id="hhSleepOxygenCard1157"/,
+ 'Single SpO2 card must be bound to the Samsung overlay by stable id');
 assert.match(html,/sleep-three-views-v428\.css\?v=1154-sleep-data-audit/,
  'New preview CSS must not be served from old cache');
-assert.match(html,/live-v170\.js\?v=1154-sleep-data-audit/,
+assert.match(html,/live-v170\.js\?v=1157-watch9-compact-12/,
  'New Sleep renderer must not be served from old cache');
-console.log('Sleep v433 migration PASS: paired pulse/light, clear missing measurements, source-aligned night, no redundant subtitle, stable view untouched');
+console.log('Sleep v1157 migration PASS: seven base tiles with one SpO2, compact source-aware 12-tile view, no cross-profile fallback');
