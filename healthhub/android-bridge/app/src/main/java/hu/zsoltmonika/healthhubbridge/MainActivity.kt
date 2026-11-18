@@ -147,6 +147,19 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    // Optional Watch9 vitals are owner-consented and remain isolated from
+    // required Health Connect permissions and automatic synchronization.
+    private val watchVitalsPermissionLauncher = registerForActivityResult(
+        PermissionController.createRequestPermissionResultContract()
+    ) { granted ->
+        val enabled = granted.intersect(HealthConnectExporter.OPTIONAL_WATCH_VITALS_PERMISSIONS)
+        status.text = if (enabled.isNotEmpty()) {
+            "✓ Watch9 extra adatok: ${enabled.size}/3 hozzáférés engedélyezve. Az elérhető rekordok a következő szinkronnál olvashatók."
+        } else {
+            "ℹ️ Watch9 extra adatok nem engedélyezve. A normál Health Connect és Dropbox változatlanul működik."
+        }
+    }
+
     private val backgroundPermissionLauncher = registerForActivityResult(
         PermissionController.createRequestPermissionResultContract()
     ) { granted ->
@@ -1361,6 +1374,30 @@ class MainActivity : ComponentActivity() {
             }
         })
 
+
+        root.addView(Button(this).apply {
+            text = "⌚ Watch9 · HRV, légzésszám, bőrhőmérséklet engedélyezése"
+            setOnClickListener {
+                scope.launch {
+                    val hc = client ?: run {
+                        status.text = "Health Connect nem elérhető."
+                        return@launch
+                    }
+                    try {
+                        val granted = hc.permissionController.getGrantedPermissions()
+                        val optional = HealthConnectExporter.OPTIONAL_WATCH_VITALS_PERMISSIONS
+                        val missing = optional - granted
+                        if (missing.isEmpty()) {
+                            status.text = "✓ A Watch9 extra Health Connect hozzáférések már megvannak. Indíts SYNC NOW-t."
+                        } else {
+                            watchVitalsPermissionLauncher.launch(missing)
+                        }
+                    } catch (e: Exception) {
+                        status.text = "Watch9 extra jogosultság: " + e.javaClass.simpleName
+                    }
+                }
+            }
+        })
 
         root.addView(TextView(this).apply {
             text = "🛡️ Self-Healing Connect · automatikus újracsatlakozás"
