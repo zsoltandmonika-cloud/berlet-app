@@ -96,5 +96,9 @@ test('Renderer inserts five extra tiles inside same original factors grid, no se
  assert.match(sleep,/hhSleepWatch9Oxygen1157\(profile,result\)/);
  assert.match(sleep,/renderId===sleepRenderSeq&&pkey\(\)===profile/);
  assert.match(sleep,/sourceStatus==='verified-cloud'/);
+ assert.ok(sleep.includes("if(!preview&&['zsolt','monika'].includes(requestedProfile))"),
+   'Verified Samsung source loads independent of Health Connect cloud freshness');
+ assert.ok(!sleep.includes("window.hhSleepSourceMeta.source==='Dropbox / Health Connect'&&"),
+   'Do not block the owner-scoped Samsung cloud file on HC status');
  assert.match(index,/live-v170\.js\?v=1158-watch9-samsung-source/);
 });
