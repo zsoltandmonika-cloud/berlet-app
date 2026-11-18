@@ -174,6 +174,14 @@ class SamsungDirectBackgroundWorker(
                 val value: Float? = store.aggregateData(request).dataList.firstOrNull()?.value
                 value?.takeIf { it.isFinite() && it >= 0f && it <= 250000f }
             }.getOrNull()
+            // WorkManager never opens a permission dialog. Missing consent or
+            // a Samsung SDK error leaves any already-known hourly steps intact.
+            val freshHourlySteps = runCatching {
+                val stepPermission = SamsungStepCollector.readPermission
+                if (store.getGrantedPermissions(stepPermission).containsAll(stepPermission)) {
+                    SamsungStepCollector.readHourly(store, measuredDay, until)
+                } else null
+            }.getOrNull()
             val freshRow = JSONObject()
                 .put("date", measuredDay.toString())
                 .put("activeMinutes", activeMinutes)
@@ -203,7 +211,9 @@ class SamsungDirectBackgroundWorker(
 
                 // Save the verified reading before network activity, keeping any
                 // previously collected Samsung Beta supplementary records.
-                val localSnapshot = snapshot(owner, entries, Instant.now(), supplemental)
+                val localSnapshot = snapshot(
+                    owner, entries, Instant.now(), supplemental, freshHourlySteps, measuredDay
+                )
                 withContext(Dispatchers.IO) {
                     val temp = File.createTempFile("samsung-direct-", ".tmp", applicationContext.filesDir)
                     try {
@@ -243,7 +253,9 @@ class SamsungDirectBackgroundWorker(
                 }
                 DropboxVaultClient.ensureFolder(prefs, DropboxVaultClient.ROOT)
                 DropboxVaultClient.ensureFolder(prefs, DropboxVaultClient.PROFILES_DIR)
-                val uploaded = snapshot(owner, entries, Instant.now(), supplemental)
+                val uploaded = snapshot(
+                    owner, entries, Instant.now(), supplemental, freshHourlySteps, measuredDay
+                )
                 DropboxVaultClient.uploadText(prefs, cloudPath, uploaded.toString(2) + "\n")
                 // Upload acceptance is not a success: verify the persisted owner
                 // and exact snapshot before recording a green status.
@@ -316,7 +328,9 @@ class SamsungDirectBackgroundWorker(
         owner: String,
         days: Map<String, JSONObject>,
         time: Instant,
-        carry: JSONObject?
+        carry: JSONObject?,
+        freshHourlySteps: JSONArray?,
+        measuredDay: LocalDate
     ): JSONObject {
         val records = JSONObject().put("dailySummary", JSONArray().also { array ->
             days.toSortedMap().values.forEach { array.put(it) }
@@ -324,9 +338,11 @@ class SamsungDirectBackgroundWorker(
         // Retain Beta's hourly steps and exercise sessions until the unified
         // collector has proven parity. A new daily reading must not delete them.
         val oldRecords = carry?.optJSONObject("records")
-        for (field in listOf("hourlySteps", "exerciseSessions")) {
-            val existing = oldRecords?.optJSONArray(field)
-            if (existing != null) records.put(field, existing)
+        SamsungStepCollector.mergeHourly(
+            oldRecords?.optJSONArray("hourlySteps"), freshHourlySteps, measuredDay
+        )?.let { records.put("hourlySteps", it) }
+        oldRecords?.optJSONArray("exerciseSessions")?.let {
+            records.put("exerciseSessions", it)
         }
         return JSONObject()
             .put("schemaVersion", "healthhub.samsung.daily/1")
