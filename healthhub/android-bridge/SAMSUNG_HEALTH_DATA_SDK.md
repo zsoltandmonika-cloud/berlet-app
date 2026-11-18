@@ -2,6 +2,22 @@
 
 # Samsung Health Data SDK: HealthHub közvetlen napi aktivitásadatok (v371)
 
+## 2026-11-18 · 0.15.21 privát háttérszinkron-canary előkészítve
+
+A `SamsungDirectBackgroundSync.kt` az explicit Samsung SDK-fordítási ágba került. **Az éles OTA nem változott.** A jelölt kiadáshoz manuális, sikeres Samsung SDK → azonos tulajdonosú Dropbox-feltöltés szükséges a háttérszinkron bekapcsolása előtt.
+
+- A normál 0.15.20-ban és a külön V6 Pilotban **nincs automatikusan bekapcsolt Samsung SDK-szinkron**.
+- A 0.15.21 integrált, privát jelölt kiadás natív HH One képernyőjén külön **BE/KI** gomb és állapotgomb készül. Az opt-in `samsung_direct_background_enabled` alapból `false`.
+- A manuális Samsung SDK-feltöltés után a tulajdonosi profilhoz kötve rögzül `samsung_direct_manual_cloud_verified_owner`. Másik profilra ez nem öröklődik.
+- Bekapcsoláskor WorkManager 3 órás ütemezéssel futtat Samsung-olvasást meglévő Samsung-engedéllyel. Háttérben **nem kér új engedélyt**, és nem nyit böngészőt; hiányzó engedély/adat esetén nem talál ki mérést.
+- A Samsung SDK napi adatok lokálisan mentődnek, majd külön `/HealthHub/profiles/<owner>-samsung-health.json` fájlba kerülnek; a Health Connect export érintetlen. A privát manual és background műveletek közös mutexet használnak; a felhő korábbi napjait és frissebb exportjait védjük.
+- Samsung/Dropbox hiba esetén a háttérszinkron saját állapotot rögzít, **nem állítja le a Health Connect meglévő WorkManager-folyamatát**.
+- GitHub CI: a Samsung szerződéstesztek **statikus, forráskódalapú** ellenőrzések; a normál debug build SDK nélkül fordul. A privát AAR-rel fordított **0.15.21 build és fizikai Samsung teszt még hiányzik**.
+
+**Aktuális blokkoló:** a gyártói AAR külön privát helyi SDK, míg a stabil OTA eredeti signing key-je a GitHub Actions titka. A két erőforrás nincs egy közös, biztonságos és ellenőrzött build-környezetben. Nem készül érvényesen aláírt 0.15.21 APK pusztán egy source-commitból. A kiadási terv ezután: (1) csak Zsolt részére privát signolt candidate build, (2) kézi SDK és Dropbox-próba, (3) opt-in háttérszinkron valódi telefonon, (4) Mónika saját körös ellenőrzése, (5) Samsung partnerregisztráció és éles rollout csak megfelelőségi ellenőrzés után.
+
+
+
 ## 2026-11-18 · HH One 0.15.21 OTA előkészítés (NEM kiadott változat)
 
 **Bizonyított telefonos alap:** Zsolt Samsung Direct V6 privát alkalmazása valódi, 2026-11-17-i 44 perc aktív időt olvasott, helyben tárolt, majd Android JSON-dokumentumként exportált. A JSON `healthhub.samsung.daily/1` formátumú, a webes importtal kompatibilis. Ez **nem jelenti** az automatikus felhőszinkron vagy a normál HH One Samsung SDK-kapcsolatának működését.
