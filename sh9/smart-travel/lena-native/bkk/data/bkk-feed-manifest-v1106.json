@@ -1,10 +1,10 @@
 {
   "schema": "sh9.bkk.feed-manifest/1",
   "filename": "bkk-selected-routes-v1106.json",
-  "sha256": "09a7db8694339af4d5a86cd096d467fe1f93913d04665f23914805f1151c1f04",
-  "sourceSha256": "86e49815a2ee716c76112e77d154a398478dba490be52ad181c76851b40b3a34",
+  "sha256": "91ad3eaccafc110d473a240d7c9699ff9c36b0741dcdb5d75c8832d92663681f",
+  "sourceSha256": "da7d38ebeb3b86709b796028e73bf1f3fd78c544871e158fd322ddca1f9b1b2a",
   "bytes": 5067250,
-  "validatedAt": "2026-11-17T12:07:22.811935Z",
+  "validatedAt": "2026-11-18T11:57:32.202926Z",
   "source": "BKK Zrt., CC BY 4.0",
   "license": "CC-BY-4.0",
   "routes": [
@@ -24,7 +24,7 @@
   "tripCount": 7206,
   "feedStart": "2026-11-15",
   "feedEnd": "2027-01-01",
-  "generatedAt": "2026-11-17T12:07:04Z",
+  "generatedAt": "2026-11-18T11:57:21Z",
   "coverage": "stop-to-stop",
   "live": false
 }
