@@ -775,9 +775,9 @@ function paintSleep(rows,requestedProfile,renderId,perfStarted,preview,exportedA
    stageBar(night)+
    (window.HH_SLEEP_VISUAL_V427&&window.HH_SLEEP_VISUAL_V427_ENABLED===true?window.HH_SLEEP_VISUAL_V427.render(rows,requestedProfile):'')
   ):'<div class="hhSleepEmpty big">Még nincs Health Connect alvásadat ennél a profilnál.</div>';
+ var sourceFooter='<div class="hhSleepCacheStatusV3 hhSleepPremiumSync" data-hh-sleep-source="'+sourceStatus+'" role="status">'+sourceNotice+'</div>';
  page.innerHTML=heroHtml()+'<div class="surface hhSleepSurface">'+
  '<div class="hhSleepTop"><div><small>HEALTH CONNECT · '+esc(requestedProfile==='monika'?'MÓNIKA':'ZSOLT')+'</small><h2>Alvás és regeneráció</h2></div><button class="hhSleepProfile" onclick="hhSleepToggleProfile(event)" aria-label="Váltás '+esc(otherName())+' profiljára">'+esc(pname())+'</button><span id="hhSleepRagBuddyV1146" class="hhSleepRagBuddyV1146" data-rag="unknown" role="img" aria-label="Buddy: az éjszakai alvásidő nem ismert"><span class="hhSleepRagBuddyFaceV1146" aria-hidden="true"></span></span></div>'+
- '<div class="hhSleepCacheStatusV3" data-hh-sleep-source="'+sourceStatus+'" role="status" style="background:rgba(17,67,102,.08);border:1px solid rgba(53,105,153,.20);border-radius:12px;padding:9px 11px;font-size:10px;font-weight:800;color:#27506b;margin:3px 0 9px">'+sourceNotice+'</div>'+
  sleepContent+
  
  '<div class="hhSleepCard"><div class="hhSleepCardHead"><div><small>TREND</small><h3>Alvásidő</h3></div><div class="hhSleepPeriods"><button class="'+(sleepState.period==='7d'?'on':'')+'" onclick="hhSleepPeriod(\'7d\')">Heti</button><button class="'+(sleepState.period==='30d'?'on':'')+'" onclick="hhSleepPeriod(\'30d\')">Havi</button><button class="'+(sleepState.period==='90d'?'on':'')+'" onclick="hhSleepPeriod(\'90d\')">3 hónap</button></div></div>'+chart(period)+trendSummary(period)+'</div>'+
@@ -790,7 +790,7 @@ function paintSleep(rows,requestedProfile,renderId,perfStarted,preview,exportedA
   '<a href="'+esc(window.location.pathname+'?hh_sleep_v428_preview='+(v428Enabled?'0':'1'))+'">'+
   (v428Enabled?'Korábbi Sleep nézet megnyitása':'Vissza a Golden Standard Sleep oldalra')+'</a>'+
   '<p>Csak a képernyő megjelenését váltja. Nem indít adatfeltöltést, és nem módosítja a szinkronizált méréseket.</p></details>'+
- '<p class="privacyNote">Az alvási adatok tájékoztató jellegűek. A HealthHub nem értékeli diagnosztikusan az alvást.</p></div>'+bottomNav();
+ '<p class="privacyNote">Az alvási adatok tájékoztató jellegűek. A HealthHub nem értékeli diagnosztikusan az alvást.</p>'+sourceFooter+'</div>'+bottomNav();
  // v1157: six compact rows always occupy the same two-column grid.
  // The five optional source tiles never block the HC Sleep first paint.
  var watchSlot=page.querySelector('#hhSleepWatch9Panel');
