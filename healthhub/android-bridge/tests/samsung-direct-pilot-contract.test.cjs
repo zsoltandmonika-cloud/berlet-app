@@ -64,7 +64,7 @@ test('Samsung private pilot checks today then yesterday without changing the dat
 
 test('a valid Samsung activity reading is reported locally without falsely claiming a cloud upload',()=>{
  assert.match(sdk,/DropboxVaultClient\.hasRefreshToken\(prefs\)/);
- assert.match(sdk,/Dropbox nincs csatlakoztatva a Pilothoz; nem történt feltöltés/);
+ assert.match(sdk,/Helyben mentve\. Dropbox nélkül; exportálás a külön gombbal/);
  assert.match(sdk,/stage = "SAMSUNG_ADATOLVASAS"/);
  assert.match(sdk,/stage = "DROPBOX_LETÖLTÉS"/);
  assert.match(sdk,/stage = "DROPBOX_FELTÖLTÉS"/);
@@ -80,7 +80,7 @@ test('Samsung Pilot local-first transport requires no browser, persists measured
  assert.match(sdk,/Dropbox nélkül; exportálás a külön gombbal/);
  assert.match(main,/ActivityResultContracts\.CreateDocument\("application\/json"\)/);
  assert.match(main,/samsungExportLauncher\.launch\("\$owner-samsung-health\.json"\)/);
- assert.match(main,/!BuildConfig\.HH_SAMSUNG_DIRECT_PILOT &&/);
+ assert.match(main,/!BuildConfig\.HH_SAMSUNG_DIRECT_AVAILABLE &&/);
  assert.match(main,/Samsung Direct · mentett adatok exportálása/);
  assert.match(main,/!File\(filesDir, "samsung-direct-\$owner\.json"\)\.isFile/);
 });
@@ -105,4 +105,12 @@ test('candidate HH One 0.15.21 uses the same signed identity and Dropbox, but de
  assert.match(main,/Samsung Direct · 0\.15\.21 canary/);
  assert.match(build,/applicationId = "hu\.zsoltmonika\.healthhubbridge"/);
  assert.match(build,/if \(hhSamsungPilotEnabled\) \{\s*applicationIdSuffix = "\.samsungpilot"/);
+});
+
+test('integrated Samsung Direct export and Dropbox use canonical source marker',()=>{
+ assert.match(sdk,/\.put\("source", "samsung-health-data-sdk-1\.1\.0"\)/g);
+ assert.doesNotMatch(sdk,/\.put\("source", "Samsung Health Data SDK - ACTIVITY_SUMMARY"\)/);
+ assert.match(main,/if \(uri != null && owner != null && BuildConfig\.HH_SAMSUNG_DIRECT_AVAILABLE\) \{/);
+ assert.match(main,/if \(BuildConfig\.HH_SAMSUNG_DIRECT_AVAILABLE\) \{\s*root\.addView\(TextView\(this\)/);
+ assert.match(build,/Samsung integrated candidate requires the existing HH One OTA signing credentials/);
 });
