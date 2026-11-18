@@ -1,7 +1,7 @@
 /* Léna Premium Sleep v1172
    Scoped visual refresh. No changes to measurements, ownership or the 12-tile matrix. */
 #hhSleepPage.hhSleepPage{
- --sl-pink:#f2abd7;--sl-ice:#91cbff;--sl-ink:#f3f7ff;--sl-copy:#c5d4ec;
+ --sl-pink:color-mix(in srgb,var(--a,#ef3f89) 58%,#fff);--sl-ice:#91cbff;--sl-ink:#f3f7ff;--sl-copy:#c5d4ec;
  --sl-glass:linear-gradient(145deg,rgba(50,60,116,.83),rgba(18,34,74,.91));
  --sl-border:rgba(170,203,248,.28);
  --sl-shadow:0 10px 24px rgba(2,10,33,.22),inset 0 1px rgba(255,255,255,.14);
@@ -195,7 +195,7 @@
  border:1px solid rgba(170,191,242,.32)!important;border-bottom:0!important;
  border-radius:18px 18px 0 0!important;box-shadow:0 -7px 25px rgba(1,9,29,.3)!important;
 }
-#sleepGoldenBottom .golden-primary{color:#f2a7d5!important}
+#sleepGoldenBottom .golden-primary{color:var(--sho-a,#f2a7d5)!important}
 #hhSleepPage.hhSleepPage :is(button,a,summary):focus-visible,
 #sleepGoldenTop :is(button,a):focus-visible,#sleepGoldenBottom :is(button,a):focus-visible{outline:2px solid #ffcaeb!important;outline-offset:2px!important}
 @media(max-width:355px){
