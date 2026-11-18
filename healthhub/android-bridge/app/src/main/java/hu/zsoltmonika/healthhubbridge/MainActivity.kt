@@ -57,6 +57,7 @@ import java.security.SecureRandom
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import java.io.File
 
 class MainActivity : ComponentActivity() {
     companion object {
@@ -75,6 +76,7 @@ class MainActivity : ComponentActivity() {
     private lateinit var scheduleSummary: TextView
     private lateinit var scheduleToggleButton: Button
     private var pendingJson: String? = null
+    private var pendingSamsungExportProfile: String? = null
     private var client: HealthConnectClient? = null
     private var pendingAutoSync = false
     // One manual export at a time. Repeated SYNC NOW taps must not overlap
@@ -192,6 +194,42 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    // Private Samsung Direct file export: Android document picker, no OAuth,
+    // embedded browser or Dropbox credentials. The user chooses the destination.
+    private val samsungExportLauncher = registerForActivityResult(
+        ActivityResultContracts.CreateDocument("application/json")
+    ) { uri ->
+        val owner = pendingSamsungExportProfile
+        pendingSamsungExportProfile = null
+        if (uri != null && owner != null && BuildConfig.HH_SAMSUNG_DIRECT_PILOT) {
+            scope.launch {
+                try {
+                    check(deviceOwnerProfile() == owner) { "Telefonprofil megváltozott" }
+                    val source = File(filesDir, "samsung-direct-$owner.json")
+                    val jsonText = withContext(Dispatchers.IO) {
+                        check(source.isFile) { "Nincs mentett Samsung-mérés" }
+                        source.readText(Charsets.UTF_8)
+                    }
+                    val content = JSONObject(jsonText)
+                    check(content.optString("profile") == owner &&
+                        content.optString("schemaVersion") == "healthhub.samsung.daily/1" &&
+                        content.optString("source") == "samsung-health-data-sdk-1.1.0") {
+                        "Eltérő vagy érvénytelen Samsung-export"
+                    }
+                    withContext(Dispatchers.IO) {
+                        contentResolver.openOutputStream(uri)?.use {
+                            it.write(jsonText.toByteArray(Charsets.UTF_8))
+                        } ?: error("Az Android nem engedi a fájl mentését")
+                    }
+                    status.text = "✓ Samsung Direct JSON mentve az általad választott helyre. Nincs szükség Dropbox-belépésre."
+                } catch (e: Exception) {
+                    if (e is kotlinx.coroutines.CancellationException) throw e
+                    status.text = "Samsung fájlexport hiba: " + e.javaClass.simpleName
+                }
+            }
+        }
+    }
+
     private fun completeNativeOAuth(i: Intent?): Boolean {
         // Only a short-lived, one-time OAuth authorization CODE enters through
         // the external Google browser. No access/refresh tokens cross an intent.
@@ -266,6 +304,7 @@ class MainActivity : ComponentActivity() {
         // Never rely on the legacy SH9_START_DEFAULT preference, which can be OFF
         // on already installed phones and otherwise traps users in two entrypoints.
         if (savedInstanceState == null &&
+            !BuildConfig.HH_SAMSUNG_DIRECT_PILOT &&
             intent?.getBooleanExtra("openNativeSettings", false) != true &&
             intent?.data == null) {
             openSh9WithRemoteAdminConsent()
@@ -535,10 +574,12 @@ class MainActivity : ComponentActivity() {
         }
         root.addView(ownerButton)
 
-        root.addView(Button(this).apply {
-            text = "🔄 SYNC MOST · kézi adatlekérés"
-            setOnClickListener { syncNow() }
-        })
+        if (!BuildConfig.HH_SAMSUNG_DIRECT_PILOT) {
+            root.addView(Button(this).apply {
+                text = "🔄 SYNC MOST · kézi adatlekérés"
+                setOnClickListener { syncNow() }
+            })
+        }
         // Private Samsung Data SDK pilot is never visible in standard signed OTA.
         // Only an explicit local SDK build enables this separate opt-in source.
         if (BuildConfig.HH_SAMSUNG_DIRECT_PILOT) {
@@ -556,6 +597,29 @@ class MainActivity : ComponentActivity() {
                         status.text = "Samsung Direct tesztolvasó nem elérhető. " +
                             "A Health Connect szinkron változatlan."
                     }
+                }
+            })
+        }
+        if (BuildConfig.HH_SAMSUNG_DIRECT_PILOT) {
+            root.addView(TextView(this).apply {
+                text = "Samsung Direct: valódi mérések helyben. Nem használ beépített böngészőt vagy Dropbox-belépést."
+                textSize = 14f
+                setTextColor(0xFF315F98.toInt())
+            })
+            root.addView(Button(this).apply {
+                text = "💾 Samsung Direct · mentett adatok exportálása"
+                setOnClickListener {
+                    val owner = deviceOwnerProfile()
+                    if (owner == null || owner != selectedProfile()) {
+                        status.text = "Samsung export: a fizikai telefon tulajdonosi profilját válaszd."
+                        return@setOnClickListener
+                    }
+                    if (!File(filesDir, "samsung-direct-$owner.json").isFile) {
+                        status.text = "Előbb futtasd a zöld Samsung Direct mérésgombot."
+                        return@setOnClickListener
+                    }
+                    pendingSamsungExportProfile = owner
+                    samsungExportLauncher.launch("$owner-samsung-health.json")
                 }
             })
         }
@@ -639,10 +703,12 @@ class MainActivity : ComponentActivity() {
             setTextIsSelectable(true)
         }
         nativeDropboxRepairLabel?.let { root.addView(it) }
-        root.addView(Button(this).apply {
-            text = "🔐 Dropbox-fiók ellenőrzése / váltása"
-            setOnClickListener { requestMatchedDropboxLogin() }
-        })
+        if (!BuildConfig.HH_SAMSUNG_DIRECT_PILOT) {
+            root.addView(Button(this).apply {
+                text = "🔐 Dropbox-fiók ellenőrzése / váltása"
+                setOnClickListener { requestMatchedDropboxLogin() }
+            })
+        }
 
         root.addView(TextView(this).apply {
             text = "📱 Digital Wellbeing · központi családi mérések"
