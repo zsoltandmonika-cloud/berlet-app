@@ -74,6 +74,13 @@ object SamsungHealthDirectPilot {
                     store.getGrantedPermissions(permission).containsAll(permission) ||
                         store.requestPermissions(permission, activity).containsAll(permission)
                 }.getOrDefault(false)
+                // Samsung Watch9 extras: one combined optional consent. Denial cannot
+                // affect activity, steps or Health Connect. WorkManager never prompts.
+                runCatching {
+                    val optional = SamsungWellnessCollector.readPermissions
+                    val missing = optional - store.getGrantedPermissions(optional)
+                    if (missing.isNotEmpty()) store.requestPermissions(missing, activity)
+                }
                 // Read today first. Just after midnight Samsung Health can have
                 // no ACTIVITY_SUMMARY for the new day, so try yesterday as a
                 // *separately dated* fallback. Never relabel yesterday as today.
@@ -125,6 +132,9 @@ object SamsungHealthDirectPilot {
                         store, today.minusDays(30).atStartOfDay(), LocalDateTime.now()
                     )
                 }.getOrNull() else null
+                val freshWellness = runCatching {
+                    SamsungWellnessCollector.read(store, today)
+                }.getOrNull()
                 val freshDay = JSONObject().put("date", day.toString())
                     .put("activeMinutes", minutes).apply {
                         if (activeCalories != null) put("activeCaloriesKcal", activeCalories.toDouble())
@@ -174,6 +184,9 @@ object SamsungHealthDirectPilot {
                         SamsungExerciseCollector.mergeSessions(
                             previousLocalRecords?.optJSONArray("exerciseSessions"), freshExerciseSessions
                         )?.let { localRecords.put("exerciseSessions", it) }
+                        SamsungWellnessCollector.mergeInto(
+                            localRecords, previousLocalRecords, freshWellness
+                        )
                         val payload = JSONObject()
                             .put("schemaVersion", "healthhub.samsung.daily/1")
                             .put("profile", profile)
@@ -244,6 +257,7 @@ object SamsungHealthDirectPilot {
                     SamsungExerciseCollector.mergeSessions(
                         oldRecords?.optJSONArray("exerciseSessions"), freshExerciseSessions
                     )?.let { records.put("exerciseSessions", it) }
+                    SamsungWellnessCollector.mergeInto(records, oldRecords, freshWellness)
                     val output = JSONObject()
                         .put("schemaVersion", "healthhub.samsung.daily/1")
                         .put("profile", profile)
