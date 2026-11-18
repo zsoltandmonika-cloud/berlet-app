@@ -19,7 +19,14 @@ function app(){
  };
  const doc={
   readyState:'complete',visibilityState:'visible',documentElement:{dataset:{}},
-  createElement:element,getElementById(id){return nodes.get(id)||null},
+  createElement:element,getElementById(id){
+   if(id==='hhSleepWatch9Panel'){
+    const page=nodes.get('hhSleepPage');
+    if(!page||!page.innerHTML.includes('id="hhSleepWatch9Panel"'))return null;
+    if(!nodes.has(id))nodes.set(id,element('div'));
+   }
+   return nodes.get(id)||null;
+  },
   querySelectorAll(){return []},querySelector(){return null},
   addEventListener(name,cb){callbacks[name]=cb},
   head:{appendChild(el){if(el.id)nodes.set(el.id,el)}},
@@ -85,4 +92,69 @@ test('Sleep profile flip never paints the other household member’s delayed clo
  assert.match(page.innerHTML,/data-hh-sleep-source="verified-cloud"/);
  assert.equal(x.win.hhSleepSourceMeta.profile,'zsolt');
  assert.deepEqual(x.writes.map(z=>z.profile),['monika','zsolt']);
+});
+
+test('Watch9 scores and night vitals render only after verified Sleep cloud, no preview leakage',async()=>{
+ const x=app(),calls=[];
+ x.win.HH_SAMSUNG_SOURCE_V371={async load(profile){
+  calls.push(profile);
+  const date=new Date().toISOString().slice(0,10);
+  return {status:'ready',data:{profile,wellnessReadAt:new Date().toISOString(),
+   sleepSessions:[{uid:'sleep-record',date,startTime:start,endTime:end,sleepScore:84}],
+   energyScores:[{date,energyScore:76}],
+   nightOxygen:[{sleepUid:'sleep-record',startTime:start,endTime:end,minPercent:92,maxPercent:98}],
+   nightSkinTemperature:[{sleepUid:'sleep-record',startTime:start,endTime:end,minCelsius:32.6,maxCelsius:34.1}]
+  }};
+ }};
+ x.win.hhOpenSleep();await flush(20);
+ assert.equal(calls.length,0,'local preview never loads secondary sensor cloud');
+ const page=x.nodes.get('hhSleepPage');
+ assert.doesNotMatch(page.innerHTML,/id="hhSleepWatch9Panel"/);
+ x.resolveMonika({profile:'monika',exportedAt:new Date().toISOString(),
+   records:{sleepSessions:[row('verified-monika')],heartRate:[],oxygenSaturation:[],
+   heartRateVariabilityRmssd:[{time:new Date(Date.parse(start)+3600000).toISOString(),rmssdMs:35}],
+   respiratoryRate:[{time:new Date(Date.parse(start)+3600000).toISOString(),breathsPerMinute:15.2}]}});
+ await flush(24);
+ assert.equal(calls.join(','),'monika');
+ assert.match(page.innerHTML,/id="hhSleepWatch9Panel"/);
+ const card=x.nodes.get('hhSleepWatch9Panel');
+ assert.ok(card);
+ assert.match(card.innerHTML,/Sleep Score/);
+ assert.match(card.innerHTML,/84/);
+ assert.match(card.innerHTML,/Energy Score/);
+ assert.match(card.innerHTML,/76/);
+ assert.match(card.innerHTML,/Éjszakai SpO₂ minimum/);
+ assert.match(card.innerHTML,/92/);
+ assert.match(card.innerHTML,/Bőrhőmérséklet/);
+ assert.match(card.innerHTML,/32,6/);
+ assert.match(card.innerHTML,/HRV · Health Connect/);
+ assert.match(card.innerHTML,/35,0/);
+ assert.match(card.innerHTML,/Légzésszám/);
+ assert.match(card.innerHTML,/15,2/);
+});
+
+test('Watch9 delayed Samsung response cannot paint other profile after switching',async()=>{
+ const x=app();let resolveOld,resolveNew;
+ const old=new Promise(resolve=>{resolveOld=resolve});
+ const newer=new Promise(resolve=>{resolveNew=resolve});
+ x.win.HH_SAMSUNG_SOURCE_V371={load(profile){return profile==='monika'?old:newer}};
+ x.win.hhOpenSleep();await flush(15);
+ x.resolveMonika({profile:'monika',exportedAt:new Date().toISOString(),
+    records:{sleepSessions:[row('m')],heartRate:[],oxygenSaturation:[]}});
+ await flush(15);
+ x.win.hhSleepToggleProfile();await flush(15);
+ x.resolveZsolt({profile:'zsolt',exportedAt:new Date().toISOString(),
+    records:{sleepSessions:[row('z')],heartRate:[],oxygenSaturation:[]}});
+ await flush(15);
+ const date=new Date().toISOString().slice(0,10);
+ const payload=(profile,score)=>({status:'ready',data:{profile,
+   sleepSessions:[{uid:profile,date,startTime:start,endTime:end,sleepScore:score}],
+   energyScores:[],nightOxygen:[],nightSkinTemperature:[]}});
+ resolveOld(payload('monika',84));await flush(15);
+ const card=x.nodes.get('hhSleepWatch9Panel');
+ assert.ok(card);
+ assert.doesNotMatch(card.innerHTML,/84/);
+ resolveNew(payload('zsolt',71));await flush(15);
+ assert.match(card.innerHTML,/71/);
+ assert.equal(x.win.hhSleepSourceMeta.profile,'zsolt');
 });
