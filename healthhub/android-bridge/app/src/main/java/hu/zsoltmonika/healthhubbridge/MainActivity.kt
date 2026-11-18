@@ -583,6 +583,27 @@ class MainActivity : ComponentActivity() {
         // Private Samsung Data SDK pilot is never visible in standard signed OTA.
         // Only an explicit local SDK build enables this separate opt-in source.
         if (BuildConfig.HH_SAMSUNG_DIRECT_PILOT) {
+            // Fresh Pilot installs have a different package and no owner binding.
+            // The signed production HH One must remain untouched.
+            if (deviceOwnerProfile() == null) {
+                root.addView(Button(this).apply {
+                    text = "🔐 Samsung Pilot · telefon tulajdonosának rögzítése"
+                    setOnClickListener {
+                        val chosen = selectedProfile()
+                        val label = profileName(chosen)
+                        AlertDialog.Builder(this@MainActivity)
+                            .setTitle("Samsung Pilot · telefon azonosítása")
+                            .setMessage("Ezt a készüléket $label profiljához kötjük. " +
+                                "Csak az ő Samsung Health mérései menthetők ezen a készüléken.")
+                            .setNegativeButton("Mégsem", null)
+                            .setPositiveButton("✅ $label telefonja") { _, _ ->
+                                bindOwnerIfNeeded(chosen)
+                                status.text = "✓ Samsung Pilot: $label telefonja rögzítve. Indítható az adatolvasás."
+                            }
+                            .show()
+                    }
+                })
+            }
             root.addView(Button(this).apply {
                 text = "🟢 Samsung Direct · aktív percek tesztolvasása"
                 setOnClickListener {
