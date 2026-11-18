@@ -220,6 +220,9 @@ test('Samsung SDK consolidated hourly steps are permission-scoped, never guessed
  assert.match(steps,/setLocalTimeFilterWithGroup\(filter, group\)/);
  assert.match(steps,/record\.startTime\.atZone\(ZoneId\.systemDefault\(\)\)/);
  assert.match(steps,/result\.takeIf \{ it\.length\(\) > 0 \}/);
+ assert.match(steps,/val byLocalHour = linkedMapOf<Int, Long>\(\)/);
+ assert.match(steps,/\(byLocalHour\[local\.hour\] \?: 0L\) \+ count/);
+ assert.match(steps,/byLocalHour\.toSortedMap\(\)\.forEach/);
  assert.match(steps,/if \(fresh == null \|\| fresh\.length\(\) == 0\) return old/);
  assert.match(steps,/val replacementHours = HashSet<Int>\(\)/);
  assert.match(steps,/item\.optInt\("hour", -1\) in replacementHours\) continue/);
