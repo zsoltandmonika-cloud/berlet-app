@@ -43,8 +43,10 @@ object SamsungHealthDirectPilot {
             return
         }
         scope.launch {
+            var stage = "SAMSUNG_KAPCSOLAT"
             try {
                 val store = HealthDataService.getStore(activity.applicationContext)
+                stage = "SAMSUNG_ENGEDELY"
                 val required = setOf(Permission.of(DataTypes.ACTIVITY_SUMMARY, AccessType.READ))
                 if (!store.getGrantedPermissions(required).containsAll(required)) {
                     val granted = store.requestPermissions(required, activity)
@@ -53,6 +55,7 @@ object SamsungHealthDirectPilot {
                         return@launch
                     }
                 }
+                stage = "SAMSUNG_ADATOLVASAS"
                 // Read today first. Just after midnight Samsung Health can have
                 // no ACTIVITY_SUMMARY for the new day, so try yesterday as a
                 // *separately dated* fallback. Never relabel yesterday as today.
@@ -81,12 +84,23 @@ object SamsungHealthDirectPilot {
                     toast(activity, "Samsung Health: sem ma, sem tegnap nincs hiteles aktív perc adat.")
                     return@launch
                 }
+                val dayLabel = if (day == today) "mai" else "tegnapi"
+                // The pilot is a separate Android package. It does not inherit
+                // the signed HH One app's Dropbox OAuth credentials.
+                // Still report verified local SDK data, without claiming an upload.
+                if (!DropboxVaultClient.hasRefreshToken(prefs)) {
+                    toast(activity, "Samsung Direct: $minutes mért $dayLabel aktív perc. " +
+                        "Dropbox nincs csatlakoztatva a Pilothoz; nem történt feltöltés.")
+                    return@launch
+                }
+                stage = "DROPBOX_ELŐKÉSZÍTÉS"
                 writer.withLock {
                     // Recheck identity immediately before cloud write, after permissions.
                     check(prefs.getString("device_owner_profile", null) == profile) {
                         "A készülék tulajdonosa közben megváltozott"
                     }
                     val path = DropboxVaultClient.PROFILES_DIR + "/" + profile + "-samsung-health.json"
+                    stage = "DROPBOX_LETÖLTÉS"
                     val oldText = DropboxVaultClient.downloadTextOrNull(prefs, path)
                     val entries = LinkedHashMap<String, JSONObject>()
                     if (!oldText.isNullOrBlank()) {
@@ -123,19 +137,19 @@ object SamsungHealthDirectPilot {
                         .put("records", JSONObject().put("dailySummary", JSONArray().also { array ->
                             entries.toSortedMap().values.forEach { array.put(it) }
                         }))
+                    stage = "DROPBOX_FELTÖLTÉS"
                     DropboxVaultClient.ensureFolder(prefs, DropboxVaultClient.ROOT)
                     DropboxVaultClient.ensureFolder(prefs, DropboxVaultClient.PROFILES_DIR)
                     DropboxVaultClient.uploadText(prefs, path, output.toString(2) + "\n")
                 }
-                val dayLabel = if (day == today) "mai" else "tegnapi"
                 toast(activity, "Samsung Direct: $minutes mért $dayLabel aktív perc átadva a saját Dropbox-profilnak.")
             } catch (cancel: CancellationException) {
                 throw cancel
             } catch (e: Exception) {
                 // No health values, file contents or OAuth credentials in logs.
-                toast(activity, "Samsung Direct nem sikerült: " +
-                    (e.javaClass.simpleName.take(60)) +
-                    ". A normál Health Connect szinkron változatlan.")
+                toast(activity, "Samsung Direct hiba ($stage): " +
+                    e.javaClass.simpleName.take(40) +
+                    ". A Health Connect szinkron változatlan.")
             }
         }
     }
