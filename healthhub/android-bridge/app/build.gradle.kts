@@ -67,10 +67,10 @@ android {
         versionName = "0.15.20"
         // v0.15.20/build47: opt-in Hungarian Dropbox account review request (NO remote token switch).
         // Signed OTA promotion is separately approved and certificate-gated.
-        // Integrated candidate gets a distinct upgrade number but is NEVER published by this flag.
+        // Integrated candidate uses a monotonic upgrade code above Zsolt 0.15.21/build48; NEVER published by this flag.
         if (hhSamsungIntegratedCandidateEnabled) {
-            versionCode = 48
-            versionName = "0.15.21"
+            versionCode = 49
+            versionName = "0.15.22"
         }
         // Actual signed publication remains separately approved and certificate-gated.
         // No signed OTA is published by merging: release requires manual approval.
