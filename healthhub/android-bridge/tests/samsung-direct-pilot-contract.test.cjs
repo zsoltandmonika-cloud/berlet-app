@@ -48,3 +48,16 @@ test('Windows SDK builder only ingests local official ZIP/AAR and never overwrit
  assert.match(script,/hu\.zsoltmonika\.healthhubbridge\.samsungpilot/);
  assert.doesNotMatch(script,/(?:Invoke-WebRequest|curl|wget|git push|upload-artifact)/i);
 });
+
+test('Samsung private pilot checks today then yesterday without changing the dated output',()=>{
+ assert.match(sdk,/for \(candidate in listOf\(today, today\.minusDays\(1\)\)\)/);
+ assert.match(sdk,/val end = if \(candidate == today\) LocalDateTime\.now\(\) else today\.atStartOfDay\(\)/);
+ assert.match(sdk,/val filter = LocalTimeFilter\.of\(candidate\.atStartOfDay\(\), end\)/);
+ assert.match(sdk,/if \(measured == null \|\| measured\.isNegative \|\| measured\.toMinutes\(\) > 1440\)/);
+ assert.match(sdk,/measuredDay = candidate/);
+ assert.match(sdk,/entries\[day\.toString\(\)\] = JSONObject\(\)/);
+ assert.match(sdk,/\.put\("date", day\.toString\(\)\)/);
+ assert.match(sdk,/!localDate\.isBefore\(today\.minusDays\(29\)\)/);
+ assert.match(sdk,/!localDate\.isAfter\(today\)/);
+ assert.match(sdk,/if \(day == today\) "mai" else "tegnapi"/);
+});
