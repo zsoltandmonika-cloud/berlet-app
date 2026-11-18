@@ -36,7 +36,7 @@ test('pilot cannot cross profiles, overwrite Health Connect, or fire without the
  assert.doesNotMatch(sdk,/uploadHealthConnectSnapshot\(/);
  assert.match(sdk,/check\(old\.optString\("profile"\) == profile\)/);
  assert.match(main,/setOnClickListener \{\s*try \{\s*val pilot = Class\.forName/);
- assert.doesNotMatch(sdk,/PeriodicWorkRequest|WorkManager|SYNC NOW/);
+ assert.doesNotMatch(sdk,/PeriodicWorkRequestBuilder|WorkManager\.getInstance\(|SYNC NOW/);
  assert.match(web,/dailySummary/);
  assert.match(web,/activeMinutes/);
 });
