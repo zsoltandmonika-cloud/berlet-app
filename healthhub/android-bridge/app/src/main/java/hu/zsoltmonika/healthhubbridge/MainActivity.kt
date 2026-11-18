@@ -580,9 +580,11 @@ class MainActivity : ComponentActivity() {
                 setOnClickListener { syncNow() }
             })
         }
-        // Private Samsung Data SDK pilot is never visible in standard signed OTA.
-        // Only an explicit local SDK build enables this separate opt-in source.
-        if (BuildConfig.HH_SAMSUNG_DIRECT_PILOT) {
+        // Disabled in the shipping 0.15.20 app. The privately enabled
+        // 0.15.21 integrated candidate reuses this exact HH One app identity,
+        // existing owner profile and existing Dropbox connection.
+        // Samsung permission is requested separately by the owner's button tap.
+        if (BuildConfig.HH_SAMSUNG_DIRECT_AVAILABLE) {
             // Fresh Pilot installs have a different package and no owner binding.
             // The signed production HH One must remain untouched.
             if (deviceOwnerProfile() == null) {
@@ -602,6 +604,13 @@ class MainActivity : ComponentActivity() {
                             }
                             .show()
                     }
+                })
+            }
+            if (BuildConfig.HH_SAMSUNG_DIRECT_CANDIDATE) {
+                root.addView(TextView(this).apply {
+                    text = "Samsung Direct · 0.15.21 canary. Külön Samsung engedély, meglévő HH One Dropbox. Nem aktivál automatikus háttérszinkront."
+                    textSize = 13f
+                    setTextColor(0xFF315F98.toInt())
                 })
             }
             root.addView(Button(this).apply {
