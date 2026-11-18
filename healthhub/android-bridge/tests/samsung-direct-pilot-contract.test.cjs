@@ -432,3 +432,24 @@ test('one-shot Watch9 consolidated version advances build50 without changing exi
  assert.match(privateWorkflow,/PRIVATE-TEST-NOT-OTA/);
  assert.doesNotMatch(privateWorkflow,/gh release create|git push origin HEAD:main/);
 });
+
+
+test('Samsung partner-approved OTA cannot publish without official package/cert/scopes and validated build50',()=>{
+ const release=fs.readFileSync(path.join(root,'../../.github/workflows/hh-one-samsung-integrated-ota.yml'),'utf8');
+ assert.match(release,/workflow_dispatch:/);
+ assert.match(release,/github\.ref == 'refs\/heads\/main'/);
+ assert.match(release,/HH_SAMSUNG_PARTNER_APPROVED_CERT_SHA256/);
+ assert.match(release,/HH_SAMSUNG_PARTNER_APPROVAL_REFERENCE/);
+ assert.match(release,/HH_SAMSUNG_PARTNER_APPROVED_READ_SCOPES/);
+ assert.match(release,/1045e5cc520eded12ebdec76eaf946cda0888f8cbccc7a2cdfc62a6aec92eb1e/);
+ assert.match(release,/required=\{'ACTIVITY_SUMMARY','STEPS','EXERCISE','SLEEP','ENERGY_SCORE','BLOOD_OXYGEN','SKIN_TEMPERATURE'\}/);
+ assert.match(release,/gradle :app:assembleRelease -PhhSamsungIntegratedCandidate=true -PhhSamsungConsolidatedCandidate=true/);
+ assert.match(release,/versionCode='50'/);
+ assert.match(release,/versionName='0\.15\.23'/);
+ assert.match(release,/BASE_CERT" = "\$CERT"/);
+ assert.match(release,/VERIFIED_SHA256/);
+ assert.match(release,/gh release create/);
+ assert.match(release,/rolloutProfiles':\['zsolt','monika'\]/);
+ assert.match(release,/git push origin HEAD:main/);
+ assert.doesNotMatch(release,/adb install|REQUEST_INSTALL_PACKAGES|pm install|silent.?install/i);
+});
