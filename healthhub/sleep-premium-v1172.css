@@ -210,3 +210,182 @@
 @media(prefers-reduced-motion:reduce){
  #hhSleepPage.hhSleepPage *{animation-duration:.01ms!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
 }
+
+/* v1173 · Approved Léna Premium demo-fidelity polish, 420px S24 Ultra viewport.
+   Uses the existing live values and exactly 12 canonical measurement cells. */
+#hhSleepPage.hhSleepPage .hhSleepSurface{
+ padding-left:14px!important;padding-right:14px!important;
+ background:linear-gradient(180deg,#20254b 0%,#172041 24%,#0d1935 58%,#091632 100%)!important;
+}
+#hhSleepPage.hhSleepPage .hhSleepTop{
+ isolation:isolate;
+ min-height:91px!important;margin-bottom:11px!important;
+ padding-top:5px!important;align-items:flex-start!important;
+}
+#hhSleepPage.hhSleepPage .hhSleepTop:after{
+ content:"";position:absolute;left:-14px;right:-14px;bottom:-18px;height:55px;
+ background:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20420%2070%22%20preserveAspectRatio%3D%22none%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22w%22%20x1%3D%220%22%20x2%3D%221%22%3E%3Cstop%20stop-color%3D%22%23e575e2%22%2F%3E%3Cstop%20offset%3D%22.45%22%20stop-color%3D%22%23ffb7ed%22%2F%3E%3Cstop%20offset%3D%22.65%22%20stop-color%3D%22%239b9dfd%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%235ac2ff%22%2F%3E%3C%2FlinearGradient%3E%3ClinearGradient%20id%3D%22b%22%20x1%3D%220%22%20x2%3D%221%22%3E%3Cstop%20stop-color%3D%22%23ed75df%22%20stop-opacity%3D%22.18%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%2356caff%22%20stop-opacity%3D%22.08%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Cpath%20d%3D%22M-10%2052C75%208%20125%2065%20211%2048c90-15%20132-56%20219-19v50H-10z%22%20fill%3D%22url(%23b)%22%2F%3E%3Cpath%20d%3D%22M-10%2050C75%208%20125%2065%20211%2048c90-15%20132-56%20219-19%22%20stroke%3D%22url(%23w)%22%20stroke-width%3D%222.4%22%20opacity%3D%22.9%22%20fill%3D%22none%22%2F%3E%3Cpath%20d%3D%22M-10%2057C70%2024%20155%2074%20237%2052c93-24%20141-37%20204-14%22%20stroke%3D%22%236f9ef8%22%20stroke-opacity%3D%22.6%22%20fill%3D%22none%22%20stroke-width%3D%221.6%22%2F%3E%3C%2Fsvg%3E") center/100% 100% no-repeat;
+ filter:drop-shadow(0 0 12px rgba(233,116,221,.45));pointer-events:none;
+ z-index:-1;opacity:.94;
+}
+#hhSleepPage.hhSleepPage .hhSleepTop small{font-size:10px!important;color:#f6a6dc!important}
+#hhSleepPage.hhSleepPage .hhSleepTop h2{
+ font-size:clamp(20px,5.55vw,26px)!important;letter-spacing:-.025em!important;
+ margin:6px 0!important;line-height:1.15!important;
+}
+#hhSleepPage.hhSleepPage .hhSleepProfile{
+ min-height:35px!important;margin-top:7px!important;
+ background:linear-gradient(139deg,rgba(155,134,194,.30),rgba(79,104,182,.25))!important;
+ border:1px solid rgba(245,185,226,.42)!important;
+ box-shadow:0 4px 18px rgba(10,12,50,.25),inset 0 1px 0 rgba(250,240,255,.28)!important;
+}
+#hhSleepPage.hhSleepPage .hhSleepSource381{
+ min-height:66px;margin-top:8px!important;margin-bottom:15px!important;
+ padding:11px 10px 10px 46px!important;
+ border:1px solid rgba(237,182,232,.54)!important;border-radius:17px!important;
+ background:linear-gradient(114deg,rgba(121,74,142,.53) 0%,rgba(40,61,123,.70) 52%,rgba(41,68,129,.70) 100%)!important;
+ box-shadow:0 9px 23px rgba(1,8,30,.22),inset 0 1px rgba(255,255,255,.24),0 0 11px rgba(229,127,220,.10)!important;
+}
+#hhSleepPage.hhSleepPage .hhSleepSource381:before{
+ content:"";left:12px;top:12px;width:25px;height:25px;
+ background:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2040%2040%22%20fill%3D%22none%22%20stroke%3D%22%23ffc0e5%22%20stroke-width%3D%222.3%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Crect%20x%3D%225.5%22%20y%3D%228%22%20width%3D%2229%22%20height%3D%2227%22%20rx%3D%224%22%2F%3E%3Cpath%20d%3D%22M12%205v8M28%205v8M5.5%2017h29%22%2F%3E%3Cpath%20d%3D%22M13%2024h4M23%2024h4M13%2029h4%22%20stroke-width%3D%222%22%20opacity%3D%22.6%22%2F%3E%3C%2Fsvg%3E") center/contain no-repeat;
+ filter:drop-shadow(0 0 7px rgba(255,168,221,.45));
+}
+#hhSleepPage.hhSleepPage .hhSleepSource381 b{
+ display:block;color:#fff!important;font-size:12px!important;line-height:1.38!important;
+}
+#hhSleepPage.hhSleepPage .hhSleepSource381 span{
+ display:block;margin-top:3px;color:#cdd8f5!important;font-size:10px!important;line-height:1.35!important;
+}
+/* The demo's three equally wide premium sleep cards. */
+#hhSleepPage.hhSleepPage .hh428Head{margin:2px 2px 10px!important}
+#hhSleepPage.hhSleepPage .hh428Eyebrow{
+ color:#ffa8d8!important;font-size:10px!important;letter-spacing:.09em!important;
+}
+#hhSleepPage.hhSleepPage .hh428Head h3{
+ font-size:clamp(20px,5.5vw,25px)!important;line-height:1.15!important;
+ font-weight:850!important;margin:5px 0 5px!important;
+}
+#hhSleepPage.hhSleepPage .hh428Head p{font-size:11px!important;line-height:1.45!important}
+#hhSleepPage.hhSleepPage .hh428Cards{gap:7px!important}
+#hhSleepPage.hhSleepPage .hh428Card{
+ min-height:118px!important;border-radius:17px!important;
+ padding:10px 7px 28px!important;
+ border-color:rgba(158,209,255,.62)!important;
+ background:linear-gradient(155deg,rgba(68,105,166,.81),rgba(26,50,98,.97) 68%,rgba(24,57,113,.95))!important;
+ box-shadow:0 7px 15px rgba(2,11,40,.28),inset 0 1px rgba(230,245,255,.27)!important;
+}
+#hhSleepPage.hhSleepPage .hh428Card--night{
+ border-color:rgba(255,157,225,.91)!important;
+ background:linear-gradient(155deg,rgba(139,68,155,.81),rgba(65,43,117,.98) 74%)!important;
+ box-shadow:0 8px 23px rgba(227,104,180,.22),inset 0 1px rgba(255,223,245,.35)!important;
+}
+#hhSleepPage.hhSleepPage .hh428Card:before{
+ left:-14px;right:-14px;bottom:-24px;height:62px;
+ border-radius:55% 55% 0 0;
+ background:radial-gradient(ellipse at 50% 100%,rgba(102,177,248,.48),rgba(66,121,211,.15) 65%,transparent 80%);
+}
+#hhSleepPage.hhSleepPage .hh428Card--night:before{
+ background:radial-gradient(ellipse at 50% 110%,rgba(255,143,206,.53),rgba(161,78,174,.18) 66%,transparent 81%);
+}
+#hhSleepPage.hhSleepPage .hh428Card:after{
+ content:"";position:absolute;pointer-events:none;z-index:0;
+ right:10px;bottom:7px;width:31px;height:27px;opacity:.8;
+ background:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2062%2046%22%20fill%3D%22none%22%20stroke%3D%22%23b9e1ff%22%20stroke-width%3D%223%22%20stroke-linejoin%3D%22round%22%20stroke-linecap%3D%22round%22%3E%3Cpath%20d%3D%22M8%209v28M8%2030h44v7M14%2030V18h11a7%207%200%200%201%207%207v5M33%2025h12a7%207%200%200%201%207%207%22%2F%3E%3Cpath%20d%3D%22M6%2039h49%22%20opacity%3D%22.75%22%2F%3E%3C%2Fsvg%3E") center/contain no-repeat;
+ filter:drop-shadow(0 0 7px rgba(119,197,255,.28));
+}
+#hhSleepPage.hhSleepPage .hh428Card--night:after{
+ width:34px;height:29px;right:8px;
+ background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2062%2046%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22m%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20stop-color%3D%22%23fff5d3%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23ffc3e1%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Cpath%20d%3D%22M37%203C29%2010%2028%2022%2035%2030c6%208%2016%208%2021%205-5%209-14%2012-23%209C20%2040%2014%2029%2016%2018%2018%208%2027%202%2037%203Z%22%20fill%3D%22url(%23m)%22%2F%3E%3Cg%20fill%3D%22%23fff0ff%22%20opacity%3D%22.88%22%3E%3Ccircle%20cx%3D%2210%22%20cy%3D%2215%22%20r%3D%221.5%22%2F%3E%3Ccircle%20cx%3D%2249%22%20cy%3D%229%22%20r%3D%221.3%22%2F%3E%3Ccircle%20cx%3D%225%22%20cy%3D%2236%22%20r%3D%221.2%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E");
+ filter:drop-shadow(0 0 8px rgba(255,156,224,.55));
+}
+#hhSleepPage.hhSleepPage .hh428Card--day:after{
+ width:33px;height:29px;right:8px;
+ background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2062%2046%22%20fill%3D%22none%22%20stroke%3D%22%23b3dafa%22%20stroke-width%3D%222.8%22%20stroke-linecap%3D%22round%22%3E%3Cpath%20d%3D%22M11%2025A20%2020%200%200%201%2049%2018M49%2018V7M49%2018H38M51%2024A20%2020%200%200%201%2013%2032M13%2032V43M13%2032H24%22%2F%3E%3Ctext%20x%3D%2221%22%20y%3D%2228%22%20fill%3D%22%23b3dafa%22%20stroke%3D%22none%22%20font-size%3D%2213%22%20font-weight%3D%22700%22%3E24h%3C%2Ftext%3E%3C%2Fsvg%3E");
+}
+#hhSleepPage.hhSleepPage .hh428Num{
+ width:21px!important;height:21px!important;border-radius:9px!important;
+ background:rgba(169,207,255,.23)!important;
+ box-shadow:inset 0 1px rgba(255,255,255,.23)!important;
+}
+#hhSleepPage.hhSleepPage .hh428CardTop h4{
+ color:#fff!important;font-size:clamp(9px,2.7vw,12px)!important;
+}
+#hhSleepPage.hhSleepPage .hh428Value{
+ font-size:clamp(18px,5.55vw,27px)!important;
+ margin:8px 0 6px!important;line-height:1.12!important;
+ font-weight:900!important;color:#fff!important;
+}
+#hhSleepPage.hhSleepPage .hh428Card p{
+ color:#d7e4ff!important;font-size:clamp(8.9px,2.55vw,11px)!important;
+ line-height:1.3!important;-webkit-line-clamp:3!important;
+ max-width:100%;padding-right:2px;
+}
+#hhSleepPage.hhSleepPage .hh428Card--night p{color:#ffbfdc!important}
+#hhSleepPage.hhSleepPage .hh428SameDataNote{
+ margin:8px 4px 12px!important;color:#ebcbe9!important;font-size:10px!important;
+ line-height:1.4!important;
+}
+/* Demo-like glass: bright lip, restrained glow, strong measurements, no layout drift. */
+#hhSleepPage.hhSleepPage .hhSleepFactorsV432 .hhSleepFactors381{
+ gap:8px!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;
+}
+#hhSleepPage.hhSleepPage .hhSleepFactorsV432 .hhSleepFactor381{
+ border-radius:16px!important;min-height:101px!important;
+ padding:10px 10px 9px!important;
+ border-color:rgba(148,193,252,.53)!important;
+ box-shadow:0 7px 20px rgba(0,9,29,.28),inset 0 1px rgba(234,248,255,.20),0 0 9px rgba(93,146,235,.08)!important;
+ background:linear-gradient(138deg,rgba(66,94,151,.81),rgba(23,45,91,.96) 75%)!important;
+}
+#hhSleepPage.hhSleepPage .hhSleepFactorsV432 .hhSleepWatchExtra1157{
+ border-color:rgba(237,163,226,.62)!important;
+ background:linear-gradient(138deg,rgba(117,72,141,.76),rgba(32,49,105,.97) 75%)!important;
+ box-shadow:0 7px 20px rgba(0,9,29,.29),inset 0 1px rgba(255,221,246,.25),0 0 9px rgba(232,118,211,.10)!important;
+}
+#hhSleepPage.hhSleepPage .hhSleepFactorsV432 .hhSleepFactor381 .hhSleepFactorLabel381{
+ color:#f3f6ff!important;font-size:11px!important;line-height:1.17!important;
+}
+#hhSleepPage.hhSleepPage .hhSleepFactorsV432 .hhSleepFactor381 .hhSleepFactorValue381{
+ color:#fff!important;font-size:clamp(20px,5.2vw,25px)!important;
+ letter-spacing:-.02em!important;line-height:1.15!important;
+}
+#hhSleepPage.hhSleepPage .hhSleepFactorsV432 .hhSleepFactor381 .hhSleepFactorStatus381{
+ color:#cde9ff!important;min-height:18px!important;border-radius:8px!important;
+ padding:3px 7px!important;font-size:9px!important;
+}
+#hhSleepPage.hhSleepPage .hhSleepFactorsV432 .hhSleepFactor381 .hhSleepFactorDetail381{
+ color:#c2d2eb!important;font-size:9px!important;line-height:1.3!important;
+}
+#hhSleepPage.hhSleepPage .hhSleepScoreStrip381{
+ border-color:rgba(236,159,219,.43)!important;
+ background:linear-gradient(114deg,rgba(101,74,141,.53),rgba(39,66,118,.75))!important;
+}
+#hhSleepPage.hhSleepPage .hhSleepCacheStatusV3.hhSleepPremiumSync{
+ min-height:75px!important;padding:13px 13px 13px 58px!important;margin-top:22px!important;
+ border-radius:19px!important;border-color:rgba(252,166,227,.77)!important;
+ background:linear-gradient(110deg,rgba(151,77,151,.72),rgba(39,69,126,.92) 39%,rgba(32,53,115,.95) 75%,rgba(117,66,140,.77))!important;
+ box-shadow:0 10px 26px rgba(1,7,30,.31),inset 0 1px rgba(255,235,252,.29),0 0 19px rgba(246,134,217,.16)!important;
+}
+#hhSleepPage.hhSleepPage .hhSleepPremiumSync:before{
+ content:"";top:50%;left:12px;width:36px;height:46px;
+ background:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2044%2057%22%20fill%3D%22none%22%3E%3Cpath%20d%3D%22M14%202h16l3%2010H11zM14%2055h16l3-10H11z%22%20fill%3D%22%23382457%22%20stroke%3D%22%23e1adf4%22%20stroke-width%3D%222%22%2F%3E%3Crect%20x%3D%224%22%20y%3D%2211%22%20width%3D%2236%22%20height%3D%2235%22%20rx%3D%2211%22%20fill%3D%22%23192856%22%20stroke%3D%22%23ffc1ef%22%20stroke-width%3D%222.3%22%2F%3E%3Cpath%20d%3D%22M14%2028l5%205%2011-13%22%20stroke%3D%22%23a9f9dc%22%20stroke-width%3D%222.3%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E") center/contain no-repeat;
+ border:none;filter:drop-shadow(0 0 10px rgba(234,138,228,.42));
+}
+#hhSleepPage.hhSleepPage .hhSleepPremiumSync [data-hh-samsung-status]{
+ color:#f0f4ff!important;font-size:10.5px!important;line-height:1.45!important;
+ font-weight:750!important;
+}
+#sleepGoldenTop{
+ border-radius:16px!important;
+ box-shadow:0 8px 21px rgba(1,6,29,.24),inset 0 1px rgba(255,233,252,.30),0 0 12px rgba(218,115,214,.10)!important;
+}
+#sleepGoldenBottom{
+ border-radius:18px 18px 0 0!important;
+ box-shadow:0 -7px 24px rgba(1,7,26,.32),inset 0 1px rgba(244,226,254,.18)!important;
+}
+@media(max-width:355px){
+ #hhSleepPage.hhSleepPage .hhSleepTop{min-height:94px!important}
+ #hhSleepPage.hhSleepPage .hh428Card{min-height:113px!important;padding:9px 6px 26px!important}
+ #hhSleepPage.hhSleepPage .hh428Card:after{width:24px;height:23px;right:6px}
+ #hhSleepPage.hhSleepPage .hhSleepFactorsV432 .hhSleepFactor381{min-height:96px!important}
+}
