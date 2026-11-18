@@ -120,7 +120,7 @@ class SamsungDirectBackgroundWorker(
             note(prefs, "Tulajdonosprofil hiányzik")
             return Result.success()
         }
-        if (!prefs.getString(SamsungDirectBackgroundSync.KEY_MANUAL_CLOUD_VERIFIED_OWNER, null) == owner ||
+        if (prefs.getString(SamsungDirectBackgroundSync.KEY_MANUAL_CLOUD_VERIFIED_OWNER, null) != owner ||
             !DropboxVaultClient.hasRefreshToken(prefs)) {
             note(prefs, "Samsung vagy Dropbox kézi előteszt hiányzik")
             return Result.success()
