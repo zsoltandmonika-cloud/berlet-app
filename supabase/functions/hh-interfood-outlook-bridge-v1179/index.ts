@@ -188,7 +188,7 @@ async function messages(access,folder){
 }
 async function processMessages(row,access,official){
  let newCount=0,enriched=0,recognized=0;
- const messagesInFolder=await messages(access,row.folder_id);
+ const messagesInFolder=[...(await messages(access,row.folder_id)), ...(await messages(access,"inbox"))];
  for(const mail of messagesInFolder){
   if(!/ételrendelés/i.test(String(mail.subject||"")))continue;
   if(!mail.id||!mail.body)continue;
