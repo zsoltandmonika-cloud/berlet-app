@@ -46,7 +46,7 @@ test('Priority bridge is actually injected after executable Activity tag in SHO 
  const end=html.indexOf('  const liveWithWellbeingClick=liveWithShoPriority.replace(',begin);
  assert.ok(begin>0&&end>begin,'isolated snippet is present in inline bootstrap');
  const source=html.slice(begin,end);
- const activity='<script src="./live-v191.js?v=1017-profile-memory-verified&localfirst=1020&source=1022"></script>';
+ const activity='<script src="./live-v191.js?v=1017-profile-memory-verified&localfirst=1020&source=1023-foreground-activity"></script>';
  function evaluate(search){
   const context={location:{search},URLSearchParams,live:'before '+activity+' after'};
   vm.runInNewContext(source+';globalThis.result=liveWithShoPriority;',context);
