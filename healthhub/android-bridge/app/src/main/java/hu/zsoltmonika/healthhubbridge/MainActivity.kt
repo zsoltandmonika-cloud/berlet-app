@@ -633,9 +633,12 @@ class MainActivity : ComponentActivity() {
                         val pilot = Class.forName(
                             "hu.zsoltmonika.healthhubbridge.SamsungHealthDirectPilot"
                         )
+                        // Kotlin 'object' exposes an INSTANCE singleton, not
+                        // a Java static method unless explicitly @JvmStatic.
+                        val samsungInstance = pilot.getField("INSTANCE").get(null)
                         pilot.getMethod(
                             "launch", MainActivity::class.java, String::class.java
-                        ).invoke(null, this@MainActivity, selectedProfile())
+                        ).invoke(samsungInstance, this@MainActivity, selectedProfile())
                     } catch (e: Exception) {
                         status.text = "Samsung Direct tesztolvasó nem elérhető. " +
                             "A Health Connect szinkron változatlan."
@@ -661,12 +664,13 @@ class MainActivity : ComponentActivity() {
                             val bridge = Class.forName(
                                 "hu.zsoltmonika.healthhubbridge.SamsungDirectBackgroundSync"
                             )
+                            val samsungBackgroundInstance = bridge.getField("INSTANCE").get(null)
                             bridge.getMethod(
                                 "setEnabled",
                                 Context::class.java,
                                 String::class.java,
                                 Boolean::class.javaPrimitiveType!!
-                            ).invoke(null, this@MainActivity, owner, next)
+                            ).invoke(samsungBackgroundInstance, this@MainActivity, owner, next)
                             text = if (next)
                                 "🕒 Samsung automatikus szinkron · KIKAPCSOLÁS"
                             else
@@ -688,8 +692,9 @@ class MainActivity : ComponentActivity() {
                             val bridge = Class.forName(
                                 "hu.zsoltmonika.healthhubbridge.SamsungDirectBackgroundSync"
                             )
+                            val samsungBackgroundInstance = bridge.getField("INSTANCE").get(null)
                             status.text = bridge.getMethod("status", Context::class.java)
-                                .invoke(null, this@MainActivity).toString()
+                                .invoke(samsungBackgroundInstance, this@MainActivity).toString()
                         } catch (_: Exception) {
                             status.text = "Samsung automatikus szinkron állapota nem érhető el."
                         }
