@@ -1,6 +1,6 @@
 /* Family Guard v845 · selected-owner Battery / GPS / Health live trio.
  * Sources: v841 verified battery, v837 authenticated GPS, HealthHub v382
- * sleep index on v428 main night, Nutrition v625 sign-based kcal balance.
+ * Samsung Energy Score (owner-verified SDK file), Nutrition v625 net kcal balance.
  * Read-only, no new Android permission, OAuth scope, uploads or sensor access.
  * Sleep/Nutrition colours describe diary trends, never clinical risk.
  */
@@ -95,6 +95,25 @@
   return {score,tone:score<60?'bad':score<80?'warn':'good',
    date:dateKey(end),endAt:end,source:'HealthHub · utolsó éjszaka, Health Connect'};
  }
+// Samsung Energy Score is a proprietary, measured 0–100 wellness value.
+// Fail closed on wrong owner/schema, stale/future exports and absent scores.
+function samsungEnergyScore(profile,raw,now=Date.now()){
+ if(!allowed.includes(profile)||!raw||raw.profile!==profile||
+    !/^healthhub\.samsung\.daily\/1(?:\.\d+)?$/.test(raw.schemaVersion||''))return null;
+ const exported=time(raw.exportedAt);
+ if(!Number.isFinite(exported)||exported>now+5*MIN||now-exported>48*HOUR)return null;
+ const today=dateKey(now),earliest=dateKey(now-36*HOUR);
+ const candidates=Array.isArray(raw.records?.samsungEnergyScores)?raw.records.samsungEnergyScores:[];
+ const rows=candidates.filter(r=>r&&typeof r.date==='string'&&
+   /^\d{4}-\d{2}-\d{2}$/.test(r.date)&&r.date>=earliest&&r.date<=today&&
+   typeof r.energyScore==='number'&&Number.isFinite(r.energyScore)&&
+   r.energyScore>=0&&r.energyScore<=100).slice()
+  .sort((a,b)=>b.date.localeCompare(a.date));
+ if(!rows.length)return null;
+ const row=rows[0],score=Math.round(row.energyScore);
+ return {score,date:row.date,tone:score<60?'bad':score<80?'warn':'good',
+  kind:'samsung-energy-score',source:'Samsung Health · Energy Score · mentett SDK-export'};
+}
  function nutritionBalance(profile,doc,energy,now=Date.now()){
   if(!allowed.includes(profile)||!doc||doc.schemaVersion!=='healthhub.nutrition/1'||
    doc.profileKey!==profile)return null;
@@ -119,7 +138,7 @@
   if(!items.length)return {tone:'unknown',score:null,factors:[]};
   return {tone:items.reduce((t,x)=>weight[x.tone]>weight[t]?x.tone:t,'good'),
    score:sleep?.score??null,
-   factors:items.map(x=>x===sleep?'Sleep':'Nutrition')};
+   factors:items.map(x=>x===sleep?(sleep?.kind==='samsung-energy-score'?'Energy Score':'Sleep'):'Nutrition')};
  }
  function gpsState(browser,native,profile,now=Date.now(),revokedAt=NaN){
   const valid=(r,source)=>{
@@ -245,7 +264,7 @@
    sourceStatus=d.getElementById('guardianSourceStatusV1038');
   if(!root||!gps||!gpsCard||!health||!heart||!pop||!scoreText||!sleepInfo||!nutriText||!nutriInfo||!note||!sleepRow||!nutriRow||!batteryCaption)return null;
   let generation=0,busy=false,rerun=false,lastProfile=profileKey(w.localStorage),updatedAt=0,
-   cachedSleep=null,cachedNutrition=null,cachedGPS=null,lastHealthFetch=0;
+   cachedEnergy=null,cachedNutrition=null,cachedGPS=null,lastHealthFetch=0;
   const selected=()=>profileKey(w.localStorage);
   const auth=()=>w.HH_GUARDIAN_LIVE_V785;
   function show(snapshot){
@@ -254,25 +273,25 @@
    gpsCard.dataset.state=g.state;
    gpsCard.setAttribute('aria-label','GPS · '+g.text);
    if(sourceStatus)sourceStatus.textContent=snapshot?.diagnostic||'📡 Adatcsatorna: hitelesített GPS- és Dropbox-ellenőrzésre vár.';
-   const sleep=snapshot?.sleep||null,nutrition=snapshot?.nutrition||null;
-   const h=healthState(sleep,nutrition);
+   const energy=snapshot?.energy||null,nutrition=snapshot?.nutrition||null;
+   const h=healthState(energy,nutrition);
    heart.dataset.rag=h.tone;
    // v847: the small Health tile displays the observed score alone.
    // Keep the explicit /100 scale only in the expanded Sleep detail.
-   health.textContent=sleep?String(sleep.score):'—';
+   health.textContent=energy?String(energy.score):'—';
    const owner=lastProfile==='monika'?'Mónika':'Zsolt';
    batteryCaption.textContent=owner+' Mobil';
-   sleepRow.dataset.rag=sleep?.tone||'unknown';
+   sleepRow.dataset.rag=energy?.tone||'unknown';
    nutriRow.dataset.rag=nutrition?.tone||'unknown';
    const overall={good:'kedvező',warn:'figyelendő',bad:'figyelmet igényel',unknown:'nincs adat'};
    heart.setAttribute('aria-label',owner+' · napi Health státusz · '+overall[h.tone]+'. Koppints a részletekhez');
-   scoreText.textContent=sleep?sleep.score+' / 100':'—';
-   sleepInfo.textContent=sleep?sleep.date+' · '+sleep.source:'Nincs friss, ellenőrizhető éjszakai alvásindex';
+   scoreText.textContent=energy?energy.score+' / 100':'—';
+   sleepInfo.textContent=energy?energy.date+' · '+energy.source:'Nincs friss, igazolt Samsung Energy Score';
    nutriText.textContent=nutrition?(nutrition.net<0?'−':nutrition.net>0?'+':'')+
     Math.abs(nutrition.net)+' kcal':'—';
    nutriInfo.textContent=nutrition?nutrition.date+' · '+nutrition.source:
     'Nincs friss napi bevitel + teljes energiafelhasználás adat';
-   note.textContent='A szív színe az elérhető Sleep és Nutrition RAG közül az óvatosabbat követi. '+ 
+   note.textContent='A szív színe az elérhető Energy Score és Nutrition tájékoztató jelzés közül az óvatosabbat követi. '+ 
     'Tájékoztató napi státusz, nem orvosi pontszám. Koppints a panelre a bezáráshoz.';
   }
   function close(){
@@ -285,23 +304,24 @@
   pop.addEventListener('click',close);
   d.addEventListener('keydown',e=>{if(e.key==='Escape')close()});
   function invalidate(){
-   generation++;lastProfile=selected();cachedSleep=null;cachedNutrition=null;cachedGPS=null;
+   generation++;lastProfile=selected();cachedEnergy=null;cachedNutrition=null;cachedGPS=null;
    lastHealthFetch=0;updatedAt=0;close();show(null);
   }
   async function fetchHealth(profile,stamp){
-   let rows=[],nutrition=null;
+   let energy=null,nutrition=null;
+   // Replace the old HC Sleep reader with Samsung SDK on the same 2-minute cadence.
+   // No synthetic Energy Score and no additional background timer.
    try{
-    const raw=await readPrivateJson('/HealthHub/profiles/'+profile+'-health-connect.json');
-    if(raw?.profile===profile)rows=raw.records?.sleepSessions||[];
-    else rows=await localSleep(profile);
-   }catch(_){rows=await localSleep(profile)}
+    const raw=await readPrivateJson('/HealthHub/profiles/'+profile+'-samsung-health.json');
+    energy=samsungEnergyScore(profile,raw,stamp);
+   }catch(_){energy=null}
    try{
     const raw=await readPrivateJson('/HealthHub/profiles/'+profile+'-nutrition.json');
     if(raw?.profileKey===profile&&raw?.schemaVersion==='healthhub.nutrition/1')
      nutrition=raw;
     else nutrition=readLocalNutrition(profile);
    }catch(_){nutrition=readLocalNutrition(profile)}
-   return {sleep:sleepIndex(rows,stamp),nutrition};
+   return {energy,nutrition};
   }
   async function fetchGps(profile){
    // GPS status may not consume the old Supabase/browser home record.
@@ -329,14 +349,14 @@
     ]);
     if(ticket!==generation||selected()!==p||d.hidden)return;
     cachedGPS=g;
-    if(needHealth&&h){cachedSleep=h.sleep;cachedNutrition=h.nutrition;lastHealthFetch=stamp}
+    if(needHealth&&h){cachedEnergy=h.energy;cachedNutrition=h.nutrition;lastHealthFetch=stamp}
     const n=nutritionBalance(p,cachedNutrition,readEnergy(p),Date.now());
     show({gps:gpsState(null,g.native,p,Date.now(),g.revokeAt),
-     diagnostic:connectionDiagnostic(g,p,Date.now()),sleep:cachedSleep,nutrition:n});
+     diagnostic:connectionDiagnostic(g,p,Date.now()),energy:cachedEnergy,nutrition:n});
     updatedAt=Date.now();
    }catch(_){
     if(ticket===generation)show({gps:{state:'unknown',text:'Nincs jel'},
-     sleep:cachedSleep,nutrition:nutritionBalance(p,cachedNutrition,readEnergy(p))});
+     energy:cachedEnergy,nutrition:nutritionBalance(p,cachedNutrition,readEnergy(p))});
    }finally{
     busy=false;
     if(rerun){rerun=false;w.setTimeout?.(refresh,0)}
@@ -367,6 +387,6 @@
   if(w.document.readyState==='loading')w.document.addEventListener('DOMContentLoaded',start);
   else start();
  }
- return {profileKey,validSessions,nightCandidate,latestNight,sleepIndex,nutritionBalance,
+ return {profileKey,validSessions,nightCandidate,latestNight,sleepIndex,samsungEnergyScore,nutritionBalance,
   healthState,gpsState,connectionDiagnostic,permitted,start,version:'845'};
 });
