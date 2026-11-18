@@ -55,14 +55,27 @@ internal object SamsungStepCollector {
      */
     fun mergeHourly(old: JSONArray?, fresh: JSONArray?, day: LocalDate): JSONArray? {
         if (fresh == null || fresh.length() == 0) return old
+        // Samsung may return only a subset of today's hours. Replace each
+        // observed hour individually, retaining all other measured Beta hours.
+        val replacementHours = HashSet<Int>()
+        for (i in 0 until fresh.length()) {
+            val item = fresh.optJSONObject(i) ?: continue
+            val hour = item.optInt("hour", -1)
+            if (item.optString("date") == day.toString() && hour in 0..23) {
+                replacementHours.add(hour)
+            }
+        }
         val out = JSONArray()
         if (old != null) for (i in 0 until old.length()) {
             val item = old.optJSONObject(i) ?: continue
-            if (item.optString("date") != day.toString()) out.put(item)
+            if (item.optString("date") == day.toString() &&
+                item.optInt("hour", -1) in replacementHours) continue
+            out.put(item)
         }
         for (i in 0 until fresh.length()) {
             val item = fresh.optJSONObject(i) ?: continue
-            if (item.optString("date") == day.toString()) out.put(item)
+            if (item.optString("date") == day.toString() &&
+                item.optInt("hour", -1) in replacementHours) out.put(item)
         }
         return out
     }
