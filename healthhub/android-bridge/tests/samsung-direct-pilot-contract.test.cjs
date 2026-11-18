@@ -177,7 +177,10 @@ test('Watch9 optional Health Connect vitals cannot block existing mandatory sync
    assert.match(exporter,new RegExp('HealthPermission\\.getReadPermission\\('+field+'::class\\)'));
  }
  assert.match(exporter,/OPTIONAL_WATCH_VITALS_PERMISSIONS = setOf\(/);
- assert.doesNotMatch(exporter,/REQUIRED_PERMISSIONS = setOf\([\s\S]*?SkinTemperatureRecord::class/);
+ const required=exporter.match(/REQUIRED_PERMISSIONS = setOf\(([\s\S]*?)\n        \)/)?.[1]||'';
+ for (const optional of ['HeartRateVariabilityRmssdRecord','RespiratoryRateRecord','SkinTemperatureRecord']) {
+   assert.doesNotMatch(required,new RegExp(optional+'::class'));
+ }
  assert.match(exporter,/private suspend fun <T : Record> readOptionalSource\(/);
  assert.match(exporter,/if \(e is kotlinx\.coroutines\.CancellationException\) throw e/);
  assert.match(exporter,/records\.put\("heartRateVariabilityRmssd"/);
