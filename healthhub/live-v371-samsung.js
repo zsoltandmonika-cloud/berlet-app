@@ -123,8 +123,22 @@ function merge(c, result, requestedProfile){
  out.daily=(Array.isArray(c.daily)?c.daily:[]).map(function(day){
   var samsung=days.get(day.date);if(!samsung)return day;
   if(day.date===today&&skipToday){
-   // No silent stale priority for active minutes or calories. We deliberately
-   // retain the HC missing-data state instead of presenting 12:28 as "now".
+   // A newer Health Connect export may have steps but NO active-time record.
+   // If today's Samsung snapshot is still fresh, recover ONLY the missing,
+   // directly measured active minutes; never replace a valid HC minute value.
+   // Stale Samsung snapshots and other metrics retain the existing guard.
+   if(!staleToday&&newerHc&&
+      (day.activeMinutes==null||!Number.isFinite(Number(day.activeMinutes)))&&
+      Object.prototype.hasOwnProperty.call(samsung,'activeMinutes')){
+    var recovered=Object.assign({},day);
+    recovered.activeMinutes=samsung.activeMinutes;
+    recovered._hhSamsung=samsung;
+    recovered._hhFieldSources=Object.assign({},day._hhFieldSources,{activeMinutes:'samsung-direct'});
+    recovered._hhSamsungMeasuredAt=result.data.exportedAt;
+    out.samsungTodayRecoveredActiveMinutes=true;
+    found++;
+    return recovered;
+   }
    out.samsungTodaySkipped=true;
    return day;
   }
@@ -159,6 +173,10 @@ function merge(c, result, requestedProfile){
  // Samsung-only day is not inserted, because a valid HC daily record is needed
  // for heart/step context and for preventing disconnected stale sources.
  out.samsungMergeCount=found;
+ if(out.samsungTodayRecoveredActiveMinutes){
+  result.data.staleToday=false;
+  result.data.staleReason='Friss Samsung aktív idő pótolta a hiányzó Health Connect mezőt; a többi HC adat változatlan.';
+ }
  return out;
 }
 window.HH_SAMSUNG_SOURCE_V371={path:path,normalize:normalize,load:load,merge:merge,version:'387-source-freshness'};
