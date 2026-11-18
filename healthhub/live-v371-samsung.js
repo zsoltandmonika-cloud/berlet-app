@@ -158,7 +158,16 @@ async function load(profile,vault){
   return {status:'ready',data:value,profile:profile};
  }catch(e){
   // Missing optional file must never block canonical Health Connect sync.
-  return {status:e&&e.status===409?'not_connected':'unavailable',data:null,profile:profile};
+  // Expose ONLY a bounded error category, never credentials or Dropbox payload.
+  var http=Number(e&&e.status),message=String(e&&e.message||'');
+  var reason=http===409?'missing-file':
+   http===401?'http-401':http===403?'http-403':
+   http===429?'http-429':
+   http>=500&&http<=599?'http-5xx':
+   /invalid_grant|invalid_token|expired_access_token|Dropbox token|token frissítési hiba/i.test(message)?'auth':
+   /Failed to fetch|NetworkError|network request failed|Load failed/i.test(message)?'network':
+   'unknown';
+  return {status:http===409?'not_connected':'unavailable',data:null,profile:profile,readError:reason};
  }
 }
 function merge(c, result, requestedProfile){
