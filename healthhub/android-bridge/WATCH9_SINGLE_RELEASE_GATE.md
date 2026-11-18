@@ -37,3 +37,11 @@ A már aláírt és Zsoltnál telepített `0.15.22` / `versionCode 49` nem módo
 - Nem módosítunk `main/healthhub/data/bridge-ota.json` vagy public release csatornát amíg a Samsung és a teljes CI kapu nyitott.
 
 **Állapot:** single-release policy aktív a fejlesztési ágon; a consolidated Samsung OTA **nincs kiadva**, új APK még nincs telepítve Mónika telefonjára e döntés alapján.
+
+## 2026-11-18 · Összevont Watch9 v0.15.23/build50 QA-kapuk
+- A CI külön, **0.15.23/build50**, az eredeti HH One aláírókulcsával készült **nem-OTA** APK-jelöltet épít, csak `-PhhSamsungIntegratedCandidate=true -PhhSamsungConsolidatedCandidate=true` beállítással. A gyári 0.15.20/build47 és a két telefonon telepített 0.15.22/build49 változatlan.
+- A Samsung Health Data SDK opcionális SLEEP / ENERGY_SCORE / BLOOD_OXYGEN / SKIN_TEMPERATURE olvasója és a Health Connect HRV / respiratory forrás bekerült.
+- A meglévő Alvás oldal egy új, **2 oszlopos, 6 mérési csempés** szekciót kap. Csak profilazonosított, ellenőrzött Health Connect alvásforrás után tölt külön Samsung-forrást; sosem blokkolja a már gyors alvásképernyőt. Lejárt (>72 órás), hiányzó vagy más profilú mérést nem mutat aktuálisként.
+- A Samsung extra mérések ellenőrzésének idejét `samsungWellnessReadAt` mező őrzi külön az óránkénti Activity Dropbox feltöltési idejétől. A 6 órás háttérlekérdezés tulajdonosprofil-specifikus; jogosultsághiány nem törli a régi érvényes adatot.
+- CI: [Signed private consolidated candidate](https://github.com/zsoltandmonika-cloud/berlet-app/actions/runs/44370117951), [Sleep Local-First](https://github.com/zsoltandmonika-cloud/berlet-app/actions/runs/44369128222) és [HC Sleep freshness](https://github.com/zsoltandmonika-cloud/berlet-app/actions/runs/44369128289). A build50 kiadásjelölt csak a fordítás, aláírás és regressziós kapuk PASS után nevezhető QA-readynek.
+- Kizáró feltételek változatlanok: **Samsung partner kiadási jogosultság, valós készülékes extraadat-ellenőrzés, két automata szinkron, hiba nélkül zárt releváns CI**. A meglévő `healthhub/data/bridge-ota.json` manifestet nem módosítjuk a kapuk előtt; a Mónika telefonján végzendő telepítések számát minimalizáljuk.
