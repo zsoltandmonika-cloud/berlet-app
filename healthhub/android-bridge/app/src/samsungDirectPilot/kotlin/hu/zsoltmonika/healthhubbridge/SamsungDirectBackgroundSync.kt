@@ -43,7 +43,7 @@ import java.util.concurrent.TimeUnit
  */
 object SamsungDirectBackgroundSync {
     const val KEY_ENABLED = "samsung_direct_background_enabled"
-    const val KEY_MANUAL_CLOUD_VERIFIED = "samsung_direct_manual_cloud_verified"
+    const val KEY_MANUAL_CLOUD_VERIFIED_OWNER = "samsung_direct_manual_cloud_verified_owner"
     const val KEY_LAST_SUCCESS = "samsung_direct_background_last_success_ms"
     const val KEY_LAST_ERROR = "samsung_direct_background_last_error"
     private const val PERIODIC = "hh-samsung-direct-periodic-v1"
@@ -60,7 +60,7 @@ object SamsungDirectBackgroundSync {
             "A telefon tulajdonosi profilja nem egyezik"
         }
         if (enabled) {
-            check(prefs.getBoolean(KEY_MANUAL_CLOUD_VERIFIED, false)) {
+            check(prefs.getString(KEY_MANUAL_CLOUD_VERIFIED_OWNER, null) == owner) {
                 "Előbb teszteld a Samsung Direct kézi olvasását és sikeres Dropbox-feltöltését"
             }
             check(DropboxVaultClient.hasRefreshToken(prefs)) {
@@ -120,7 +120,7 @@ class SamsungDirectBackgroundWorker(
             note(prefs, "Tulajdonosprofil hiányzik")
             return Result.success()
         }
-        if (!prefs.getBoolean(SamsungDirectBackgroundSync.KEY_MANUAL_CLOUD_VERIFIED, false) ||
+        if (!prefs.getString(SamsungDirectBackgroundSync.KEY_MANUAL_CLOUD_VERIFIED_OWNER, null) == owner ||
             !DropboxVaultClient.hasRefreshToken(prefs)) {
             note(prefs, "Samsung vagy Dropbox kézi előteszt hiányzik")
             return Result.success()
