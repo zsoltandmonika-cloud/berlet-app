@@ -209,3 +209,20 @@ test('Watch9 optional vitals are preserved in Dropbox on denied permission or so
    assert.match(client,new RegExp('"'+key+'" to "'+key+'"'));
  }
 });
+
+test('Samsung SDK consolidated hourly steps are permission-scoped, never guessed, and preserve historic Beta rows',()=>{
+ const steps=read('app/src/samsungDirectPilot/kotlin/hu/zsoltmonika/healthhubbridge/SamsungStepCollector.kt');
+ assert.match(steps,/Permission\.of\(DataTypes\.STEPS, AccessType\.READ\)/);
+ assert.match(steps,/DataType\.StepsType\.TOTAL\.requestBuilder/);
+ assert.match(steps,/LocalTimeGroup\.of\(LocalTimeGroupUnit\.HOURLY, 1\)/);
+ assert.match(steps,/setLocalTimeFilterWithGroup\(filter, group\)/);
+ assert.match(steps,/record\.startTime\.atZone\(ZoneId\.systemDefault\(\)\)/);
+ assert.match(steps,/result\.takeIf \{ it\.length\(\) > 0 \}/);
+ assert.match(steps,/if \(fresh == null \|\| fresh\.length\(\) == 0\) return old/);
+ assert.match(steps,/if \(item\.optString\("date"\) != day\.toString\(\)\) out\.put\(item\)/);
+ assert.match(sdk,/SamsungStepCollector\.readHourly\(store, day, until\)/);
+ assert.match(sdk,/SamsungStepCollector\.mergeHourly\(/);
+ assert.match(bg,/SamsungStepCollector\.readHourly\(store, measuredDay, until\)/);
+ assert.match(bg,/SamsungStepCollector\.mergeHourly\(/);
+ assert.doesNotMatch(bg,/requestPermissions\(/);
+});
