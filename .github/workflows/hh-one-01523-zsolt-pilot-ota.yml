@@ -1,0 +1,131 @@
+name: HH One 0.15.23 · Zsolt-only OTA pilot
+
+# ONE-SHOT private-household test. Never rollout to Monika here.
+# Reuse the previously signed, passing native candidate. Do NOT build SDK-less APK.
+on:
+  push:
+    paths:
+      - '.github/workflows/hh-one-01523-zsolt-pilot-ota.yml'
+
+permissions:
+  actions: read
+  contents: write
+
+concurrency:
+  group: hh-one-01523-zsolt-pilot-ota
+  cancel-in-progress: false
+
+jobs:
+  publish-zsolt-only:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      GH_TOKEN: ${{ github.token }}
+      VERSION: "0.15.23"
+      CODE: "50"
+      SOURCE_RUN: "44378301211"
+      SOURCE_HEAD: "70736e729ab867b9b86212a6d9d8be038bc23de5"
+      SOURCE_ARTIFACT: "HH-One-Samsung-0.15.23-PRIVATE-TEST-NOT-OTA"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: true
+      - name: Fail closed unless manifest remains the proven existing baseline
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json
+          x=json.load(open('healthhub/data/bridge-ota.json'))
+          assert x['schema']=='healthhub.connect.ota/1'
+          assert x['channel']=='signed-release'
+          assert x['applicationId']=='hu.zsoltmonika.healthhubbridge'
+          assert x['version']=='0.15.20' and x['versionCode']==47, 'OTA channel changed: stop instead of overwriting'
+          assert x['sha256']=='5c416b11cc61d660d84f6d8d0a1db5eab9c6507adef85c6a11efb4f40f43cd45'
+          PY
+      - name: Download exactly the previously signed and successful Watch9 build
+        run: |
+          set -euo pipefail
+          RESULT="$(gh run view "$SOURCE_RUN" --repo "$GITHUB_REPOSITORY" --json headSha,conclusion,status)"
+          echo "$RESULT" | python3 -c 'import json,os,sys;x=json.load(sys.stdin); assert x["status"]=="completed" and x["conclusion"]=="success" and x["headSha"]==os.environ["SOURCE_HEAD"]'
+          mkdir -p "$RUNNER_TEMP/pilot"
+          gh run download "$SOURCE_RUN" --repo "$GITHUB_REPOSITORY" --name "$SOURCE_ARTIFACT" --dir "$RUNNER_TEMP/pilot"
+          SOURCE="$RUNNER_TEMP/pilot/HH-One-Samsung-0.15.23-PRIVATE-TEST-NOT-OTA.apk"
+          test -s "$SOURCE"
+          mv "$SOURCE" "$RUNNER_TEMP/pilot/HealthHub-Connect-v0.15.23-ota.apk"
+          echo "PILOT_APK=$RUNNER_TEMP/pilot/HealthHub-Connect-v0.15.23-ota.apk" >> "$GITHUB_ENV"
+      - name: Verify APK signer, package, version and currently published baseline
+        run: |
+          set -euo pipefail
+          SIGNER="$ANDROID_HOME/build-tools/35.0.0/apksigner"
+          AAPT="$ANDROID_HOME/build-tools/35.0.0/aapt"
+          test -x "$SIGNER" && test -x "$AAPT"
+          "$SIGNER" verify --verbose "$PILOT_APK"
+          BADGE="$("$AAPT" dump badging "$PILOT_APK" | head -1)"
+          [[ "$BADGE" == *"name='hu.zsoltmonika.healthhubbridge'"* ]]
+          [[ "$BADGE" == *"versionCode='50'"* ]]
+          [[ "$BADGE" == *"versionName='0.15.23'"* ]]
+          NEW_CERT="$("$SIGNER" verify --print-certs "$PILOT_APK" | awk -F': ' '/Signer #1 certificate SHA-256 digest/{print $2;exit}' | tr 'A-F' 'a-f' | tr -d '\r\n')"
+          test "$NEW_CERT" = "1045e5cc520eded12ebdec76eaf946cda0888f8cbccc7a2cdfc62a6aec92eb1e"
+          mkdir -p "$RUNNER_TEMP/baseline"
+          gh release download healthhub-connect-ota-v0.15.20 --repo "$GITHUB_REPOSITORY" \
+            --pattern 'HealthHub-Connect-v0.15.20-ota.apk' --dir "$RUNNER_TEMP/baseline"
+          BASE="$RUNNER_TEMP/baseline/HealthHub-Connect-v0.15.20-ota.apk"
+          test "$(sha256sum "$BASE" | cut -d' ' -f1)" = "5c416b11cc61d660d84f6d8d0a1db5eab9c6507adef85c6a11efb4f40f43cd45"
+          "$SIGNER" verify "$BASE"
+          OLD_CERT="$("$SIGNER" verify --print-certs "$BASE" | awk -F': ' '/Signer #1 certificate SHA-256 digest/{print $2;exit}' | tr 'A-F' 'a-f' | tr -d '\r\n')"
+          test "$NEW_CERT" = "$OLD_CERT"
+          echo "PILOT_SHA=$(sha256sum "$PILOT_APK" | cut -d' ' -f1)" >> "$GITHUB_ENV"
+          echo "PASS: exact prebuilt SDK-native build50, release signer compatible with existing OTA baseline" >> "$GITHUB_STEP_SUMMARY"
+      - name: Publish immutable, pre-release signed asset
+        run: |
+          set -euo pipefail
+          TAG="healthhub-connect-ota-v0.15.23"
+          APK="HealthHub-Connect-v0.15.23-ota.apk"
+          if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            mkdir -p "$RUNNER_TEMP/existing"
+            gh release download "$TAG" --repo "$GITHUB_REPOSITORY" --pattern "$APK" --dir "$RUNNER_TEMP/existing"
+            test "$(sha256sum "$RUNNER_TEMP/existing/$APK" | cut -d' ' -f1)" = "$PILOT_SHA" || {
+              echo "::error::Different existing signed release, refusing overwrite"; exit 1;
+            }
+          else
+            gh release create "$TAG" "$PILOT_APK" --repo "$GITHUB_REPOSITORY" \
+              --target main --prerelease \
+              --title "HH One v0.15.23 · Zsolt pilot" \
+              --notes "One-device developer test; offered only to owner profile zsolt via signed OTA. Android install approval is required."
+          fi
+          mkdir -p "$RUNNER_TEMP/download"
+          gh release download "$TAG" --repo "$GITHUB_REPOSITORY" --pattern "$APK" --dir "$RUNNER_TEMP/download"
+          test "$(sha256sum "$RUNNER_TEMP/download/$APK" | cut -d' ' -f1)" = "$PILOT_SHA"
+      - name: Stage signed OTA manifest for ZSOLT ONLY
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json,os,pathlib
+          p=pathlib.Path('healthhub/data/bridge-ota.json')
+          x=json.loads(p.read_text())
+          assert x['version']=='0.15.20' and x['versionCode']==47, 'Manifest moved while publishing, stop'
+          p.write_text(json.dumps({
+            'schema':'healthhub.connect.ota/1',
+            'channel':'signed-release',
+            'applicationId':'hu.zsoltmonika.healthhubbridge',
+            'version':'0.15.23',
+            'versionCode':50,
+            'rolloutProfiles':['zsolt'],
+            'downloadUrl':'https://github.com/zsoltandmonika-cloud/berlet-app/releases/download/healthhub-connect-ota-v0.15.23/HealthHub-Connect-v0.15.23-ota.apk',
+            'sha256':os.environ['PILOT_SHA']
+          },ensure_ascii=False,indent=2)+'\n')
+          PY
+          git config user.name healthhub-ota-bot
+          git config user.email healthhub-ota-bot@users.noreply.github.com
+          git add healthhub/data/bridge-ota.json
+          git commit -m "release: offer signed HH One 0.15.23 to Zsolt pilot only"
+          git pull --rebase origin main
+          python3 - <<'PY'
+          import json,os
+          x=json.load(open('healthhub/data/bridge-ota.json'))
+          assert x['versionCode']==50 and x['rolloutProfiles']==['zsolt'] and x['sha256']==os.environ['PILOT_SHA']
+          PY
+          git push origin HEAD:main
+          echo "Zsolt ONLY: prebuilt signed 0.15.23 is available in existing OTA channel. Monika excluded." >> "$GITHUB_STEP_SUMMARY"
