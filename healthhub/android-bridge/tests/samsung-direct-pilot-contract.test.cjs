@@ -196,3 +196,16 @@ test('Watch9 optional Health Connect vitals cannot block existing mandatory sync
    assert.match(manifest,new RegExp('android\\.permission\\.health\\.'+perm));
  }
 });
+
+test('Watch9 optional vitals are preserved in Dropbox on denied permission or source failure',()=>{
+ const client=read('app/src/main/java/hu/zsoltmonika/healthhubbridge/DropboxVaultClient.kt');
+ assert.match(client,/val optionalAccess = diagnostics\.optJSONObject\("optionalVitalsPermissions"\)/);
+ assert.match(client,/"hrv" to "heartRateVariabilityRmssd"/);
+ assert.match(client,/"respiratoryRate" to "respiratoryRate"/);
+ assert.match(client,/"skinTemperature" to "skinTemperature"/);
+ assert.match(client,/if \(optionalAccess\.optBoolean\(permission, false\)\) continue/);
+ assert.match(client,/val priorRecords = existing\.optJSONArray\(field\) \?: continue/);
+ for (const key of ['heartRateVariabilityRmssd','respiratoryRate','skinTemperature']) {
+   assert.match(client,new RegExp('"'+key+'" to "'+key+'"'));
+ }
+});
