@@ -246,3 +246,51 @@ test('Samsung web reader prioritizes newly measured hourly records over old Beta
  assert.equal(parsed.hourlySteps[0].hour,19);
  assert.equal(parsed.hourlySteps.some(r=>r.date===dayAt(5)),false);
 });
+
+test('optional SDK exercise collector is read-only, permission-bound and preserves Beta sessions on empty or failed reads',()=>{
+ const exercise=read('app/src/samsungDirectPilot/kotlin/hu/zsoltmonika/healthhubbridge/SamsungExerciseCollector.kt');
+ assert.match(exercise,/Permission\.of\(DataTypes\.EXERCISE, AccessType\.READ\)/);
+ assert.match(exercise,/DataTypes\.EXERCISE\.readDataRequestBuilder/);
+ assert.match(exercise,/getValue\(DataType\.ExerciseType\.SESSIONS\)/);
+ assert.match(exercise,/session\.startTime/);
+ assert.match(exercise,/session\.endTime/);
+ assert.match(exercise,/session\.distance/);
+ assert.match(exercise,/session\.altitudeGain/);
+ assert.doesNotMatch(exercise,/\broute\b\s*[.?](?:let|forEach|map)\b|\bGPS\b.*put\(/i);
+ assert.match(exercise,/if \(fresh == null \|\| fresh\.length\(\) == 0\) return previous/);
+ assert.match(exercise,/combined\[start\.toString\(\) \+ "\|" \+ end\.toString\(\) \+ "\|" \+ typ\] = row/);
+ assert.match(sdk,/SamsungExerciseCollector\.readRecent\(/);
+ assert.match(sdk,/SamsungExerciseCollector\.mergeSessions\(/);
+ assert.match(bg,/SamsungExerciseCollector\.readRecent\(/);
+ assert.match(bg,/SamsungExerciseCollector\.mergeSessions\(/);
+ // A periodic worker cannot open system permission dialogs or modify HC.
+ assert.doesNotMatch(bg,/requestPermissions\(/);
+ assert.doesNotMatch(exercise,/uploadHealthConnectSnapshot\(|healthConnectPath\(/);
+});
+
+test('Samsung browser shows newest exercise sessions and never double-counts overlapping HC sessions',()=>{
+ const vm=require('node:vm'),ctx={window:{}};
+ vm.runInNewContext(web,ctx,{timeout:1000});
+ const now=Date.now();
+ const sessions=[];
+ for(let n=650;n>=0;n--){
+  const end=new Date(now-n*1800000);
+  const start=new Date(end.getTime()-1200000);
+  sessions.push({startTime:start.toISOString(),endTime:end.toISOString(),
+                 exerciseType:'WALKING',distanceMeters:1100});
+ }
+ const recent=sessions.at(-1);
+ const payload={schemaVersion:'healthhub.samsung.daily/1',profile:'monika',
+   exportedAt:new Date(now).toISOString(),
+   records:{dailySummary:[],exerciseSessions:sessions}};
+ const parsed=ctx.window.HH_SAMSUNG_SOURCE_V371.normalize('monika',payload);
+ assert.ok(parsed);
+ assert.equal(parsed.exerciseSessions.length,600);
+ assert.equal(parsed.exerciseSessions[0].endTime,recent.endTime);
+ const result={status:'ready',data:parsed};
+ const existing={daily:[],sessions:[{id:'health-connect-session',
+   startTime:recent.startTime,endTime:recent.endTime,distanceKm:1.2}]};
+ const combined=ctx.window.HH_SAMSUNG_SOURCE_V371.merge(existing,result,'monika');
+ assert.equal(combined.sessions.filter(x=>x.endTime===recent.endTime).length,1);
+ assert.equal(combined.sessions.some(x=>x.id==='health-connect-session'),true);
+});
