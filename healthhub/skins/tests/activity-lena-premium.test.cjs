@@ -59,7 +59,7 @@ test('Existing glass and new Léna theme can be independently disabled',()=>{
   ['?hhlenaactivity=0',1],
   ['?hhactivityglass=0',0]
  ]){
-  const links=[],attr={},page={classList:{contains(){return true}},setAttribute(){throw Error('must remain unstyled')}};
+  const links=[],attr={},page={classList:{contains(){return true}},getAttribute(){return null},setAttribute(){throw Error('must remain unstyled')}};
   const doc={
    documentElement:{dataset:{},setAttribute(k,v){attr[k]=v},getAttribute(k){return attr[k]??null}},
    getElementById(k){return k==='hhActivityPage191'?page:null},
