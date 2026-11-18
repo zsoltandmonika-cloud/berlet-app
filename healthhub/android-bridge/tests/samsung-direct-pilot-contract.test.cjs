@@ -61,3 +61,12 @@ test('Samsung private pilot checks today then yesterday without changing the dat
  assert.match(sdk,/!localDate\.isAfter\(today\)/);
  assert.match(sdk,/if \(day == today\) "mai" else "tegnapi"/);
 });
+
+test('a valid Samsung activity reading is reported locally without falsely claiming a cloud upload',()=>{
+ assert.match(sdk,/DropboxVaultClient\.hasRefreshToken\(prefs\)/);
+ assert.match(sdk,/Dropbox nincs csatlakoztatva a Pilothoz; nem történt feltöltés/);
+ assert.match(sdk,/stage = "SAMSUNG_ADATOLVASAS"/);
+ assert.match(sdk,/stage = "DROPBOX_LETÖLTÉS"/);
+ assert.match(sdk,/stage = "DROPBOX_FELTÖLTÉS"/);
+ assert.match(sdk,/Samsung Direct hiba \(\$stage\)/);
+});
