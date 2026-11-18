@@ -174,6 +174,17 @@ internal object SamsungWellnessCollector {
 
     /** Historical merge is non-destructive for denied/missing/revoked sources. */
     fun mergeInto(records: JSONObject, previous: JSONObject?, snapshot: Snapshot?) {
+        // Activity refreshes hourly, but sleep scores can be older. Persist a
+        // separate source timestamp so the browser never presents an hourly
+        // activity upload as a fresh Samsung overnight measurement.
+        val freshWellness = snapshot != null && listOf(
+            snapshot.sleepSessions, snapshot.energyScores,
+            snapshot.nightOxygen, snapshot.nightSkinTemperature
+        ).any { it != null && it.length() > 0 }
+        if (freshWellness) records.put("samsungWellnessReadAt", java.time.Instant.now().toString())
+        else previous?.optString("samsungWellnessReadAt")
+            ?.takeIf { it.isNotBlank() }
+            ?.let { records.put("samsungWellnessReadAt", it) }
         for (field in listOf("samsungSleepSessions", "samsungEnergyScores",
             "samsungNightOxygen", "samsungNightSkinTemperature")) {
             val fresh = when (field) {
