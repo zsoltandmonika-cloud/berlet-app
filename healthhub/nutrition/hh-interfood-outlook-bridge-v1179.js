@@ -69,6 +69,9 @@ async function send(action){
  return result;
 }
 function openLogin(){
+ if(typeof root.HH_VAULT_GOOGLE_V882?.start==='function'){
+  void root.HH_VAULT_GOOGLE_V882.start();return;
+ }
  if(vault()?.openLogin)vault().openLogin();
  else setVaultControls(true,'A Health Vault bejelentkezési modul nem érhető el.',false);
 }
@@ -81,10 +84,10 @@ function errorText(error){
 }
 async function importOrders(){
  if(!monika()||!authorized())return {skipped:'profile_or_auth'};
- if(!cloud()?.connected()){
-  show('⚠ A privát Dropbox Nutrition-szinkron csatlakoztatása szükséges.');
-  return {skipped:'dropbox'};
- }
+ // Dropbox is an optional backup, not a prerequisite for a profile-authorized
+ // phone to display its confirmed lunch. The Nutrition writer saves locally
+ // and queues cloud sync when the user's Dropbox connection is available.
+ const localOnly=!cloud()?.connected?.();
  const profile=api()?.getProfile?.();
  if(profile!=='monika'||!api()?.importConfirmedInterfoodOrder)return {skipped:'no_api'};
  const result=await send('orders');
@@ -102,7 +105,7 @@ async function importOrders(){
  }
  root.HH_INTERFOOD_SMART_LUNCH_V1178?.render?.();
  root.HH_INTERFOOD_DIARY_V1175?.refreshCards?.();
- return {added,seen,errors};
+ return {added,seen,errors,localOnly};
 }
 async function refresh({afterConnect=false}={}){
  if(running)return;
@@ -110,11 +113,13 @@ async function refresh({afterConnect=false}={}){
  running=true;
  try{
   if(!vault()?.getStatus?.()?.authenticated){
-   // Only a device-specific session is missing. Do not crowd Smart Lunch.
-   hideBridge();setVaultControls(true);return;
+   show('🔐 Mónika Interfood-ebédjeinek átvételéhez ezen a telefonon Google-belépés szükséges.',
+    {text:'Google-belépés',click:openLogin});
+   setVaultControls(true);return;
   }
   if(!authorized()){
-   hideBridge();
+   show('🔒 A Health Vault Mónika-profiljának hozzáférése még nem igazolt.',
+    {text:'Újrapróbálás',click:()=>refresh()});
    setVaultControls(true,'Mónika Health Vault-jogosultságának ellenőrzése folyamatban.',false);
    return;
   }
@@ -139,10 +144,13 @@ async function refresh({afterConnect=false}={}){
   const imported=await importOrders();
   if(imported?.seen){
    show('✓ Outlook szinkron · '+imported.seen+' rendelési étel a privát gyűjteményben'+
-    (imported.added?' · '+imported.added+' új':'')+'.');
+    (imported.added?' · '+imported.added+' új':'')+
+    (imported.localOnly?' · helyben mentve (Dropbox nélkül)':'')+'.');
   }
   if(imported?.errors)show('⚠ '+imported.errors+' étel ellenőrzést igényel; nem készült hibás kártya.');
-  else if(connected&&!imported?.skipped){
+  else if(imported?.skipped)show('⚠ A Nutrition ételkártyák betöltése még nem érhető el ('+
+   imported.skipped+').',{text:'Újrapróbálás',click:()=>refresh()});
+  else if(connected&&!imported?.localOnly){
    // No persistent technical row when automation is healthy: one premium tile
    // and the conditional daily Smart Lunch card only.
    root.setTimeout(()=>{const bar=ID('hhIfOutlookBridge1179'),btn=ID('hhIfOutlookAction1179');
