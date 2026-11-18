@@ -42,8 +42,13 @@ function normalize(p,raw){
  // Optional v375 source records. Old v374 exports remain fully supported.
  var hourly=[],seenHours=new Set();
  var inputHourly=raw.records&&raw.records.hourlySteps;
- if(Array.isArray(inputHourly))inputHourly.slice(0,72).forEach(function(r){
-  if(!r||!isDay(r.date)||Date.parse(r.date+'T00:00:00Z')>now+86400000)return;
+ // Keep full Beta history in Dropbox, but show the newest 72 UNIQUE
+ // hours, otherwise the first 72 old entries hide today's new readings.
+ if(Array.isArray(inputHourly))inputHourly.filter(function(r){return r&&isDay(r.date)})
+  .sort(function(a,b){return b.date.localeCompare(a.date)||Number(b.hour)-Number(a.hour)})
+  .forEach(function(r){
+  if(hourly.length>=72)return;
+  if(Date.parse(r.date+'T00:00:00Z')>now+86400000)return;
   var h=number(r.hour,0,23),steps=number(r.steps,0,100000);
   if(h==null||h!==Math.floor(h)||steps==null)return;
   var key=r.date+'|'+h;if(seenHours.has(key))return;seenHours.add(key);
