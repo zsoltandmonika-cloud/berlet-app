@@ -1,178 +1,208 @@
 {
   "schemaVersion": 1,
-  "date": "2026-11-17",
-  "generatedAt": "2026-11-17T14:32:59+01:00",
-  "headline": "A reggel fő témái: Putin's Crimea bridge partly collapses as Zelensky hails 'unprecedented' attack by Ukraine; Ukraine accuses Russia of targeting rescue operation after 'double-tap' strike kills 72",
+  "date": "2026-11-18",
+  "generatedAt": "2026-11-18T14:09:13+01:00",
+  "headline": "A reggel fő témái: Trump shakes hands with Putin and Xi ahead of historic talks in China; Nvidia says it won't reinstate Huang as it reports soaring sales",
   "sections": [
     {
       "id": "executive",
       "title": "Vezetői összefoglaló",
       "items": [
-        "BBC World: Putin's Crimea bridge partly collapses as Zelensky hails 'unprecedented' attack by Ukraine",
-        "BBC World: Ukraine accuses Russia of targeting rescue operation after 'double-tap' strike kills 72",
-        "BBC World: Palestinian woman, 72, shot dead by Israeli settlers in West Bank, health ministry says",
-        "BBC World: Nvidia partner Megaspeed being investigated by US government over chip exports"
+        "BBC World: Trump shakes hands with Putin and Xi ahead of historic talks in China",
+        "BBC World: Nvidia says it won't reinstate Huang as it reports soaring sales",
+        "BBC World: Bancroft sandpaper claims heap pressure on Cummins",
+        "BBC World: Democrats win Alaska Senate race two weeks after midterms counting began"
       ]
     },
     {
       "id": "overnight",
       "title": "Éjszakai fejlemények",
       "items": [
-        "BBC World: Putin's Crimea bridge partly collapses as Zelensky hails 'unprecedented' attack by Ukraine",
-        "BBC World: Ukraine accuses Russia of targeting rescue operation after 'double-tap' strike kills 72",
-        "BBC World: Palestinian woman, 72, shot dead by Israeli settlers in West Bank, health ministry says"
+        "BBC World: Trump shakes hands with Putin and Xi ahead of historic talks in China",
+        "BBC World: Nvidia says it won't reinstate Huang as it reports soaring sales",
+        "BBC World: Bancroft sandpaper claims heap pressure on Cummins"
       ]
     },
     {
       "id": "geopolitics",
       "title": "Külpolitika / Geopolitika",
       "items": [
-        "BBC World: Putin's Crimea bridge partly collapses as Zelensky hails 'unprecedented' attack by Ukraine",
-        "BBC World: Ukraine accuses Russia of targeting rescue operation after 'double-tap' strike kills 72",
-        "BBC World: Palestinian woman, 72, shot dead by Israeli settlers in West Bank, health ministry says"
+        "BBC World: Trump shakes hands with Putin and Xi ahead of historic talks in China",
+        "BBC World: Nvidia says it won't reinstate Huang as it reports soaring sales",
+        "BBC World: Bancroft sandpaper claims heap pressure on Cummins"
       ]
     },
     {
       "id": "hungary",
       "title": "Magyarország",
       "items": [
-        "Telex: Magyar Péter: Mára és holnapra leállítjuk a vasúti közlekedést Magyarország és Ukrajna között - Telex",
-        "NB1.hu: Magyarország–Észak-Írország: a magyar válogatott várható kezdőcsapata - NB1.hu",
-        "Növekedés.hu: Magyar Péter: leállítjuk a vasúti közlekedést Magyarország és Ukrajna között! - Növekedés.hu"
+        "| hvg.hu: Magyarország példája tanúsítja, hogy az autokraták öröksége szörnyűbb, mint gondolnánk – erről ír a világsajtó - | hvg.hu",
+        "MédiaKlikk: UEFA Nemzetek Ligája Magyarország - Észak-Írország mérkőzés - MédiaKlikk",
+        "Portfolio.hu: Új korszak küszöbén állunk, most dől el Magyarország jövője a globális technológiai versenyben - Portfolio.hu"
       ]
     },
     {
       "id": "economy",
       "title": "Gazdaság / Piacok",
       "items": [
-        "BBC Business: Speed camera fault may have allowed drivers to escape fines",
-        "BBC Business: Where are the most jobs for 18-24 year-olds?",
-        "BBC Business: Government must act now or lose Royal Mail, former minister warns"
+        "BBC Business: Energy bills forecast to go up by £443 a year from January as UK inflation rises again",
+        "BBC Business: Nvidia says it won't reinstate Huang as it reports soaring sales",
+        "BBC Business: How important are Nvidia and Jensen Huang to the US economy?"
       ]
     },
     {
       "id": "technology",
       "title": "Technológia / AI",
       "items": [
-        "BBC Technology: NHS data contract to stay with Palantir until 2029",
-        "BBC Technology: Pretending to be in New Zealand, booking leave and buying consoles - the lengths fans are going to for GTA 6",
-        "BBC Technology: US government confirms investigation into tech firm Megaspeed"
+        "BBC Technology: Grand Theft Auto 6 is a masterpiece, say critics",
+        "BBC Technology: British hacker who stole $11m through text message scheme jailed for six years in US",
+        "BBC Technology: Security flaw found in Java, world's third-largest programming language"
       ]
     },
     {
       "id": "risks",
       "title": "Mai kockázatok",
       "items": [
-        "Figyelmi pont: Putin's Crimea bridge partly collapses as Zelensky hails 'unprecedented' attack by Ukraine (BBC World).",
-        "Figyelmi pont: Ukraine accuses Russia of targeting rescue operation after 'double-tap' strike kills 72 (BBC World).",
-        "Figyelmi pont: Government must act now or lose Royal Mail, former minister warns (BBC Business)."
+        "Figyelmi pont: Rubio says US not 'under systemic attack' after series of tech outages (BBC World).",
+        "Figyelmi pont: Fontos bejelentés érkezett Magyarország olajtartalékairól - Infostart (Infostart).",
+        "Figyelmi pont: Energy bills forecast to go up by £443 a year from January as UK inflation rises again (BBC Business)."
       ]
     },
     {
       "id": "watch",
       "title": "Mi számít igazán / Figyelmi szint",
       "items": [
-        "BBC World: Putin's Crimea bridge partly collapses as Zelensky hails 'unprecedented' attack by Ukraine",
-        "BBC World: Ukraine accuses Russia of targeting rescue operation after 'double-tap' strike kills 72"
+        "BBC World: Trump shakes hands with Putin and Xi ahead of historic talks in China",
+        "BBC World: Nvidia says it won't reinstate Huang as it reports soaring sales"
       ]
     }
   ],
   "sources": [
     {
-      "title": "Putin's Crimea bridge partly collapses as Zelensky hails 'unprecedented' attack by Ukraine",
+      "title": "Trump shakes hands with Putin and Xi ahead of historic talks in China",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cw772jk4rvmxo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-17"
+      "url": "https://www.bbc.co.uk/news/articles/ck9d75x5wwwwo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-18"
     },
     {
-      "title": "Ukraine accuses Russia of targeting rescue operation after 'double-tap' strike kills 72",
+      "title": "Nvidia says it won't reinstate Huang as it reports soaring sales",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/c30rk8x5g80qo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-17"
+      "url": "https://www.bbc.co.uk/news/articles/cm2kl50vkwkdo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-18"
     },
     {
-      "title": "Palestinian woman, 72, shot dead by Israeli settlers in West Bank, health ministry says",
+      "title": "Bancroft sandpaper claims heap pressure on Cummins",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cqrlg377638yo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-17"
+      "url": "https://www.bbc.co.uk/sport/cricket/articles/cmqlqdevgl9ro?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-18"
     },
     {
-      "title": "Nvidia partner Megaspeed being investigated by US government over chip exports",
+      "title": "Democrats win Alaska Senate race two weeks after midterms counting began",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cmn504nq5033o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-17"
+      "url": "https://www.bbc.co.uk/news/articles/cqev3v2ygzlvo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-18"
     },
     {
-      "title": "Indian woman gang-raped while pregnant in 2002 'heartbroken' after two perpetrators bailed",
+      "title": "Can a US-backed mineral highway bring peace and prosperity to DR Congo?",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cr868wd2qg18o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-17"
+      "url": "https://www.bbc.co.uk/news/articles/cx053jrv9rz9o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-18"
     },
     {
-      "title": "Imran Khan seeks urgent medical care fearing he 'may not return alive'",
+      "title": "British hacker who stole $11m through text message scheme jailed for six years in US",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cr894xq5yeyko?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-17"
+      "url": "https://www.bbc.co.uk/news/articles/cm87987w1qz5o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-18"
     },
     {
-      "title": "Gunmen kill Costa Rican journalist who reported on drugs trade",
+      "title": "Philippines police ask prosecutors to charge Thomas Markle over child sex abuse material",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/c6ly7g5lx7gyo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-17"
+      "url": "https://www.bbc.co.uk/news/articles/ckg5ry8m49ggo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-18"
     },
     {
-      "title": "Body of Melbourne Cup horse found dumped in Sydney skip",
+      "title": "Rubio says US not 'under systemic attack' after series of tech outages",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/ck1ewl2zjqgzo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-17"
+      "url": "https://www.bbc.co.uk/news/articles/crkgvxxwpwz2o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-18"
     },
     {
-      "title": "Magyar Péter: Mára és holnapra leállítjuk a vasúti közlekedést Magyarország és Ukrajna között - Telex",
-      "publisher": "Telex",
-      "url": "https://news.google.com/rss/articles/CBMixwFBVV95cUxQYlBjTUJWR3BYdm9ydmp1QV9lM1YtRTM3b3BtY0ZvYXVyWTBCUWZyeF9yR3JOWWtENFphZjM4MU5heGhtVmx3R1cwNk9wZUdvbnY1bjVfcXQ0TTJLREhnNkwwNlVPRXZwUjdCRFBFUUN5WE9SMnFGcUNFSUpFUjlTckk1UmhyVTBGZXVrU3dYMzRqUExPZTVjOWFYMEdoZXhHRU1EVW1reVpDcU50enJZT3BYTGRQZXpCeE9XWWhCbzJnX2w4OGZr?oc=5",
-      "publishedAt": "2026-11-17"
+      "title": "Magyarország példája tanúsítja, hogy az autokraták öröksége szörnyűbb, mint gondolnánk – erről ír a világsajtó - | hvg.hu",
+      "publisher": "| hvg.hu",
+      "url": "https://news.google.com/rss/articles/CBMitwFBVV95cUxQUHRUWTVkN2luRkRHemdHVnpYdjlDbVVYSE9ITXlqaDZxRHRQWEJpYzM5WDVVb0hEOVAwU0VJRUNMcmIxbnJUMFlnaGg3UkNOQ1haaDQ4N3VTWGJZek5VV3RLUTVlSlR5MFhGWkl6ODJhdFVFUGFzR2NqUTNQcVpkeHdyeDJJZmluWUJXN0lPclYxRUhpVHBTeDJ1UGtWY2JVT0phS0M2YW1DM1NVbG1wcllXMUMxS3c?oc=5",
+      "publishedAt": "2026-11-18"
     },
     {
-      "title": "Magyarország–Észak-Írország: a magyar válogatott várható kezdőcsapata - NB1.hu",
-      "publisher": "NB1.hu",
-      "url": "https://news.google.com/rss/articles/CBMia0FVX3lxTFAtb2NOVG1vclhoblcxYmxoa05RYTNGTkJNTHExQ0hORk9yVnJ4Qk9jdDJtNmJvRW1WMU5nQzNBM3hHbWFtWkQzYi1kbUVRYVJmb1lDNWhvcjJITWpHdGxuVGU4ZXk5dzliZDlj?oc=5",
-      "publishedAt": "2026-11-17"
-    },
-    {
-      "title": "Magyar Péter: leállítjuk a vasúti közlekedést Magyarország és Ukrajna között! - Növekedés.hu",
-      "publisher": "Növekedés.hu",
-      "url": "https://news.google.com/rss/articles/CBMipAFBVV95cUxQaS0ta3R3cU1pMWRFM0ZrT0o1eUkxY2k0aVBmN00xaTNLNFVEdzhicFdpX1BlTnI3d0hraEY1VGFYMVZLY09VWWpWZFByTE1CaUktWk5PMFZhd3dxSlF2cGJFajd3T0JyR1I3Skwza3RBTmpjNjY0YzZORzEyeV9vYWJQRGpacEhMdXFmN2NYY2o5dGQzc3hMRWpCd2tPcEFtcUtxcw?oc=5",
-      "publishedAt": "2026-11-17"
-    },
-    {
-      "title": "Black weeks - Év végi BYD készletkisöprés a Pappas Auto-nál! - Villanyautósok",
-      "publisher": "Villanyautósok",
-      "url": "https://news.google.com/rss/articles/CBMiYEFVX3lxTE9tVEZwMzhCZ0pXTHhjS3hLVHpCWjBSU0hKdjk4cmJSV2xtMEtjeXJKc2NpQ3otVEZ2OWtfRjZCWkRHVFdJZTZVVUhPalJ4OVRUM2c1b1pNOFAyUlExVXYwYw?oc=5",
-      "publishedAt": "2026-11-17"
-    },
-    {
-      "title": "Két napra leáll a vasúti közlekedés Magyarország é... - SunshineFM",
-      "publisher": "SunshineFM",
-      "url": "https://news.google.com/rss/articles/CBMijwFBVV95cUxOUDhncnhYSFM4Qk1JM1JLZnlyWVFBYzRwUmNlOWx1NDhKeW9iZHllb25BdUljbEt0R01TSG1jejBaOUFxdUlSRUZWMjRWMXhFMWV2T3RaUVZUcWM0NDdfVjlUbWFMbjR6eHhkRnlJb2VudEctamlXVkdzMTdyNVMtNFE1ZG4zRWw2R0oxbUJCOA?oc=5",
-      "publishedAt": "2026-11-17"
-    },
-    {
-      "title": "U21-es labdarúgó válogatott felkészülési mérkőzés Magyarország - Ciprus - MédiaKlikk",
+      "title": "UEFA Nemzetek Ligája Magyarország - Észak-Írország mérkőzés - MédiaKlikk",
       "publisher": "MédiaKlikk",
-      "url": "https://news.google.com/rss/articles/CBMirAFBVV95cUxNSHlDUjduUWVXMmxCMjE4TG95VUdfVks1cTYwaXh3UTNWTHlUOC1GYVF5WDhTN0Qza2owLU1KSTIzMFVCTGxBY2xwWnN6dHZjTWxPWkJ0LS1aWVJjVHpmRFhyUEtsTjU3dldoRkxEOXNqT2JWaGpQTkJ3eXU5UU5pOVpoR2pXNnJHcXRqV05JdGM5aVJnWGZJRFBjOWtJUGdZU003R1RNWmg5TFVS?oc=5",
-      "publishedAt": "2026-11-16"
+      "url": "https://news.google.com/rss/articles/CBMioAFBVV95cUxQRlNqX1o0Nm95UzhHUTUyZTVHaDJ4eWQ0M3V4ZEliMm5SNjF2eWJYTDVqYmNKcXlpeGJ3MGsxWU5OWUpwQXBFbmR3c0VmZUltYkpreWQwQWE5c0Rja2lDSUlQR3llVWIwOXlab0luODFDZkxQTW92b1dCd3U2WEI4WEk1clU0QUk2Zlhhd3VpVXFISXBOaFd1aEtuam01UXNX?oc=5",
+      "publishedAt": "2026-11-18"
     },
     {
-      "title": "Külföld - Magyar Péter bejelentette, leállítják a vasúti közlekedést Magyarország és Ukrajna között - Index.hu",
-      "publisher": "Index.hu",
-      "url": "https://news.google.com/rss/articles/CBMiuAFBVV95cUxPMFVDNzkxUnJudTdVMHZPLVFyVzVCWXI1dDJ3U0Z5YklHNVB5ekNMSUdmR2hDdlBraE1teEtrYTFyV2xHcWdYMEdvLU5kYjBzQ1Z1d3VMeXMyb1ZKOTdjWEtpTEllamhDcjNvN25XSVJZYjBDTGZqNmRLZ2I2NF9VN0sxNVFWMmhKcjJxdzFfSnkzTlZZM190VFhvSmtxd1c1Q0hfb3I1QUdId3FTMkxHT0ZRRlBrY1pi?oc=5",
-      "publishedAt": "2026-11-17"
+      "title": "Új korszak küszöbén állunk, most dől el Magyarország jövője a globális technológiai versenyben - Portfolio.hu",
+      "publisher": "Portfolio.hu",
+      "url": "https://news.google.com/rss/articles/CBMi1wFBVV95cUxPVUNWZGk5bDZiTGNvdU5SdHljMk9qSVU0aU9yakZzbFFsUnNaZFhaSWgybUJpaVFObEk0NVFHWjJIcjV5bHh6NHgzbUIzNDlVVG1pXzhRWE5JRFB5UTRxZXVfTkI1M2owR0cyQnZjOERtbHczQnl6MlBDVGlkZ2c4cWpUeTl2VFIyTi04bU51anB0cDJRRDhyMFo5cm8yQlhyWmtXcC1rRWRLNkQ2cmNSZEdjOUxjZHNXWUVwMzg2X1h4X2p5SkQtc3lta0dPczJ5bUNkdllwZw?oc=5",
+      "publishedAt": "2026-11-18"
     },
     {
-      "title": "A gyógyítás szolgálatában – egészségügyi szakemberek munkáját ismertük el - Magyarország Kormánya",
+      "title": "Fontos bejelentés érkezett Magyarország olajtartalékairól - Infostart",
+      "publisher": "Infostart",
+      "url": "https://news.google.com/rss/articles/CBMingFBVV95cUxPS2pWS1pxZUNvQkFTQ1k4ODdsSkd5M2JxRk9GNko4OTFRems0WjZ3eE81WUZ1WlV6WlQ0QVEwdVJ3WTZLNEs3STZxeU01djczWjB0QUJZUUVqVkJSMFV6czNHR2dDSy1sbnJKeFEtQ1FTNDQ0OEZiVXNBR3dvWDNoaWc4aW9zTmIzMGd6Y25aRE02SndFYXNBY2RSZXZEZw?oc=5",
+      "publishedAt": "2026-11-18"
+    },
+    {
+      "title": "Javult az üzleti hangulat Magyarország legfontosabb vállalatai körében - Piac&Profit",
+      "publisher": "Piac&Profit",
+      "url": "https://news.google.com/rss/articles/CBMitgFBVV95cUxOTkJUZ0YwWkdvVWFvNzJFa3c2ckZmTnJWTFZta0pBTWN0aThzUkxGNVF2YlhlN2o1ck04MDgtZXJLMmVJVTcxU05zdk9BbXVvSGstTlhZMllwVVQyMTNTOFlRQkRBNm1fQ1VnVlZYNXRrVzBYQkRpd3JiMkdyZm94cUY3aFdWdWJWYlZXem5CZzRoR1VKby1XcHJyTGoycUtBSjQ0TlVVWnhjRFBVLXlPa3RVU1FPZw?oc=5",
+      "publishedAt": "2026-11-18"
+    },
+    {
+      "title": "Óriási elismerés: ismét a Tócóskerti Közösségi Kert lett Magyarország Legszebb Konyhakertje – fotókkal, videóval - Dehir",
+      "publisher": "Dehir",
+      "url": "https://news.google.com/rss/articles/CBMi3wFBVV95cUxNUGg2QjB5YXB3cjc1SE4wcDQ0Q2c4NXNkbld6QUc5cVJBclBKUS1mZFBWVUl6MU9hZXZPTlZwSjFFZmF6cVNsN1dJZ0lZSGc5R1ZaR3p5TzZfUWo5eUh2WkIyTWt5TjVRN1hiYzBuSWx1c25JeXhMWDJVeUx0cUVfTVVNSFo0OF9FR1R4NjlTdVd0bkRERWtjc0otdzdpeFlaQXBteGZLUEd4WGU0T3NIbGFCdXpDMFJEMjJtd25BWmhsQjZQTXpuM1ZSMGhBRE9uMUJBazYwTXJKVVZGa3NZ?oc=5",
+      "publishedAt": "2026-11-18"
+    },
+    {
+      "title": "Új korszak kezdődik a társadalmi esélyteremtésben – átalakul a TEF - Magyarország Kormánya",
       "publisher": "Magyarország Kormánya",
-      "url": "https://news.google.com/rss/articles/CBMinAFBVV95cUxNRk9CU0RhNTR5WHlkcXhCdlhSU204UVFXWEJVQS10X2RaRDB5UENLQk8tVmlhTWNPRExzeTRDTVJ3YkFVNnVOdXlEYkFMdElvZUNVOE5nb0ZlMjZ4Y3FZdDBsT3hlbXdlakVaZkdZN2tLUHJOUDhBamN2Qk5XWTdJNWd0dDhWS3VqUnBPRXBvQmFxQmpwTmI3YlVva2I?oc=5",
+      "url": "https://news.google.com/rss/articles/CBMi0wFBVV95cUxPa2ZKYk1FcVBxSk9UN21pU2lzdl9sWFpGTlB4Rk1tc2JWUzh5b0xpRjVzX0ZlanZEdV9kOUxOZ2NPSjNCalZTVEUycnd5bmlHMGxXVWtBS0h0ZzhwMTkxbTRVcXJKUUZXZVdRdHpuR1dqelpVQVV3ZTdoR3BXV1M2eTNlUWFncjVMb3dhR3dYRUR5cm5mZEtkNFFrY3RqdU83VHAwb3o3TkxNd0V6aWdaU01CSzJucE8xOTdfSVdiNDZfM0t1UloyZ28xS0JtY3I0N0JJ?oc=5",
+      "publishedAt": "2026-11-18"
+    },
+    {
+      "title": "Benyújtották a javaslatot, jövőre felállhat Radnai Márk új intézménye - Telex",
+      "publisher": "Telex",
+      "url": "https://news.google.com/rss/articles/CBMipgFBVV95cUxOYTZKSXlNYklKdFZBcmEzSFZsaFN1V1VxbFlhRDJ2REpja1labnJ1b2xNaDh6M0N0RmptWTRlXzhydGVya3RfdkNNVS1BQnFhZ1Z1VHlZbkV4dTEzM0lHOXpJeTE0NUxETWt0NmVseXMxblQxS0hBZTBfNTNLcGN4TlNWd1BJcGlZalZHdTAtRmtYZHZrdW42Vjl4UmFjSGNFT0planFR?oc=5",
+      "publishedAt": "2026-11-18"
+    },
+    {
+      "title": "Energy bills forecast to go up by £443 a year from January as UK inflation rises again",
+      "publisher": "BBC Business",
+      "url": "https://www.bbc.co.uk/news/articles/cmy498kdkx3xo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-18"
+    },
+    {
+      "title": "How important are Nvidia and Jensen Huang to the US economy?",
+      "publisher": "BBC Business",
+      "url": "https://www.bbc.co.uk/news/articles/c68798vdprwpo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-18"
+    },
+    {
+      "title": "Jeff Bezos says he was 'heavily involved' in casting Robert Pattinson as new Bond",
+      "publisher": "BBC Business",
+      "url": "https://www.bbc.co.uk/news/articles/cm5y1eejk292o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-18"
+    },
+    {
+      "title": "Government backs welfare shake-up to prevent 'lost generation'",
+      "publisher": "BBC Business",
+      "url": "https://www.bbc.co.uk/news/articles/ck79210y125xo?at_medium=RSS&at_campaign=rss",
       "publishedAt": "2026-11-17"
+    },
+    {
+      "title": "Europe plans to catch the next computer chip wave",
+      "publisher": "BBC Business",
+      "url": "https://www.bbc.co.uk/news/articles/cqglwjd450k0o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-18"
     },
     {
       "title": "Speed camera fault may have allowed drivers to escape fines",
@@ -181,46 +211,16 @@
       "publishedAt": "2026-11-17"
     },
     {
-      "title": "Where are the most jobs for 18-24 year-olds?",
+      "title": "Security flaw found in Java, world's third-largest programming language",
       "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/cw3djdjk5d7ko?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-17"
+      "url": "https://www.bbc.co.uk/news/articles/cke89jevqm1vo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-18"
     },
     {
-      "title": "Government must act now or lose Royal Mail, former minister warns",
-      "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/cjvg26p3z2gdo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-17"
-    },
-    {
-      "title": "US government confirms investigation into tech firm Megaspeed",
-      "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/cmn504nq5033o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-17"
-    },
-    {
-      "title": "OpenAI sued by California over Hugging Face attack",
-      "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/c6wy4xv2mxglo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-17"
-    },
-    {
-      "title": "We couldn't afford a house alone, so we bought one with strangers",
-      "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/c5742lwdyzglo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-17"
-    },
-    {
-      "title": "Nvidia dismisses 'Bring Jensen Back' campaign as Trump backs effort to reinstate ex boss",
-      "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/cry49plv8v3go?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-17"
-    },
-    {
-      "title": "Create more jobs for under-25s by cutting National Insurance, key report urges",
-      "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/c6p9dzmj514ko?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-16"
+      "title": "Grand Theft Auto 6 is a masterpiece, say critics",
+      "publisher": "BBC Technology",
+      "url": "https://www.bbc.co.uk/news/articles/cw8r75xm8v4po?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-18"
     }
   ]
 }
