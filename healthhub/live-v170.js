@@ -637,6 +637,33 @@ async function hhLoadWatch9Sleep(profile,renderId){
  if(target){
   target.innerHTML=hhSleepWatch9Markup(profile,result);
   hhSleepWatch9Oxygen1157(profile,result);
+  // Source-only diagnostics, with no health values and no second row of tiles.
+  // Native HH One Dropbox and browser Dropbox OAuth are separate sessions.
+  var status=document.querySelector('#hhSleepPage .hhSleepCacheStatusV3');
+  if(status){
+   var previous=status.querySelector('[data-hh-samsung-status]');
+   if(previous)previous.remove();
+   var line=document.createElement('span');
+   line.setAttribute('data-hh-samsung-status','1');
+   line.style.cssText='display:block;margin-top:3px;font-size:10px;line-height:1.2';
+   var connected=!!(vault&&typeof vault.connected==='function'&&vault.connected());
+   var hint='';
+   try{if(vault&&typeof vault.accountHint==='function')hint=vault.accountHint()||''}catch(_){}
+   var state=result&&result.status||'unavailable';
+   var rows=result&&result.data&&result.data.profile===profile?result.data:null;
+   var counts=rows?'alvás '+(rows.sleepSessions||[]).length+
+     ', energia '+(rows.energyScores||[]).length+
+     ', oxigén '+(rows.nightOxygen||[]).length+
+     ', hő '+(rows.nightSkinTemperature||[]).length:'';
+   var message=!connected?'Samsung: a webes Dropbox nincs csatlakoztatva':
+     state==='not_connected'?'Samsung: a webes Dropbox-fiókban nincs Samsung-adatfájl':
+     state==='invalid'?'Samsung: az adatfájl formátuma vagy profilja hibás':
+     state!=='ready'?'Samsung: a webes Dropbox-olvasás sikertelen':
+     'Samsung: fájl OK · '+counts;
+   if(hint)message+=' · webes fiók: '+hint;
+   line.textContent=message;
+   status.appendChild(line);
+  }
  }
 }
 
