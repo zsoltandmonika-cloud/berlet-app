@@ -1,0 +1,212 @@
+/* Léna Premium Sleep v1172
+   Scoped visual refresh. No changes to measurements, ownership or the 12-tile matrix. */
+#hhSleepPage{
+ --sl-pink:#f2abd7;--sl-ice:#91cbff;--sl-ink:#f3f7ff;--sl-copy:#c5d4ec;
+ --sl-glass:linear-gradient(145deg,rgba(50,60,116,.83),rgba(18,34,74,.91));
+ --sl-border:rgba(170,203,248,.28);
+ --sl-shadow:0 10px 24px rgba(2,10,33,.22),inset 0 1px rgba(255,255,255,.14);
+ color:var(--sl-ink)!important;background:linear-gradient(180deg,#0b1735,#162047 33%,#0a1734)!important;overflow-x:clip!important;
+}
+#hhSleepPage,#hhSleepPage *{box-sizing:border-box}
+#hhSleepPage .hhSleepDoctorHero{border-radius:0 0 19px 19px!important;box-shadow:0 7px 23px rgba(4,8,28,.28)!important}
+#hhSleepPage .hhSleepSurface{
+ position:relative;isolation:isolate;color:var(--sl-ink)!important;
+ padding:16px 14px calc(106px + env(safe-area-inset-bottom,0px))!important;
+ border-radius:23px 23px 0 0!important;border:1px solid rgba(210,180,245,.14)!important;border-top:0!important;
+ background:linear-gradient(180deg,#20264d,#131d3d 30%,#0b1733 100%)!important;
+ box-shadow:inset 0 1px rgba(255,255,255,.10)!important;
+}
+#hhSleepPage .hhSleepSurface:before{
+ content:"";position:absolute;pointer-events:none;z-index:-1;left:0;right:0;top:44px;height:185px;
+ background:radial-gradient(ellipse at 15% 70%,rgba(240,110,188,.20),transparent 58%),radial-gradient(ellipse at 85% 75%,rgba(83,158,250,.17),transparent 57%);
+}
+#hhSleepPage .hhSleepTop{position:relative;z-index:1;min-height:105px!important;margin:0 0 15px!important;padding-top:7px!important;align-items:flex-start!important}
+#hhSleepPage .hhSleepTop>div:first-child{max-width:75%}
+#hhSleepPage .hhSleepTop small{font-size:10px!important;letter-spacing:.12em!important;font-weight:850!important;color:var(--sl-pink)!important}
+#hhSleepPage .hhSleepTop h2{margin:7px 0!important;color:#fff!important;font-weight:850!important;font-size:clamp(20px,5.6vw,25px)!important;line-height:1.14!important;text-shadow:0 2px 10px rgba(2,5,28,.23)}
+#hhSleepPage .hhSleepProfile{
+ z-index:3;position:relative;min-height:36px!important;min-width:73px;margin-top:9px!important;padding:7px 11px!important;
+ border:1px solid rgba(234,192,239,.39)!important;border-radius:999px!important;
+ color:#f9f1ff!important;background:linear-gradient(145deg,rgba(127,110,175,.36),rgba(58,83,148,.35))!important;
+ box-shadow:var(--sl-shadow)!important;font-size:12px!important;font-weight:800!important;backdrop-filter:blur(12px);
+}
+#hhSleepPage .hhSleepRagBuddyV1146{z-index:2}
+#hhSleepPage .hhSleepSource381{
+ position:relative;overflow:hidden;margin:0 0 18px!important;padding:12px 11px 12px 43px!important;
+ border:1px solid rgba(239,172,218,.37)!important;border-radius:16px!important;
+ background:linear-gradient(110deg,rgba(115,64,141,.44),rgba(39,64,127,.58) 62%,rgba(39,71,142,.45))!important;
+ box-shadow:var(--sl-shadow)!important;color:#fff!important;backdrop-filter:blur(13px);
+}
+#hhSleepPage .hhSleepSource381:before{content:"▦";position:absolute;top:12px;left:13px;font-size:20px;color:#ffd0eb;text-shadow:0 0 12px rgba(248,133,208,.30)}
+#hhSleepPage .hhSleepSource381 b{font-size:12px!important;color:#fff!important;line-height:1.35!important}
+#hhSleepPage .hhSleepSource381 span{font-size:10px!important;color:#c7d7ee!important;line-height:1.4!important}
+#hhSleepPage .hhSleepSource381.stale{border-color:rgba(242,191,124,.5)!important}
+
+/* Main three-card Sleep overview */
+#hhSleepPage .hh428Panel{margin:12px 0 18px!important;color:#fff!important}
+#hhSleepPage .hh428Head{margin-bottom:11px!important}
+#hhSleepPage .hh428Eyebrow,#hhSleepPage .hh428CalendarTitle>span{font-size:10px!important;letter-spacing:.09em!important;color:var(--sl-pink)!important}
+#hhSleepPage .hh428Head h3,#hhSleepPage .hh428CalendarTitle h3{color:#fff!important;font-size:clamp(19px,5.1vw,24px)!important;line-height:1.17!important;font-weight:850!important}
+#hhSleepPage .hh428Head p,#hhSleepPage .hh428CalendarTitle p{color:var(--sl-copy)!important;font-size:11px!important;line-height:1.5!important}
+#hhSleepPage .hh428Cards{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:7px!important}
+#hhSleepPage .hh428Card{
+ position:relative;isolation:isolate;overflow:hidden;min-width:0;min-height:136px!important;padding:11px 8px 25px!important;
+ border:1px solid rgba(146,194,251,.51)!important;border-radius:17px!important;
+ background:linear-gradient(150deg,rgba(60,96,158,.71),rgba(23,46,89,.95) 80%)!important;
+ box-shadow:var(--sl-shadow)!important;color:#fff!important;
+}
+#hhSleepPage .hh428Card:before{
+ content:"";position:absolute;pointer-events:none;z-index:-1;inset:auto -13px -31px -8px;height:74px;
+ background:radial-gradient(ellipse at 45% 90%,rgba(96,177,252,.52),rgba(32,74,159,.18) 63%,transparent 77%);
+}
+#hhSleepPage .hh428Card--night{
+ border-color:rgba(255,158,219,.72)!important;
+ background:linear-gradient(153deg,rgba(130,68,153,.78),rgba(61,38,108,.93) 79%)!important;
+ box-shadow:0 9px 22px rgba(158,72,143,.20),inset 0 1px rgba(255,226,248,.24)!important;
+}
+#hhSleepPage .hh428Card--night:before{background:radial-gradient(ellipse at 45% 95%,rgba(239,134,201,.53),rgba(125,66,163,.20) 64%,transparent 78%)}
+#hhSleepPage .hh428Card--day{border-color:rgba(135,192,253,.54)!important;background:linear-gradient(150deg,rgba(66,106,168,.73),rgba(24,49,96,.96) 79%)!important}
+#hhSleepPage .hh428CardTop{align-items:flex-start!important;gap:5px!important}
+#hhSleepPage .hh428Num{
+ width:22px!important;height:22px!important;border-radius:9px!important;font-size:10px!important;
+ background:rgba(171,206,253,.20)!important;border:1px solid rgba(242,245,255,.2)!important;color:#fff!important;
+}
+#hhSleepPage .hh428CardTop h4{color:#f9f6ff!important;font-size:clamp(9px,2.7vw,12px)!important;line-height:1.15!important;font-weight:850!important}
+#hhSleepPage .hh428Value{
+ color:#fff!important;font-size:clamp(19px,5.6vw,27px)!important;
+ font-weight:900!important;letter-spacing:-.045em!important;line-height:1.13!important;
+ margin:11px 0 7px!important;text-shadow:0 2px 9px rgba(2,7,25,.26);
+}
+#hhSleepPage .hh428Card p{font-size:clamp(9px,2.5vw,11px)!important;color:#cfdcf7!important;line-height:1.4!important;-webkit-line-clamp:3!important}
+#hhSleepPage .hh428Card--night p{color:#ffc5e6!important}
+#hhSleepPage .hh428SameDataNote{color:#d8c7ea!important;font-size:10px!important;line-height:1.45!important;margin:8px 4px 14px!important}
+
+/* All 12 canonical tiles: 7 HC + 5 Samsung/HC */
+#hhSleepPage .hhSleepFactorsSection381{margin:16px 0 20px!important}
+#hhSleepPage .hhSleepFactorHeading381 h3{color:#fff!important;font-size:20px!important}
+#hhSleepPage .hhSleepFactorHeading381 small{color:var(--sl-pink)!important}
+#hhSleepPage .hhSleepFactorSource381{color:#ffd0ec!important;background:rgba(158,86,151,.20)!important;border-color:rgba(233,149,218,.36)!important}
+#hhSleepPage .hhSleepScoreStrip381{
+ padding:10px!important;background:var(--sl-glass)!important;border:1px solid var(--sl-border)!important;
+ border-radius:16px!important;box-shadow:var(--sl-shadow)!important;color:#fff!important;
+}
+#hhSleepPage .hhSleepScoreText381 b,#hhSleepPage .hhSleepScoreStrip381>strong{color:#fff!important}
+#hhSleepPage .hhSleepScoreText381 small{color:var(--sl-copy)!important}
+#hhSleepPage .hhSleepScoreSymbol381{background:rgba(240,141,217,.19)!important;color:#ffc5e8!important}
+#hhSleepPage .hhSleepIndexMethod382,#hhSleepPage .hhSleepIndexMethod382 summary,#hhSleepPage .hhSleepIndexMethod382 p{color:#c3d6f0!important}
+#hhSleepPage .hhSleepFactorsV432 .hhSleepFactors381{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:7px!important;align-items:stretch!important}
+#hhSleepPage .hhSleepWatch9Integrated1157{display:contents!important}
+#hhSleepPage .hhSleepFactorsV432 .hhSleepFactor381,#hhSleepPage .hhSleepFactorsV432 .hhSleepWatchExtra1157{
+ position:relative!important;overflow:hidden!important;min-width:0!important;min-height:100px!important;height:auto!important;
+ padding:10px 9px 9px!important;gap:4px!important;grid-column:auto!important;
+ background:linear-gradient(141deg,rgba(48,76,136,.83),rgba(22,43,87,.95) 77%)!important;
+ border:1px solid rgba(149,186,239,.44)!important;border-radius:15px!important;
+ box-shadow:0 5px 16px rgba(2,8,30,.21),inset 0 1px rgba(255,255,255,.13)!important;color:#fff!important;
+}
+#hhSleepPage .hhSleepFactorsV432 .hhSleepWatchExtra1157{
+ background:linear-gradient(138deg,rgba(88,53,120,.80),rgba(34,43,97,.94) 75%)!important;
+ border-color:rgba(230,161,219,.52)!important;
+}
+#hhSleepPage .hhSleepFactorsV432 [data-hh-watch-metric="sleep-score"]{border-color:rgba(136,190,255,.72)!important}
+#hhSleepPage .hhSleepFactorsV432 [data-hh-watch-metric="energy-score"]{border-color:rgba(250,165,220,.74)!important}
+#hhSleepPage .hhSleepFactorsV432 [data-hh-watch-metric="skin-temperature"]{border-color:rgba(247,185,213,.6)!important}
+#hhSleepPage .hhSleepFactorsV432 .hhSleepFactor381 .hhSleepFactorLabel381{
+ min-height:15px!important;font-size:11px!important;line-height:1.2!important;white-space:normal!important;
+ overflow:visible!important;color:#eff4ff!important;font-weight:800!important;
+}
+#hhSleepPage .hhSleepFactorsV432 .hhSleepFactor381 .hhSleepFactorIcon381{font-size:14px!important}
+#hhSleepPage .hhSleepFactorsV432 .hhSleepFactor381 .hhSleepFactorValue381{
+ font-size:clamp(20px,5vw,25px)!important;line-height:1.1!important;min-height:23px!important;
+ color:#fff!important;font-weight:900!important;text-shadow:0 2px 8px rgba(0,0,0,.20);
+}
+#hhSleepPage .hhSleepFactorsV432 .hhSleepFactor381 .hhSleepFactorValue381 small{font-size:10px!important;color:#d8e6fd!important}
+#hhSleepPage .hhSleepFactorsV432 .hhSleepFactor381 .hhSleepFactorStatus381{
+ min-height:16px!important;font-size:9px!important;line-height:1.15!important;padding:3px 6px!important;
+ max-width:100%!important;border-radius:8px!important;white-space:normal!important;overflow-wrap:anywhere!important;
+}
+#hhSleepPage .hhSleepFactorsV432 .hhSleepFactorStatus381.info{background:rgba(101,180,252,.17)!important;color:#c7e9ff!important;border:1px solid rgba(135,199,254,.2)!important}
+#hhSleepPage .hhSleepFactorsV432 .hhSleepFactorStatus381.muted{background:rgba(138,162,209,.13)!important;color:#c3d1e6!important}
+#hhSleepPage .hhSleepFactorsV432 .hhSleepFactorStatus381.warn{background:rgba(235,174,84,.2)!important;color:#ffe0b0!important}
+#hhSleepPage .hhSleepFactorsV432 .hhSleepFactorStatus381.bad{background:rgba(241,115,135,.2)!important;color:#ffd1d6!important}
+#hhSleepPage .hhSleepFactorsV432 .hhSleepFactorStatus381.good{background:rgba(95,211,164,.2)!important;color:#c2ffe3!important}
+#hhSleepPage .hhSleepFactorsV432 .hhSleepFactor381 .hhSleepFactorDetail381{
+ font-size:9px!important;line-height:1.3!important;color:#bad0eb!important;
+ margin-top:auto!important;max-width:100%!important;white-space:normal!important;
+ display:-webkit-box!important;-webkit-box-orient:vertical!important;-webkit-line-clamp:2!important;overflow:hidden!important;
+}
+#hhSleepPage .hhSleepFactorFoot381{color:#aabfdc!important;font-size:9px!important;line-height:1.5!important}
+
+/* Consistent premium styling of timelines, calendar and helper */
+#hhSleepPage .hh431RecentPanel,#hhSleepPage .hh428Calendar,#hhSleepPage .hhSleepCard,
+#hhSleepPage .hh431Lena,#hhSleepPage .hhSleepLena364,#hhSleepPage .hhSleepTimeline386{
+ background:var(--sl-glass)!important;border:1px solid var(--sl-border)!important;
+ border-radius:17px!important;box-shadow:var(--sl-shadow)!important;color:#fff!important;
+}
+#hhSleepPage .hh431RecentHeader h3,#hhSleepPage .hh431RecentHeading b,#hhSleepPage .hh431RecentHeading strong,
+#hhSleepPage .hh428CalendarResult h4,#hhSleepPage .hh428Record h5,#hhSleepPage .hhSleepCardHead h3,
+#hhSleepPage .hhSleepTimelineTitle386,#hhSleepPage .hhSleepTrendIntro386{color:#fff!important}
+#hhSleepPage .hh431RecentHeader p,#hhSleepPage .hh431RecentMeta,#hhSleepPage .hh431SameNote,
+#hhSleepPage .hh428RecordMeta,#hhSleepPage .hh428Note,#hhSleepPage .hh431LenaText p,
+#hhSleepPage .hh431LenaText small,#hhSleepPage .hhSleepLenaText364 p,#hhSleepPage .hhSleepLenaText364 small,
+#hhSleepPage .hhStageLegend386,#hhSleepPage .hh431RecentAxis,#hhSleepPage .hh428Axis,
+#hhSleepPage .hh430Tick,#hhSleepPage .hhSleepTrendFoot386{color:#bdcfe9!important}
+#hhSleepPage .hh428Day{background:rgba(53,82,139,.45)!important;border:1px solid rgba(169,195,234,.33)!important;color:#f0f6ff!important}
+#hhSleepPage .hh428Day.active{background:linear-gradient(130deg,rgba(193,101,169,.7),rgba(91,111,197,.75))!important;border-color:var(--sl-pink)!important;color:#fff!important}
+#hhSleepPage .hhSleepPeriods button,#hhSleepPage .hhHelperTimes button,#hhSleepPage .hhHelperModes button{
+ background:rgba(61,78,129,.53)!important;border:1px solid rgba(169,192,235,.32)!important;
+ border-radius:11px!important;color:#e7f2ff!important;min-height:32px!important;
+}
+#hhSleepPage .hhSleepPeriods button.on,#hhSleepPage .hhHelperTimes button.on,#hhSleepPage .hhHelperModes button.on{background:rgba(208,115,188,.28)!important;border-color:rgba(237,165,215,.58)!important;color:#fff!important}
+#hhSleepPage .hhHelperStart{background:linear-gradient(110deg,#c55eac,#666dc8)!important;color:#fff!important;box-shadow:0 8px 19px rgba(199,83,165,.20)!important}
+#hhSleepPage .hhSleepLabs428{background:rgba(56,80,136,.21)!important;border:1px solid rgba(150,188,229,.2)!important}
+#hhSleepPage .hhSleepLabs428 summary,#hhSleepPage .hhSleepLabs428 p{color:#c8d5ec!important}
+#hhSleepPage .hhSleepLabs428 a{color:#ffd0ec!important}
+#hhSleepPage .privacyNote{font-size:9px!important;color:#9cb5d4!important}
+
+/* Source status at the bottom of scrollable Sleep content, not near the title */
+#hhSleepPage .hhSleepCacheStatusV3.hhSleepPremiumSync{
+ display:block;position:relative;overflow:hidden;min-height:83px;
+ padding:14px 12px 14px 56px!important;margin:21px 0 6px!important;
+ background:linear-gradient(113deg,rgba(111,64,134,.68),rgba(30,51,104,.87) 49%,rgba(80,56,131,.69))!important;
+ border:1px solid rgba(236,161,219,.66)!important;border-radius:18px!important;
+ box-shadow:var(--sl-shadow)!important;color:#f2f5ff!important;
+ font-size:11px!important;line-height:1.5!important;font-weight:800!important;overflow-wrap:anywhere!important;
+ backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+}
+#hhSleepPage .hhSleepPremiumSync:before{
+ content:"⌚";position:absolute;top:50%;left:12px;transform:translateY(-50%);
+ display:grid;place-items:center;width:34px;height:40px;font-size:24px;
+ border:1px solid rgba(245,176,222,.45);border-radius:13px;background:rgba(16,33,73,.52);color:#ffd1ed;
+}
+#hhSleepPage .hhSleepPremiumSync [data-hh-samsung-status]{
+ display:block!important;margin-top:4px!important;font-size:10px!important;line-height:1.5!important;
+ font-weight:750!important;color:#e1eafc!important;overflow-wrap:anywhere!important;
+}
+#hhSleepPage .hhSleepPremiumSync[data-hh-sleep-source="offline-local"]{border-color:rgba(239,179,119,.67)!important}
+
+/* Preserve all navigation behavior; only upgrade the surfaces. */
+#sleepGoldenTop{
+ background:linear-gradient(110deg,rgba(63,52,107,.81),rgba(19,47,92,.81))!important;
+ border-color:rgba(238,167,218,.42)!important;box-shadow:var(--sl-shadow)!important;
+ -webkit-backdrop-filter:blur(16px) saturate(150%)!important;backdrop-filter:blur(16px) saturate(150%)!important;
+}
+#sleepGoldenBottom{
+ background:linear-gradient(110deg,rgba(23,35,76,.97),rgba(15,33,74,.96))!important;
+ border:1px solid rgba(170,191,242,.32)!important;border-bottom:0!important;
+ border-radius:18px 18px 0 0!important;box-shadow:0 -7px 25px rgba(1,9,29,.3)!important;
+}
+#sleepGoldenBottom .golden-primary{color:#f2a7d5!important}
+#hhSleepPage :is(button,a,summary):focus-visible,
+#sleepGoldenTop :is(button,a):focus-visible,#sleepGoldenBottom :is(button,a):focus-visible{outline:2px solid #ffcaeb!important;outline-offset:2px!important}
+@media(max-width:355px){
+ #hhSleepPage .hhSleepSurface{padding-left:10px!important;padding-right:10px!important}
+ #hhSleepPage .hh428Card{padding:10px 6px 21px!important;min-height:130px!important}
+ #hhSleepPage .hh428CardTop h4{font-size:9px!important}
+ #hhSleepPage .hhSleepFactorsV432 .hhSleepFactors381{gap:6px!important}
+ #hhSleepPage .hhSleepFactorsV432 .hhSleepFactor381{min-height:94px!important;padding:8px 7px!important}
+ #hhSleepPage .hhSleepPremiumSync{padding-left:49px!important}
+ #hhSleepPage .hhSleepPremiumSync:before{left:10px;width:30px;height:36px}
+}
+@media(prefers-reduced-motion:reduce){
+ #hhSleepPage *{animation-duration:.01ms!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
+}
