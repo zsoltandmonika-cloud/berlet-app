@@ -297,3 +297,14 @@ test('Samsung browser shows newest exercise sessions and never double-counts ove
  assert.equal(combined.sessions.filter(x=>x.endTime===recent.endTime).length,1);
  assert.equal(combined.sessions.some(x=>x.id==='health-connect-session'),true);
 });
+
+test('HH One Samsung buttons invoke Kotlin object INSTANCE instead of invalid static reflection',()=>{
+ // Kotlin object member methods are instance methods unless annotated @JvmStatic.
+ // Calling Method.invoke(null, ...) silently failed before user consent UI.
+ assert.match(main,/val samsungInstance = pilot\.getField\("INSTANCE"\)\.get\(null\)/);
+ assert.match(main,/\.invoke\(samsungInstance, this@MainActivity, selectedProfile\(\)\)/);
+ assert.match(main,/val samsungBackgroundInstance = bridge\.getField\("INSTANCE"\)\.get\(null\)/);
+ assert.match(main,/\.invoke\(samsungBackgroundInstance, this@MainActivity, owner, next\)/);
+ assert.match(main,/\.invoke\(samsungBackgroundInstance, this@MainActivity\)\.toString\(\)/);
+ assert.doesNotMatch(main,/\.invoke\(null,\s*this@MainActivity/);
+});
