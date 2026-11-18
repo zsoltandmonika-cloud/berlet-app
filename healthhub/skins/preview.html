@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="hu">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<meta name="robots" content="noindex,nofollow">
+<title>Léna Premium Skin Pack V1 · Komponensgaléria</title>
+<link rel="stylesheet" href="./lena-premium-v1.css?v=1">
+<style>
+html,body{margin:0;min-height:100%;background:#09152e}
+.preview{max-width:450px;margin:0 auto;min-height:100vh;padding:16px 12px 26px}
+.preview-top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 13px}
+.preview-switch{display:flex;gap:7px}
+.preview-switch button{min-height:40px;padding:7px 12px;border:1px solid #6377ae;border-radius:12px;background:rgba(39,61,113,.85);color:white;font:750 12px system-ui;cursor:pointer}
+.preview-switch button[aria-pressed="true"]{border-color:#ffc0e5;background:rgba(130,75,146,.75)}
+.preview-section{margin-top:21px}
+.preview-section h2{font-size:13px;color:#efc1e4;margin:0 0 10px;font-weight:800}
+.preview-foot{color:#a6b7d5;font:11px/1.55 system-ui;margin:18px 3px 0}
+</style>
+</head>
+<body>
+<div class="preview" data-hh-skin="lena-premium" data-hh-profile="monika">
+  <div class="preview-top">
+    <span class="lp-eyebrow">HealthHub · Léna Premium V1</span>
+    <div class="preview-switch" role="group" aria-label="Profil színvilága">
+      <button type="button" data-switch="monika" aria-pressed="true">Mónika</button>
+      <button type="button" data-switch="zsolt" aria-pressed="false">Zsolt</button>
+    </div>
+  </div>
+  <main class="lp-shell lp-stack">
+    <section class="lp-hero" aria-label="Premium fejléc">
+      <span class="lp-eyebrow">Golden Standard · Komponensminta</span>
+      <h1 class="lp-title">Léna Premium Skin Pack</h1>
+      <p class="lp-subtitle">A Sleep v1173 ihlette, újrafelhasználható üvegfelületek. Ez csak dizájnbemutató, nem élő HealthHub adat.</p>
+      <div class="lp-row" style="margin-top:14px">
+        <span class="lp-badge lp-badge--accent">✦ Premium Glass</span>
+        <span class="lp-badge lp-badge--success">✓ Megjelenés</span>
+      </div>
+    </section>
+    <section class="preview-section" aria-label="Három összesítő csempe">
+      <h2>Háromoszlopos áttekintés</h2>
+      <div class="lp-grid lp-grid--three">
+        <article class="lp-stat">
+          <span class="lp-stat__label">01 · Kártya</span>
+          <strong class="lp-stat__value">24</strong>
+          <span class="lp-stat__note">Demó érték</span>
+        </article>
+        <article class="lp-stat lp-stat--highlight">
+          <span class="lp-stat__label">02 · Kiemelt</span>
+          <strong class="lp-stat__value">86<span class="lp-stat__unit"> / 100</span></strong>
+          <span class="lp-stat__note">Rózsaszín / kék fény</span>
+        </article>
+        <article class="lp-stat">
+          <span class="lp-stat__label">03 · Egyéb</span>
+          <strong class="lp-stat__value">12</strong>
+          <span class="lp-stat__note">Demó érték</span>
+        </article>
+      </div>
+    </section>
+    <section class="preview-section" aria-label="Kéthasábos mérési kártyák">
+      <h2>Kétoszlopos csemperács</h2>
+      <div class="lp-grid">
+        <article class="lp-stat"><span class="lp-stat__label">✨ Kártya címe</span><strong class="lp-stat__value">128<span class="lp-stat__unit"> egység</span></strong><span class="lp-badge">Bemutató</span><span class="lp-stat__note">Kis magyarázó szöveg</span></article>
+        <article class="lp-stat lp-stat--highlight"><span class="lp-stat__label">💗 Kiemelt adat</span><strong class="lp-stat__value">83<span class="lp-stat__unit"> / 100</span></strong><span class="lp-badge lp-badge--accent">Kiemelt</span><span class="lp-stat__note">Kiemelt csempe</span></article>
+        <article class="lp-stat"><span class="lp-stat__label">🌙 Második adat</span><strong class="lp-stat__value">4,6<span class="lp-stat__unit"> óra</span></strong><span class="lp-badge lp-badge--success">Minta</span><span class="lp-stat__note">Nem valós mérési adat</span></article>
+        <article class="lp-stat"><span class="lp-stat__label">⌚ Harmadik adat</span><strong class="lp-stat__value">—</strong><span class="lp-badge lp-badge--muted">Nincs adat</span><span class="lp-stat__note">Üres állapot mintája</span></article>
+      </div>
+    </section>
+    <section class="preview-section" aria-label="Státusz és gombok">
+      <h2>Állapotjelző és műveletek</h2>
+      <div class="lp-banner">
+        <span class="lp-banner__icon" aria-hidden="true">⌚</span>
+        <div class="lp-banner__text"><strong>Állapotkártya</strong><small>Csatlakozások, szinkron és egyéb státuszok megjelenítésére</small></div>
+      </div>
+      <div class="lp-row" style="margin-top:13px">
+        <button type="button" class="lp-button" id="demoButton">Elsődleges gomb</button>
+        <button type="button" class="lp-button lp-button--ghost" id="ghostButton">Másodlagos</button>
+      </div>
+      <p class="lp-muted" id="feedback" aria-live="polite">A gombok csak a komponensek működését demonstrálják.</p>
+    </section>
+    <nav class="lp-nav" aria-label="Bemutató navigáció">
+      <a href="#top" aria-current="page"><span aria-hidden="true">⌂</span>Kezdőlap</a>
+      <a href="#top"><span aria-hidden="true">◉</span>Léna</a>
+      <a href="#top"><span aria-hidden="true">←</span>Vissza</a>
+      <a href="#top"><span aria-hidden="true">♧</span>Jelzések</a>
+      <a href="#top"><span aria-hidden="true">⚙</span>Admin</a>
+    </nav>
+  </main>
+  <p class="preview-foot">Kizárólag izolált megjelenítési próba. Nem olvas vagy ír egészségadatot, nem kapcsolódik Dropboxhoz, Supabase-hez vagy Samsung Healthhez. A működő Sleep felületét nem módosítja.</p>
+</div>
+<script>
+(function(){
+ const root=document.querySelector('[data-hh-skin="lena-premium"]');
+ document.querySelectorAll('[data-switch]').forEach(button=>button.addEventListener('click',function(){
+  root.dataset.hhProfile=button.dataset.switch;
+  document.querySelectorAll('[data-switch]').forEach(b=>b.setAttribute('aria-pressed',String(b===button)));
+ }));
+ document.querySelector('#demoButton').addEventListener('click',()=>{document.querySelector('#feedback').textContent='Elsődleges gomb teszt: OK';});
+ document.querySelector('#ghostButton').addEventListener('click',()=>{document.querySelector('#feedback').textContent='Másodlagos gomb teszt: OK';});
+})();
+</script>
+</body>
+</html>
