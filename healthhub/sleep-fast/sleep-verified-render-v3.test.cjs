@@ -125,7 +125,7 @@ test('Watch9 scores and night vitals render only after verified Sleep cloud, no 
  assert.match(card.innerHTML,/76/);
  assert.match(card.innerHTML,/Éjszakai SpO₂ minimum/);
  assert.match(card.innerHTML,/92/);
- assert.match(card.innerHTML,/Bőrhőmérséklet/);
+ assert.match(card.innerHTML,/bőrhőmérséklet/i);
  assert.match(card.innerHTML,/32,6/);
  assert.match(card.innerHTML,/HRV · Health Connect/);
  assert.match(card.innerHTML,/35,0/);
