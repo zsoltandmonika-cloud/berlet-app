@@ -124,8 +124,8 @@ test('0.15.21 Samsung background sync is opt-in, owner-bound, and disabled in no
  assert.match(bg,/prefs\.getString\(KEY_MANUAL_CLOUD_VERIFIED_OWNER, null\) == owner/);
  assert.match(bg,/getString\("device_owner_profile", null\) == owner/);
  assert.match(bg,/if \(!enabled\) \{\s*wm\.cancelUniqueWork\(PERIODIC\)\s*wm\.cancelUniqueWork\(ONCE\)/);
- assert.match(bg,/PeriodicWorkRequestBuilder<SamsungDirectBackgroundWorker>\(3, TimeUnit\.HOURS\)/);
- assert.match(main,/if \(BuildConfig\.HH_SAMSUNG_DIRECT_CANDIDATE\) \{\s*root\.addView\(Button\(this\)/);
+ assert.match(bg,/PeriodicWorkRequestBuilder<SamsungDirectBackgroundWorker>\(interval\.toLong\(\), TimeUnit\.HOURS\)/);
+ assert.match(main,/if \(BuildConfig\.HH_SAMSUNG_DIRECT_CANDIDATE\) \{\s*val samsungStatusLabel = TextView\(this\)/);
  assert.match(main,/Samsung automatikus szinkron · BEKAPCSOLÁS/);
  assert.match(main,/Samsung automatikus szinkron · KIKAPCSOLÁS/);
  assert.match(sdk,/putString\(SamsungDirectBackgroundSync\.KEY_MANUAL_CLOUD_VERIFIED_OWNER, profile\)/);
@@ -307,4 +307,21 @@ test('HH One Samsung buttons invoke Kotlin object INSTANCE instead of invalid st
  assert.match(main,/\.invoke\(samsungBackgroundInstance, this@MainActivity, owner, next\)/);
  assert.match(main,/\.invoke\(samsungBackgroundInstance, this@MainActivity\)\.toString\(\)/);
  assert.doesNotMatch(main,/\.invoke\(null,\s*this@MainActivity/);
+});
+
+test('Samsung OTA cadence defaults to hourly, is owner editable without reinstall and migration retains data',()=>{
+ assert.match(bg,/const val KEY_INTERVAL_HOURS = "samsung_direct_interval_hours"/);
+ assert.match(bg,/prefs\.getInt\("\$\{KEY_INTERVAL_HOURS\}_\$owner", 1\)/);
+ assert.match(bg,/require\(hours in 1\.\.3\)/);
+ assert.match(bg,/fun setIntervalHours\(context: Context, owner: String, hours: Int\)/);
+ assert.match(bg,/if \(prefs\.getBoolean\(KEY_ENABLED, false\)\) setEnabled\(context, owner, true\)/);
+ assert.match(bg,/wm\.enqueueUniquePeriodicWork\(PERIODIC, ExistingPeriodicWorkPolicy\.UPDATE, periodic\)/);
+ assert.match(bg,/fun reconcileHourlyDefault\(context: Context\)/);
+ assert.match(main,/getMethod\("reconcileHourlyDefault", Context::class\.java\)/);
+ assert.match(main,/val intervals = arrayOf\("1 óra \(alapértelmezett\)", "2 óra", "3 óra"\)/);
+ assert.match(main,/getMethod\(\s*"setIntervalHours"/);
+ assert.match(main,/root\.addView\(samsungStatusLabel\)/);
+ // Owner permissions + consent remain mandatory. No silent cross-profile reads.
+ assert.match(bg,/prefs\.getString\(KEY_MANUAL_CLOUD_VERIFIED_OWNER, null\) == owner/);
+ assert.match(bg,/prefs\.getString\("device_owner_profile", null\) == owner/);
 });
