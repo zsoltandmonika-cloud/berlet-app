@@ -632,7 +632,7 @@ class MainActivity : ComponentActivity() {
             }
             if (BuildConfig.HH_SAMSUNG_DIRECT_CANDIDATE) {
                 root.addView(TextView(this).apply {
-                    text = "Samsung Direct · 0.15.21 canary. Külön Samsung engedély, meglévő HH One Dropbox. Automata háttérszinkron alapból KI, külön kapcsolható be."
+                    text = "Samsung Direct · 0.15.22 tesztfrissítés. Külön Samsung engedély, meglévő HH One Dropbox. Automata háttérszinkron alapból KI, külön kapcsolható be."
                     textSize = 13f
                     setTextColor(0xFF315F98.toInt())
                 })
