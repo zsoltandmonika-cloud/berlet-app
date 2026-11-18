@@ -70,8 +70,20 @@ test('S24 Ultra overview is seven original HC measures + five optional Watch mea
 test('Source/profile isolation: never borrow another owner measured Samsung records',()=>{
  const e=env('zsolt');
  const invalid=e.hhSleepWatch9Markup('zsolt',sample('monika'));
- assert.match(invalid,/Nincs Samsung-pontszám/);
+ assert.match(invalid,/Forrás hiányzik/);
+ assert.match(invalid,/Samsung-fájl hibás vagy más profilú/);
  assert.doesNotMatch(invalid,/87\s*<small>\/100<\/small>/);
+ const unavailable=e.hhSleepWatch9Markup('zsolt',{status:'unavailable',data:null});
+ assert.match(unavailable,/Samsung-fájl nem érhető el/);
+ const empty=e.hhSleepWatch9Markup('zsolt',{status:'ready',data:{
+   profile:'zsolt',sleepSessions:[],energyScores:[],nightSkinTemperature:[]
+ }});
+ assert.match(empty,/Samsung-fájl megvan, nincs wellness-rekord/);
+ assert.match(empty,/Nincs pontszám/);
+ const noScore=e.hhSleepWatch9Markup('zsolt',{status:'ready',data:{
+   profile:'zsolt',sleepSessions:[{uid:'s1',endTime:new Date().toISOString()}],energyScores:[]
+ }});
+ assert.match(noScore,/Samsung-alvás megvan, pontszám nincs/);
  const missing=e.hhSleepWatch9Markup('zsolt',null);
  assert.equal((missing.match(/class="hhSleepFactor381 hhSleepWatchExtra1157"/g)||[]).length,5);
  assert.equal((missing.match(/<strong class="hhSleepFactorValue381">—<\/strong>/g)||[]).length,5);
@@ -84,5 +96,9 @@ test('Renderer inserts five extra tiles inside same original factors grid, no se
  assert.match(sleep,/hhSleepWatch9Oxygen1157\(profile,result\)/);
  assert.match(sleep,/renderId===sleepRenderSeq&&pkey\(\)===profile/);
  assert.match(sleep,/sourceStatus==='verified-cloud'/);
- assert.match(index,/live-v170\.js\?v=1157-watch9-compact-12/);
+ assert.ok(sleep.includes("if(!preview&&['zsolt','monika'].includes(requestedProfile))"),
+   'Verified Samsung source loads independent of Health Connect cloud freshness');
+ assert.ok(!sleep.includes("window.hhSleepSourceMeta.source==='Dropbox / Health Connect'&&"),
+   'Do not block the owner-scoped Samsung cloud file on HC status');
+ assert.match(index,/live-v170\.js\?v=1158-watch9-samsung-source/);
 });

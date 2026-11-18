@@ -53,7 +53,7 @@ ctx=environment(true,{pulse:null,oxygen:null});render=ctx.sleepFactorCards381(ni
 assert.match(render,/Éjszakai pulzus/,'Empty pulse measurement still reserves matching card');
 assert.match(render,/Nincs éjszakai pulzusadat/,'Empty data must be clearly identified, not invented');
 assert.match(render,/Véroxigén \(SpO₂\)/,'All profiles keep the same supplemental measurement group');
-assert.match(render,/Nincs éjjeli mérés/,'Missing oxygen measurement is not filled with a guess');
+assert.match(render,/Nincs éjszakai HC-mérés/,'Missing oxygen measurement is not filled with a guess');
 assert.equal((render.match(/hhSleepFactor381 hhSleepRag382/g)||[]).length,7,
  'Seven stable core tiles when optional oxygen is absent, with no invented value');
 ctx=environment(false,{pulse:null,oxygen:null});render=ctx.sleepFactorCards381(night,'zsolt');
@@ -84,10 +84,10 @@ assert.match(css,/#hhSleepPage \.hhSleepFactorsV432 \.hhSleepFactors381\{[^}]*gr
  'Preview tiles must stay two columns at mobile widths');
 assert.match(css,/#hhSleepPage \.hhSleepFactorsV432 \.hhSleepFactor381\{[^}]*grid-column:auto!important/,
  'The light-sleep card cannot expand to full row in the preview');
-assert.match(source,/id="hhSleepOxygenCard1157"/,
+assert.match(source,/\x27hhSleepOxygenCard1157\x27/,
  'Single SpO2 card must be bound to the Samsung overlay by stable id');
 assert.match(html,/sleep-three-views-v428\.css\?v=1154-sleep-data-audit/,
  'New preview CSS must not be served from old cache');
-assert.match(html,/live-v170\.js\?v=1157-watch9-compact-12/,
+assert.match(html,/live-v170\.js\?v=1158-watch9-samsung-source/,
  'New Sleep renderer must not be served from old cache');
 console.log('Sleep v1157 migration PASS: seven base tiles with one SpO2, compact source-aware 12-tile view, no cross-profile fallback');
