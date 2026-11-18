@@ -51,7 +51,6 @@ html[data-hh-activity-glass="on"] #hhActivityPage191[data-hh-skin="lena-premium"
  border-radius:23px 23px 0 0!important;
  background:linear-gradient(180deg,#25264d 0%,#182240 29%,#0d1935 73%,#0a1732 100%)!important;
  box-shadow:inset 0 1px rgba(252,250,255,.13)!important;
- overflow:hidden;
 }
 html[data-hh-activity-glass="on"] #hhActivityPage191[data-hh-skin="lena-premium"] .a191Body::before{
  content:"";position:absolute;z-index:-1;pointer-events:none;
@@ -223,7 +222,20 @@ html[data-hh-activity-glass="on"] #hhActivityPage191[data-hh-skin="lena-premium"
  box-shadow:var(--lp-shadow)!important;
 }
 
-/* Modal is an intentional sibling, scoped by activation marker only. */
+/* Modal is an intentional sibling, scoped by activation marker only.
+   Variables are defined here because #hh191Modal is not a child of the skinned Activity page. */
+html[data-hh-activity-lena-premium="on"] #hh191Modal{
+ --lp-border:rgba(169,199,241,.31);
+ --lp-border-bright:rgba(230,179,234,.44);
+ --lp-copy:#c7d7f0;
+ --lp-ink:#f5f8ff;
+ --lp-focus:#ffd6f0;
+}
+html[data-hh-activity-lena-premium="on"][data-hh-activity-profile="z"] #hh191Modal{
+ --lp-border-bright:rgba(160,208,250,.49);
+ --lp-focus:#c2e7ff;
+}
+
 html[data-hh-activity-lena-premium="on"] #hh191Modal .a191Sheet{
  border:1px solid var(--lp-border-bright)!important;
  border-radius:23px 23px 0 0!important;
@@ -248,7 +260,7 @@ html[data-hh-activity-lena-premium="on"] #hh191Modal :is(input,select){
 
 /* Existing SHO navigation is outside Activity root: style only when this module is active. */
 html[data-hh-activity-lena-premium="on"] #activityGoldenTop{
- border-color:rgba(233,171,220,.42)!important;
+ border-color:color-mix(in srgb,var(--sho-a,#e8b4db) 55%,transparent)!important;
  background:linear-gradient(105deg,rgba(58,52,105,.82),rgba(20,47,98,.79))!important;
  box-shadow:0 8px 21px rgba(1,8,27,.29),inset 0 1px rgba(255,249,255,.22),0 0 9px rgba(225,121,212,.12)!important;
  -webkit-backdrop-filter:blur(16px) saturate(138%)!important;
