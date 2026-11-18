@@ -1,0 +1,309 @@
+/* Family Guard Léna Premium · Below the Fold v1183
+   Visual only. Preserve the beloved v1182 status/map/hero untouched.
+   BKK = ONE outer glass panel; Admin = ONE accordion with three sections.
+   Keep all native GPS, BKK, Buddy and form controls / hit targets intact. */
+:root:not([data-sh9-transit="on"]) body .shell[data-hh-skin="lena-premium"]{
+ --fgp-panel:linear-gradient(141deg,rgba(54,65,120,.94),rgba(21,44,94,.96) 64%,rgba(16,36,80,.98));
+ --fgp-deep:linear-gradient(139deg,rgba(60,80,140,.72),rgba(26,46,96,.89));
+ --fgp-input:linear-gradient(118deg,rgba(38,62,112,.86),rgba(29,53,104,.94));
+ --fgp-control:linear-gradient(128deg,rgba(78,103,173,.82),rgba(57,85,159,.9));
+ --fgp-ink:#f6f8ff;
+ --fgp-muted:#c8d7ee;
+ --fgp-seam:rgba(168,198,243,.30);
+ --fgp-card:rgba(51,80,140,.37);
+ --fgp-glow:var(--lp-accent-glow);
+}
+:root:not([data-sh9-transit="on"])[data-guardian-profile="m"] body .shell[data-hh-skin="lena-premium"]{
+ --fgp-panel:linear-gradient(141deg,rgba(92,62,131,.94),rgba(45,48,112,.96) 64%,rgba(24,39,86,.98));
+ --fgp-deep:linear-gradient(139deg,rgba(110,67,143,.70),rgba(39,46,101,.91));
+ --fgp-control:linear-gradient(128deg,rgba(154,85,161,.82),rgba(84,83,165,.91));
+ --fgp-seam:rgba(235,174,232,.30);
+ --fgp-card:rgba(110,69,145,.29);
+}
+/* Transit: preserve v959 first-paint single-panel architecture. */
+:root:not([data-sh9-transit="on"]) body .shell[data-hh-skin="lena-premium"]>main>#hhTransitPanel.hh-transit-panel{
+ --hhg-ink:var(--fgp-ink)!important;
+ --hhg-muted:var(--fgp-muted)!important;
+ --hhg-accent:var(--lp-accent)!important;
+ --hhg-selected:var(--lp-accent-soft)!important;
+ --hhg-panel-start:rgba(66,70,134,.94)!important;
+ --hhg-panel-end:rgba(24,48,99,.96)!important;
+ --bk-ink:var(--fgp-ink)!important;
+ --bk-muted:var(--fgp-muted)!important;
+ --bk-accent:var(--lp-accent)!important;
+ --bk-selected:var(--lp-accent-soft)!important;
+ --sh9-bkk-seam:var(--fgp-seam)!important;
+ color:var(--fgp-ink)!important;
+ background:var(--fgp-panel)!important;
+ border:1px solid var(--lp-border-bright)!important;
+ border-radius:21px!important;
+ box-shadow:0 11px 27px rgba(2,9,32,.26),inset 0 1px rgba(255,248,255,.20),0 0 14px var(--fgp-glow)!important;
+ -webkit-backdrop-filter:blur(17px) saturate(125%)!important;
+ backdrop-filter:blur(17px) saturate(125%)!important;
+}
+/* Avoid nested cards: old sections are transparent inside this ONE sheet. */
+:root:not([data-sh9-transit="on"]) body .shell[data-hh-skin="lena-premium"] #hhTransitPanel
+:is(#hhBkkWatchlistV814,#hhBkkCatalogV801,#hhSmartHubDestinationV802,
+.hh-bkk-watchlist-v814,.hh-smart-hub-v802,.hh-bkk-catalog-v801){
+ background:transparent!important;box-shadow:none!important;border-radius:0!important;
+ -webkit-backdrop-filter:none!important;backdrop-filter:none!important;
+ color:var(--fgp-ink)!important;
+}
+:root:not([data-sh9-transit="on"]) body .shell[data-hh-skin="lena-premium"] #hhTransitPanel
+:is(#hhBkkLiveBarV796,.hh-bkk-watch-header-v814,.hh-smart-hub-top-v802,
+.hh-smart-hub-paired-v806,.hh-smart-hub-routes-v804,
+.hh-smart-hub-favorites-v806,.hh-planner-time-v939){
+ border-color:var(--fgp-seam)!important;
+}
+:root:not([data-sh9-transit="on"]) body .shell[data-hh-skin="lena-premium"] #hhTransitPanel
+:is(.hh-bkk-watch-toggle-label-v858 strong,.hh-smart-hub-top-v802 strong,
+.hh-smart-trip-title-v804 strong,#hhBkkCatalogV801>summary,
+#hhSmartHubFavoritesV806>summary,.hh-bkk-golden-head-v968 h2,
+#hhBkkLiveStatusV793){
+ color:#fff!important;text-shadow:0 1px 7px rgba(4,10,30,.21)!important;
+}
+:root:not([data-sh9-transit="on"]) body .shell[data-hh-skin="lena-premium"] #hhTransitPanel
+:is(.hh-smart-hub-eyebrow-v802,.hh-bkk-golden-eyebrow-v968,
+.hh-smart-hub-field-v806 label,.hh-bkk-catalog-label-v801){
+ color:var(--lp-accent)!important;font-weight:850!important;
+}
+:root:not([data-sh9-transit="on"]) body .shell[data-hh-skin="lena-premium"] #hhTransitPanel
+:is(#hhBkkWatchCountV814,#hhSmartHubCoverageV806,.hh-bkk-catalog-meta-v801,
+.hh-bkk-watch-note-v814,.hh-bkk-catalog-note-v801,.hh-smart-hub-privacy-v802,
+.hh-smart-hub-status-v802,.hh-active-transit-current-v862,
+.hh-active-transit-status-v862,.hh-smart-hub-favorite-profile-v806,
+.hh-smart-trip-guide-disclaimer-v805){
+ color:var(--fgp-muted)!important;
+}
+:root:not([data-sh9-transit="on"]) body .shell[data-hh-skin="lena-premium"] #hhTransitPanel
+:is(#hhSmartHubFromV806,#hhSmartHubToV806,#hhBkkCatalogSearchV801,
+#hhPlannerDateV939,.hh-bkk-golden-v968 input[type="search"],
+.hh-bkk-golden-v968 input[type="datetime-local"]){
+ color:#fff!important;background:var(--fgp-input)!important;
+ border:1px solid rgba(182,208,251,.45)!important;
+ border-radius:12px!important;
+ box-shadow:inset 0 1px rgba(255,255,255,.17)!important;
+ caret-color:var(--lp-accent)!important;
+}
+:root:not([data-sh9-transit="on"]) body .shell[data-hh-skin="lena-premium"] #hhTransitPanel
+:is(#hhSmartHubFromV806,#hhSmartHubToV806,#hhBkkCatalogSearchV801,
+.hh-bkk-golden-v968 input)::placeholder{
+ color:#c9d8f0!important;opacity:1!important;
+}
+:root:not([data-sh9-transit="on"]) body .shell[data-hh-skin="lena-premium"] #hhTransitPanel
+:is(#hhBkkWatchEditV814,#hhSmartHubCurrentPositionV860,#hhSmartHubSwapV806,
+#hhBkkCatalogMoreV801,.hh-family-fav-refresh-v972,
+#hhActiveTransitBoardV862,#hhActiveTransitConfirmV862,
+#hhSmartHubGuideBackV805,#hhSmartHubGuideNextV805,
+.hh-bkk-golden-actions-v968 button,.hh-bkk-golden-quick-v968 button){
+ background:var(--fgp-control)!important;
+ border:1px solid rgba(205,193,244,.46)!important;
+ border-radius:12px!important;
+ color:#fff!important;
+ box-shadow:0 5px 13px rgba(1,9,29,.18),inset 0 1px rgba(255,255,255,.23)!important;
+}
+:root:not([data-sh9-transit="on"]) body .shell[data-hh-skin="lena-premium"] #hhTransitPanel
+:is(.hh-planner-time-buttons-v939 button,.hh-smart-hub-priority-v805 button,
+.hh-bkk-catalog-filters-v801 button){
+ color:#ecf4ff!important;
+ border:1px solid rgba(183,206,247,.30)!important;
+ background:rgba(68,84,145,.39)!important;
+ border-radius:10px!important;
+}
+:root:not([data-sh9-transit="on"]) body .shell[data-hh-skin="lena-premium"] #hhTransitPanel
+:is(.hh-planner-time-buttons-v939 button,.hh-smart-hub-priority-v805 button,
+.hh-bkk-catalog-filters-v801 button)[aria-pressed="true"]{
+ color:#fff!important;border-color:var(--lp-border-bright)!important;
+ background:var(--fgp-control)!important;
+ box-shadow:inset 0 1px rgba(255,255,255,.21),0 0 10px var(--fgp-glow)!important;
+}
+:root:not([data-sh9-transit="on"]) body .shell[data-hh-skin="lena-premium"] #hhTransitPanel
+:is(.hh-bkk-watch-rows-v814,.hh-bkk-catalog-results-v801,
+.hh-smart-hub-results-v803,.hh-smart-hub-favorite-list-v806,
+.hh-smart-hub-plans-v804,.hh-transit-v791-directions){
+ color:var(--fgp-ink)!important;
+}
+:root:not([data-sh9-transit="on"]) body .shell[data-hh-skin="lena-premium"] #hhTransitPanel
+:is(.hh-smart-hub-favorite-row-v806,.hh-bkk-catalog-row-v801,
+.hh-smart-hub-result-v803,.hh-bkk-watch-row-v814){
+ border-color:var(--fgp-seam)!important;
+ background:var(--fgp-card)!important;color:#f7faff!important;
+}
+:root:not([data-sh9-transit="on"]) body .shell[data-hh-skin="lena-premium"] #hhTransitPanel
+:is(.hh-bkk-catalog-body-v801,.hh-bkk-golden-v968,
+.hh-bkk-near-quick-v975){
+ color:var(--fgp-ink)!important;
+}
+:root:not([data-sh9-transit="on"]) body .shell[data-hh-skin="lena-premium"] #hhBkkGoldenPlannerV968
+:is(.hh-bkk-golden-head-v968 h2,.hh-bkk-golden-v968 strong){
+ color:#fff!important;
+}
+/* Keep route branding (BKK bus/tram colors) and official live RAG intact. */
+
+/* Admin: one accordion, no extra nested frames, preserve accordion and GPS buttons. */
+:root:not([data-sh9-transit="on"]) body .shell[data-hh-skin="lena-premium"]>main>#guardianAdminControlsV963.guardian-admin-controls-v963{
+ --fg-ink:var(--fgp-ink)!important;--fg-muted:var(--fgp-muted)!important;
+ --fg-accent:var(--lp-accent)!important;
+ --fg-seam:var(--fgp-seam)!important;
+ --fg-selected:var(--lp-accent-soft)!important;
+ --fg-surface:var(--fgp-card)!important;
+ --fg-card:var(--fgp-card)!important;
+ --fg-edge:rgba(193,207,248,.31)!important;
+ --fg-shadow:rgba(2,9,28,.27)!important;
+ color:var(--fgp-ink)!important;
+ background:var(--fgp-panel)!important;
+ border:1px solid var(--lp-border-bright)!important;
+ border-radius:20px!important;
+ box-shadow:0 10px 27px rgba(2,8,30,.27),inset 0 1px rgba(255,249,255,.21),0 0 15px var(--fgp-glow)!important;
+ -webkit-backdrop-filter:blur(16px) saturate(125%)!important;
+ backdrop-filter:blur(16px) saturate(125%)!important;
+}
+:root:not([data-sh9-transit="on"]) body .shell[data-hh-skin="lena-premium"] #guardianAdminControlsV963
+:is(.guardian-admin-heading-v963,.guardian-admin-heading-v963 strong,
+#guardianLandmarks>summary,.hh-arrival-studio>summary,
+#guardianFamilyLiveControlV962>summary,.family-live-control-head-v962 strong,
+.family-panel-head strong,.guardian-live-head strong){
+ color:#fff!important;
+}
+:root:not([data-sh9-transit="on"]) body .shell[data-hh-skin="lena-premium"] #guardianAdminControlsV963
+:is(.guardian-admin-heading-v963 small,.guardian-landmarks-help,.guardian-live-note,
+.guardian-live-peer,.guardian-live-settings p,.guardian-landmark-sync-status,
+.hh-arrival-about,.hh-arrival-status,.family-note,.mode-note,
+.hh-stop-field-v815,.hh-arrival-preview p,.hh-arrival-volume-scale,
+.guardian-landmarks-status){
+ color:var(--fgp-muted)!important;
+}
+:root:not([data-sh9-transit="on"]) body .shell[data-hh-skin="lena-premium"] #guardianAdminControlsV963
+:is(.guardian-landmarks,.hh-arrival-studio,#guardianFamilyLiveControlV962,
+#guardianFamilyPanel,.gps-panel,.guardian-live-v785){
+ background:transparent!important;
+ box-shadow:none!important;
+ border-radius:0!important;
+ -webkit-backdrop-filter:none!important;backdrop-filter:none!important;
+ color:var(--fgp-ink)!important;
+}
+:root:not([data-sh9-transit="on"]) body .shell[data-hh-skin="lena-premium"] #guardianAdminControlsV963
+:is(.guardian-landmarks-choice,.guardian-landmarks-action,.guardian-landmark-action,
+.guardian-landmark-item,.hh-arrival-field,.hh-arrival-preview,
+.hh-stop-studio-v815,.hh-stop-field-v815,
+.hh-arrival-flags label,.hh-arrival-volume,
+.family-member,.gps-panel .stats>div,.guardian-ota-status-v1042){
+ border-color:var(--fgp-seam)!important;
+ background:var(--fgp-deep)!important;color:#f5f8ff!important;
+ border-radius:13px!important;
+ box-shadow:inset 0 1px rgba(255,255,255,.14)!important;
+}
+:root:not([data-sh9-transit="on"]) body .shell[data-hh-skin="lena-premium"] #guardianAdminControlsV963
+:is(.guardian-landmarks-choice[aria-pressed="true"],
+.guardian-landmarks-action[aria-pressed="true"]){
+ border-color:var(--lp-border-bright)!important;
+ background:var(--fgp-control)!important;
+ box-shadow:0 0 12px var(--fgp-glow)!important;
+}
+:root:not([data-sh9-transit="on"]) body .shell[data-hh-skin="lena-premium"] #guardianAdminControlsV963
+:is(.guardian-landmarks-name-label,.guardian-landmarks-saved-heading,
+.guardian-landmark-item-name,.hh-stop-studio-v815 h3,
+.hh-arrival-preview strong,.guardian-live-v785 strong,.family-member strong,
+.gps-panel .stats strong,.guardian-ota-status-v1042 strong){
+ color:#fff!important;
+}
+:root:not([data-sh9-transit="on"]) body .shell[data-hh-skin="lena-premium"] #guardianAdminControlsV963
+:is(input[type="text"],input[type="search"],input[type="number"],input[type="datetime-local"],
+textarea,select,.guardian-landmark-scope-select){
+ background:var(--fgp-input)!important;
+ color:#fff!important;
+ border:1px solid rgba(190,208,245,.42)!important;
+ border-radius:11px!important;
+}
+:root:not([data-sh9-transit="on"]) body .shell[data-hh-skin="lena-premium"] #guardianAdminControlsV963
+:is(input[type="text"],input[type="search"],input[type="number"],textarea)::placeholder{
+ color:#c7d5ec!important;opacity:1!important;
+}
+:root:not([data-sh9-transit="on"]) body .shell[data-hh-skin="lena-premium"] #guardianAdminControlsV963
+:is(.guardian-landmarks-actions button,#guardianLandmarksSave,
+.hh-arrival-actions button,.hh-stop-actions-v815 button,
+.guardian-live-buttons button,.gps-panel .actions button,
+.guardian-ota-status-v1042 button,.guardian-ota-status-v1042 a){
+ color:#fff!important;
+ background:var(--fgp-control)!important;
+ border:1px solid var(--fgp-seam)!important;
+ border-radius:12px!important;
+ min-height:44px!important;
+ box-shadow:inset 0 1px rgba(255,255,255,.18),0 3px 11px rgba(2,9,30,.19)!important;
+}
+/* Disabled controls must remain visually disabled, hidden controls stay hidden. */
+:root:not([data-sh9-transit="on"]) body .shell[data-hh-skin="lena-premium"] #guardianAdminControlsV963
+button:disabled{
+ opacity:.43!important;cursor:not-allowed!important;
+}
+:root:not([data-sh9-transit="on"]) body .shell[data-hh-skin="lena-premium"] #guardianAdminControlsV963
+:is(summary,button,a,input,textarea,select):focus-visible,
+:root:not([data-sh9-transit="on"]) body .shell[data-hh-skin="lena-premium"] #hhTransitPanel
+:is(summary,button,a,input,textarea,select):focus-visible{
+ outline:2px solid var(--lp-focus)!important;outline-offset:2px!important;
+}
+:root:not([data-sh9-transit="on"]) body .shell[data-hh-skin="lena-premium"] #hhTransitPanel [hidden],
+:root:not([data-sh9-transit="on"]) body .shell[data-hh-skin="lena-premium"] #guardianAdminControlsV963 [hidden]{
+ display:none!important;
+}
+/* Never duplicate the 260 / 17 / 19 legacy chooser or the other BKK cards. */
+:root:not([data-sh9-transit="on"]) body .shell[data-hh-skin="lena-premium"] #hhTransitPanel
+:is(.hh-transit-choices,#hhTransitCardsV791){
+ display:none!important;
+}
+@media(max-width:390px){
+ :root:not([data-sh9-transit="on"]) body .shell[data-hh-skin="lena-premium"]>main
+ >#hhTransitPanel.hh-transit-panel{padding:10px 10px 12px!important}
+ :root:not([data-sh9-transit="on"]) body .shell[data-hh-skin="lena-premium"]>main
+ >#guardianAdminControlsV963.guardian-admin-controls-v963{padding:0 10px!important}
+}
+@media(prefers-reduced-motion:reduce){
+ :root:not([data-sh9-transit="on"]) body .shell[data-hh-skin="lena-premium"] #hhTransitPanel *,
+ :root:not([data-sh9-transit="on"]) body .shell[data-hh-skin="lena-premium"] #guardianAdminControlsV963 *{
+  transition-duration:.01ms!important;animation-duration:.01ms!important;
+ }
+}
+
+/* Golden Planner was previously translucent white. Darken its wells so
+   the shared premium light text is actually legible. Never resize controls. */
+:root:not([data-sh9-transit="on"]) body .shell[data-hh-skin="lena-premium"] #hhTransitPanel
+#hhBkkGoldenPlannerV968 :is(.hh-planner-time-buttons-v939,#hhSmartHubPairedV806,
+.hh-bkk-golden-datetime-v968,.hh-bkk-golden-time-v968,.hh-bkk-golden-search-v968,
+.hh-bkk-golden-schedule-v968,.hh-bkk-golden-trips-v968,.hh-bkk-golden-saved-v968){
+ background:var(--fgp-card)!important;
+ border-color:var(--fgp-seam)!important;
+ color:var(--fgp-ink)!important;
+ box-shadow:inset 0 1px rgba(245,250,255,.13)!important;
+}
+:root:not([data-sh9-transit="on"]) body .shell[data-hh-skin="lena-premium"] #hhTransitPanel
+#hhBkkGoldenPlannerV968 :is(.hh-planner-time-buttons-v939 button,.hh-bkk-golden-saved-v968 button,
+.hh-bkk-golden-quick-v968 button){
+ color:var(--fgp-ink)!important;
+ background:rgba(55,83,146,.38)!important;
+ border-color:var(--fgp-seam)!important;
+}
+:root:not([data-sh9-transit="on"]) body .shell[data-hh-skin="lena-premium"] #hhTransitPanel
+#hhBkkGoldenPlannerV968 .hh-planner-time-buttons-v939 button[aria-pressed="true"]{
+ background:var(--fgp-control)!important;
+ color:#fff!important;
+ border-color:var(--lp-border-bright)!important;
+}
+:root:not([data-sh9-transit="on"]) body .shell[data-hh-skin="lena-premium"] #hhTransitPanel
+#hhBkkGoldenPlannerV968 :is(.hh-bkk-golden-v968 small,.hh-bkk-golden-v968 p,
+.hh-bkk-golden-head-v968 small,.hh-bkk-golden-trip-note-v968){
+ color:var(--fgp-muted)!important;
+}
+:root:not([data-sh9-transit="on"]) body .shell[data-hh-skin="lena-premium"] #hhTransitPanel
+:is(.hh-bkk-watch-content-v858,.hh-bkk-catalog-body-v801,.hh-smart-hub-priority-v805,
+.hh-smart-hub-favorites-v806,.hh-smart-hub-routes-v804){
+ border-color:var(--fgp-seam)!important;
+}
+:root:not([data-sh9-transit="on"]) body .shell[data-hh-skin="lena-premium"] #guardianAdminControlsV963
+:is(.guardian-landmarks-help,.guardian-landmark-item small,.guardian-live-note,
+.guardian-live-peer,.family-member small,.family-panel-head span,
+.gps-panel .stats small,.guardian-ota-status-v1042 small,
+.hh-arrival-flags label,.hh-arrival-volume>label){
+ color:var(--fgp-muted)!important;
+}
+/* Precise backend status colors, battery RAG, GPS consent and active transit
+   confirmation are not recolored: styling does not imply connectivity. */
