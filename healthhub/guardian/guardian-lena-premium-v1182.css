@@ -1,0 +1,230 @@
+/* Family Guard · Léna Premium v1182
+   Inherits healthhub/skins/lena-premium-v1.css.
+   Only regular Guardian (not sh9Transit) and its existing live DOM.
+   GPS, map gesture layers, actual locations, BKK, hero image and nav geometry untouched. */
+
+:root:not([data-sh9-transit="on"]) .shell[data-hh-skin="lena-premium"]{
+ --lp-accent:#99d4ff;
+ --lp-accent-strong:#66baff;
+ --lp-accent-soft:rgba(119,192,253,.20);
+ --lp-accent-glow:rgba(86,161,240,.18);
+ --lp-border-bright:rgba(160,208,252,.48);
+ --lp-focus:#cbe8ff;
+ background:linear-gradient(180deg,#0a1530,#172143 51%,#0a1732 100%);
+}
+:root:not([data-sh9-transit="on"])[data-guardian-profile="m"] .shell[data-hh-skin="lena-premium"]{
+ --lp-accent:#f4aadd;
+ --lp-accent-strong:#ec8ccc;
+ --lp-accent-soft:rgba(243,146,208,.20);
+ --lp-accent-glow:rgba(224,110,196,.19);
+ --lp-border-bright:rgba(245,182,230,.48);
+ --lp-focus:#ffdaef;
+}
+
+/* Preserve the existing Léna/Buddy illustration and profile-switch hotspots. */
+:root:not([data-sh9-transit="on"]) .shell[data-hh-skin="lena-premium"] .guardian-hero{
+ border:1px solid rgba(211,179,248,.30)!important;
+ border-radius:21px!important;
+ box-shadow:0 10px 28px rgba(0,6,24,.27),inset 0 1px rgba(255,252,255,.12),
+            0 0 14px var(--lp-accent-glow)!important;
+}
+:root:not([data-sh9-transit="on"]) .shell[data-hh-skin="lena-premium"] .guardian-hero-overlay{
+ text-shadow:0 2px 12px rgba(3,8,25,.34);
+}
+:root:not([data-sh9-transit="on"]) .shell[data-hh-skin="lena-premium"] #guardianProfileSwitch{
+ border:1px solid var(--lp-border-bright)!important;
+ background:linear-gradient(140deg,rgba(95,70,143,.68),rgba(27,52,103,.78))!important;
+ box-shadow:0 6px 20px rgba(2,8,31,.27),inset 0 1px rgba(255,255,255,.22)!important;
+ backdrop-filter:blur(12px)!important;-webkit-backdrop-filter:blur(12px)!important;
+}
+
+/* Right-side 8-status glass board: keep exactly the live 4 × 2 geometry. */
+:root:not([data-sh9-transit="on"]) .shell[data-hh-skin="lena-premium"]
+.guardian-hero>#guardianTrioV845{
+ border:1px solid var(--lp-border-bright)!important;
+ border-radius:13px!important;
+ background:linear-gradient(146deg,rgba(76,52,117,.64),rgba(19,43,94,.68) 49%,rgba(23,37,90,.72))!important;
+ -webkit-backdrop-filter:blur(15px) saturate(140%)!important;
+ backdrop-filter:blur(15px) saturate(140%)!important;
+ box-shadow:0 7px 22px rgba(1,7,26,.33),inset 0 1px rgba(255,252,255,.24),
+            0 0 12px var(--lp-accent-glow)!important;
+}
+:root:not([data-sh9-transit="on"])[data-guardian-profile="z"] .shell[data-hh-skin="lena-premium"]
+.guardian-hero>#guardianTrioV845{
+ background:linear-gradient(146deg,rgba(37,66,124,.66),rgba(20,46,97,.65) 49%,rgba(17,38,81,.76))!important;
+}
+:root:not([data-sh9-transit="on"]) .shell[data-hh-skin="lena-premium"]
+.guardian-hero>#guardianTrioV845>#guardianDevicePackLogoV1054{
+ background:linear-gradient(116deg,rgba(61,41,106,.62),rgba(29,48,104,.58))!important;
+ border-bottom-color:rgba(231,195,244,.26)!important;
+}
+:root:not([data-sh9-transit="on"]) .shell[data-hh-skin="lena-premium"]
+.guardian-hero>#guardianTrioV845>
+:is(.guardian-battery-v841,.hh-guardian-card-v845,.hh-device-pack-signal-v1053){
+ border:1px solid rgba(180,202,247,.24)!important;
+ border-radius:8px!important;
+ background:linear-gradient(145deg,rgba(71,73,136,.30),rgba(24,44,89,.30))!important;
+ box-shadow:inset 0 1px rgba(255,245,255,.12),0 1px 6px rgba(4,8,29,.16)!important;
+ text-shadow:0 1px 4px rgba(0,5,24,.65)!important;
+ gap:2px!important;
+}
+:root:not([data-sh9-transit="on"]) .shell[data-hh-skin="lena-premium"]
+.guardian-hero>#guardianTrioV845>.hh-health-v845{
+ border-color:rgba(245,165,219,.45)!important;
+ background:linear-gradient(148deg,rgba(146,71,136,.34),rgba(56,46,100,.35))!important;
+}
+:root:not([data-sh9-transit="on"]) .shell[data-hh-skin="lena-premium"]
+.guardian-hero>#guardianTrioV845>.hh-health-v845[data-rag="bad"]{
+ border-color:rgba(255,128,150,.63)!important;
+}
+:root:not([data-sh9-transit="on"]) .shell[data-hh-skin="lena-premium"]
+.guardian-hero>#guardianTrioV845>.hh-health-v845[data-rag="good"]{
+ border-color:rgba(134,227,183,.48)!important;
+}
+:root:not([data-sh9-transit="on"]) .shell[data-hh-skin="lena-premium"]
+.guardian-hero>#guardianTrioV845 .hh-guardian-value-v845{
+ color:#fff!important;font-weight:900!important;
+ font-size:clamp(10px,2.55vw,13px)!important;
+}
+:root:not([data-sh9-transit="on"]) .shell[data-hh-skin="lena-premium"]
+.guardian-hero>#guardianTrioV845 #guardianHealthTextV845{
+ color:#fff!important;text-shadow:0 1px 8px rgba(255,192,229,.31)!important;
+}
+:root:not([data-sh9-transit="on"]) .shell[data-hh-skin="lena-premium"]
+.guardian-hero>#guardianTrioV845 .hh-guardian-caption-v845{
+ color:#e7efff!important;font-size:clamp(7px,1.85vw,9px)!important;
+ font-weight:850!important;
+}
+
+/* Bluetooth visibility: a genuine bright blue glyph ONLY when radio=ON.
+   Never color a gray/missing report as if the Android radio were confirmed ON. */
+:root:not([data-sh9-transit="on"]) .shell[data-hh-skin="lena-premium"]
+#guardianTrioV845>#guardianPackBluetoothV1053{
+ border-color:rgba(154,205,249,.44)!important;
+ background:linear-gradient(143deg,rgba(43,92,158,.39),rgba(29,56,112,.38))!important;
+}
+:root:not([data-sh9-transit="on"]) .shell[data-hh-skin="lena-premium"]
+#guardianTrioV845>#guardianPackBluetoothV1053>span:first-child{
+ display:grid!important;place-items:center!important;
+ width:28px!important;height:27px!important;min-height:27px!important;flex:none!important;
+ border-radius:11px!important;
+ background:radial-gradient(circle at 48% 43%,rgba(129,210,255,.28),rgba(39,103,194,.19) 68%,transparent)!important;
+ border:1px solid rgba(135,202,255,.36)!important;
+ box-shadow:inset 0 1px rgba(218,244,255,.16),0 0 8px rgba(59,163,253,.24)!important;
+}
+:root:not([data-sh9-transit="on"]) .shell[data-hh-skin="lena-premium"]
+#guardianTrioV845>#guardianPackBluetoothV1053 svg{
+ display:block!important;
+ width:23px!important;height:24px!important;
+ stroke-width:2.8!important;stroke-linecap:round!important;
+ color:#bed4eb!important;
+ filter:drop-shadow(0 0 2px rgba(179,216,249,.45))!important;
+}
+:root:not([data-sh9-transit="on"]) .shell[data-hh-skin="lena-premium"]
+#guardianTrioV845>#guardianPackBluetoothV1053[data-signal="blue"]{
+ border-color:rgba(95,212,255,.68)!important;
+ background:linear-gradient(144deg,rgba(38,112,192,.53),rgba(24,69,137,.49))!important;
+}
+:root:not([data-sh9-transit="on"]) .shell[data-hh-skin="lena-premium"]
+#guardianTrioV845>#guardianPackBluetoothV1053[data-signal="blue"] svg{
+ color:#8de5ff!important;
+ filter:drop-shadow(0 0 5px rgba(71,203,255,.85))!important;
+}
+:root:not([data-sh9-transit="on"]) .shell[data-hh-skin="lena-premium"]
+#guardianTrioV845>#guardianPackBluetoothV1053>span:last-child{
+ color:#e9f5ff!important;font-size:clamp(7px,1.85vw,9px)!important;
+ font-weight:800!important;line-height:1.05!important;
+ overflow:visible!important;text-overflow:clip!important;white-space:nowrap!important;
+ text-shadow:0 1px 4px rgba(0,6,30,.82)!important;
+}
+/* 350px and below: do not force a giant cell that would clip other statuses. */
+@media(max-width:370px){
+ :root:not([data-sh9-transit="on"]) .shell[data-hh-skin="lena-premium"]
+ #guardianTrioV845>#guardianPackBluetoothV1053>span:first-child{
+  width:24px!important;height:23px!important;min-height:23px!important;
+ }
+ :root:not([data-sh9-transit="on"]) .shell[data-hh-skin="lena-premium"]
+ #guardianTrioV845>#guardianPackBluetoothV1053 svg{
+  width:20px!important;height:21px!important;
+ }
+}
+
+/* Map viewport keeps native MapLibre canvas and pointer gestures untouched. */
+:root:not([data-sh9-transit="on"]) .shell[data-hh-skin="lena-premium"] .map-card:not(.hh-map-full-v819){
+ border:1px solid rgba(199,173,235,.39)!important;
+ border-radius:19px!important;
+ box-shadow:0 9px 28px rgba(1,9,30,.34),inset 0 1px rgba(255,255,255,.15),
+            0 0 14px var(--lp-accent-glow)!important;
+}
+:root:not([data-sh9-transit="on"]) .shell[data-hh-skin="lena-premium"]
+.map-card:not(.hh-map-full-v819) :is(#guardianFollow,#guardian3D,#guardianSatelliteV1033){
+ color:#f6f1ff!important;
+ background:linear-gradient(130deg,rgba(145,79,156,.78),rgba(72,58,140,.84))!important;
+ border:1px solid rgba(255,201,240,.65)!important;
+ border-radius:16px!important;
+ -webkit-backdrop-filter:blur(14px) saturate(130%)!important;
+ backdrop-filter:blur(14px) saturate(130%)!important;
+ box-shadow:0 6px 17px rgba(3,8,32,.32),inset 0 1px rgba(255,247,255,.25),
+            0 0 9px rgba(237,143,219,.16)!important;
+}
+:root:not([data-sh9-transit="on"])[data-guardian-profile="z"] .shell[data-hh-skin="lena-premium"]
+.map-card:not(.hh-map-full-v819) :is(#guardianFollow,#guardian3D,#guardianSatelliteV1033){
+ background:linear-gradient(132deg,rgba(81,120,181,.78),rgba(43,75,140,.84))!important;
+ border-color:rgba(179,224,255,.67)!important;
+}
+:root:not([data-sh9-transit="on"]) .shell[data-hh-skin="lena-premium"]
+.map-card .guardian-control-icon svg{
+ stroke-width:2.1!important;
+ filter:drop-shadow(0 1px 4px rgba(15,20,62,.28))!important;
+}
+:root:not([data-sh9-transit="on"]) .shell[data-hh-skin="lena-premium"]
+.map-card :is(#guardianFollow,#guardian3D,#guardianSatelliteV1033):focus-visible{
+ outline:2px solid var(--lp-focus)!important;outline-offset:2px!important;
+}
+/* Fullscreen map keeps its functional layout, but size button gains a little contrast. */
+:root:not([data-sh9-transit="on"]) .shell[data-hh-skin="lena-premium"]
+#guardianMapSizeToggleV864{
+ border:1px solid rgba(229,181,247,.47)!important;
+ background:linear-gradient(145deg,rgba(144,85,160,.77),rgba(71,86,156,.79))!important;
+ box-shadow:0 5px 15px rgba(2,8,28,.25),inset 0 1px rgba(255,255,255,.19)!important;
+}
+/* Keep normal map search/keyboard placement; upgrade ONLY existing input/button surfaces. */
+:root:not([data-sh9-transit="on"]) .shell[data-hh-skin="lena-premium"]
+#guardianMapSearchV819.hh-map-search-v819{
+ border-top-color:rgba(245,188,230,.40)!important;
+ background:linear-gradient(115deg,rgba(28,40,83,.98),rgba(16,40,83,.98))!important;
+ box-shadow:inset 0 1px rgba(249,236,255,.14)!important;
+}
+:root:not([data-sh9-transit="on"]) .shell[data-hh-skin="lena-premium"]
+#guardianMapSearchInputV819{
+ border:1px solid rgba(206,224,253,.71)!important;
+ border-radius:14px!important;
+ background:linear-gradient(110deg,rgba(118,144,176,.85),rgba(103,126,158,.86))!important;
+ color:#fff!important;
+ box-shadow:inset 0 1px rgba(255,255,255,.21)!important;
+}
+:root:not([data-sh9-transit="on"]) .shell[data-hh-skin="lena-premium"]
+#guardianMapSearchInputV819::placeholder{color:#dce9fa!important;opacity:.94!important}
+:root:not([data-sh9-transit="on"]) .shell[data-hh-skin="lena-premium"]
+:is(#guardianMapSearchMicV819,#guardianMapSearchGoV819){
+ color:#fff!important;
+ border:1px solid rgba(239,185,225,.65)!important;
+ border-radius:15px!important;
+ background:linear-gradient(135deg,rgba(184,121,167,.89),rgba(104,99,155,.92))!important;
+ box-shadow:0 4px 15px rgba(3,10,30,.27),inset 0 1px rgba(255,255,255,.30)!important;
+}
+:root:not([data-sh9-transit="on"]) .shell[data-hh-skin="lena-premium"]
+:is(#guardianMapSearchInputV819,#guardianMapSearchMicV819,#guardianMapSearchGoV819):focus-visible{
+ outline:2px solid var(--lp-focus)!important;outline-offset:2px!important;
+}
+/* Preserve bottom dock and its five real navigation actions. */
+:root:not([data-sh9-transit="on"]) .shell[data-hh-skin="lena-premium"] :is(.hhBottomNav,#sh9GlobalNavV24){
+ border-top-color:var(--lp-border-bright)!important;
+ box-shadow:0 -7px 25px rgba(1,8,30,.33),inset 0 1px rgba(255,255,255,.12)!important;
+}
+@media(prefers-reduced-motion:reduce){
+ :root:not([data-sh9-transit="on"]) .shell[data-hh-skin="lena-premium"] .guardian-hero *,
+ :root:not([data-sh9-transit="on"]) .shell[data-hh-skin="lena-premium"] .map-card *{
+  transition:none!important;animation:none!important;
+ }
+}

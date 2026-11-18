@@ -23,7 +23,7 @@ test('v1038 diagnostics does not fake location, speed or battery data',()=>{
  const source=read('healthhub/guardian/guardian-live-trio-v845.js');
  const battery=read('healthhub/guardian/guardian-profile-battery-v841.js');
  assert.match(html,/id="guardianSourceStatusV1038"/);
- assert.match(html,/guardian-live-trio-v845\.js\?v=1038-native-read-diagnostics/);
+ assert.match(html,/guardian-live-trio-v845\.js\?v=1182-samsung-energy-score&router=1177/);
  assert.match(html,/guardian-profile-battery-v841\.js\?v=1038-fresh-cache-on-dropbox-error/);
  assert.match(source,/diagnostic:connectionDiagnostic\(g,p,Date\.now\(\)\)/);
  assert.match(source,/nativeStatus=result\?\.status\|\|'not-connected'/);
