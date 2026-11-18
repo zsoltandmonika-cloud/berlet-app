@@ -429,6 +429,8 @@ if(hhPackDefault||hhPackPreview.get("devicePack")==="v1053"||
 <link rel="stylesheet" href="./guardian-bkk-golden-reference-v4.css?v=5.5-match-clock-down2">
 <link rel="stylesheet" href="./guardian-bkk-watch-unified-v1.css?v=1.1-remove-obsolete-live-button">
 <link rel="stylesheet" href="./guardian-map-search-sho-dock-v1.css?v=1-edge2edge">
+<link rel="stylesheet" href="../skins/lena-premium-v1.css?v=1">
+<link rel="stylesheet" href="./guardian-lena-premium-v1182.css?v=1182-guardian-energy-bluetooth">
 </head>
 <body>
 <header id="sh9TransitHeaderV927" hidden aria-label="SH9 Smart Travel saját közlekedési térkép">
@@ -459,7 +461,7 @@ if(hhPackDefault||hhPackPreview.get("devicePack")==="v1053"||
   </div>
  <p id="sh9TransitStatusV927" role="status">A meglévő BKK-térkép betöltése…</p>
 </header>
-<div class="shell">
+<div class="shell" data-hh-skin="lena-premium">
 <main>
  <section class="intro guardian-hero" aria-label="A jóváhagyott Léna és Buddy Family Guard nyitókép: színes esti Budapest, szívpajzs és családi térkép">
 
@@ -483,12 +485,12 @@ if(hhPackDefault||hhPackPreview.get("devicePack")==="v1053"||
     </div>
     <button type="button" class="hh-guardian-card-v845 hh-health-v845" id="guardianHealthCardV845"
       aria-controls="guardianHealthPopupV845" aria-expanded="false" data-rag="unknown"
-      aria-label="Health · napi státusz. Koppints a részletekhez.">
+      aria-label="Samsung Energy Score és napi státusz. Koppints a részletekhez.">
      <div class="hh-guardian-card-top-v845">
       <svg class="hh-guardian-icon-v845 hh-health-heart-v845" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.7a5.7 5.7 0 0 0-8.05 0L12 5.5l-.75-.8a5.7 5.7 0 0 0-8.05 8.05L12 21l8.8-8.25a5.7 5.7 0 0 0 0-8.05Z"/><path d="M4.3 12.5h4l2-3.1 3.1 6 2.1-3.1h4"/></svg>
       <strong class="hh-guardian-value-v845" id="guardianHealthTextV845">—</strong>
      </div>
-     <small class="hh-guardian-caption-v845">Health</small>
+     <small class="hh-guardian-caption-v845">Energy</small>
     </button>
    </div>
    <button type="button" id="guardianHealthPopupV845" class="hh-guardian-health-popup-v845"
@@ -497,8 +499,8 @@ if(hhPackDefault||hhPackPreview.get("devicePack")==="v1053"||
      <span class="hh-health-popup-row-v845" id="guardianHealthSleepRowV845" data-rag="unknown">
       <span class="hh-health-popup-status-v845" aria-hidden="true">☾</span>
       <span class="hh-health-popup-data-v845">
-       <strong>Last Night Sleep · <span id="guardianHealthSleepDetailV845">—</span></strong>
-       <small id="guardianHealthSleepMetaV845">Alvásadatokra vár</small>
+       <strong>Samsung Energy Score · <span id="guardianHealthSleepDetailV845">—</span></strong>
+       <small id="guardianHealthSleepMetaV845">Hitelesített Samsung-értékre vár</small>
       </span>
      </span>
      <span class="hh-health-popup-row-v845" id="guardianHealthNutriRowV845" data-rag="unknown">
@@ -993,7 +995,7 @@ if(hhPackDefault||hhPackPreview.get("devicePack")==="v1053"||
 <script defer src="./guardian-live-v785.js?v=1181-stable-peers&native=156&router=1177"></script>
 <script defer src="./guardian-profile-follow-v837.js?v=1181-stable-selected&native=156&router=1177"></script>
 <script defer src="./guardian-profile-battery-v841.js?v=1038-fresh-cache-on-dropbox-error"></script>
-<script defer src="./guardian-live-trio-v845.js?v=1038-native-read-diagnostics&router=1177"></script>
+<script defer src="./guardian-live-trio-v845.js?v=1182-samsung-energy-score&router=1177"></script>
 <script defer src="./guardian-landmarks-sync-v787.js?v=787-shared-bookmarks"></script>
 <script defer src="./guardian-arrival-studio-v788.js?v=789-buddy-volume"></script>
 <script defer src="./guardian-buddy-stop-core-v815.js?v=815"></script>
