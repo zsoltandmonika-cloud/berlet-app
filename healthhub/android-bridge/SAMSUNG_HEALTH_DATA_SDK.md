@@ -1,3 +1,5 @@
+**2026-11-18 – Privát, böngészőmentes Pilot V5:** A Samsung SDK valódi aktívperc-olvasása telefonon sikeresen visszaadott **44 percet**. A külön Pilot nem örökli a normál, aláírt HH One Dropbox OAuth-ját, a webes Dropbox-fiókvég pedig nem elérhető. Ezért a privát Pilot V5 az érvényes méréseket **alkalmazáson belüli tárhelyen, profilhoz kötve, 30 napig** tárolja, és külön, tulajdonos által indított **Android JSON-dokumentumexportot** kínál. Nem indít SHO beépített böngészőt, és nincs szüksége Dropbox-bejelentkezésre az olvasáshoz vagy a helyi mentéshez. A helyi mentés **nem jelent felhőfeltöltést**. A JSON mezői megfelelnek a webes `live-v373-samsung-import.js` ellenőrzési formátumának, de a webes importhoz külön HealthHub/Vault hozzáférés kell. Ezt a V5 APK-t még helyben újra kell fordítani és telefonon tesztelni; az éles OTA változatlan és Samsung SDK-mentes.
+
 # Samsung Health Data SDK: HealthHub közvetlen napi aktivitásadatok (v371)
 
 **Státusz: ELŐKÉSZÍTETT, PRIVÁT SDK-PILOT VÁZÁVAL. MÉG NEM KAPCSOLÓDOTT.**
