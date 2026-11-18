@@ -1,0 +1,65 @@
+name: HH One 0.15.21 · Samsung integration readiness (read-only)
+
+# This checks the existing public OTA baseline signer, NOT Samsung approval.
+# Does not build a proprietary SDK, upload files, or publish a new OTA.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify_baseline:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Android APK signer
+        shell: bash
+        run: |
+          set -euo pipefail
+          SDKMANAGER="$(find "$ANDROID_HOME/cmdline-tools" -type f -name sdkmanager | head -1)"
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" "build-tools;35.0.0"
+      - name: Inspect existing signed OTA APK without releasing anything
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json
+          m=json.load(open('healthhub/data/bridge-ota.json'))
+          assert m['applicationId']=='hu.zsoltmonika.healthhubbridge'
+          assert m['version']=='0.15.20' and m['versionCode']==47
+          assert set(m['rolloutProfiles'])=={'zsolt','monika'}
+          print('Baseline: 0.15.20, build 47, both owner profiles.')
+          PY
+          mkdir -p "$RUNNER_TEMP/samsung-baseline"
+          gh release download "healthhub-connect-ota-v0.15.20" \
+            --pattern "HealthHub-Connect-v0.15.20-ota.apk" \
+            --dir "$RUNNER_TEMP/samsung-baseline"
+          APK="$RUNNER_TEMP/samsung-baseline/HealthHub-Connect-v0.15.20-ota.apk"
+          EXPECTED="$(python3 -c 'import json; print(json.load(open("healthhub/data/bridge-ota.json"))["sha256"])')"
+          ACTUAL="$(sha256sum "$APK" | awk '{print $1}')"
+          if [[ "$ACTUAL" != "$EXPECTED" ]]; then
+            echo "::error::OTA baseline checksum mismatch."
+            exit 1
+          fi
+          SIGNER="$ANDROID_HOME/build-tools/35.0.0/apksigner"
+          "$SIGNER" verify --verbose "$APK"
+          DIGEST="$("$SIGNER" verify --print-certs "$APK" |
+            awk -F': ' '/Signer #1 certificate SHA-256 digest/{print $2; exit}' | tr 'A-F' 'a-f')"
+          [[ "$DIGEST" =~ ^[a-f0-9]{64}$ ]] || { echo "::error::Signing cert digest not extracted"; exit 1; }
+          {
+            echo '## Samsung Health SDK partner-registration prerequisites'
+            echo ''
+            echo '- Existing HH One package: `hu.zsoltmonika.healthhubbridge`'
+            echo '- Baseline signed release: `0.15.20` (build 47), verified SHA-256'
+            echo "- **Existing HH One signing certificate SHA-256:** \`$DIGEST\`"
+            echo '- Submit the **package + signing cert SHA-256** to Samsung for partner verification.'
+            echo '- Samsung partner approval status: **NOT CHECKED / NOT IMPLIED**.'
+            echo '- SDK proprietary AAR: kept outside the public repository.'
+            echo '- HH One 0.15.21: **NOT BUILT, NOT RELEASED**.'
+          } >> "$GITHUB_STEP_SUMMARY"
+          echo 'Read-only baseline signer check complete.'
