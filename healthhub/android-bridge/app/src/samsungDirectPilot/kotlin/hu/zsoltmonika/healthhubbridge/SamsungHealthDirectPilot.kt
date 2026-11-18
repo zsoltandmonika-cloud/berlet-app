@@ -27,8 +27,8 @@ import java.time.LocalDateTime
 import java.time.Duration
 
 /**
- * PRIVATE DEVICE-ONLY PILOT. Compiled only with -PhhSamsungDirectPilot=true and
- * a locally supplied vendor AAR. Not included in signed production OTA.
+ * PRIVATE VENDOR SDK SOURCE. Compiled only with an explicit Samsung Direct Gradle
+ * flag and a locally supplied vendor AAR. The shipping 0.15.20 OTA is unchanged.
  *
  * Explicit button click => separate Samsung ACTIVITY_SUMMARY read permission
  * => actual TOTAL_ACTIVE_TIME from Samsung Health => owner-only Dropbox file.
@@ -184,7 +184,7 @@ object SamsungHealthDirectPilot {
                         .put("schemaVersion", "healthhub.samsung.daily/1")
                         .put("profile", profile)
                         .put("exportedAt", Instant.now().toString())
-                        .put("source", "Samsung Health Data SDK - ACTIVITY_SUMMARY")
+                        .put("source", "samsung-health-data-sdk-1.1.0")
                         .put("records", JSONObject().put("dailySummary", JSONArray().also { array ->
                             entries.toSortedMap().values.forEach { array.put(it) }
                         }))
