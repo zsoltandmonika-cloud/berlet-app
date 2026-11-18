@@ -8,7 +8,7 @@ const web=fs.readFileSync(path.join(root,'../live-v371-samsung.js'),'utf8');
 test('production Android never compiles proprietary Samsung sources without an explicit opt-in and local AAR',()=>{
  assert.match(build,/gradleProperty\("hhSamsungDirectPilot"\)/);
  assert.match(build,/hhSamsungPilotRequested && hhSamsungPilotAar\.isFile/);
- assert.match(build,/if \(hhSamsungPilotEnabled\) \{\s*sourceSets\.getByName\("main"\)\.java\.srcDir/);
+ assert.match(build,/if \(hhSamsungDirectEnabled\) \{\s*sourceSets\.getByName\("main"\)\.java\.srcDir/);
  assert.match(build,/buildConfigField\("boolean", "HH_SAMSUNG_DIRECT_PILOT", hhSamsungPilotEnabled\.toString\(\)\)/);
  assert.match(build,/applicationIdSuffix = "\.samsungpilot"/);
  assert.match(build,/it\.contains\("release", ignoreCase = true\)/);
@@ -92,4 +92,17 @@ test('fresh second Samsung Pilot needs explicit confirmed owner binding, not HC 
  assert.match(main,/bindOwnerIfNeeded\(chosen\)/);
  assert.match(main,/val chosen = selectedProfile\(\)/);
  assert.match(sdk,/if \(prefs\.getString\("device_owner_profile", null\) != profile\)/);
+});
+
+test('candidate HH One 0.15.21 uses the same signed identity and Dropbox, but default OTA stays Samsung-free',()=>{
+ assert.match(build,/gradleProperty\("hhSamsungIntegratedCandidate"\)/);
+ assert.match(build,/val hhSamsungDirectEnabled = hhSamsungPilotEnabled \|\| hhSamsungIntegratedCandidateEnabled/);
+ assert.match(build,/versionCode = 47[\s\S]*if \(hhSamsungIntegratedCandidateEnabled\) \{\s*versionCode = 48\s*versionName = "0\.15\.21"/);
+ assert.match(build,/buildConfigField\("boolean", "HH_SAMSUNG_DIRECT_AVAILABLE", hhSamsungDirectEnabled\.toString\(\)\)/);
+ assert.match(build,/buildConfigField\("boolean", "HH_SAMSUNG_DIRECT_CANDIDATE", hhSamsungIntegratedCandidateEnabled\.toString\(\)\)/);
+ assert.match(main,/if \(BuildConfig\.HH_SAMSUNG_DIRECT_AVAILABLE\) \{/);
+ assert.match(main,/if \(BuildConfig\.HH_SAMSUNG_DIRECT_CANDIDATE\) \{/);
+ assert.match(main,/Samsung Direct · 0\.15\.21 canary/);
+ assert.match(build,/applicationId = "hu\.zsoltmonika\.healthhubbridge"/);
+ assert.match(build,/if \(hhSamsungPilotEnabled\) \{\s*applicationIdSuffix = "\.samsungpilot"/);
 });
