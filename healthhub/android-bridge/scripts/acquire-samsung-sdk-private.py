@@ -103,6 +103,17 @@ def main():
     url = os.environ.get("HH_SAMSUNG_SDK_ZIP_URL", "").strip()
     sources = [validated_url(url)] if url else candidates_from_official_page()
     if not sources:
+        # Diagnostics only for the public, unauthenticated official SDK page.
+        # Never print SDK binary, cookies, credentials or URL query strings.
+        document = fetch(PAGE, limit=5_000_000).decode("utf-8", errors="replace")
+        print("Samsung vendor page bytes:", len(document))
+        for needle in ("1.1.0", "downloadFile", "download_sdk", ".zip", "download", "sdkDownload"):
+            index = document.lower().find(needle.lower())
+            if index >= 0:
+                window = document[max(0, index-110):index+220]
+                window = re.sub(r"(?i)(token|key|authorization|cookie)[^\\s]{0,55}", "[redacted]", window)
+                window = re.sub(r"https?://[^\\s\"'<>]+", "[url]", window)
+                print("Page marker", needle, ":", re.sub(r"\\s+", " ", window)[:260])
         raise RuntimeError("No official Samsung SDK ZIP URL found. Configure secure HH_SAMSUNG_SDK_ZIP_URL.")
     errors = []
     for source in sources[:8]:
