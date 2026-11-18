@@ -100,5 +100,9 @@ test('Renderer inserts five extra tiles inside same original factors grid, no se
    'Verified Samsung source loads independent of Health Connect cloud freshness');
  assert.ok(!sleep.includes("window.hhSleepSourceMeta.source==='Dropbox / Health Connect'&&"),
    'Do not block the owner-scoped Samsung cloud file on HC status');
- assert.match(index,/live-v170\.js\?v=1158-watch9-samsung-source/);
+ assert.match(sleep,/Samsung: a webes Dropbox nincs csatlakoztatva/);
+ assert.match(sleep,/Samsung: a webes Dropbox-fiókban nincs Samsung-adatfájl/);
+ assert.match(sleep,/webes fiók: /);
+ assert.match(sleep,/data-hh-samsung-status/);
+ assert.match(index,/live-v170\.js\?v=1159-watch9-account-status/);
 });
