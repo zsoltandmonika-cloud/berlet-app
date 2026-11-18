@@ -279,5 +279,5 @@ function merge(c, result, requestedProfile){
  }
  return out;
 }
-window.HH_SAMSUNG_SOURCE_V371={path:path,normalize:normalize,load:load,merge:merge,version:'388-watch9-wellness'};
+window.HH_SAMSUNG_SOURCE_V371={path:path,normalize:normalize,load:load,merge:merge,version:'390-watch9-loader-ready'};
 })();
