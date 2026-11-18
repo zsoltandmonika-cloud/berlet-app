@@ -14,6 +14,12 @@ val hhSamsungPilotRequested = providers.gradleProperty("hhSamsungDirectPilot").o
 // Never publish/install without Samsung partner registration for exact package+signer.
 val hhSamsungIntegratedCandidateRequested =
     providers.gradleProperty("hhSamsungIntegratedCandidate").orNull == "true"
+// Separate CI-only full Watch9 bundle version, never enabled by normal OTA.
+val hhSamsungConsolidatedCandidateRequested =
+    providers.gradleProperty("hhSamsungConsolidatedCandidate").orNull == "true"
+if (hhSamsungConsolidatedCandidateRequested && !hhSamsungIntegratedCandidateRequested) {
+    error("Watch9 consolidated build requires explicit integrated Samsung SDK opt-in.")
+}
 if (hhSamsungPilotRequested && hhSamsungIntegratedCandidateRequested) {
     error("Choose either private Samsung debug Pilot or integrated signed candidate, never both.")
 }
@@ -71,6 +77,12 @@ android {
         if (hhSamsungIntegratedCandidateEnabled) {
             versionCode = 49
             versionName = "0.15.22"
+        }
+        // Full Watch9 package is a PRIVATE QA artifact until explicitly approved
+        // for a Samsung-partner-compliant, certificate-verified OTA release.
+        if (hhSamsungIntegratedCandidateEnabled && hhSamsungConsolidatedCandidateRequested) {
+            versionCode = 50
+            versionName = "0.15.23"
         }
         // Actual signed publication remains separately approved and certificate-gated.
         // No signed OTA is published by merging: release requires manual approval.
