@@ -56,7 +56,7 @@ test('Samsung private pilot checks today then yesterday without changing the dat
  assert.match(sdk,/val filter = LocalTimeFilter\.of\(candidate\.atStartOfDay\(\), end\)/);
  assert.match(sdk,/if \(measured == null \|\| measured\.isNegative \|\| measured\.toMinutes\(\) > 1440\)/);
  assert.match(sdk,/measuredDay = candidate/);
- assert.match(sdk,/entries\[day\.toString\(\)\] = JSONObject\(\)/);
+ assert.match(sdk,/entries\[day\.toString\(\)\] = mergeDay\(sameDay, freshDay\)/);
  assert.match(sdk,/\.put\("date", day\.toString\(\)\)/);
  assert.match(sdk,/!localDate\.isBefore\(today\.minusDays\(29\)\)/);
  assert.match(sdk,/!localDate\.isAfter\(today\)/);
@@ -144,4 +144,28 @@ test('Samsung background worker reads only pre-approved real SDK activity and ca
  assert.doesNotMatch(bg,/uploadHealthConnectSnapshot\(|healthConnectPath\(/);
  assert.match(bg,/\.put\("source", "samsung-health-data-sdk-1\.1\.0"\)/);
  assert.match(bg,/if \(cloudTime\.isAfter\(readStartedAt\)\)/);
+});
+
+test('unified HH One Samsung reader preserves Beta fields instead of rewriting a single metric',()=>{
+ assert.match(sdk,/DataType\.ActivitySummaryType\.TOTAL_ACTIVE_CALORIES_BURNED\.requestBuilder/);
+ assert.match(sdk,/DataType\.ActivitySummaryType\.TOTAL_DISTANCE\.requestBuilder/);
+ assert.match(bg,/DataType\.ActivitySummaryType\.TOTAL_ACTIVE_CALORIES_BURNED\.requestBuilder/);
+ assert.match(bg,/DataType\.ActivitySummaryType\.TOTAL_DISTANCE\.requestBuilder/);
+ assert.match(sdk,/mergeDay\(historicalDay, freshDay\)/);
+ assert.match(bg,/mergeDay\(\s*sameDay\(cloud, measuredDay\)/);
+ assert.match(sdk,/listOf\("hourlySteps", "exerciseSessions"\)/);
+ assert.match(bg,/listOf\("hourlySteps", "exerciseSessions"\)/);
+ assert.doesNotMatch(sdk,/steps\s*[/\*]\s*\d+/);
+ assert.doesNotMatch(bg,/steps\s*[/\*]\s*\d+/);
+});
+
+test('first sync and unattended sync require owner-scoped readback before claiming cloud success',()=>{
+ assert.match(sdk,/val readBack = DropboxVaultClient\.downloadTextOrNull\(prefs, path\)/);
+ assert.match(sdk,/confirmed\.optString\("profile"\) == profile/);
+ assert.match(sdk,/confirmed\.optString\("exportedAt"\) == output\.optString\("exportedAt"\)/);
+ assert.match(bg,/val readBack = DropboxVaultClient\.downloadTextOrNull\(prefs, cloudPath\)/);
+ assert.match(bg,/validateOwner\(confirmed, owner\)/);
+ assert.match(bg,/confirmed\.optString\("exportedAt"\) == uploaded\.optString\("exportedAt"\)/);
+ assert.match(bg,/KEY_LAST_SUCCESS, System\.currentTimeMillis\(\)/);
+ assert.match(sdk,/KEY_MANUAL_CLOUD_VERIFIED_OWNER, profile/);
 });
