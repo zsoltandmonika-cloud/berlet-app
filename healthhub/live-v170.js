@@ -325,8 +325,9 @@ function sleepFactorCards381(night,profile){
  // Display complete elapsed minutes for per-stage cards, without changing raw
  // Health Connect intervals. Exact Samsung parity still requires phone comparison.
  function stageVal(n){return n==null?'—':durText(Math.floor(n+1e-8))}
- function card(icon,name,value,status,tone,detail){
-  return '<div class="hhSleepFactor381 hhSleepRag382 '+esc(tone)+'">'+
+ function card(icon,name,value,status,tone,detail,id){
+  return '<div class="hhSleepFactor381 hhSleepRag382 '+esc(tone)+'"'+
+   (id?' id="'+esc(id)+'" data-hh-oxygen-hc="'+(vitals.oxygen?esc(vitals.oxygen.value+'%'):'none')+'"':'')+'>'+
    '<div class="hhSleepFactorLabel381"><span class="hhSleepFactorIcon381" aria-hidden="true">'+icon+'</span><span>'+esc(name)+'</span></div>'+
    '<strong class="hhSleepFactorValue381">'+esc(value)+'</strong>'+
    '<span class="hhSleepFactorStatus381 '+esc(tone)+'">'+esc(status)+'</span>'+
@@ -359,13 +360,14 @@ function sleepFactorCards381(night,profile){
      (vitals.pulse?card('💓','Éjszakai pulzus',vitals.pulse.value+' /perc',vitals.pulse.minutes===1?'Egyetlen időpont':'Átlag', 'info',vitals.pulse.minutes+' mért perc · Health Connect'):'')+
      (vitals.oxygen?card('🫁','Éjszakai véroxigén',vitals.oxygen.value+'%',vitals.oxygen.minutes===1?'Egyetlen időpont':'Átlag','info',vitals.oxygen.minutes+' mért perc · Health Connect'):'')
    )+
+   (window.HH_SLEEP_V428_ENABLED===true?
+     card('🫁','Véroxigén (SpO₂)',vitals.oxygen?vitals.oxygen.value+'%':'—',
+      vitals.oxygen?(vitals.oxygen.minutes===1?'Egyetlen időpont':'Átlag'):'Nincs mérés',
+      vitals.oxygen?'info':'muted',
+      vitals.oxygen?vitals.oxygen.minutes+' mért perc · Health Connect':'Nincs éjszakai HC-mérés',
+      'hhSleepOxygenCard1157')+
+     '<div id="hhSleepWatch9Panel" class="hhSleepWatch9Integrated1157" data-hh-watch9-profile="'+esc(profile)+'"></div>':'')+
   '</div>'+
-  (window.HH_SLEEP_V428_ENABLED===true?
-    '<div class="hhSleepOxygenV432" aria-label="Kiegészítő éjszakai véroxigénmérés">'+
-     '<span>🫁 Véroxigén (SpO₂)</span>'+
-     '<strong>'+(vitals.oxygen?esc(vitals.oxygen.value+'%'):'—')+'</strong>'+
-     '<small>'+(vitals.oxygen?esc(vitals.oxygen.minutes===1?'Egyetlen mért perc':vitals.oxygen.minutes+' mért perc · Health Connect'):'Nincs éjjeli mérés')+'</small>'+
-    '</div>':'')+
   '<p class="hhSleepFactorFoot381">🔴 Rövidebb / kedvezőtlenebb · 🟠 figyelendő · 🟢 kedvezőbb. A mély, REM és könnyű alvás csempéi információs jellegűek; a viselhető eszköz fázisadatai nem diagnózisok.</p></section>';
 }
 function sleepOverview(rows){
@@ -523,57 +525,72 @@ window.hhSleepTrendPick386=function(el){
 /* Watch9 wellness: optional profile-verified Samsung source, NEVER blocks the Sleep view.
    Canonical HC Sleep remains authoritative for stage timelines and aggregate durations.
    A separate timestamp identifies the last genuine Samsung wellness read. */
+/* Compact v1157: five Samsung/HC extras join the seven existing night tiles.
+ * A measured oxygen value remains in its original single HC card. */
 function hhSleepWatch9Markup(profile,result){
  var data=result&&result.status==='ready'&&result.data&&result.data.profile===profile?
   result.data:null;
  var recentCut=Date.now()-72*3600000;
  var sleeps=data&&Array.isArray(data.sleepSessions)?data.sleepSessions:[];
- var sleep=sleeps.filter(function(x){return x&&Date.parse(x.endTime)>=recentCut &&
+ var sleep=sleeps.filter(function(x){return x&&Date.parse(x.endTime)>=recentCut&&
     Date.parse(x.endTime)<=Date.now()+300000}).sort(function(a,b){
     return Date.parse(b.endTime)-Date.parse(a.endTime)})[0]||null;
  var scores=data&&Array.isArray(data.energyScores)?data.energyScores:[];
  var energy=scores.filter(function(x){return x&&
-    Date.parse(x.date+'T23:59:59Z')>=recentCut &&
-    Date.parse(x.date+'T00:00:00Z')<=Date.now()+86400000
+   Date.parse(x.date+'T23:59:59Z')>=recentCut &&
+   Date.parse(x.date+'T00:00:00Z')<=Date.now()+86400000
  }).sort(function(a,b){return b.date.localeCompare(a.date)})[0]||null;
- function night(key){return sleep&&data&&Array.isArray(data[key])?
-   data[key].find(function(x){return x&&x.sleepUid===sleep.uid})||null:null}
- var oxygen=night('nightOxygen'),skin=night('nightSkinTemperature');
+ var skin=sleep&&data&&Array.isArray(data.nightSkinTemperature)?
+   data.nightSkinTemperature.find(function(x){return x&&x.sleepUid===sleep.uid})||null:null;
  var hc=hhSleepVitals384[profile]||{};
  function num(v,d){return v!=null&&Number.isFinite(Number(v))?
-    Number(v).toLocaleString('hu-HU',{minimumFractionDigits:d,maximumFractionDigits:d}):'—'}
- function date(v){return v?fmtDate(v):'nincs mért dátum'}
- function tile(label,value,unit,meta){
-  return '<div style="min-width:0;border-radius:14px;border:1px solid rgba(103,128,170,.20);'+
-   'background:rgba(105,135,183,.07);padding:11px 9px;display:flex;flex-direction:column;gap:5px">'+
-   '<small style="font-size:10px;line-height:1.4;opacity:.85">'+esc(label)+'</small>'+
-   '<strong style="font-size:20px;font-weight:850;line-height:1.2;font-variant-numeric:tabular-nums">'+
-   esc(value)+(value==='—'?'':' <span style="font-size:11px;font-weight:650">'+esc(unit)+'</span>')+
-   '</strong><small style="font-size:9px;opacity:.75">'+esc(meta)+'</small></div>';
+   Number(v).toLocaleString('hu-HU',{minimumFractionDigits:d,maximumFractionDigits:d}):'—'}
+ function tile(id,icon,label,value,unit,detail,source){
+  return '<div class="hhSleepFactor381 hhSleepWatchExtra1157" data-hh-watch-metric="'+id+'" title="'+esc(detail)+'">'+
+   '<div class="hhSleepFactorLabel381"><span class="hhSleepFactorIcon381" aria-hidden="true">'+icon+'</span><span>'+esc(label)+'</span></div>'+
+   '<strong class="hhSleepFactorValue381">'+esc(value)+(value==='—'?'':' <small>'+esc(unit)+'</small>')+'</strong>'+
+   '<span class="hhSleepFactorStatus381 '+(value==='—'?'muted':'info')+'">'+esc(source)+'</span>'+
+   '<small class="hhSleepFactorDetail381">'+esc(detail)+'</small></div>';
  }
- var sn=sleep&&sleep.sleepScore!=null?num(sleep.sleepScore,0):'—';
- var en=energy&&energy.energyScore!=null?num(energy.energyScore,0):'—';
- var ox=oxygen&&oxygen.minPercent!=null?num(oxygen.minPercent,0):'—';
+ var sleepScore=sleep&&sleep.sleepScore!=null?num(sleep.sleepScore,0):'—';
+ var energyScore=energy&&energy.energyScore!=null?num(energy.energyScore,0):'—';
  var temp=skin&&skin.minCelsius!=null&&skin.maxCelsius!=null?
   num(skin.minCelsius,1)+'–'+num(skin.maxCelsius,1):
   skin&&skin.celsius!=null?num(skin.celsius,1):'—';
- var hr=hc.hrv?num(hc.hrv.rmssdMs,1):'—';
- var breath=hc.respiratory?num(hc.respiratory.breathsPerMinute,1):'—';
- var stamp=data&&data.wellnessReadAt?fmtDateFull(data.wellnessReadAt):'még nem ellenőrizhető';
- var cloudMsg=!data?'A Samsung extra adatok még nem érhetők el ennél a profilnál.':
-  'Samsung extra adatlekérés: '+stamp+' · Hiányzó érték = nincs igazolt mérés.';
- return '<section class="hhSleepCard hhSleepWatch9Panel" data-hh-watch9-profile="'+esc(profile)+'" aria-label="Samsung Watch extra alvási mérések">'+
-  '<div class="hhSleepCardHead"><div><small>⌚ SAMSUNG HEALTH · EXTRA ADATOK</small><h3>Watch · alvás és regeneráció</h3></div></div>'+
-  '<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin:8px 0">'+
-  tile('Sleep Score',sn,'/ 100',sleep?date(sleep.date):'nincs mért éjszaka')+
-  tile('Energy Score',en,'/ 100',energy?date(energy.date):'nincs mért nap')+
-  tile('Éjszakai SpO₂ minimum',ox,'%',sleep?date(sleep.date):'nincs éjszakai mérés')+
-  tile('Éjszakai bőrhőmérséklet',temp,'°C',sleep?date(sleep.date):'nincs éjszakai mérés')+
-  tile('HRV · Health Connect',hr,'ms',hc.hrv?fmtDate(hc.hrv.time):'nincs éjjeli mérés')+
-  tile('Légzésszám · Health Connect',breath,'/perc',hc.respiratory?fmtDate(hc.respiratory.time):'nincs éjjeli mérés')+
-  '</div><p style="font-size:10px;line-height:1.5;opacity:.78;margin:8px 0 0">'+esc(cloudMsg)+
-  ' A Samsung és Health Connect eltérő méréseket biztosíthat; a pontszámokat nem becsüljük.</p></section>';
+ var hrv=hc.hrv?num(hc.hrv.rmssdMs,1):'—';
+ var respiration=hc.respiratory?num(hc.respiratory.breathsPerMinute,1):'—';
+ return tile('sleep-score','🌙','Sleep Score',sleepScore,'/100',
+    sleep?sleep.date||'Utolsó mért éjszaka':'Nincs Samsung-pontszám','Samsung')+
+  tile('energy-score','⚡','Energy Score',energyScore,'/100',
+    energy?energy.date:'Nincs Samsung-pontszám','Samsung')+
+  tile('skin-temperature','🌡️','Bőrhőmérséklet',temp,'°C',
+    skin?'Mért éjszakai bőrhőmérséklet':'Nincs éjszakai mérés','Samsung')+
+  tile('hrv','💗','HRV',hrv,'ms',
+    hc.hrv?fmtDate(hc.hrv.time):'Nincs éjszakai HC-mérés','Health Connect')+
+  tile('respiratory-rate','🌬️','Légzésszám',respiration,'/perc',
+    hc.respiratory?fmtDate(hc.respiratory.time):'Nincs éjszakai HC-mérés','Health Connect');
 }
+function hhSleepWatch9Oxygen1157(profile,result){
+ var data=result&&result.status==='ready'&&result.data&&result.data.profile===profile?result.data:null;
+ if(!data||!Array.isArray(data.sleepSessions)||!Array.isArray(data.nightOxygen))return;
+ var cut=Date.now()-72*3600000;
+ var sleep=data.sleepSessions.filter(function(x){return x&&Date.parse(x.endTime)>=cut&&
+   Date.parse(x.endTime)<=Date.now()+300000}).sort(function(a,b){
+   return Date.parse(b.endTime)-Date.parse(a.endTime)})[0]||null;
+ var oxy=sleep&&data.nightOxygen.find(function(x){return x&&x.sleepUid===sleep.uid})||null;
+ if(!oxy||oxy.minPercent==null||!Number.isFinite(Number(oxy.minPercent)))return;
+ var value=Number(oxy.minPercent);
+ if(value<50||value>100)return;
+ var el=document.getElementById('hhSleepOxygenCard1157');
+ if(!el||el.closest('[data-hh-watch9-profile]')?.getAttribute('data-hh-watch9-profile')!==profile)return;
+ var main=el.querySelector('.hhSleepFactorValue381'),meta=el.querySelector('.hhSleepFactorDetail381');
+ var status=el.querySelector('.hhSleepFactorStatus381');
+ var hc=el.getAttribute('data-hh-oxygen-hc');
+ if(main&&hc==='none')main.textContent=value.toLocaleString('hu-HU')+'% min';
+ if(meta)meta.textContent=(hc==='none'?'Samsung éjszakai minimum':'HC átlag '+hc+' · Samsung min '+value.toLocaleString('hu-HU')+'%');
+ if(status)status.textContent=hc==='none'?'Samsung Health':'HC + Samsung';
+}
+
 async function hhLoadWatch9Sleep(profile,renderId){
  var current=function(){return renderId===sleepRenderSeq&&pkey()===profile&&
    window.hhSleepSourceMeta&&window.hhSleepSourceMeta.profile===profile&&
@@ -586,7 +603,10 @@ async function hhLoadWatch9Sleep(profile,renderId){
   try{result=await source.load(profile,vault)}catch(e){result=null}
  }
  var target=current();
- if(target)target.innerHTML=hhSleepWatch9Markup(profile,result);
+ if(target){
+  target.innerHTML=hhSleepWatch9Markup(profile,result);
+  hhSleepWatch9Oxygen1157(profile,result);
+ }
 }
 
 async function render(profileOverride){
@@ -649,7 +669,7 @@ function paintSleep(rows,requestedProfile,renderId,perfStarted,preview,exportedA
  '<div class="hhSleepTop"><div><small>HEALTH CONNECT · '+esc(requestedProfile==='monika'?'MÓNIKA':'ZSOLT')+'</small><h2>Alvás és regeneráció</h2></div><button class="hhSleepProfile" onclick="hhSleepToggleProfile(event)" aria-label="Váltás '+esc(otherName())+' profiljára">'+esc(pname())+'</button><span id="hhSleepRagBuddyV1146" class="hhSleepRagBuddyV1146" data-rag="unknown" role="img" aria-label="Buddy: az éjszakai alvásidő nem ismert"><span class="hhSleepRagBuddyFaceV1146" aria-hidden="true"></span></span></div>'+
  '<div class="hhSleepCacheStatusV3" data-hh-sleep-source="'+sourceStatus+'" role="status" style="background:rgba(17,67,102,.08);border:1px solid rgba(53,105,153,.20);border-radius:12px;padding:9px 11px;font-size:10px;font-weight:800;color:#27506b;margin:3px 0 9px">'+sourceNotice+'</div>'+
  sleepContent+
- (sourceStatus==='verified-cloud'&&['zsolt','monika'].includes(requestedProfile)?'<div id="hhSleepWatch9Panel" data-hh-watch9-profile="'+esc(requestedProfile)+'"></div>':'')+
+ 
  '<div class="hhSleepCard"><div class="hhSleepCardHead"><div><small>TREND</small><h3>Alvásidő</h3></div><div class="hhSleepPeriods"><button class="'+(sleepState.period==='7d'?'on':'')+'" onclick="hhSleepPeriod(\'7d\')">Heti</button><button class="'+(sleepState.period==='30d'?'on':'')+'" onclick="hhSleepPeriod(\'30d\')">Havi</button><button class="'+(sleepState.period==='90d'?'on':'')+'" onclick="hhSleepPeriod(\'90d\')">3 hónap</button></div></div>'+chart(period)+trendSummary(period)+'</div>'+
  (v428Enabled&&latest?window.HH_SLEEP_V428.calendar(rows,requestedProfile):'')+
  '<div class="hhSleepCard helperCard"><div class="hhSleepCardHead"><div><small>SLEEP HELPER</small><h3>Elalvássegítő</h3></div><span>API-mentes</span></div><p>Válassz időt és hangot. A meleg fény lassan elsötétül, a hang pedig fokozatosan elhalkul.</p>'+
@@ -661,6 +681,10 @@ function paintSleep(rows,requestedProfile,renderId,perfStarted,preview,exportedA
   (v428Enabled?'Korábbi Sleep nézet megnyitása':'Vissza a Golden Standard Sleep oldalra')+'</a>'+
   '<p>Csak a képernyő megjelenését váltja. Nem indít adatfeltöltést, és nem módosítja a szinkronizált méréseket.</p></details>'+
  '<p class="privacyNote">Az alvási adatok tájékoztató jellegűek. A HealthHub nem értékeli diagnosztikusan az alvást.</p></div>'+bottomNav();
+ // v1157: six compact rows always occupy the same two-column grid.
+ // The five optional source tiles never block the HC Sleep first paint.
+ var watchSlot=page.querySelector('#hhSleepWatch9Panel');
+ if(watchSlot)watchSlot.innerHTML=hhSleepWatch9Markup(requestedProfile,null);
  // Use the canonical measured NIGHTLY sleep RAG from the three-view panel.
  // No alternative thresholds, nap aggregation, or cross-profile fallback.
  var sleepBuddy=page.querySelector('#hhSleepRagBuddyV1146');
@@ -832,4 +856,28 @@ document.addEventListener('visibilitychange',function(){
 });
 
 document.documentElement.dataset.healthhubSleep='1.386';window.HH_LIVE_BUILD='v386-sleep-readable-trends';
+})();
+
+/* v1157 · S24 Ultra: exactly 12 compact tiles in one two-column Golden Standard matrix.
+   Keep long source text available via title, never shrink numbers below readability.
+   A11y font scaling can extend the view; no data is hidden or fabricated. */
+(function(){
+ if(document.getElementById('hhSleepWatchCompact1157Css'))return;
+ var st=document.createElement('style');st.id='hhSleepWatchCompact1157Css';
+ st.textContent=(
+ '.hhSleepPage .hhSleepFactorsV432 .hhSleepFactors381{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:5px!important;align-items:stretch!important}'+
+ '.hhSleepPage .hhSleepWatch9Integrated1157{display:contents!important}'+
+ '.hhSleepPage .hhSleepFactorsV432 .hhSleepFactor381,.hhSleepPage .hhSleepFactorsV432 .hhSleepWatchExtra1157{box-sizing:border-box!important;min-width:0!important;min-height:70px!important;height:auto!important;padding:6px 8px!important;gap:2px!important;border-radius:12px!important;box-shadow:none!important;grid-column:auto!important}'+
+ '.hhSleepPage .hhSleepFactorsV432 .hhSleepWatch9Integrated1157>.hhSleepFactor381:last-child{grid-column:auto!important}'+
+ '.hhSleepPage .hhSleepFactorsV432 .hhSleepFactor381 .hhSleepFactorLabel381{font-size:10px!important;line-height:1.1!important;min-height:12px!important;white-space:normal!important}'+
+ '.hhSleepPage .hhSleepFactorsV432 .hhSleepFactor381 .hhSleepFactorIcon381{font-size:12px!important;line-height:1!important}'+
+ '.hhSleepPage .hhSleepFactorsV432 .hhSleepFactor381 .hhSleepFactorValue381{font-size:21px!important;line-height:1.06!important;margin:1px 0!important;min-height:22px!important}'+
+ '.hhSleepPage .hhSleepFactorsV432 .hhSleepFactor381 .hhSleepFactorValue381 small{font-size:10px!important;font-weight:650!important}'+
+ '.hhSleepPage .hhSleepFactorsV432 .hhSleepFactor381 .hhSleepFactorStatus381{font-size:9px!important;line-height:1.1!important;padding:2px 5px!important;min-height:15px!important;margin:0!important;max-width:100%!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}'+
+ '.hhSleepPage .hhSleepFactorsV432 .hhSleepFactor381 .hhSleepFactorDetail381{font-size:8px!important;line-height:1.12!important;margin:0!important;max-width:100%!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}'+
+ '.hhSleepPage .hhSleepFactorsV432 .hhSleepIndexMethod382{margin:3px 0!important}'+
+ '.hhSleepPage .hhSleepFactorsV432 .hhSleepFactorFoot381{font-size:9px!important;margin:4px 0!important}'+
+ '@media(max-width:355px){.hhSleepPage .hhSleepFactorsV432 .hhSleepFactor381{min-height:73px!important;padding:6px!important}.hhSleepPage .hhSleepFactorsV432 .hhSleepFactor381 .hhSleepFactorValue381{font-size:18px!important}}'
+ );
+ document.head.appendChild(st);
 })();
