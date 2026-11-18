@@ -582,7 +582,8 @@ function hhSleepWatch9Oxygen1157(profile,result){
  var value=Number(oxy.minPercent);
  if(value<50||value>100)return;
  var el=document.getElementById('hhSleepOxygenCard1157');
- if(!el||el.closest('[data-hh-watch9-profile]')?.getAttribute('data-hh-watch9-profile')!==profile)return;
+ var panel=document.getElementById('hhSleepWatch9Panel');
+ if(!el||!panel||panel.getAttribute('data-hh-watch9-profile')!==profile)return;
  var main=el.querySelector('.hhSleepFactorValue381'),meta=el.querySelector('.hhSleepFactorDetail381');
  var status=el.querySelector('.hhSleepFactorStatus381');
  var hc=el.getAttribute('data-hh-oxygen-hc');
