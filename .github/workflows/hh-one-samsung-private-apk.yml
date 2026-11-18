@@ -143,5 +143,5 @@ jobs:
           name: HH-One-Samsung-0.15.21-PRIVATE-TEST-NOT-OTA
           path: HH-One-Samsung-0.15.21-PRIVATE-TEST-NOT-OTA.apk
           if-no-files-found: error
-          retention-days: 1
+          retention-days: 7
           compression-level: 0
