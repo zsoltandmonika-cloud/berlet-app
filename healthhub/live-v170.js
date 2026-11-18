@@ -649,7 +649,7 @@ function paintSleep(rows,requestedProfile,renderId,perfStarted,preview,exportedA
  '<div class="hhSleepTop"><div><small>HEALTH CONNECT · '+esc(requestedProfile==='monika'?'MÓNIKA':'ZSOLT')+'</small><h2>Alvás és regeneráció</h2></div><button class="hhSleepProfile" onclick="hhSleepToggleProfile(event)" aria-label="Váltás '+esc(otherName())+' profiljára">'+esc(pname())+'</button><span id="hhSleepRagBuddyV1146" class="hhSleepRagBuddyV1146" data-rag="unknown" role="img" aria-label="Buddy: az éjszakai alvásidő nem ismert"><span class="hhSleepRagBuddyFaceV1146" aria-hidden="true"></span></span></div>'+
  '<div class="hhSleepCacheStatusV3" data-hh-sleep-source="'+sourceStatus+'" role="status" style="background:rgba(17,67,102,.08);border:1px solid rgba(53,105,153,.20);border-radius:12px;padding:9px 11px;font-size:10px;font-weight:800;color:#27506b;margin:3px 0 9px">'+sourceNotice+'</div>'+
  sleepContent+
- (sourceStatus==='verified-cloud'&&requestedProfile==='zsolt'?'<div id="hhSleepWatch9Panel" data-hh-watch9-profile="'+esc(requestedProfile)+'"></div>':'')+
+ (sourceStatus==='verified-cloud'&&['zsolt','monika'].includes(requestedProfile)?'<div id="hhSleepWatch9Panel" data-hh-watch9-profile="'+esc(requestedProfile)+'"></div>':'')+
  '<div class="hhSleepCard"><div class="hhSleepCardHead"><div><small>TREND</small><h3>Alvásidő</h3></div><div class="hhSleepPeriods"><button class="'+(sleepState.period==='7d'?'on':'')+'" onclick="hhSleepPeriod(\'7d\')">Heti</button><button class="'+(sleepState.period==='30d'?'on':'')+'" onclick="hhSleepPeriod(\'30d\')">Havi</button><button class="'+(sleepState.period==='90d'?'on':'')+'" onclick="hhSleepPeriod(\'90d\')">3 hónap</button></div></div>'+chart(period)+trendSummary(period)+'</div>'+
  (v428Enabled&&latest?window.HH_SLEEP_V428.calendar(rows,requestedProfile):'')+
  '<div class="hhSleepCard helperCard"><div class="hhSleepCardHead"><div><small>SLEEP HELPER</small><h3>Elalvássegítő</h3></div><span>API-mentes</span></div><p>Válassz időt és hangot. A meleg fény lassan elsötétül, a hang pedig fokozatosan elhalkul.</p>'+
@@ -679,7 +679,7 @@ function paintSleep(rows,requestedProfile,renderId,perfStarted,preview,exportedA
   sleepBuddy.setAttribute('aria-label','Buddy, tájékoztató alvásidő-jelzés: '+sleepRagDesc[sleepRag]);
   sleepBuddy.title='Az éjjeli alvásidő RAG-jelzését követi, nem orvosi minősítés.';
  }
- if(!preview&&sourceStatus==='verified-cloud'&&requestedProfile==='zsolt'){
+ if(!preview&&sourceStatus==='verified-cloud'&&['zsolt','monika'].includes(requestedProfile)){
   // Asynchronous optional read, never part of Sleep's critical paint path.
   Promise.resolve(hhLoadWatch9Sleep(requestedProfile,renderId)).catch(function(){});
  }
