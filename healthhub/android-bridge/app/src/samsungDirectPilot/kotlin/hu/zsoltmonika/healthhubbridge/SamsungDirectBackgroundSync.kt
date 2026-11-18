@@ -248,7 +248,7 @@ class SamsungDirectBackgroundWorker(
             // Additional Samsung Watch9 sources refresh at most every six hours.
             // Activity sync remains hourly and independent of optional permission failures.
             val wellnessNow = System.currentTimeMillis()
-            val wellnessKey = "samsung_direct_wellness_last_attempt_ms"
+            val wellnessKey = "samsung_direct_wellness_last_attempt_ms_$owner"
             val lastWellness = prefs.getLong(wellnessKey, 0L)
             val freshWellness = if (wellnessNow - lastWellness >= 6L * 60L * 60L * 1000L) {
                 prefs.edit().putLong(wellnessKey, wellnessNow).apply()
