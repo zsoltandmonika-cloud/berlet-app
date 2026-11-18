@@ -96,5 +96,5 @@ test('Renderer inserts five extra tiles inside same original factors grid, no se
  assert.match(sleep,/hhSleepWatch9Oxygen1157\(profile,result\)/);
  assert.match(sleep,/renderId===sleepRenderSeq&&pkey\(\)===profile/);
  assert.match(sleep,/sourceStatus==='verified-cloud'/);
- assert.match(index,/live-v170\.js\?v=1157-watch9-compact-12/);
+ assert.match(index,/live-v170\.js\?v=1158-watch9-samsung-source/);
 });
