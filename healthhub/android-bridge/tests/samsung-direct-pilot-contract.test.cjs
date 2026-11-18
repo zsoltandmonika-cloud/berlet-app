@@ -169,3 +169,27 @@ test('first sync and unattended sync require owner-scoped readback before claimi
  assert.match(bg,/KEY_LAST_SUCCESS, System\.currentTimeMillis\(\)/);
  assert.match(sdk,/KEY_MANUAL_CLOUD_VERIFIED_OWNER, profile/);
 });
+
+test('Watch9 optional Health Connect vitals cannot block existing mandatory sync',()=>{
+ const exporter=read('app/src/main/java/hu/zsoltmonika/healthhubbridge/HealthConnectExporter.kt');
+ const manifest=read('app/src/main/AndroidManifest.xml');
+ for (const field of ['HeartRateVariabilityRmssdRecord','RespiratoryRateRecord','SkinTemperatureRecord']) {
+   assert.match(exporter,new RegExp('HealthPermission\\.getReadPermission\\('+field+'::class\\)'));
+ }
+ assert.match(exporter,/OPTIONAL_WATCH_VITALS_PERMISSIONS = setOf\(/);
+ assert.doesNotMatch(exporter,/REQUIRED_PERMISSIONS = setOf\([\s\S]*?SkinTemperatureRecord::class/);
+ assert.match(exporter,/private suspend fun <T : Record> readOptionalSource\(/);
+ assert.match(exporter,/if \(e is kotlinx\.coroutines\.CancellationException\) throw e/);
+ assert.match(exporter,/records\.put\("heartRateVariabilityRmssd"/);
+ assert.match(exporter,/records\.put\("respiratoryRate"/);
+ assert.match(exporter,/records\.put\("skinTemperature"/);
+ assert.match(exporter,/\.put\("deltaCelsius", sample\.delta\.inCelsius\)/);
+ assert.match(exporter,/\.put\("baselineCelsius", r\.baseline\?\.inCelsius \?: JSONObject\.NULL\)/);
+ assert.match(exporter,/\.put\("sourcePackage", r\.metadata\.dataOrigin\.packageName\)/);
+ assert.match(main,/watchVitalsPermissionLauncher/);
+ assert.match(main,/watchVitalsPermissionLauncher\.launch\(missing\)/);
+ assert.match(main,/Watch9 · HRV, légzésszám, bőrhőmérséklet engedélyezése/);
+ for (const perm of ['READ_HEART_RATE_VARIABILITY','READ_RESPIRATORY_RATE','READ_SKIN_TEMPERATURE']){
+   assert.match(manifest,new RegExp('android\\.permission\\.health\\.'+perm));
+ }
+});
