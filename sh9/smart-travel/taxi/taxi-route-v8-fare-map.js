@@ -112,7 +112,7 @@ panel.innerHTML=`
 <span class="tx-go-label">Smart Taxi<br>viteldíj-kalkulátor</span></button>
 <div class="tx-fotaxi">
 <a class="tx-fotaxi-link" id="txFotaxiOfficial" href="https://fotaxi.hu/utasoknak/viteldij-kalkulator/" target="_blank" rel="noopener noreferrer" aria-label="Főtaxi hivatalos címalapú viteldíj-kalkulátor megnyitása új lapon">
-<img class="tx-fotaxi-logo" src="./assets/fotaxi-inline-button-v6.webp" width="95" height="43" alt="" aria-hidden="true"><span class="tx-fotaxi-text">Főtaxi viteldíj-kalkulátor ↗</span></a>
+<img class="tx-fotaxi-logo" src="./assets/fotaxi-official-red-v1.png?v=20261119-official-logo" width="95" height="43" alt="" aria-hidden="true"><span class="tx-fotaxi-text">Főtaxi viteldíj-kalkulátor ↗</span></a>
 </div>
 <p class="tx-status" id="txStatus" role="status" aria-live="polite">Írj be legalább 3 karaktert, vagy mondd be a címet a mikrofonba.</p>
 <div class="tx-cost" id="txCost" hidden><div class="tx-meta">Várható viteldíj</div><div class="tx-big" id="txAmount"></div><div class="tx-meta" id="txMeta"></div><div class="tx-note">Tájékoztató becslés, a végleges összeget a taxaméter mutatja.</div><a class="tx-map" id="txMap" target="_blank" rel="noopener noreferrer">🗺️ Útvonal megnyitása a térképen ↗</a></div>
