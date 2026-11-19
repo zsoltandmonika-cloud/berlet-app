@@ -1,7 +1,8 @@
-/* Nutrition v1212 · Mai tápanyagok: one diagonal wave across all six KPI cards.
-   Preserve every tile and the heading; decorative paint only.
-   The previous shell-level third wave was floating across the heading. */
+/* Nutrition v1212b: one faint, nearly horizontal wave BEHIND six KPI cards.
+   No foreground overlay: card text, numbers, sizes and hit areas unchanged.
+   Safe rollback: remove the stylesheet link from nutrition/index.html. */
 body[data-lp-v2="on"][data-lp-module="nutrition"] > main.shell {
+  /* Remove the old third shell wave which passed through the heading. */
   background-image:
     var(--lpv-wave),var(--lpv-wave),
     radial-gradient(ellipse at 23% 3%,rgba(213,108,215,.17),transparent 45%),
@@ -11,12 +12,27 @@ body[data-lp-v2="on"][data-lp-module="nutrition"] > main.shell {
   background-position:center 240px,center 1090px,center top,center center,center top!important;
   background-repeat:no-repeat,no-repeat,no-repeat,no-repeat,no-repeat!important;
 }
-/* Only the six-card grid immediately after the Mai tápanyagok heading. */
-body[data-lp-v2="on"][data-lp-module="nutrition"] .row:has(> h2:first-child) + .grid:has(> #protein, > .kpi #protein) {position:relative;isolation:isolate}
-/* A single smooth path, left pink through right blue, visually crosses the two rows.
-   Overlay is click-through, no change to card hit areas, geometry or values. */
-body[data-lp-v2="on"][data-lp-module="nutrition"] .row + .grid:has(#protein)::after {
-  content:"";pointer-events:none;position:absolute;inset:0;z-index:4;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 360 240' preserveAspectRatio='none'%3E%3Cdefs%3E%3ClinearGradient id='w' x1='0' y1='0' x2='1' y2='0'%3E%3Cstop stop-color='%23f18edc'/%3E%3Cstop offset='.52' stop-color='%23c69dff'/%3E%3Cstop offset='1' stop-color='%2379caff'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M-10 68 C65 55 88 109 150 113 S268 162 370 178' fill='none' stroke='url(%23w)' stroke-width='2.4' opacity='.66'/%3E%3Cpath d='M-10 77 C65 64 90 117 155 121 S270 169 370 186' fill='none' stroke='%238ac3ff' stroke-width='1.5' opacity='.32'/%3E%3C/svg%3E");
-  background-size:100% 100%;background-repeat:no-repeat;
+/* Target ONLY the actual 6-card 'Mai tápanyagok' grid. */
+body[data-lp-v2="on"][data-lp-module="nutrition"] .row + .grid:has(#protein) {
+  position:relative;
+  isolation:isolate;
+}
+body[data-lp-v2="on"][data-lp-module="nutrition"] .row + .grid:has(#protein)::before {
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:0;
+  pointer-events:none;
+  opacity:.12;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 360 200' preserveAspectRatio='none'%3E%3Cdefs%3E%3ClinearGradient id='g'%3E%3Cstop stop-color='%23f3a2dc'/%3E%3Cstop offset='.52' stop-color='%23c9b2ff'/%3E%3Cstop offset='1' stop-color='%238fcfff'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M-10 104 Q80 91 180 103 T370 101' stroke='url(%23g)' stroke-width='2.5' fill='none'/%3E%3C/svg%3E");
+  background-position:center;
+  background-size:100% 100%;
+  background-repeat:no-repeat;
+}
+body[data-lp-v2="on"][data-lp-module="nutrition"] .row + .grid:has(#protein) > .glass.kpi {
+  position:relative;
+  z-index:1;
+}
+@media (prefers-reduced-transparency:reduce) {
+  body[data-lp-v2="on"][data-lp-module="nutrition"] .row + .grid:has(#protein)::before {opacity:0}
 }
