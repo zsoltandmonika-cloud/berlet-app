@@ -125,12 +125,17 @@
    var amt=document.getElementById('hhWaterAmount');
    var daily=amt&&amt.textContent?amt.textContent.trim():'—';
    litres.textContent=daily;
+   // Never mix daily consumption with the pitcher-since-last-empty count:
+   // the jug picture resets, but today's displayed intake remains in the log.
+   var dailyMatch=daily.match(/([\\d\\s.,\\u00a0\\u202f]+)\\s*ml/i);
+   var dailyMl=dailyMatch?Number(dailyMatch[1].replace(/\\D/g,'')):null;
+   var shownMl=Number.isFinite(dailyMl)?Math.max(0,dailyMl):n;
    var goalInput=document.getElementById('hhWaterGoal');
    var goal=goalInput&&goalInput.value?Number(goalInput.value):NaN;
    var valid=Number.isFinite(goal)&&goal>=250&&goal<=6000;
    target.textContent=valid?formatMl(goal):'Cél nincs beállítva';
-   percent.textContent=valid?Math.round(Math.max(0,n)/goal*100)+'%':'—';
-   progress.style.width=valid?Math.min(100,n/goal*100)+'%':'0%';
+   percent.textContent=valid?Math.round(shownMl/goal*100)+'%':'—';
+   progress.style.width=valid?Math.min(100,shownMl/goal*100)+'%':'0%';
    var label='Kancsó: '+formatMl(n)+' / 2 000 ml, '+step+' teljes 250 ml-es szint.';
    stages.textContent=step+' / 8';
    stages.setAttribute('aria-label',label);
