@@ -161,5 +161,5 @@ test('Uber CTA transfers existing SHO pickup/dropoff addresses without changing 
  assert.equal(gps.searchParams.get('dropoff[formatted_address]'),'Budapest Déli pályaudvar');
  assert.equal(clickUber('','').href,'https://m.uber.com/');
  assert.equal(clickUber('Budapest Keleti pályaudvar','').href,'https://m.uber.com/');
- assert.match(index,/taxi-route-v8-fare-map\.js\?v=20261119-v8-map-plus15/);
+ assert.match(index,/taxi-route-v8-fare-map\.js\?v=20261119-v8-shared-map-theme/);
 });
