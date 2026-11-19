@@ -103,3 +103,31 @@ test('White expanded attribution strip is replaced on both maps, without deletin
  assert.doesNotMatch(gps,/attributionControl:false/);
  assert.doesNotMatch(preview,/attributionControl:false/);
 });
+
+test('Immediately collapsed map attribution keeps tappable 26px source icon on both maps',()=>{
+ const helper=fs.readFileSync(path.join(base,'taxi-map-credits-compact-v3.js'),'utf8');
+ assert.match(index,/taxi-map-credits-compact-v3\.js\?v=20261119-credits-instant-compact-v4/);
+ assert.doesNotMatch(helper,/setTimeout|5200|attributionControl:false/);
+ assert.match(index,/width:26px!important;min-width:26px!important;height:26px!important/);
+ const classes=new Set(['maplibregl-ctrl-attrib','maplibregl-compact-show']);
+ const attrib={classList:{
+  add:name=>classes.add(name),remove:name=>classes.delete(name),
+  contains:name=>classes.has(name)
+ }};
+ const handlers={};
+ const map={getContainer:()=>({querySelector:selector=>selector==='.maplibregl-ctrl-attrib'?attrib:null}),
+  on:(name,fn)=>{handlers[name]=fn}};
+ const window={};
+ vm.runInNewContext(helper,{window,console});
+ window.SHO_TAXI_COMPACT_ATTRIBUTION_V3.bind(map);
+ assert.equal(classes.has('maplibregl-compact'),true);
+ assert.equal(classes.has('maplibregl-compact-show'),false,'large banner must be collapsed at map startup');
+ assert.equal(typeof handlers.load,'function');
+ assert.equal(typeof handlers['style.load'],'function');
+ // MapLibre is still free to expand attribution when the user taps ⓘ.
+ classes.add('maplibregl-compact-show');
+ assert.equal(classes.has('maplibregl-compact-show'),true);
+ handlers['style.load']();
+ assert.equal(classes.has('maplibregl-compact-show'),false,'new map style should start compact');
+ assert.match(index,/\.maplibregl-ctrl-attrib-inner/,'provider links must remain reachable');
+});
