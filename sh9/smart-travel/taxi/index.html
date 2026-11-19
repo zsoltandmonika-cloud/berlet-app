@@ -85,6 +85,21 @@
  #taxiCurrentMapStatus{font-size:9px}.taxi-map-top{padding-left:8px}}
 
 @media(max-width:360px){.dialog-card{padding:15px 12px}.fields{gap:7px}}
+
+/* V8: the fare-result scrolls independently while Close/Uber stay pinned at screen bottom. */
+#calcDialog .dialog-card{height:calc(100dvh - 16px);max-height:calc(100dvh - 16px);
+ overflow:hidden;padding:14px 14px 10px;display:flex;flex-direction:column}
+#calcDialog .taxi-dialog-scroll{width:100%;flex:1 1 auto;min-height:0;overflow-y:auto;
+ overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#99568b #130e25;
+ scroll-behavior:smooth;scroll-padding-top:9px;padding:4px 4px 8px}
+#calcDialog .taxi-dialog-scroll.has-result{padding-bottom:clamp(170px,27dvh,270px)}
+#calcDialog .dialog-card>.actions{flex:0 0 auto;position:relative;z-index:3;
+ margin:0 -3px;padding:11px 3px 0;min-height:62px;
+ background:linear-gradient(180deg,#211631,#210f2b);
+ box-shadow:0 -9px 18px #120d2077}
+#calcDialog .dialog-card>.actions button{min-height:47px}
+@media(max-height:620px){#calcDialog .dialog-card{height:calc(100dvh - 10px);max-height:calc(100dvh - 10px)}}
+
 </style>
 </head>
 <body>
@@ -114,11 +129,13 @@
 </main>
 <div class="dialog" id="calcDialog" role="dialog" aria-modal="true" aria-labelledby="calcTitle" hidden>
 <div class="dialog-card">
+<div class="taxi-dialog-scroll" id="taxiDialogScroll">
 <div class="dialog-head"><h2 id="calcTitle">🚕 Viteldíj-kalkulátor</h2><button class="x" data-action="close" aria-label="Bezárás">×</button></div>
 <p class="sub">Budapest · 2026-os hivatalos tarifa. Az út hosszát és a 15 km/h alatti haladás / várakozás idejét külön add meg. Ez becslés, nem taxaméter.</p>
 <div class="fields"><label class="field">Úthossz (km)<input id="km" type="number" inputmode="decimal" min="0" max="1000" step="0.1" value="8" required></label><label class="field">Lassú haladás (perc)<input id="minutes" type="number" inputmode="decimal" min="0" max="1000" step="1" value="5" required></label></div>
 <label class="option"><input id="airport" type="checkbox"><span>✈️ Repülőtéri fuvar (2 100 Ft alapdíj)</span></label>
 <section class="result" role="status" aria-live="polite"><div class="result-label">Becsült viteldíj</div><div class="result-price" id="total">6 110 Ft</div><small id="formula">1 300 Ft + 8 km × 520 Ft + 5 perc × 130 Ft</small></section>
+</div>
 <div class="actions"><button type="button" data-action="close">Bezárás</button><button type="button" data-action="uber">Uber rendelés ↗</button></div>
 </div></div>
 <div class="dialog" id="tariffDialog" role="dialog" aria-modal="true" aria-labelledby="tariffTitle" hidden><div class="dialog-card">
@@ -176,6 +193,7 @@ D.forEach(el=>el.addEventListener('click',ev=>{if(ev.target===el)close()}));docu
 <script defer src="/berlet-app/sh9/shared/sh9-golden-bottom-nav-v924.js?v=929-sport-schedule"></script>
 <script src="../../../healthhub/central-vault/config.js?v=972-family-publishable"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.2/dist/umd/supabase.min.js"></script>
-<script defer src="./taxi-route-v7-fix-calculator.js?v=20261119-restore-calculator-v7"></script>
+<script defer src="./taxi-route-v8-fare-map.js?v=20261119-v8-result-map"></script>
+<script defer src="./taxi-route-result-map-v1.js?v=20261119-v8-map-preview"></script>
 <script defer src="./taxi-current-location-map-v1.js?v=20261119-gps-map-v1"></script>
 </body></html>
