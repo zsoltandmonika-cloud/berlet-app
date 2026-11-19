@@ -1,0 +1,184 @@
+/* SHO Smart Shopping – Golden Reference V2, 2026-11-20
+   A presentation-only layer based on the user-approved mobile composition.
+   DO NOT replace any hero/category bitmap, app service, original store card, data path,
+   quick-action handler, search handler, bottom-nav link or merchant API.
+   Full rollback: remove exactly this CSS link and the gs-ref-* blocks in index.html.
+*/
+body[data-lp-v2="on"][data-lp-module="shopping"]{
+ --gs-bg:#0b081a;
+ --gs-rose:#f1a0da;
+ --gs-blue:#9cb8f3;
+ --gs-stroke:rgba(204,162,232,.54);
+ --gs-glass:linear-gradient(140deg,rgba(51,32,77,.95),rgba(27,33,65,.96) 72%,rgba(27,28,63,.96));
+}
+body[data-lp-v2="on"][data-lp-module="shopping"] .app{
+ background:linear-gradient(180deg,#13091c 0%,#110e26 46%,#0a1326 100%)!important;
+}
+body[data-lp-v2="on"][data-lp-module="shopping"] .hero{
+ isolation:isolate;
+ border:0!important;
+ border-radius:0!important;
+ overflow:hidden;
+ background:#15071d!important;
+ box-shadow:none!important;
+}
+body[data-lp-v2="on"][data-lp-module="shopping"] .hero-image{
+ display:block;
+ height:auto;
+ width:100%;
+ aspect-ratio:1604/981;
+ object-fit:contain;
+ object-position:center;
+ /* The source pixels are never touched, filtered or cropped. */
+ filter:none!important;
+}
+body[data-lp-v2="on"][data-lp-module="shopping"] .hero-title{
+ position:absolute;top:0;left:0;right:0;z-index:2;
+ display:flex;align-items:center;justify-content:space-between;
+ width:100%;height:47px;min-height:47px;padding:4px 12px!important;
+ background:linear-gradient(180deg,rgba(9,9,24,.90) 0%,rgba(12,8,30,.64) 60%,transparent 100%)!important;
+ border:0!important;box-shadow:none!important;
+}
+body[data-lp-v2="on"][data-lp-module="shopping"] .hero-title .hero-kicker{
+ max-width:calc(100% - 114px);padding:0;
+ font-size:clamp(12px,3.2vw,16px);line-height:1.1;
+ letter-spacing:.03em;color:#fff!important;font-weight:800;
+ background:none!important;border:0!important;
+}
+body[data-lp-v2="on"][data-lp-module="shopping"] .hero-title .head-actions{gap:2px}
+body[data-lp-v2="on"][data-lp-module="shopping"] .hero-title .icon-btn{
+ width:31px;height:33px;font-size:23px;
+ color:#fff!important;text-shadow:0 1px 5px #000!important;
+}
+body[data-lp-v2="on"][data-lp-module="shopping"] .hero-title .fav-round{
+ width:37px;height:37px;font-size:8px;
+ border:1px solid rgba(255,183,224,.55);
+ box-shadow:0 2px 8px #07071685!important;
+ background:linear-gradient(138deg,rgba(150,58,127,.78),rgba(52,45,99,.84))!important;
+}
+body[data-lp-v2="on"][data-lp-module="shopping"] #searchForm.search-bar{
+ margin:7px 10px 9px!important;
+ min-height:50px;height:50px;
+ border:1px solid rgba(240,157,222,.65)!important;
+ border-radius:28px!important;
+ background:linear-gradient(111deg,rgba(57,39,87,.96),rgba(36,32,71,.96) 52%,rgba(37,38,77,.97))!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.20),0 3px 13px rgba(224,74,166,.13)!important;
+}
+body[data-lp-v2="on"][data-lp-module="shopping"] #searchForm.search-bar input{
+ color:#fff!important;
+}
+body[data-lp-v2="on"][data-lp-module="shopping"] #searchForm.search-bar input::placeholder{
+ color:#dfd7e9!important;opacity:.9;
+}
+/* A real, functioning two-shortcut row with native destinations. */
+.gs-ref-shortcuts{
+ display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;
+ padding:0 10px;margin:0 0 10px;
+}
+.gs-ref-shortcut{
+ display:flex;align-items:center;gap:8px;min-width:0;min-height:64px;
+ padding:8px 10px;border:1px solid rgba(238,137,206,.76);
+ border-radius:15px;
+ background:linear-gradient(126deg,rgba(112,34,82,.85),rgba(51,36,80,.94) 77%);
+ box-shadow:inset 0 1px 0 rgba(255,231,251,.19),0 5px 14px rgba(13,5,25,.26);
+ color:#fff;text-decoration:none;touch-action:manipulation;
+}
+.gs-ref-shortcut--basket{
+ border-color:rgba(153,160,234,.77);
+ background:linear-gradient(125deg,rgba(66,39,103,.85),rgba(31,40,83,.96));
+}
+.gs-ref-shortcut .gs-ref-shortcut-icon{
+ flex:none;display:grid;place-items:center;width:35px;height:38px;
+ color:#fac0ec;font-size:29px;line-height:1;
+}
+.gs-ref-shortcut .gs-ref-shortcut-icon svg{width:32px;height:32px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.gs-ref-shortcut .gs-ref-shortcut-copy{display:flex;flex:1;min-width:0;flex-direction:column;gap:3px}
+.gs-ref-shortcut strong{color:white;font-size:clamp(12px,3.3vw,16px);line-height:1.1;font-weight:850;white-space:nowrap}
+.gs-ref-shortcut small{color:#e1d3eb;font-size:clamp(8px,2.15vw,11px);line-height:1.15;white-space:nowrap}
+.gs-ref-shortcut .gs-ref-arrow{font-size:23px;color:#f6e6ff}
+.gs-ref-shortcut:focus-visible{outline:2px solid #ffb9eb;outline-offset:2px}
+/* Six existing category actions with their current local image assets.
+   Labels are separate real text, not baked into a fictitious picture. */
+body[data-lp-v2="on"][data-lp-module="shopping"] #categoryGrid.categories{
+ display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;
+ gap:8px!important;padding:0 10px 9px!important;margin:0!important;
+ height:auto!important;
+}
+body[data-lp-v2="on"][data-lp-module="shopping"] #categoryGrid.categories > .cat{
+ position:relative;aspect-ratio:1.62!important;min-height:0!important;
+ overflow:hidden;border-radius:14px!important;
+ border:1px solid rgba(202,167,236,.56)!important;
+ background:linear-gradient(145deg,#34244d,#161b35)!important;
+ box-shadow:inset 0 1px rgba(255,255,255,.18),0 5px 12px #08071666!important;
+}
+body[data-lp-v2="on"][data-lp-module="shopping"] #categoryGrid.categories > .cat img{
+ width:100%!important;height:100%!important;object-fit:cover!important;
+}
+body[data-lp-v2="on"][data-lp-module="shopping"] #categoryGrid .gs-ref-cat-label{
+ position:absolute;z-index:1;bottom:0;left:0;right:0;
+ display:block;min-height:23px;padding:7px 2px 4px;
+ color:white;font-weight:800;font-size:clamp(10px,2.7vw,13px);
+ text-align:center;line-height:1.05;text-shadow:0 1px 4px #02030bee;
+ background:linear-gradient(0deg,rgba(8,9,25,.85),transparent);
+ pointer-events:none;
+}
+/* Home-screen merchant overview: visual navigation; original detailed cards remain below. */
+.gs-ref-store-overview{margin:3px 10px 9px}
+.gs-ref-store-heading{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:4px 6px 10px}
+.gs-ref-store-heading h2{display:flex;align-items:center;gap:8px;margin:0;color:#fff!important;font-size:clamp(18px,5vw,23px)!important;letter-spacing:-.5px}
+.gs-ref-store-heading h2 svg{width:23px;height:23px;fill:none;stroke:#ec93d2;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.gs-ref-store-heading>a{display:flex;align-items:center;color:#f8ecff;font-size:12px;text-decoration:none}
+.gs-ref-store-logos{
+ display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;
+}
+.gs-ref-logo{
+ display:flex;align-items:center;justify-content:center;gap:3px;
+ min-width:0;min-height:37px;padding:4px 3px;
+ border:1px solid rgba(187,178,215,.55);border-radius:10px;
+ background:linear-gradient(130deg,#fff,#f4f3fa);
+ box-shadow:0 2px 9px rgba(10,7,23,.24);
+ color:#241b38;text-align:center;text-decoration:none;
+}
+.gs-ref-logo img{width:22px;height:22px;flex:none;object-fit:contain}
+.gs-ref-logo .gs-ref-logo-word{
+ font-weight:950;font-size:clamp(10px,2.8vw,14px);
+ letter-spacing:-.4px;line-height:1;white-space:nowrap;
+ overflow:hidden;text-overflow:clip;
+}
+.gs-ref-logo[data-shop="tesco"]{color:#db1133}
+.gs-ref-logo[data-shop="auchan"]{color:#ca1725}
+.gs-ref-logo[data-shop="aldi"]{color:#2042a0}
+.gs-ref-logo[data-shop="kifli"]{color:#28272e}
+.gs-ref-logo[data-shop="dm"]{color:#1252a4}
+.gs-ref-logo[data-shop="rossmann"]{color:#db1942}
+.gs-ref-logo[data-shop="emag"]{color:#c52986}
+.gs-ref-logo[data-shop="alza"]{color:#234c8c}
+.gs-ref-logo[data-shop="allegro"]{color:#f16a11}
+.gs-ref-logo[data-shop="temu"]{color:#ef5311}
+.gs-ref-logo[data-shop="shein"]{color:#151515}
+.gs-ref-logo[data-shop="shoperia"]{color:#7845a3}
+.gs-ref-logo:active{transform:scale(.98)}
+.gs-ref-logo:focus-visible{outline:2px solid #ff89cb;outline-offset:2px}
+/* Keep the original five fully-functional SHO bottom destinations, new coating only. */
+body[data-lp-v2="on"][data-lp-module="shopping"] .bottomnav{
+ border-top:1px solid rgba(216,165,237,.65)!important;
+ background:linear-gradient(120deg,rgba(53,32,77,.98),rgba(19,27,55,.98))!important;
+ box-shadow:0 -4px 19px rgba(186,72,154,.13)!important;
+}
+body[data-lp-v2="on"][data-lp-module="shopping"] .bottomnav :is(a,button){
+ color:#f1e6ff;
+}
+body[data-lp-v2="on"][data-lp-module="shopping"] .bottomnav .current{
+ color:#ffa2e2!important;
+}
+/* Lower sections are left intact: merchant CTAs, catalog, basket,
+   favorites, local orders and Price Radar remain fully functional. */
+@media(max-width:365px){
+ .gs-ref-shortcut{gap:5px;padding:7px 6px}
+ .gs-ref-shortcut .gs-ref-shortcut-icon{width:29px}
+ .gs-ref-shortcut .gs-ref-shortcut-icon svg{width:27px;height:27px}
+ .gs-ref-shortcut .gs-ref-arrow{font-size:18px}
+ .gs-ref-logo img{width:17px;height:17px}
+ .gs-ref-logo .gs-ref-logo-word{font-size:10px}
+}
+@media(prefers-reduced-motion:reduce){.gs-ref-logo:active{transform:none}}
