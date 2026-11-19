@@ -60,8 +60,8 @@ test('Only the unused space below the approved Taxi hero contains the map; Golde
  assert.match(index,/id="taxiCurrentMapCanvas"/);
  assert.match(index,/id="taxiCurrentMapRefresh"/);
  assert.match(index,/id="taxiCurrentMapCenter"/);
- assert.match(index,/taxi-current-location-map-v1\.js\?v=20261119-gps-map-v1/);
- assert.match(index,/taxi-route-v8-fare-map\.js\?v=20261119-v8-map-plus15/);
+ assert.match(index,/taxi-current-location-map-v1\.js\?v=20261119-dark-map-v1/);
+ assert.match(index,/taxi-route-v8-fare-map\.js\?v=20261119-v8-shared-map-theme/);
  assert.match(index,/sh9-golden-bottom-nav-v924\.js/);
  assert.match(index,/src="\.\/assets\/SHO_Smart_Taxi_approved\.png" width="1193" height="1319"/);
  assert.doesNotMatch(index,/class="foot"/);
@@ -70,7 +70,7 @@ test('Only the unused space below the approved Taxi hero contains the map; Golde
 test('GPS uses this device, no home fallback, profile crossover, daily caps, polling or saved tracking',()=>{
  assert.match(script,/w\.navigator\.geolocation\.getCurrentPosition/);
  assert.match(script,/enableHighAccuracy:true/);
- assert.match(script,/tiles\.openfreemap\.org\/styles\/bright/);
+ assert.match(script,/tiles\.openfreemap\.org\/styles\/dark/);
  assert.match(script,/maplibre-gl@4\.7\.1/);
  assert.doesNotMatch(script,/localStorage|sessionStorage|Supabase|setInterval\(|watchPosition\(|47\.506|19\.0467/);
  assert.doesNotThrow(()=>new vm.Script(script));
@@ -81,7 +81,7 @@ test('Real native phone coordinates create only one pin at its GPS location, no 
  assert.equal(calls.gps.length,1);
  assert.equal(calls.gps[0].enableHighAccuracy,true);
  assert.equal(calls.map.length,1);
- assert.equal(calls.map[0].style,'https://tiles.openfreemap.org/styles/bright');
+ assert.equal(calls.map[0].style,'https://tiles.openfreemap.org/styles/dark');
  assert.deepEqual(Array.from(calls.map[0].center),[19.0352,47.5991]);
  assert.equal(calls.pins.length,1);
  assert.deepEqual(Array.from(calls.pins[0].coords),[19.0352,47.5991]);
