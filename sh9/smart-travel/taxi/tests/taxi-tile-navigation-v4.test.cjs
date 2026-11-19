@@ -110,5 +110,5 @@ test('S24 Ultra calculator popup is larger, scroll-safe and remains above the Go
  assert.match(index,/\.dialog-card\{width:min\(100%,560px\);max-height:calc\(100dvh - 16px\);overflow:auto/);
  assert.match(index,/\.dialog\{position:fixed;inset:0;z-index:120/);
  assert.match(client,/#taxiRouteV2\{margin:8px 0 5px;color:#f8f2ff;display:flex;flex-direction:column;flex:1/);
- assert.match(client,/#taxiRouteV2 \.tx-fotaxi\{margin-top:auto/);
+ assert.match(client,/#taxiRouteV2 \.tx-fotaxi\{margin:8px 0 0;padding:0/);
 });
