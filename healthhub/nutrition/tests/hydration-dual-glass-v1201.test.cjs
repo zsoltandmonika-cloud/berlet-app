@@ -43,7 +43,9 @@ test('visual-only new CSS loaded last, exactly one wave, no pitcher/water-intern
  const token='hh-hydration-dual-glass-v1201.css?v=1201-eight-glass-levels';
  assert.equal(head.split(token).length,2);
  const links=[...head.matchAll(/<link[^>]*rel="stylesheet"[^>]*>/g)].map(x=>x[0]);
- assert.ok(links.at(-1).includes(token));
+ assert.ok(links.some(x=>x.includes(token)),'v1201 remains loaded under v1202');
+ assert.ok(links.at(-1).includes('hh-hydration-showcase-v1202.css'),
+  'new v1202 hydration showcase skin wins the cascade');
  assert.match(css,/var\(--lpv-wave\)/);
  assert.match(css,/grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
  assert.match(css,/repeat\(8,minmax\(0,1fr\)\)/);
