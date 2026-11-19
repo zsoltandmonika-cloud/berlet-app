@@ -1,4 +1,4 @@
-/* Family Guard · fixed bottom search v1193 (presentation only).
+/* Family Guard · fixed bottom search v1194 (persistent screen anchoring).
  * Keeps the existing search trio aligned to the VISIBLE bottom navigation
  * instead of the map's document position. No cloned controls or event handlers.
  */
@@ -37,8 +37,11 @@
   // The existing v832 keyboard guard is the sole owner of focused positioning.
   if(card.classList.contains('hh-map-typing-v832')||d.activeElement===input)return;
   const nav=visibleNav(),rect=card.getBoundingClientRect();
+  // A fixed search must NOT disappear after the map scrolls away:
+  // getBoundingClientRect().top/bottom move with page scroll, but width
+  // remains stable. Only hide for missing navigation or zero-width layout.
   if(!nav||!Number.isFinite(rect.left)||!Number.isFinite(rect.width)||
-     rect.width<=0||rect.bottom<=96||rect.top>=nav.top-48){
+     rect.width<=0){
    clear();return;
   }
   const left=Math.max(0,Math.round(rect.left));
