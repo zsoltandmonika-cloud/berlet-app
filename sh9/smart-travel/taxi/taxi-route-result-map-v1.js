@@ -10,8 +10,8 @@ const info=d.getElementById('txRouteMapStatus'),fare=d.getElementById('txCost');
 if(!panel||!canvas||!info||!fare)return;
 const MAP_LIB='https://cdn.jsdelivr.net/npm/maplibre-gl@4.7.1/dist/maplibre-gl.js';
 const MAP_CSS='https://cdn.jsdelivr.net/npm/maplibre-gl@4.7.1/dist/maplibre-gl.css';
-const STYLE='https://tiles.openfreemap.org/styles/bright';
-let map=null,markers=[],pending=null,serial=0,context=null;
+const mapStyle=()=>w.SHO_TAXI_MAP_THEME_V1?.style?.()||'https://tiles.openfreemap.org/styles/dark';
+let map=null,markers=[],pending=null,serial=0,context=null,lastCoords=null,drawnOnce=false;
 const valid=x=>Array.isArray(x)&&x.length===2&&Number.isFinite(x[0])&&Number.isFinite(x[1])
  &&x[0]>=17&&x[0]<=21&&x[1]>=46&&x[1]<=49;
 function setStatus(s,state){info.textContent=s;panel.dataset.state=state||'ready';}
@@ -47,7 +47,7 @@ function addMarker(coords,label,klass){
   .setLngLat(coords).addTo(map);
  markers.push(marker);
 }
-function draw(coords){
+function draw(coords,fit=true){
  if(!map)return;
  const geojson={type:'FeatureCollection',features:[{type:'Feature',properties:{},
   geometry:{type:'LineString',coordinates:coords}}]};
@@ -68,15 +68,20 @@ function draw(coords){
  const bounds=new w.maplibregl.LngLatBounds();
  for(const point of coords)bounds.extend(point);
  map.resize();
- map.fitBounds(bounds,{padding:{top:35,right:32,bottom:44,left:32},maxZoom:16,duration:0});
+ if(fit)map.fitBounds(bounds,{padding:{top:35,right:32,bottom:44,left:32},maxZoom:16,duration:0});
 }
 async function render(coords,ticket){
  await getLib();
  if(ticket!==serial||panel.hidden)return;
  if(!map){
   map=new w.maplibregl.Map({
-   container:canvas,style:STYLE,center:coords[0],zoom:11,
+   container:canvas,style:mapStyle(),center:coords[0],zoom:11,
    pitch:0,bearing:0,attributionControl:true,antialias:false
+  });
+  map.on('style.load',()=>{
+   // MapLibre drops custom GeoJSON layers on setStyle. Restore only the displayed
+   // route, without recomputing the price or changing the user's map viewport.
+   if(drawnOnce&&lastCoords&&!panel.hidden)draw(lastCoords,false);
   });
   await new Promise((resolve,reject)=>{
    map.once('load',resolve);
@@ -86,7 +91,7 @@ async function render(coords,ticket){
   });
  }
  if(ticket!==serial||panel.hidden)return;
- draw(coords);
+ draw(coords);lastCoords=coords;drawnOnce=true;
  w.requestAnimationFrame?.(()=>map?.resize());
 }
 async function show(getRoute){
@@ -108,7 +113,7 @@ async function show(getRoute){
  }
 }
 function cancel(){
- ++serial;panel.hidden=true;
+ ++serial;panel.hidden=true;lastCoords=null;drawnOnce=false;
 }
 function unlock(){
  try{
@@ -133,6 +138,10 @@ function tadaa(){
   });
  }catch(_){}
 }
+// A theme change does not call the routing provider, change the price or move A/B.
+w.SHO_TAXI_MAP_THEME_V1?.subscribe?.(()=>{
+ if(map&&typeof map.setStyle==='function')map.setStyle(mapStyle());
+});
 // Unlock WebAudio during a direct tap: later async estimates may then play.
 d.addEventListener('click',e=>{
  if(e.target?.closest?.('#txEstimate'))unlock();
