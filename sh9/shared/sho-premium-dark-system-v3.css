@@ -1,0 +1,176 @@
+/* SHO Premium Dark Glass System v3 · stage 1: Smart Shopping + Sport Central
+ * Approved visual benchmark: SHO launcher and HealthHub Sleep (2026-11-19).
+ * V2 wave stays the baseline; v3 only deepens current two module chrome.
+ * CSS-only. Never alter hero artwork, image rendering, module tiles, list/grid
+ * geometry, scrolling, search, the MecsRadar embedded app, or live data.
+ */
+body[data-lp-v2="on"][data-lp-module="shopping"],
+body[data-lp-v2="on"][data-lp-module="sport"]{
+ --sho3-ink:#f9faff;
+ --sho3-muted:#d4def3;
+ --sho3-line:rgba(190,174,242,.66);
+ --sho3-line-pink:rgba(246,174,231,.72);
+ --sho3-line-cyan:rgba(116,207,250,.62);
+ --sho3-surface:linear-gradient(145deg,rgba(48,39,94,.97),rgba(17,38,82,.98) 64%,rgba(12,33,73,.99));
+ --sho3-card:linear-gradient(132deg,rgba(64,42,104,.97),rgba(24,45,93,.98));
+ --sho3-control:linear-gradient(126deg,rgba(83,55,120,.98),rgba(40,58,110,.97));
+ --sho3-shadow:0 7px 23px rgba(2,9,30,.38),inset 0 1px 0 rgba(252,235,255,.19),0 0 10px rgba(194,111,226,.11);
+ color-scheme:dark;
+}
+:root[data-lpv-owner="z"] body[data-lp-v2="on"]:is([data-lp-module="shopping"],[data-lp-module="sport"]){
+ --sho3-line:rgba(149,194,245,.69);
+ --sho3-line-pink:rgba(209,178,243,.67);
+ --sho3-card:linear-gradient(132deg,rgba(40,64,115,.97),rgba(21,45,94,.98));
+}
+/* Keep page shells deep and non-translucent for clean text contrast. */
+body[data-lp-v2="on"][data-lp-module="shopping"] .app{
+ background:linear-gradient(176deg,#172343 0%,#101d3e 38%,#091630 100%)!important;
+}
+body[data-lp-v2="on"][data-lp-module="shopping"] .hero{
+ border-color:var(--sho3-line)!important;
+ box-shadow:var(--sho3-shadow)!important;
+}
+body[data-lp-v2="on"][data-lp-module="shopping"] .hero-title{
+ background:linear-gradient(115deg,#34234f,#1b2f60 72%,#18345d)!important;
+ border-color:var(--sho3-line-pink)!important;
+}
+body[data-lp-v2="on"][data-lp-module="shopping"] .hero-title .hero-kicker{
+ color:#ffe1f6!important;
+ border-color:var(--sho3-line-pink)!important;
+ background:rgba(58,37,96,.65)!important;
+}
+body[data-lp-v2="on"][data-lp-module="shopping"] :is(.hero-title .icon-btn,.hero-title .fav-round){
+ color:#fffaff!important;
+ text-shadow:0 1px 6px rgba(6,10,31,.42)!important;
+}
+/* Search controls: no field size or keyboard/focus modifications. */
+body[data-lp-v2="on"][data-lp-module="shopping"] #searchForm.search-bar{
+ background:var(--sho3-surface)!important;
+ border-color:var(--sho3-line-pink)!important;
+ box-shadow:var(--sho3-shadow)!important;
+}
+body[data-lp-v2="on"][data-lp-module="shopping"] #searchInput{
+ color:#ffffff!important;
+ -webkit-text-fill-color:#ffffff!important;
+ caret-color:#ffbadc!important;
+ color-scheme:dark!important;
+}
+body[data-lp-v2="on"][data-lp-module="shopping"] #searchInput::placeholder{
+ color:#d8e2f5!important;-webkit-text-fill-color:#d8e2f5!important;opacity:1!important;
+}
+body[data-lp-v2="on"][data-lp-module="shopping"] #searchForm :is(.search-voice,.search-scan){
+ color:#fff1fc!important;
+ background:linear-gradient(145deg,rgba(75,62,119,.73),rgba(34,55,103,.79))!important;
+ border-radius:11px!important;
+}
+body[data-lp-v2="on"][data-lp-module="shopping"] #searchForm .search-submit{
+ color:#fffaff!important;
+ background:linear-gradient(129deg,#9f4b9c,#4d5aa9)!important;
+ box-shadow:inset 0 1px rgba(255,255,255,.23),0 3px 10px rgba(8,11,46,.33)!important;
+}
+/* Category artwork and its aspect ratio remain untouched. */
+body[data-lp-v2="on"][data-lp-module="shopping"] .categories .cat{
+ border:1px solid var(--sho3-line-pink)!important;
+ box-shadow:inset 0 1px rgba(255,255,255,.17),0 5px 17px rgba(3,10,38,.32),0 0 9px rgba(218,118,223,.12)!important;
+}
+/* Dark glass around stores, catalog, actions, carts. */
+body[data-lp-v2="on"][data-lp-module="shopping"]
+ :is(.shop-connect,.sho-catalog-panel,.quick-panel,.workspace,.retailer-area){
+ color:var(--sho3-ink)!important;
+ background:var(--sho3-surface)!important;
+ background-image:var(--sho3-surface)!important;
+ border-color:var(--sho3-line)!important;
+ box-shadow:var(--sho3-shadow)!important;
+}
+body[data-lp-v2="on"][data-lp-module="shopping"]
+ :is(.sho-store,.sho-product,.quick-grid > button,.workspace .item,.sho-result-tools){
+ background:var(--sho3-card)!important;
+ background-image:var(--sho3-card)!important;
+ border-color:var(--sho3-line)!important;
+ box-shadow:inset 0 1px rgba(252,242,255,.16),0 3px 12px rgba(3,9,34,.26)!important;
+}
+body[data-lp-v2="on"][data-lp-module="shopping"] :is(
+ .sho-store-top strong,.sho-product-name,.shop-title,.workspace h2,.quick-panel h2,
+ .sho-catalog-head strong,.quick-grid strong,.workspace .item-title){
+ color:#ffffff!important;
+}
+body[data-lp-v2="on"][data-lp-module="shopping"] :is(
+ .sho-store-count,.sho-store-top span,.sho-product-brand,.sho-product-code,
+ .sho-result-help,.sho-catalog-note,.sho-catalog-head small,.subtle,
+ .quick-grid small,.sho-store-settings,.workspace .item small){
+ color:var(--sho3-muted)!important;
+}
+body[data-lp-v2="on"][data-lp-module="shopping"] :is(
+ .sho-sort-label select,.sho-product-price,.sho-store-actions a,.sho-store-settings,
+ .sho-actions .sho-basket-matrix,.quick-grid button,.workspace button){
+ border-color:var(--sho3-line)!important;
+}
+body[data-lp-v2="on"][data-lp-module="shopping"] :is(
+ .sho-sort-label select,.sho-product-price,.sho-store-actions a,.sho-store-settings,
+ .sho-actions .sho-basket-matrix){
+ background:var(--sho3-control)!important;
+ color:#f8f9ff!important;
+ box-shadow:inset 0 1px rgba(255,255,255,.17)!important;
+}
+/* Do not darken product photos, brand-logo chips or the scanner/video overlay. */
+body[data-lp-v2="on"][data-lp-module="shopping"] .bottomnav{
+ background:linear-gradient(110deg,#24294c,#102b52)!important;
+ border-top-color:var(--sho3-line)!important;
+ box-shadow:0 -6px 20px rgba(2,9,30,.35),inset 0 1px rgba(255,255,255,.13)!important;
+}
+body[data-lp-v2="on"][data-lp-module="shopping"] .dialog{
+ color:#fcfaff!important;
+ background:var(--sho3-surface)!important;
+ border-color:var(--sho3-line)!important;
+ box-shadow:var(--sho3-shadow)!important;
+}
+/* Sport Central: restyle ONLY SHO chrome, not the live cross-origin MecsRadar iframe. */
+body[data-lp-v2="on"][data-lp-module="sport"] .sport-shell{
+ background:linear-gradient(176deg,#162348,#0b1b39 55%,#07162e 100%)!important;
+}
+body[data-lp-v2="on"][data-lp-module="sport"] .sport-hero{
+ border-color:var(--sho3-line)!important;
+ background-color:#112a56!important;
+ box-shadow:var(--sho3-shadow)!important;
+}
+body[data-lp-v2="on"][data-lp-module="sport"] .sport-menu{
+ background:linear-gradient(113deg,rgba(58,37,92,.94),rgba(23,45,92,.96))!important;
+ border-top-color:var(--sho3-line-pink)!important;
+ -webkit-backdrop-filter:blur(18px) saturate(110%)!important;
+ backdrop-filter:blur(18px) saturate(110%)!important;
+ box-shadow:inset 0 1px rgba(255,255,255,.19)!important;
+}
+body[data-lp-v2="on"][data-lp-module="sport"] .sport-menu > :is(button,a){
+ color:#f4f6ff!important;
+ border-right-color:rgba(192,195,239,.37)!important;
+ text-shadow:0 1px 4px rgba(0,4,22,.52)!important;
+}
+body[data-lp-v2="on"][data-lp-module="sport"] .sport-menu > :is(button,a).is-active{
+ background:linear-gradient(128deg,rgba(150,78,155,.65),rgba(50,76,137,.66))!important;
+ box-shadow:inset 0 -2px rgba(246,181,236,.78)!important;
+ color:#ffffff!important;
+}
+body[data-lp-v2="on"][data-lp-module="sport"] .sport-menu > .sport-accent,
+body[data-lp-v2="on"][data-lp-module="sport"] .sport-menu > .sport-accent:is(:link,:visited,:hover,:active,:focus){
+ color:var(--sport-radar-lime,#baff2f)!important;
+}
+body[data-lp-v2="on"][data-lp-module="sport"] .sport-frame{
+ border-color:var(--sho3-line)!important;
+ background:#0e1b35!important;
+ box-shadow:var(--sho3-shadow)!important;
+}
+body[data-lp-v2="on"][data-lp-module="sport"] .sport-error:not([data-ready="yes"]){
+ color:#edf3ff!important;
+ background:rgba(15,30,59,.96)!important;
+}
+/* Keep semantic success, warning, price, sports lime & live-data colors intact. */
+@media(prefers-reduced-transparency:reduce){
+ body[data-lp-v2="on"][data-lp-module="shopping"] :is(
+ .shop-connect,.sho-catalog-panel,.quick-panel,.workspace,.retailer-area,.dialog){
+  background:#1a2b53!important;
+ }
+ body[data-lp-v2="on"][data-lp-module="sport"] .sport-menu{
+  background:#242d54!important;
+  -webkit-backdrop-filter:none!important;backdrop-filter:none!important;
+ }
+}
