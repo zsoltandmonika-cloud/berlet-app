@@ -16,8 +16,13 @@
  /* Shared jug geometry: all 9 frames use the exact same SVG path, gradients,
     handle, rim, measurement ticks, lettering, shine and position. */
  function jugSvg(step){
-  var y=[306,283,256,229,201,173,145,116,86][Math.max(0,Math.min(8,step))];
-  var has=step>0;
+  // A single pixel-identical jug silhouette; only its waterline interpolates
+  // smoothly during an add/empty transition. Settled states remain the 9 PNGs.
+  var heights=[306,283,256,229,201,173,145,116,86];
+  var point=Math.max(0,Math.min(8,Number(step)||0));
+  var low=Math.floor(point),high=Math.min(8,low+1);
+  var y=heights[low]+(heights[high]-heights[low])*(point-low);
+  var has=point>0;
   var water=has?'<g clip-path="url(#inside)"><path d="M65 '+y+' Q158 '+(y-8)+' 252 '+y+' L252 310 Q162 326 67 308Z" fill="url(#water)" opacity=".92"/><path d="M65 '+y+' Q158 '+(y-8)+' 252 '+y+'" stroke="#93ffff" stroke-width="3.5" fill="none" opacity=".94" filter="url(#glow)"/><path d="M65 '+y+' Q158 '+(y-8)+' 252 '+y+'" stroke="#e0ffff" stroke-width="1.4" fill="none" opacity=".92"/><ellipse cx="164" cy="'+(y+5)+'" rx="88" ry="9" fill="url(#foam)" opacity=".38"/><g fill="#e2fdff" opacity=".45"><circle cx="118" cy="'+(Math.max(y+20,150))+'" r="1.9"/><circle cx="133" cy="'+(Math.max(y+36,192))+'" r="1.4"/><circle cx="208" cy="'+(Math.max(y+45,220))+'" r="1.7"/><circle cx="191" cy="286" r="1.5"/></g></g>':'';
   return '<svg xmlns="http://www.w3.org/2000/svg" width="320" height="340" viewBox="0 0 320 340" role="img" aria-hidden="true"><defs>'+
    '<linearGradient id="handle" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#f3baff"/><stop offset=".15" stop-color="#34265f"/><stop offset=".4" stop-color="#68e5ff"/><stop offset=".62" stop-color="#152b68"/><stop offset=".87" stop-color="#e4b9ff"/><stop offset="1" stop-color="#08cfff"/></linearGradient>'+
@@ -76,6 +81,7 @@
   glass.addEventListener('click',function(){oldAdd.click();});
   jug.addEventListener('click',function(){oldReset.click();});
   var frameUrls=new Map(),frameBuilding=new Map(),currentStep=-1,requested=0;
+  var visualLevel=-1,animationHandle=0;
   var display=window.matchMedia&&window.matchMedia('(prefers-reduced-motion:reduce)').matches;
   function buildFrame(level){
    if(frameUrls.has(level))return Promise.resolve(frameUrls.get(level));
@@ -104,18 +110,52 @@
    return pending;
   }
   function showFrame(level){
-   var sequence=++requested;
    if(currentStep===level)return;
+   var from=visualLevel,sequence=++requested;
    currentStep=level;
-   var svg=jugSvg(level);
-   /* Synchronous fallback: never show the wrong level during a slow raster. */
-   frame.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg);
-   buildFrame(level).then(function(url){
-    if(sequence!==requested)return;
-    frame.src=url;
-   });
+   if(animationHandle&&window.cancelAnimationFrame)window.cancelAnimationFrame(animationHandle);
+   animationHandle=0;
    jug.setAttribute('aria-label','Kancsó: '+level+' a 8 vízszintből. Koppints az ürítéshez. A napló megmarad.');
-   if(!display){jug.classList.remove('hh-jug-pulse-v1202');void jug.offsetWidth;jug.classList.add('hh-jug-pulse-v1202');}
+   function finish(){
+    if(sequence!==requested)return;
+    visualLevel=level;
+    jug.classList.remove('hh-jug-water-motion-v1205');
+    // The final still is the original PNG level, exactly as before.
+    frame.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(jugSvg(level));
+    buildFrame(level).then(function(url){
+     if(sequence===requested)frame.src=url;
+    });
+   }
+   // First render and system reduced-motion mode must not animate.
+   if(display||from<0||from===level||typeof window.requestAnimationFrame!=='function'){
+    finish();
+    return;
+   }
+   // The previous version only flashed a faint 360ms glow on a *static*
+   // PNG. Actually move the WATERLINE for 650ms when filling (520ms emptying).
+   // No extra water counter, writes, timers, or changes to existing tap events.
+   var duration=level>from?650:520,startAt=null,lastWaterline=null;
+   jug.classList.remove('hh-jug-water-motion-v1205');
+   void jug.offsetWidth;
+   jug.classList.add('hh-jug-water-motion-v1205');
+   function tick(timestamp){
+    if(sequence!==requested)return;
+    if(startAt===null)startAt=timestamp;
+    var t=Math.min(1,(timestamp-startAt)/duration);
+    var eased=1-Math.pow(1-t,2.3);
+    var point=from+(level-from)*eased;
+    visualLevel=point;
+    // Throttle SVG data URI updates while retaining a fluid-looking fill.
+    // At 60 Hz a 650ms transition draws ~39 cheap local SVG frames.
+    var sampled=Math.round(point*40)/40;
+    if(sampled!==lastWaterline){
+     frame.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(jugSvg(sampled));
+     lastWaterline=sampled;
+    }
+    if(t<1)animationHandle=window.requestAnimationFrame(tick);
+    else{animationHandle=0;finish();}
+   }
+   animationHandle=window.requestAnimationFrame(tick);
   }
   function refresh(){
    var currentMl=numberFromJarLabel(gauge.getAttribute('aria-label'));
