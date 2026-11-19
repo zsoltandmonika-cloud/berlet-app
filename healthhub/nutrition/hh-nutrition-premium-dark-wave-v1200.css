@@ -180,9 +180,9 @@ body[data-lp-v2="on"][data-lp-module="nutrition"] :is(button,a,input,select,summ
    The SIX main macro cards get a 20-percentage-point increase in glass transparency.
    Labels, numbers, all other tiles and the quick-entry wave are untouched. */
 body[data-lp-v2="on"][data-lp-module="nutrition"] .row + .grid:has(#protein) > .glass.kpi {
- background:linear-gradient(145deg,rgba(43,40,91,.78),rgba(18,42,89,.785) 69%,rgba(13,34,75,.79))!important;
+ background:linear-gradient(145deg,rgba(43,40,91,.50),rgba(18,42,89,.50) 69%,rgba(13,34,75,.50))!important;
 }
 :root[data-profile="monika"] body[data-lp-v2="on"][data-lp-module="nutrition"] .row + .grid:has(#protein) > .glass.kpi,
 :root[data-lpv-owner="m"] body[data-lp-v2="on"][data-lp-module="nutrition"] .row + .grid:has(#protein) > .glass.kpi {
- background:linear-gradient(145deg,rgba(67,37,91,.78),rgba(25,40,89,.785) 69%,rgba(14,34,75,.79))!important;
+ background:linear-gradient(145deg,rgba(67,37,91,.50),rgba(25,40,89,.50) 69%,rgba(14,34,75,.50))!important;
 }
