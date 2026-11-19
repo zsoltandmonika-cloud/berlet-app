@@ -11,22 +11,23 @@ const old=read('guardian/guardian-controls-v782.css');
 const top=read('guardian/guardian-satellite-v1033.css');
 const mapJS=read('guardian/guardian.js');
 
-test('V1187 is loaded once after existing Premium styles',()=>{
+test('V1188 uniform zoom CSS is loaded once after existing Premium styles',()=>{
  const base='guardian-bkk-readable-controls-v1185.css?v=1186-dark-glass-header';
- const link='guardian-zoom-alignment-v1187.css?v=1187-align-zoom-9px';
+ const link='guardian-zoom-alignment-v1187.css?v=1188-uniform-89x36';
  assert.equal(html.split(link).length,2);
  assert.ok(html.indexOf(link)>html.indexOf(base),'last visual override wins');
  assert.match(html,/id="guardianFollow"/);
  assert.match(html,/id="guardian3D"/);
  assert.match(html,/id="guardianSatelliteV1033"/);
 });
-test('MapLibre zoom control moves left by nine pixels and buttons match 36px upper controls',()=>{
+test('MapLibre zoom shifts 9px left and matches upper 89px wide by 36px high controls',()=>{
  assert.match(old,/\.maplibregl-ctrl-bottom-right\{\s*right:2px!important/);
  assert.match(top,/height:36px!important;min-height:36px!important/);
  assert.match(css,/\.maplibregl-ctrl-bottom-right\{\s*right:11px!important/);
  assert.match(css,/right:11px!important; \/\* old: 2px; move cluster 9px to the left \*\//);
- assert.match(css,/width:38px!important/,'zoom outer group remains compact');
- assert.match(css,/width:36px!important;min-width:36px!important/);
+ assert.match(top,/width:89px!important;min-width:89px!important/,'original upper controls are 89px wide');
+ assert.match(css,/width:89px!important;min-width:89px!important;max-width:89px!important/,'zoom group is same 89px width');
+ assert.match(css,/width:87px!important;min-width:87px!important;max-width:87px!important/,'inner button fits 89px bordered group');
  assert.match(css,/height:36px!important;min-height:36px!important/);
  assert.match(css,/place-items:center!important/);
  assert.match(css,/border-radius:13px!important/);
