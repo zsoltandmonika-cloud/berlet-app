@@ -10,7 +10,7 @@ const client=fs.readFileSync(path.join(base,'taxi-route-v2.js'),'utf8');
 const nav=fs.readFileSync(path.resolve(base,'../../shared/sh9-golden-bottom-nav-v924.js'),'utf8');
 const css=fs.readFileSync(path.resolve(base,'../../shared/sh9-golden-bottom-nav-v924.css'),'utf8');
 function box(kind){
- const m=index.match(new RegExp('\\.hit--'+kind+'\\\\{left:([\\d.]+)%;top:([\\d.]+)%;width:([\\d.]+)%;height:([\\d.]+)%\\\\}'));
+ const m=index.match(new RegExp('\\.hit--'+kind+'\\{left:([\\d.]+)%;top:([\\d.]+)%;width:([\\d.]+)%;height:([\\d.]+)%\\}'));
  assert.ok(m,'Missing '+kind+' hitbox');
  return {left:Number(m[1]),top:Number(m[2]),right:Number(m[1])+Number(m[3]),bottom:Number(m[2])+Number(m[4])};
 }
