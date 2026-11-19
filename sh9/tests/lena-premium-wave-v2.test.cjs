@@ -34,7 +34,7 @@ test('Eight top-level SHO modules opt in individually without nav/layout rebuild
   assert.match(css,new RegExp('body\\[data-lp-module="'+module+'"\\]'),file+' has matching scoped styles');
  }
  const main=get('sh9/index.html');
- assert.equal((main.match(/class="tile"/g)||[]).length,12,'same SHO main module tiles');
+ assert.equal((main.match(/<button class="tile(?: [^"]*)?" data-module="/g)||[]).length,12,'same SHO main module tiles');
  assert.match(main,/data-sh9-golden-bottom-nav="on"/);
  assert.match(main,/id="sh9CalendarCell"/);
  assert.match(main,/id="sh9OtaIndicatorV1043"/);
