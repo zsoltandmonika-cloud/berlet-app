@@ -1,0 +1,148 @@
+/* v1209 · Golden Standard compact hydration diary.
+ * Daily total is ALWAYS visible; genuine drinks are in a native details
+ * list CLOSED by default. Existing hydration hero & water controls untouched.
+ */
+body[data-lp-v2="on"][data-lp-module="nutrition"] #log details.hh-day-water-log-v1209{
+ display:block;
+ margin:0 0 12px;
+ border-radius:16px;
+ border:1px solid rgba(160,195,246,.62);
+ background:linear-gradient(137deg,rgba(59,42,101,.83),rgba(18,49,96,.91));
+ box-shadow:inset 0 1px 0 rgba(255,245,255,.16),0 6px 17px rgba(0,11,43,.22);
+ overflow:hidden;
+}
+body[data-lp-v2="on"][data-lp-module="nutrition"] #log details.hh-day-water-log-v1209 > summary.hh-day-water-summary{
+ display:flex!important;
+ align-items:center;
+ justify-content:space-between;
+ gap:9px;
+ width:100%;
+ min-height:51px;
+ margin:0!important;
+ padding:11px 12px!important;
+ border:0!important;
+ border-radius:15px!important;
+ background:transparent!important;
+ color:#e9f7ff!important;
+ cursor:pointer;
+ list-style:none;
+ user-select:none;
+ -webkit-tap-highlight-color:transparent;
+ font:750 11px/1.45 system-ui,sans-serif;
+ transition:background-color .15s ease;
+}
+body[data-lp-v2="on"][data-lp-module="nutrition"] #log details.hh-day-water-log-v1209 > summary.hh-day-water-summary::-webkit-details-marker{display:none}
+body[data-lp-v2="on"][data-lp-module="nutrition"] #log details.hh-day-water-log-v1209 > summary.hh-day-water-summary::marker{content:""}
+body[data-lp-v2="on"][data-lp-module="nutrition"] #log details.hh-day-water-log-v1209 > summary.hh-day-water-summary:hover{
+ background:rgba(126,188,247,.08)!important;
+}
+body[data-lp-v2="on"][data-lp-module="nutrition"] #log details.hh-day-water-log-v1209 > summary.hh-day-water-summary > span:first-child{
+ min-width:0;
+ overflow-wrap:anywhere;
+}
+body[data-lp-v2="on"][data-lp-module="nutrition"] #log details.hh-day-water-log-v1209 > summary.hh-day-water-summary > b{
+ margin-left:auto;
+ font:900 16px/1.1 system-ui,sans-serif;
+ color:#83ecff!important;
+ font-variant-numeric:tabular-nums;
+ white-space:nowrap;
+}
+body[data-lp-v2="on"][data-lp-module="nutrition"] #log .hh-water-log-chevron-v1209{
+ display:block;
+ width:9px;
+ height:9px;
+ flex:none;
+ margin-right:2px;
+ border-right:2px solid #ffb4e9;
+ border-bottom:2px solid #ffb4e9;
+ transform:rotate(45deg) translateY(-2px);
+ transition:transform .18s ease;
+}
+body[data-lp-v2="on"][data-lp-module="nutrition"] #log details.hh-day-water-log-v1209[open] .hh-water-log-chevron-v1209{
+ transform:rotate(225deg) translate(-2px,-1px);
+}
+body[data-lp-v2="on"][data-lp-module="nutrition"] #log details.hh-day-water-log-v1209[open]{
+ border-color:rgba(172,217,251,.83);
+}
+body[data-lp-v2="on"][data-lp-module="nutrition"] #log .hh-water-log-items-v1209{
+ border-top:1px solid rgba(167,191,240,.32);
+ padding:2px 12px 7px;
+ background:linear-gradient(180deg,rgba(10,30,68,.30),rgba(12,21,55,.16));
+}
+body[data-lp-v2="on"][data-lp-module="nutrition"] #log .hh-water-log-row-v1209{
+ display:grid!important;
+ grid-template-columns:minmax(0,1fr) auto;
+ align-items:center;
+ gap:8px;
+ padding:10px 0;
+ border-bottom:1px solid rgba(181,200,238,.15);
+ color:#f3f5ff;
+}
+body[data-lp-v2="on"][data-lp-module="nutrition"] #log .hh-water-log-row-v1209:last-child{
+ border-bottom:0;
+}
+body[data-lp-v2="on"][data-lp-module="nutrition"] #log .hh-water-log-row-v1209 strong{
+ font:780 12px/1.35 system-ui,sans-serif;
+}
+body[data-lp-v2="on"][data-lp-module="nutrition"] #log .hh-water-log-row-v1209 small{
+ display:block;
+ margin-top:3px;
+ color:#bdcfed;
+ font-size:10px;
+ line-height:1.45;
+}
+body[data-lp-v2="on"][data-lp-module="nutrition"] #log .hh-water-log-row-v1209 aside{
+ display:flex;
+ align-items:center;
+ justify-content:flex-end;
+ gap:10px;
+ text-align:right;
+}
+body[data-lp-v2="on"][data-lp-module="nutrition"] #log .hh-water-log-row-v1209 aside b{
+ margin:0;
+ color:#87ecff;
+ white-space:nowrap;
+ font:850 12px/1.2 system-ui,sans-serif;
+ font-variant-numeric:tabular-nums;
+}
+body[data-lp-v2="on"][data-lp-module="nutrition"] #log .hh-water-log-delete-v1209{
+ width:34px;
+ height:34px;
+ min-height:34px;
+ min-width:34px;
+ padding:0!important;
+ border-radius:10px;
+ border:1px solid rgba(255,164,194,.51)!important;
+ background:rgba(103,38,76,.35)!important;
+ color:#ffd4e0!important;
+ font-size:20px!important;
+ line-height:1!important;
+ cursor:pointer;
+}
+body[data-lp-v2="on"][data-lp-module="nutrition"] #log .hh-water-log-delete-v1209:focus-visible{
+ outline:2px solid #9df8ff;outline-offset:2px;
+}
+body[data-lp-v2="on"][data-lp-module="nutrition"] #log .hh-water-log-items-v1209 > .empty{
+ margin:0;
+ padding:14px 2px;
+ color:#cbdaf0;
+}
+@media(max-width:365px){
+ body[data-lp-v2="on"][data-lp-module="nutrition"] #log details.hh-day-water-log-v1209 > summary.hh-day-water-summary{
+  gap:6px;
+  padding:10px!important;
+  font-size:10px;
+ }
+ body[data-lp-v2="on"][data-lp-module="nutrition"] #log details.hh-day-water-log-v1209 > summary.hh-day-water-summary > b{
+  font-size:14px;
+ }
+ body[data-lp-v2="on"][data-lp-module="nutrition"] #log .hh-water-log-items-v1209{
+  padding:2px 9px 7px;
+ }
+}
+@media(prefers-reduced-motion:reduce){
+ body[data-lp-v2="on"][data-lp-module="nutrition"] #log .hh-water-log-chevron-v1209,
+ body[data-lp-v2="on"][data-lp-module="nutrition"] #log details.hh-day-water-log-v1209 > summary.hh-day-water-summary{
+  transition:none;
+ }
+}
