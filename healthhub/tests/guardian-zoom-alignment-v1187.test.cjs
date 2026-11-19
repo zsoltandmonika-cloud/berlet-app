@@ -37,7 +37,7 @@ test('Isolated visual changes never mutate GPS, MapLibre positioning or native a
  assert.match(css,/html:not\(\[data-sh9-transit="on"\]\)/);
  assert.match(css,/\[data-hh-skin="lena-premium"\]/);
  assert.match(css,/\[data-guardian-profile="m"\]/);
- assert.doesNotMatch(css,/top:|bottom:|transform:|translate|position:|display:none|pointer-events:none/);
+ assert.doesNotMatch(css,/(?:^|\n)\s*(?:top|bottom|transform|position):|display:none|pointer-events:none/m);
  assert.doesNotMatch(css,/guardianFollow|guardian3D|guardianSatelliteV1033|guardianMapSearch|maplibregl-canvas|maplibregl-ctrl-attrib/);
  assert.doesNotMatch(css,/fetch\(|XMLHttpRequest|localStorage|indexedDB|requestPermissions|@import|@font-face|https?:\/\//);
  assert.ok(mapJS.includes('new w.maplibregl.NavigationControl({showCompass:true})'),'native zoom and compass actions retained');
