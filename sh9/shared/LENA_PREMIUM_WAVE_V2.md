@@ -2,7 +2,7 @@
 
 **Benchmark:** a felhasználó által jóváhagyott **HealthHub Sleep v1173**, 2026-11-19. A hullám **byte-azonosan** a Sleep v1173 `hhSleepTop:after` SVG-forrásából származik, a kártyák a v1173 mély, fénylő üvegperemeinek mintáját követik.
 
-## Kiadási kör: 8 SHO főfelület + 2 meglévő egészség/biztonsági adapter
+## Kiadási kör: 8 SHO főfelület + 3 fontos aloldal + 2 egészség/biztonsági adapter
 
 | Felület | Hol alkalmazódik | Mit nem módosít |
 |---|---|---|
@@ -14,6 +14,9 @@
 | Entertainment | `sh9/entertainment/index.html` | képanyag, mozi/kulturális tartalom és carousel |
 | Family Tasks | `sh9/family-hub/index.html` | feladatállapotok, hangbevitel, bejelentkezés |
 | Nutrition | `healthhub/nutrition/index.html` | valós étel-, víz- és makróadatok; scanner |
+| Notification Center | `sh9/notification-center/index.html` | értesítések, hangjelzések, kapcsolók |
+| My Trips | `sh9/smart-travel/my-trips/index.html` | mentett utak, privát jegyek, dokumentumolvasó |
+| Book Studio | `sh9/entertainment/book-studio/index.html` | eredeti könyvespolc és borítók, EPUB/PDF olvasó |
 | Aktivitás | `healthhub/skins/activity-lena-benchmark-v2.css` | HC/Samsung adatok, meglévő V1 fallback |
 | Family Guard | `healthhub/guardian/guardian-lena-benchmark-v1184.css` | **jóváhagyott v1182 státuszpanel**, GPS, térkép |
 
@@ -21,7 +24,7 @@ A már elkészült **Sleep v1173** az etalon és érintetlen marad.
 
 ## Működés és rollback
 
-A nyolc SHO belépési oldal mind saját maga iratkozik fel az opt-in témára:
+A tizenegy SHO belépési oldal mind saját maga iratkozik fel az opt-in témára:
 ```html
 <body data-lp-v2="on" data-lp-module="launcher">
 ```
@@ -41,4 +44,4 @@ A célzott tesztek ellenőrzik az eredeti 12 SHO csempét, az SVG-hullámazonoss
 
 **A CSS-tesztek nem helyettesítik a valódi telefonos vizuális ellenőrzést.** Kiadás után Mónika és Zsolt S24 Ultra készülékén ellenőrizni kell a szövegek olvashatóságát, a hit targeteket, az állapotjelzések színeit, és a scroll/keyboard működését, különösen a Shopping/Nutrition hosszú listáinál és a Wallet iratkártyáinál.
 
-**Korlát:** ez a közös **SHO főmodulok V2 vizuális rolloutja**, nem írja át automatikusan az összes aloldalt vagy beágyazott harmadik fél alkalmazást. Más aloldalakhoz külön, azonos elvre épülő vizuális adapter szükséges.
+**Korlát:** ez a közös **SHO főmodulok és három fontos aloldal V2 vizuális rolloutja**, nem írja át automatikusan az összes aloldalt vagy beágyazott harmadik fél alkalmazást. Más aloldalakhoz külön, azonos elvre épülő vizuális adapter szükséges.
