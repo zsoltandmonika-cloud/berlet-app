@@ -42,7 +42,7 @@ function getLib(){
 function clearMarkers(){for(const marker of markers)marker.remove();markers=[];}
 function addMarker(coords,label,klass){
  const pin=d.createElement('div');pin.className='tx-route-pin tx-route-pin-'+klass;
- pin.textContent=label;pin.title=klass==='origin'?'Indulás':'Érkezés';
+ pin.textContent=label;pin.dataset.label=label;pin.title=klass==='origin'?'Indulás':'Érkezés';
  const marker=new w.maplibregl.Marker({element:pin,anchor:'bottom'})
   .setLngLat(coords).addTo(map);
  markers.push(marker);
