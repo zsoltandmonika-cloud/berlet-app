@@ -125,8 +125,6 @@ Deno.serve(async(req:Request)=>{
  const action=raw.action;
  if(action!=="suggest"&&action!=="estimate")return json(req,400,{error:"invalid_action"});
  if(!await authorize(req))return json(req,403,{error:"authentication_required"});
- const key=env("SHO_TAXI_GOOGLE_MAPS_API_KEY")||env("GOOGLE_MAPS_API_KEY")||env("HH_SMART_TRIP_GOOGLE_ROUTES_KEY");
- if(key.length<24)return json(req,503,{error:"provider_unconfigured"});
  if(action==="suggest"){
   if(!bounded(raw.query,130)||String(raw.query).trim().length<3)
    return json(req,400,{error:"query_required"});
