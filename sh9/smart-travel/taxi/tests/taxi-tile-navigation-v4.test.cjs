@@ -48,7 +48,7 @@ test('Obsolete three-button Taxi navigation is gone; approved five-button SHO ta
 });
 test('Calculator, tariff dialogs and predictive/voice scripts still parse',()=>{
  assert.match(index,/id="calcDialog"/);
- assert.match(index,/taxi-route-v5-fotaxi\.js/);
+ assert.match(index,/taxi-route-v6-brand-buttons\.js/);
  assert.match(client,/const SpeechRecognitionAPI=window\.SpeechRecognition\|\|window\.webkitSpeechRecognition/);
  assert.match(client,/const addressCache=new Map\(\)/);
  assert.match(client,/hh-sho-taxi-routes-v1/);
