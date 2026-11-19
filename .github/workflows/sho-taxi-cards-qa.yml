@@ -1,0 +1,29 @@
+name: SHO Taxi · Golden cards & taskbar QA
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'sh9/smart-travel/taxi/**'
+      - 'sh9/shared/sh9-golden-bottom-nav-v924.js'
+      - 'sh9/shared/sh9-golden-bottom-nav-v924.css'
+      - '.github/workflows/sho-taxi-cards-qa.yml'
+  pull_request:
+    paths:
+      - 'sh9/smart-travel/taxi/**'
+      - 'sh9/shared/sh9-golden-bottom-nav-v924.js'
+      - 'sh9/shared/sh9-golden-bottom-nav-v924.css'
+      - '.github/workflows/sho-taxi-cards-qa.yml'
+permissions:
+  contents: read
+jobs:
+  taxi-golden:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check Taxi JavaScript syntax
+        run: node --check sh9/smart-travel/taxi/taxi-route-v2.js
+      - name: Test clickable hero cards, enlarged tariff, and standard taskbar
+        run: node --test sh9/smart-travel/taxi/tests/taxi-tile-navigation-v4.test.cjs
