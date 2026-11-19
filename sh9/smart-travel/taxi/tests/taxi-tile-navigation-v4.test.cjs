@@ -28,7 +28,7 @@ test('Approved hero image is untouched; full calculator and tariff cards are tap
 test('Official Főtaxi badge is a separate exact-brand overlay, without rewriting the approved hero',()=>{
  assert.match(index,/src="\.\/assets\/SHO_Smart_Taxi_approved\.png" width="1193" height="1319"/);
  assert.match(index,/<img class="fotaxi-official-logo" src="\.\/assets\/fotaxi-official-red-v1\.png\?v=20261119-official-logo"/);
- assert.match(index,/\.fotaxi-official-logo\{position:absolute;z-index:2;left:6\.2%;top:75\.15%;width:18\.1%;height:7\.1%/);
+ assert.match(index,/\.reference img\.fotaxi-official-logo\{position:absolute;z-index:2;left:6\.2%;top:75\.15%;width:18\.1%;height:7\.1%/);
  assert.match(index,/pointer-events:none;user-select:none/);
  const badge=fs.readFileSync(path.join(base,'assets','fotaxi-official-red-v1.png'));
  assert.equal(badge.toString('hex',0,8),'89504e470d0a1a0a','Supplied brand mark must be PNG');
