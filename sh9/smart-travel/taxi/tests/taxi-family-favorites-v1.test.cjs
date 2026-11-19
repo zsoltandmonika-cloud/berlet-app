@@ -48,6 +48,7 @@ test('Taxi has native predictive address lookup AND immediate favorites suggesti
  assert.ok(html.indexOf('guardian-family-favorites-v972.js')<html.indexOf('taxi-family-favorites-bridge-v1.js'));
  assert.ok(html.indexOf('taxi-family-favorites-bridge-v1.js')<html.indexOf('taxi-route-v8-fare-map.js'));
  assert.match(fare,/id="txFromFav" type="button" aria-controls="txFromSug"/);
+ assert.match(fare,/\.tx-sugs\{margin:3px 0 0;padding:0;list-style:none;background:#17152b;border-radius:11px;overflow-x:hidden;overflow-y:auto/);
  assert.match(fare,/id="txToFav" type="button" aria-controls="txToSug"/);
  assert.match(fare,/render\(favoriteMatches\('',40\),'Kedvenceim',40\)/);
  assert.match(fare,/if\(q\.length<3\)\{[\s\S]*?const local=favoriteMatches\(q,7\)/);
