@@ -95,7 +95,7 @@ test('White expanded attribution strip is replaced on both maps, without deletin
  assert.match(index,/content:"ⓘ"/);
  assert.match(index,/background:#161b34ef!important/);
  assert.match(index,/\.maplibregl-ctrl-attrib-inner/);
- assert.match(index,/20261119-credits-auto-collapse-v3/);
+ assert.match(index,/20261119-dark-road-legibility-v1/);
  assert.match(gps,/attributionControl:\{compact:true\}/);
  assert.match(gps,/SHO_TAXI_COMPACT_ATTRIBUTION_V3\?\.bind\?\.\(map\)/);
  assert.match(preview,/attributionControl:\{compact:true\}/);
