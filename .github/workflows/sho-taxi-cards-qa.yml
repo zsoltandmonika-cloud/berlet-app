@@ -29,5 +29,7 @@ jobs:
         run: node --check sh9/smart-travel/taxi/taxi-current-location-map-v1.js
       - name: Check optional route preview and Golden TADAA JavaScript
         run: node --check sh9/smart-travel/taxi/taxi-route-result-map-v1.js
-      - name: Test Taxi Golden cards, GPS, route polyline, fixed actions and TADAA
+      - name: Check shared Family Guard favorites bridge JavaScript
+        run: node --check sh9/smart-travel/taxi/taxi-family-favorites-bridge-v1.js
+      - name: Test Taxi Golden cards, shared predictive favorite addresses, GPS, route polyline and TADAA
         run: node --test sh9/smart-travel/taxi/tests/*.test.cjs
