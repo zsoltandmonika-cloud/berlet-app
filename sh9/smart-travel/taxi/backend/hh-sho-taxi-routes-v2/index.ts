@@ -100,7 +100,7 @@ async function coordinatesFrom(p:any):Promise<LatLng>{
  return matches[0].location;
 }
 async function osmRoadRoute(rawFrom:any,rawTo:any){
- const a=await coordinatesFrom(rawFrom),b=await coordinatesFrom(rawTo);
+ const [a,b]=await Promise.all([coordinatesFrom(rawFrom),coordinatesFrom(rawTo)]);
  if(Math.abs(a.lat-b.lat)<0.00001&&Math.abs(a.lng-b.lng)<0.00001)throw Error("identical_points");
  const u="https://router.project-osrm.org/route/v1/driving/"+
   a.lng+","+a.lat+";"+b.lng+","+b.lat+"?overview=false&steps=false";
