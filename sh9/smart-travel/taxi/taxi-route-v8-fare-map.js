@@ -7,6 +7,14 @@ const css=`
 #calcDialog .taxi-dialog-scroll>.sub{display:none!important}
 #taxiRouteV2{margin:8px 0 5px;color:#f8f2ff;display:flex;flex-direction:column;flex:1;min-height:0}
 #taxiRouteV2 .tx-field{display:block;margin:12px 0 4px;font-weight:800;font-size:12px;color:#f4c9e6}
+#taxiRouteV2 .tx-label-row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:11px 0 4px}
+#taxiRouteV2 .tx-label-row .tx-field{margin:0}
+#taxiRouteV2 .tx-favorite{min-height:27px;padding:3px 11px;border:1px solid #d37cb99c;
+ background:linear-gradient(120deg,#453051,#241733);box-shadow:inset 0 1px #fff2;
+ color:#ffe4ab;border-radius:9px;font-size:11px;font-weight:800;
+ white-space:nowrap;cursor:pointer;touch-action:manipulation}
+#taxiRouteV2 .tx-favorite:active{background:#87437c}
+#taxiRouteV2 .tx-favorite:focus-visible{outline:2px solid #fff;outline-offset:2px}
 #taxiRouteV2 .tx-entry{display:flex;gap:6px;position:relative}
 #taxiRouteV2 .tx-entry input{min-width:0;width:100%;height:46px;border-radius:11px;border:1px solid #bd75a7;background:#0c0e22;color:#fff;font:600 14px Inter,system-ui,sans-serif;padding:9px 11px;outline:0}
 #taxiRouteV2 .tx-entry input:focus{border-color:#ff71bf;box-shadow:0 0 0 2px #f36ab633}
@@ -103,9 +111,9 @@ const css=`
 const style=document.createElement('style');style.textContent=css;document.head.appendChild(style);
 const panel=document.createElement('section');panel.id='taxiRouteV2';
 panel.innerHTML=`
-<label class="tx-field" for="txFrom">Honnan?</label>
+<div class="tx-label-row"><label class="tx-field" for="txFrom">Honnan?</label><button class="tx-favorite" id="txFromFav" type="button" aria-controls="txFromSug" aria-label="Kedvenc indulási címek">⭐ Kedvencek</button></div>
 <div class="tx-entry"><input id="txFrom" placeholder="Indulási cím…" autocomplete="off" autocapitalize="words" spellcheck="false" role="combobox" aria-haspopup="listbox" aria-autocomplete="list" aria-controls="txFromSug" aria-expanded="false"><button class="tx-mic" id="txFromMic" type="button" aria-label="Indulási cím bemondása" title="Indulási cím bemondása">🎙️</button><button class="tx-gps" id="txGps" type="button" aria-label="Jelenlegi helyem GPS alapján">📍 GPS</button></div><ul class="tx-sugs" id="txFromSug" role="listbox" aria-label="Indulási címjavaslatok"></ul>
-<label class="tx-field" for="txTo">Hová?</label>
+<div class="tx-label-row"><label class="tx-field" for="txTo">Hová?</label><button class="tx-favorite" id="txToFav" type="button" aria-controls="txToSug" aria-label="Kedvenc célcímek">⭐ Kedvencek</button></div>
 <div class="tx-entry"><input id="txTo" placeholder="Úticél címe…" autocomplete="off" autocapitalize="words" spellcheck="false" role="combobox" aria-haspopup="listbox" aria-autocomplete="list" aria-controls="txToSug" aria-expanded="false"><button class="tx-mic" id="txToMic" type="button" aria-label="Célcím bemondása" title="Célcím bemondása">🎙️</button></div><ul class="tx-sugs" id="txToSug" role="listbox" aria-label="Célcímjavaslatok"></ul>
 <button class="tx-go" type="button" id="txEstimate" aria-label="Smart Taxi viteldíj-kalkulátor">
 <img class="tx-sho-logo" src="./assets/sho-taxi-button-v6.webp" width="142" height="54" alt="" aria-hidden="true">
@@ -157,6 +165,20 @@ async function request(body,url=endpoint){
 
 const addressCache=new Map();
 const CACHE_TTL_MS=120000;
+const favoriteMatches=(query='',limit=6)=>{
+ try{return window.SHO_TAXI_FAVORITES_V1?.find?.(query,limit)||[]}catch(_){return []}
+};
+function mergedSuggestions(query,online=[]){
+ const favorites=favoriteMatches(query,3),seen=new Set();
+ return [...favorites,...(Array.isArray(online)?online:[])].filter(item=>{
+  if(!item||typeof item.label!=='string')return false;
+  const key=item.location&&Number.isFinite(item.location.lat)&&Number.isFinite(item.location.lng)?
+   item.location.lat.toFixed(5)+':'+item.location.lng.toFixed(5):
+   item.label.toLocaleLowerCase('hu-HU');
+  if(seen.has(key))return false;
+  seen.add(key);return true;
+ }).slice(0,7);
+}
 let listening=null;
 const SpeechRecognitionAPI=window.SpeechRecognition||window.webkitSpeechRecognition;
 function startSpeech(name){
@@ -204,6 +226,7 @@ function startSpeech(name){
 for(const name of ['from','to']){
  const input=el(name==='from'?'txFrom':'txTo'),list=el(name==='from'?'txFromSug':'txToSug');
  const mic=el(name==='from'?'txFromMic':'txToMic');
+ const favButton=el(name==='from'?'txFromFav':'txToFav');
  mic.addEventListener('click',()=>startSpeech(name));
  if(!SpeechRecognitionAPI)mic.title='Használd a Samsung billentyűzet mikrofonját';
  let timer=0,serial=0,results=[],selected=-1;
@@ -215,48 +238,64 @@ for(const name of ['from','to']){
   clearTimeout(timer);serial++;clearList();
   input.value=s.label;data[name]={label:s.label,...(typeof s.placeId==='string'?{placeId:s.placeId}:{}),...(s.location?{location:s.location}:{})};
   el('txCost').hidden=true;
-  status('📍 '+s.label+' · cím kiválasztva');
+  status((s.favorite?'⭐ '+s.displayName+' · ':'📍 ')+s.label+' · cím kiválasztva');
   if(name==='from'&&!el('txTo').value.trim())el('txTo').focus();
  }
- function render(items,source){
+ function render(items,source,maxItems=5){
   clearList();results=items.filter(s=>s&&typeof s.label==='string'&&
-   (typeof s.placeId==='string'||(Number.isFinite(s.location?.lat)&&Number.isFinite(s.location?.lng)))).slice(0,5);
+   (typeof s.placeId==='string'||(Number.isFinite(s.location?.lat)&&Number.isFinite(s.location?.lng)))).slice(0,maxItems);
   results.forEach((s,i)=>{
    const li=document.createElement('li'),b=document.createElement('button');
-   b.type='button';b.role='option';b.id=(name==='from'?'txFromOption':'txToOption')+i;b.textContent='📍 '+s.label;
+   b.type='button';b.role='option';b.id=(name==='from'?'txFromOption':'txToOption')+i;
+   b.textContent=(s.favorite?'⭐ '+s.displayName+' · ':'📍 ')+s.label;
    b.setAttribute('aria-selected','false');
    b.addEventListener('mousedown',e=>e.preventDefault());
    b.addEventListener('click',()=>choose(s));li.appendChild(b);list.appendChild(li);
   });
   if(results.length){const credit=document.createElement('li');credit.className='tx-credit';credit.setAttribute('role','presentation');credit.textContent='Címjavaslatok: '+(source||'OpenStreetMap / Photon');list.appendChild(credit);}
   input.setAttribute('aria-expanded',String(results.length>0));
-  if(results.length)status('🔎 '+results.length+' címtalálat · koppints a megfelelő címre.');
-  else status('Nincs címtalálat. Próbáld az utcanév vagy város másik alakját.');
+  if(results.length)status((source==='Kedvenceim'?'⭐ ':'🔎 ')+results.length+' címtalálat · koppints a megfelelő címre.');
+  else status(source==='Kedvenceim'?'Még nincs mentett családi kedvenc cím.':'Nincs címtalálat. Próbáld az utcanév vagy város másik alakját.');
  }
+ favButton?.addEventListener('click',()=>{
+  clearTimeout(timer);serial++;
+  render(favoriteMatches(input.value.trim(),40),'Kedvenceim',40);
+ });
  input.addEventListener('input',()=>{
   data[name]=null;clearList();el('txCost').hidden=true;
   clearTimeout(timer);const q=input.value.trim(),ticket=++serial;
-  if(q.length<3){if(q.length)status('Írj még '+(3-q.length)+' karaktert a címjavaslatokhoz.');return;}
+  if(q.length<3){
+   const local=favoriteMatches(q,7);
+   if(local.length)render(local,'Kedvenceim',7);
+   else if(q.length)status('Írj még '+(3-q.length)+' karaktert a címjavaslatokhoz.');
+   return;
+  }
+  const instant=favoriteMatches(q,3);
+  if(instant.length)render(instant,'Kedvenceim',3);
   const key=q.toLocaleLowerCase('hu-HU');
   const cached=addressCache.get(key);
-  if(cached&&Date.now()-cached.time<CACHE_TTL_MS){render(cached.items,cached.source);return;}
-  status('🔎 Címjavaslatok keresése…');
+  if(cached&&Date.now()-cached.time<CACHE_TTL_MS){render(mergedSuggestions(q,cached.items),cached.source,7);return;}
+  if(!instant.length)status('🔎 Címjavaslatok keresése…');
   timer=setTimeout(async()=>{
    try{
     const ans=await request({action:'suggest',query:q});
     if(ticket!==serial||input.value.trim()!==q)return;
     addressCache.set(key,{time:Date.now(),items:ans.suggestions||[],source:ans.source});
     if(addressCache.size>80)addressCache.delete(addressCache.keys().next().value);
-    render(ans.suggestions||[],ans.source);
+    render(mergedSuggestions(q,ans.suggestions||[]),ans.source,7);
    }catch(e){if(ticket===serial){
-    clearList();status(e.message||'A címjavaslat jelenleg nem elérhető. A cím kézzel is beírható.');
+    if(instant.length)render(favoriteMatches(q,7),'Kedvenceim',7);
+    else{clearList();status(e.message||'A címjavaslat jelenleg nem elérhető. A cím kézzel is beírható.');}
    }}
   },380);
  });
  input.addEventListener('focus',()=>{
   const q=input.value.trim();
+  if(!q){const f=favoriteMatches('',6);if(f.length)render(f,'Kedvenceim',6);return;}
   const cached=addressCache.get(q.toLocaleLowerCase('hu-HU'));
-  if(q.length>=3&&cached&&Date.now()-cached.time<CACHE_TTL_MS&&list.childElementCount===0)render(cached.items,cached.source);
+  if(q.length>=3&&cached&&Date.now()-cached.time<CACHE_TTL_MS&&list.childElementCount===0)
+   render(mergedSuggestions(q,cached.items),cached.source,7);
+  else if(q.length<3){const f=favoriteMatches(q,6);if(f.length)render(f,'Kedvenceim',6);}
  });
  input.addEventListener('keydown',event=>{
   if(event.key==='Escape'){clearList();return;}
