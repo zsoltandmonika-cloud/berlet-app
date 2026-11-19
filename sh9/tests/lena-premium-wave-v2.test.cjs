@@ -17,16 +17,19 @@ const guardianV1=get('healthhub/guardian/guardian-lena-premium-v1182.css');
 const guardianLower=get('healthhub/guardian/guardian-lena-premium-lower-v1183.css');
 const guardianV2=get('healthhub/guardian/guardian-lena-benchmark-v1184.css');
 
-test('Eight top-level SHO modules opt in individually without nav/layout rebuild',()=>{
+test('Eleven core and important SHO subpages opt in without nav/layout rebuild',()=>{
  const pages={
   'sh9/index.html':'launcher','sh9/smart-travel/index.html':'travel',
   'sh9/shopping/index.html':'shopping','sh9/sport/index.html':'sport',
   'sh9/wallet/index.html':'wallet','sh9/entertainment/index.html':'entertainment',
-  'sh9/family-hub/index.html':'family','healthhub/nutrition/index.html':'nutrition'
+  'sh9/family-hub/index.html':'family','healthhub/nutrition/index.html':'nutrition',
+  'sh9/notification-center/index.html':'notifications',
+  'sh9/smart-travel/my-trips/index.html':'mytrips',
+  'sh9/entertainment/book-studio/index.html':'books'
  };
  for(const [file,module] of Object.entries(pages)){
   const html=get(file);
-  assert.match(html,new RegExp('<body data-lp-v2="on" data-lp-module="'+module+'">'),file);
+  assert.match(html,new RegExp('<body(?: class="bshelf-v10-page")? data-lp-v2="on" data-lp-module="'+module+'">'),file);
   assert.match(html,/sh9\/shared\/lena-premium-wave-v2\.css\?v=2-sleep1173/,file);
   assert.match(html,/sh9\/shared\/lena-premium-wave-v2\.js\?v=2-owner/,file);
   assert.equal((html.match(/lena-premium-wave-v2\.css\?/g)||[]).length,1,file);
