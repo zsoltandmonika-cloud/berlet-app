@@ -66,6 +66,7 @@
      center:[pos.coords.longitude,pos.coords.latitude],zoom:16,
      pitch:0,bearing:0,attributionControl:{compact:true},antialias:false
     });
+    w.SHO_TAXI_COMPACT_ATTRIBUTION_V3?.bind?.(map);
     map.once('load',()=>{
      if(last)drawPin(last);
     });
