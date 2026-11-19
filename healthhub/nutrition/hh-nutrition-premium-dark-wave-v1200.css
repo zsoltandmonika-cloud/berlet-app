@@ -41,7 +41,7 @@ body[data-lp-v2="on"][data-lp-module="nutrition"] > main.shell{
   radial-gradient(ellipse at 93% 46%,rgba(87,160,248,.13),transparent 58%),
   linear-gradient(180deg,#192449 0%,#101d3d 42%,#09172f 100%)!important;
  background-size:100% 76px,100% 76px,100% 76px,auto,auto,auto!important;
- background-position:center 240px,center 1090px,center 2220px,center top,center center,center top!important;
+ background-position:center 310px,center 1160px,center 2290px,center top,center center,center top!important;
  background-repeat:no-repeat,no-repeat,no-repeat,no-repeat,no-repeat,no-repeat!important;
 }
 /* One wave also glows gently INSIDE the daily summary, behind real data. */
