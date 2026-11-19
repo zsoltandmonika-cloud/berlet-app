@@ -1,0 +1,105 @@
+/* Guardian Léna Benchmark V2 · Sleep v1173 approved vector/glow.
+   Applies ONLY below the map. Status board, Bluetooth, map, GPS, BKK
+   route semantic colors, auth and actions remain unchanged. */
+:root:not([data-sh9-transit="on"]) body .shell[data-hh-skin="lena-premium"]{
+ --fgb-wave:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20420%2070%22%20preserveAspectRatio%3D%22none%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22w%22%20x1%3D%220%22%20x2%3D%221%22%3E%3Cstop%20stop-color%3D%22%23e575e2%22%2F%3E%3Cstop%20offset%3D%22.45%22%20stop-color%3D%22%23ffb7ed%22%2F%3E%3Cstop%20offset%3D%22.65%22%20stop-color%3D%22%239b9dfd%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%235ac2ff%22%2F%3E%3C%2FlinearGradient%3E%3ClinearGradient%20id%3D%22b%22%20x1%3D%220%22%20x2%3D%221%22%3E%3Cstop%20stop-color%3D%22%23ed75df%22%20stop-opacity%3D%22.18%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%2356caff%22%20stop-opacity%3D%22.08%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Cpath%20d%3D%22M-10%2052C75%208%20125%2065%20211%2048c90-15%20132-56%20219-19v50H-10z%22%20fill%3D%22url(%23b)%22%2F%3E%3Cpath%20d%3D%22M-10%2050C75%208%20125%2065%20211%2048c90-15%20132-56%20219-19%22%20stroke%3D%22url(%23w)%22%20stroke-width%3D%222.4%22%20opacity%3D%22.9%22%20fill%3D%22none%22%2F%3E%3Cpath%20d%3D%22M-10%2057C70%2024%20155%2074%20237%2052c93-24%20141-37%20204-14%22%20stroke%3D%22%236f9ef8%22%20stroke-opacity%3D%22.6%22%20fill%3D%22none%22%20stroke-width%3D%221.6%22%2F%3E%3C%2Fsvg%3E");
+ --fgb-edge:rgba(166,207,253,.67);
+ --fgb-glow:rgba(99,173,253,.20);
+}
+:root:not([data-sh9-transit="on"])[data-guardian-profile="m"] body .shell[data-hh-skin="lena-premium"]{
+ --fgb-edge:rgba(255,173,233,.78);
+ --fgb-glow:rgba(245,128,218,.24);
+}
+/* One BKK sheet, no nested outer cards. Color the existing surface with
+   a true Sleep-wave crest and light from inside, not a flat purple background. */
+:root:not([data-sh9-transit="on"]) body .shell[data-hh-skin="lena-premium"]>main>#hhTransitPanel.hh-transit-panel{
+ border-color:var(--fgb-edge)!important;
+ background-image:var(--fgb-wave),
+  radial-gradient(ellipse at 23% 3%,var(--fgb-glow),transparent 55%),
+  linear-gradient(143deg,rgba(78,73,143,.97),rgba(30,52,110,.97) 44%,rgba(20,39,87,.98))!important;
+ background-position:top center,center,center!important;
+ background-repeat:no-repeat!important;
+ background-size:100% 69px,auto,auto!important;
+ box-shadow:0 12px 29px rgba(2,10,32,.32),
+  inset 0 1px rgba(253,246,255,.32),0 0 17px var(--fgb-glow)!important;
+}
+:root:not([data-sh9-transit="on"]) body .shell[data-hh-skin="lena-premium"] #hhTransitPanel
+:is(.hh-smart-hub-top-v802,.hh-bkk-watch-header-v814){
+ padding-top:10px!important;padding-bottom:12px!important;
+ border-bottom-color:rgba(199,207,248,.29)!important;
+ text-shadow:0 2px 11px rgba(2,8,29,.31);
+}
+:root:not([data-sh9-transit="on"]) body .shell[data-hh-skin="lena-premium"] #hhTransitPanel
+:is(.hh-smart-hub-top-v802 strong,.hh-bkk-watch-toggle-label-v858 strong){
+ font-weight:900!important;color:#fff!important;
+ font-size:clamp(14px,4vw,18px)!important;letter-spacing:-.02em!important;
+}
+:root:not([data-sh9-transit="on"]) body .shell[data-hh-skin="lena-premium"] #hhTransitPanel
+:is(.hh-smart-hub-field-v806 input,#hhPlannerDateV939,#hhBkkCatalogSearchV801,
+.hh-bkk-golden-v968 input){
+ border-color:rgba(161,205,249,.59)!important;
+ background:linear-gradient(118deg,rgba(77,99,167,.60),rgba(28,54,115,.79))!important;
+ box-shadow:inset 0 1px rgba(252,249,255,.23),0 4px 13px rgba(2,11,32,.16)!important;
+ border-radius:13px!important;
+}
+:root:not([data-sh9-transit="on"]) body .shell[data-hh-skin="lena-premium"] #hhTransitPanel
+:is(.hh-bkk-golden-datetime-v968,.hh-bkk-golden-time-v968,
+.hh-bkk-golden-trips-v968,.hh-bkk-near-quick-v975,
+.hh-smart-hub-favorite-row-v806,.hh-bkk-catalog-row-v801,
+.hh-bkk-watch-row-v814){
+ border-color:rgba(153,199,249,.51)!important;
+ background-image:radial-gradient(ellipse at 43% 115%,var(--fgb-glow),transparent 75%),
+ linear-gradient(151deg,rgba(65,95,158,.71),rgba(24,51,109,.93))!important;
+ box-shadow:0 6px 18px rgba(1,9,30,.25),inset 0 1px rgba(249,253,255,.20)!important;
+ border-radius:14px!important;
+}
+:root:not([data-sh9-transit="on"]) body .shell[data-hh-skin="lena-premium"] #hhTransitPanel
+:is(.hh-planner-time-buttons-v939 button[aria-pressed="true"],
+.hh-smart-hub-priority-v805 button[aria-pressed="true"],
+.hh-bkk-catalog-filters-v801 button[aria-pressed="true"],
+#hhActiveTransitBoardV862,.hh-family-fav-refresh-v972){
+ border-color:var(--fgb-edge)!important;
+ background:linear-gradient(129deg,rgba(150,82,172,.76),rgba(68,98,167,.93))!important;
+ box-shadow:0 5px 17px rgba(2,10,32,.21),
+  inset 0 1px rgba(255,249,255,.27),0 0 10px var(--fgb-glow)!important;
+}
+/* Lower settings: keep exactly ONE accordion with three collapsible sections. */
+:root:not([data-sh9-transit="on"]) body .shell[data-hh-skin="lena-premium"]>main>#guardianAdminControlsV963.guardian-admin-controls-v963{
+ border-color:var(--fgb-edge)!important;
+ background-image:var(--fgb-wave),
+ radial-gradient(ellipse at 25% 2%,var(--fgb-glow),transparent 57%),
+ linear-gradient(149deg,rgba(91,65,137,.94),rgba(36,55,111,.97) 56%,rgba(18,40,88,.98))!important;
+ background-position:center top,center,center!important;
+ background-size:100% 65px,auto,auto!important;
+ background-repeat:no-repeat!important;
+ box-shadow:0 12px 28px rgba(2,10,33,.31),
+ inset 0 1px rgba(255,243,255,.31),0 0 17px var(--fgb-glow)!important;
+}
+:root:not([data-sh9-transit="on"]) body .shell[data-hh-skin="lena-premium"] #guardianAdminControlsV963
+:is(.guardian-landmarks-choice,.guardian-landmark-item,
+.hh-stop-field-v815,.hh-arrival-preview,.hh-arrival-field,
+.family-member,.gps-panel .stats>div){
+ border-color:rgba(167,204,252,.56)!important;
+ background-image:radial-gradient(ellipse at 52% 114%,var(--fgb-glow),transparent 73%),
+ linear-gradient(146deg,rgba(80,100,162,.72),rgba(28,53,107,.92))!important;
+ border-radius:15px!important;
+ box-shadow:0 6px 18px rgba(2,9,30,.24),inset 0 1px rgba(253,249,255,.23)!important;
+}
+:root:not([data-sh9-transit="on"]) body .shell[data-hh-skin="lena-premium"] #guardianAdminControlsV963
+:is(.guardian-landmarks-choice[aria-pressed="true"],
+.guardian-landmarks-action[aria-pressed="true"]){
+ border-color:var(--fgb-edge)!important;
+ box-shadow:0 6px 16px rgba(2,9,32,.19),inset 0 1px rgba(255,252,255,.24),
+ 0 0 12px var(--fgb-glow)!important;
+}
+:root:not([data-sh9-transit="on"]) body .shell[data-hh-skin="lena-premium"] #guardianAdminControlsV963
+:is(.guardian-admin-heading-v963 strong,.guardian-arrival-head strong,
+.family-live-control-head-v962 strong){
+ text-shadow:0 2px 11px rgba(2,7,27,.38)!important;
+}
+@media(prefers-reduced-motion:reduce){
+ :root:not([data-sh9-transit="on"]) body .shell[data-hh-skin="lena-premium"]
+ :is(#hhTransitPanel,#guardianAdminControlsV963) *{
+  animation-duration:.01ms!important;transition-duration:.01ms!important;
+ }
+}

@@ -1,0 +1,44 @@
+name: SHO Léna Premium Wave V2 QA
+on:
+  pull_request:
+    paths:
+      - 'sh9/shared/lena-premium-wave-v2.*'
+      - 'sh9/tests/lena-premium-wave-v2.test.cjs'
+      - 'sh9/index.html'
+      - 'sh9/smart-travel/index.html'
+      - 'sh9/shopping/index.html'
+      - 'sh9/sport/index.html'
+      - 'sh9/wallet/index.html'
+      - 'sh9/entertainment/index.html'
+      - 'sh9/family-hub/index.html'
+      - 'sh9/notification-center/index.html'
+      - 'sh9/smart-travel/my-trips/index.html'
+      - 'sh9/entertainment/book-studio/index.html'
+      - 'healthhub/nutrition/index.html'
+      - 'healthhub/skins/activity-lena-benchmark-v2.css'
+      - 'healthhub/skins/tests/activity-lena-premium.test.cjs'
+      - 'healthhub/activity-premium-glass-v533.js'
+      - 'healthhub/guardian/guardian-lena-benchmark-v1184.css'
+      - 'healthhub/guardian/index.html'
+      - '.github/workflows/sho-lena-premium-wave-v2-qa.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'sh9/shared/lena-premium-wave-v2.*'
+      - 'sh9/tests/lena-premium-wave-v2.test.cjs'
+      - 'healthhub/skins/activity-lena-benchmark-v2.css'
+      - 'healthhub/guardian/guardian-lena-benchmark-v1184.css'
+      - '.github/workflows/sho-lena-premium-wave-v2-qa.yml'
+permissions:
+  contents: read
+jobs:
+  wave-fidelity-and-runtime-isolation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate SHO eleven SHO routes, profile switching, exact Sleep wave and activity/guardian fallbacks
+        run: node --test sh9/tests/lena-premium-wave-v2.test.cjs healthhub/skins/tests/activity-lena-premium.test.cjs healthhub/tests/guardian-lena-premium-lower-v1183.test.cjs

@@ -1,0 +1,299 @@
+/* Léna Premium Wave Skin V2 · 2026-11-19
+   Approved benchmark: HealthHub Sleep v1173, not a merely similar tint.
+   Visual-only adapter, opt-in via body[data-lp-v2="on"][data-lp-module].
+   Keep DOM, card sizes, scroll behavior, icons, colors with semantic meaning,
+   original hero images, accessibility, maps, forms, medical data untouched. */
+body[data-lp-v2="on"]{
+ --lpv-accent:var(--accent,#81caff);
+ --lpv-ice:#84caff;
+ --lpv-pink:#ffaddd;
+ --lpv-ink:#f7f9ff;
+ --lpv-copy:#cbd9f4;
+ --lpv-border:rgba(168,202,248,.54);
+ --lpv-frost:rgba(219,240,255,.20);
+ --lpv-glow:rgba(84,156,247,.23);
+ --lpv-surface:linear-gradient(150deg,rgba(71,102,168,.83),rgba(31,57,108,.95) 69%,rgba(25,53,113,.96));
+ --lpv-panel:linear-gradient(150deg,rgba(69,70,137,.91),rgba(22,43,92,.96) 68%,rgba(22,39,87,.98));
+ --lpv-shadow:0 9px 24px rgba(1,9,32,.31),inset 0 1px rgba(247,251,255,.24),0 0 14px var(--lpv-glow);
+ --lpv-wave:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20420%2070%22%20preserveAspectRatio%3D%22none%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22w%22%20x1%3D%220%22%20x2%3D%221%22%3E%3Cstop%20stop-color%3D%22%23e575e2%22%2F%3E%3Cstop%20offset%3D%22.45%22%20stop-color%3D%22%23ffb7ed%22%2F%3E%3Cstop%20offset%3D%22.65%22%20stop-color%3D%22%239b9dfd%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%235ac2ff%22%2F%3E%3C%2FlinearGradient%3E%3ClinearGradient%20id%3D%22b%22%20x1%3D%220%22%20x2%3D%221%22%3E%3Cstop%20stop-color%3D%22%23ed75df%22%20stop-opacity%3D%22.18%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%2356caff%22%20stop-opacity%3D%22.08%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Cpath%20d%3D%22M-10%2052C75%208%20125%2065%20211%2048c90-15%20132-56%20219-19v50H-10z%22%20fill%3D%22url(%23b)%22%2F%3E%3Cpath%20d%3D%22M-10%2050C75%208%20125%2065%20211%2048c90-15%20132-56%20219-19%22%20stroke%3D%22url(%23w)%22%20stroke-width%3D%222.4%22%20opacity%3D%22.9%22%20fill%3D%22none%22%2F%3E%3Cpath%20d%3D%22M-10%2057C70%2024%20155%2074%20237%2052c93-24%20141-37%20204-14%22%20stroke%3D%22%236f9ef8%22%20stroke-opacity%3D%22.6%22%20fill%3D%22none%22%20stroke-width%3D%221.6%22%2F%3E%3C%2Fsvg%3E");
+ color-scheme:dark;
+}
+:root[data-lpv-owner="m"] body[data-lp-v2="on"],
+:root[data-sh9-golden-profile="m"] body[data-lp-v2="on"]{
+ --lpv-accent:#f9a6d3;
+ --lpv-border:rgba(255,184,231,.61);
+ --lpv-glow:rgba(242,119,211,.25);
+ --lpv-surface:linear-gradient(150deg,rgba(130,76,155,.82),rgba(55,48,110,.95) 73%,rgba(33,46,102,.97));
+ --lpv-panel:linear-gradient(150deg,rgba(100,66,143,.93),rgba(36,45,103,.96) 69%,rgba(21,38,86,.98));
+}
+body[data-lp-v2="on"] :is(button,a,input,textarea,select,summary):focus-visible{
+ outline:2px solid var(--lpv-accent)!important;outline-offset:2px;
+}
+body[data-lp-v2="on"] :is(.tile,.st-tile,.sv-feature-card,.sv-category,.fh-stat,.hh-bevitel-tile,.cat,.shop-connect){
+ -webkit-tap-highlight-color:transparent;
+}
+/* Launcher: no new rows, no icon replacements, 12+ tile dimensions retained. */
+body[data-lp-module="launcher"] .shell{
+ background:linear-gradient(180deg,#132144 0%,#0b1936 38%,#07162f 100%)!important;
+}
+body[data-lp-module="launcher"] .head{
+ border-color:var(--lpv-border)!important;
+ box-shadow:0 10px 26px rgba(1,9,34,.31),inset 0 1px rgba(252,244,255,.22),0 0 17px var(--lpv-glow)!important;
+}
+body[data-lp-module="launcher"] .head .sho-unified-dock{
+ border-color:var(--lpv-border)!important;
+ background:linear-gradient(112deg,rgba(64,71,136,.77),rgba(24,51,100,.82) 69%,rgba(86,51,126,.64))!important;
+ box-shadow:var(--lpv-shadow)!important;
+}
+body[data-lp-module="launcher"] .info{
+ border-color:var(--lpv-border)!important;
+ background:var(--lpv-panel)!important;
+ box-shadow:var(--lpv-shadow)!important;
+}
+body[data-lp-module="launcher"] .info :is(b,strong){text-shadow:0 1px 6px rgba(2,7,31,.28)}
+body[data-lp-module="launcher"] .module-board{
+ border-color:var(--lpv-border)!important;
+ background-image:var(--lpv-wave),radial-gradient(ellipse at 29% 1%,var(--lpv-glow),transparent 56%),linear-gradient(180deg,#20264b 0%,#142344 49%,#0c1934 100%)!important;
+ background-size:100% 69px,auto,auto!important;
+ background-repeat:no-repeat,no-repeat,no-repeat!important;
+ background-position:center top,center,center!important;
+ box-shadow:inset 0 1px rgba(255,244,255,.25),0 0 12px var(--lpv-glow)!important;
+}
+body[data-lp-module="launcher"] .module-grid .tile{
+ border-color:var(--lpv-border)!important;
+ background:var(--lpv-surface)!important;
+ box-shadow:0 6px 16px rgba(1,11,35,.26),inset 0 1px rgba(247,250,255,.25),0 0 10px var(--lpv-glow)!important;
+ position:relative;isolation:isolate;overflow:hidden;
+}
+/* Gentle colored bottom illumination, decorative only. */
+body[data-lp-module="launcher"] .module-grid .tile::after{
+ content:"";position:absolute;pointer-events:none;left:-9px;right:-9px;bottom:-26px;height:50px;
+ border-radius:50%;
+ background:radial-gradient(ellipse at 50% 100%,var(--lpv-glow),transparent 73%);
+}
+body[data-lp-module="launcher"] .module-grid .tile .sym{
+ border-color:var(--lpv-border)!important;
+ background:linear-gradient(145deg,rgba(124,154,208,.32),rgba(36,68,133,.41))!important;
+ box-shadow:inset 0 1px rgba(253,250,255,.25),0 0 11px var(--lpv-glow)!important;
+}
+body[data-lp-module="launcher"] .module-grid .tile.wallet{
+ background:linear-gradient(115deg,rgba(80,90,165,.91),rgba(55,52,116,.97))!important;
+ border-color:var(--lpv-border)!important;
+}
+body[data-lp-module="launcher"] .module-grid .tile b{
+ color:var(--lpv-ink)!important;text-shadow:0 1px 5px rgba(2,9,27,.38);
+}
+body[data-lp-module="launcher"] .shell>nav.nav[data-sh9-golden-bottom-nav="on"]{
+ border-top-color:var(--lpv-border)!important;
+ background:linear-gradient(120deg,rgba(29,35,76,.98),rgba(13,33,72,.98))!important;
+ box-shadow:0 -6px 21px rgba(2,8,31,.35),inset 0 1px rgba(255,255,255,.14)!important;
+}
+body[data-lp-module="launcher"] .sheet{
+ border-color:var(--lpv-border)!important;
+ background:var(--lpv-panel)!important;
+ box-shadow:var(--lpv-shadow)!important;
+}
+body[data-lp-module="launcher"] :is(.ticket-row,.banner){
+ border-color:var(--lpv-border)!important;
+ background:var(--lpv-surface)!important;
+ box-shadow:inset 0 1px rgba(247,251,255,.20)!important;
+}
+/* Smart Travel: existing destination artwork, clocks and navigation intact. */
+body[data-lp-module="travel"] .st-shell{
+ background:linear-gradient(180deg,#182447,#0b1834 52%,#08162d)!important;
+}
+body[data-lp-module="travel"] .st-hero{
+ border-color:var(--lpv-border)!important;
+ box-shadow:var(--lpv-shadow)!important;
+}
+body[data-lp-module="travel"] .st-grid .st-tile{
+ border-color:var(--lpv-border)!important;
+ background:var(--lpv-surface)!important;
+ box-shadow:var(--lpv-shadow)!important;
+}
+body[data-lp-module="travel"] :is(.st-weather,.st-world,.st-nav,.st-dialog){
+ border-color:var(--lpv-border)!important;
+ box-shadow:0 7px 22px rgba(1,9,31,.30),inset 0 1px rgba(255,244,255,.17),0 0 11px var(--lpv-glow)!important;
+}
+body[data-lp-module="travel"] .st-tile-orb{
+ filter:drop-shadow(0 0 10px var(--lpv-glow));
+}
+/* Smart Shopping: never crop/change product images, catalog card count or basket clicks. */
+body[data-lp-module="shopping"] .app{
+ background:linear-gradient(180deg,#172247,#0e1b38 50%,#08172f)!important;
+}
+body[data-lp-module="shopping"] .hero{
+ border-color:var(--lpv-border)!important;
+ box-shadow:var(--lpv-shadow)!important;
+}
+body[data-lp-module="shopping"] :is(.search-bar,.categories .cat,.shop-connect,
+.sho-catalog-panel,.quick-panel,.workspace,.retailer-area){
+ border-color:var(--lpv-border)!important;
+ box-shadow:var(--lpv-shadow)!important;
+}
+body[data-lp-module="shopping"] :is(.shop-connect,.sho-catalog-panel,.quick-panel,.workspace,.retailer-area){
+ background-image:radial-gradient(ellipse at 18% 0%,var(--lpv-glow),transparent 56%),linear-gradient(150deg,rgba(47,62,119,.93),rgba(19,41,87,.96))!important;
+}
+body[data-lp-module="shopping"] .categories .cat{
+ background:var(--lpv-surface)!important;
+}
+body[data-lp-module="shopping"] .search-bar{
+ background:linear-gradient(115deg,rgba(100,73,149,.91),rgba(41,68,123,.94))!important;
+}
+body[data-lp-module="shopping"] .bottomnav{
+ border-color:var(--lpv-border)!important;
+ box-shadow:0 -6px 20px rgba(3,11,34,.31)!important;
+}
+/* Sports: do not restyle the embedded MecsRadar iframe itself. */
+body[data-lp-module="sport"] .sport-shell{
+ background:linear-gradient(180deg,#182447,#091831 70%,#07162f)!important;
+}
+body[data-lp-module="sport"] .sport-hero{
+ border-color:var(--lpv-border)!important;
+ box-shadow:var(--lpv-shadow)!important;
+}
+body[data-lp-module="sport"] .sport-menu{
+ border-color:var(--lpv-border)!important;
+ background:linear-gradient(112deg,rgba(80,59,134,.85),rgba(26,60,111,.92))!important;
+ box-shadow:0 5px 17px rgba(2,9,31,.27),inset 0 1px rgba(255,255,255,.2)!important;
+}
+body[data-lp-module="sport"] .sport-frame{
+ border-color:var(--lpv-border)!important;
+ box-shadow:var(--lpv-shadow)!important;
+}
+/* Smart Valet: cards and headers only, sensitive ID images/PIN remain unchanged. */
+body[data-lp-module="wallet"] .sv-shell{
+ background:linear-gradient(180deg,#172349,#0e1b38 53%,#09172e)!important;
+}
+body[data-lp-module="wallet"] .sv-hero{
+ border-color:var(--lpv-border)!important;
+ box-shadow:var(--lpv-shadow)!important;
+}
+body[data-lp-module="wallet"] :is(.sv-feature-card,.sv-section,.sv-add-panel,.sv-category,.sv-link){
+ border-color:var(--lpv-border)!important;
+ box-shadow:var(--lpv-shadow)!important;
+}
+body[data-lp-module="wallet"] :is(.sv-feature-card,.sv-add-panel,.sv-category,.sv-link){
+ background:var(--lpv-surface)!important;
+}
+body[data-lp-module="wallet"] .sv-section-top .sv-kicker{color:var(--lpv-accent)!important}
+/* Entertainment: do not override licensed artwork, featured photos or carousel movement. */
+body[data-lp-module="entertainment"]{
+ background:linear-gradient(180deg,#162043,#0b1733 57%,#07152c)!important;
+}
+body[data-lp-module="entertainment"] :is(.topbar,.hero,.categories .cat,
+.extra-category,.section,.carousel .card,.books-promo,.bs-entertainment-feature){
+ border-color:var(--lpv-border)!important;
+ box-shadow:var(--lpv-shadow)!important;
+}
+body[data-lp-module="entertainment"] :is(.categories .cat,.extra-category,.carousel .card){
+ background:var(--lpv-surface)!important;
+}
+body[data-lp-module="entertainment"] .topbar{
+ background:linear-gradient(115deg,rgba(64,53,119,.95),rgba(22,47,95,.97))!important;
+}
+/* Family Tasks: preserve counters' semantics, tasks and modal input/voice functionality. */
+body[data-lp-module="family"] .fh-shell{
+ background:linear-gradient(180deg,#1a2249,#0c1c39 56%,#08162f)!important;
+}
+body[data-lp-module="family"] .fh-hero{
+ border-color:var(--lpv-border)!important;
+ box-shadow:var(--lpv-shadow)!important;
+}
+body[data-lp-module="family"] :is(.fh-stat,.fh-signin,.fh-tabs,.fh-new,.fh-sheet){
+ border-color:var(--lpv-border)!important;
+ box-shadow:var(--lpv-shadow)!important;
+}
+body[data-lp-module="family"] :is(.fh-stat,.fh-signin,.fh-sheet){
+ background:var(--lpv-surface)!important;
+}
+body[data-lp-module="family"] .fh-tabs{
+ background:linear-gradient(130deg,rgba(76,60,139,.82),rgba(28,55,103,.92))!important;
+}
+body[data-lp-module="family"] :is(.fh-tab.active,.fh-save){
+ border-color:var(--lpv-border)!important;
+ box-shadow:0 0 11px var(--lpv-glow)!important;
+}
+/* Nutrition: keep calibrated gauges, real food photo and QR/scanner overlays. */
+body[data-lp-module="nutrition"] .shell{
+ background:linear-gradient(180deg,#192449,#101b3a 50%,#081630)!important;
+}
+body[data-lp-module="nutrition"] .hh-nutrition-golden-hero-host{
+ filter:drop-shadow(0 5px 14px var(--lpv-glow));
+}
+body[data-lp-module="nutrition"] :is(.balance.hh-body,.hh-water,.hh-bevitel-tile,
+.hh-nutrition-quick-tile-v1137,.hh-interfood-tile-v1173,.section,.kpi){
+ border-color:var(--lpv-border)!important;
+ box-shadow:var(--lpv-shadow)!important;
+}
+body[data-lp-module="nutrition"] :is(.hh-bevitel-tile,.hh-nutrition-quick-tile-v1137,
+.hh-interfood-tile-v1173){
+ background-image:radial-gradient(ellipse at 17% 3%,var(--lpv-glow),transparent 59%),linear-gradient(143deg,rgba(68,82,148,.84),rgba(24,47,101,.96))!important;
+}
+body[data-lp-module="nutrition"] .balance.hh-body{
+ background-image:radial-gradient(ellipse at 26% 4%,var(--lpv-glow),transparent 60%),linear-gradient(145deg,rgba(69,69,141,.92),rgba(22,43,90,.97))!important;
+}
+
+/* Notification Center: leave live subscriptions, inbox state and switches alone. */
+body[data-lp-module="notifications"] .nc-shell{
+ background:linear-gradient(180deg,#19244a,#0e1b39 56%,#08162e)!important;
+}
+body[data-lp-module="notifications"] .nc-hero{
+ border-color:var(--lpv-border)!important;
+ box-shadow:var(--lpv-shadow)!important;
+}
+body[data-lp-module="notifications"] :is(.nc-content,.nc-tabs,.nc-panel,
+.nc-sound-panel,.nc-push-panel,.nc-place-panel,.nc-confirm){
+ border-color:var(--lpv-border)!important;
+ box-shadow:var(--lpv-shadow)!important;
+}
+body[data-lp-module="notifications"] :is(.nc-panel,.nc-sound-panel,
+.nc-push-panel,.nc-place-panel){
+ background-image:radial-gradient(ellipse at 20% 3%,var(--lpv-glow),transparent 53%),
+ linear-gradient(145deg,rgba(75,81,150,.91),rgba(23,46,101,.96))!important;
+}
+body[data-lp-module="notifications"] .nc-tabs{
+ background:linear-gradient(130deg,rgba(95,68,145,.82),rgba(29,57,114,.92))!important;
+}
+/* My Trips: protect saved trip data, ticket documents and full-screen reader. */
+body[data-lp-module="mytrips"] .mt-shell{
+ background:linear-gradient(180deg,#182447,#0e1b3a 56%,#081630)!important;
+}
+body[data-lp-module="mytrips"] .mt-hero{
+ border-color:var(--lpv-border)!important;
+ box-shadow:var(--lpv-shadow)!important;
+}
+body[data-lp-module="mytrips"] :is(.mt-quick,.mt-list,.mt-tracking-section,
+.mt-files-dialog,.mt-files-upload,.mt-tracking-search,.mt-note){
+ border-color:var(--lpv-border)!important;
+ box-shadow:var(--lpv-shadow)!important;
+}
+body[data-lp-module="mytrips"] :is(.mt-quick,.mt-tracking-section,
+.mt-files-dialog,.mt-files-upload,.mt-tracking-search){
+ background:var(--lpv-panel)!important;
+}
+body[data-lp-module="mytrips"] :is(.mt-action,.mt-valet-hub-link){
+ border-color:var(--lpv-border)!important;
+ box-shadow:0 0 12px var(--lpv-glow),inset 0 1px rgba(255,255,255,.19)!important;
+}
+/* Book Studio: preserve the actual wood shelf and book art; premiumize its UI chrome. */
+body[data-lp-module="books"].bshelf-v10-page{
+ background:linear-gradient(180deg,#1a2147,#0e1835 65%,#08152d)!important;
+}
+body[data-lp-module="books"] :is(.bshelf-appbar,.bshelf-search-panel,
+.bshelf-admin,.bshelf-manage-panel,.bshelf-offline-panel,.bs-local-shell){
+ border-color:var(--lpv-border)!important;
+ box-shadow:var(--lpv-shadow)!important;
+}
+body[data-lp-module="books"] :is(.bshelf-appbar,.bshelf-search-panel,
+.bshelf-admin,.bshelf-manage-panel,.bshelf-offline-panel){
+ background-image:radial-gradient(ellipse at 22% 0%,var(--lpv-glow),transparent 53%),
+ linear-gradient(145deg,rgba(83,73,142,.90),rgba(23,46,100,.95))!important;
+}
+
+/* Keep native show/hide and "reduced motion" guarantees. */
+@media(prefers-reduced-motion:reduce){
+ body[data-lp-v2="on"] :is(.tile,.st-tile,.cat,.sv-category,.fh-stat,.hh-bevitel-tile){
+  animation-duration:.01ms!important;transition-duration:.01ms!important;
+ }
+}
