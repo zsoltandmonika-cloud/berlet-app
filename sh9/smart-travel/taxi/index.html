@@ -98,6 +98,52 @@
  background:linear-gradient(180deg,#211631,#210f2b);
  box-shadow:0 -9px 18px #120d2077}
 #calcDialog .dialog-card>.actions button{min-height:47px}
+/* Both Taxi maps: replace the large white attribution strip with a compact
+   dark information chip. Map/OpenStreetMap credits remain tap-accessible. */
+#taxiCurrentMap .maplibregl-ctrl-bottom-right,
+#txRouteMapSection .maplibregl-ctrl-bottom-right{right:7px!important;bottom:6px!important}
+#taxiCurrentMap .maplibregl-ctrl-attrib,
+#txRouteMapSection .maplibregl-ctrl-attrib{
+ background:#161b34ef!important;color:#f8e9fb!important;
+ border:1px solid #af83c48c!important;border-radius:15px!important;
+ box-shadow:0 2px 8px #0009!important;
+ font-size:10px!important;line-height:1.35!important;
+ padding:2px 5px!important;max-width:calc(100vw - 76px)!important;
+}
+#taxiCurrentMap .maplibregl-ctrl-attrib.maplibregl-compact:not(.maplibregl-compact-show),
+#txRouteMapSection .maplibregl-ctrl-attrib.maplibregl-compact:not(.maplibregl-compact-show){
+ width:29px!important;min-width:29px!important;height:29px!important;
+ min-height:29px!important;max-width:29px!important;
+ padding:0!important;border-radius:50%!important;
+}
+#taxiCurrentMap .maplibregl-ctrl-attrib.maplibregl-compact:not(.maplibregl-compact-show) .maplibregl-ctrl-attrib-inner,
+#txRouteMapSection .maplibregl-ctrl-attrib.maplibregl-compact:not(.maplibregl-compact-show) .maplibregl-ctrl-attrib-inner{
+ display:none!important
+}
+#taxiCurrentMap .maplibregl-ctrl-attrib-button,
+#txRouteMapSection .maplibregl-ctrl-attrib-button{
+ display:block!important;position:relative!important;width:28px!important;
+ height:28px!important;min-width:28px!important;min-height:28px!important;
+ background:none!important;border:0!important;cursor:pointer!important;
+}
+#taxiCurrentMap .maplibregl-ctrl-attrib-button::after,
+#txRouteMapSection .maplibregl-ctrl-attrib-button::after{
+ content:"ⓘ";position:absolute;inset:0;display:flex;align-items:center;
+ justify-content:center;color:#fce5f7;font:700 19px/1 system-ui,sans-serif;
+}
+#taxiCurrentMap .maplibregl-ctrl-attrib-inner,
+#txRouteMapSection .maplibregl-ctrl-attrib-inner{
+ color:#f5e5f8!important;white-space:normal!important;
+ font-size:10px!important;line-height:1.35!important;
+}
+#taxiCurrentMap .maplibregl-ctrl-attrib a,
+#txRouteMapSection .maplibregl-ctrl-attrib a{
+ color:#f9b1db!important;text-decoration:underline!important;
+}
+#taxiCurrentMap .maplibregl-ctrl-bottom-right .maplibregl-ctrl,
+#txRouteMapSection .maplibregl-ctrl-bottom-right .maplibregl-ctrl{
+ margin:0!important
+}
 @media(max-height:620px){#calcDialog .dialog-card{height:calc(100dvh - 10px);max-height:calc(100dvh - 10px)}}
 
 </style>
