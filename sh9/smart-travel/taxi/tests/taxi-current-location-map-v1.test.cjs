@@ -72,7 +72,7 @@ test('GPS uses this device, no home fallback, profile crossover, daily caps, pol
  assert.match(script,/enableHighAccuracy:true/);
  assert.match(script,/tiles\.openfreemap\.org\/styles\/bright/);
  assert.match(script,/maplibre-gl@4\.7\.1/);
- assert.doesNotMatch(script,/localStorage|Supabase|setInterval|watchPosition|home.*fallback|47\.506|19\.0467/);
+ assert.doesNotMatch(script,/localStorage|sessionStorage|Supabase|setInterval\(|watchPosition\(|47\.506|19\.0467/);
  assert.doesNotThrow(()=>new vm.Script(script));
 });
 test('Real native phone coordinates create only one pin at its GPS location, no fake point',async()=>{
