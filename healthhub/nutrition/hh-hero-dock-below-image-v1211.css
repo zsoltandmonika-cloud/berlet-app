@@ -14,10 +14,10 @@ body[data-lp-module="nutrition"][data-sh9-golden-unified="on"]:not([data-sh9-gol
 #nutritionGoldenHeroHost > #sh9UnifiedGlassDockV34 {
   transform:translateY(var(--hh-nutrition-hero-dock-drop-v1211))!important;
 }
-/* Move the WHOLE card and following sections 9px closer to the dock.
-   Screenshot-targeted lower gap ~9px; keep the dock 64px drop unchanged.
+/* Move the WHOLE card and following sections 11px closer to the dock.
+   Screenshot-targeted lower gap ~7px; keep the dock 64px drop unchanged.
    No changes inside #balanceCard. */
 body[data-lp-module="nutrition"][data-sh9-golden-unified="on"]:not([data-sh9-golden-floating="on"])
 #nutritionGoldenHeroHost + #balanceCard.balance.hh-body {
-  margin-top:calc(3px + var(--hh-nutrition-hero-dock-drop-v1211))!important;
+  margin-top:calc(1px + var(--hh-nutrition-hero-dock-drop-v1211))!important;
 }
