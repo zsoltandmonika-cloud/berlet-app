@@ -13,8 +13,8 @@ const nutrition=read('nutrition-preview-v592.js');
 
 test('only the pitcher artwork is optically lowered, with bounded narrow-screen offset',()=>{
  const selector='body[data-lp-v2="on"][data-lp-module="nutrition"] #balanceCard .hh-jug-image-v1202';
- assert.match(css,new RegExp(selector.replace(/[.*+?^$\{\}()|[\]\\]/g,'\\$&')+'\\s*\\{\\s*position:relative;top:clamp\\(44px,17vw,65px\\);'));
- assert.match(css,/@media\(max-width:365px\)[\s\S]*?\.hh-jug-image-v1202\{[\s\S]*?top:clamp\(40px,15vw,54px\)/);
+ assert.match(css,new RegExp(selector.replace(/[.*+?^$\{\}()|[\]\\]/g,'\\$&')+'\\s*\\{\\s*position:relative;top:clamp\\(49px,17vw,70px\\);'));
+ assert.match(css,/@media\(max-width:365px\)[\s\S]*?\.hh-jug-image-v1202\{[\s\S]*?top:clamp\(45px,15vw,59px\)/);
  assert.match(css,/\.hh-showcase-stage-v1202\{\s*display:grid;grid-template-columns:minmax\(0,1\.46fr\) minmax\(100px,\.86fr\)/);
  assert.match(css,/\.hh-jug-tap-v1202\{\s*position:relative;isolation:isolate;display:flex/);
  assert.match(css,/\.hh-glass-tap-v1202\{\s*display:flex;flex-direction:column/);
@@ -22,7 +22,7 @@ test('only the pitcher artwork is optically lowered, with bounded narrow-screen 
 });
 
 test('new CSS version is loaded once so Android will not keep the previous positioning',()=>{
- assert.equal(html.split('hh-hydration-showcase-v1202.css?v=1203-jug-bottom-align').length,2);
+ assert.equal(html.split('hh-hydration-showcase-v1202.css?v=1204-jug-plus5').length,2);
 });
 
 test('the existing pitcher tap, glass tap, eight 250ml stages and mute-aware SFX remain unchanged',()=>{
