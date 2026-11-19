@@ -1,0 +1,341 @@
+/* Guardian BKK Léna Premium Contrast V1185 · 2026-11-19
+   Targeted accessibility polish from the user's marked screenshot.
+   1. Smart Match + actual Watchlist heading
+   2. Four real route actions (shown/hidden, up, down, remove)
+   3. Golden Planner date and search controls
+   Only the regular Family Guard's scoped, existing BKK sheet.
+   Visual CSS only. Never replace DOM, route statuses, handlers, GPS, GTFS or map. */
+html:not([data-sh9-transit="on"]) body .shell[data-hh-skin="lena-premium"] #hhTransitPanel{
+ --bkkc-edge:rgba(164,210,255,.71);
+ --bkkc-glow:rgba(105,172,251,.18);
+ --bkkc-grad:linear-gradient(145deg,rgba(67,94,156,.91),rgba(28,51,103,.97) 69%,rgba(20,38,87,.98));
+ --bkkc-text:#f7faff;
+ --bkkc-sub:#d5e4ff;
+ --bkkc-small:#e1ecff;
+ --bkkc-tap:linear-gradient(145deg,#345a9e,#283d79);
+ --bkkc-pressed:#8fddfa;
+}
+html:not([data-sh9-transit="on"])[data-guardian-profile="m"] body .shell[data-hh-skin="lena-premium"] #hhTransitPanel{
+ --bkkc-edge:rgba(255,181,229,.79);
+ --bkkc-glow:rgba(242,117,214,.23);
+ --bkkc-grad:linear-gradient(145deg,rgba(119,74,157,.90),rgba(54,46,109,.98) 69%,rgba(30,40,89,.98));
+ --bkkc-tap:linear-gradient(145deg,#735294,#3a4b8d);
+ --bkkc-pressed:#ffc7e9;
+}
+/* The brand artwork remains a separate live-backed tile. Header geometry is
+   an established approved layout; only its light pastel paint is replaced. */
+html:not([data-sh9-transit="on"]) body .shell[data-hh-skin="lena-premium"] #hhTransitPanel>#hhBkkLiveBarV796::before{
+ border:1px solid var(--bkkc-edge)!important;
+ background:linear-gradient(126deg,rgba(135,80,168,.91),rgba(58,63,134,.95) 58%,rgba(38,66,131,.97))!important;
+ box-shadow:inset 0 1px rgba(252,241,255,.40),0 6px 19px rgba(2,9,31,.31),0 0 15px var(--bkkc-glow)!important;
+}
+html:not([data-sh9-transit="on"])[data-guardian-profile="z"] body .shell[data-hh-skin="lena-premium"] #hhTransitPanel>#hhBkkLiveBarV796::before{
+ background:linear-gradient(126deg,rgba(60,104,171,.91),rgba(32,64,123,.96) 58%,rgba(27,51,105,.98))!important;
+}
+/* Strictly keep green countdown = confirmed same source-backed match; the
+   darker ink makes the departure readable instead of a translucent badge. */
+html:not([data-sh9-transit="on"]) body .shell[data-hh-skin="lena-premium"] #hhTransitPanel
+#hhBkkLiveBarV796>#hhSmartMatchPinV1::before{
+ color:#fff2ff!important;
+ font-size:clamp(10px,2.6vw,12px)!important;
+ font-weight:900!important;
+ text-shadow:0 1px 8px rgba(2,11,33,.41)!important;
+}
+html:not([data-sh9-transit="on"]) body .shell[data-hh-skin="lena-premium"] #hhTransitPanel
+#hhBkkLiveBarV796>#hhSmartMatchPinV1 .hh-smart-match-pin-label{
+ color:#f6dcf6!important;
+ font-weight:800!important;
+ font-size:clamp(8px,2.32vw,10px)!important;
+ text-shadow:0 1px 5px rgba(3,14,32,.38)!important;
+}
+html:not([data-sh9-transit="on"]) body .shell[data-hh-skin="lena-premium"] #hhTransitPanel
+#hhBkkLiveBarV796>#hhSmartMatchPinV1::after{
+ border-color:rgba(144,255,215,.83)!important;
+ background:linear-gradient(145deg,#c5ffe4,#a1eccb)!important;
+ box-shadow:inset 0 1px rgba(255,255,255,.74),0 0 13px rgba(79,223,173,.22)!important;
+}
+html:not([data-sh9-transit="on"]) body .shell[data-hh-skin="lena-premium"] #hhTransitPanel
+#hhBkkLiveBarV796>#hhSmartMatchPinV1:not([data-state="ready"])::after{
+ background:linear-gradient(145deg,#dcecf5,#c8d9ed)!important;
+ border-color:rgba(215,230,247,.88)!important;
+ box-shadow:inset 0 1px rgba(255,255,255,.75)!important;
+}
+html:not([data-sh9-transit="on"]) body .shell[data-hh-skin="lena-premium"] #hhTransitPanel
+#hhBkkLiveBarV796>#hhSmartMatchPinV1 strong{
+ color:#083d37!important;
+ font-weight:950!important;
+ text-shadow:none!important;
+}
+html:not([data-sh9-transit="on"]) body .shell[data-hh-skin="lena-premium"] #hhTransitPanel
+#hhBkkLiveBarV796>#hhSmartMatchPinV1 span{
+ color:#25514c!important;font-weight:850!important;
+ text-shadow:none!important;
+}
+html:not([data-sh9-transit="on"]) body .shell[data-hh-skin="lena-premium"] #hhTransitPanel
+#hhBkkLiveBarV796>#hhSmartLocationSwitchV1:not([hidden]){
+ border-color:rgba(133,241,207,.77)!important;
+ background:linear-gradient(150deg,#d8fff0,#a7edcf)!important;
+ box-shadow:inset 0 1px rgba(255,255,255,.79),0 3px 12px rgba(7,55,46,.20)!important;
+ color:#16513d!important;
+}
+html:not([data-sh9-transit="on"]) body .shell[data-hh-skin="lena-premium"] #hhTransitPanel
+#hhBkkLiveBarV796>#hhSmartLocationSwitchV1::before{
+ color:#104d3c!important;text-shadow:none!important;font-weight:900!important;
+}
+/* Watchlist: same original right-column geometry, different visual hierarchy. */
+html:not([data-sh9-transit="on"]) body .shell[data-hh-skin="lena-premium"] #hhTransitPanel
+#hhBkkWatchlistV814 .hh-bkk-watch-header-v814{
+ background:linear-gradient(120deg,rgba(115,79,162,.96),rgba(51,64,132,.96))!important;
+ border:1px solid var(--bkkc-edge)!important;
+ box-shadow:inset 0 1px rgba(255,244,255,.28),0 5px 15px rgba(4,9,33,.25),0 0 9px var(--bkkc-glow)!important;
+}
+html:not([data-sh9-transit="on"])[data-guardian-profile="z"] body .shell[data-hh-skin="lena-premium"] #hhTransitPanel
+#hhBkkWatchlistV814 .hh-bkk-watch-header-v814{
+ background:linear-gradient(120deg,rgba(59,97,164,.96),rgba(31,65,126,.97))!important;
+}
+html:not([data-sh9-transit="on"]) body .shell[data-hh-skin="lena-premium"] #hhTransitPanel
+#hhBkkWatchToggleV858 .hh-bkk-watch-toggle-label-v858 strong{
+ color:#fff!important;font-weight:900!important;
+ font-size:clamp(10px,2.75vw,13px)!important;
+ text-shadow:0 1px 7px rgba(3,11,34,.34)!important;
+}
+html:not([data-sh9-transit="on"]) body .shell[data-hh-skin="lena-premium"] #hhTransitPanel
+#hhBkkWatchToggleV858 .hh-bkk-watch-toggle-label-v858 small{
+ color:#dfeaff!important;font-weight:750!important;
+ font-size:clamp(8px,2.08vw,10px)!important;
+}
+html:not([data-sh9-transit="on"]) body .shell[data-hh-skin="lena-premium"] #hhTransitPanel
+#hhBkkWatchEditV814{
+ border-color:rgba(215,227,255,.70)!important;
+ background:linear-gradient(141deg,rgba(74,92,157,.91),rgba(48,65,122,.96))!important;
+ box-shadow:inset 0 1px rgba(250,250,255,.27),0 3px 12px rgba(2,10,31,.28)!important;
+}
+html:not([data-sh9-transit="on"]) body .shell[data-hh-skin="lena-premium"] #hhTransitPanel
+#hhBkkWatchEditV814::before{
+ filter:brightness(0) invert(1) drop-shadow(0 1px 3px rgba(2,9,33,.25))!important;
+}
+/* Route rows have actual source-backed status in their buttons. Keep exactly
+   the original four real buttons, no hidden, stacked, duplicated actions. */
+html:not([data-sh9-transit="on"]) body .shell[data-hh-skin="lena-premium"] #hhTransitPanel
+#hhBkkWatchlistV814 .hh-bkk-watch-row-v814{
+ grid-template-columns:clamp(43px,12vw,51px) minmax(0,1fr) auto!important;
+ grid-template-areas:"badge copy actions"!important;
+ column-gap:6px!important;row-gap:0!important;
+ padding:8px 7px!important;min-height:70px!important;
+ background:var(--bkkc-grad)!important;
+ border:1px solid var(--bkkc-edge)!important;
+ box-shadow:inset 0 1px rgba(251,248,255,.25),0 7px 16px rgba(2,10,31,.27),0 0 10px var(--bkkc-glow)!important;
+}
+html:not([data-sh9-transit="on"]) body .shell[data-hh-skin="lena-premium"] #hhTransitPanel
+#hhBkkWatchlistV814 .hh-bkk-watch-copy-v814{
+ min-width:0!important;
+}
+html:not([data-sh9-transit="on"]) body .shell[data-hh-skin="lena-premium"] #hhTransitPanel
+#hhBkkWatchlistV814 .hh-bkk-watch-copy-v814 strong{
+ color:#fff!important;
+ font-weight:900!important;
+ font-size:clamp(10px,2.65vw,12px)!important;
+ text-shadow:0 1px 5px rgba(1,8,28,.40)!important;
+}
+html:not([data-sh9-transit="on"]) body .shell[data-hh-skin="lena-premium"] #hhTransitPanel
+#hhBkkWatchlistV814 .hh-bkk-watch-copy-v814 span{
+ color:#f0f5ff!important;
+ font-size:clamp(9px,2.3vw,11px)!important;
+ font-weight:750!important;line-height:1.23!important;
+}
+html:not([data-sh9-transit="on"]) body .shell[data-hh-skin="lena-premium"] #hhTransitPanel
+#hhBkkWatchlistV814 .hh-bkk-watch-copy-v814 small{
+ color:#d0ddf3!important;
+ font-size:clamp(8px,2.05vw,9px)!important;
+ line-height:1.25!important;
+}
+html:not([data-sh9-transit="on"]) body .shell[data-hh-skin="lena-premium"] #hhTransitPanel
+#hhBkkWatchlistV814 .hh-bkk-watch-number-v814{
+ box-shadow:inset 0 1px rgba(255,255,255,.30),0 4px 11px rgba(2,10,33,.22)!important;
+ border:1px solid rgba(252,250,255,.83)!important;
+ font-weight:950!important;
+}
+/* Max available width is ~145 CSS px on 390px phone. A 46+3×27 px cluster
+   fits with readable controls, while preserving enough space for route name. */
+html:not([data-sh9-transit="on"]) body .shell[data-hh-skin="lena-premium"] #hhTransitPanel
+#hhBkkWatchlistV814 .hh-bkk-watch-actions-v814{
+ grid-area:actions!important;
+ display:flex!important;flex-wrap:nowrap!important;
+ align-items:center!important;justify-content:flex-end!important;
+ width:auto!important;min-width:0!important;max-width:none!important;
+ gap:4px!important;
+}
+html:not([data-sh9-transit="on"]) body .shell[data-hh-skin="lena-premium"] #hhTransitPanel
+#hhBkkWatchlistV814 .hh-bkk-watch-action-v814{
+ box-sizing:border-box!important;
+ flex:0 0 27px!important;width:27px!important;min-width:27px!important;max-width:27px!important;
+ min-height:39px!important;height:39px!important;padding:0!important;
+ display:inline-flex!important;align-items:center!important;justify-content:center!important;
+ border:1px solid rgba(183,216,254,.73)!important;
+ border-radius:10px!important;
+ background:var(--bkkc-tap)!important;
+ color:#fff!important;
+ font:900 17px/1 system-ui!important;
+ text-shadow:0 1px 4px rgba(1,7,27,.35)!important;
+ box-shadow:inset 0 1px rgba(255,255,255,.27),0 3px 9px rgba(1,9,35,.30)!important;
+ white-space:nowrap!important;
+}
+html:not([data-sh9-transit="on"]) body .shell[data-hh-skin="lena-premium"] #hhTransitPanel
+#hhBkkWatchlistV814 .hh-bkk-watch-unified-v1{
+ flex:0 0 48px!important;width:48px!important;min-width:48px!important;max-width:48px!important;
+ font:900 10px/1.08 system-ui!important;
+ letter-spacing:0!important;
+ border-width:1px!important;
+ border-radius:11px!important;
+ text-shadow:none!important;
+}
+html:not([data-sh9-transit="on"]) body .shell[data-hh-skin="lena-premium"] #hhTransitPanel
+#hhBkkWatchlistV814 .hh-bkk-watch-unified-v1[data-visible="true"]{
+ background:linear-gradient(146deg,#b6ffe0,#70e4ba)!important;
+ color:#084b35!important;border-color:#36c48c!important;
+ box-shadow:inset 0 1px rgba(250,255,253,.83),0 0 9px rgba(40,210,144,.25)!important;
+}
+html:not([data-sh9-transit="on"]) body .shell[data-hh-skin="lena-premium"] #hhTransitPanel
+#hhBkkWatchlistV814 .hh-bkk-watch-unified-v1[data-visible="false"]{
+ background:linear-gradient(146deg,#ffdae4,#f6a7c6)!important;
+ color:#732037!important;border-color:#f38aaa!important;
+ box-shadow:inset 0 1px rgba(255,255,255,.86),0 0 9px rgba(246,108,158,.20)!important;
+}
+html:not([data-sh9-transit="on"]) body .shell[data-hh-skin="lena-premium"] #hhTransitPanel
+#hhBkkWatchlistV814 .hh-bkk-watch-action-v814.hh-bkk-watch-remove-v814{
+ color:#ffe1e9!important;
+ border-color:rgba(245,162,195,.62)!important;
+ font-size:20px!important;
+}
+html:not([data-sh9-transit="on"]) body .shell[data-hh-skin="lena-premium"] #hhTransitPanel
+#hhBkkWatchlistV814 .hh-bkk-watch-action-v814:disabled{
+ color:#bbcae4!important;
+ background:linear-gradient(141deg,rgba(70,88,128,.83),rgba(44,58,93,.88))!important;
+ border-color:rgba(155,177,215,.35)!important;
+ opacity:.60!important;cursor:not-allowed!important;
+ box-shadow:inset 0 1px rgba(255,255,255,.12)!important;
+}
+html:not([data-sh9-transit="on"]) body .shell[data-hh-skin="lena-premium"] #hhTransitPanel
+#hhBkkWatchlistV814 .hh-bkk-watch-live-badge-v1{
+ background:#117b5c!important;border:1px solid rgba(206,255,238,.91)!important;
+ color:#fff!important;text-shadow:none!important;
+}
+/* In 340–370px portrait, make controls a touch slimmer without overflow. */
+@media(max-width:370px){
+ html:not([data-sh9-transit="on"]) body .shell[data-hh-skin="lena-premium"] #hhTransitPanel
+ #hhBkkWatchlistV814 .hh-bkk-watch-row-v814{
+  grid-template-columns:42px minmax(0,1fr) auto!important;
+  column-gap:4px!important;padding:6px 4px!important;
+ }
+ html:not([data-sh9-transit="on"]) body .shell[data-hh-skin="lena-premium"] #hhTransitPanel
+ #hhBkkWatchlistV814 .hh-bkk-watch-actions-v814{gap:2px!important}
+ html:not([data-sh9-transit="on"]) body .shell[data-hh-skin="lena-premium"] #hhTransitPanel
+ #hhBkkWatchlistV814 .hh-bkk-watch-action-v814{
+  flex-basis:25px!important;width:25px!important;min-width:25px!important;max-width:25px!important;
+ }
+ html:not([data-sh9-transit="on"]) body .shell[data-hh-skin="lena-premium"] #hhTransitPanel
+ #hhBkkWatchlistV814 .hh-bkk-watch-unified-v1{
+  flex-basis:45px!important;width:45px!important;min-width:45px!important;max-width:45px!important;
+  font-size:9px!important;
+ }
+}
+/* Golden Planner: light-on-dark form controls, no rearrangement of
+   selected-date semantics, directions, search results or GPS fallback. */
+html:not([data-sh9-transit="on"]) body .shell[data-hh-skin="lena-premium"] #hhTransitPanel
+#hhBkkGoldenPlannerV968 .hh-bkk-golden-head-v968 h2{
+ color:#fff!important;
+ font-weight:900!important;
+ text-shadow:0 2px 7px rgba(2,9,30,.42)!important;
+}
+html:not([data-sh9-transit="on"]) body .shell[data-hh-skin="lena-premium"] #hhTransitPanel
+#hhBkkGoldenPlannerV968 .hh-planner-time-buttons-v939{
+ min-height:39px!important;height:39px!important;
+ padding:3px!important;gap:3px!important;
+ border:1px solid var(--bkkc-edge)!important;border-radius:13px!important;
+ background:linear-gradient(126deg,rgba(28,47,103,.95),rgba(49,51,110,.95))!important;
+ box-shadow:inset 0 1px rgba(252,246,255,.23),0 3px 11px rgba(1,8,31,.19)!important;
+}
+html:not([data-sh9-transit="on"]) body .shell[data-hh-skin="lena-premium"] #hhTransitPanel
+#hhBkkGoldenPlannerV968 .hh-planner-time-buttons-v939 button{
+ min-height:32px!important;height:32px!important;
+ padding:3px 4px!important;
+ border:1px solid rgba(191,210,250,.30)!important;
+ background:rgba(82,102,164,.30)!important;
+ color:#e7efff!important;
+ border-radius:10px!important;
+ font:850 clamp(10px,2.48vw,11px)/1.2 system-ui!important;
+ letter-spacing:0!important;
+ text-shadow:0 1px 3px rgba(2,9,31,.38)!important;
+}
+html:not([data-sh9-transit="on"]) body .shell[data-hh-skin="lena-premium"] #hhTransitPanel
+#hhBkkGoldenPlannerV968 .hh-planner-time-buttons-v939 button[aria-pressed="true"]{
+ background:linear-gradient(125deg,#af6abb,#5465b4)!important;
+ color:#fff!important;border-color:rgba(255,198,240,.90)!important;
+ box-shadow:inset 0 1px rgba(255,245,255,.27),0 0 11px var(--bkkc-glow)!important;
+}
+html:not([data-sh9-transit="on"])[data-guardian-profile="z"] body .shell[data-hh-skin="lena-premium"] #hhTransitPanel
+#hhBkkGoldenPlannerV968 .hh-planner-time-buttons-v939 button[aria-pressed="true"]{
+ background:linear-gradient(125deg,#3f89c5,#4664ae)!important;
+ border-color:rgba(158,220,255,.88)!important;
+}
+/* The actual two destination fields remain readable without light
+   pastel-on-pastel text. Preserve auto-suggest and map-focus behavior. */
+html:not([data-sh9-transit="on"]) body .shell[data-hh-skin="lena-premium"] #hhTransitPanel
+#hhBkkGoldenPlannerV968 #hhSmartHubPairedV806{
+ background:linear-gradient(126deg,rgba(50,63,122,.87),rgba(31,48,100,.92))!important;
+ border:1px solid rgba(166,202,252,.53)!important;
+ border-radius:13px!important;
+ box-shadow:inset 0 1px rgba(255,248,255,.22)!important;
+}
+html:not([data-sh9-transit="on"]) body .shell[data-hh-skin="lena-premium"] #hhTransitPanel
+#hhBkkGoldenPlannerV968 .hh-smart-hub-field-v806 input,
+html:not([data-sh9-transit="on"]) body .shell[data-hh-skin="lena-premium"] #hhTransitPanel
+#hhBkkGoldenPlannerV968 #hhPlannerDateV939{
+ background:linear-gradient(117deg,rgba(27,49,100,.95),rgba(36,56,110,.98))!important;
+ color:#fff!important;border:1px solid rgba(184,214,255,.61)!important;
+ border-radius:10px!important;
+ font-size:clamp(11px,2.8vw,13px)!important;font-weight:750!important;
+ box-shadow:inset 0 1px rgba(255,248,255,.16)!important;
+}
+html:not([data-sh9-transit="on"]) body .shell[data-hh-skin="lena-premium"] #hhTransitPanel
+#hhBkkGoldenPlannerV968 .hh-smart-hub-field-v806 input::placeholder{
+ color:#cbd9f1!important;opacity:1!important;
+}
+html:not([data-sh9-transit="on"]) body .shell[data-hh-skin="lena-premium"] #hhTransitPanel
+#hhBkkGoldenPlannerV968 .hh-bkk-golden-datetime-v968,
+html:not([data-sh9-transit="on"]) body .shell[data-hh-skin="lena-premium"] #hhTransitPanel
+#hhBkkGoldenPlannerV968 .hh-bkk-golden-time-v968{
+ background:linear-gradient(128deg,rgba(55,72,135,.91),rgba(34,49,105,.95))!important;
+ border-color:rgba(170,203,254,.57)!important;color:#fff!important;
+ box-shadow:inset 0 1px rgba(249,248,255,.20)!important;
+}
+html:not([data-sh9-transit="on"]) body .shell[data-hh-skin="lena-premium"] #hhTransitPanel
+#hhBkkGoldenPlannerV968 :is(.hh-bkk-golden-actions-v968 button,.hh-bkk-golden-quick-v968 button){
+ background:linear-gradient(125deg,rgba(90,83,161,.91),rgba(51,71,139,.94))!important;
+ border:1px solid rgba(191,201,248,.69)!important;
+ color:#fff!important;
+ font-weight:850!important;
+ text-shadow:0 1px 5px rgba(3,9,31,.33)!important;
+ box-shadow:inset 0 1px rgba(254,247,255,.23),0 4px 12px rgba(2,9,33,.20)!important;
+}
+html:not([data-sh9-transit="on"]) body .shell[data-hh-skin="lena-premium"] #hhTransitPanel
+#hhBkkGoldenPlannerV968 :is(.hh-bkk-golden-head-v968 small,.hh-bkk-golden-time-v968 small,
+.hh-smart-hub-field-v806 label,.hh-planner-time-v939 label,.hh-planner-time-v939 p){
+ color:#e0ecff!important;
+ font-weight:750!important;
+}
+html:not([data-sh9-transit="on"]) body .shell[data-hh-skin="lena-premium"] #hhTransitPanel
+:is(#hhBkkWatchlistV814,#hhBkkGoldenPlannerV968) button:focus-visible,
+html:not([data-sh9-transit="on"]) body .shell[data-hh-skin="lena-premium"] #hhTransitPanel
+#hhBkkGoldenPlannerV968 input:focus-visible{
+ outline:2px solid #ffdaf3!important;outline-offset:2px!important;
+}
+html:not([data-sh9-transit="on"])[data-guardian-profile="z"] body .shell[data-hh-skin="lena-premium"] #hhTransitPanel
+:is(#hhBkkWatchlistV814,#hhBkkGoldenPlannerV968) button:focus-visible{
+ outline-color:#bbebff!important;
+}
+@media(prefers-reduced-motion:reduce){
+ html:not([data-sh9-transit="on"]) body .shell[data-hh-skin="lena-premium"] #hhTransitPanel :is(.hh-bkk-watch-action-v814,.hh-planner-time-buttons-v939 button){
+  animation:none!important;transition:none!important;
+ }
+}
