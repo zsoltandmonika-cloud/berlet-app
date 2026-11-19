@@ -14,7 +14,8 @@ test('new Nutrition Golden Standard skin is the final head stylesheet after appr
  assert.equal(html.split(token).length,2,'one scoped skin loaded');
  const head=html.slice(0,html.indexOf('</head>'));
  const links=[...head.matchAll(/<link[^>]*rel="stylesheet"[^>]*>/g)].map(x=>x[0]);
- assert.ok(links.at(-1).includes(token),'v1200 should win the cascade');
+ assert.ok(links.some(x=>x.includes(token)),'v1200 baseline remains loaded');
+ assert.ok(links.at(-1).includes('hh-hydration-showcase-v1202.css'),'v1202 only upgrades the hydration card');
  assert.ok(head.indexOf('lena-premium-wave-v2.css')<head.indexOf(token));
  assert.match(html,/body data-lp-v2="on" data-lp-module="nutrition"/);
 });

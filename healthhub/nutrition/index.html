@@ -185,6 +185,7 @@ body[data-sh9-golden-three="on"] #nutritionGoldenHeroHost > #sh9LauncherProfileV
 <link rel="stylesheet" href="/berlet-app/sh9/shared/lena-premium-wave-v2.css?v=2-sleep1173">
 <link rel="stylesheet" href="./hh-nutrition-premium-dark-wave-v1200.css?v=1200-approved-waves">
 <link rel="stylesheet" href="./hh-hydration-dual-glass-v1201.css?v=1201-eight-glass-levels">
+<link rel="stylesheet" href="./hh-hydration-showcase-v1202.css?v=1202-large-jug-single-glass">
 <script defer src="/berlet-app/sh9/shared/lena-premium-wave-v2.js?v=2-owner"></script>
 </head>
 <body data-lp-v2="on" data-lp-module="nutrition">
@@ -207,6 +208,53 @@ body[data-sh9-golden-three="on"] #nutritionGoldenHeroHost > #sh9LauncherProfileV
  <div class="hh-body-goal"><span id="ringCaption">Napi cél</span><div class="hh-body-target"><div class="bar"><i id="progress"></i></div><strong id="balanceValue">—</strong></div><button type="button" class="mini" id="goalBtn">◎ Cél beállítása</button></div>
  <div class="hh-body-macros"><span>💪 Fehérje <b id="hhMacroProtein">—</b></span><span>🌾 Szénhidrát <b id="hhMacroCarbs">—</b></span><span>💧 Zsír <b id="hhMacroFat">—</b></span></div>
  <div class="hh-water glass" aria-label="Napi folyadékbevitel">
+ <div id="hhWaterShowcaseV1202" class="hh-hydration-showcase-v1202" aria-label="Folyadékbevitel: kancsó és egy pohár">
+  <header class="hh-showcase-header-v1202">
+   <span class="hh-showcase-kicker-v1202">💧 Táplálkozás · Hidratáció</span>
+   <h3>Folyadékbevitel</h3>
+   <p>Napi hidratáltságod nyomon követése</p>
+  </header>
+  <div class="hh-showcase-stage-v1202">
+   <button id="hhJugTapV1202" class="hh-jug-tap-v1202" type="button" aria-label="Kancsó kiürítése. A korábbi naplóbejegyzések megmaradnak." title="Kancsó ürítése egy érintéssel">
+    <img id="hhJugFrameV1202" class="hh-jug-image-v1202" alt="" decoding="async" width="320" height="340" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=">
+    <span class="hh-jug-caption-v1202">Koppints a kancsóra: ürítés</span>
+   </button>
+   <button id="hhGlassTapV1202" class="hh-glass-tap-v1202" type="button" aria-label="Egy pohár víz, 250 milliliter hozzáadása" title="250 ml víz naplózása">
+    <span class="hh-glass-plus-v1202" aria-hidden="true">+</span>
+    <svg class="hh-glass-art-v1202" viewBox="0 0 130 165" xmlns="http://www.w3.org/2000/svg" focusable="false" aria-hidden="true">
+     <defs>
+      <linearGradient id="hhCrystalCupV1202" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#f8e8ff" stop-opacity=".38"/><stop offset=".28" stop-color="#a5e9ff" stop-opacity=".05"/><stop offset=".78" stop-color="#69daff" stop-opacity=".14"/><stop offset="1" stop-color="#f9b4f4" stop-opacity=".36"/></linearGradient>
+      <linearGradient id="hhCupAquaV1202" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#9bfbff"/><stop offset=".4" stop-color="#10cdf7"/><stop offset="1" stop-color="#0756af"/></linearGradient>
+     </defs>
+     <ellipse cx="65" cy="155" rx="49" ry="7" fill="#1cf0ff" opacity=".36"/>
+     <path d="M24 37 Q22 31 30 31 H101 Q108 31 106 37 L96 138 Q94 148 82 148 H47 Q35 148 34 138Z" fill="url(#hhCrystalCupV1202)" stroke="#b4eeff" stroke-width="2.6" stroke-opacity=".94"/>
+     <path d="M28 80 Q65 75 102 80 L95 140 Q92 147 82 147 H47 Q38 147 36 140 Z" fill="url(#hhCupAquaV1202)" opacity=".88"/>
+     <path d="M28 80 Q65 75 102 80" stroke="#c6ffff" stroke-width="3" fill="none"/>
+     <path d="M35 41 L42 133" stroke="#fff" stroke-width="5" stroke-linecap="round" opacity=".37"/>
+     <path d="M97 40 L91 133" stroke="#7cf7ff" stroke-width="3" opacity=".53"/>
+     <ellipse cx="65" cy="33" rx="42" ry="7" fill="none" stroke="#e4f7ff" stroke-opacity=".86" stroke-width="2.4"/>
+     <path d="M45 147 Q64 153 85 147" fill="none" stroke="#a2f8ff" stroke-width="2.7"/>
+     <text x="65" y="116" text-anchor="middle" font-family="Arial,system-ui,sans-serif" font-size="19" font-weight="850" paint-order="stroke" stroke="#10518a" stroke-width="2" fill="#fff">250 ml</text>
+    </svg>
+    <span class="hh-glass-label-v1202">+ 250 ml</span>
+   </button>
+  </div>
+  <div class="hh-showcase-summary-v1202">
+   <small>Mai folyadékbevitel</small>
+   <div class="hh-showcase-totals-v1202">
+    <strong id="hhShowcaseTotalV1202" aria-live="polite">— ml</strong>
+    <span>/</span>
+    <span id="hhShowcaseTargetV1202">2 000 ml</span>
+    <strong id="hhShowcasePctV1202">—</strong>
+   </div>
+   <div class="hh-showcase-progress-v1202" aria-hidden="true"><span id="hhShowcaseBarV1202"></span></div>
+   <div class="hh-showcase-steps-v1202">
+    <span>8 vízszint · 250 ml-es lépések</span>
+    <strong id="hhShowcaseStagesV1202">0 / 8</strong>
+   </div>
+  </div>
+  <details id="hhShowcaseGoalDetailsV1202"><summary>⚙ Napi cél beállítása</summary><div id="hhShowcaseGoalEditV1202"></div></details>
+ </div>
  <div class="hh-water-copy"><strong>💧 Napi folyadék</strong><small id="hhWaterTarget">Személyes napi cél: még nincs beállítva</small><div class="hh-water-preset">
  <div class="hh-water-glasses-v1201" role="group" aria-label="Vízháztartás gyorsműveletei">
   <button type="button" class="mini primary-water" id="waterQuickAdd" aria-label="250 milliliter víz hozzáadása a naplóhoz" title="Egy pohár, 250 ml víz naplózása">
@@ -500,6 +548,7 @@ window.hhOpenBevitelEditor=function(scope){
 <script defer src="./hh-diary-scale-v1161.js?v=1162-weight-only"></script>
 <script defer src="./nutrition-preview-v592.js?v=1150-diary-favorites-mini-art&amp;hh=1154&amp;edit=1164&amp;interfood-photo=1177&amp;undo=1181"></script>
 <script defer src="./hh-hydration-dual-glass-v1201.js?v=1201-read-only-250-steps"></script>
+<script defer src="./hh-hydration-showcase-v1202.js?v=1202-tap-pour-splash"></script>
 <script defer src="./hh-interfood-diary-v1175.js?v=1184-premium-photo-repair"></script>
 <script defer src="./hh-interfood-live-v1176.js?v=1177-official-photos"></script>
 <script defer src="../central-vault/config.js?v=1179-outlook-auth"></script>

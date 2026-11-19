@@ -164,8 +164,8 @@ function resetHydrationCounter(){
 }
 function resetJar(){
  // The button intentionally empties the pitcher without deleting food/drink records.
- // Play an unobtrusive water-pour cue on the actual user click (respecting sound settings).
- tone('water');
+ // Distinct low splash on empty; the soft water pour is for adding water.
+ tone('splash');
  const date=currentDay(),raw=read(active).entries.filter(e=>!e.deleted&&e.date===date&&Number.isFinite(e.volumeMl)).reduce((sum,e)=>sum+e.volumeMl,0);
  localStorage.setItem(JAR_KEY+active+'-'+date,JSON.stringify({offset:raw,updatedAt:stamp()}));
  logJar(active,date,'Kézi Ürítés',raw);render();
@@ -280,7 +280,7 @@ function render(){
  if(waterGauge){
   const fraction=waterPct==null?0:Math.min(100,waterPct)/100;
   waterGauge.style.transform='scaleY('+fraction+')';
-  waterGauge.parentElement.setAttribute('aria-label',waterPct==null?'Kancsó vízszintje: nincs beállított cél':'Kancsó vízszintje: '+waterPct+'%, az utolsó ürítés óta '+fmt(pitcherCurrent,0)+' ml');
+  waterGauge.parentElement.setAttribute('aria-label',waterPct==null?'Kancsó vízszintje: nincs beállított cél; az utolsó ürítés óta '+fmt(pitcherCurrent,0)+' ml':'Kancsó vízszintje: '+waterPct+'%, az utolsó ürítés óta '+fmt(pitcherCurrent,0)+' ml');
  }
  $('hhWaterLevel').dataset.empty=fillHeight===0?'true':'false';
  $('hhWaterLevel').parentElement.style.setProperty('--hh-fluid-fill',fillHeight+'%');
@@ -592,6 +592,38 @@ function tone(type){
    });
    return;
   }
+  if(type==='splash'){
+   // Short water-emptying splash. No network, downloads, or audio file.
+   // Existing Nutrition sound setting controls this channel.
+   const duration=.64,frames=Math.ceil(audio.sampleRate*duration);
+   const buf=audio.createBuffer(1,frames,audio.sampleRate);
+   const samples=buf.getChannelData(0);
+   for(let i=0;i<frames;i++){
+    const t=i/audio.sampleRate,burst=Math.exp(-t*6.8);
+    samples[i]=(Math.random()*2-1)*burst;
+   }
+   const stream=audio.createBufferSource(),filter=audio.createBiquadFilter(),gain=audio.createGain();
+   stream.buffer=buf;filter.type='lowpass';
+   filter.frequency.setValueAtTime(1700,now);
+   filter.frequency.exponentialRampToValueAtTime(240,now+.58);
+   gain.gain.setValueAtTime(.0001,now);
+   gain.gain.exponentialRampToValueAtTime(.035,now+.05);
+   gain.gain.exponentialRampToValueAtTime(.021,now+.17);
+   gain.gain.exponentialRampToValueAtTime(.0001,now+.62);
+   stream.connect(filter);filter.connect(gain);gain.connect(audio.destination);
+   stream.start(now);stream.stop(now+duration);
+   [[.095,360],[.19,290],[.33,205]].forEach(([offset,hz])=>{
+    const bubble=audio.createOscillator(),level=audio.createGain(),at=now+offset;
+    bubble.type='sine';bubble.frequency.setValueAtTime(hz,at);
+    bubble.frequency.exponentialRampToValueAtTime(hz*.46,at+.13);
+    level.gain.setValueAtTime(.0001,at);
+    level.gain.exponentialRampToValueAtTime(.014,at+.016);
+    level.gain.exponentialRampToValueAtTime(.0001,at+.14);
+    bubble.connect(level);level.connect(audio.destination);
+    bubble.start(at);bubble.stop(at+.15);
+   });
+   return;
+  }
   const notes=type==='success'?[[523,.11],[659,.18],[784,.24],[1047,.29]]:[[900,.04]];
   notes.forEach(([hz,dur],i)=>{const osc=audio.createOscillator(),g=audio.createGain();osc.type='sine';osc.frequency.value=hz;
    const at=now+i*(type==='success'?.075:0);g.gain.setValueAtTime(.0001,at);
@@ -620,8 +652,8 @@ function buddySay(message,positive=false){
   toast.hidden=true;caption.textContent='NUTRI BUDDY 🐿️';
  },positive?2800:2400);
 }
-function success(){
- tone('success');
+function success(soundType){
+ tone(soundType||'success');
  buddySay('TADAAA! A naplód frissült. ☕🥗',true);
 }
 function greetBuddy(){
@@ -857,7 +889,7 @@ function logWater250(){
   foodId:'water',name:'Víz',icon:'💧',quantity:250,unit:'ml',
   quantityText:'250 ml',volumeMl:250,nutrients:calc(water.per,250),source:'estimated'};
  update(d=>d.entries.push(row));
- success();
+ success('water');
 }
 function jumpTo(id){
  const node=$(id);if(!node)return;
