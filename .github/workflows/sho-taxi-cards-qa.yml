@@ -24,6 +24,6 @@ jobs:
         with:
           node-version: '22'
       - name: Check Taxi JavaScript syntax
-        run: node --check sh9/smart-travel/taxi/taxi-route-v2.js
+        run: node --check sh9/smart-travel/taxi/taxi-route-v5-fotaxi.js
       - name: Test clickable hero cards, enlarged tariff, and standard taskbar
         run: node --test sh9/smart-travel/taxi/tests/taxi-tile-navigation-v4.test.cjs
