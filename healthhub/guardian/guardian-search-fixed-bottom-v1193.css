@@ -1,0 +1,23 @@
+/* Family Guard · screen-bottom search dock v1193 · 2026-11-19.
+ * Mobile normal-map view only. The existing input, microphone, search and
+ * suggestion list stay together just ABOVE the actual visible SHO navigation.
+ * No MapLibre, map controls, GPS or navigation behavior is changed.
+ */
+@media (max-width:600px) and (orientation:portrait){
+ html:not([data-sh9-transit="on"]) body .shell[data-hh-skin="lena-premium"]
+ .map-card[data-hh-search-fixed-v1193="on"]:not(.hh-map-full-v819):not(.hh-map-typing-v832)
+ > #guardianMapSearchV819.hh-map-search-v819{
+  position:fixed!important;
+  top:auto!important;
+  bottom:var(--hh-search-screen-bottom-v1193)!important;
+  left:var(--hh-search-screen-left-v1193)!important;
+  right:auto!important;
+  width:var(--hh-search-screen-width-v1193)!important;
+  max-width:none!important;
+  min-width:0!important;
+  margin:0!important;
+  transform:none!important;
+  z-index:75!important;
+ }
+}
+/* Fullscreen remains map-relative; typing uses v832 visualViewport positioning. */
