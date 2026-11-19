@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#100c20">
+<link rel="stylesheet" href="/berlet-app/sh9/shared/sh9-golden-bottom-nav-v924.css?v=924-unified">
 <title>SHO · Smart Taxi</title>
 <style>
 :root{color-scheme:dark;--pink:#f50685;--paper:#f8f5ff}
@@ -14,17 +15,16 @@
 .hit{position:absolute;display:block;border:0;background:transparent;border-radius:40px;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .hit:focus-visible{outline:3px solid #f5ffff;outline-offset:1px;box-shadow:0 0 0 7px #f0079677}
 .hit:active{background:#fff3}
-.hit--calc{left:5.5%;top:64.6%;width:29.9%;height:6.1%}
-.hit--info{left:89.4%;top:45.7%;width:8.2%;height:6.2%}
+/* Full approved image cards are tappable, not just their internal buttons. 
+   Percentages follow the unmodified 1193x1319 hero image. */
+.hit--calc{left:3.2%;top:47.5%;width:35.0%;height:25.8%}
+.hit--info{left:39.8%;top:47.5%;width:57.2%;height:25.8%}
 .hit--fotaxi{left:5.5%;top:86.7%;width:20.4%;height:4.9%}
 .hit--bolt{left:29.6%;top:86.7%;width:20.6%;height:4.9%}
 .hit--city{left:52.1%;top:86.7%;width:20.3%;height:4.9%}
 .hit--uber{left:75.1%;top:86.7%;width:20.1%;height:4.9%}
 .foot{position:relative;margin:-6px auto 0;padding:8px 14px 16px;text-align:center;font-size:11px;color:#c5add2;line-height:1.4;background:linear-gradient(#090715,#120e25)}
 .foot strong{color:#fff}
-.nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:min(100%,600px);display:flex;justify-content:space-around;gap:5px;padding:8px 12px calc(8px + env(safe-area-inset-bottom));border-top:1px solid #f470ba66;background:#120d22ee;backdrop-filter:blur(16px);z-index:5}
-.nav button,.nav a{font-family:inherit;font-size:12px;font-weight:700;color:#fff;background:#231b3a;border:1px solid #ef78ba55;border-radius:13px;min-width:0;min-height:40px;padding:7px 11px;cursor:pointer;text-align:center;text-decoration:none;display:grid;place-items:center}
-.nav .primary{background:linear-gradient(#ff2ba6,#a40062);border-color:#fb9acf}
 .dialog[hidden]{display:none}.dialog{position:fixed;inset:0;z-index:20;display:flex;align-items:center;justify-content:center;padding:12px;background:#05000cce;backdrop-filter:blur(9px)}
 .dialog-card{width:min(100%,490px);max-height:94dvh;overflow:auto;border:1px solid #ff69b1b3;border-radius:22px;padding:20px 18px;background:linear-gradient(155deg,#28203f,#130e25 60%,#240d2c);box-shadow:0 15px 75px #000,0 0 22px #f0057f33}
 .dialog-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}.dialog-head h2{margin:0 0 4px;font-size:23px}.sub{color:#d7bcd7;font-size:12px;margin:0 0 14px;line-height:1.45}.x{border:1px solid #ff87c488;background:#42263f;color:white;border-radius:10px;width:38px;height:38px;font-size:24px;cursor:pointer}
@@ -33,22 +33,21 @@
 .result{margin-top:15px;padding:14px;border:1px solid #ff6fbe;border-radius:17px;text-align:center;background:linear-gradient(110deg,#50142c,#32143e)}.result-label{color:#f3cfec;font-size:13px}.result-price{font-weight:850;font-size:35px;line-height:1.3;letter-spacing:-.025em}.result small{display:block;color:#e9cfe2;font-size:11px;line-height:1.5}
 .actions{display:flex;gap:8px;margin-top:13px}.actions button{flex:1;border:1px solid #ff88c3;background:linear-gradient(#ff2499,#b60068);border-radius:13px;padding:11px;color:#fff;font-weight:750;cursor:pointer}
 .info-list{font-size:15px;line-height:2;border-collapse:collapse;width:100%}.info-list td{border-bottom:1px solid #ab89a73e}.info-list td:last-child{text-align:right;font-weight:800}
-@media(max-width:360px){.nav button,.nav a{font-size:11px;padding:6px}.dialog-card{padding:15px 12px}.fields{gap:7px}}
+@media(max-width:360px){.dialog-card{padding:15px 12px}.fields{gap:7px}}
 </style>
 </head>
 <body>
 <main class="wrap">
 <div class="reference" aria-label="SHO Smart Taxi hivatalos indulóoldal">
 <img src="./assets/SHO_Smart_Taxi_approved.png" width="1193" height="1319" alt="SHO Smart Taxi. Négy budapesti taxi: Főtaxi, Bolt, City Taxi és Uber. Viteldíj-kalkulátor, hivatalos tarifa és rendelési gombok.">
-<button class="hit hit--calc" type="button" aria-label="Útvonal-kalkulátor megnyitása" data-action="calc" title="Viteldíj-kalkulátor"></button>
-<button class="hit hit--info" type="button" aria-label="Hivatalos taxi tarifa részletei" data-action="tariff" title="Tarifainformáció"></button>
+<button class="hit hit--calc" type="button" aria-label="Viteldíj-kalkulátor csempe megnyitása" data-action="calc" title="Viteldíj-kalkulátor"></button>
+<button class="hit hit--info" type="button" aria-label="Hivatalos taxitarifa csempe nagyítása" data-action="tariff" title="Hivatalos tarifatáblázat nagyítása"></button>
 <button class="hit hit--fotaxi" type="button" aria-label="Főtaxi rendelés" data-action="fotaxi" title="Főtaxi taxirendelés"></button>
 <button class="hit hit--bolt" type="button" aria-label="Bolt Taxi rendelés" data-action="bolt" title="Bolt taxi rendelés"></button>
 <button class="hit hit--city" type="button" aria-label="City Taxi rendelés" data-action="city" title="City Taxi rendelés"></button>
 <button class="hit hit--uber" type="button" aria-label="Uber Taxi rendelés" data-action="uber" title="Uber Taxi webes rendelés"></button>
 </div>
 <div class="foot"><strong>SHO Smart Taxi</strong> · Budapesti hatósági tarifa, 2026. augusztus 1-től · A képen szereplő díjtáblázat a rendelet alapján jelenik meg. A végleges összeget a taxaméter adja.</div>
-<nav class="nav" aria-label="Smart Taxi gyorsműveletek"><a href="../" aria-label="SHO Utazás kezdőlap">⌂ Utazás</a><button type="button" data-action="tariff">📋 Tarifa</button><button type="button" class="primary" data-action="calc">🧮 Kalkulátor</button></nav>
 </main>
 <div class="dialog" id="calcDialog" role="dialog" aria-modal="true" aria-labelledby="calcTitle" hidden>
 <div class="dialog-card">
@@ -91,6 +90,8 @@ document.querySelectorAll('[data-action]').forEach(el=>el.addEventListener('clic
 D.forEach(el=>el.addEventListener('click',ev=>{if(ev.target===el)close()}));document.addEventListener('keydown',ev=>{if(ev.key==='Escape')close()});recalc();
 })();
 </script>
+<script defer src="/berlet-app/healthhub/chatgpt-project-shortcut-v712.js?v=756-central-open"></script>
+<script defer src="/berlet-app/sh9/shared/sh9-golden-bottom-nav-v924.js?v=929-sport-schedule"></script>
 <script src="../../../healthhub/central-vault/config.js?v=972-family-publishable"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.2/dist/umd/supabase.min.js"></script>
 <script defer src="./taxi-route-v2.js?v=2-cimalapu-gps"></script>
