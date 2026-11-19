@@ -41,7 +41,7 @@ body[data-lp-v2="on"][data-lp-module="nutrition"] > main.shell{
   radial-gradient(ellipse at 93% 46%,rgba(87,160,248,.13),transparent 58%),
   linear-gradient(180deg,#192449 0%,#101d3d 42%,#09172f 100%)!important;
  background-size:100% 76px,100% 76px,100% 76px,auto,auto,auto!important;
- background-position:center 310px,center 1160px,center 2290px,center top,center center,center top!important;
+ background-position:center 360px,center 1210px,center 2340px,center top,center center,center top!important;
  background-repeat:no-repeat,no-repeat,no-repeat,no-repeat,no-repeat,no-repeat!important;
 }
 /* One wave also glows gently INSIDE the daily summary, behind real data. */
@@ -174,4 +174,15 @@ body[data-lp-v2="on"][data-lp-module="nutrition"] :is(button,a,input,select,summ
  body[data-lp-v2="on"][data-lp-module="nutrition"] > main.shell{
   background:#101d3d!important;
  }
+}
+
+/* Fine tuning: shift only the three original shell waves down another 50px.
+   The SIX main macro cards get a 20-percentage-point increase in glass transparency.
+   Labels, numbers, all other tiles and the quick-entry wave are untouched. */
+body[data-lp-v2="on"][data-lp-module="nutrition"] .row + .grid:has(#protein) > .glass.kpi {
+ background:linear-gradient(145deg,rgba(43,40,91,.78),rgba(18,42,89,.785) 69%,rgba(13,34,75,.79))!important;
+}
+:root[data-profile="monika"] body[data-lp-v2="on"][data-lp-module="nutrition"] .row + .grid:has(#protein) > .glass.kpi,
+:root[data-lpv-owner="m"] body[data-lp-v2="on"][data-lp-module="nutrition"] .row + .grid:has(#protein) > .glass.kpi {
+ background:linear-gradient(145deg,rgba(67,37,91,.78),rgba(25,40,89,.785) 69%,rgba(14,34,75,.79))!important;
 }
