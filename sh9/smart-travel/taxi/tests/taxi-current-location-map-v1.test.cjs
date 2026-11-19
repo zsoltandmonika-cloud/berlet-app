@@ -61,7 +61,7 @@ test('Only the unused space below the approved Taxi hero contains the map; Golde
  assert.match(index,/id="taxiCurrentMapRefresh"/);
  assert.match(index,/id="taxiCurrentMapCenter"/);
  assert.match(index,/taxi-current-location-map-v1\.js\?v=20261119-dark-road-legibility-v1/);
- assert.match(index,/taxi-route-v8-fare-map\.js\?v=20261119-taxi-shared-predictive-v1/);
+ assert.match(index,/taxi-route-v8-fare-map\.js\?v=20261119-pink-favorites-v1/);
  assert.match(index,/sh9-golden-bottom-nav-v924\.js/);
  assert.match(index,/src="\.\/assets\/SHO_Smart_Taxi_approved\.png" width="1193" height="1319"/);
  assert.doesNotMatch(index,/class="foot"/);
