@@ -86,6 +86,24 @@ function app(pkg){const store=`https://play.google.com/store/apps/details?id=${e
   if(/Android/i.test(navigator.userAgent)){location.href=`intent://#Intent;action=android.intent.action.MAIN;category=android.intent.category.LAUNCHER;package=${pkg};S.browser_fallback_url=${encodeURIComponent(store)};end`;}
   else location.href=store;
 }
+/* Uber's documented setPickup deep-link can accept pickup/dropoff address labels.
+   Read-only enhancement: no changes to Smart Taxi calculation or its saved data.
+   Incomplete/empty SHO addresses preserve the existing direct Uber home URL. */
+function uberLink(){
+ const from=($('txFrom')?.value||'').trim();
+ const to=($('txTo')?.value||'').trim();
+ const u=new URL('https://m.uber.com/');
+ if(from.length<3||to.length<3)return u.href;
+ u.searchParams.set('action','setPickup');
+ if(/^📍\s*Jelenlegi helyem$/i.test(from))u.searchParams.set('pickup','my_location');
+ else{
+  u.searchParams.set('pickup[formatted_address]',from);
+  u.searchParams.set('pickup[nickname]',from);
+ }
+ u.searchParams.set('dropoff[formatted_address]',to);
+ u.searchParams.set('dropoff[nickname]',to);
+ return u.href;
+}
 function act(action){switch(action){
 case 'calc':recalc();show('calcDialog');break;
 case 'tariff':show('tariffDialog');break;
@@ -93,7 +111,7 @@ case 'close':close();break;
 case 'fotaxi':app('com.nerddevelopments.taxidriver.orderapp');break;
 case 'bolt':app('ee.mtakso.client');break;
 case 'city':app('com.qualysoft.cityTaxi');break;
-case 'uber':location.href='https://m.uber.com/';break;
+case 'uber':location.href=uberLink();break;
 }}
 document.querySelectorAll('[data-action]').forEach(el=>el.addEventListener('click',()=>act(el.dataset.action)));
 D.forEach(el=>el.addEventListener('click',ev=>{if(ev.target===el)close()}));document.addEventListener('keydown',ev=>{if(ev.key==='Escape')close()});recalc();
