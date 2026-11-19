@@ -5,7 +5,7 @@ if(!dialog||document.getElementById('taxiRouteV2'))return;
 const css=`
 #calcDialog .fields,#calcDialog .option,#calcDialog .result,#calcDialog>.sub{display:none!important}
 #calcDialog .dialog-card>.sub{display:none!important}
-#taxiRouteV2{margin:8px 0 5px;color:#f8f2ff}
+#taxiRouteV2{margin:8px 0 5px;color:#f8f2ff;display:flex;flex-direction:column;flex:1;min-height:0}
 #taxiRouteV2 .tx-field{display:block;margin:12px 0 4px;font-weight:800;font-size:12px;color:#f4c9e6}
 #taxiRouteV2 .tx-entry{display:flex;gap:6px;position:relative}
 #taxiRouteV2 .tx-entry input{min-width:0;width:100%;height:46px;border-radius:11px;border:1px solid #bd75a7;background:#0c0e22;color:#fff;font:600 14px Inter,system-ui,sans-serif;padding:9px 11px;outline:0}
@@ -33,7 +33,25 @@ const css=`
 #taxiRouteV2 .tx-meta{font-size:13px;color:#f5d4e9;line-height:1.6}
 #taxiRouteV2 .tx-note{font-size:11px;color:#e5c9db;margin-top:7px;line-height:1.4}
 #taxiRouteV2 .tx-map{display:inline-block;margin-top:9px;font-size:12px;color:#ffd1ed}
-#taxiRouteV2 .tx-external{display:block;margin:12px 2px 1px;text-align:center;font-size:12px;color:#ffc2e8}
+/* Főtaxi official calculator: yellow Budapest taxi-button with real checker stripe. */
+#taxiRouteV2 .tx-fotaxi{margin-top:auto;padding-top:12px;text-align:center}
+#taxiRouteV2 .tx-fotaxi-link{position:relative;display:flex;align-items:center;justify-content:center;
+ width:100%;min-height:58px;padding:14px 12px;border-radius:13px;border:1px solid #fff3a0;
+ background:linear-gradient(145deg,#ffe875 0%,#ffd334 52%,#ffb51c 100%);
+ box-shadow:inset 0 1px rgba(255,255,255,.8),0 4px 14px #09020888;
+ color:#231700;text-decoration:none;text-align:center;font-size:14px;line-height:1.25;font-weight:900;
+ text-shadow:0 1px rgba(255,255,255,.35);touch-action:manipulation}
+#taxiRouteV2 .tx-fotaxi-link::before,#taxiRouteV2 .tx-fotaxi-link::after{
+ content:'';position:absolute;left:10px;right:10px;height:7px;
+ background:repeating-conic-gradient(#141414 0% 25%,#fff 0% 50%) 0 0/14px 14px;
+ border-radius:2px;pointer-events:none}
+#taxiRouteV2 .tx-fotaxi-link::before{top:0}
+#taxiRouteV2 .tx-fotaxi-link::after{bottom:0}
+#taxiRouteV2 .tx-fotaxi-link:focus-visible{outline:3px solid #fff;outline-offset:3px}
+#taxiRouteV2 .tx-fotaxi-link:active{filter:brightness(1.07)}
+#taxiRouteV2 .tx-fotaxi-logo{display:block;width:123px;max-width:44%;height:auto;margin:9px auto 0;
+ border-radius:6px;object-fit:contain}
+@media(max-width:360px){#taxiRouteV2 .tx-fotaxi-link{font-size:13px}}
 `;
 const style=document.createElement('style');style.textContent=css;document.head.appendChild(style);
 const panel=document.createElement('section');panel.id='taxiRouteV2';
@@ -45,7 +63,10 @@ panel.innerHTML=`
 <button class="tx-go" type="button" id="txEstimate">🚕 Várható viteldíj kiszámítása</button>
 <p class="tx-status" id="txStatus" role="status" aria-live="polite">Írj be legalább 3 karaktert, vagy mondd be a címet a mikrofonba.</p>
 <div class="tx-cost" id="txCost" hidden><div class="tx-meta">Várható viteldíj</div><div class="tx-big" id="txAmount"></div><div class="tx-meta" id="txMeta"></div><div class="tx-note">Tájékoztató becslés, a végleges összeget a taxaméter mutatja.</div><a class="tx-map" id="txMap" target="_blank" rel="noopener noreferrer">🗺️ Útvonal megnyitása a térképen ↗</a></div>
-<a class="tx-external" href="https://fotaxi.hu/utasoknak/viteldij-kalkulator/" target="_blank" rel="noopener noreferrer">Főtaxi hivatalos címalapú kalkulátor ↗</a>
+<div class="tx-fotaxi">
+<a class="tx-fotaxi-link" id="txFotaxiOfficial" href="https://fotaxi.hu/utasoknak/viteldij-kalkulator/" target="_blank" rel="noopener noreferrer" aria-label="Főtaxi hivatalos címalapú viteldíj-kalkulátor megnyitása új lapon">🚕 Főtaxi viteldíj-kalkulátor ↗</a>
+<img class="tx-fotaxi-logo" src="./assets/fotaxi-official-mark-v1.webp" width="123" height="63" alt="Főtaxi hivatalos logó" loading="eager" decoding="async">
+</div>
 `;
 dialog.querySelector('.dialog-card>.fields')?.before(panel);
 const el=id=>document.getElementById(id), status=s=>{el('txStatus').textContent=s};
