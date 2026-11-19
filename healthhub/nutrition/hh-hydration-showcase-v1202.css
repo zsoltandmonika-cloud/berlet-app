@@ -1,0 +1,192 @@
+/* HH Nutrition v1202 · approved glass pitcher + one 250 ml water glass.
+ * ONE visual jug, ONE water glass, NO extra add/reset buttons.
+ * Existing hydration math, original journal inputs and live gauge stay mounted,
+ * hidden only as a legacy data source. Goal editing remains in details.
+ */
+body[data-lp-v2="on"][data-lp-module="nutrition"] #balanceCard .hh-water.glass{
+ position:relative!important;isolation:isolate;
+ display:block!important;overflow:visible!important;
+ padding:0!important;
+ background:
+  var(--lpv-wave) center 144px / 100% 84px no-repeat,
+  radial-gradient(ellipse at 85% 24%,rgba(76,181,251,.16),transparent 55%),
+  radial-gradient(ellipse at 14% 76%,rgba(243,119,217,.12),transparent 58%),
+  linear-gradient(143deg,rgba(65,36,95,.99),rgba(20,41,89,.99) 59%,rgba(11,32,72,.99))!important;
+ border:1.5px solid var(--nutri3-accent-border,rgba(180,187,248,.72))!important;
+ border-radius:23px!important;
+ box-shadow:0 11px 27px rgba(1,7,29,.38),inset 0 1px rgba(255,249,255,.22)!important;
+}
+:root[data-profile="monika"] body[data-lp-v2="on"][data-lp-module="nutrition"] #balanceCard .hh-water.glass{
+ background:
+  var(--lpv-wave) center 144px / 100% 84px no-repeat,
+  radial-gradient(ellipse at 87% 23%,rgba(85,181,251,.20),transparent 54%),
+  radial-gradient(ellipse at 15% 76%,rgba(253,109,218,.15),transparent 55%),
+  linear-gradient(143deg,rgba(70,37,97,.99),rgba(23,39,91,.99) 59%,rgba(12,32,74,.99))!important;
+}
+body[data-lp-v2="on"][data-lp-module="nutrition"] #balanceCard .hh-water > :is(.hh-water-copy,.hh-hydration-side){
+ display:none!important;
+}
+/* Screen-reader and older JS still find original #hhWaterLevel and gauge. */
+body[data-lp-v2="on"][data-lp-module="nutrition"] #balanceCard .hh-hydration-showcase-v1202{
+ display:flex;flex-direction:column;min-width:0;gap:0;padding:16px 13px 13px;
+ color:#f9faff;
+}
+body[data-lp-v2="on"][data-lp-module="nutrition"] #balanceCard .hh-showcase-header-v1202{
+ position:relative;z-index:1;padding:0 3px 3px;
+}
+body[data-lp-v2="on"][data-lp-module="nutrition"] #balanceCard .hh-showcase-kicker-v1202{
+ display:block;color:#f8a7db;font:900 9.5px/1.3 system-ui,sans-serif;
+ letter-spacing:.09em;text-transform:uppercase;
+}
+body[data-lp-v2="on"][data-lp-module="nutrition"] #balanceCard .hh-showcase-header-v1202 h3{
+ margin:6px 0 0;font:900 clamp(24px,6vw,33px)/1.08 system-ui,sans-serif;
+ color:#fff;letter-spacing:-.045em;text-shadow:0 1px 8px rgba(3,6,27,.34);
+}
+body[data-lp-v2="on"][data-lp-module="nutrition"] #balanceCard .hh-showcase-header-v1202 p{
+ margin:6px 0 0;color:#dfe7f9;font:550 11px/1.36 system-ui,sans-serif;
+}
+body[data-lp-v2="on"][data-lp-module="nutrition"] #balanceCard .hh-showcase-stage-v1202{
+ display:grid;grid-template-columns:minmax(0,1.46fr) minmax(100px,.86fr);
+ align-items:end;gap:5px;min-width:0;
+ padding:8px 0 12px;
+}
+body[data-lp-v2="on"][data-lp-module="nutrition"] #balanceCard .hh-showcase-stage-v1202 button{
+ -webkit-appearance:none;appearance:none;cursor:pointer;-webkit-tap-highlight-color:transparent;
+ color:#fff;min-width:0;border:0;touch-action:manipulation;
+}
+body[data-lp-v2="on"][data-lp-module="nutrition"] #balanceCard .hh-jug-tap-v1202{
+ position:relative;isolation:isolate;display:flex;flex-direction:column;
+ align-items:center;justify-content:flex-end;gap:0;
+ width:100%;min-height:178px;margin:0;padding:0 0 1px;
+ border-radius:17px;background:transparent;
+}
+body[data-lp-v2="on"][data-lp-module="nutrition"] #balanceCard .hh-jug-tap-v1202::before{
+ content:"";pointer-events:none;position:absolute;bottom:20px;left:9%;width:85%;height:20px;
+ border-radius:50%;background:#09c8f599;filter:blur(14px);opacity:.54;
+}
+body[data-lp-v2="on"][data-lp-module="nutrition"] #balanceCard .hh-jug-image-v1202{
+ position:relative;z-index:1;display:block;max-width:100%;
+ width:min(100%,245px);aspect-ratio:320 / 340;object-fit:contain;
+ filter:drop-shadow(0 7px 12px rgba(0,3,25,.31)) drop-shadow(0 0 5px rgba(96,202,255,.20));
+}
+body[data-lp-v2="on"][data-lp-module="nutrition"] #balanceCard .hh-jug-tap-v1202 .hh-jug-caption-v1202{
+ position:relative;z-index:2;margin-top:-1px;
+ font:750 10px/1.2 system-ui,sans-serif;color:#d8e8fb;
+ text-shadow:0 1px 5px rgba(1,8,30,.8);
+}
+body[data-lp-v2="on"][data-lp-module="nutrition"] #balanceCard .hh-glass-tap-v1202{
+ display:flex;flex-direction:column;align-items:center;justify-content:flex-end;
+ gap:1px;width:100%;min-height:165px;
+ padding:0 1px 18px;margin:0;border-radius:18px;
+ background:transparent;
+}
+body[data-lp-v2="on"][data-lp-module="nutrition"] #balanceCard .hh-glass-plus-v1202{
+ display:grid;place-items:center;
+ width:32px;height:32px;border-radius:50%;
+ font:750 29px/1 system-ui,sans-serif;
+ background:rgba(18,63,111,.47);border:2px solid rgba(105,232,251,.88);
+ box-shadow:0 0 14px rgba(33,228,249,.33),inset 0 1px rgba(248,255,255,.3);
+ color:#a4fbff;
+}
+body[data-lp-v2="on"][data-lp-module="nutrition"] #balanceCard .hh-glass-art-v1202{
+ display:block;width:min(100%,111px);height:auto;
+ filter:drop-shadow(0 6px 10px #001332aa) drop-shadow(0 0 5px rgba(41,208,240,.29));
+}
+body[data-lp-v2="on"][data-lp-module="nutrition"] #balanceCard .hh-glass-label-v1202{
+ margin-top:-13px;position:relative;z-index:2;
+ font:900 14px/1.1 system-ui,sans-serif;color:#fff;
+ text-shadow:0 1px 5px #092754,0 0 6px #0cfbff6b;
+}
+body[data-lp-v2="on"][data-lp-module="nutrition"] #balanceCard .hh-showcase-stage-v1202 button:active{
+ transform:scale(.97);filter:brightness(1.13);
+}
+body[data-lp-v2="on"][data-lp-module="nutrition"] #balanceCard .hh-showcase-stage-v1202 button:focus-visible{
+ outline:2px solid #ccfaff!important;outline-offset:2px!important;
+}
+body[data-lp-v2="on"][data-lp-module="nutrition"] #balanceCard .hh-jug-tap-v1202.hh-jug-pulse-v1202 .hh-jug-image-v1202{
+ animation:hhJugRiseV1202 .36s ease-out both;
+}
+@keyframes hhJugRiseV1202{
+ 0%{transform:translateY(3px);filter:brightness(1.25) drop-shadow(0 0 9px #16dbffad)}
+ 100%{transform:translateY(0);filter:brightness(1)}
+}
+body[data-lp-v2="on"][data-lp-module="nutrition"] #balanceCard .hh-showcase-summary-v1202{
+ position:relative;z-index:2;padding:13px 13px 12px;
+ border:1px solid rgba(232,168,242,.64);border-radius:18px;
+ background:linear-gradient(136deg,rgba(59,41,97,.96),rgba(23,47,94,.97));
+ box-shadow:inset 0 1px rgba(255,253,255,.19),0 7px 15px rgba(2,10,29,.24);
+}
+body[data-lp-v2="on"][data-lp-module="nutrition"] #balanceCard .hh-showcase-summary-v1202 > small{
+ color:#f1e7ff;font-size:11px;font-weight:800;
+}
+body[data-lp-v2="on"][data-lp-module="nutrition"] #balanceCard .hh-showcase-totals-v1202{
+ display:flex;align-items:baseline;gap:4px;min-width:0;margin:7px 0;
+ font-variant-numeric:tabular-nums;flex-wrap:wrap;
+}
+body[data-lp-v2="on"][data-lp-module="nutrition"] #balanceCard #hhShowcaseTotalV1202{
+ color:#fff;font:900 clamp(19px,5.1vw,28px)/1.07 system-ui,sans-serif;
+ letter-spacing:-.04em;
+}
+body[data-lp-v2="on"][data-lp-module="nutrition"] #balanceCard #hhShowcaseTargetV1202{
+ color:#dce8ff;font:750 clamp(12px,3vw,16px)/1.15 system-ui,sans-serif;
+}
+body[data-lp-v2="on"][data-lp-module="nutrition"] #balanceCard #hhShowcasePctV1202{
+ margin-left:auto;color:#76edff;font:900 20px/1.1 system-ui,sans-serif;
+}
+body[data-lp-v2="on"][data-lp-module="nutrition"] #balanceCard .hh-showcase-progress-v1202{
+ display:block;height:11px;width:100%;border-radius:99px;overflow:hidden;
+ background:#121e48;border:1px solid rgba(158,188,243,.54);
+ box-shadow:inset 0 2px 6px rgba(0,4,22,.6);
+}
+body[data-lp-v2="on"][data-lp-module="nutrition"] #balanceCard #hhShowcaseBarV1202{
+ display:block;width:0;height:100%;border-radius:99px;
+ background:linear-gradient(90deg,#0adff7,#78ffff 88%);
+ box-shadow:0 0 8px rgba(65,241,255,.53);
+ transition:width .38s ease;
+}
+body[data-lp-v2="on"][data-lp-module="nutrition"] #balanceCard .hh-showcase-steps-v1202{
+ display:flex;align-items:center;justify-content:space-between;
+ gap:6px;margin-top:7px;color:#b9d2ee;font:650 10px/1.2 system-ui,sans-serif;
+}
+body[data-lp-v2="on"][data-lp-module="nutrition"] #balanceCard #hhShowcaseStagesV1202{
+ color:#c5fcff;font:850 11px/1 system-ui,sans-serif;
+}
+body[data-lp-v2="on"][data-lp-module="nutrition"] #balanceCard #hhShowcaseGoalDetailsV1202{
+ margin:11px 1px 0;padding:0 12px;border:1px solid rgba(168,185,235,.43);
+ border-radius:13px;background:rgba(29,41,88,.7);
+}
+body[data-lp-v2="on"][data-lp-module="nutrition"] #balanceCard #hhShowcaseGoalDetailsV1202 > summary{
+ color:#e9e5f9;cursor:pointer;padding:11px 0;font-size:11px;font-weight:800;
+}
+body[data-lp-v2="on"][data-lp-module="nutrition"] #balanceCard #hhShowcaseGoalEditV1202{
+ display:grid;gap:8px;padding:0 0 12px;color:#dbeafd;font-size:11px;
+}
+body[data-lp-v2="on"][data-lp-module="nutrition"] #balanceCard #hhShowcaseGoalEditV1202 .hh-water-goal-edit{
+ display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;
+ gap:7px!important;align-items:stretch!important;width:100%!important;
+}
+body[data-lp-v2="on"][data-lp-module="nutrition"] #balanceCard #hhShowcaseGoalEditV1202 :is(#hhWaterGoal,#hhWaterSave){
+ min-height:43px!important;border-radius:12px!important;
+ color:#f9faff!important;
+ border:1px solid rgba(169,205,244,.65)!important;
+ background:#273967!important;
+}
+body[data-lp-v2="on"][data-lp-module="nutrition"] #balanceCard #hhShowcaseGoalEditV1202 #hhWaterGoal{
+ width:100%!important;min-width:0!important;padding:8px!important;font-size:15px!important;
+}
+body[data-lp-v2="on"][data-lp-module="nutrition"] #balanceCard #hhShowcaseGoalEditV1202 #hhWaterSave{
+ padding:8px 14px!important;font-size:12px!important;
+}
+@media(max-width:365px){
+ body[data-lp-v2="on"][data-lp-module="nutrition"] #balanceCard .hh-hydration-showcase-v1202{padding:12px 10px 11px}
+ body[data-lp-v2="on"][data-lp-module="nutrition"] #balanceCard .hh-showcase-stage-v1202{
+  grid-template-columns:minmax(0,1.48fr) minmax(86px,.82fr);gap:0
+ }
+ body[data-lp-v2="on"][data-lp-module="nutrition"] #balanceCard .hh-jug-image-v1202{width:min(100%,223px)}
+ body[data-lp-v2="on"][data-lp-module="nutrition"] #balanceCard .hh-glass-art-v1202{width:min(100%,96px)}
+ body[data-lp-v2="on"][data-lp-module="nutrition"] #balanceCard .hh-showcase-summary-v1202{padding:10px}
+}
+@media(prefers-reduced-motion:reduce){
+ body[data-lp-v2="on"][data-lp-module="nutrition"] #balanceCard .hh-jug-tap-v1202.hh-jug-pulse-v1202 .hh-jug-image-v1202{animation:none}
+ body[data-lp-v2="on"][data-lp-module="nutrition"] #balanceCard #hhShowcaseBarV1202{transition:none}
+}
