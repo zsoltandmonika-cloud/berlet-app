@@ -100,7 +100,7 @@ async function request(body){
  const r=await fetch(endpoint,{method:'POST',headers:{
  'Content-Type':'application/json','Authorization':'Bearer '+session.session.access_token,
  'apikey':window.HH_CENTRAL_VAULT.publishableKey},
- body:JSON.stringify(body),signal:AbortSignal.timeout(14000)});
+ body:JSON.stringify(body),signal:AbortSignal.timeout(body.action==='estimate'?30000:16000)});
  const out=await r.json().catch(()=>({}));
  if(!r.ok){
   if(r.status===401||r.status===403)throw Error('A bejelentkezés lejárt, lépj be a Family Guardba.');
