@@ -64,12 +64,12 @@ body[data-lp-v2="on"][data-lp-module="nutrition"] #balanceCard .hh-jug-tap-v1202
  content:"";pointer-events:none;position:absolute;bottom:20px;left:9%;width:85%;height:20px;
  border-radius:50%;background:#09c8f599;filter:blur(14px);opacity:.54;
 }
-/* v1203: Optical baseline alignment with the neighboring 250 ml glass.
+/* v1203/v1205: Optical baseline alignment with the neighboring 250 ml glass.
  * Shift only the rendered pitcher art downward inside its unchanged tap area.
  * The label, grid geometry, card height, water animation and click wiring stay put.
  * This uses top (not transform), so the existing brief fill pulse still works. */
 body[data-lp-v2="on"][data-lp-module="nutrition"] #balanceCard .hh-jug-image-v1202{
- position:relative;top:clamp(49px,17vw,70px);z-index:1;display:block;max-width:100%;
+ position:relative;top:calc(clamp(49px,17vw,70px) + 5px);z-index:1;display:block;max-width:100%;
  width:min(100%,245px);aspect-ratio:320 / 340;object-fit:contain;
  filter:drop-shadow(0 7px 12px rgba(0,3,25,.31)) drop-shadow(0 0 5px rgba(96,202,255,.20));
 }
@@ -113,6 +113,17 @@ body[data-lp-v2="on"][data-lp-module="nutrition"] #balanceCard .hh-jug-tap-v1202
 @keyframes hhJugRiseV1202{
  0%{transform:translateY(3px);filter:brightness(1.25) drop-shadow(0 0 9px #16dbffad)}
  100%{transform:translateY(0);filter:brightness(1)}
+}
+/* v1205: The rendered water height animates between 250ml levels in JS.
+ * Rim glow highlights that change without shifting the image baseline. */
+body[data-lp-v2="on"][data-lp-module="nutrition"] #balanceCard
+ .hh-jug-tap-v1202.hh-jug-water-motion-v1205::before{
+ animation:hhJugWaterGlowV1205 .7s ease-out;
+}
+@keyframes hhJugWaterGlowV1205{
+ 0%{opacity:.48;filter:blur(14px)}
+ 40%{opacity:.86;filter:blur(9px)}
+ 100%{opacity:.54;filter:blur(14px)}
 }
 body[data-lp-v2="on"][data-lp-module="nutrition"] #balanceCard .hh-showcase-summary-v1202{
  position:relative;z-index:2;padding:13px 13px 12px;
@@ -187,12 +198,15 @@ body[data-lp-v2="on"][data-lp-module="nutrition"] #balanceCard #hhShowcaseGoalEd
   grid-template-columns:minmax(0,1.48fr) minmax(86px,.82fr);gap:0
  }
  body[data-lp-v2="on"][data-lp-module="nutrition"] #balanceCard .hh-jug-image-v1202{
-  width:min(100%,223px);top:clamp(45px,15vw,59px)
+  width:min(100%,223px);top:calc(clamp(45px,15vw,59px) + 5px)
  }
  body[data-lp-v2="on"][data-lp-module="nutrition"] #balanceCard .hh-glass-art-v1202{width:min(100%,96px)}
  body[data-lp-v2="on"][data-lp-module="nutrition"] #balanceCard .hh-showcase-summary-v1202{padding:10px}
 }
 @media(prefers-reduced-motion:reduce){
+ body[data-lp-v2="on"][data-lp-module="nutrition"] #balanceCard
+  .hh-jug-tap-v1202.hh-jug-water-motion-v1205::before{animation:none!important}
+
  body[data-lp-v2="on"][data-lp-module="nutrition"] #balanceCard .hh-jug-tap-v1202.hh-jug-pulse-v1202 .hh-jug-image-v1202{animation:none}
  body[data-lp-v2="on"][data-lp-module="nutrition"] #balanceCard #hhShowcaseBarV1202{transition:none}
 }
