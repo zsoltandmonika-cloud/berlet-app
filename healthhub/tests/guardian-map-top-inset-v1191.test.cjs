@@ -27,7 +27,7 @@ test('Left fullscreen visible glass is 36px high, top and bottom line up with Fo
  assert.match(sat,/#guardian3D\.map-3d\{top:41px!important\}/);
  assert.match(sat,/#guardianSatelliteV1033\.map-satellite\{top:79px!important/);
  assert.match(sat,/right:4px!important/);
- assert.match(mapSize,/#guardianMapSizeToggleV864\.hh-map-size-toggle-v864\{top:17px!important\}/);
+ assert.match(sat,/#guardianMapSizeToggleV864\.hh-map-size-toggle-v864\{top:17px!important\}/,'satellite skin owns the former 17px override');
  assert.match(css,/#guardianMapSizeToggleV864\.hh-map-size-toggle-v864\{\s*top:3px!important;\s*left:4px!important;/);
  const patch=css.slice(css.indexOf('/* V1192 · equal VISIBLE height'));
  assert.ok(patch.length>100,'V1192 actually loaded');
