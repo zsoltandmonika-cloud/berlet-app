@@ -17,7 +17,7 @@ const valid=(lat:number,lng:number)=>Number.isFinite(lat)&&Number.isFinite(lng)&
 const bounded=(s:unknown,n:number)=>typeof s==="string"&&s.trim().length>=3&&s.length<=n;
 async function authorize(req:Request){
  const auth=req.headers.get("authorization")||"";
- if(!/^Bearer [A-Za-z0-9._~+\\/=\\-]{20,8000}$/.test(auth))return false;
+ if(!auth.startsWith("Bearer ")||auth.length<27||auth.length>8007)return false;
  if(!env("SUPABASE_URL")||!env("SUPABASE_ANON_KEY"))return false;
  const client=createClient(env("SUPABASE_URL"),env("SUPABASE_ANON_KEY"),{
   global:{headers:{Authorization:auth}},
