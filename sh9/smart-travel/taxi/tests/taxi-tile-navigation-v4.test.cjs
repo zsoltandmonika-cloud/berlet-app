@@ -6,7 +6,7 @@ const path=require('node:path');
 const vm=require('node:vm');
 const base=path.resolve(__dirname,'..');
 const index=fs.readFileSync(path.join(base,'index.html'),'utf8');
-const client=fs.readFileSync(path.join(base,'taxi-route-v2.js'),'utf8');
+const client=fs.readFileSync(path.join(base,'taxi-route-v5-fotaxi.js'),'utf8');
 const nav=fs.readFileSync(path.resolve(base,'../../shared/sh9-golden-bottom-nav-v924.js'),'utf8');
 const css=fs.readFileSync(path.resolve(base,'../../shared/sh9-golden-bottom-nav-v924.css'),'utf8');
 function box(kind){
@@ -48,7 +48,7 @@ test('Obsolete three-button Taxi navigation is gone; approved five-button SHO ta
 });
 test('Calculator, tariff dialogs and predictive/voice scripts still parse',()=>{
  assert.match(index,/id="calcDialog"/);
- assert.match(index,/taxi-route-v2\.js/);
+ assert.match(index,/taxi-route-v5-fotaxi\.js/);
  assert.match(client,/const SpeechRecognitionAPI=window\.SpeechRecognition\|\|window\.webkitSpeechRecognition/);
  assert.match(client,/const addressCache=new Map\(\)/);
  assert.match(client,/hh-sho-taxi-routes-v1/);
