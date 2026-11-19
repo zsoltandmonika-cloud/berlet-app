@@ -24,6 +24,7 @@ const css=`
 #taxiRouteV2 .tx-sugs{margin:3px 0 0;padding:0;list-style:none;background:#17152b;border-radius:11px;overflow:hidden;box-shadow:0 10px 20px #0009}
 #taxiRouteV2 .tx-sugs:empty{display:none}
 #taxiRouteV2 .tx-sugs button{display:block;width:100%;padding:11px 10px;text-align:left;border:0;border-bottom:1px solid #996b9755;background:#241b37;color:white;font-size:12px;line-height:1.35;cursor:pointer}
+#taxiRouteV2 .tx-sugs .tx-credit{padding:7px 11px 8px;text-align:right;font-size:11px;color:#e2bedc;list-style:none;background:#17152b}
 #taxiRouteV2 .tx-go{width:100%;min-height:49px;margin:15px 0 8px;border-radius:12px;border:1px solid #ffb2d7;background:linear-gradient(120deg,#ff339f,#b10069);font-size:15px;font-weight:850;color:white;cursor:pointer}
 #taxiRouteV2 .tx-go:disabled{opacity:.65;cursor:wait}
 #taxiRouteV2 .tx-status{min-height:15px;margin:4px 0 10px;font-size:12px;line-height:1.45;color:#f4c9e6}
@@ -150,6 +151,7 @@ for(const name of ['from','to']){
    b.addEventListener('mousedown',e=>e.preventDefault());
    b.addEventListener('click',()=>choose(s));li.appendChild(b);list.appendChild(li);
   });
+  if(results.length){const credit=document.createElement('li');credit.className='tx-credit';credit.setAttribute('role','presentation');credit.textContent='Címjavaslatok: Google Maps';list.appendChild(credit);}
   input.setAttribute('aria-expanded',String(results.length>0));
   if(results.length)status('🔎 '+results.length+' címtalálat · koppints a megfelelő címre.');
   else status('Nincs címtalálat. Próbáld az utcanév vagy város másik alakját.');
