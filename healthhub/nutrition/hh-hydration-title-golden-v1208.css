@@ -1,0 +1,69 @@
+/* v1208 · Golden Standard title treatment for the EXISTING hydration header.
+ * The approved text, jug, 8 water levels, 250 ml tap, sounds, Buddy, layout,
+ * and diary all remain unchanged. No click intercept, overlays or JS.
+ * Deliberately more specific than v1205 so it can load before the final
+ * hydration stylesheet without changing the prior cascade contract. */
+body[data-lp-v2="on"][data-lp-module="nutrition"] #balanceCard .hh-hydration-showcase-v1202 .hh-showcase-header-v1202{
+ isolation:isolate;
+ padding:4px 6px 9px;
+}
+body[data-lp-v2="on"][data-lp-module="nutrition"] #balanceCard .hh-hydration-showcase-v1202 .hh-showcase-header-v1202::before{
+ content:"";
+ position:absolute;z-index:-1;pointer-events:none;
+ top:-7px;right:0;width:45%;height:104px;
+ background:radial-gradient(ellipse at 78% 38%,rgba(85,194,250,.23),transparent 70%);
+ filter:blur(8px);
+}
+body[data-lp-v2="on"][data-lp-module="nutrition"] #balanceCard .hh-hydration-showcase-v1202 .hh-showcase-header-v1202::after{
+ content:"";position:absolute;pointer-events:none;
+ left:7px;top:calc(100% + 12px);
+ width:min(212px,65%);height:2px;border-radius:99px;
+ background:linear-gradient(90deg,#f7a1e5,rgba(255,195,246,.88) 25%,rgba(94,233,252,.80) 72%,transparent);
+ box-shadow:0 0 11px rgba(233,143,243,.37);
+}
+body[data-lp-v2="on"][data-lp-module="nutrition"] #balanceCard .hh-hydration-showcase-v1202 .hh-showcase-kicker-v1202{
+ display:inline-flex;align-items:center;max-width:100%;
+ padding:5px 9px;border:1px solid rgba(248,181,230,.48);
+ border-radius:999px;
+ background:linear-gradient(95deg,rgba(118,61,145,.37),rgba(36,83,133,.33));
+ box-shadow:inset 0 1px rgba(255,241,255,.20),0 2px 10px rgba(243,109,219,.14);
+ color:#ffb6e8;
+ font:850 9.5px/1.22 system-ui,sans-serif;
+ letter-spacing:.09em;text-transform:uppercase;
+ text-shadow:0 1px 6px rgba(8,14,47,.45);
+ white-space:normal;
+}
+body[data-lp-v2="on"][data-lp-module="nutrition"] #balanceCard .hh-hydration-showcase-v1202 .hh-showcase-header-v1202 h3{
+ margin-top:10px;
+ font:900 clamp(29px,7.5vw,37px)/1.06 system-ui,sans-serif;
+ letter-spacing:-.047em;color:#fdfbff;
+ background:linear-gradient(106deg,#fff 0%,#ffeafa 44%,#e5f6ff 73%,#9df4ff 100%);
+ -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+ filter:drop-shadow(0 2px 5px rgba(4,10,40,.35));
+}
+body[data-lp-v2="on"][data-lp-module="nutrition"] #balanceCard .hh-hydration-showcase-v1202 .hh-showcase-header-v1202 p{
+ margin-top:8px;color:#e3eafb;
+ font:600 12px/1.45 system-ui,sans-serif;
+ letter-spacing:.004em;max-width:100%;
+}
+:root[data-profile="monika"] body[data-lp-v2="on"][data-lp-module="nutrition"] #balanceCard .hh-hydration-showcase-v1202 .hh-showcase-header-v1202::before,
+:root[data-lpv-owner="m"] body[data-lp-v2="on"][data-lp-module="nutrition"] #balanceCard .hh-hydration-showcase-v1202 .hh-showcase-header-v1202::before{
+ background:radial-gradient(ellipse at 78% 38%,rgba(248,115,215,.23),transparent 70%);
+}
+@media(max-width:365px){
+ body[data-lp-v2="on"][data-lp-module="nutrition"] #balanceCard .hh-hydration-showcase-v1202 .hh-showcase-kicker-v1202{
+  font-size:8.5px;padding:4px 7px;
+ }
+ body[data-lp-v2="on"][data-lp-module="nutrition"] #balanceCard .hh-hydration-showcase-v1202 .hh-showcase-header-v1202 h3{
+  font-size:clamp(26px,7.5vw,30px);
+ }
+ body[data-lp-v2="on"][data-lp-module="nutrition"] #balanceCard .hh-hydration-showcase-v1202 .hh-showcase-header-v1202 p{
+  font-size:11px;
+ }
+}
+@media(prefers-reduced-transparency:reduce){
+ body[data-lp-v2="on"][data-lp-module="nutrition"] #balanceCard .hh-hydration-showcase-v1202 .hh-showcase-kicker-v1202{
+  background:#513f76;
+ }
+ body[data-lp-v2="on"][data-lp-module="nutrition"] #balanceCard .hh-hydration-showcase-v1202 .hh-showcase-header-v1202::before{display:none}
+}
