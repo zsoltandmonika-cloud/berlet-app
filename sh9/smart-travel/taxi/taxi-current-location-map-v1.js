@@ -64,7 +64,7 @@
     map=new w.maplibregl.Map({
      container:canvas,style:mapStyle(),
      center:[pos.coords.longitude,pos.coords.latitude],zoom:16,
-     pitch:0,bearing:0,attributionControl:true,antialias:false
+     pitch:0,bearing:0,attributionControl:{compact:true},antialias:false
     });
     map.once('load',()=>{
      if(last)drawPin(last);
