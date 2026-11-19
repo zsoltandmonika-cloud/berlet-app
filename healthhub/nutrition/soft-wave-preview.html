@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="hu">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>HealthHub · Soft Wave teszt</title>
+<style>
+*{box-sizing:border-box}html,body{height:100%;margin:0;background:#08162a;color:#f3f8ff;font:14px system-ui,sans-serif}
+body{display:flex;flex-direction:column}
+header{display:flex;gap:10px;align-items:center;justify-content:space-between;padding:9px 12px;background:#112a47;border-bottom:1px solid #ffffff30;min-height:54px}
+header strong{font-size:13px}header small{display:block;color:#c7d6ec;font-size:11px}
+button{border:1px solid #b8d6ff77;border-radius:12px;background:#315c85;color:white;padding:9px 12px;font-weight:750;min-width:98px}
+iframe{display:block;border:0;width:100%;flex:1;min-height:0;background:#071629}
+#status{font-size:10px;color:#b9d1e9;text-align:center;padding:3px 0}
+</style>
+</head>
+<body>
+<header><div><strong>Soft Wave · TESZT</strong><small>1 közös hullám · 4 Gyors bevitel csempe</small></div><button type="button" id="toggle" aria-pressed="true">Wave: BE</button></header>
+<iframe id="screen" title="HealthHub Táplálkozás élő felületének vizuális tesztje" src="./index.html?softWavePreview=1"></iframe>
+<div id="status" role="status">A főoldal változatlan · csak ebben az előnézetben van Wave</div>
+<script>
+(function(){
+ const frame=document.getElementById('screen'),btn=document.getElementById('toggle'),status=document.getElementById('status');
+ let enabled=true,doc=null;
+ function apply(){
+  if(!doc)return;
+  let link=doc.getElementById('hhSoftWaveTestStyle');
+  if(!link){link=doc.createElement('link');link.id='hhSoftWaveTestStyle';link.rel='stylesheet';link.href='./soft-wave-preview-only.css?v=2';doc.head.appendChild(link)}
+  link.disabled=!enabled;
+  btn.textContent='Wave: '+(enabled?'BE':'KI');
+  btn.setAttribute('aria-pressed',String(enabled));
+ }
+ frame.addEventListener('load',function(){
+  try{
+   doc=frame.contentDocument;
+   if(!doc||!doc.head)throw new Error('frame');
+   apply();
+   status.textContent='Előnézet: '+(enabled?'Wave BE':'Wave KI')+' · az éles oldal változatlan';
+  }catch(e){status.textContent='Az előnézet nem tölthető be itt; nyisd meg a normál böngészőben.'}
+ });
+ btn.addEventListener('click',function(){enabled=!enabled;apply();status.textContent='Előnézet: '+(enabled?'Wave BE':'Wave KI')+' · az éles oldal változatlan'});
+})();
+</script>
+</body>
+</html>
