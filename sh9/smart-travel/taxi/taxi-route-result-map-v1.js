@@ -76,7 +76,7 @@ async function render(coords,ticket){
  if(!map){
   map=new w.maplibregl.Map({
    container:canvas,style:mapStyle(),center:coords[0],zoom:11,
-   pitch:0,bearing:0,attributionControl:true,antialias:false
+   pitch:0,bearing:0,attributionControl:{compact:true},antialias:false
   });
   map.on('style.load',()=>{
    // MapLibre drops custom GeoJSON layers on setStyle. Restore only the displayed
