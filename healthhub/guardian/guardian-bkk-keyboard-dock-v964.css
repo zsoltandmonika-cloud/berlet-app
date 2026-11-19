@@ -101,3 +101,111 @@
  #hhBkkKeyboardDockV964{background:#dceaf8!important;-webkit-backdrop-filter:none;backdrop-filter:none}
  :root[data-guardian-profile="m"] #hhBkkKeyboardDockV964{background:#f5e1ee!important}
 }
+
+/* Premium Dark Glass v1197 · resilient core skin.
+ * Kept in the ORIGINAL mobile search stylesheet so a mixed/stale v1196 cache
+ * cannot leave pale result cards with white text. No search logic changed.
+ * The v1196 overlay remains as an optional visual refinement. */
+#hhBkkKeyboardDockV964.hh-bkk-keyboard-v964,
+:root[data-guardian-profile="m"] #hhBkkKeyboardDockV964.hh-bkk-keyboard-v964{
+ --hhkb-ink:#fffaff!important;
+ --hhkb-muted:#e2e5f8!important;
+ --hhkb-accent:#f3a0d9!important;
+ --hhkb-selected:rgba(134,78,154,.38)!important;
+ --hhkb-surface:rgba(22,42,87,.96)!important;
+ --hhkb-edge:rgba(218,172,240,.68)!important;
+ color:#fffaff!important;
+ background:linear-gradient(145deg,#322653 0%,#1b2c5b 52%,#0c294f 100%)!important;
+ border-color:rgba(225,167,236,.72)!important;
+ box-shadow:0 12px 36px rgba(2,8,34,.46),
+  inset 0 1px 0 rgba(255,239,255,.21)!important;
+ color-scheme:dark!important;
+}
+:root[data-guardian-profile="m"] #hhBkkKeyboardDockV964.hh-bkk-keyboard-v964{
+ background:linear-gradient(147deg,#442453 0%,#262b62 50%,#102b56 100%)!important;
+}
+#hhBkkKeyboardDockV964 .hh-bkk-keyboard-head-v964 strong,
+#hhBkkKeyboardDockV964 .hh-bkk-keyboard-caption-v964{
+ color:#fff8ff!important;
+}
+#hhBkkKeyboardDockV964 .hh-bkk-keyboard-head-v964 button,
+#hhBkkKeyboardDockV964 #hhBkkKeyboardGpsV964{
+ color:#fffaff!important;
+ background:linear-gradient(130deg,#4a427d,#243c70)!important;
+ border-color:rgba(223,182,249,.70)!important;
+}
+#hhBkkKeyboardDockV964 .hh-bkk-keyboard-input-slot-v964 input{
+ background:linear-gradient(120deg,#302c5c,#182f61)!important;
+ color:#fffaff!important;
+ -webkit-text-fill-color:#fffaff!important;
+ caret-color:#ffd0ef!important;
+ color-scheme:dark!important;
+ border-color:#f4a5df!important;
+}
+#hhBkkKeyboardDockV964 .hh-bkk-keyboard-input-slot-v964 input::placeholder{
+ color:#d0d8f0!important;-webkit-text-fill-color:#d0d8f0!important;
+}
+#hhBkkKeyboardDockV964 #hhSmartHubNativeResultsV803.hh-smart-hub-results-v803:not(:empty){
+ display:grid!important;align-content:start!important;
+ min-height:0!important;
+ background:linear-gradient(148deg,rgba(41,39,88,.94),rgba(16,41,83,.98))!important;
+ border:1px solid rgba(194,151,235,.64)!important;
+ border-radius:15px!important;
+ padding:7px!important;
+ box-shadow:inset 0 1px rgba(255,230,255,.15),
+  0 6px 21px rgba(0,11,40,.34)!important;
+ overflow-y:auto!important;overscroll-behavior:contain!important;
+}
+#hhBkkKeyboardDockV964 #hhSmartHubNativeResultsV803.hh-smart-hub-results-v803:empty{
+ display:none!important;
+}
+#hhBkkKeyboardDockV964 #hhSmartHubNativeResultsV803 .hh-smart-hub-result-v803{
+ color:#ffffff!important;
+ background:linear-gradient(112deg,rgba(102,63,140,.88),rgba(22,54,104,.97))!important;
+ border:1px solid rgba(185,166,244,.69)!important;
+ box-shadow:inset 0 1px rgba(255,240,255,.18),0 4px 13px rgba(4,12,40,.32)!important;
+ min-height:56px!important;
+ padding:10px!important;
+ opacity:1!important;
+}
+#hhBkkKeyboardDockV964 #hhSmartHubNativeResultsV803 .hh-smart-hub-result-copy-v803{
+ min-width:0!important;flex:1 1 auto!important;
+}
+#hhBkkKeyboardDockV964 #hhSmartHubNativeResultsV803 .hh-smart-hub-result-copy-v803 strong{
+ color:#fff!important;
+ font:780 14px/1.32 system-ui,sans-serif!important;
+ white-space:normal!important;overflow:visible!important;text-overflow:clip!important;
+ overflow-wrap:anywhere!important;
+ opacity:1!important;
+}
+#hhBkkKeyboardDockV964 #hhSmartHubNativeResultsV803 .hh-smart-hub-result-copy-v803 small{
+ color:#e5eafb!important;
+ font:560 11.5px/1.42 system-ui,sans-serif!important;
+ white-space:normal!important;overflow:visible!important;text-overflow:clip!important;
+ overflow-wrap:anywhere!important;opacity:1!important;
+}
+#hhBkkKeyboardDockV964 #hhSmartHubNativeResultsV803 .hh-smart-hub-result-icon-v803{
+ color:#ffe9fa!important;
+ background:linear-gradient(135deg,#854f95,#353e79)!important;
+ border-color:rgba(249,188,246,.72)!important;
+ opacity:1!important;
+}
+#hhBkkKeyboardDockV964 #hhSmartHubNativeResultsV803 .hh-smart-hub-result-tag-v824{
+ color:#fffaff!important;
+ background:rgba(77,94,158,.92)!important;
+ border:1px solid rgba(209,220,255,.76)!important;
+ border-radius:999px!important;
+ font:800 9px/1.25 system-ui,sans-serif!important;
+ padding:5px 7px!important;
+ white-space:nowrap!important;
+ opacity:1!important;
+}
+@media(prefers-reduced-transparency:reduce){
+ #hhBkkKeyboardDockV964.hh-bkk-keyboard-v964{background:#182748!important}
+ :root[data-guardian-profile="m"] #hhBkkKeyboardDockV964.hh-bkk-keyboard-v964{
+  background:#30294f!important;
+ }
+ #hhBkkKeyboardDockV964 #hhSmartHubNativeResultsV803 .hh-smart-hub-result-v803{
+  background:#253d70!important;
+ }
+}
