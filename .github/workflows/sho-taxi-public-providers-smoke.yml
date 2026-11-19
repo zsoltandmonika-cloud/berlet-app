@@ -1,0 +1,36 @@
+name: SHO Taxi · Public map provider smoke (one-shot)
+on:
+  push:
+    paths: ['.github/workflows/sho-taxi-public-providers-smoke.yml']
+permissions:
+  contents: read
+jobs:
+  public-map-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Verify Photon Budapest address suggestions and OSRM road routing
+        shell: bash
+        run: |
+          node <<'NODE'
+          const assert = require('node:assert/strict');
+          async function json(url) {
+            const r = await fetch(url,{signal:AbortSignal.timeout(15000),headers:{'Accept':'application/json'}});
+            console.log(new URL(url).hostname, 'HTTP',r.status);
+            assert.equal(r.ok,true,'provider HTTP failure');
+            return r.json();
+          }
+          (async()=>{
+            const u=new URL('https://photon.komoot.io/api/');
+            u.searchParams.set('q','Budapest Keleti pályaudvar');
+            u.searchParams.set('lat','47.506');u.searchParams.set('lon','19.0467');u.searchParams.set('limit','6');
+            const p=await json(u.href);
+            assert.equal(p.type,'FeatureCollection');
+            assert.ok(Array.isArray(p.features)&&p.features.length>0,'No Photon places found');
+            const route=await json('https://router.project-osrm.org/route/v1/driving/19.0467,47.506;19.0832,47.4993?overview=false&steps=false');
+            assert.equal(route.code,'Ok');
+            assert.ok(route.routes?.[0]?.distance>100,'No OSRM route');
+            assert.ok(route.routes?.[0]?.duration>0,'No OSRM travel duration');
+            console.log('PASS: Photon autocomplete + OSRM driving route available');
+          })().catch(e=>{console.error(String(e));process.exitCode=1});
+          NODE
