@@ -24,8 +24,10 @@ jobs:
         with:
           node-version: '22'
       - name: Check Taxi JavaScript syntax
-        run: node --check sh9/smart-travel/taxi/taxi-route-v7-fix-calculator.js
+        run: node --check sh9/smart-travel/taxi/taxi-route-v8-fare-map.js
       - name: Check native-device GPS map JavaScript syntax
         run: node --check sh9/smart-travel/taxi/taxi-current-location-map-v1.js
-      - name: Test Taxi Golden cards, location pin, GPS denial, Uber handoff and preserved fare calculator
+      - name: Check optional route preview and Golden TADAA JavaScript
+        run: node --check sh9/smart-travel/taxi/taxi-route-result-map-v1.js
+      - name: Test Taxi Golden cards, GPS, route polyline, fixed actions and TADAA
         run: node --test sh9/smart-travel/taxi/tests/*.test.cjs
