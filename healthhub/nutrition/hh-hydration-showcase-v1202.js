@@ -127,8 +127,8 @@
    litres.textContent=daily;
    // Never mix daily consumption with the pitcher-since-last-empty count:
    // the jug picture resets, but today's displayed intake remains in the log.
-   var dailyMatch=daily.match(/([\\d\\s.,\\u00a0\\u202f]+)\\s*ml/i);
-   var dailyMl=dailyMatch?Number(dailyMatch[1].replace(/\\D/g,'')):null;
+   var dailyMatch=daily.match(/([\d\s.,\u00a0\u202f]+)\s*ml/i);
+   var dailyMl=dailyMatch?Number(dailyMatch[1].replace(/\D/g,'')):null;
    var shownMl=Number.isFinite(dailyMl)?Math.max(0,dailyMl):n;
    var goalInput=document.getElementById('hhWaterGoal');
    var goal=goalInput&&goalInput.value?Number(goalInput.value):NaN;
