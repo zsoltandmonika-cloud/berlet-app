@@ -12,7 +12,7 @@
 html,body{margin:0;min-height:100%;background:#030c1a;color:var(--ink);font:14px/1.4 Inter,system-ui,-apple-system,"Segoe UI",sans-serif}
 a,button{font:inherit}
 a:focus-visible,button:focus-visible{outline:2px solid #8cc4ff;outline-offset:2px}
-.sport-shell{height:calc(100dvh - 77px);width:min(100%,420px);margin:auto;padding:5px 6px 0;display:flex;flex-direction:column;gap:7px;overflow:hidden;background:#07162a}
+.sport-shell{min-height:calc(100dvh - 77px);height:auto;width:min(100%,420px);margin:auto;padding:5px 6px 0;display:flex;flex-direction:column;gap:7px;overflow:visible;background:#07162a}
 .sport-hero{position:relative;isolation:isolate;flex:0 0 auto;width:100%;overflow:hidden;border-radius:18px 18px 0 0;border:1px solid rgba(163,205,242,.38);background:#0b2850;box-shadow:0 7px 22px rgba(0,0,0,.32)}
 /* Use the artwork's intrinsic ratio: no cover crop, no opaque headline shading. */
 .sport-hero-art{display:block;width:100%;height:auto;aspect-ratio:1672 / 941;object-fit:contain}
@@ -23,7 +23,7 @@ a:focus-visible,button:focus-visible{outline:2px solid #8cc4ff;outline-offset:2p
 .sport-menu > :is(button,a):last-child{font-size:15px;padding:6px 7px;border-right:0;flex:0 0 36px}
 .sport-menu > :is(button,a):is(:hover,:focus,:active,:visited){text-decoration:none}
 .sport-menu > .sport-accent,.sport-menu > .sport-accent:is(:link,:visited,:hover,:focus,:active){color:var(--sport-radar-lime);text-decoration:none}
-.sport-frame{display:flex;position:relative;flex:1 1 auto;min-height:0;border:1px solid rgba(154,197,233,.3);border-radius:15px;overflow:hidden;background:#07111f}
+.sport-frame{display:flex;position:relative;flex:0 0 auto;height:calc(100dvh - 90px);min-height:420px;border:1px solid rgba(154,197,233,.3);border-radius:15px;overflow:hidden;background:#07111f}
 .sport-frame iframe{display:block;flex:1;min-width:0;width:100%;height:100%;border:0;background:#07111f}
 .sport-menu > :is(button,a).is-active{background:rgba(130,192,255,.12)}
 .sport-menu > :is(button,a):active{background:rgba(130,192,255,.22)}
