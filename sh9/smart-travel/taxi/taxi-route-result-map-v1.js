@@ -78,6 +78,7 @@ async function render(coords,ticket){
    container:canvas,style:mapStyle(),center:coords[0],zoom:11,
    pitch:0,bearing:0,attributionControl:{compact:true},antialias:false
   });
+  w.SHO_TAXI_DARK_CONTRAST_V1?.bind?.(map);
   w.SHO_TAXI_COMPACT_ATTRIBUTION_V3?.bind?.(map);
   map.on('style.load',()=>{
    // MapLibre drops custom GeoJSON layers on setStyle. Restore only the displayed
