@@ -51,6 +51,15 @@ const css=`
 #taxiRouteV2 .tx-route-map-head small{display:block;color:#e5c7ea;font-size:10px;margin-top:3px;
  white-space:normal;line-height:1.3}
 #taxiRouteV2 .tx-route-map-legend{font-size:12px;color:#ebd5f3;white-space:nowrap}
+#taxiRouteV2 .tx-route-map-tools{display:flex;align-items:center;justify-content:flex-end;gap:6px;flex-shrink:0}
+#taxiRouteV2 .tx-map-theme-toggle{display:inline-flex;align-items:center;justify-content:center;
+ width:34px;height:34px;flex:0 0 34px;padding:0;border:1px solid #f09edab8;
+ background:linear-gradient(145deg,#553262,#281d4f);box-shadow:inset 0 1px #ffffff34;
+ color:#fff;border-radius:10px;font-size:18px;cursor:pointer;touch-action:manipulation}
+#taxiRouteV2 .tx-map-theme-toggle:focus-visible{outline:2px solid #fff;outline-offset:2px}
+#taxiRouteV2 .tx-map-theme-toggle:active{background:#87427b}
+@media(max-width:370px){#taxiRouteV2 .tx-route-map-legend{font-size:11px}
+ #taxiRouteV2 .tx-route-map-tools{gap:4px}}
 #taxiRouteV2 .tx-route-map-canvas{position:relative;height:clamp(325px,calc(46dvh + 15px),435px);
  background:linear-gradient(135deg,#152643,#252543)}
 #taxiRouteV2 .tx-route-map[data-state="loading"] .tx-route-map-canvas::before,
@@ -108,11 +117,12 @@ panel.innerHTML=`
 <p class="tx-status" id="txStatus" role="status" aria-live="polite">Írj be legalább 3 karaktert, vagy mondd be a címet a mikrofonba.</p>
 <div class="tx-cost" id="txCost" hidden><div class="tx-meta">Várható viteldíj</div><div class="tx-big" id="txAmount"></div><div class="tx-meta" id="txMeta"></div><div class="tx-note">Tájékoztató becslés, a végleges összeget a taxaméter mutatja.</div><a class="tx-map" id="txMap" target="_blank" rel="noopener noreferrer">🗺️ Útvonal megnyitása a térképen ↗</a></div>
 <section class="tx-route-map" id="txRouteMapSection" hidden aria-label="Az indulás és érkezés közti közúti útvonal térképe" data-state="loading">
-<div class="tx-route-map-head"><div><strong>🗺️ Az útvonal térképen</strong><small id="txRouteMapStatus" role="status" aria-live="polite">Útvonal előnézete…</small></div><div class="tx-route-map-legend">🔵 A → 🩷 B</div></div>
+<div class="tx-route-map-head"><div><strong>🗺️ Az útvonal térképen</strong><small id="txRouteMapStatus" role="status" aria-live="polite">Útvonal előnézete…</small></div><div class="tx-route-map-tools"><span class="tx-route-map-legend">🔵 A → 🩷 B</span><button class="tx-map-theme-toggle" type="button" id="txRouteMapTheme" data-taxi-map-theme aria-label="Világos térkép bekapcsolása" title="Világos térkép bekapcsolása">☀️</button></div></div>
 <div class="tx-route-map-canvas" id="txRouteMapCanvas" role="region" aria-label="Interaktív térkép a közúti útvonallal"></div>
 </section>
 `;
 dialog.querySelector('.taxi-dialog-scroll>.fields')?.before(panel);
+window.SHO_TAXI_MAP_THEME_V1?.refreshButtons?.();
 const el=id=>document.getElementById(id), status=s=>{el('txStatus').textContent=s};
 const data={from:null,to:null},endpoint='https://vhsrupphzcjkdrusonzh.supabase.co/functions/v1/hh-sho-taxi-routes-v1';
 const routePreviewEndpoint='https://vhsrupphzcjkdrusonzh.supabase.co/functions/v1/hh-sho-taxi-route-preview-v1';
