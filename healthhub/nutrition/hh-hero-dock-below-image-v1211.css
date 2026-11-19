@@ -1,0 +1,22 @@
+/* HealthHub Nutrition v1211 · Golden Standard Hero control strip below artwork.
+ * Scoped CSS ONLY. Shift the existing four-button unified dock down exactly
+ * 64px; reserve the very same 64px before the ENTIRE daily balance card.
+ * No image, ratio, card content, child position, script or shared SH9 CSS edit.
+ * Safe rollback: remove this one link from index.html.
+ */
+body[data-lp-module="nutrition"][data-sh9-golden-unified="on"]:not([data-sh9-golden-floating="on"]){
+  --hh-nutrition-hero-dock-drop-v1211:64px;
+}
+/* 50px SH9 unified dock: the default 6px bottom lift is preserved.
+   Translation puts the dock fully below the Hero, without reparenting
+   any interactive controls or changing its glass design / tap targets. */
+body[data-lp-module="nutrition"][data-sh9-golden-unified="on"]:not([data-sh9-golden-floating="on"])
+#nutritionGoldenHeroHost > #sh9UnifiedGlassDockV34 {
+  transform:translateY(var(--hh-nutrition-hero-dock-drop-v1211))!important;
+}
+/* This one margin moves the WHOLE card and every following section as a unit.
+   12px approved original gap + 64px reserved, no changes inside #balanceCard. */
+body[data-lp-module="nutrition"][data-sh9-golden-unified="on"]:not([data-sh9-golden-floating="on"])
+#nutritionGoldenHeroHost + #balanceCard.balance.hh-body {
+  margin-top:calc(12px + var(--hh-nutrition-hero-dock-drop-v1211))!important;
+}
