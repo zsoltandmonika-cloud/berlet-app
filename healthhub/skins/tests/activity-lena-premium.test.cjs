@@ -8,6 +8,7 @@ const root=path.resolve(__dirname,'../..');
 const skin=fs.readFileSync(path.join(__dirname,'../lena-premium-v1.css'),'utf8');
 const css=fs.readFileSync(path.join(__dirname,'../activity-lena-premium-v1.css'),'utf8');
 const adapter=fs.readFileSync(path.join(root,'activity-premium-glass-v533.js'),'utf8');
+const benchmark=fs.readFileSync(path.join(__dirname,'../activity-lena-benchmark-v2.css'),'utf8');
 const index=fs.readFileSync(path.join(root,'index.html'),'utf8');
 const one=fs.readFileSync(path.join(root,'activity-one/index.html'),'utf8');
 const full=fs.readFileSync(path.join(root,'live-v191.js'),'utf8');
@@ -41,9 +42,10 @@ test('Activity V1 only loads CSS on Activity open, never on Home',async()=>{
  assert.equal(links.length,1,'no new CSS while Activity is not open');
  w.hhOpenActivity();
  assert.equal(clicks,1,'existing Activity action still invoked exactly once');
- assert.equal(links.length,3,'two CSS-only skin assets loaded lazily');
+ assert.equal(links.length,4,'three CSS-only skin assets loaded lazily');
  assert.equal(links.filter(x=>/lena-premium-v1\.css/.test(x.href)).length,2);
- links[1].listeners.load();links[2].listeners.load();
+ assert.match(links[3].href,/activity-lena-benchmark-v2\.css/);
+ links[1].listeners.load();links[2].listeners.load();links[3].listeners.load();
  await Promise.resolve();await Promise.resolve();await new Promise(resolve=>setImmediate(resolve));
  assert.equal(rootAttrs['data-hh-activity-lena-premium'],'on');
  assert.equal(page.attrs['data-hh-skin'],'lena-premium');
@@ -52,7 +54,7 @@ test('Activity V1 only loads CSS on Activity open, never on Home',async()=>{
  events['healthhub:profile-changed']();
  assert.equal(page.attrs['data-hh-profile'],'zsolt');
  w.hhOpenActivity();
- assert.equal(links.length,3,'further Activity openings reuse loaded CSS');
+ assert.equal(links.length,4,'further Activity openings reuse loaded CSS');
 });
 test('Existing glass and new Léna theme can be independently disabled',()=>{
  for(const [search,expectedLinks] of [
@@ -103,6 +105,16 @@ test('Adapter keeps 4+3 KPI layout, charts, forms, data provenance and exact rou
  assert.match(adapter,/hhactivityglass/);
  assert.match(adapter,/hhlenaactivity/);
  assert.match(adapter,/healthhub:profile-changed/);
+});
+test('V2 approved Sleep wave is shared by Activity without rewriting measured values',()=>{
+ assert.match(benchmark,/data:image\/svg\+xml/);
+ assert.match(benchmark,/\.a191Body::before/);
+ assert.match(benchmark,/\.a191Top \.a191Kpi:nth-child\(2\)/);
+ assert.match(benchmark,/\.a191Small \.a191Kpi/);
+ assert.match(benchmark,/prefers-reduced-motion/);
+ assert.match(adapter,/activity-lena-benchmark-v2\.css/);
+ assert.doesNotMatch(benchmark,/(localStorage|fetch\(|\.innerHTML|@import|@font-face|requestPermissions)/);
+ let depth=0;for(const ch of benchmark){if(ch==='{')depth++;if(ch==='}')depth--;assert.ok(depth>=0)}assert.equal(depth,0);
 });
 test('Activity Skin Pack CSS is visually scoped and syntactically balanced',()=>{
  assert.doesNotMatch(css,/(^|\n)\s*(body|html|:root|\.a191Kpi|\.a191Card)\s*\{/);
