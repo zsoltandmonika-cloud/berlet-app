@@ -34,11 +34,11 @@ body[data-lp-v2="on"][data-lp-module="nutrition"] .row + .grid:has(#protein) > .
   z-index:1;
   /* Let the single grid-level wave show THROUGH the six glass cards.
      All card dimensions, text and data remain untouched. */
-  background:linear-gradient(145deg,rgba(43,40,91,.72),rgba(18,42,89,.76) 69%,rgba(13,34,75,.78))!important;
+  background:linear-gradient(145deg,rgba(43,40,91,.66),rgba(18,42,89,.70) 69%,rgba(13,34,75,.72))!important;
 }
 :root[data-profile="monika"] body[data-lp-v2="on"][data-lp-module="nutrition"] .row + .grid:has(#protein) > .glass.kpi,
 :root[data-lpv-owner="m"] body[data-lp-v2="on"][data-lp-module="nutrition"] .row + .grid:has(#protein) > .glass.kpi {
-  background:linear-gradient(145deg,rgba(67,37,91,.72),rgba(25,40,89,.76) 69%,rgba(14,34,75,.78))!important;
+  background:linear-gradient(145deg,rgba(67,37,91,.66),rgba(25,40,89,.70) 69%,rgba(14,34,75,.72))!important;
 }
 @media (prefers-reduced-transparency:reduce) {
   body[data-lp-v2="on"][data-lp-module="nutrition"] .row + .grid:has(#protein)::before {opacity:0}
