@@ -126,7 +126,7 @@ test('Quota regression: no internal usage cap, coordinate autocomplete, and road
  assert.match(client,/Number\.isFinite\(s\.location\?\.lat\)/);
  assert.match(client,/data\[name\]=\{label:s\.label,\.\.\.\(typeof s\.placeId/);
  assert.match(client,/credit\.textContent='Címjavaslatok: '\+\(source/);
- assert.match(client,/signal:AbortSignal\.timeout\(body\.action==='estimate'\?30000:16000\)/);
+ assert.match(client,/signal:AbortSignal\.timeout\(body\.action==='estimate'\|\|body\.action==='preview'\?30000:16000\)/);
  assert.match(client,/Smart Taxi<br>viteldíj-kalkulátor/);
 });
 
