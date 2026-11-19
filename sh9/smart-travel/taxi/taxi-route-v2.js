@@ -11,7 +11,16 @@ const css=`
 #taxiRouteV2 .tx-entry input{min-width:0;width:100%;height:46px;border-radius:11px;border:1px solid #bd75a7;background:#0c0e22;color:#fff;font:600 14px Inter,system-ui,sans-serif;padding:9px 11px;outline:0}
 #taxiRouteV2 .tx-entry input:focus{border-color:#ff71bf;box-shadow:0 0 0 2px #f36ab633}
 #taxiRouteV2 .tx-entry input::placeholder{color:#a9a1b5;font-weight:400}
-#taxiRouteV2 .tx-gps{flex:0 0 auto;color:#fff;font-size:13px;font-weight:800;border:1px solid #f88dcc;border-radius:11px;background:#412343;padding:0 10px;cursor:pointer}
+#taxiRouteV2 .tx-gps,#taxiRouteV2 .tx-mic{flex:0 0 auto;min-width:42px;min-height:46px;color:#fff;font-size:16px;font-weight:800;border:1px solid #f88dcc;border-radius:11px;background:#412343;padding:0 8px;cursor:pointer;touch-action:manipulation}
+#taxiRouteV2 .tx-gps{font-size:12px}
+#taxiRouteV2 .tx-mic.listening{background:#bd145f;box-shadow:0 0 0 3px #fc5eae33}
+#taxiRouteV2 .tx-mic:disabled{opacity:.45;cursor:not-allowed}
+#taxiRouteV2 .tx-sugs button:focus-visible,#taxiRouteV2 .tx-sugs button.is-highlight{outline:2px solid #ff8cc9;outline-offset:-2px;background:#493157}
+#taxiRouteV2 .tx-sugs{max-height:225px;overflow-y:auto;overscroll-behavior:contain}
+#taxiRouteV2 .tx-sugs[hidden]{display:none!important}
+#taxiRouteV2 .tx-entry input{flex:1}
+#taxiRouteV2 .tx-entry button:focus-visible{outline:2px solid #ffd1ed;outline-offset:2px}
+
 #taxiRouteV2 .tx-sugs{margin:3px 0 0;padding:0;list-style:none;background:#17152b;border-radius:11px;overflow:hidden;box-shadow:0 10px 20px #0009}
 #taxiRouteV2 .tx-sugs:empty{display:none}
 #taxiRouteV2 .tx-sugs button{display:block;width:100%;padding:11px 10px;text-align:left;border:0;border-bottom:1px solid #996b9755;background:#241b37;color:white;font-size:12px;line-height:1.35;cursor:pointer}
@@ -29,11 +38,11 @@ const style=document.createElement('style');style.textContent=css;document.head.
 const panel=document.createElement('section');panel.id='taxiRouteV2';
 panel.innerHTML=`
 <label class="tx-field" for="txFrom">Honnan?</label>
-<div class="tx-entry"><input id="txFrom" placeholder="Indulási cím…" autocomplete="off" spellcheck="false"><button class="tx-gps" id="txGps" type="button" aria-label="Jelenlegi helyem GPS alapján">📍 GPS</button></div><ul class="tx-sugs" id="txFromSug"></ul>
+<div class="tx-entry"><input id="txFrom" placeholder="Indulási cím…" autocomplete="off" autocapitalize="words" spellcheck="false" role="combobox" aria-haspopup="listbox" aria-autocomplete="list" aria-controls="txFromSug" aria-expanded="false"><button class="tx-mic" id="txFromMic" type="button" aria-label="Indulási cím bemondása" title="Indulási cím bemondása">🎙️</button><button class="tx-gps" id="txGps" type="button" aria-label="Jelenlegi helyem GPS alapján">📍 GPS</button></div><ul class="tx-sugs" id="txFromSug" role="listbox" aria-label="Indulási címjavaslatok"></ul>
 <label class="tx-field" for="txTo">Hová?</label>
-<div class="tx-entry"><input id="txTo" placeholder="Úticél címe…" autocomplete="off" spellcheck="false"></div><ul class="tx-sugs" id="txToSug"></ul>
+<div class="tx-entry"><input id="txTo" placeholder="Úticél címe…" autocomplete="off" autocapitalize="words" spellcheck="false" role="combobox" aria-haspopup="listbox" aria-autocomplete="list" aria-controls="txToSug" aria-expanded="false"><button class="tx-mic" id="txToMic" type="button" aria-label="Célcím bemondása" title="Célcím bemondása">🎙️</button></div><ul class="tx-sugs" id="txToSug" role="listbox" aria-label="Célcímjavaslatok"></ul>
 <button class="tx-go" type="button" id="txEstimate">🚕 Várható viteldíj kiszámítása</button>
-<p class="tx-status" id="txStatus" role="status" aria-live="polite">A távolságot és a menetidőt automatikusan számoljuk.</p>
+<p class="tx-status" id="txStatus" role="status" aria-live="polite">Írj be legalább 3 karaktert, vagy mondd be a címet a mikrofonba.</p>
 <div class="tx-cost" id="txCost" hidden><div class="tx-meta">Várható viteldíj</div><div class="tx-big" id="txAmount"></div><div class="tx-meta" id="txMeta"></div><div class="tx-note">Tájékoztató becslés, a végleges összeget a taxaméter mutatja.</div><a class="tx-map" id="txMap" target="_blank" rel="noopener noreferrer">🗺️ Útvonal megnyitása a térképen ↗</a></div>
 <a class="tx-external" href="https://fotaxi.hu/utasoknak/viteldij-kalkulator/" target="_blank" rel="noopener noreferrer">Főtaxi hivatalos címalapú kalkulátor ↗</a>
 `;
@@ -68,29 +77,126 @@ async function request(body){
  }
  return out;
 }
+
+const addressCache=new Map();
+const CACHE_TTL_MS=120000;
+let listening=null;
+const SpeechRecognitionAPI=window.SpeechRecognition||window.webkitSpeechRecognition;
+function startSpeech(name){
+ const input=el(name==='from'?'txFrom':'txTo'),mic=el(name==='from'?'txFromMic':'txToMic');
+ if(!SpeechRecognitionAPI){
+  status('A böngésző nem támogatja a saját hangfelismerőt. Használd a Samsung billentyűzet mikrofonját.');
+  input.focus();return;
+ }
+ if(listening){try{listening.stop()}catch(_){}listening=null;document.querySelectorAll('#taxiRouteV2 .tx-mic').forEach(b=>b.classList.remove('listening'));return;}
+ try{
+  const recognition=new SpeechRecognitionAPI();
+  recognition.lang='hu-HU';recognition.continuous=false;recognition.interimResults=true;recognition.maxAlternatives=1;
+  listening=recognition;mic.classList.add('listening');mic.setAttribute('aria-pressed','true');
+  status('🎙️ Hallgatlak. Mondd be a címet magyarul.');
+  recognition.onresult=event=>{
+   let transcript='',final=false;
+   for(let i=event.resultIndex||0;i<event.results.length;i++){
+    const result=event.results[i];
+    if(result&&result[0]&&result[0].transcript){transcript+=result[0].transcript;final=final||result.isFinal;}
+   }
+   transcript=transcript.trim().slice(0,130);
+   if(!transcript)return;
+   input.value=transcript;
+   if(final){
+    input.dispatchEvent(new Event('input',{bubbles:true}));
+    status('Cím felismerve: '+transcript+' · válassz a megjelenő címekből.');
+   }
+  };
+  recognition.onerror=event=>{
+   if(event.error!=='aborted'){
+    status(event.error==='not-allowed'?'A mikrofonengedély hiányzik. Engedélyezd a mikrofont, vagy használd a billentyűzet diktálását.':'A beszédfelismerés nem sikerült. A billentyűzet mikrofonja is használható.');
+   }
+  };
+  recognition.onend=()=>{
+   if(listening===recognition)listening=null;
+   mic.classList.remove('listening');mic.setAttribute('aria-pressed','false');
+  };
+  recognition.start();
+ }catch(_){
+  listening=null;mic.classList.remove('listening');mic.setAttribute('aria-pressed','false');
+  status('A hangfelismerés itt nem indítható. Használd a Samsung billentyűzet mikrofonját.');
+  input.focus();
+ }
+}
 for(const name of ['from','to']){
  const input=el(name==='from'?'txFrom':'txTo'),list=el(name==='from'?'txFromSug':'txToSug');
- let timer=0,serial=0;
+ const mic=el(name==='from'?'txFromMic':'txToMic');
+ mic.addEventListener('click',()=>startSpeech(name));
+ if(!SpeechRecognitionAPI)mic.title='Használd a Samsung billentyűzet mikrofonját';
+ let timer=0,serial=0,results=[],selected=-1;
+ const clearList=()=>{
+  list.replaceChildren();results=[];selected=-1;
+  input.setAttribute('aria-expanded','false');input.removeAttribute('aria-activedescendant');
+ };
+ function choose(s){
+  clearTimeout(timer);serial++;clearList();
+  input.value=s.label;data[name]={label:s.label,placeId:s.placeId};
+  el('txCost').hidden=true;
+  status('📍 '+s.label+' · cím kiválasztva');
+  if(name==='from'&&!el('txTo').value.trim())el('txTo').focus();
+ }
+ function render(items){
+  clearList();results=items.filter(s=>s&&typeof s.label==='string'&&typeof s.placeId==='string').slice(0,5);
+  results.forEach((s,i)=>{
+   const li=document.createElement('li'),b=document.createElement('button');
+   b.type='button';b.role='option';b.id=(name==='from'?'txFromOption':'txToOption')+i;b.textContent='📍 '+s.label;
+   b.setAttribute('aria-selected','false');
+   b.addEventListener('mousedown',e=>e.preventDefault());
+   b.addEventListener('click',()=>choose(s));li.appendChild(b);list.appendChild(li);
+  });
+  input.setAttribute('aria-expanded',String(results.length>0));
+  if(results.length)status('🔎 '+results.length+' címtalálat · koppints a megfelelő címre.');
+  else status('Nincs címtalálat. Próbáld az utcanév vagy város másik alakját.');
+ }
  input.addEventListener('input',()=>{
-  data[name]=null;list.replaceChildren();el('txCost').hidden=true;
+  data[name]=null;clearList();el('txCost').hidden=true;
   clearTimeout(timer);const q=input.value.trim(),ticket=++serial;
-  if(q.length<4)return;
+  if(q.length<3){if(q.length)status('Írj még '+(3-q.length)+' karaktert a címjavaslatokhoz.');return;}
+  const key=q.toLocaleLowerCase('hu-HU');
+  const cached=addressCache.get(key);
+  if(cached&&Date.now()-cached.time<CACHE_TTL_MS){render(cached.items);return;}
+  status('🔎 Címjavaslatok keresése…');
   timer=setTimeout(async()=>{
    try{
     const ans=await request({action:'suggest',query:q});
     if(ticket!==serial||input.value.trim()!==q)return;
-    list.replaceChildren();
-    for(const s of (ans.suggestions||[])){
-     const li=document.createElement('li'),b=document.createElement('button');
-     b.type='button';b.textContent=s.label;
-     b.addEventListener('click',()=>{input.value=s.label;data[name]={label:s.label,placeId:s.placeId};
-      list.replaceChildren();clearTimeout(timer);serial++});
-     li.appendChild(b);list.appendChild(li);
-    }
-   }catch(e){if(ticket===serial)status(e.message||'A címjavaslat jelenleg nem elérhető. A cím kézzel is beírható.');}
-  },550);
+    addressCache.set(key,{time:Date.now(),items:ans.suggestions||[]});
+    if(addressCache.size>80)addressCache.delete(addressCache.keys().next().value);
+    render(ans.suggestions||[]);
+   }catch(e){if(ticket===serial){
+    clearList();status(e.message||'A címjavaslat jelenleg nem elérhető. A cím kézzel is beírható.');
+   }}
+  },380);
  });
- input.addEventListener('blur',()=>setTimeout(()=>list.replaceChildren(),230));
+ input.addEventListener('focus',()=>{
+  const q=input.value.trim();
+  const cached=addressCache.get(q.toLocaleLowerCase('hu-HU'));
+  if(q.length>=3&&cached&&Date.now()-cached.time<CACHE_TTL_MS&&list.childElementCount===0)render(cached.items);
+ });
+ input.addEventListener('keydown',event=>{
+  if(event.key==='Escape'){clearList();return;}
+  if(!results.length)return;
+  if(event.key==='ArrowDown'||event.key==='ArrowUp'){
+   event.preventDefault();
+   selected=event.key==='ArrowDown'?(selected+1)%results.length:(selected-1+results.length)%results.length;
+   Array.from(list.querySelectorAll('button')).forEach((b,i)=>{
+    b.classList.toggle('is-highlight',i===selected);
+    b.setAttribute('aria-selected',String(i===selected));
+   });
+   input.setAttribute('aria-activedescendant',(name==='from'?'txFromOption':'txToOption')+selected);
+  }else if(event.key==='Enter'){
+   event.preventDefault();choose(results[selected>=0?selected:0]);
+  }
+ });
+ input.addEventListener('blur',()=>{
+  setTimeout(()=>{if(document.activeElement!==input)clearList()},230);
+ });
 }
 el('txGps').addEventListener('click',()=>{
  if(!navigator.geolocation){status('A böngésző nem támogatja a GPS-t. Adj meg címet.');return}
