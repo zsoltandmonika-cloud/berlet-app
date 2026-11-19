@@ -26,7 +26,7 @@ iframe{display:block;border:0;width:100%;flex:1;min-height:0;background:#071629}
  function apply(){
   if(!doc)return;
   let link=doc.getElementById('hhSoftWaveTestStyle');
-  if(!link){link=doc.createElement('link');link.id='hhSoftWaveTestStyle';link.rel='stylesheet';link.href='./soft-wave-preview-only.css?v=2';doc.head.appendChild(link)}
+  if(!link){link=doc.createElement('link');link.id='hhSoftWaveTestStyle';link.rel='stylesheet';link.href='./soft-wave-preview-only.css?v=3-visible';link.addEventListener('error',function(){status.textContent='A Wave CSS nem töltődött be';});doc.head.appendChild(link)}
   link.disabled=!enabled;
   btn.textContent='Wave: '+(enabled?'BE':'KI');
   btn.setAttribute('aria-pressed',String(enabled));
@@ -36,10 +36,10 @@ iframe{display:block;border:0;width:100%;flex:1;min-height:0;background:#071629}
    doc=frame.contentDocument;
    if(!doc||!doc.head)throw new Error('frame');
    apply();
-   status.textContent='Előnézet: '+(enabled?'Wave BE':'Wave KI')+' · az éles oldal változatlan';
+   status.textContent=(doc.getElementById('hhNutritionQuickPanelV1137')?'Wave '+(enabled?'BE':'KI')+' · keresd a 4 csempén átívelő fényívet':'A Gyors bevitel panel nem található');
   }catch(e){status.textContent='Az előnézet nem tölthető be itt; nyisd meg a normál böngészőben.'}
  });
- btn.addEventListener('click',function(){enabled=!enabled;apply();status.textContent='Előnézet: '+(enabled?'Wave BE':'Wave KI')+' · az éles oldal változatlan'});
+ btn.addEventListener('click',function(){enabled=!enabled;apply();status.textContent=(doc&&doc.getElementById('hhNutritionQuickPanelV1137')?'Wave '+(enabled?'BE':'KI'):'A Gyors bevitel panel nem található');});
 })();
 </script>
 </body>
