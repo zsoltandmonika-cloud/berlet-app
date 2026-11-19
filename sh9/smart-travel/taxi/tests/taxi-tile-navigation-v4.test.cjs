@@ -129,3 +129,37 @@ test('Quota regression: no internal usage cap, coordinate autocomplete, and road
  assert.match(client,/signal:AbortSignal\.timeout\(body\.action==='estimate'\?30000:16000\)/);
  assert.match(client,/Smart Taxi<br>viteldíj-kalkulátor/);
 });
+
+test('Uber CTA transfers existing SHO pickup/dropoff addresses without changing the Smart Taxi calculator',()=>{
+ const inline=index.match(/<script>\s*([\s\S]*?)<\/script>/)[1];
+ function clickUber(fromValue,toValue){
+  const inputs={
+   km:{value:'8',addEventListener(){}},minutes:{value:'5',addEventListener(){}},
+   airport:{checked:false,addEventListener(){}},total:{textContent:''},formula:{textContent:''},
+   txFrom:{value:fromValue},txTo:{value:toValue}
+  };
+  const dialogs={
+   calcDialog:{hidden:true,addEventListener(){},querySelector(){return {focus(){}}}},
+   tariffDialog:{hidden:true,addEventListener(){},querySelector(){return {focus(){}}}}
+  };
+  const uber={dataset:{action:'uber'},addEventListener(type,callback){if(type==='click')this.click=callback}};
+  const doc={getElementById:id=>inputs[id]||dialogs[id]||null,querySelectorAll:q=>q==='[data-action]'?[uber]:[],
+   addEventListener(){}};
+  const location={href:'https://zsoltandmonika-cloud.github.io/berlet-app/sh9/smart-travel/taxi/'};
+  vm.runInNewContext(inline,{document:doc,location,URL,navigator:{userAgent:'Linux'},Intl,Number,isFinite});
+  uber.click();
+  return new URL(location.href);
+ }
+ const selected=clickUber('Budapest Keleti pályaudvar','Budapest Nyugati pályaudvar');
+ assert.equal(selected.origin,'https://m.uber.com');
+ assert.equal(selected.searchParams.get('action'),'setPickup');
+ assert.equal(selected.searchParams.get('pickup[formatted_address]'),'Budapest Keleti pályaudvar');
+ assert.equal(selected.searchParams.get('dropoff[formatted_address]'),'Budapest Nyugati pályaudvar');
+ assert.equal(selected.searchParams.get('dropoff[nickname]'),'Budapest Nyugati pályaudvar');
+ const gps=clickUber('📍 Jelenlegi helyem','Budapest Déli pályaudvar');
+ assert.equal(gps.searchParams.get('pickup'),'my_location');
+ assert.equal(gps.searchParams.get('dropoff[formatted_address]'),'Budapest Déli pályaudvar');
+ assert.equal(clickUber('','').href,'https://m.uber.com/');
+ assert.equal(clickUber('Budapest Keleti pályaudvar','').href,'https://m.uber.com/');
+ assert.match(index,/taxi-route-v7-fix-calculator\.js\?v=20261119-restore-calculator-v7/);
+});
