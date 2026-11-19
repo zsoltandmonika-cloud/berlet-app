@@ -29,7 +29,7 @@ const css=`
 #taxiRouteV2 .tx-entry input{flex:1}
 #taxiRouteV2 .tx-entry button:focus-visible{outline:2px solid #ffd1ed;outline-offset:2px}
 
-#taxiRouteV2 .tx-sugs{margin:3px 0 0;padding:0;list-style:none;background:#17152b;border-radius:11px;overflow:hidden;box-shadow:0 10px 20px #0009}
+#taxiRouteV2 .tx-sugs{margin:3px 0 0;padding:0;list-style:none;background:#17152b;border-radius:11px;overflow-x:hidden;overflow-y:auto;box-shadow:0 10px 20px #0009}
 #taxiRouteV2 .tx-sugs:empty{display:none}
 #taxiRouteV2 .tx-sugs button{display:block;width:100%;padding:11px 10px;text-align:left;border:0;border-bottom:1px solid #996b9755;background:#241b37;color:white;font-size:12px;line-height:1.35;cursor:pointer}
 #taxiRouteV2 .tx-sugs .tx-credit{padding:7px 11px 8px;text-align:right;font-size:11px;color:#e2bedc;list-style:none;background:#17152b}
