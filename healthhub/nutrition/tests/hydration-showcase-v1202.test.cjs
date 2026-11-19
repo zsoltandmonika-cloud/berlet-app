@@ -78,3 +78,10 @@ test('final stylesheet wins and old silhouettes/images remain unchanged everywhe
  new Function(code);
  new Function(core);
 });
+
+test('daily progress uses displayed intake while the eight pitcher frames track since-empty level',()=>{
+ assert.ok(code.includes('var shownMl=Number.isFinite(dailyMl)?Math.max(0,dailyMl):n;'));
+ assert.ok(code.includes("percent.textContent=valid?Math.round(shownMl/goal*100)+'%':'—';"));
+ assert.ok(code.includes("progress.style.width=valid?Math.min(100,shownMl/goal*100)+'%':'0%';"));
+ assert.ok(code.includes('var step=Math.min(8,Math.floor(n/STEP));'));
+});
