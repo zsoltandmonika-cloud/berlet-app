@@ -80,3 +80,25 @@ test('Card clicks open their respective dialogs, and escape closes each',()=>{
  assert.equal(dialogs.calcDialog.hidden,true);
  assert.equal(dialogs.tariffDialog.hidden,true);
 });
+
+test('Főtaxi yellow checker button opens the official calculator and the provided logo appears underneath',()=>{
+ assert.match(client,/class="tx-fotaxi-link" id="txFotaxiOfficial"/);
+ assert.match(client,/href="https:\/\/fotaxi\.hu\/utasoknak\/viteldij-kalkulator\/"/);
+ assert.match(client,/target="_blank" rel="noopener noreferrer"/);
+ assert.match(client,/class="tx-fotaxi-logo" src="\.\/assets\/fotaxi-official-mark-v1\.webp"/);
+ assert.ok(client.indexOf('class="tx-fotaxi-logo"')>client.indexOf('id="txFotaxiOfficial"'),
+   'The supplied Főtaxi logo must be placed beneath the official calculator button');
+ assert.match(client,/background:repeating-conic-gradient\(#141414 0% 25%,#fff 0% 50%\)/);
+ assert.match(client,/background:linear-gradient\(145deg,#ffe875 0%,#ffd334 52%,#ffb51c 100%\)/);
+ const logo=fs.readFileSync(path.join(base,'assets/fotaxi-official-mark-v1.webp'));
+ assert.ok(logo.byteLength>1500,'Főtaxi logo asset missing or unexpectedly small');
+ assert.equal(logo.toString('ascii',0,4),'RIFF');
+ assert.equal(logo.toString('ascii',8,12),'WEBP');
+});
+test('S24 Ultra calculator popup is larger, scroll-safe and remains above the Golden Standard bottom bar',()=>{
+ assert.match(index,/#calcDialog \.dialog-card\{min-height:min\(618px,calc\(100dvh - 100px\)\);display:flex;flex-direction:column\}/);
+ assert.match(index,/\.dialog-card\{width:min\(100%,560px\);max-height:calc\(100dvh - 16px\);overflow:auto/);
+ assert.match(index,/\.dialog\{position:fixed;inset:0;z-index:120/);
+ assert.match(client,/#taxiRouteV2\{margin:8px 0 5px;color:#f8f2ff;display:flex;flex-direction:column;flex:1/);
+ assert.match(client,/#taxiRouteV2 \.tx-fotaxi\{margin-top:auto/);
+});
