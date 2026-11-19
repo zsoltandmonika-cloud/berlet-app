@@ -25,20 +25,28 @@ test('Approved hero image is untouched; full calculator and tariff cards are tap
  assert.ok(a.bottom<provider.top&&b.bottom<provider.top,'Do not cover taxi-provider buttons');
  for(const x of ['fotaxi','bolt','city','uber'])assert.match(index,new RegExp('class="hit hit--'+x+'"[^>]*data-action="'+x+'"'));
 });
-test('Official Főtaxi badge is a separate exact-brand overlay, without rewriting the approved hero',()=>{
+test('Approved four-taxi neon design uses the real official Főtaxi logo',()=>{
  assert.match(index,/src="\.\/assets\/SHO_Smart_Taxi_approved\.png" width="1193" height="1319"/);
- assert.match(index,/<img class="fotaxi-official-logo" src="\.\/assets\/fotaxi-official-red-v1\.png\?v=20261119-official-logo"/);
- assert.match(index,/\.reference img\.fotaxi-official-logo\{position:absolute;z-index:2;left:6\.2%;top:75\.15%;width:18\.1%;height:7\.1%/);
+ assert.match(index,/class="taxi-company-grid" aria-hidden="true"/);
+ assert.match(index,/class="taxi-brand-badge taxi-brand-badge--fotaxi"><img src="\.\/assets\/fotaxi-official-red-v1\.png\?v=20261119-official-logo"/);
+ assert.match(index,/class="taxi-brand-badge taxi-brand-badge--bolt">Bolt Taxi/);
+ assert.match(index,/class="taxi-brand-badge taxi-brand-badge--city"><strong>CITY TAXI/);
+ assert.match(index,/class="taxi-brand-badge taxi-brand-badge--uber">Uber/);
+ assert.equal((index.match(/class="taxi-brand-tile"/g)||[]).length,4);
+ assert.equal((index.match(/class="taxi-brand-order"/g)||[]).length,4);
+ assert.match(index,/\.taxi-company-grid\{position:absolute;z-index:2;left:2\.3%;top:73\.65%;width:95\.4%;height:20\.6%/);
+ assert.match(index,/\.taxi-brand-tile\{position:relative;min-width:0;height:100%;overflow:hidden/);
+ assert.match(index,/\.taxi-brand-order\{position:absolute;z-index:1;left:6\.5%;bottom:10%/);
  assert.match(index,/pointer-events:none;user-select:none/);
  const badge=fs.readFileSync(path.join(base,'assets','fotaxi-official-red-v1.png'));
- assert.equal(badge.toString('hex',0,8),'89504e470d0a1a0a','Supplied brand mark must be PNG');
- assert.ok(badge.length>2500,'Official logo file cannot be empty');
+ assert.equal(badge.toString('hex',0,8),'89504e470d0a1a0a');
+ assert.ok(badge.length>2500);
 });
 
 test('Every taxi provider is tappable across its full card including the logo and button',()=>{
  const kinds=['fotaxi','bolt','city','uber'];
  const ranges=kinds.map(box);
- const limits={fotaxi:[2.7,25.3],bolt:[27.7,50.4],city:[51.5,74.2],uber:[75.4,97.7]};
+ const limits={fotaxi:[2.3,25.8],bolt:[26.35,49.85],city:[50.4,74.0],uber:[74.5,97.7]};
  for(let i=0;i<kinds.length;i++){
   const name=kinds[i],b=ranges[i];
   assert.ok(b.top>=73.3&&b.top<75,name+' must start at provider card top');
@@ -50,7 +58,7 @@ test('Every taxi provider is tappable across its full card including the logo an
  }
  const calc=box('calc'),info=box('info');
  assert.ok(calc.bottom<=ranges[0].top&&info.bottom<=ranges[0].top,'No overlap with fare or tariff card');
- assert.match(index,/\.hit\{position:absolute;z-index:3;/,'Ordering overlays must be above official logo');
+ assert.match(index,/\.hit\{position:absolute;z-index:3;/,'Ordering overlays must be above graphical cards');
 });
 
 test('Tariff click opens a pixel crop of the existing approved tariff tile',()=>{
