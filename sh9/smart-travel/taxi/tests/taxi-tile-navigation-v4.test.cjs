@@ -6,7 +6,7 @@ const path=require('node:path');
 const vm=require('node:vm');
 const base=path.resolve(__dirname,'..');
 const index=fs.readFileSync(path.join(base,'index.html'),'utf8');
-const client=fs.readFileSync(path.join(base,'taxi-route-v7-fix-calculator.js'),'utf8');
+const client=fs.readFileSync(path.join(base,'taxi-route-v8-fare-map.js'),'utf8');
 const nav=fs.readFileSync(path.resolve(base,'../../shared/sh9-golden-bottom-nav-v924.js'),'utf8');
 const css=fs.readFileSync(path.resolve(base,'../../shared/sh9-golden-bottom-nav-v924.css'),'utf8');
 function box(kind){
@@ -48,7 +48,7 @@ test('Obsolete three-button Taxi navigation is gone; approved five-button SHO ta
 });
 test('Calculator, tariff dialogs and predictive/voice scripts still parse',()=>{
  assert.match(index,/id="calcDialog"/);
- assert.match(index,/taxi-route-v7-fix-calculator\.js/);
+ assert.match(index,/taxi-route-v8-fare-map\.js/);
  assert.match(client,/const SpeechRecognitionAPI=window\.SpeechRecognition\|\|window\.webkitSpeechRecognition/);
  assert.match(client,/const addressCache=new Map\(\)/);
  assert.match(client,/hh-sho-taxi-routes-v1/);
@@ -82,7 +82,7 @@ test('Card clicks open their respective dialogs, and escape closes each',()=>{
 });
 
 test('Smart Taxi premium CTA and official Főtaxi checker CTA are together, with brand marks inside',()=>{
- assert.match(index,/taxi-route-v7-fix-calculator\.js/);
+ assert.match(index,/taxi-route-v8-fare-map\.js/);
  assert.match(client,/id="txEstimate" aria-label="Smart Taxi viteldíj-kalkulátor"/);
  assert.match(client,/Smart Taxi<br>viteldíj-kalkulátor/);
  assert.match(client,/class="tx-sho-logo" src="\.\/assets\/sho-taxi-button-v6\.webp"/);
@@ -161,5 +161,5 @@ test('Uber CTA transfers existing SHO pickup/dropoff addresses without changing 
  assert.equal(gps.searchParams.get('dropoff[formatted_address]'),'Budapest Déli pályaudvar');
  assert.equal(clickUber('','').href,'https://m.uber.com/');
  assert.equal(clickUber('Budapest Keleti pályaudvar','').href,'https://m.uber.com/');
- assert.match(index,/taxi-route-v7-fix-calculator\.js\?v=20261119-restore-calculator-v7/);
+ assert.match(index,/taxi-route-v8-fare-map\.js\?v=20261119-v8-result-map/);
 });
