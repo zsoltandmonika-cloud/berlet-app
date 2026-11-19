@@ -50,6 +50,10 @@ test('Taxi has native predictive address lookup AND immediate favorites suggesti
  assert.match(fare,/id="txFromFav" type="button" aria-controls="txFromSug"/);
  assert.match(fare,/\.tx-sugs\{margin:3px 0 0;padding:0;list-style:none;background:#17152b;border-radius:11px;overflow-x:hidden;overflow-y:auto/);
  assert.match(fare,/id="txToFav" type="button" aria-controls="txToSug"/);
+ assert.equal((fare.match(/<span class="tx-favorite-star" aria-hidden="true">★<\/span> Kedvencek<\/button>/g)||[]).length,2,'Both favorite icons remain pink vector text rather than yellow emoji');
+ assert.match(fare,/#taxiRouteV2 \.tx-favorite\{[\s\S]*?color:#f4b6ea;border-radius:9px/);
+ assert.match(fare,/#taxiRouteV2 \.tx-favorite-star\{color:#f4b6ea/);
+ assert.doesNotMatch(fare,/>⭐ Kedvencek<\/button>/);
  assert.match(fare,/render\(favoriteMatches\('',40\),'Kedvenceim',40\)/);
  assert.match(fare,/if\(q\.length<3\)\{[\s\S]*?const local=favoriteMatches\(q,7\)/);
  assert.match(fare,/render\(mergedSuggestions\(q,ans\.suggestions\|\|\[\]\),ans\.source,7\)/);
