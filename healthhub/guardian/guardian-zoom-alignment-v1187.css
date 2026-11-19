@@ -1,20 +1,20 @@
-/* Family Guard Léna Premium Map Zoom Alignment v1188 · 2026-11-19
-   User's screenshot: uniform 36px controls with the top-right Follow / 3D /
-   Satellite stack; shift ONLY MapLibre's native zoom +/−/compass cluster
-   Use the SAME 89px-wide × 36px-high format as the three upper map buttons.
-   Shift the outer group 9px left (right 2px -> 11px); preserve vertical position.
+/* Family Guard Léna Premium Map Zoom Alignment v1189 · 2026-11-19
+   User-requested correction: zoom controls must stay SMALL, about HALF the
+   89px width of the top-right Follow / 3D / Satellite stack. Align their
+   right edge with the top stack at 4px; keep the original Y position.
+   All 3 native buttons stay 36px tall; MapLibre logic remains unchanged.
    Visual-only, normal mobile map; no GPS, MapLibre JS or attribution edits. */
 @media (max-width:600px) and (orientation:portrait){
   html:not([data-sh9-transit="on"]) body .shell[data-hh-skin="lena-premium"]
   .map-card:not(.hh-map-full-v819) #guardianMap .maplibregl-ctrl-bottom-right{
-    right:11px!important; /* old: 2px; move cluster 9px to the left */
+    right:4px!important; /* align right edge with Follow / 3D / Satellite */
   }
   html:not([data-sh9-transit="on"]) body .shell[data-hh-skin="lena-premium"]
   .map-card:not(.hh-map-full-v819) #guardianMap
   .maplibregl-ctrl-bottom-right .maplibregl-ctrl-group{
     box-sizing:border-box!important;
-    width:89px!important;min-width:89px!important;max-width:89px!important;
-    margin:0 2px 2px 0!important;
+    width:45px!important;min-width:45px!important;max-width:45px!important;
+    margin:0 0 2px 0!important;
     border-radius:13px!important;
     border:1px solid rgba(203,232,255,.65)!important;
     background:linear-gradient(142deg,rgba(60,109,153,.88),rgba(22,53,94,.88) 58%,rgba(14,38,75,.94))!important;
@@ -33,7 +33,7 @@
   .map-card:not(.hh-map-full-v819) #guardianMap
   .maplibregl-ctrl-bottom-right .maplibregl-ctrl-group button{
     box-sizing:border-box!important;
-    width:87px!important;min-width:87px!important;max-width:87px!important;
+    width:43px!important;min-width:43px!important;max-width:43px!important;
     height:36px!important;min-height:36px!important;max-height:36px!important;
     padding:0!important;
     display:grid!important;place-items:center!important;
