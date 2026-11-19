@@ -15,18 +15,52 @@
 .hit{position:absolute;z-index:3;display:block;border:0;background:transparent;border-radius:16px;cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
 .hit:focus-visible{outline:3px solid #f5ffff;outline-offset:1px;box-shadow:0 0 0 7px #f0079677}
 .hit:active{background:#fff3}
-/* Transparent functional overlays match the exact approved 1193×1319 hero.
-   Entire provider tiles (logo + body + order button) are touch targets. */
-.reference img.fotaxi-official-logo{position:absolute;z-index:2;left:6.2%;top:75.15%;width:18.1%;height:7.1%;
- display:block;object-fit:fill;border-radius:4px;pointer-events:none;user-select:none;
- box-shadow:0 1px 5px #12071a99}
-
+/* Four pixel-aligned premium cards recreate the user-approved neon design.
+   The base hero artwork stays untouched; ordering remains on independent
+   transparent overlay buttons, so the full tile is a genuine touch target. */
+.taxi-company-grid{position:absolute;z-index:2;left:2.3%;top:73.65%;width:95.4%;height:20.6%;
+ display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.8%;
+ border:0;pointer-events:none;user-select:none}
+.taxi-brand-tile{position:relative;min-width:0;height:100%;overflow:hidden;
+ border:1px solid #ffb6eddb;border-radius:12%;background:
+ radial-gradient(ellipse 86% 22% at 50% 0%,#f52eb27c 0%,transparent 100%),
+ linear-gradient(165deg,#5e285b 0%,#301637 30%,#1c0c29 77%,#100818 100%);
+ box-shadow:0 0 6px #f52aa6bc,0 0 12px #f522a94e,inset 0 1px 2px #ffc6f5a1,
+ inset 0 -3px 6px #ef33bc64}
+.taxi-brand-tile:before{content:"";position:absolute;z-index:0;inset:1.4% 1.6%;
+ border:1px solid #f17dc84f;border-radius:12%;pointer-events:none;
+ background:linear-gradient(170deg,#ffceef20,transparent 35%);}
+.taxi-brand-badge{position:absolute;z-index:1;left:7%;top:20%;width:86%;height:42%;
+ display:flex;align-items:center;justify-content:center;overflow:hidden;
+ border:1px solid #f8e5f4ad;border-radius:16%;text-align:center;
+ box-shadow:inset 0 1px 2px #ffffff59,0 2px 6px #0d0715c4}
+.taxi-brand-badge--fotaxi{background:linear-gradient(130deg,#ff2425,#db000b)}
+.taxi-brand-badge--fotaxi img{display:block;width:100%;height:100%;object-fit:contain}
+.taxi-brand-badge--bolt{background:linear-gradient(150deg,#1fda64,#00a531 65%,#008f2d);
+ color:#fff;font-size:clamp(10px,3vw,20px);font-weight:900;letter-spacing:-.07em;
+ white-space:nowrap;text-shadow:0 1px 2px #063d24a6}
+.taxi-brand-badge--city{background:linear-gradient(135deg,#fff31c,#ffca06);
+ color:#080808;flex-direction:column;font-weight:1000}
+.taxi-brand-badge--city strong{font-size:clamp(9px,2.85vw,19px);font-style:italic;
+ letter-spacing:-.085em;white-space:nowrap;transform:scaleX(.96)}
+.taxi-city-checker{width:82%;height:11%;margin-top:1%;
+ background:repeating-conic-gradient(#111 0% 25%,transparent 0% 50%) 0 0/8px 8px}
+.taxi-brand-badge--uber{background:linear-gradient(160deg,#242424,#020202);
+ color:#fff;font-size:clamp(15px,4.5vw,27px);font-weight:650;letter-spacing:-.06em}
+.taxi-brand-order{position:absolute;z-index:1;left:6.5%;bottom:10%;width:87%;height:24%;
+ display:flex;align-items:center;justify-content:center;gap:2px;
+ border:1px solid #ffb7e4;border-radius:99px;
+ background:linear-gradient(180deg,#ff71c1 0%,#ff168c 45%,#c80068 100%);
+ box-shadow:inset 0 1px 2px #ffdaefad,0 2px 8px #f6008e96,0 0 4px #ff7fc2;
+ color:#fff;font-weight:850;font-size:clamp(7px,2.15vw,13px);white-space:nowrap;
+ text-shadow:0 1px 2px #87003b}
+.taxi-brand-order>span{font-size:clamp(12px,3vw,19px);line-height:1;margin-top:-1px}
 .hit--calc{left:3.2%;top:47.5%;width:35.0%;height:25.8%}
 .hit--info{left:39.8%;top:47.5%;width:57.2%;height:25.8%}
-.hit--fotaxi{left:2.7%;top:73.65%;width:22.6%;height:20.6%}
-.hit--bolt{left:27.7%;top:73.65%;width:22.7%;height:20.6%}
-.hit--city{left:51.5%;top:73.65%;width:22.7%;height:20.6%}
-.hit--uber{left:75.4%;top:73.65%;width:22.3%;height:20.6%}
+.hit--fotaxi{left:2.3%;top:73.65%;width:23.5%;height:20.6%}
+.hit--bolt{left:26.35%;top:73.65%;width:23.5%;height:20.6%}
+.hit--city{left:50.4%;top:73.65%;width:23.6%;height:20.6%}
+.hit--uber{left:74.5%;top:73.65%;width:23.2%;height:20.6%}
 .dialog[hidden]{display:none}.dialog{position:fixed;inset:0;z-index:120;display:flex;align-items:center;justify-content:center;padding:7px;background:#05000cce;backdrop-filter:blur(9px)}
 .dialog-card{width:min(100%,560px);max-height:calc(100dvh - 16px);overflow:auto;border:1px solid #ff69b1b3;border-radius:22px;padding:22px 18px;background:linear-gradient(155deg,#28203f,#130e25 60%,#240d2c);box-shadow:0 15px 75px #000,0 0 22px #f0057f33}
 /* S24 Ultra: larger, comfortably scrollable calculator modal, preserving the Golden nav beneath it. */
@@ -156,7 +190,12 @@
 <main class="wrap">
 <div class="reference" aria-label="SHO Smart Taxi hivatalos indulóoldal">
 <img src="./assets/SHO_Smart_Taxi_approved.png" width="1193" height="1319" alt="SHO Smart Taxi. Négy budapesti taxi: Főtaxi, Bolt, City Taxi és Uber. Viteldíj-kalkulátor, hivatalos tarifa és rendelési gombok.">
-<img class="fotaxi-official-logo" src="./assets/fotaxi-official-red-v1.png?v=20261119-official-logo" width="346" height="146" alt="" aria-hidden="true">
+<div class="taxi-company-grid" aria-hidden="true">
+ <div class="taxi-brand-tile"><div class="taxi-brand-badge taxi-brand-badge--fotaxi"><img src="./assets/fotaxi-official-red-v1.png?v=20261119-official-logo" width="346" height="146" alt=""></div><div class="taxi-brand-order">Taxi rendelés <span>›</span></div></div>
+ <div class="taxi-brand-tile"><div class="taxi-brand-badge taxi-brand-badge--bolt">Bolt Taxi</div><div class="taxi-brand-order">Taxi rendelés <span>›</span></div></div>
+ <div class="taxi-brand-tile"><div class="taxi-brand-badge taxi-brand-badge--city"><strong>CITY TAXI</strong><i class="taxi-city-checker"></i></div><div class="taxi-brand-order">Taxi rendelés <span>›</span></div></div>
+ <div class="taxi-brand-tile"><div class="taxi-brand-badge taxi-brand-badge--uber">Uber</div><div class="taxi-brand-order">Taxi rendelés <span>›</span></div></div>
+</div>
 <button class="hit hit--calc" type="button" aria-label="Viteldíj-kalkulátor csempe megnyitása" data-action="calc" title="Viteldíj-kalkulátor"></button>
 <button class="hit hit--info" type="button" aria-label="Hivatalos taxitarifa csempe nagyítása" data-action="tariff" title="Hivatalos tarifatáblázat nagyítása"></button>
 <button class="hit hit--fotaxi" type="button" aria-label="Főtaxi rendelés" data-action="fotaxi" title="Főtaxi taxirendelés"></button>
