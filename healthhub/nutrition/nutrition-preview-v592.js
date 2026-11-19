@@ -288,21 +288,70 @@ function render(){
 
  const log=$('log');
  // v1134: Always show populated meal groups; totals without visible foods are misleading.
- // Empty meal groups remain collapsed; users may manually collapse until the next redraw.
+ // v1209: Water diary starts CLOSED. Keep the user's open state on the same
+ // profile/day when the log re-renders after a glass tap, edit, or deletion.
+ const waterLogContext=active+'|'+date;
+ const existingWaterLog=log.querySelector('details.hh-day-water-log-v1209');
+ const keepWaterLogOpen=log.dataset.waterLogContext===waterLogContext&&existingWaterLog?.open===true;
+ log.dataset.waterLogContext=waterLogContext;
  const visibleMealCount=entries.length;
  log.replaceChildren();
- // Diary hydration summary is derived from dated entries, never a second or
- // duplicated stored intake record. Thus edits, deletes, Dropbox merge and
- // historical date selection all update the correct profile/day total.
- const dayWater=document.createElement('div');
- dayWater.className='entry hh-day-water-summary';
- dayWater.setAttribute('role','note');
+ // This is the REAL intake ledger. Reset/empty-pitcher events are separate
+ // non-intake audit markers and must never masquerade as retained water drinks.
+ // The list is rebuilt from active (non-deleted) entries on every render,
+ // including after an edit, delete, Dropbox merge, or day/profile switch.
+ const waterEntries=entries.filter(e=>Number.isFinite(e.volumeMl))
+  .sort((a,b)=>String(b.time||'').localeCompare(String(a.time||'')));
+ const dayWater=document.createElement('details');
+ dayWater.className='hh-day-water-log-v1209';
+ dayWater.open=keepWaterLogOpen; // First open, new profile and new day: CLOSED.
+ const waterHead=document.createElement('summary');
+ waterHead.className='entry hh-day-water-summary';
  const dayWaterCopy=document.createElement('span');
  dayWaterCopy.textContent='💧 '+(date===localDate()?'Mai':'Napi')+' naplózott folyadék · '+date;
  const dayWaterTotal=document.createElement('b');
  dayWaterTotal.textContent=fmt(fluidTotal,0)+' ml';
- dayWater.append(dayWaterCopy,dayWaterTotal);log.append(dayWater);
- for(const e of jarEvents(active).filter(e=>e.date===date)){const el=document.createElement('div');el.className='entry';el.textContent='↺ '+e.time+' · '+e.kind+' · napló megőrizve';log.append(el)}
+ const waterChevron=document.createElement('span');
+ waterChevron.className='hh-water-log-chevron-v1209';
+ waterChevron.setAttribute('aria-hidden','true');
+ waterHead.append(dayWaterCopy,dayWaterTotal,waterChevron);
+ dayWater.append(waterHead);
+ const waterBody=document.createElement('div');
+ waterBody.className='hh-water-log-items-v1209';
+ if(!waterEntries.length){
+  const none=document.createElement('p');
+  none.className='empty';none.textContent='Ezen a napon nincs naplózott folyadék.';
+  waterBody.append(none);
+ }else{
+  for(const e of waterEntries){
+   const item=document.createElement('div');item.className='entry hh-water-log-row-v1209';
+   item.dataset.entryId=e.id;
+   const info=document.createElement('div');
+   const title=document.createElement('strong');
+   title.textContent=(e.icon||'💧')+' '+(e.name||'Ital');
+   const meta=document.createElement('small');
+   meta.textContent=(e.time||'')+(e.quantityText?' · '+e.quantityText:'');
+   info.append(title,meta);
+   const actions=document.createElement('aside');
+   const vol=document.createElement('b');
+   vol.textContent=fmt(e.volumeMl,0)+' ml';
+   const remove=document.createElement('button');
+   remove.type='button';remove.className='mini hh-water-log-delete-v1209';
+   remove.textContent='×';
+   remove.title='Ez a folyadékbejegyzés törlése';
+   remove.setAttribute('aria-label',(e.name||'Ital')+' · '+fmt(e.volumeMl,0)+' ml törlése a napi naplóból');
+   remove.addEventListener('click',()=>{
+    // Same soft-delete used by the normal meal diary. The persisted/cloud-
+    // synced entry is marked deleted; render rebuilds both views from it.
+    update(d=>{
+     const row=d.entries.find(x=>x.id===e.id);
+     if(row&&!row.deleted){row.deleted=true;row.updatedAt=stamp();}
+    });
+   });
+   actions.append(vol,remove);item.append(info,actions);waterBody.append(item);
+  }
+ }
+ dayWater.append(waterBody);log.append(dayWater);
  if(!entries.length){const empty=document.createElement('p');empty.className='empty';empty.textContent='Még nincs bevitel erre a napra. A reggeli cappuccino egy jó kezdet. ☕';log.append(empty);}
  const mealGrid=document.createElement('div');mealGrid.className='hh-meal-diary-grid';
  mealGrid.setAttribute('aria-label','Étkezésenkénti napi bontás');
