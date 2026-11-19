@@ -1,4 +1,4 @@
-/* Family Guard Léna Premium Map Zoom Alignment v1189 · 2026-11-19
+/* Family Guard Léna Premium Map Zoom Alignment v1190 · 2026-11-19
    User-requested correction: zoom controls must stay SMALL, about HALF the
    89px width of the top-right Follow / 3D / Satellite stack. Align their
    right edge with the top stack at 4px; keep the original Y position.
@@ -13,7 +13,7 @@
   .map-card:not(.hh-map-full-v819) #guardianMap
   .maplibregl-ctrl-bottom-right .maplibregl-ctrl-group{
     box-sizing:border-box!important;
-    width:45px!important;min-width:45px!important;max-width:45px!important;
+    width:40px!important;min-width:40px!important;max-width:40px!important;
     margin:0 0 2px 0!important;
     border-radius:13px!important;
     border:1px solid rgba(203,232,255,.65)!important;
@@ -33,7 +33,7 @@
   .map-card:not(.hh-map-full-v819) #guardianMap
   .maplibregl-ctrl-bottom-right .maplibregl-ctrl-group button{
     box-sizing:border-box!important;
-    width:43px!important;min-width:43px!important;max-width:43px!important;
+    width:38px!important;min-width:38px!important;max-width:38px!important;
     height:36px!important;min-height:36px!important;max-height:36px!important;
     padding:0!important;
     display:grid!important;place-items:center!important;
