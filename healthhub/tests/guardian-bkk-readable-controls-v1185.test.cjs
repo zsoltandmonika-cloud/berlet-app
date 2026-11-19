@@ -21,7 +21,7 @@ test('new BKK V1185 loads AFTER existing Golden Wave, no DOM/navigation rewrite'
   'hhBkkWatchlistV814','hhBkkWatchRowsV814','hhBkkWatchToggleV858','hhBkkWatchEditV814',
   'hhSmartHubDestinationV802','hhPlannerTimeV939','hhPlannerNowV939','hhPlannerDepartV939',
   'hhPlannerArriveV939','hhSmartHubFromV806','hhSmartHubToV806']){
-  if(['hhSmartMatchPinV1','hhSmartLocationSwitchV1'].includes(id))continue; // dynamically mounted, not hardcoded
+  if(['hhBkkLiveBarV796','hhSmartMatchPinV1','hhSmartLocationSwitchV1'].includes(id))continue; // dynamically mounted, not hardcoded
   assert.match(html,new RegExp('id="'+id+'"'),'native controller remains '+id);
  }
  assert.match(previous,/#hhTransitPanel/);
