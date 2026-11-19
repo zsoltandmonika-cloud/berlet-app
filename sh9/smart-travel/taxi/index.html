@@ -112,8 +112,8 @@
 }
 #taxiCurrentMap .maplibregl-ctrl-attrib.maplibregl-compact:not(.maplibregl-compact-show),
 #txRouteMapSection .maplibregl-ctrl-attrib.maplibregl-compact:not(.maplibregl-compact-show){
- width:29px!important;min-width:29px!important;height:29px!important;
- min-height:29px!important;max-width:29px!important;
+ width:26px!important;min-width:26px!important;height:26px!important;
+ min-height:26px!important;max-width:26px!important;
  padding:0!important;border-radius:50%!important;
 }
 #taxiCurrentMap .maplibregl-ctrl-attrib.maplibregl-compact:not(.maplibregl-compact-show) .maplibregl-ctrl-attrib-inner,
@@ -122,14 +122,14 @@
 }
 #taxiCurrentMap .maplibregl-ctrl-attrib-button,
 #txRouteMapSection .maplibregl-ctrl-attrib-button{
- display:block!important;position:relative!important;width:28px!important;
- height:28px!important;min-width:28px!important;min-height:28px!important;
+ display:block!important;position:relative!important;width:25px!important;
+ height:25px!important;min-width:25px!important;min-height:25px!important;
  background:none!important;border:0!important;cursor:pointer!important;
 }
 #taxiCurrentMap .maplibregl-ctrl-attrib-button::after,
 #txRouteMapSection .maplibregl-ctrl-attrib-button::after{
  content:"ⓘ";position:absolute;inset:0;display:flex;align-items:center;
- justify-content:center;color:#fce5f7;font:700 19px/1 system-ui,sans-serif;
+ justify-content:center;color:#fce5f7;font:700 16px/1 system-ui,sans-serif;
 }
 #taxiCurrentMap .maplibregl-ctrl-attrib-inner,
 #txRouteMapSection .maplibregl-ctrl-attrib-inner{
@@ -242,6 +242,7 @@ D.forEach(el=>el.addEventListener('click',ev=>{if(ev.target===el)close()}));docu
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.2/dist/umd/supabase.min.js"></script>
 <script defer src="./taxi-map-theme-v1.js?v=20261119-taxi-dark-v1"></script>
 <script defer src="./taxi-route-v8-fare-map.js?v=20261119-v8-shared-map-theme"></script>
-<script defer src="./taxi-route-result-map-v1.js?v=20261119-compact-dark-credits-v2"></script>
-<script defer src="./taxi-current-location-map-v1.js?v=20261119-compact-dark-credits-v2"></script>
+<script defer src="./taxi-map-credits-compact-v3.js?v=20261119-credits-auto-collapse-v3"></script>
+<script defer src="./taxi-route-result-map-v1.js?v=20261119-credits-auto-collapse-v3"></script>
+<script defer src="./taxi-current-location-map-v1.js?v=20261119-credits-auto-collapse-v3"></script>
 </body></html>
