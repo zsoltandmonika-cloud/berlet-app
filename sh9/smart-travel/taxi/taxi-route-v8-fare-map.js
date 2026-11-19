@@ -259,7 +259,7 @@ for(const name of ['from','to']){
  }
  favButton?.addEventListener('click',()=>{
   clearTimeout(timer);serial++;
-  render(favoriteMatches(input.value.trim(),40),'Kedvenceim',40);
+  render(favoriteMatches('',40),'Kedvenceim',40);
  });
  input.addEventListener('input',()=>{
   data[name]=null;clearList();el('txCost').hidden=true;
