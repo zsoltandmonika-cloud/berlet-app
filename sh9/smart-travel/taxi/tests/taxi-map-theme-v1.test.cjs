@@ -80,3 +80,24 @@ test('Both live maps use exactly the same theme manager, keep their pin/route da
  assert.doesNotThrow(()=>new vm.Script(gps));
  assert.doesNotThrow(()=>new vm.Script(preview));
 });
+
+test('White expanded attribution strip is replaced on both maps, without deleting OpenStreetMap credits',()=>{
+ const a=index.indexOf('/* Both Taxi maps: replace the large white attribution strip');
+ assert.ok(a>=0,'Golden compact attribution styles missing');
+ const block=index.slice(a,index.indexOf('*/',a)+2);
+ assert.match(block,/credits remain tap-accessible/i);
+ for(const id of ['taxiCurrentMap','txRouteMapSection']){
+  assert.match(index,new RegExp('#'+id+' \\\\.maplibregl-ctrl-attrib'));
+  assert.match(index,new RegExp('#'+id+' \\\\.maplibregl-ctrl-attrib-button'));
+ }
+ assert.match(index,/\.maplibregl-ctrl-attrib\.maplibregl-compact:not\(\.maplibregl-compact-show\)/);
+ assert.match(index,/width:29px!important;min-width:29px!important;height:29px!important/);
+ assert.match(index,/content:"ⓘ"/);
+ assert.match(index,/background:#161b34ef!important/);
+ assert.match(index,/\.maplibregl-ctrl-attrib-inner/);
+ assert.match(index,/20261119-compact-dark-credits-v2/);
+ assert.match(gps,/attributionControl:\{compact:true\}/);
+ assert.match(preview,/attributionControl:\{compact:true\}/);
+ assert.doesNotMatch(gps,/attributionControl:false/);
+ assert.doesNotMatch(preview,/attributionControl:false/);
+});
