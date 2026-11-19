@@ -87,8 +87,8 @@ test('White expanded attribution strip is replaced on both maps, without deletin
  const block=index.slice(a,index.indexOf('*/',a)+2);
  assert.match(block,/credits remain tap-accessible/i);
  for(const id of ['taxiCurrentMap','txRouteMapSection']){
-  assert.match(index,new RegExp('#'+id+' \\\\.maplibregl-ctrl-attrib'));
-  assert.match(index,new RegExp('#'+id+' \\\\.maplibregl-ctrl-attrib-button'));
+   assert.ok(index.includes('#'+id+' .maplibregl-ctrl-attrib'),'Attribution CSS missing for '+id);
+   assert.ok(index.includes('#'+id+' .maplibregl-ctrl-attrib-button'),'Compact info control missing for '+id);
  }
  assert.match(index,/\.maplibregl-ctrl-attrib\.maplibregl-compact:not\(\.maplibregl-compact-show\)/);
  assert.match(index,/width:29px!important;min-width:29px!important;height:29px!important/);
