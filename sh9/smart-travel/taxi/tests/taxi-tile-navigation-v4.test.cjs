@@ -6,7 +6,7 @@ const path=require('node:path');
 const vm=require('node:vm');
 const base=path.resolve(__dirname,'..');
 const index=fs.readFileSync(path.join(base,'index.html'),'utf8');
-const client=fs.readFileSync(path.join(base,'taxi-route-v5-fotaxi.js'),'utf8');
+const client=fs.readFileSync(path.join(base,'taxi-route-v6-brand-buttons.js'),'utf8');
 const nav=fs.readFileSync(path.resolve(base,'../../shared/sh9-golden-bottom-nav-v924.js'),'utf8');
 const css=fs.readFileSync(path.resolve(base,'../../shared/sh9-golden-bottom-nav-v924.css'),'utf8');
 function box(kind){
@@ -81,19 +81,29 @@ test('Card clicks open their respective dialogs, and escape closes each',()=>{
  assert.equal(dialogs.tariffDialog.hidden,true);
 });
 
-test('Főtaxi yellow checker button opens the official calculator and the provided logo appears underneath',()=>{
+test('Smart Taxi premium CTA and official Főtaxi checker CTA are together, with brand marks inside',()=>{
+ assert.match(index,/taxi-route-v6-brand-buttons\.js/);
+ assert.match(client,/id="txEstimate" aria-label="Smart Taxi viteldíj-kalkulátor"/);
+ assert.match(client,/Smart Taxi<br>viteldíj-kalkulátor/);
+ assert.match(client,/class="tx-sho-logo" src="\.\/assets\/sho-taxi-button-v6\.webp"/);
  assert.match(client,/class="tx-fotaxi-link" id="txFotaxiOfficial"/);
  assert.match(client,/href="https:\/\/fotaxi\.hu\/utasoknak\/viteldij-kalkulator\/"/);
- assert.match(client,/target="_blank" rel="noopener noreferrer"/);
- assert.match(client,/class="tx-fotaxi-logo" src="\.\/assets\/fotaxi-official-mark-v1\.webp"/);
- assert.ok(client.indexOf('class="tx-fotaxi-logo"')>client.indexOf('id="txFotaxiOfficial"'),
-   'The supplied Főtaxi logo must be placed beneath the official calculator button');
+ assert.match(client,/class="tx-fotaxi-logo" src="\.\/assets\/fotaxi-inline-button-v6\.webp"/);
  assert.match(client,/background:repeating-conic-gradient\(#141414 0% 25%,#fff 0% 50%\)/);
  assert.match(client,/background:linear-gradient\(145deg,#ffe875 0%,#ffd334 52%,#ffb51c 100%\)/);
- const logo=fs.readFileSync(path.join(base,'assets/fotaxi-official-mark-v1.webp'));
- assert.ok(logo.byteLength>1500,'Főtaxi logo asset missing or unexpectedly small');
- assert.equal(logo.toString('ascii',0,4),'RIFF');
- assert.equal(logo.toString('ascii',8,12),'WEBP');
+ assert.match(client,/background:linear-gradient\(120deg,#102a55 0%,#34245a 50%,#782257 100%\)/);
+ const open=client.indexOf('id="txEstimate"'), official=client.indexOf('id="txFotaxiOfficial"');
+ const status=client.indexOf('id="txStatus"');
+ assert.ok(open>=0&&official>open&&status>official,'The two CTA buttons must be consecutive, before helper text');
+ assert.match(client,/#taxiRouteV2 \.tx-fotaxi\{margin:8px 0 0;padding:0/);
+ assert.doesNotMatch(client,/tx-fotaxi\{margin-top:auto/);
+ assert.match(client,/border:0!important;outline:0!important;box-shadow:none!important;border-radius:0!important/);
+ for(const file of ['sho-taxi-button-v6.webp','fotaxi-inline-button-v6.webp']){
+   const bytes=fs.readFileSync(path.join(base,'assets',file));
+   assert.ok(bytes.byteLength>1000,file+' missing');
+   assert.equal(bytes.toString('ascii',0,4),'RIFF');
+   assert.equal(bytes.toString('ascii',8,12),'WEBP');
+ }
 });
 test('S24 Ultra calculator popup is larger, scroll-safe and remains above the Golden Standard bottom bar',()=>{
  assert.match(index,/#calcDialog \.dialog-card\{min-height:min\(618px,calc\(100dvh - 100px\)\);display:flex;flex-direction:column\}/);
