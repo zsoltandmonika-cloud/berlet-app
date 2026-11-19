@@ -38,7 +38,8 @@
   // Do not download optional styling when Home or any other module is open.
   var files=[
    './skins/lena-premium-v1.css?v=1',
-   './skins/activity-lena-premium-v1.css?v=1'
+   './skins/activity-lena-premium-v1.css?v=1',
+   './skins/activity-lena-benchmark-v2.css?v=2-sleep1173'
   ];
   Promise.all(files.map(function(src){
    return new Promise(function(resolve,reject){
