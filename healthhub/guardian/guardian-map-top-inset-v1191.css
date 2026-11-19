@@ -1,0 +1,16 @@
+/* Family Guard · Léna Premium Top Controls v1191 · 2026-11-19
+   Approved top-edge alignment only, from the user's screenshot.
+   The Follow button already begins at top:3px, right:4px; 3D at 41px and
+   Satellite at 79px. Move ONLY the existing left fullscreen toggle from
+   its legacy top:17px, left:9px to top:3px, left:4px.
+   Retain original button dimensions (44×44 vs 89×36), icon, accessibility
+   hit area, map gestures, camera, native MapLibre zoom v1190 and fullscreen
+   layout. Zero added map occlusion and no JavaScript/data changes. */
+@media (max-width:600px) and (orientation:portrait){
+ html:not([data-sh9-transit="on"]) body .shell[data-hh-skin="lena-premium"]
+ .map-card:not(.hh-map-full-v819):not(:fullscreen)
+ #guardianMapSizeToggleV864.hh-map-size-toggle-v864{
+  top:3px!important;
+  left:4px!important;
+ }
+}
