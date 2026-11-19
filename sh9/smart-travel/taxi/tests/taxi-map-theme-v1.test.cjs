@@ -91,13 +91,15 @@ test('White expanded attribution strip is replaced on both maps, without deletin
    assert.ok(index.includes('#'+id+' .maplibregl-ctrl-attrib-button'),'Compact info control missing for '+id);
  }
  assert.match(index,/\.maplibregl-ctrl-attrib\.maplibregl-compact:not\(\.maplibregl-compact-show\)/);
- assert.match(index,/width:29px!important;min-width:29px!important;height:29px!important/);
+ assert.match(index,/width:26px!important;min-width:26px!important;height:26px!important/);
  assert.match(index,/content:"ⓘ"/);
  assert.match(index,/background:#161b34ef!important/);
  assert.match(index,/\.maplibregl-ctrl-attrib-inner/);
- assert.match(index,/20261119-compact-dark-credits-v2/);
+ assert.match(index,/20261119-credits-auto-collapse-v3/);
  assert.match(gps,/attributionControl:\{compact:true\}/);
+ assert.match(gps,/SHO_TAXI_COMPACT_ATTRIBUTION_V3\?\.bind\?\.\(map\)/);
  assert.match(preview,/attributionControl:\{compact:true\}/);
+ assert.match(preview,/SHO_TAXI_COMPACT_ATTRIBUTION_V3\?\.bind\?\.\(map\)/);
  assert.doesNotMatch(gps,/attributionControl:false/);
  assert.doesNotMatch(preview,/attributionControl:false/);
 });
