@@ -233,6 +233,64 @@ body[data-lp-module="nutrition"] :is(.hh-bevitel-tile,.hh-nutrition-quick-tile-v
 body[data-lp-module="nutrition"] .balance.hh-body{
  background-image:radial-gradient(ellipse at 26% 4%,var(--lpv-glow),transparent 60%),linear-gradient(145deg,rgba(69,69,141,.92),rgba(22,43,90,.97))!important;
 }
+
+/* Notification Center: leave live subscriptions, inbox state and switches alone. */
+body[data-lp-module="notifications"] .nc-shell{
+ background:linear-gradient(180deg,#19244a,#0e1b39 56%,#08162e)!important;
+}
+body[data-lp-module="notifications"] .nc-hero{
+ border-color:var(--lpv-border)!important;
+ box-shadow:var(--lpv-shadow)!important;
+}
+body[data-lp-module="notifications"] :is(.nc-content,.nc-tabs,.nc-panel,
+.nc-sound-panel,.nc-push-panel,.nc-place-panel,.nc-confirm){
+ border-color:var(--lpv-border)!important;
+ box-shadow:var(--lpv-shadow)!important;
+}
+body[data-lp-module="notifications"] :is(.nc-panel,.nc-sound-panel,
+.nc-push-panel,.nc-place-panel){
+ background-image:radial-gradient(ellipse at 20% 3%,var(--lpv-glow),transparent 53%),
+ linear-gradient(145deg,rgba(75,81,150,.91),rgba(23,46,101,.96))!important;
+}
+body[data-lp-module="notifications"] .nc-tabs{
+ background:linear-gradient(130deg,rgba(95,68,145,.82),rgba(29,57,114,.92))!important;
+}
+/* My Trips: protect saved trip data, ticket documents and full-screen reader. */
+body[data-lp-module="mytrips"] .mt-shell{
+ background:linear-gradient(180deg,#182447,#0e1b3a 56%,#081630)!important;
+}
+body[data-lp-module="mytrips"] .mt-hero{
+ border-color:var(--lpv-border)!important;
+ box-shadow:var(--lpv-shadow)!important;
+}
+body[data-lp-module="mytrips"] :is(.mt-quick,.mt-list,.mt-tracking-section,
+.mt-files-dialog,.mt-files-upload,.mt-tracking-search,.mt-note){
+ border-color:var(--lpv-border)!important;
+ box-shadow:var(--lpv-shadow)!important;
+}
+body[data-lp-module="mytrips"] :is(.mt-quick,.mt-tracking-section,
+.mt-files-dialog,.mt-files-upload,.mt-tracking-search){
+ background:var(--lpv-panel)!important;
+}
+body[data-lp-module="mytrips"] :is(.mt-action,.mt-valet-hub-link){
+ border-color:var(--lpv-border)!important;
+ box-shadow:0 0 12px var(--lpv-glow),inset 0 1px rgba(255,255,255,.19)!important;
+}
+/* Book Studio: preserve the actual wood shelf and book art; premiumize its UI chrome. */
+body[data-lp-module="books"].bshelf-v10-page{
+ background:linear-gradient(180deg,#1a2147,#0e1835 65%,#08152d)!important;
+}
+body[data-lp-module="books"] :is(.bshelf-appbar,.bshelf-search-panel,
+.bshelf-admin,.bshelf-manage-panel,.bshelf-offline-panel,.bs-local-shell){
+ border-color:var(--lpv-border)!important;
+ box-shadow:var(--lpv-shadow)!important;
+}
+body[data-lp-module="books"] :is(.bshelf-appbar,.bshelf-search-panel,
+.bshelf-admin,.bshelf-manage-panel,.bshelf-offline-panel){
+ background-image:radial-gradient(ellipse at 22% 0%,var(--lpv-glow),transparent 53%),
+ linear-gradient(145deg,rgba(83,73,142,.90),rgba(23,46,100,.95))!important;
+}
+
 /* Keep native show/hide and "reduced motion" guarantees. */
 @media(prefers-reduced-motion:reduce){
  body[data-lp-v2="on"] :is(.tile,.st-tile,.cat,.sv-category,.fh-stat,.hh-bevitel-tile){
