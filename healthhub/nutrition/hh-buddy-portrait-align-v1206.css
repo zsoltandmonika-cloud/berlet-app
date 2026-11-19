@@ -1,0 +1,9 @@
+/* HealthHub Nutrition v1206 · approved 5px Buddy portrait micro-alignment.
+ * Only the visible RAG mood sprite moves; the hidden legacy #buddy,
+ * calorie rings, quick-add button, parent layout and RAG face selection stay.
+ * A transform on the portrait alone moves 5px right and 5px down.
+ */
+body[data-lp-v2="on"][data-lp-module="nutrition"]
+ #balanceCard #hhBuddyMood.hh-buddy-mood .hh-buddy-face{
+ transform:translate(5px, 5px)!important;
+}
