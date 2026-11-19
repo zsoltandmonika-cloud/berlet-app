@@ -19,7 +19,7 @@ test('V8: fare top scroll with pinned bottom Close/Uber and intact old calculato
  assert.match(fare,/viewport\?\.classList\.add\('has-result'\)/);
  assert.match(index,/taxi-route-v8-fare-map\.js\?v=20261119-v8-shared-map-theme/);
  assert.match(fare,/\.tx-route-map-canvas\{position:relative;height:clamp\(325px,calc\(46dvh \+ 15px\),435px\)/);
- assert.match(index,/taxi-route-result-map-v1\.js\?v=20261119-credits-auto-collapse-v3/);
+ assert.match(index,/taxi-route-result-map-v1\.js\?v=20261119-dark-road-legibility-v1/);
  assert.match(index,/taxi-current-location-map-v1\.js/);
  assert.match(index,/src="\.\/assets\/SHO_Smart_Taxi_approved\.png" width="1193" height="1319"/);
  assert.match(index,/sh9-golden-bottom-nav-v924\.js/);
