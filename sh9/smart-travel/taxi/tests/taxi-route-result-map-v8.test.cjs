@@ -19,7 +19,7 @@ test('V8: fare top scroll with pinned bottom Close/Uber and intact old calculato
  assert.match(fare,/viewport\?\.classList\.add\('has-result'\)/);
  assert.match(index,/taxi-route-v8-fare-map\.js\?v=20261119-v8-shared-map-theme/);
  assert.match(fare,/\.tx-route-map-canvas\{position:relative;height:clamp\(325px,calc\(46dvh \+ 15px\),435px\)/);
- assert.match(index,/taxi-route-result-map-v1\.js\?v=20261119-dark-map-v1/);
+ assert.match(index,/taxi-route-result-map-v1\.js\?v=20261119-compact-dark-credits-v2/);
  assert.match(index,/taxi-current-location-map-v1\.js/);
  assert.match(index,/src="\.\/assets\/SHO_Smart_Taxi_approved\.png" width="1193" height="1319"/);
  assert.match(index,/sh9-golden-bottom-nav-v924\.js/);
@@ -97,6 +97,7 @@ test('One successful preview renders the actual road polyline and A/B markers wi
  assert.equal(e.els.txRouteMapSection.hidden,false);
  assert.equal(e.els.txRouteMapSection.dataset.state,'ready');
  assert.equal(e.created.maps.length,1);
+ assert.equal(e.created.maps[0].options.attributionControl.compact,true,'source credits should stay accessible via compact info control');
  assert.equal(e.created.markers.length,2);
  assert.equal(e.created.markers[0].el.dataset.label,'A');
  assert.equal(e.created.markers[1].el.dataset.label,'B');
