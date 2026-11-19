@@ -14,7 +14,7 @@
  if(!section||!canvas||!message||!retry||!centerBtn)return;
  const LIB_JS='https://cdn.jsdelivr.net/npm/maplibre-gl@4.7.1/dist/maplibre-gl.js';
  const LIB_CSS='https://cdn.jsdelivr.net/npm/maplibre-gl@4.7.1/dist/maplibre-gl.css';
- const MAP_STYLE='https://tiles.openfreemap.org/styles/bright';
+ const mapStyle=()=>w.SHO_TAXI_MAP_THEME_V1?.style?.()||'https://tiles.openfreemap.org/styles/dark';
  let map=null,marker=null,last=null,loadPromise=null,busy=false,locationCall=0;
  const valid=p=>!!p&&Number.isFinite(p.coords?.latitude)&&Number.isFinite(p.coords?.longitude)&&
   Math.abs(p.coords.latitude)<=90&&Math.abs(p.coords.longitude)<=180;
@@ -62,7 +62,7 @@
    await loadMapLibre();
    if(!map){
     map=new w.maplibregl.Map({
-     container:canvas,style:MAP_STYLE,
+     container:canvas,style:mapStyle(),
      center:[pos.coords.longitude,pos.coords.latitude],zoom:16,
      pitch:0,bearing:0,attributionControl:true,antialias:false
     });
@@ -104,6 +104,10 @@
    {enableHighAccuracy:true,maximumAge:15000,timeout:14000}
   );
  }
+ // Switch the existing map's basemap in place; GPS pin and map camera are preserved.
+ w.SHO_TAXI_MAP_THEME_V1?.subscribe?.(()=>{
+  if(map&&typeof map.setStyle==='function')map.setStyle(mapStyle());
+ });
  retry.addEventListener('click',locate);
  centerBtn.addEventListener('click',()=>{
   if(last&&map){drawPin(last);return;}
