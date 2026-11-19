@@ -11,6 +11,9 @@ on:
       - 'sh9/wallet/index.html'
       - 'sh9/entertainment/index.html'
       - 'sh9/family-hub/index.html'
+      - 'sh9/notification-center/index.html'
+      - 'sh9/smart-travel/my-trips/index.html'
+      - 'sh9/entertainment/book-studio/index.html'
       - 'healthhub/nutrition/index.html'
       - 'healthhub/skins/activity-lena-benchmark-v2.css'
       - 'healthhub/skins/tests/activity-lena-premium.test.cjs'
@@ -37,5 +40,5 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Validate SHO eight modules, profile switching, exact Sleep wave and activity/guardian fallbacks
+      - name: Validate SHO eleven SHO routes, profile switching, exact Sleep wave and activity/guardian fallbacks
         run: node --test sh9/tests/lena-premium-wave-v2.test.cjs healthhub/skins/tests/activity-lena-premium.test.cjs healthhub/tests/guardian-lena-premium-lower-v1183.test.cjs
