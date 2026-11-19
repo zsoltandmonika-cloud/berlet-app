@@ -116,7 +116,7 @@ test('Smart Taxi premium CTA and official Főtaxi checker CTA are together, with
  assert.match(client,/class="tx-sho-logo" src="\.\/assets\/sho-taxi-button-v6\.webp"/);
  assert.match(client,/class="tx-fotaxi-link" id="txFotaxiOfficial"/);
  assert.match(client,/href="https:\/\/fotaxi\.hu\/utasoknak\/viteldij-kalkulator\/"/);
- assert.match(client,/class="tx-fotaxi-logo" src="\.\/assets\/fotaxi-inline-button-v6\.webp"/);
+ assert.match(client,/class="tx-fotaxi-logo" src="\.\/assets\/fotaxi-official-red-v1\.png\?v=20261119-official-logo"/);
  assert.match(client,/background:repeating-conic-gradient\(#141414 0% 25%,#fff 0% 50%\)/);
  assert.match(client,/background:linear-gradient\(145deg,#ffe875 0%,#ffd334 52%,#ffb51c 100%\)/);
  assert.match(client,/background:linear-gradient\(120deg,#102a55 0%,#34245a 50%,#782257 100%\)/);
@@ -126,7 +126,7 @@ test('Smart Taxi premium CTA and official Főtaxi checker CTA are together, with
  assert.match(client,/#taxiRouteV2 \.tx-fotaxi\{margin:8px 0 0;padding:0/);
  assert.doesNotMatch(client,/tx-fotaxi\{margin-top:auto/);
  assert.match(client,/border:0!important;outline:0!important;box-shadow:none!important;border-radius:0!important/);
- for(const file of ['sho-taxi-button-v6.webp','fotaxi-inline-button-v6.webp']){
+ for(const file of ['sho-taxi-button-v6.webp']){
    const bytes=fs.readFileSync(path.join(base,'assets',file));
    assert.ok(bytes.byteLength>1000,file+' missing');
    assert.equal(bytes.toString('ascii',0,4),'RIFF');
@@ -189,5 +189,5 @@ test('Uber CTA transfers existing SHO pickup/dropoff addresses without changing 
  assert.equal(gps.searchParams.get('dropoff[formatted_address]'),'Budapest Déli pályaudvar');
  assert.equal(clickUber('','').href,'https://m.uber.com/');
  assert.equal(clickUber('Budapest Keleti pályaudvar','').href,'https://m.uber.com/');
- assert.match(index,/taxi-route-v8-fare-map\.js\?v=20261119-v8-shared-map-theme/);
+ assert.match(index,/taxi-route-v8-fare-map\.js\?v=20261119-fotaxi-official-v1/);
 });
