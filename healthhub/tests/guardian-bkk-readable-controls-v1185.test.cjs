@@ -13,7 +13,7 @@ const previous=file('guardian/guardian-lena-benchmark-v1184.css');
 
 test('new BKK V1185 loads AFTER existing Golden Wave, no DOM/navigation rewrite',()=>{
  const wave='guardian-lena-benchmark-v1184.css?v=1184-sleep-v1173-wave';
- const contrast='guardian-bkk-readable-controls-v1185.css?v=1185-readable-actions';
+ const contrast='guardian-bkk-readable-controls-v1185.css?v=1186-dark-glass-header';
  assert.equal(html.split(wave).length,2);
  assert.equal(html.split(contrast).length,2);
  assert.ok(html.indexOf(contrast)>html.indexOf(wave));
@@ -73,4 +73,21 @@ test('No extra wrap/stack/list replacement; style only targets existing elements
  assert.doesNotMatch(css,/position:fixed/);
  assert.doesNotMatch(css,/display:none/);
  assert.match(css,/button:focus-visible/);
+});
+
+test('V1186 styles visible mini panels, not the disabled decorative pseudo',()=>{
+ const marker='/* V1186 · Exact small header contrast correction, 2026-11-19.';
+ assert.ok(css.includes(marker),'new patch appended after v1185');
+ const patch=css.slice(css.indexOf(marker));
+ assert.match(legacy,/#hhBkkLiveBarV796::before,[\s\S]*?content:none!important;display:none!important/);
+ assert.match(patch,/#hhTransitPanel\.hh-transit-panel>#hhBkkLiveBarV796\{/);
+ assert.match(patch,/#hhTransitPanel\.hh-transit-panel:has\(>#hhBkkLiveBarV796\)\s*#hhBkkWatchlistV814 \.hh-bkk-watch-header-v814\{/);
+ assert.match(patch,/#hhBkkWatchToggleV858 \.hh-bkk-watch-toggle-label-v858 strong\{/);
+ assert.match(patch,/#hhBkkWatchToggleV858 \.hh-bkk-watch-toggle-label-v858 small\{/);
+ assert.match(patch,/#hhBkkWatchEditV814\{/);
+ assert.match(patch,/linear-gradient\(126deg,#52366f/);
+ assert.match(patch,/color:#fffaff!important/);
+ assert.match(patch,/\[data-guardian-profile="z"\]/);
+ assert.doesNotMatch(patch,/#hhSmartMatchPinV1::after|#hhSmartLocationSwitchV1|#hhBkkWatchlistV814 \.hh-bkk-watch-row-v814/);
+ assert.doesNotMatch(patch,/(^|[;\s])(?:width|height|min-height|display|position|grid-template-columns|padding|margin)\s*:/);
 });
