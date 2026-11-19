@@ -1,0 +1,136 @@
+/* Family Guard · BKK mobile origin/destination search · Golden Standard
+ * Premium Dark Glass v1196 · approved 2026-11-19 mockup.
+ * CSS-only and modal-scoped. Preserve the ONE real v964 input, predictions,
+ * focus/keyboard positioning, GPS button and result click listeners. */
+#hhBkkKeyboardDockV964.hh-bkk-keyboard-v964{
+ --hhkb-ink:#f9f7ff!important;
+ --hhkb-muted:#c8d0e8!important;
+ --hhkb-accent:#ef9dd6!important;
+ --hhkb-selected:rgba(178,109,194,.23)!important;
+ --hhkb-surface:rgba(24,40,83,.80)!important;
+ --hhkb-edge:rgba(240,178,240,.54)!important;
+ color:#f9f7ff!important;
+ background:
+  radial-gradient(ellipse 80% 23% at 5% 0%,rgba(214,97,204,.27),transparent 81%),
+  radial-gradient(ellipse 83% 45% at 105% 14%,rgba(37,136,224,.24),transparent 78%),
+  linear-gradient(147deg,rgba(45,37,88,.98) 0%,rgba(20,33,70,.98) 49%,rgba(10,33,65,.99) 100%)!important;
+ border:1px solid rgba(230,165,241,.72)!important;
+ box-shadow:inset 0 1px 0 rgba(255,237,255,.25),
+  0 0 0 1px rgba(52,154,229,.10),0 18px 40px rgba(0,8,32,.42),
+  0 0 20px rgba(223,110,217,.15)!important;
+ -webkit-backdrop-filter:blur(28px) saturate(130%)!important;
+ backdrop-filter:blur(28px) saturate(130%)!important;
+}
+:root[data-guardian-profile="m"] #hhBkkKeyboardDockV964.hh-bkk-keyboard-v964{
+ --hhkb-ink:#fff9ff!important;
+ --hhkb-muted:#e0d0eb!important;
+ --hhkb-accent:#f1a3d9!important;
+ --hhkb-selected:rgba(213,116,199,.24)!important;
+ --hhkb-edge:rgba(255,177,234,.66)!important;
+ background:
+  radial-gradient(ellipse 87% 26% at 0% 0%,rgba(229,100,188,.31),transparent 77%),
+  radial-gradient(ellipse 89% 43% at 105% 18%,rgba(45,136,225,.27),transparent 78%),
+  linear-gradient(149deg,rgba(55,35,88,.98) 0%,rgba(25,32,73,.98) 48%,rgba(10,32,67,.99) 100%)!important;
+}
+/* A title and caption are readable without moving controls or cropping text. */
+#hhBkkKeyboardDockV964 .hh-bkk-keyboard-head-v964 strong{
+ color:#fff9ff!important;
+ text-shadow:0 1px 9px rgba(230,137,222,.20)!important;
+}
+#hhBkkKeyboardDockV964 .hh-bkk-keyboard-caption-v964{
+ color:#f2e8fc!important;
+ border-top:1px solid rgba(180,200,245,.20)!important;
+ text-shadow:0 1px 6px rgba(3,10,34,.26)!important;
+}
+/* Dark glass action keys with visible, genuinely useful focus indicators. */
+#hhBkkKeyboardDockV964 .hh-bkk-keyboard-head-v964 button{
+ color:#fbf7ff!important;
+ background:linear-gradient(137deg,rgba(117,76,153,.65),rgba(33,47,96,.90))!important;
+ border:1px solid rgba(239,172,236,.71)!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.20),0 3px 10px rgba(4,8,36,.25)!important;
+}
+#hhBkkKeyboardDockV964 #hhBkkKeyboardGpsV964{
+ color:#e0f6ff!important;
+ background:linear-gradient(137deg,rgba(46,111,167,.77),rgba(17,49,97,.96))!important;
+ border:1px solid rgba(121,220,255,.76)!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.20),0 3px 10px rgba(2,15,43,.25)!important;
+}
+/* The original editor stays keyboard-aware; no extra input is created. */
+#hhBkkKeyboardDockV964 .hh-bkk-keyboard-input-slot-v964 input{
+ color:#fffaff!important;
+ caret-color:#ffbddf!important;
+ color-scheme:dark!important;
+ background:linear-gradient(118deg,rgba(47,43,92,.98),rgba(22,41,84,.98))!important;
+ border:2px solid rgba(240,153,218,.92)!important;
+ box-shadow:inset 0 1px 0 rgba(255,244,255,.19),
+  0 0 0 3px rgba(202,96,173,.12),0 3px 12px rgba(9,10,44,.27)!important;
+}
+#hhBkkKeyboardDockV964 .hh-bkk-keyboard-input-slot-v964 input::placeholder{
+ color:#c7d1ec!important;opacity:1!important;
+}
+#hhBkkKeyboardDockV964 .hh-bkk-keyboard-input-slot-v964 input:focus,
+#hhBkkKeyboardDockV964 .hh-bkk-keyboard-input-slot-v964 input:focus-visible{
+ border-color:#ffb7e8!important;
+ outline:2px solid rgba(255,186,232,.63)!important;outline-offset:1px!important;
+ box-shadow:inset 0 1px 0 rgba(255,246,255,.24),
+  0 0 0 4px rgba(211,99,182,.15),0 0 18px rgba(223,116,211,.25)!important;
+}
+/* One scrollable results list; the live predictions retain all tap handlers. */
+#hhBkkKeyboardDockV964 #hhSmartHubNativeResultsV803{
+ scrollbar-color:rgba(154,174,224,.56) transparent!important;
+ scrollbar-width:thin!important;
+}
+#hhBkkKeyboardDockV964 #hhSmartHubNativeResultsV803 .hh-smart-hub-result-v803{
+ color:#faf7ff!important;
+ border:1px solid rgba(123,173,238,.56)!important;
+ background:
+  linear-gradient(105deg,rgba(139,70,145,.30) 0%,rgba(34,44,91,.88) 38%,rgba(17,52,100,.82) 100%)!important;
+ -webkit-backdrop-filter:blur(18px) saturate(120%)!important;
+ backdrop-filter:blur(18px) saturate(120%)!important;
+ box-shadow:inset 1px 1px 0 rgba(250,203,255,.20),
+  0 3px 14px rgba(3,13,39,.25)!important;
+}
+#hhBkkKeyboardDockV964 #hhSmartHubNativeResultsV803 .hh-smart-hub-result-v803:nth-child(odd){
+ border-color:rgba(223,132,208,.60)!important;
+}
+#hhBkkKeyboardDockV964 #hhSmartHubNativeResultsV803 .hh-smart-hub-result-v803:active,
+#hhBkkKeyboardDockV964 #hhSmartHubNativeResultsV803 .hh-smart-hub-result-v803:focus-visible{
+ background:linear-gradient(110deg,rgba(164,87,169,.44),rgba(37,81,142,.90))!important;
+ border-color:#f4b6ea!important;
+ outline:2px solid #d1e7ff!important;outline-offset:1px!important;
+}
+#hhBkkKeyboardDockV964 #hhSmartHubNativeResultsV803 .hh-smart-hub-result-icon-v803{
+ color:#ffe8f8!important;
+ background:linear-gradient(145deg,rgba(148,84,162,.63),rgba(58,54,113,.85))!important;
+ border:1px solid rgba(236,167,238,.61)!important;
+ box-shadow:inset 0 1px 0 rgba(255,247,255,.22)!important;
+}
+#hhBkkKeyboardDockV964 #hhSmartHubNativeResultsV803 .hh-smart-hub-result-copy-v803 strong{
+ color:#fffaff!important;
+ text-shadow:0 1px 3px rgba(1,7,28,.28)!important;
+}
+#hhBkkKeyboardDockV964 #hhSmartHubNativeResultsV803 .hh-smart-hub-result-copy-v803 small{
+ color:#d3d9ee!important;
+}
+#hhBkkKeyboardDockV964 #hhSmartHubNativeResultsV803 .hh-smart-hub-result-tag-v824{
+ color:#f5f4ff!important;
+ background:linear-gradient(140deg,rgba(114,127,184,.45),rgba(48,64,114,.68))!important;
+ border:1px solid rgba(215,220,255,.67)!important;
+ border-radius:999px!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.16)!important;
+}
+#hhBkkKeyboardDockV964 :is(button,input):focus-visible{
+ outline:2px solid #e8baf5!important;outline-offset:2px!important;
+}
+@media(prefers-reduced-transparency:reduce){
+ #hhBkkKeyboardDockV964.hh-bkk-keyboard-v964{
+  background:#162341!important;
+  -webkit-backdrop-filter:none!important;backdrop-filter:none!important;
+ }
+ :root[data-guardian-profile="m"] #hhBkkKeyboardDockV964.hh-bkk-keyboard-v964{
+  background:#272347!important;
+ }
+ #hhBkkKeyboardDockV964 #hhSmartHubNativeResultsV803 .hh-smart-hub-result-v803{
+  background:#243259!important;
+ }
+}
