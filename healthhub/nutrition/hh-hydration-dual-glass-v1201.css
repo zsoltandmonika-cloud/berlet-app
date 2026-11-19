@@ -1,0 +1,169 @@
+/* HH Nutrition v1201 · two animated transparent crystal water glasses + 8x250 ml.
+ * The live jug/pitcher and all of its CSS/JS/DOM remain absolutely unchanged.
+ * The two established click IDs keep their original event handlers and semantics.
+ * Stage indicators reflect the jug's existing aria-label, not a second ledger.
+ */
+body[data-lp-v2="on"][data-lp-module="nutrition"] #balanceCard .hh-water.glass{
+ background-image:
+  var(--lpv-wave),
+  radial-gradient(ellipse at 76% 2%,rgba(111,188,246,.18),transparent 53%),
+  linear-gradient(140deg,rgba(64,38,100,.98),rgba(21,43,91,.99) 62%,rgba(12,34,77,.99))!important;
+ background-size:100% 76px,auto,auto!important;
+ background-position:center 8px,center top,center!important;
+ background-repeat:no-repeat,no-repeat,no-repeat!important;
+ border-color:var(--nutri3-accent-border,rgba(192,196,248,.67))!important;
+ box-shadow:0 8px 22px rgba(2,9,32,.30),inset 0 1px rgba(255,253,255,.20)!important;
+}
+:root[data-profile="monika"] body[data-lp-v2="on"][data-lp-module="nutrition"] #balanceCard .hh-water.glass{
+ background-image:
+  var(--lpv-wave),
+  radial-gradient(ellipse at 77% 3%,rgba(244,115,224,.18),transparent 55%),
+  linear-gradient(140deg,rgba(71,35,96,.98),rgba(24,41,89,.99) 63%,rgba(12,34,77,.99))!important;
+}
+/* The current vertical stack remains; only the original 2 actions are paired. */
+body[data-lp-v2="on"][data-lp-module="nutrition"] #balanceCard .hh-water-glasses-v1201{
+ display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:stretch;
+ gap:7px;width:100%;min-width:0;
+}
+body[data-lp-v2="on"][data-lp-module="nutrition"] #balanceCard .hh-water-preset
+ .hh-water-glasses-v1201 > :is(#waterQuickAdd,#hhJarReset){
+ appearance:none!important;-webkit-appearance:none!important;
+ display:flex!important;flex-direction:column!important;
+ justify-content:center!important;align-items:center!important;
+ gap:0!important;
+ min-width:0!important;min-height:111px!important;
+ width:100%!important;margin:0!important;padding:4px 2px 6px!important;
+ border:1px solid rgba(191,211,252,.67)!important;
+ border-radius:15px!important;
+ background:linear-gradient(149deg,rgba(65,55,112,.91),rgba(21,55,102,.94))!important;
+ box-shadow:inset 0 1px rgba(255,255,255,.25),0 4px 12px rgba(1,8,29,.28),
+ 0 0 11px rgba(77,181,245,.15)!important;
+ color:#ffffff!important;
+ font-size:10px!important;font-weight:800!important;
+ line-height:1.12!important;text-align:center!important;
+ text-shadow:0 2px 5px rgba(3,9,32,.55)!important;
+ overflow:hidden!important;
+ touch-action:manipulation;
+ transition:filter .2s,box-shadow .2s,transform .2s!important;
+}
+body[data-lp-v2="on"][data-lp-module="nutrition"] #balanceCard .hh-water-preset
+ .hh-water-glasses-v1201 > #hhJarReset{
+ background:linear-gradient(149deg,rgba(48,46,87,.93),rgba(22,43,79,.96))!important;
+ border-color:rgba(202,185,240,.60)!important;
+ box-shadow:inset 0 1px rgba(255,255,255,.17),0 4px 12px rgba(1,8,29,.25)!important;
+}
+:root[data-profile="monika"] body[data-lp-v2="on"][data-lp-module="nutrition"] #balanceCard .hh-water-preset
+ .hh-water-glasses-v1201 > :is(#waterQuickAdd,#hhJarReset){
+ border-color:rgba(251,181,232,.70)!important;
+}
+/* Retire the former CSS drop/return glyphs and oval overlays for these TWO
+   buttons only. The actual decorative artwork now lives in inline SVG. */
+body[data-lp-v2="on"][data-lp-module="nutrition"] #balanceCard
+ .hh-water-glasses-v1201 > #waterQuickAdd::before,
+body[data-lp-v2="on"][data-lp-module="nutrition"] #balanceCard
+ .hh-water-glasses-v1201 > #waterQuickAdd::after,
+body[data-lp-v2="on"][data-lp-module="nutrition"] #balanceCard
+ .hh-water-glasses-v1201 > #hhJarReset::before{
+ content:none!important;display:none!important;
+}
+body[data-lp-v2="on"][data-lp-module="nutrition"] #balanceCard .hh-water-glass-svg-v1201{
+ display:block;width:min(100%,76px);height:85px;flex:none;
+ filter:drop-shadow(0 3px 5px rgba(2,13,42,.40)) drop-shadow(0 0 4px rgba(103,224,251,.26));
+ transform-origin:center 82%;
+ transition:transform .23s ease,filter .23s ease;
+ overflow:visible;
+}
+body[data-lp-v2="on"][data-lp-module="nutrition"] #balanceCard .hh-water-glass-caption-v1201{
+ display:block;color:#e7f2ff;font-size:10px;font-weight:850;line-height:1.13;
+ white-space:normal;text-align:center;margin:0;
+}
+body[data-lp-v2="on"][data-lp-module="nutrition"] #balanceCard #waterQuickAdd
+ .hh-glass-water-v1201{
+ animation:hhWaterCrystalSwayV1201 3.4s ease-in-out infinite;
+ transform-origin:center 62%;
+}
+body[data-lp-v2="on"][data-lp-module="nutrition"] #balanceCard .hh-water-glasses-v1201 > :is(#waterQuickAdd,#hhJarReset):active
+ .hh-water-glass-svg-v1201{
+ transform:translateY(3px) rotate(-4deg);
+ filter:drop-shadow(0 3px 5px rgba(2,13,42,.45)) drop-shadow(0 0 11px rgba(132,231,255,.63));
+}
+body[data-lp-v2="on"][data-lp-module="nutrition"] #balanceCard .hh-water-glasses-v1201
+ > :is(#waterQuickAdd,#hhJarReset):focus-visible{
+ outline:2px solid var(--accent,#96cbff)!important;
+ outline-offset:2px!important;
+}
+@keyframes hhWaterCrystalSwayV1201{
+ 0%,100%{transform:translateY(0) rotate(0)}
+ 50%{transform:translateY(1.4px) rotate(1.2deg)}
+}
+/* Real water since last jug empty, displayed in eight exact 250 ml levels.
+   This ONLY mirrors the original gauge's accessible numeric string; it cannot
+   change water data. 2 L is the visual scale even for custom fluid targets. */
+body[data-lp-v2="on"][data-lp-module="nutrition"] #balanceCard #hhWaterStepsV1201{
+ display:block;width:100%;min-width:0;
+ border:1px solid rgba(163,194,242,.40);
+ border-radius:11px;
+ background:rgba(12,30,66,.76);
+ padding:7px 6px 8px;
+ box-shadow:inset 0 1px rgba(255,251,255,.10);
+}
+body[data-lp-v2="on"][data-lp-module="nutrition"] #balanceCard .hh-water-steps-head-v1201{
+ display:flex;justify-content:space-between;align-items:center;gap:4px;
+ color:#dce9fa;font:650 9px/1.24 system-ui,sans-serif;min-width:0;
+}
+body[data-lp-v2="on"][data-lp-module="nutrition"] #balanceCard #hhWaterStepsCountV1201{
+ font-weight:900;font-variant-numeric:tabular-nums;color:#92eefe;
+ white-space:nowrap;
+}
+body[data-lp-v2="on"][data-lp-module="nutrition"] #balanceCard .hh-water-steps-bars-v1201{
+ display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:3px;margin-top:6px;
+}
+body[data-lp-v2="on"][data-lp-module="nutrition"] #balanceCard .hh-water-steps-bars-v1201 > span{
+ display:block;min-width:0;height:11px;border-radius:3px;
+ background:linear-gradient(180deg,#273654,#182c51);
+ border:1px solid rgba(161,182,240,.25);
+ box-shadow:inset 0 1px rgba(255,255,255,.08);
+ transform:translateZ(0);
+ transition:background .25s,box-shadow .25s,border-color .25s;
+}
+body[data-lp-v2="on"][data-lp-module="nutrition"] #balanceCard .hh-water-steps-bars-v1201 > span.is-full-v1201{
+ background:linear-gradient(180deg,#a1faff,#27cbf2 62%,#147cce);
+ border-color:rgba(192,252,255,.77);
+ box-shadow:inset 0 1px rgba(255,255,255,.49),0 0 6px rgba(45,225,250,.40);
+}
+body[data-lp-v2="on"][data-lp-module="nutrition"] #balanceCard
+ .hh-water-steps-bars-v1201 > span.just-filled-v1201{
+ animation:hhWaterStepPulseV1201 .55s cubic-bezier(.2,.7,.25,1) both;
+}
+@keyframes hhWaterStepPulseV1201{
+ 0%{filter:brightness(1.7);transform:scaleY(.65)}
+ 68%{filter:brightness(1.25);transform:scaleY(1.22)}
+ 100%{filter:brightness(1);transform:scaleY(1)}
+}
+@media(max-width:380px){
+ body[data-lp-v2="on"][data-lp-module="nutrition"] #balanceCard
+ .hh-water-glasses-v1201{gap:5px}
+ body[data-lp-v2="on"][data-lp-module="nutrition"] #balanceCard
+ .hh-water-glass-svg-v1201{width:min(100%,68px);height:80px}
+ body[data-lp-v2="on"][data-lp-module="nutrition"] #balanceCard
+ .hh-water-preset .hh-water-glasses-v1201 > :is(#waterQuickAdd,#hhJarReset){
+  min-height:106px!important;padding:4px 1px 5px!important;
+ }
+ body[data-lp-v2="on"][data-lp-module="nutrition"] #balanceCard
+ .hh-water-steps-head-v1201{font-size:8.5px}
+ body[data-lp-v2="on"][data-lp-module="nutrition"] #balanceCard
+ .hh-water-steps-bars-v1201{gap:2px}
+}
+@media(prefers-reduced-motion:reduce){
+ body[data-lp-v2="on"][data-lp-module="nutrition"] #balanceCard #waterQuickAdd
+ .hh-glass-water-v1201{animation:none!important}
+ body[data-lp-v2="on"][data-lp-module="nutrition"] #balanceCard
+ .hh-water-steps-bars-v1201 > span.just-filled-v1201{animation:none!important}
+ body[data-lp-v2="on"][data-lp-module="nutrition"] #balanceCard
+ .hh-water-glass-svg-v1201{transition:none!important}
+}
+@media(prefers-reduced-transparency:reduce){
+ body[data-lp-v2="on"][data-lp-module="nutrition"] #balanceCard .hh-water.glass{
+  background:#1d315d!important;
+ }
+}
