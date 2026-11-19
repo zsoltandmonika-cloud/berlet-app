@@ -1,0 +1,177 @@
+/* HealthHub Nutrition v1200 · Golden Standard Premium Dark Glass + Léna Waves.
+ * Benchmark: approved HH Sleep v1173 and SHO Dark Glass v1198.
+ * CSS-only, original markup and all data handlers untouched. Background wave
+ * is the EXACT approved --lpv-wave SVG provided by Lena Premium Wave V2.
+ * Screens, images, calories, hydration RAG, photo tiles, scanning, menus,
+ * modals, diary/sync, button geometry and mobile keyboard remain unchanged.
+ */
+body[data-lp-v2="on"][data-lp-module="nutrition"]{
+ --nutri3-ink:#fbfaff;
+ --nutri3-muted:#d6e2f6;
+ --nutri3-border:rgba(178,193,245,.65);
+ --nutri3-accent-border:rgba(153,208,250,.70);
+ --nutri3-accent-glow:rgba(95,169,242,.17);
+ --nutri3-panel:linear-gradient(145deg,rgba(43,40,91,.98),rgba(18,42,89,.985) 69%,rgba(13,34,75,.99));
+ --nutri3-card:linear-gradient(134deg,rgba(56,46,101,.98),rgba(23,46,94,.99));
+ --nutri3-control:linear-gradient(135deg,#3b376b,#234476);
+ --nutri3-shadow:0 9px 25px rgba(2,8,30,.36),inset 0 1px 0 rgba(251,246,255,.18),0 0 11px var(--nutri3-accent-glow);
+ color-scheme:dark;
+}
+:root[data-profile="monika"] body[data-lp-v2="on"][data-lp-module="nutrition"],
+:root[data-lpv-owner="m"] body[data-lp-v2="on"][data-lp-module="nutrition"]{
+ --nutri3-border:rgba(234,181,244,.68);
+ --nutri3-accent-border:rgba(255,188,235,.76);
+ --nutri3-accent-glow:rgba(230,106,209,.18);
+ --nutri3-panel:linear-gradient(145deg,rgba(67,37,91,.98),rgba(25,40,89,.985) 69%,rgba(14,34,75,.99));
+ --nutri3-card:linear-gradient(134deg,rgba(78,40,98,.98),rgba(28,45,92,.99));
+ --nutri3-control:linear-gradient(135deg,#673b77,#354579);
+}
+/* Visible but unobtrusive waves BEHIND the actual cards, not in front of tap
+   targets. Three placements cover scrolling mobile nutrition without timers. */
+body[data-lp-v2="on"][data-lp-module="nutrition"]{
+ background:linear-gradient(180deg,#0c1730,#07152c 70%,#071229)!important;
+}
+body[data-lp-v2="on"][data-lp-module="nutrition"] > main.shell{
+ background-color:#0c1a35!important;
+ background-image:
+  var(--lpv-wave),
+  var(--lpv-wave),
+  var(--lpv-wave),
+  radial-gradient(ellipse at 23% 3%,rgba(213,108,215,.17),transparent 45%),
+  radial-gradient(ellipse at 93% 46%,rgba(87,160,248,.13),transparent 58%),
+  linear-gradient(180deg,#192449 0%,#101d3d 42%,#09172f 100%)!important;
+ background-size:100% 76px,100% 76px,100% 76px,auto,auto,auto!important;
+ background-position:center 240px,center 1090px,center 2220px,center top,center center,center top!important;
+ background-repeat:no-repeat,no-repeat,no-repeat,no-repeat,no-repeat,no-repeat!important;
+}
+/* One wave also glows gently INSIDE the daily summary, behind real data. */
+body[data-lp-v2="on"][data-lp-module="nutrition"] #balanceCard.balance.hh-body{
+ background-image:var(--lpv-wave),
+  radial-gradient(ellipse at 26% 0%,var(--nutri3-accent-glow),transparent 56%),
+  var(--nutri3-panel)!important;
+ background-size:100% 72px,auto,auto!important;
+ background-position:center top,center top,center top!important;
+ background-repeat:no-repeat,no-repeat,no-repeat!important;
+ box-shadow:var(--nutri3-shadow)!important;
+}
+body[data-lp-v2="on"][data-lp-module="nutrition"] #balanceCard.balance.hh-body:not(.good,.warn,.bad){
+ border-color:var(--nutri3-border)!important;
+}
+/* Preserve .good/.warn/.bad status borders, ring colors and fill percentages. */
+body[data-lp-v2="on"][data-lp-module="nutrition"] #balanceCard :is(.hh-body-goal,.hh-body-macros){
+ background:linear-gradient(120deg,rgba(28,44,90,.92),rgba(28,36,78,.96))!important;
+ border-color:rgba(169,184,237,.49)!important;
+ box-shadow:inset 0 1px rgba(255,248,255,.12)!important;
+}
+body[data-lp-v2="on"][data-lp-module="nutrition"] #balanceCard .hh-body-heading .label{
+ color:#f6f9ff!important;
+}
+body[data-lp-v2="on"][data-lp-module="nutrition"] #balanceCard .hh-body-meta{
+ color:var(--nutri3-muted)!important;
+}
+/* Daily hydration: only the outer glass, not the actual pitcher, water level,
+   glass markings, goal colors, green/amber/red health/status indicators. */
+body[data-lp-v2="on"][data-lp-module="nutrition"] #balanceCard .hh-water.glass{
+ background-image:radial-gradient(ellipse at 87% 5%,rgba(106,187,253,.15),transparent 54%),
+  var(--nutri3-card)!important;
+ border-color:var(--nutri3-accent-border)!important;
+ box-shadow:0 7px 20px rgba(2,10,34,.29),inset 0 1px rgba(249,251,255,.20)!important;
+}
+body[data-lp-v2="on"][data-lp-module="nutrition"] #balanceCard :is(.hh-water-copy > strong,.hh-body-dial > span){
+ color:#f9faff!important;
+}
+body[data-lp-v2="on"][data-lp-module="nutrition"] #balanceCard .hh-water-copy > small{
+ color:var(--nutri3-muted)!important;
+}
+body[data-lp-v2="on"][data-lp-module="nutrition"] #balanceCard #hhWaterGoal{
+ background:#20365e!important;
+ border-color:var(--nutri3-accent-border)!important;
+ color:#ffffff!important;
+ -webkit-text-fill-color:#ffffff!important;
+ color-scheme:dark!important;
+}
+/* Existing full 2x2 quick actions: no dimensions, icons, font sizes or click changes. */
+body[data-lp-v2="on"][data-lp-module="nutrition"] #hhNutritionQuickPanelV1137{
+ background:var(--nutri3-panel)!important;
+ border-color:var(--nutri3-border)!important;
+ box-shadow:var(--nutri3-shadow)!important;
+}
+body[data-lp-v2="on"][data-lp-module="nutrition"] #hhNutritionQuickGridV1137 > button.hh-nutrition-quick-tile-v1137{
+ background-image:radial-gradient(ellipse at 20% 3%,var(--nutri3-accent-glow),transparent 55%),
+  var(--nutri3-card)!important;
+ border-color:var(--nutri3-accent-border)!important;
+ box-shadow:0 6px 19px rgba(1,8,32,.32),inset 0 1px rgba(254,240,255,.19)!important;
+ color:#f9faff!important;
+}
+body[data-lp-v2="on"][data-lp-module="nutrition"] #hhNutritionQuickGridV1137 .hh-nutrition-quick-copy-v1137 strong{
+ color:#ffffff!important;
+}
+body[data-lp-v2="on"][data-lp-module="nutrition"] #hhNutritionQuickGridV1137 .hh-nutrition-quick-copy-v1137 small{
+ color:#d8e7f8!important;
+}
+body[data-lp-v2="on"][data-lp-module="nutrition"] #hhNutritionQuickGridV1137 .hh-nutrition-quick-icon-v1137{
+ border-color:var(--nutri3-accent-border)!important;
+ box-shadow:inset 0 1px rgba(255,255,255,.17),0 5px 13px rgba(2,9,29,.3)!important;
+}
+/* Preserve all four full-bleed Bevitel photos, recipe artwork, Interfood logo/photo. */
+body[data-lp-v2="on"][data-lp-module="nutrition"] .hh-bevitel-grid .hh-bevitel-tile{
+ border-color:var(--nutri3-accent-border)!important;
+ box-shadow:inset 0 1px rgba(255,255,255,.27),0 7px 19px rgba(1,9,33,.32),0 0 12px var(--nutri3-accent-glow)!important;
+}
+body[data-lp-v2="on"][data-lp-module="nutrition"] #hhInterfoodTileV1173{
+ border-color:var(--nutri3-accent-border)!important;
+ box-shadow:inset 0 1px rgba(255,255,255,.21),0 9px 23px rgba(1,9,32,.32)!important;
+}
+/* Nutrition macro KPIs, micronutrients, insights, diary and collapsible sections. */
+body[data-lp-v2="on"][data-lp-module="nutrition"] :is(
+ .grid > .glass.kpi,.glass.section,.glass.log,section.glass){
+ background:var(--nutri3-panel)!important;
+ border-color:var(--nutri3-border)!important;
+ box-shadow:var(--nutri3-shadow)!important;
+}
+body[data-lp-v2="on"][data-lp-module="nutrition"] .grid > .glass.kpi :is(b,strong),
+body[data-lp-v2="on"][data-lp-module="nutrition"] :is(.glass.log,.glass.section) strong{
+ color:#ffffff!important;
+}
+body[data-lp-v2="on"][data-lp-module="nutrition"] :is(
+ .grid > .glass.kpi small,.grid > .glass.kpi span,.glass.section summary,.glass.log .entry small){
+ color:var(--nutri3-muted)!important;
+}
+body[data-lp-v2="on"][data-lp-module="nutrition"] #log.glass.log .entry{
+ border-bottom-color:rgba(185,195,245,.26)!important;
+}
+/* Secondary buttons and date field: dark, readable, without touching status
+   indicators, photo tiles or the approved colored quick hydration controls. */
+body[data-lp-v2="on"][data-lp-module="nutrition"] :is(
+ .shell > .top #profileBtn,.hh-body-goal #goalBtn,.details-actions .mini,
+ #logDate,#insight7,#insight30,#newFood){
+ background:var(--nutri3-control)!important;
+ border-color:var(--nutri3-accent-border)!important;
+ color:#f9faff!important;
+ box-shadow:inset 0 1px rgba(255,255,255,.16)!important;
+ color-scheme:dark!important;
+}
+body[data-lp-v2="on"][data-lp-module="nutrition"] #hhNutritionSyncUtilityV1136{
+ border-color:var(--nutri3-border)!important;
+ box-shadow:var(--nutri3-shadow)!important;
+}
+body[data-lp-v2="on"][data-lp-module="nutrition"] :is(
+ #hhNutritionQuickPanelV1137,.glass.section,.glass.log,.glass.kpi,#balanceCard,.hh-water){
+ -webkit-backdrop-filter:blur(16px) saturate(112%)!important;
+ backdrop-filter:blur(16px) saturate(112%)!important;
+}
+body[data-lp-v2="on"][data-lp-module="nutrition"] :is(button,a,input,select,summary):focus-visible{
+ outline:2px solid var(--nutri3-accent-border)!important;
+ outline-offset:2px!important;
+}
+@media(prefers-reduced-transparency:reduce){
+ body[data-lp-v2="on"][data-lp-module="nutrition"] :is(
+ #balanceCard.balance.hh-body,.hh-water.glass,#hhNutritionQuickPanelV1137,
+ .grid > .glass.kpi,.glass.section,.glass.log,section.glass){
+  background:#1b2d55!important;
+  -webkit-backdrop-filter:none!important;backdrop-filter:none!important;
+ }
+ body[data-lp-v2="on"][data-lp-module="nutrition"] > main.shell{
+  background:#101d3d!important;
+ }
+}
