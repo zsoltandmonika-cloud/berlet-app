@@ -19,7 +19,7 @@ test('V8: fare top scroll with pinned bottom Close/Uber and intact old calculato
  assert.match(fare,/viewport\?\.classList\.add\('has-result'\)/);
  assert.match(index,/taxi-route-v8-fare-map\.js\?v=20261119-v8-shared-map-theme/);
  assert.match(fare,/\.tx-route-map-canvas\{position:relative;height:clamp\(325px,calc\(46dvh \+ 15px\),435px\)/);
- assert.match(index,/taxi-route-result-map-v1\.js\?v=20261119-dark-road-legibility-v1/);
+ assert.match(index,/taxi-route-result-map-v1\.js\?v=20261119-subtle-route-zoom-v1/);
  assert.match(index,/taxi-current-location-map-v1\.js/);
  assert.match(index,/src="\.\/assets\/SHO_Smart_Taxi_approved\.png" width="1193" height="1319"/);
  assert.match(index,/sh9-golden-bottom-nav-v924\.js/);
@@ -104,7 +104,9 @@ test('One successful preview renders the actual road polyline and A/B markers wi
  assert.equal(e.created.layers.length,2);
  assert.equal(e.created.maps[0].sources['tx-route-line'].data.features[0].geometry.type,'LineString');
  assert.equal(e.created.maps[0].bounds.points.length,3);
- assert.equal(e.created.maps[0].boundsOptions.maxZoom,16);
+ assert.equal(e.created.maps[0].boundsOptions.maxZoom,16.2);
+ assert.deepEqual(JSON.parse(JSON.stringify(e.created.maps[0].boundsOptions.padding)),{top:24,right:24,bottom:32,left:24});
+ assert.equal(e.created.maps[0].bounds.points.length,3,'All route points must still determine map bounds');
 });
 test('Map error never removes the fare card, and Golden TADÁÁ sounds three notes only on explicit success trigger',async()=>{
  const e=env();
