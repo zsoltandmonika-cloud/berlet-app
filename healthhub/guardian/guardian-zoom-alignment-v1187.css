@@ -1,0 +1,54 @@
+/* Family Guard Léna Premium Map Zoom Alignment v1187 · 2026-11-19
+   User's screenshot: uniform 36px controls with the top-right Follow / 3D /
+   Satellite stack; shift ONLY MapLibre's native zoom +/−/compass cluster
+   9px left (right 2px -> 11px). Keep its vertical positioning unchanged.
+   Visual-only, normal mobile map; no GPS, MapLibre JS or attribution edits. */
+@media (max-width:600px) and (orientation:portrait){
+  html:not([data-sh9-transit="on"]) body .shell[data-hh-skin="lena-premium"]
+  .map-card:not(.hh-map-full-v819) #guardianMap .maplibregl-ctrl-bottom-right{
+    right:11px!important; /* old: 2px; move cluster 9px to the left */
+  }
+  html:not([data-sh9-transit="on"]) body .shell[data-hh-skin="lena-premium"]
+  .map-card:not(.hh-map-full-v819) #guardianMap
+  .maplibregl-ctrl-bottom-right .maplibregl-ctrl-group{
+    box-sizing:border-box!important;
+    width:38px!important;
+    margin:0 2px 2px 0!important;
+    border-radius:13px!important;
+    border:1px solid rgba(203,232,255,.65)!important;
+    background:linear-gradient(142deg,rgba(60,109,153,.88),rgba(22,53,94,.88) 58%,rgba(14,38,75,.94))!important;
+    box-shadow:inset 0 1px rgba(255,255,255,.34),0 6px 17px rgba(5,22,54,.30),0 0 12px rgba(112,187,249,.13)!important;
+    -webkit-backdrop-filter:blur(18px) saturate(135%)!important;
+    backdrop-filter:blur(18px) saturate(135%)!important;
+  }
+  html:not([data-sh9-transit="on"])[data-guardian-profile="m"] body
+  .shell[data-hh-skin="lena-premium"] .map-card:not(.hh-map-full-v819) #guardianMap
+  .maplibregl-ctrl-bottom-right .maplibregl-ctrl-group{
+    border-color:rgba(255,207,242,.64)!important;
+    background:linear-gradient(141deg,rgba(137,78,140,.91),rgba(77,47,115,.91) 60%,rgba(43,33,88,.96))!important;
+    box-shadow:inset 0 1px rgba(255,255,255,.30),0 6px 17px rgba(36,19,68,.33),0 0 12px rgba(243,166,236,.18)!important;
+  }
+  html:not([data-sh9-transit="on"]) body .shell[data-hh-skin="lena-premium"]
+  .map-card:not(.hh-map-full-v819) #guardianMap
+  .maplibregl-ctrl-bottom-right .maplibregl-ctrl-group button{
+    box-sizing:border-box!important;
+    width:36px!important;min-width:36px!important;
+    height:36px!important;min-height:36px!important;
+    padding:0!important;
+    display:grid!important;place-items:center!important;
+    border-radius:0!important;
+    background:transparent!important;
+    box-shadow:inset 0 1px rgba(255,255,255,.08)!important;
+    touch-action:manipulation!important;
+  }
+  html:not([data-sh9-transit="on"]) body .shell[data-hh-skin="lena-premium"]
+  .map-card:not(.hh-map-full-v819) #guardianMap
+  .maplibregl-ctrl-bottom-right .maplibregl-ctrl-group button+button{
+    border-top:1px solid rgba(231,219,252,.32)!important;
+  }
+  html:not([data-sh9-transit="on"]) body .shell[data-hh-skin="lena-premium"]
+  .map-card:not(.hh-map-full-v819) #guardianMap
+  .maplibregl-ctrl-bottom-right .maplibregl-ctrl-group button:focus-visible{
+    outline:2px solid #e4f5ff!important;outline-offset:-3px!important;
+  }
+}
