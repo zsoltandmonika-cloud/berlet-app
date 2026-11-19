@@ -10,7 +10,7 @@ const sprite=fs.readFileSync(path.join(dir,'hh-buddy-rag-fullbody-v1141.css'),'u
 
 test('only the visible mood Buddy squirrel shifts exactly five pixels right and down',()=>{
  assert.match(css,/#balanceCard #hhBuddyMood\.hh-buddy-mood \.hh-buddy-face\{\s*transform:translate\(5px, 5px\)!important;/);
- assert.doesNotMatch(css,/(?:^|[\s,{])#buddy(?:\s|[.,:{>])/);
+ assert.doesNotMatch(css.replace(/\/\*[\s\S]*?\*\//g,''),/(?:^|[\s,{])#buddy(?:\s|[.,:{>])/);
  assert.doesNotMatch(css,/#hhBalanceQuickAdd1139|\.hh-body-dials|\.hh-body-dial|\.ring|\.hh-water/);
  assert.match(sprite,/background-image:var\(--hh-premium-rag-sprite\)!important/);
  assert.match(sprite,/#balanceCard #hhBuddyMood\.hh-buddy-mood/);
