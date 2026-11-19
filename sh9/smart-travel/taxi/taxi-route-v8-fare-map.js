@@ -51,7 +51,7 @@ const css=`
 #taxiRouteV2 .tx-route-map-head small{display:block;color:#e5c7ea;font-size:10px;margin-top:3px;
  white-space:normal;line-height:1.3}
 #taxiRouteV2 .tx-route-map-legend{font-size:12px;color:#ebd5f3;white-space:nowrap}
-#taxiRouteV2 .tx-route-map-canvas{position:relative;height:clamp(310px,46dvh,420px);
+#taxiRouteV2 .tx-route-map-canvas{position:relative;height:clamp(345px,52dvh,480px);
  background:linear-gradient(135deg,#152643,#252543)}
 #taxiRouteV2 .tx-route-map[data-state="loading"] .tx-route-map-canvas::before,
 #taxiRouteV2 .tx-route-map[data-state="error"] .tx-route-map-canvas::before{
