@@ -68,7 +68,8 @@ function draw(coords,fit=true){
  const bounds=new w.maplibregl.LngLatBounds();
  for(const point of coords)bounds.extend(point);
  map.resize();
- if(fit)map.fitBounds(bounds,{padding:{top:35,right:32,bottom:44,left:32},maxZoom:16,duration:0});
+ // Slightly tighter framing of the calculated route, while keeping both A/B pins visible.
+ if(fit)map.fitBounds(bounds,{padding:{top:24,right:24,bottom:32,left:24},maxZoom:16.2,duration:0});
 }
 async function render(coords,ticket){
  await getLib();
