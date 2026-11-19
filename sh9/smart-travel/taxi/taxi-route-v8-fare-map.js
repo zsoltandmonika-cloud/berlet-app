@@ -11,8 +11,9 @@ const css=`
 #taxiRouteV2 .tx-label-row .tx-field{margin:0}
 #taxiRouteV2 .tx-favorite{min-height:27px;padding:3px 11px;border:1px solid #d37cb99c;
  background:linear-gradient(120deg,#453051,#241733);box-shadow:inset 0 1px #fff2;
- color:#ffe4ab;border-radius:9px;font-size:11px;font-weight:800;
+ color:#f4b6ea;border-radius:9px;font-size:11px;font-weight:800;
  white-space:nowrap;cursor:pointer;touch-action:manipulation}
+#taxiRouteV2 .tx-favorite-star{color:#f4b6ea;font-size:12px;line-height:1;vertical-align:baseline}
 #taxiRouteV2 .tx-favorite:active{background:#87437c}
 #taxiRouteV2 .tx-favorite:focus-visible{outline:2px solid #fff;outline-offset:2px}
 #taxiRouteV2 .tx-entry{display:flex;gap:6px;position:relative}
@@ -111,9 +112,9 @@ const css=`
 const style=document.createElement('style');style.textContent=css;document.head.appendChild(style);
 const panel=document.createElement('section');panel.id='taxiRouteV2';
 panel.innerHTML=`
-<div class="tx-label-row"><label class="tx-field" for="txFrom">Honnan?</label><button class="tx-favorite" id="txFromFav" type="button" aria-controls="txFromSug" aria-label="Kedvenc indulási címek">⭐ Kedvencek</button></div>
+<div class="tx-label-row"><label class="tx-field" for="txFrom">Honnan?</label><button class="tx-favorite" id="txFromFav" type="button" aria-controls="txFromSug" aria-label="Kedvenc indulási címek"><span class="tx-favorite-star" aria-hidden="true">★</span> Kedvencek</button></div>
 <div class="tx-entry"><input id="txFrom" placeholder="Indulási cím…" autocomplete="off" autocapitalize="words" spellcheck="false" role="combobox" aria-haspopup="listbox" aria-autocomplete="list" aria-controls="txFromSug" aria-expanded="false"><button class="tx-mic" id="txFromMic" type="button" aria-label="Indulási cím bemondása" title="Indulási cím bemondása">🎙️</button><button class="tx-gps" id="txGps" type="button" aria-label="Jelenlegi helyem GPS alapján">📍 GPS</button></div><ul class="tx-sugs" id="txFromSug" role="listbox" aria-label="Indulási címjavaslatok"></ul>
-<div class="tx-label-row"><label class="tx-field" for="txTo">Hová?</label><button class="tx-favorite" id="txToFav" type="button" aria-controls="txToSug" aria-label="Kedvenc célcímek">⭐ Kedvencek</button></div>
+<div class="tx-label-row"><label class="tx-field" for="txTo">Hová?</label><button class="tx-favorite" id="txToFav" type="button" aria-controls="txToSug" aria-label="Kedvenc célcímek"><span class="tx-favorite-star" aria-hidden="true">★</span> Kedvencek</button></div>
 <div class="tx-entry"><input id="txTo" placeholder="Úticél címe…" autocomplete="off" autocapitalize="words" spellcheck="false" role="combobox" aria-haspopup="listbox" aria-autocomplete="list" aria-controls="txToSug" aria-expanded="false"><button class="tx-mic" id="txToMic" type="button" aria-label="Célcím bemondása" title="Célcím bemondása">🎙️</button></div><ul class="tx-sugs" id="txToSug" role="listbox" aria-label="Célcímjavaslatok"></ul>
 <button class="tx-go" type="button" id="txEstimate" aria-label="Smart Taxi viteldíj-kalkulátor">
 <img class="tx-sho-logo" src="./assets/sho-taxi-button-v6.webp" width="142" height="54" alt="" aria-hidden="true">
