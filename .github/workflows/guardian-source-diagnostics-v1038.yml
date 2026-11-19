@@ -8,6 +8,8 @@ on:
       - 'healthhub/tests/guardian-source-diagnostics-v1038.test.cjs'
       - 'healthhub/tests/guardian-energy-premium-v1182.test.cjs'
       - 'healthhub/tests/guardian-lena-premium-lower-v1183.test.cjs'
+      - 'healthhub/tests/guardian-bkk-readable-controls-v1185.test.cjs'
+      - 'healthhub/guardian/guardian-bkk-readable-controls-v1185.css'
       - 'healthhub/guardian/guardian-lena-premium-v1182.css'
       - 'healthhub/skins/lena-premium-v1.css'
       - '.github/workflows/guardian-source-diagnostics-v1038.yml'
@@ -20,6 +22,8 @@ on:
       - 'healthhub/tests/guardian-source-diagnostics-v1038.test.cjs'
       - 'healthhub/tests/guardian-energy-premium-v1182.test.cjs'
       - 'healthhub/tests/guardian-lena-premium-lower-v1183.test.cjs'
+      - 'healthhub/tests/guardian-bkk-readable-controls-v1185.test.cjs'
+      - 'healthhub/guardian/guardian-bkk-readable-controls-v1185.css'
       - 'healthhub/guardian/guardian-lena-premium-v1182.css'
       - 'healthhub/skins/lena-premium-v1.css'
 jobs:
@@ -33,4 +37,4 @@ jobs:
       - run: |
           node --check healthhub/guardian/guardian-live-trio-v845.js
           node --check healthhub/guardian/guardian-profile-battery-v841.js
-          node --test healthhub/tests/guardian-source-diagnostics-v1038.test.cjs healthhub/tests/guardian-energy-premium-v1182.test.cjs healthhub/tests/guardian-lena-premium-lower-v1183.test.cjs
+          node --test healthhub/tests/guardian-source-diagnostics-v1038.test.cjs healthhub/tests/guardian-energy-premium-v1182.test.cjs healthhub/tests/guardian-lena-premium-lower-v1183.test.cjs healthhub/tests/guardian-bkk-readable-controls-v1185.test.cjs
