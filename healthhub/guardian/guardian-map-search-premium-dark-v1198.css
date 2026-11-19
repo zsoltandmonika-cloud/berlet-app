@@ -1,0 +1,154 @@
+/* Family Guard v1198 · APPROVED Golden Standard Premium Dark Glass.
+ * THE MAP SEARCH ONLY: #guardianMapSearchV819 + existing suggestions.
+ * The v977 pastel overrides are retired in index.html. Preserve positioning,
+ * Samsung screen-portal v1195, fullscreen map, keyboard, GPS and search logic.
+ * Deliberately opaque map suggestions: labels remain readable above map pins.
+ */
+:root:not([data-sh9-transit="on"]) #guardianMapSearchV819.hh-map-search-v819{
+ --hh-results-panel:linear-gradient(148deg,#20254e 0%,#11294f 100%);
+ --hh-results-card:linear-gradient(115deg,#332b58 0%,#172f5a 100%);
+ --hh-results-border:rgba(166,194,246,.63);
+ --hh-results-stroke:rgba(208,195,252,.64);
+ --hh-results-chip:rgba(88,105,168,.62);
+ --hh-results-glow:rgba(3,9,34,.44);
+ color:#fdfaff!important;
+ background:linear-gradient(122deg,rgba(27,30,68,.99),rgba(13,38,76,.99))!important;
+ background-image:linear-gradient(122deg,rgba(27,30,68,.99),rgba(13,38,76,.99))!important;
+ border-color:rgba(198,169,232,.64)!important;
+ box-shadow:0 7px 22px rgba(2,8,28,.35),inset 0 1px 0 rgba(255,245,255,.15)!important;
+ color-scheme:dark;
+}
+:root:not([data-sh9-transit="on"])[data-guardian-profile="m"] #guardianMapSearchV819.hh-map-search-v819{
+ --hh-results-panel:linear-gradient(145deg,#31234f 0%,#122a52 100%);
+ --hh-results-card:linear-gradient(115deg,#442953 0%,#1a3058 100%);
+ --hh-results-border:rgba(228,170,239,.71);
+ --hh-results-stroke:rgba(246,199,245,.74);
+ --hh-results-chip:rgba(144,88,157,.67);
+ --hh-results-glow:rgba(24,5,36,.45);
+ background:linear-gradient(122deg,rgba(48,29,73,.99),rgba(18,38,79,.99))!important;
+ background-image:linear-gradient(122deg,rgba(48,29,73,.99),rgba(18,38,79,.99))!important;
+ border-color:rgba(242,177,234,.72)!important;
+}
+/* The current, single search field: high contrast even with a saved address. */
+:root:not([data-sh9-transit="on"]) #guardianMapSearchV819 #guardianMapSearchInputV819{
+ background:linear-gradient(110deg,#25395e,#203a63)!important;
+ color:#fffaff!important;
+ -webkit-text-fill-color:#fffaff!important;
+ caret-color:#ffc7ee!important;
+ border:1px solid rgba(192,206,246,.75)!important;
+ box-shadow:inset 0 1px rgba(255,255,255,.17)!important;
+ color-scheme:dark!important;
+}
+:root:not([data-sh9-transit="on"])[data-guardian-profile="m"]
+ #guardianMapSearchV819 #guardianMapSearchInputV819{
+ border-color:rgba(255,183,232,.81)!important;
+ background:linear-gradient(110deg,#3b335f,#243b67)!important;
+}
+:root:not([data-sh9-transit="on"]) #guardianMapSearchV819 #guardianMapSearchInputV819::placeholder{
+ color:#dae6fa!important;-webkit-text-fill-color:#dae6fa!important;opacity:1!important;
+}
+:root:not([data-sh9-transit="on"]) #guardianMapSearchV819 #guardianMapSearchInputV819:focus-visible{
+ outline:2px solid #f7b3e7!important;outline-offset:1px!important;
+}
+/* The microphone, magnifier and selected-destination action keep their size. */
+:root:not([data-sh9-transit="on"]) #guardianMapSearchV819 .hh-map-search-row-v819 > button:not(.listening){
+ background:linear-gradient(138deg,#493d70,#253e72)!important;
+ color:#fffaff!important;
+ border-color:rgba(228,189,248,.77)!important;
+ box-shadow:0 2px 9px rgba(3,11,32,.31),inset 0 1px rgba(255,255,255,.18)!important;
+}
+:root:not([data-sh9-transit="on"])[data-guardian-profile="m"]
+ #guardianMapSearchV819 .hh-map-search-row-v819 > button:not(.listening){
+ background:linear-gradient(138deg,#724374,#38447b)!important;
+ border-color:rgba(250,187,239,.81)!important;
+}
+/* The actual floating RESULTS panel from the user's map screenshot. */
+:root:not([data-sh9-transit="on"]) #guardianMapSearchV819
+ > #guardianMapSearchResultsV819.hh-map-search-hits-v819{
+ --hh-results-panel:linear-gradient(148deg,#24234b 0%,#0f2c55 100%);
+ --hh-results-card:linear-gradient(114deg,#393052 0%,#16355e 100%);
+ --hh-results-border:rgba(186,187,239,.74);
+ --hh-results-stroke:rgba(212,212,253,.68);
+ --hh-results-chip:rgba(92,105,162,.71);
+ --hh-results-glow:rgba(2,7,25,.48);
+ background:linear-gradient(148deg,#20254d 0%,#0c2b53 100%)!important;
+ background-image:linear-gradient(148deg,#20254d 0%,#0c2b53 100%)!important;
+ border:1px solid rgba(180,189,242,.74)!important;
+ box-shadow:0 12px 30px rgba(0,8,31,.49),inset 0 1px rgba(255,251,255,.16)!important;
+ -webkit-backdrop-filter:blur(18px) saturate(110%)!important;
+ backdrop-filter:blur(18px) saturate(110%)!important;
+}
+:root:not([data-sh9-transit="on"])[data-guardian-profile="m"]
+ #guardianMapSearchV819 > #guardianMapSearchResultsV819.hh-map-search-hits-v819{
+ background:linear-gradient(148deg,#302247 0%,#122a51 100%)!important;
+ background-image:linear-gradient(148deg,#302247 0%,#122a51 100%)!important;
+ border-color:rgba(242,180,239,.76)!important;
+}
+:root:not([data-sh9-transit="on"]) #guardianMapSearchResultsV819[hidden]{
+ display:none!important;
+}
+/* Each tap target is a distinct opaque glass tile, not a translucent map overlay. */
+:root:not([data-sh9-transit="on"]) #guardianMapSearchResultsV819 .hh-map-search-hit-v819{
+ background:linear-gradient(115deg,#3e325d 0%,#1b355f 100%)!important;
+ background-image:linear-gradient(115deg,#3e325d 0%,#1b355f 100%)!important;
+ color:#fffaff!important;
+ border:1px solid rgba(178,196,246,.70)!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.19),0 3px 12px rgba(0,7,27,.31)!important;
+ opacity:1!important;
+}
+:root:not([data-sh9-transit="on"])[data-guardian-profile="m"]
+ #guardianMapSearchResultsV819 .hh-map-search-hit-v819{
+ background:linear-gradient(115deg,#4a2f5a 0%,#1a335e 100%)!important;
+ background-image:linear-gradient(115deg,#4a2f5a 0%,#1a335e 100%)!important;
+ border-color:rgba(241,172,231,.70)!important;
+}
+:root:not([data-sh9-transit="on"]) #guardianMapSearchResultsV819 .hh-map-search-hit-v819:is(:hover,:active,:focus-visible){
+ background:linear-gradient(115deg,#584079,#275483)!important;
+ border-color:#f2baf0!important;outline:2px solid rgba(227,214,255,.85)!important;
+ outline-offset:1px!important;
+}
+/* Text and saved-place type labels: readable, no overlapping or clipped names. */
+:root:not([data-sh9-transit="on"]) #guardianMapSearchResultsV819 .hh-map-search-hit-text-v819 strong{
+ color:#ffffff!important;
+ font:780 12.5px/1.3 system-ui,sans-serif!important;
+ opacity:1!important;
+}
+:root:not([data-sh9-transit="on"]) #guardianMapSearchResultsV819 .hh-map-search-hit-text-v819 small{
+ color:#e0eafa!important;
+ font:550 11px/1.35 system-ui,sans-serif!important;
+ opacity:1!important;
+}
+:root:not([data-sh9-transit="on"]) #guardianMapSearchResultsV819 .hh-map-search-hit-icon-v823{
+ color:#fff5fe!important;
+ background:linear-gradient(135deg,#71477e,#34477e)!important;
+ border:1px solid rgba(233,184,244,.71)!important;
+ opacity:1!important;
+}
+:root:not([data-sh9-transit="on"]) #guardianMapSearchResultsV819 .hh-map-search-hit-tag-v823{
+ color:#fffaff!important;
+ background:rgba(92,103,158,.92)!important;
+ border:1px solid rgba(207,216,255,.76)!important;
+ border-radius:999px!important;
+ font:800 8.5px/1 system-ui,sans-serif!important;
+ box-shadow:inset 0 1px rgba(255,255,255,.18)!important;
+ opacity:1!important;
+}
+:root:not([data-sh9-transit="on"])[data-guardian-profile="m"]
+ #guardianMapSearchResultsV819 .hh-map-search-hit-tag-v823{
+ background:rgba(123,79,147,.91)!important;
+ border-color:rgba(249,208,250,.81)!important;
+}
+/* The existing map overlay remains compact and scrollable on Samsung. No geometry,
+ * max-height, positioning, 3D, zoom, input handlers or navigation changes here. */
+@media(prefers-reduced-transparency:reduce){
+ :root:not([data-sh9-transit="on"]) #guardianMapSearchV819.hh-map-search-v819{
+  background:#162b52!important;
+  -webkit-backdrop-filter:none!important;backdrop-filter:none!important;
+ }
+ :root:not([data-sh9-transit="on"]) #guardianMapSearchV819 > #guardianMapSearchResultsV819.hh-map-search-hits-v819{
+  background:#172d55!important;
+ }
+ :root:not([data-sh9-transit="on"]) #guardianMapSearchResultsV819 .hh-map-search-hit-v819{
+  background:#273c66!important;
+ }
+}
