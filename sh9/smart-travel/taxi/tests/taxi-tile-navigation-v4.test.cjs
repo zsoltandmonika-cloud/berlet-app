@@ -6,7 +6,7 @@ const path=require('node:path');
 const vm=require('node:vm');
 const base=path.resolve(__dirname,'..');
 const index=fs.readFileSync(path.join(base,'index.html'),'utf8');
-const client=fs.readFileSync(path.join(base,'taxi-route-v6-brand-buttons.js'),'utf8');
+const client=fs.readFileSync(path.join(base,'taxi-route-v7-fix-calculator.js'),'utf8');
 const nav=fs.readFileSync(path.resolve(base,'../../shared/sh9-golden-bottom-nav-v924.js'),'utf8');
 const css=fs.readFileSync(path.resolve(base,'../../shared/sh9-golden-bottom-nav-v924.css'),'utf8');
 function box(kind){
@@ -48,7 +48,7 @@ test('Obsolete three-button Taxi navigation is gone; approved five-button SHO ta
 });
 test('Calculator, tariff dialogs and predictive/voice scripts still parse',()=>{
  assert.match(index,/id="calcDialog"/);
- assert.match(index,/taxi-route-v6-brand-buttons\.js/);
+ assert.match(index,/taxi-route-v7-fix-calculator\.js/);
  assert.match(client,/const SpeechRecognitionAPI=window\.SpeechRecognition\|\|window\.webkitSpeechRecognition/);
  assert.match(client,/const addressCache=new Map\(\)/);
  assert.match(client,/hh-sho-taxi-routes-v1/);
@@ -82,7 +82,7 @@ test('Card clicks open their respective dialogs, and escape closes each',()=>{
 });
 
 test('Smart Taxi premium CTA and official Főtaxi checker CTA are together, with brand marks inside',()=>{
- assert.match(index,/taxi-route-v6-brand-buttons\.js/);
+ assert.match(index,/taxi-route-v7-fix-calculator\.js/);
  assert.match(client,/id="txEstimate" aria-label="Smart Taxi viteldíj-kalkulátor"/);
  assert.match(client,/Smart Taxi<br>viteldíj-kalkulátor/);
  assert.match(client,/class="tx-sho-logo" src="\.\/assets\/sho-taxi-button-v6\.webp"/);
@@ -111,4 +111,21 @@ test('S24 Ultra calculator popup is larger, scroll-safe and remains above the Go
  assert.match(index,/\.dialog\{position:fixed;inset:0;z-index:120/);
  assert.match(client,/#taxiRouteV2\{margin:8px 0 5px;color:#f8f2ff;display:flex;flex-direction:column;flex:1/);
  assert.match(client,/#taxiRouteV2 \.tx-fotaxi\{margin:8px 0 0;padding:0/);
+});
+
+test('Quota regression: no internal usage cap, coordinate autocomplete, and road-network fallback',()=>{
+ const edge=fs.readFileSync(path.join(base,'backend/hh-sho-taxi-routes-v2/index.ts'),'utf8');
+ assert.doesNotMatch(edge,/hh_taxi_api_reserve|daily_or_monthly_quota_reached|reserve\("suggest"\)|reserve\("estimate"\)/);
+ assert.doesNotMatch(client,/A napi térképes lekérdezési keret elfogyott/);
+ assert.match(edge,/if\(!await authorize\(req\)\)/);
+ assert.match(edge,/async function photon\(query:string\)/);
+ assert.match(edge,/router\.project-osrm\.org\/route\/v1\/driving/);
+ assert.match(edge,/const \[a,b\]=await Promise\.all\(\[coordinatesFrom/);
+ assert.match(edge,/OpenStreetMap \/ OSRM/);
+ assert.match(edge,/if\(action==="suggest"\)/);
+ assert.match(client,/Number\.isFinite\(s\.location\?\.lat\)/);
+ assert.match(client,/data\[name\]=\{label:s\.label,\.\.\.\(typeof s\.placeId/);
+ assert.match(client,/credit\.textContent='Címjavaslatok: '\+\(source/);
+ assert.match(client,/signal:AbortSignal\.timeout\(body\.action==='estimate'\?30000:16000\)/);
+ assert.match(client,/Smart Taxi<br>viteldíj-kalkulátor/);
 });
