@@ -25,6 +25,34 @@ test('Approved hero image is untouched; full calculator and tariff cards are tap
  assert.ok(a.bottom<provider.top&&b.bottom<provider.top,'Do not cover taxi-provider buttons');
  for(const x of ['fotaxi','bolt','city','uber'])assert.match(index,new RegExp('class="hit hit--'+x+'"[^>]*data-action="'+x+'"'));
 });
+test('Official Főtaxi badge is a separate exact-brand overlay, without rewriting the approved hero',()=>{
+ assert.match(index,/src="\.\/assets\/SHO_Smart_Taxi_approved\.png" width="1193" height="1319"/);
+ assert.match(index,/<img class="fotaxi-official-logo" src="\.\/assets\/fotaxi-official-red-v1\.png\?v=20261119-official-logo"/);
+ assert.match(index,/\.fotaxi-official-logo\{position:absolute;z-index:2;left:6\.2%;top:75\.15%;width:18\.1%;height:7\.1%/);
+ assert.match(index,/pointer-events:none;user-select:none/);
+ const badge=fs.readFileSync(path.join(base,'assets','fotaxi-official-red-v1.png'));
+ assert.equal(badge.toString('hex',0,8),'89504e470d0a1a0a','Supplied brand mark must be PNG');
+ assert.ok(badge.length>2500,'Official logo file cannot be empty');
+});
+
+test('Every taxi provider is tappable across its full card including the logo and button',()=>{
+ const kinds=['fotaxi','bolt','city','uber'];
+ const ranges=kinds.map(box);
+ const limits={fotaxi:[2.7,25.3],bolt:[27.7,50.4],city:[51.5,74.2],uber:[75.4,97.7]};
+ for(let i=0;i<kinds.length;i++){
+  const name=kinds[i],b=ranges[i];
+  assert.ok(b.top>=73.3&&b.top<75,name+' must start at provider card top');
+  assert.ok(b.bottom>93&&b.bottom<95,name+' must include the entire order button');
+  assert.ok(b.right-b.left>22,name+' width must cover its complete card');
+  assert.ok(Math.abs(b.left-limits[name][0])<.1&&Math.abs(b.right-limits[name][1])<.1,name+' boundaries');
+  if(i)assert.ok(ranges[i-1].right<b.left,'Provider cards must not steal adjacent touches');
+  assert.match(index,new RegExp('class="hit hit--'+name+'"[^>]*data-action="'+name+'"'));
+ }
+ const calc=box('calc'),info=box('info');
+ assert.ok(calc.bottom<=ranges[0].top&&info.bottom<=ranges[0].top,'No overlap with fare or tariff card');
+ assert.match(index,/\.hit\{position:absolute;z-index:3;/,'Ordering overlays must be above official logo');
+});
+
 test('Tariff click opens a pixel crop of the existing approved tariff tile',()=>{
  assert.match(index,/id="tariffDialog"/);
  assert.match(index,/class="taxi-tariff-zoom"/);
