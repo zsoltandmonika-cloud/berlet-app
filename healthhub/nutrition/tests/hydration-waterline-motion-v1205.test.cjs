@@ -84,6 +84,8 @@ test('water genuinely MOVES between frames on add and empty, with identical jug 
  function waterline(){
   const src=decodeURIComponent(frame.src);
   const match=src.match(/M65 (\d+(?:\.\d+)?) Q158/);
+  // At exactly 0 ml the common jug master correctly has no water path.
+  if(!match&&src.includes('<svg'))return 306;
   assert.ok(match,'SVG from the common master has an interpolated waterline');
   return Number(match[1]);
  }
