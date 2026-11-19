@@ -21,6 +21,10 @@ test('only the pitcher artwork is optically lowered, with bounded narrow-screen 
  assert.match(css,/\.hh-showcase-summary-v1202\{/);
 });
 
+test('new CSS version is loaded once so Android will not keep the previous positioning',()=>{
+ assert.equal(html.split('hh-hydration-showcase-v1202.css?v=1203-jug-bottom-align').length,2);
+});
+
 test('the existing pitcher tap, glass tap, eight 250ml stages and mute-aware SFX remain unchanged',()=>{
  for(const id of ['hhJugTapV1202','hhGlassTapV1202','hhJugFrameV1202','hhShowcaseTotalV1202','hhWaterLevel','hhWaterGaugeFill','hhJarReset','waterQuickAdd']){
   assert.equal((html.match(new RegExp('id="'+id+'"','g'))||[]).length,1,id);
