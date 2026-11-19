@@ -69,7 +69,7 @@ body[data-lp-v2="on"][data-lp-module="nutrition"] #balanceCard .hh-jug-tap-v1202
  * The label, grid geometry, card height, water animation and click wiring stay put.
  * This uses top (not transform), so the existing brief fill pulse still works. */
 body[data-lp-v2="on"][data-lp-module="nutrition"] #balanceCard .hh-jug-image-v1202{
- position:relative;top:clamp(44px,17vw,65px);z-index:1;display:block;max-width:100%;
+ position:relative;top:clamp(49px,17vw,70px);z-index:1;display:block;max-width:100%;
  width:min(100%,245px);aspect-ratio:320 / 340;object-fit:contain;
  filter:drop-shadow(0 7px 12px rgba(0,3,25,.31)) drop-shadow(0 0 5px rgba(96,202,255,.20));
 }
@@ -187,7 +187,7 @@ body[data-lp-v2="on"][data-lp-module="nutrition"] #balanceCard #hhShowcaseGoalEd
   grid-template-columns:minmax(0,1.48fr) minmax(86px,.82fr);gap:0
  }
  body[data-lp-v2="on"][data-lp-module="nutrition"] #balanceCard .hh-jug-image-v1202{
-  width:min(100%,223px);top:clamp(40px,15vw,54px)
+  width:min(100%,223px);top:clamp(45px,15vw,59px)
  }
  body[data-lp-v2="on"][data-lp-module="nutrition"] #balanceCard .hh-glass-art-v1202{width:min(100%,96px)}
  body[data-lp-v2="on"][data-lp-module="nutrition"] #balanceCard .hh-showcase-summary-v1202{padding:10px}
