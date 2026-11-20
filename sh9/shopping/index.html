@@ -14,6 +14,8 @@
 <link rel="stylesheet" href="/berlet-app/sh9/shared/lena-premium-wave-v2.css?v=2-sleep1173">
 <link rel="stylesheet" href="/berlet-app/sh9/shared/sho-premium-dark-system-v3.css?v=3-shopping-sport-20261119">
 <link rel="stylesheet" href="./shopping-golden-reference-v2.css?v=gs-ref-20261120-first-mobile">
+<link rel="stylesheet" href="../shared/sh9-golden-controls-v1.css?v=934-unified-glass-dock">
+<link rel="stylesheet" href="./shopping-golden-recovery-v3.css?v=gs-recovery-v3-20261120">
 <script defer src="/berlet-app/sh9/shared/lena-premium-wave-v2.js?v=2-owner"></script>
 </head>
 <body data-lp-v2="on" data-lp-module="shopping">
@@ -24,7 +26,8 @@
   <div class="hero-title" aria-label="Shopping fejléc és gyorsműveletek"><span class="hero-kicker">▶ SHO │ Smart Shopping</span><div class="head-actions"><button type="button" id="favoritesOpen" class="icon-btn" aria-label="Kedvencek">♡</button><a href="../" class="icon-btn" aria-label="SHO kezdőlap és értesítések">♧</a><button type="button" id="listsOpen" class="fav-round">✦<span>Smart<br>List</span></button></div></div>
   <img class="hero-image" src="./assets/hero-lena-ai-shopping-hub-v1.avif?v=20261117" width="1604" height="981" alt="Smart Shopping · Léna AI Shopping Hub: bevásárlás és vonalkódolvasás neon pink SHO arculattal" fetchpriority="high" onerror="this.onerror=null;this.src='./assets/hero-approved.avif?v=sho-shopping-hero-v14-20261117'">
 </section>
-<form class="search-bar" id="searchForm" role="search"><label for="searchInput" class="sr">Termék keresése</label><span aria-hidden="true" class="star">✦</span><input id="searchInput" type="search" autocomplete="off" placeholder="Terméket, üzletet vagy akciót keresel?"><button type="button" class="search-voice" id="voiceBtn" aria-label="Hangos keresés">🎙</button><button type="button" class="search-scan" id="scanBtn" aria-label="Vonalkód beolvasása">▥</button><button type="submit" class="search-submit" aria-label="Keresés">⌕</button></form>
+<div id="shoppingGoldenDockSlotV3" class="shopping-golden-dock-slot-v3" aria-label="SHO gyorsvezérlők · Profil, Feladatok, Wallet, Nyelv"></div>
+<form class="search-bar" id="searchForm" role="search"><label for="searchInput" class="sr">Termék keresése</label><button type="submit" class="star search-main-submit" aria-label="Termék keresése">⌕</button><input id="searchInput" type="search" autocomplete="off" placeholder="Terméket, üzletet vagy akciót keresel?"><button type="button" class="search-voice" id="voiceBtn" aria-label="Hangos keresés">🎙</button><button type="button" class="search-scan" id="scanBtn" aria-label="Vonalkód beolvasása">▥</button><button type="submit" class="search-submit" aria-label="Keresés">⌕</button></form>
 <section class="gs-ref-shortcuts" aria-label="Smart Shopping legfontosabb műveletei">
   <a class="gs-ref-shortcut gs-ref-shortcut--list" href="./smart-list.html" aria-label="Smart List, közös családi bevásárlólista megnyitása">
     <span class="gs-ref-shortcut-icon" aria-hidden="true"><svg viewBox="0 0 32 32"><rect x="7" y="5" width="19" height="24" rx="3"/><path d="M12 4h9v5h-9zM11 15l2 2 3-3m2 2h5M11 23l2 2 3-3m2 2h5"/></svg></span>
@@ -98,5 +101,7 @@
 <script defer src="./store-connect-v2.js?v=single-basket-action-20261117"></script>
 <script defer src="../shared/sho-sound-settings-v1.js?v=1"></script>
 <script defer src="./shopping-snap-v13.js?v=2-sound-studio"></script>
+<script defer src="../shared/sh9-golden-controls-v1.js?v=934-unified-glass-dock"></script>
+<script defer src="./shopping-golden-recovery-v3.js?v=gs-recovery-v3-20261120"></script>
 </body>
 </html>
