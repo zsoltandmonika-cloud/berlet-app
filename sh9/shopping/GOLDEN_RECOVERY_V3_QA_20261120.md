@@ -1,38 +1,39 @@
-# SHO Smart Shopping Golden Recovery V3
-**Dátum:** 2026-11-20 · **Státusz:** fejlesztői / draft, nem élesíthető végellenőrzés nélkül
+# SHO Smart Shopping · Golden Recovery V3 · QA és átadási kapu
+**Dátum:** 2026-11-20 · **Státusz:** fejlesztői **DRAFT**, nem élesített, nem hitelesített pixel-to-pixel egyezés
 
-## Jóváhagyott vizuális cél
-A beszélgetés legutolsó, természetesebb színezésű 941×1670-es Smart Shopping referencia-képe az elsődleges összehasonlítási alap. Nem az előző, túlszaturált terv.
+## Végleges cél
+Az utolsó felhasználó által elfogadott, természetesebb színvilágú 941×1670-es referencia:
+1. SHO fejléc + alacsony, természetes hero;
+2. **eredeti SHO v934 négyzónás Glass Dock** közvetlenül a hero alatt, gradual átmenettel (profil / Feladatok / Wallet / HU–CA nyelv);
+3. működő keresés, mikrofon és vonalkód;
+4. Smart List + Kosár Match;
+5. 6 prémium kategória 3×2-ben;
+6. 12 webshop 4×3-ban, **Shoperia is**;
+7. az eredeti öt működő alsó navigációs elem.
 
-A cél sorrendje:
-1. SHO fejléc és természetesebb tónusú, kompakt hero
-2. Az **eredeti, működő v934 Unified Glass Dock** közvetlenül a hero alatt, **fokozatos átmenettel**: profil / Feladatok / Wallet / HU-CA nyelv
-3. Működő keresés + hang + vonalkód
-4. Smart List / Kosár Match két kiemelt kártya
-5. Hat prémium kategória 3×2 elrendezésben
-6. Tizenkét webshop 4×3 elrendezésben, Shoperia is
-7. Az eredeti öt funkcionális alsó navigációs elem
+## A recovery ágon elkészült
+- **19 tényleges grafikai asset**, az utolsó jóváhagyott referenciaképből kivágva: 1 hero (941×304), 6 kategória, 12 webshoplogó. Ezeket a `assets/golden-v3/` könyvtárban önálló SVG fájlok tartalmazzák, WebP képadatok beágyazásával. Nincsenek harmadik fél CDN URL-jére utalva.
+- `index.html`: a 19 kép bekötése a korábbi 19 helyére. Kategóriák továbbra is valódi buttonok, webshopok továbbra is valódi linkek; nincs képbe égetett, működés nélküli kattintási terület.
+- `shopping-golden-recovery-v3.css`: a korábbi V2 és az új V3 Shopping-specifikus stílusok egy rétegbe szervezve. Eredeti hero-photo saturációja nem módosul CSS filterrel, mivel a csökkentett telítettség már az új forrásképen szerepel. A kategória- és boltnevek a képekben vannak, ezért a korábbi szöveges vizuális feliratok elrejtve, a hozzáférhető címkék megtartva.
+- `shopping-golden-recovery-v3.js`: a **valódi** `sh9-golden-controls-v1.js` által generált v934 dockot mozgatja a hero alatti slotba. Nincs második, statikus dock.
+- A működő search `submit`, hang, scanner, Smart List, Basket Match, Store Connect, katalógus, kedvencek, profil és az öt alsó navigáció eredeti eseménykezelői / adattárolói / áruházi átadásai változatlanul maradtak.
+- Előző mentési ág: `backup/shopping-golden-pre-v2-20261120`. Recovery ág: `feature/shopping-golden-recovery-v3-20261120`. **A main ág nem módosult.**
 
-## Elkészült ebben az iterációban
-- `shopping-golden-recovery-v3.css`: 2.67:1 keskenyebb, kevésbé telített hero, blur/gradient átmenet, natív dock slot, kereső, shortcut, kategória- és üzletrács, alsó taskbar.
-- `shopping-golden-recovery-v3.js`: a közös SHO v934 dock **mozgatása** a hero alá (nem statikus makett).
-- `index.html`: a közös vezérlő stílus/script bekötése, egy dock slot, valódi kattintható keresés.
-- A korábbi, már működő shopping JS, merchant flow, adat és Supabase modulok érintetlenek.
-- Előző mentés: `backup/shopping-golden-pre-v2-20261120`; ez a branch nem írja át a `main` állapotát.
+## Forráskód-ellenőrzés
+- Hero, 6 kategóriakép és 12 webshop-SVG önálló fájlként szerepel a PR-ben.
+- A főoldali 6 `data-category` gomb és 12 `gs-ref-logo` link változatlan, Shoperia meglétével.
+- Egyetlen `shoppingGoldenDockSlotV3`; a közös v934 vezérlő használatával.
+- A kereső form tényleges submit gombot tartalmaz; a mikrofon és a vonalkód gombja megmaradt.
+- A korábbi `shopping.js`, Supabase, merchant adapter, katalógus modulok érintetlenek.
 
-## Nem teljes / élesítés előtti blokkolók
-1. **Pixelazonos 3D kategóriaképek és brandgrafikák:** a végleges UI-makett raszterizált, az egyes forrásgrafikák külön nem elérhetők a repositoryban. A jelenlegi kategóriaképek az eredetiek új stílusbeállításokkal, tehát a vizuális egyezés még nem 100%.
-2. **Természetes hero:** a jelenlegi jóváhagyott hero AVIF-en CSS tónuskorrekció és új kivágás van, nem a friss referencia új, külön feltöltött hero-assetje.
-3. **Mobil screenshot QA:** nincs bizonyítva a referencia pixeles egyezése valós Galaxy S24 Ultra-n.
-4. **E2E:** v934 dock mind a 4 akciója Zsolt és Mónika profilban; hat kategória; 12 webshop; keresés, scanner, hang, Smart List és Basket Match; bármely alsó navigációs akció.
-5. **Responsivitás:** 360px/384px/400px/412px és mobil Samsung Internet + Edge.
-6. Nincs autorizált OTA/deploy. Csak jóváhagyás után merge.
+## Még szükséges QA, az élesítés blokkolói
+1. **Mobil screenshot összevetés:** ugyanazon megjelenítési skálán a referencia és az új, ténylegesen renderelt oldal overlay vizsgálata. A képi assetek forrásazonossága nem garantál teljes felületi pixelazonosságot.
+2. **Éles böngészők:** Samsung S24 Ultra, Samsung Internet és Edge, 360/384/400/412 CSS px nézetek, safe area, bottom taskbar, sorok, képek és szövegek clipping ellenőrzése.
+3. **Asset-kompatibilitás:** a WebP-adatot tartalmazó SVG-k megjelenése az éles hostolás és böngésző biztonsági szabályai mellett. Szükség esetén natív képfájlokra cserélendők, a kinézet változtatása nélkül.
+4. **Funkcionális E2E:** mindkét profil (Zsolt, Mónika), 4 dock funkció, search/voice/barcode, 6 kategória, 12 webshop, lista/kosár, Store Connect, alsó navigáció.
+5. **Végső vizuális javítás:** a referencia geometriai eltéréseit a mért screenshot alapján kell zárni; nem szabad automatikusan "100%" státuszra állítani.
 
-## Elfogadási kapu
-- Friss mobil képernyőkép összevetése az elfogadott 941×1670 referenciával.
-- Előnézeti és funkcionális QA PASS.
-- Nem lehet duplán megjelenített dock vagy kategóriafelirat.
-- Nem lehet kattinthatatlan elem, kilógás, hibás webshopátadás vagy adatvesztés.
-- Csak Zsolt jóváhagyása után merge / éles rollout.
+## Rollout
+Csak az összes QA PASS és a felhasználói jóváhagyás után `main` merge. Először Zsolt eszköze, majd Mónikáé. OTA nincs indítva. Visszaállás: fejlesztési ág elvetése, élesen csak jóváhagyott változtatás alkalmazható.
 
-**A kód jelenleg egy recovery alap, nem lezárt Golden Standard.**
+**Az assetek ténylegesen integrálva. A V3 jelenleg elkészült fejlesztői jelölt, nem hitelesített/kiadott Golden Standard.**
