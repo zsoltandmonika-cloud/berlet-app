@@ -755,3 +755,35 @@ body[data-lp-v2="on"][data-lp-module="shopping"] #shoppingUnifiedGlassSheetV54::
  backdrop-filter:blur(9px)!important;
  pointer-events:none!important;
 }
+
+
+/* V5.7 · FULL CONTENT OPAL GLASS · user-approved full-length visual trial.
+   The existing one-piece glass begins immediately below the hero image and
+   extends BEHIND quick access, search, shortcuts, all 6 category photos and
+   all 12 webshop logos, ending BEFORE the separate Boltok es arucikkek tile.
+   Stronger opalescent light is applied to this shared backing plate ONLY:
+   tint opacity .30/.25/.28 → .35/.30/.33 (~65–70% transparency),
+   blur 9px → 11px, softly pearlescent overlays, rim .14 → .17.
+   No padding, layout, card sizing, spacing, icons or click changes.
+   The existing wrappers and 4 upper surface glows remain as approved.
+   Visual trial, NOT yet Golden Standard. */
+body[data-lp-v2="on"][data-lp-module="shopping"] #shoppingUnifiedGlassSheetV54::before{
+ inset:0 6px 7px!important;
+ background:
+  radial-gradient(ellipse 125% 75% at 28% 0%,
+   rgba(250,223,255,.09) 0%,transparent 69%),
+  radial-gradient(ellipse 110% 52% at 90% 100%,
+   rgba(185,194,255,.065) 0%,transparent 78%),
+  linear-gradient(133deg,
+   rgba(113,71,143,.35) 0%,
+   rgba(67,49,108,.30) 49%,
+   rgba(53,75,128,.33) 100%)!important;
+ border-color:rgba(226,201,251,.17)!important;
+ box-shadow:
+   inset 0 1px 0 rgba(255,232,252,.19),
+   inset 0 -1px 0 rgba(145,130,210,.12),
+   0 4px 13px rgba(4,2,14,.13)!important;
+ -webkit-backdrop-filter:blur(11px) saturate(1.07)!important;
+ backdrop-filter:blur(11px) saturate(1.07)!important;
+ pointer-events:none!important;
+}
