@@ -2,6 +2,8 @@
 
 **Verzió:** 1.0 · **Dátum:** 2026-10-14 · **Státusz:** jóváhagyott vizuális irányelvek, implementációs specifikáció; **nem éles dizájnmigráció**.
 
+**2026-11-20 kiegészítés:** a **3/C. SHO Smart Shopping V5.8 Full Content Opal Glass** kifejezett, éles, felhasználó által vizuálisan jóváhagyott Golden Standard referencia; a dokumentum többi tervfejezete ettől még nem automatikusan éles.
+
 ## 1. Termékélmény és hiteles referencia
 
 **„Looks expensive. Egységes, felhasználóbarát, esztétikus, valódi adatokkal.”**
@@ -114,6 +116,59 @@ A felhasználó kifejezetten a **jelenleg ténylegesen jóváhagyott** 6 kategó
 
 **Implementációs szerződés:** legyen újrahasználható dizájntoken / komponensosztály, de **opt-in, modulonként tesztelt vizuális réteg**. Kizárólag látványt módosíthat, nem az adatokat, routingot, érintési célokat, scrollpozíciókat vagy az eredeti képeket. S24 Ultra Samsung Internet és Edge screenshot-összehasonlítás kötelező. A jelen dokumentációs rögzítés **nem rollout**.
 
+
+### 3/C. Full Content Opal Glass — SHO Smart Shopping V5.8 · GOLDEN STANDARD (2026-11-20)
+
+**Felhasználói státusz: JÓVÁHAGYVA.** A V5.8-at a felhasználó valós képernyőn megtekintette, „szuper lett”, „ez kész” visszajelzéssel elfogadta, majd a kész megjelenést képernyőképpel megerősítette. Ez **éles Shopping-modul etalon**, nem puszta koncepció. A korábbi V4.5–V5.7 köztes kísérleti értékek nem írják felül ezt a végleges profilt.
+
+**Belső név:** **Full Content Opal Glass / Unified Glass Sheet**, magyarul egységes, finoman opálos üvegalátét. *Csak belső stílusnév, UI-ban ne jelenjen meg reklámcímkeként.*
+
+#### 3/C.1. Elrendezés és határok (kötelező kompozíció)
+
+- **Felső határ:** közvetlenül a jóváhagyott **Shopping hero kép alatt**; a hero nem része az üveglapnak.
+- **Egyetlen összefüggő, halványan gyöngyház-opálos háttérréteg:** a 4 gombos **Quick Bar**, keresősáv, **Smart List**, **Kosár Match**, **6 kategóriakép (3 × 2)**, majd **Webshopok** fejléc és **12 webshop (4 × 3)** *mögött* fut.
+- A webshopok: Tesco, Auchan, ALDI, Kifli, dm, Rossmann, eMAG, Alza, Allegro, Temu, SHEIN és **Shoperia**. A hat kategória: Élelmiszer, Elektronika, Divat, Drogéria, Otthon és Árfigyelés.
+- **Alsó határ:** a legalsó webshoplogók sorát követően diszkréten kilógó üveglap. **V5.7-hez képest pontosan +10 CSS px festett túlnyúlás**: a `::before` alsó `inset` értéke `7px` helyett `-3px`. **Nem** 10 px új layout-height, margin vagy padding, nem tolja le a következő tartalmat.
+- A külön **„Boltok és árucikkek”** tartalomblokk, a további katalógus és a **bottom navigation** az üveglapon kívül marad. A hero, a csempék, az ikonok, a már jóváhagyott geometria, távolságok, sorrend, touch targetek, képek és funkciók érintetlenek.
+- A vizuális lap **nem fedhet le működő kontrollt**. A közös üveg dekoráció, az egyedi kategóriaképek beégetett glow-ja és a Quick Bar/Search/Smart List/Kosár Match saját belső fénye ettől **függetlenül megmarad**.
+
+#### 3/C.2. V5.8 végleges effektparaméterek, éles CSS alapján
+
+| Paraméter | Jóváhagyott érték / jelentés |
+|---|---|
+| Modul selector | `body[data-lp-v2="on"][data-lp-module="shopping"]` |
+| Egyetlen közös lap | `#shoppingUnifiedGlassSheetV54` és dekorációként `#shoppingUnifiedGlassSheetV54::before` |
+| Wrapper technikai alap | `display:flow-root; position:relative; isolation:isolate; padding:0; margin:0; border:0; background:transparent; overflow:visible;` |
+| Közös lap pozíciója | `position:absolute; inset:0 6px -3px !important; z-index:-1;` |
+| Lekerekítés | `border-radius:20px` |
+| Általános áttetszőség | **60–65%**, az alábbi színrétegek alfaértékei alapján; nem a teljes elem globális `opacity` értéke |
+| Meleg bal oldali árnyalat, 0% | `rgba(113,71,143,.40)` = 40% színfedettség / 60% áttetszőség |
+| Középső árnyalat, 49% | `rgba(67,49,108,.35)` = 35% színfedettség / 65% áttetszőség |
+| Kékes jobb oldali árnyalat, 100% | `rgba(53,75,128,.38)` = 38% színfedettség / 62% áttetszőség |
+| Alapszínátmenet | `linear-gradient(133deg, rgba(113,71,143,.40) 0%, rgba(67,49,108,.35) 49%, rgba(53,75,128,.38) 100%)` |
+| Felső, finom meleg opálfény | `radial-gradient(ellipse 125% 75% at 28% 0%, rgba(250,223,255,.09) 0%, transparent 69%)` |
+| Alsó, finom hideg opálfény | `radial-gradient(ellipse 110% 52% at 90% 100%, rgba(185,194,255,.065) 0%, transparent 78%)` |
+| Háttérelmosás + enyhe szaturáció | `-webkit-backdrop-filter:blur(11px) saturate(1.07)` és `backdrop-filter:blur(11px) saturate(1.07)` |
+| Lágy üvegperem | `1px solid rgba(226,201,251,.17)` (17% színfedettség) |
+| Belső felső finom fény | `inset 0 1px 0 rgba(255,232,252,.19)` |
+| Belső alsó finom fény | `inset 0 -1px 0 rgba(145,130,210,.12)` |
+| Semleges külső mélység | `0 4px 13px rgba(4,2,14,.13)` (nem erős, színes külső glow) |
+| Eseménykezelés | `pointer-events:none`: nem blokkolhatja a gombokat, webshop-linkeket vagy billentyűzetes fókuszt |
+| V5.8 változás V5.7-hez képest | Színfokozatok `.35/.30/.33` → **`.40/.35/.38`**; alsó inset `7px` → **`-3px`**; **blur 11 px változatlan**, perem 17% változatlan |
+
+**Rétegzés sorrendje:** 1. felső opál `radial-gradient`; 2. alsó opál `radial-gradient`; 3. `133deg` színgrádiens. A gradientek a **dekorációs alátétre** vonatkoznak, nem a teljes lap vagy a gyermekeinek `opacity`-ére. Emiatt a tartalom élessége és kattinthatósága megmarad.
+
+#### 3/C.3. Forráshelyek, kiadási és változtatási szerződés
+
+- Éles elrendezés / wrapper: `sh9/shopping/index.html` → `<div id="shoppingUnifiedGlassSheetV54"> ... </div>`; zárás **a teljes `gs-ref-store-overview` webshopblokk után**, de **a `#shoStoreConnect` előtt**.
+- Éles effekt: `sh9/shopping/shopping-golden-v4-polish.css`; a **V5.8** rule a V5.4–V5.7 örökölt effektértékeket célzottan felülírja. A végleges vizuális eredmény a CSS cascade *együttes* eredménye, nem egy korábbi kísérleti szabály.
+- Éles stílusbetöltés cache-verziója: `shopping-golden-v4-polish.css?v=20261120-v58-bottom-overhang`.
+- Jóváhagyott kiadás: [SHO Shopping V5.8 / PR #1028](https://github.com/zsoltandmonika-cloud/berlet-app/pull/1028); kiadási commit: `5e07788c058df4e7f0061be68f169f1ec6402d1d`.
+- Visszaállítási referencia: `backup/shopping-pre-v58-bottom-overhang-20261120` (V5.7 állapot).
+- V5.8 dokumentált kiadási ellenőrzése: **23/23 célzott ellenőrzés sikeres**; a Shopping, Sound Studio, Léna Premium Wave pipeline sikeres. Az általános Edge Installable PWA ellenőrzés ettől független, korábban fennálló hibája **nem** vált a Golden Standard részeként elfogadott állapottá.
+
+**Változtatási szabály:** ezt a V5.8-as vizuális etalont **ne módosítsuk külön felhasználói kérés és új mobilos képi jóváhagyás nélkül**. Új modulban a komponens másolása nem automatikus: explicit opt-in, a hero/kategória/webshop határok újradefiniálása, interakciós és responsive QA szükséges. A mért paraméterek nem írják felül a korábban elfogadott 6 kategória SVG-be égetett belső peremfényét vagy a négy felső vezérlő külön glass-rétegét.
+
 ## 4. Home információs architektúra — jóváhagyott 3 × 4, tizenkét csempés célkép
 
 **Felhasználó által jóváhagyott navigációs sorrend (2026-10-14):** a Home ne széttöredezett linkgyűjtemény, hanem egységes, 3 oszlopos × 4 soros, **12 Premium Glass navigációs csempéből** álló, kompakt belépőoldal legyen.
@@ -170,3 +225,5 @@ A felhasználó kifejezetten a **jelenleg ténylegesen jóváhagyott** 6 kategó
 ## 7. Változáskövetés
 
 Ez a dokumentum csak **a tervezési szerződés**. Sem Home 3×4 rács, sem receptmigráció, sem Hero képcsere, sem közös skin nem lett automatikusan élesítve ezzel a dokumentummal. Ezek külön implementációs és tesztelési feladatok.
+
+**2026-11-20 – Shopping V5.8 Golden Standard jóváhagyva:** a 3/C pontban pontosan rögzítve a teljes hero alatti közös opálos üveglap, +10 px alsó festett túlnyúlás, 60–65% áttetszőség, 11 px blur, 17% perem, opálfények, komponenshatárok és a visszaállítási referencia. **Ez a Shopping-design már éles és jóváhagyott**, nem terv.
