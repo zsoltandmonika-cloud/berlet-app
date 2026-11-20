@@ -281,3 +281,14 @@ body[data-lp-v2="on"][data-lp-module="shopping"] .gs-ref-shortcuts > .gs-ref-sho
   inset 0 4px 9px -8px rgba(255,230,250,.22),
   0 0 var(--sho-pdeg-halo-blur) var(--sho-pdeg-halo-spread) rgba(var(--sho-pdeg-edge-rgb),var(--sho-pdeg-halo-opacity));
 }
+
+/* V4.6 · Soft Foggy test · 4 upper Smart Shopping surfaces.
+   Strictly tune V4.5 CSS halo parameters; the six category-art images
+   remain the approved Golden Standard reference and are not modified.
+   To revert instantly, remove this block or restore V4.5 backup. */
+body[data-lp-v2="on"][data-lp-module="shopping"]{
+ --sho-pdeg-inner-opacity:.17;
+ --sho-pdeg-halo-blur:16px;
+ --sho-pdeg-halo-opacity:.16;
+ --sho-pdeg-halo-spread:1px;
+}
