@@ -85,6 +85,33 @@ Részletes normatív szabály: [GOLDEN-STANDARD-RULE.md](./GOLDEN-STANDARD-RULE.
 - Témafüggő, **visszafogott** árnyalat: Mónika rose/pink; Zsolt ice-blue/cyan. Ne jelentse automatikusan egy már jóváhagyott csempe/hero lecserélését.
 - Árnyék, opacity és blur értékek új komponensenként képi QA-val hangolhatók; nincs automatikus, globális CSS aktiválás.
 
+#### 3/B.1. Rögzített, valódi Shopping-etalon paraméterek (2026-11-20)
+
+A felhasználó kifejezetten a **jelenleg ténylegesen jóváhagyott** 6 kategóriacsempét választotta etalonnak. Ezek paraméterei és határai:
+
+| Jellemző | Az éles Shopping V4.4-ben ellenőrzött érték |
+|---|---|
+| Képi fényudvar | A hat jóváhagyott `sh9/shopping/assets/golden-v4/categories/*.svg` grafikába **bele van égetve**; nincs külön numerikus CSS blur/spread paramétere |
+| Belső CSS keret | `inset 0 0 0 1px rgba(228,193,244,.25)` a `#categoryGrid.categories > .cat::before` rétegen |
+| Külön CSS blur a képi glow-hoz | **Nincs** (`none`); a ködösség jelentős részét az SVG-be ágyazott grafika adja |
+| Kártya lekerekítése | `13px` |
+| Kártya körüli sötét térárnyék | `0 2px 6px rgba(6,3,20,.28)` |
+| Eredeti képek optikai szélszabályozása | `transform:scaleX(1.08)` a V4.3-as képszél-korrekcióhoz |
+| Kategóriarács | 3 oszlop × 2 sor, `4px` vízszintes és függőleges rés |
+
+**Fontos:** a korábban demonstrált `14px blur / 28% opacity / 3px spread` **csak ötlet**, nem ezeknek az éles csempéknek a mért vagy konfigurált értéke. Az elfogadott referenciát az **SVG assetek + az éles CSS együttes látványa** határozza meg.
+
+#### 3/B.2. SHO Smart Shopping V4.5 – 4 felső felület CSS-adaptációja
+
+**Célzott négy elem:** a hero alatti 4 gombos **Quick Bar mint egyetlen felület**, a **keresősáv**, a **Smart List** kártya és a **Kosár Match** kártya. A dekoratív réteg a korábbi erős vékony keret helyett jelenik meg. A hiteles kategóriaetalon 1px-es, 25%-os inner-highlight értékét használja, a képekbe égetett ködöt **új, önálló CSS-soft-halo** utánozza:
+
+- `--sho-pdeg-edge-rgb:228,193,244` és `--sho-pdeg-inner-opacity:.25` **az etalon belső élkiemelése**
+- `--sho-pdeg-halo-blur:11px`, `--sho-pdeg-halo-opacity:.13`, `--sho-pdeg-halo-spread:0px` **új V4.5 induló CSS-fényudvar**, *nem* a képekről kiolvasott paraméterek
+- `--sho-pdeg-edge-radius:15px` a felső felületek már meglévő lekerekítéséhez igazodik
+- `pointer-events:none` és abszolút pozicionált dekoráció; a navigációs gombok, kereső, adatfolyamok és geometria változatlanok
+
+**Implementáció:** `sh9/shopping/shopping-golden-v4-polish.css` (V4.5 szakasz). A layer csak opt-in a Shopping négy felső felületén; a közös dokk rácsába nem hoz létre új gyermeket. Valódi mobilos képernyőkép után tekinthető vizuálisan véglegesnek. A szabvány leírása önmagában nem kényszeríti rá az effektet más SHO/HealthHub modulokra.
+
 **Implementációs szerződés:** legyen újrahasználható dizájntoken / komponensosztály, de **opt-in, modulonként tesztelt vizuális réteg**. Kizárólag látványt módosíthat, nem az adatokat, routingot, érintési célokat, scrollpozíciókat vagy az eredeti képeket. S24 Ultra Samsung Internet és Edge screenshot-összehasonlítás kötelező. A jelen dokumentációs rögzítés **nem rollout**.
 
 ## 4. Home információs architektúra — jóváhagyott 3 × 4, tizenkét csempés célkép

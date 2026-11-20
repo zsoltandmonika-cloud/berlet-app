@@ -227,3 +227,57 @@ body[data-lp-v2="on"][data-lp-module="shopping"] .bottomnav{
  box-sizing:border-box!important;
  height:70px!important;
 }
+
+
+/* V4.5 · Premium Diffused Edge Glow · top four Shopping surfaces only.
+   Source baseline is the approved six category artworks + 1px 25%-alpha
+   inner edge, not an invented "14px blur" setting. The external fog here
+   is a new CSS approximation, purposely soft, with opt-in scoped tokens.
+   No changes to geometry, links, handlers, grid, merchant images or data.
+*/
+body[data-lp-v2="on"][data-lp-module="shopping"]{
+ --sho-pdeg-edge-rgb:228,193,244;
+ --sho-pdeg-inner-opacity:.25;
+ --sho-pdeg-halo-opacity:.13;
+ --sho-pdeg-halo-blur:11px;
+ --sho-pdeg-halo-spread:0px;
+ --sho-pdeg-edge-radius:15px;
+}
+body[data-lp-v2="on"][data-lp-module="shopping"] #shoppingGoldenDockSlotV3 #sh9UnifiedGlassDockV34,
+body[data-lp-v2="on"][data-lp-module="shopping"] #searchForm.search-bar,
+body[data-lp-v2="on"][data-lp-module="shopping"] .gs-ref-shortcuts > .gs-ref-shortcut{
+ border-color:rgba(var(--sho-pdeg-edge-rgb),.08)!important;
+ box-shadow:0 3px 10px rgba(6,3,20,.24)!important;
+}
+/* The slot already has its own hero-transition ::before. Keep it.
+   Use ::after on the SLOT, not the 4-column grid dock, avoiding a fifth grid cell. */
+body[data-lp-v2="on"][data-lp-module="shopping"] #shoppingGoldenDockSlotV3::after{
+ content:"";
+ position:absolute;
+ inset:0 0 1px;
+ border-radius:var(--sho-pdeg-edge-radius);
+ z-index:6;
+ pointer-events:none;
+ box-shadow:
+  inset 0 0 0 1px rgba(var(--sho-pdeg-edge-rgb),var(--sho-pdeg-inner-opacity)),
+  inset 0 4px 9px -8px rgba(255,230,250,.22),
+  0 0 var(--sho-pdeg-halo-blur) var(--sho-pdeg-halo-spread) rgba(var(--sho-pdeg-edge-rgb),var(--sho-pdeg-halo-opacity));
+}
+body[data-lp-v2="on"][data-lp-module="shopping"] #searchForm.search-bar,
+body[data-lp-v2="on"][data-lp-module="shopping"] .gs-ref-shortcuts > .gs-ref-shortcut{
+ position:relative!important;
+ isolation:isolate;
+}
+body[data-lp-v2="on"][data-lp-module="shopping"] #searchForm.search-bar::before,
+body[data-lp-v2="on"][data-lp-module="shopping"] .gs-ref-shortcuts > .gs-ref-shortcut::before{
+ content:"";
+ position:absolute;
+ inset:0;
+ border-radius:inherit;
+ z-index:1;
+ pointer-events:none;
+ box-shadow:
+  inset 0 0 0 1px rgba(var(--sho-pdeg-edge-rgb),var(--sho-pdeg-inner-opacity)),
+  inset 0 4px 9px -8px rgba(255,230,250,.22),
+  0 0 var(--sho-pdeg-halo-blur) var(--sho-pdeg-halo-spread) rgba(var(--sho-pdeg-edge-rgb),var(--sho-pdeg-halo-opacity));
+}
