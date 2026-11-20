@@ -5,7 +5,7 @@ const html=read('index.html'),script=read('hh-lena-ai-scan-page-v753.js'),css=re
 new vm.Script(script);
 assert.match(html,/id="hhLenaScanPage753"/);
 assert.match(html,/hh-lena-ai-scan-page-v753\.js\?v=20261120-live-ean-camera/);
-assert.match(html,/hh-lena-ai-scan-page-v753\.css\?v=1149-one-tap-favorites/);
+assert.match(html,/hh-lena-ai-scan-page-v753\.css\?v=20261120-live-barcode-view/);
 assert.match(html,/id="hhScanVideo753"/);
 assert.doesNotMatch(html,/class="hhScanTop753"/);
 assert.doesNotMatch(html,/AI FOOD STUDIO/);
@@ -59,6 +59,8 @@ assert.match(script,/data=await lookup\(found\)/);
 assert.match(script,/if\(!found\)\{[^}]*found=await readBarcode\(frame\)/);
 assert.match(script,/if\(mode!=='barcode'\)clearPhoto\(\);reset\('barcode'\);void cameraOn\(\)/);
 assert.match(script,/video:\{facingMode:'environment'/);
+assert.match(script,/if\(cameraStartPromise\)return cameraStartPromise/);
+assert.match(css,/\.hhScanPage753\[data-stage="scanning"\] \.hhScanViewport753\[data-mode="barcode"\] \.hhScanProcessing753\{/);
 assert.match(script,/if\(serial!==requestId\|\|page\.hidden\|\|mode!=='barcode'\|\|!stream\)/);
 assert.match(script,/void scan\(\)/);
 
