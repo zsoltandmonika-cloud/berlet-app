@@ -787,3 +787,27 @@ body[data-lp-v2="on"][data-lp-module="shopping"] #shoppingUnifiedGlassSheetV54::
  backdrop-filter:blur(11px) saturate(1.07)!important;
  pointer-events:none!important;
 }
+
+
+/* V5.8 · BOTTOM OVERHANG + RICHER OPAL GLASS · phone visual trial.
+   Requested: the SINGLE full-content backdrop now extends 10px
+   further BELOW the 12 webshop logos. Existing bottom inset +7px
+   becomes -3px, which moves ONLY the painted backdrop's bottom edge
+   10px lower, leaving the next Boltok es arucikkek tile and all
+   layout/spacing/click targets in their exact V5.7 positions.
+   Glass background alpha .35/.30/.33 → .40/.35/.38 (60–65%
+   transparency). The approved blur(11px), pearl highlights and
+   17% border are unchanged. NOT yet Golden Standard. */
+body[data-lp-v2="on"][data-lp-module="shopping"] #shoppingUnifiedGlassSheetV54::before{
+ inset:0 6px -3px!important;
+ background:
+  radial-gradient(ellipse 125% 75% at 28% 0%,
+   rgba(250,223,255,.09) 0%,transparent 69%),
+  radial-gradient(ellipse 110% 52% at 90% 100%,
+   rgba(185,194,255,.065) 0%,transparent 78%),
+  linear-gradient(133deg,
+   rgba(113,71,143,.40) 0%,
+   rgba(67,49,108,.35) 49%,
+   rgba(53,75,128,.38) 100%)!important;
+ pointer-events:none!important;
+}
