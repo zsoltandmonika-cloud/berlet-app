@@ -166,3 +166,56 @@ body[data-lp-v2="on"][data-lp-module="shopping"] #searchForm.search-bar{
   min-height:39px!important;
  }
 }
+
+
+/* V4.3 · Category image-edge normalization and truly centered 3×2 grid.
+   The old grid already had equal CSS tracks. Uneven *visible* gaps came
+   from dark internal margins baked into the six cropped reference assets.
+   Apply one shared horizontal crop and one shared edge outline to all six
+   category tiles, without changing text, artwork source or actions.
+*/
+body[data-lp-v2="on"][data-lp-module="shopping"] #categoryGrid.categories{
+ display:grid!important;
+ grid-template-columns:repeat(3,minmax(0,1fr))!important;
+ grid-auto-flow:row!important;
+ justify-content:center!important;
+ justify-items:stretch!important;
+ align-items:stretch!important;
+ column-gap:4px!important;
+ row-gap:4px!important;
+ padding-left:10px!important;
+ padding-right:10px!important;
+ box-sizing:border-box!important;
+}
+body[data-lp-v2="on"][data-lp-module="shopping"] #categoryGrid.categories > .cat{
+ box-sizing:border-box!important;
+ width:100%!important;
+ min-width:0!important;
+ max-width:none!important;
+ justify-self:stretch!important;
+ margin:0!important;
+ position:relative!important;
+ overflow:hidden!important;
+ border-radius:13px!important;
+ background:#30213d!important;
+}
+body[data-lp-v2="on"][data-lp-module="shopping"] #categoryGrid.categories > .cat img{
+ display:block!important;
+ width:100%!important;
+ height:100%!important;
+ margin:0!important;
+ max-width:100%!important;
+ object-fit:fill!important;
+ object-position:center!important;
+ transform:scaleX(1.08)!important;
+ transform-origin:center center!important;
+}
+body[data-lp-v2="on"][data-lp-module="shopping"] #categoryGrid.categories > .cat::before{
+ content:"";
+ position:absolute;
+ inset:0;
+ z-index:2;
+ pointer-events:none;
+ border-radius:inherit;
+ box-shadow:inset 0 0 0 1px rgba(228,193,244,.25);
+}
