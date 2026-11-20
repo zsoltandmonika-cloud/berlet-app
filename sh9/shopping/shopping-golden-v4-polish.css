@@ -399,3 +399,77 @@ body[data-lp-v2="on"][data-lp-module="shopping"] .gs-ref-shortcuts > .gs-ref-sho
  opacity:1!important;
  pointer-events:none!important;
 }
+
+
+/* V5.0 · EDGE SOURCE MIST · mobile visual trial, NOT yet Golden Standard.
+   Soften the V4.9 visible outer halo: top 43% → 34%, lateral
+   34/32% → 24%, exterior blur 17–18px → 22px. Preserve soft
+   edge-localized gradient illumination. The two shortcut cards'
+   inward-facing halos are separately attenuated to avoid a bright seam.
+   Strictly four existing top Shopping surfaces; zero geometry or JS changes. */
+body[data-lp-v2="on"][data-lp-module="shopping"]{
+ --sho-mist-visible-top:.34;
+ --sho-mist-visible-left:.24;
+ --sho-mist-visible-right:.24;
+ --sho-mist-visible-inner:.045;
+ --sho-mist-edge-top-internal:.18;
+ --sho-mist-edge-side-internal:.12;
+}
+/* The outer mist is drawn directly by the real surfaces; the card face
+   cannot obscure these shadows. Do not restore a 1px bright outline. */
+body[data-lp-v2="on"][data-lp-module="shopping"] #shoppingGoldenDockSlotV3 #sh9UnifiedGlassDockV34,
+body[data-lp-v2="on"][data-lp-module="shopping"] #searchForm.search-bar,
+body[data-lp-v2="on"][data-lp-module="shopping"] .gs-ref-shortcuts > .gs-ref-shortcut{
+ box-shadow:
+  0 -4px 22px -7px rgba(var(--sho-mist-top-rgb),var(--sho-mist-visible-top)),
+  -5px 0 22px -8px rgba(var(--sho-mist-left-rgb),var(--sho-mist-visible-left)),
+  5px 0 22px -8px rgba(var(--sho-mist-right-rgb),var(--sho-mist-visible-right)),
+  0 4px 10px rgba(6,3,20,.25)!important;
+}
+/* These two cards share a small gap. The INNER shadow of each becomes
+   nearly invisible, but the outer-facing and top glows are retained. */
+body[data-lp-v2="on"][data-lp-module="shopping"] .gs-ref-shortcuts > .gs-ref-shortcut--list{
+ box-shadow:
+  0 -4px 22px -7px rgba(var(--sho-mist-top-rgb),var(--sho-mist-visible-top)),
+  -5px 0 22px -8px rgba(var(--sho-mist-left-rgb),var(--sho-mist-visible-left)),
+  5px 0 22px -8px rgba(var(--sho-mist-right-rgb),var(--sho-mist-visible-inner)),
+  0 4px 10px rgba(6,3,20,.25)!important;
+}
+body[data-lp-v2="on"][data-lp-module="shopping"] .gs-ref-shortcuts > .gs-ref-shortcut--basket{
+ box-shadow:
+  0 -4px 22px -7px rgba(var(--sho-mist-top-rgb),var(--sho-mist-visible-top)),
+  -5px 0 22px -8px rgba(var(--sho-mist-left-rgb),var(--sho-mist-visible-inner)),
+  5px 0 22px -8px rgba(var(--sho-mist-right-rgb),var(--sho-mist-visible-right)),
+  0 4px 10px rgba(6,3,20,.25)!important;
+}
+/* Small local light source exactly at the top and sides, feathered into
+   the tile, not a 1px line and not an all-around neon rectangle. */
+body[data-lp-v2="on"][data-lp-module="shopping"] #shoppingGoldenDockSlotV3::after,
+body[data-lp-v2="on"][data-lp-module="shopping"] #searchForm.search-bar::before,
+body[data-lp-v2="on"][data-lp-module="shopping"] .gs-ref-shortcuts > .gs-ref-shortcut::before{
+ background:
+  radial-gradient(ellipse 80% 15px at 50% 0%,
+   rgba(var(--sho-mist-top-rgb),var(--sho-mist-edge-top-internal)),transparent 82%),
+  radial-gradient(ellipse 15px 78% at 0% 38%,
+   rgba(var(--sho-mist-left-rgb),var(--sho-mist-edge-side-internal)),transparent 83%),
+  radial-gradient(ellipse 15px 78% at 100% 38%,
+   rgba(var(--sho-mist-right-rgb),var(--sho-mist-edge-side-internal)),transparent 83%)!important;
+ filter:blur(5px)!important;
+ pointer-events:none!important;
+}
+/* Dampen the glow inside the seam as well, without changing the
+   shortcuts' size, gap, borders as layout boxes or touch targets. */
+body[data-lp-v2="on"][data-lp-module="shopping"] .gs-ref-shortcuts > .gs-ref-shortcut--list::before{
+ background:
+  radial-gradient(ellipse 80% 15px at 50% 0%,
+   rgba(var(--sho-mist-top-rgb),var(--sho-mist-edge-top-internal)),transparent 82%),
+  radial-gradient(ellipse 15px 78% at 0% 38%,
+   rgba(var(--sho-mist-left-rgb),var(--sho-mist-edge-side-internal)),transparent 83%)!important;
+}
+body[data-lp-v2="on"][data-lp-module="shopping"] .gs-ref-shortcuts > .gs-ref-shortcut--basket::before{
+ background:
+  radial-gradient(ellipse 80% 15px at 50% 0%,
+   rgba(var(--sho-mist-top-rgb),var(--sho-mist-edge-top-internal)),transparent 82%),
+  radial-gradient(ellipse 15px 78% at 100% 38%,
+   rgba(var(--sho-mist-right-rgb),var(--sho-mist-edge-side-internal)),transparent 83%)!important;
+}
