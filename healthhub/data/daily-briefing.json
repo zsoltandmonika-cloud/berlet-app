@@ -1,226 +1,224 @@
 {
   "schemaVersion": 1,
-  "date": "2026-11-19",
-  "generatedAt": "2026-11-19T14:21:52+01:00",
-  "headline": "A reggel fő témái: This is a remarkable diplomatic moment for China's Xi - but it comes with pitfalls; Dozens missing after boat carrying 100 migrants sinks off Senegal's coast",
+  "date": "2026-11-20",
+  "generatedAt": "2026-11-20T14:02:00+01:00",
+  "headline": "A reggel fő témái: UK and EU to agree youth mobility scheme, BBC understands; Russia targets Kyiv crossings days after Ukraine hits Crimean Bridge",
   "sections": [
     {
       "id": "executive",
       "title": "Vezetői összefoglaló",
       "items": [
-        "BBC World: This is a remarkable diplomatic moment for China's Xi - but it comes with pitfalls",
-        "BBC World: Dozens missing after boat carrying 100 migrants sinks off Senegal's coast",
-        "BBC World: Anthropic raises $81bn in record-breaking stock market debut",
-        "BBC World: Van Gogh painting sells for record $190.4m after row over its Nazi history"
+        "BBC World: UK and EU to agree youth mobility scheme, BBC understands",
+        "BBC World: Russia targets Kyiv crossings days after Ukraine hits Crimean Bridge",
+        "BBC World: Russian missile hits Poland as Ukraine's allies hold military exercise, says Tusk",
+        "BBC World: Nearly 600 women killed in South Africa within three months"
       ]
     },
     {
       "id": "overnight",
       "title": "Éjszakai fejlemények",
       "items": [
-        "BBC World: This is a remarkable diplomatic moment for China's Xi - but it comes with pitfalls",
-        "BBC World: Dozens missing after boat carrying 100 migrants sinks off Senegal's coast",
-        "BBC World: Anthropic raises $81bn in record-breaking stock market debut"
+        "BBC World: UK and EU to agree youth mobility scheme, BBC understands",
+        "BBC World: Russia targets Kyiv crossings days after Ukraine hits Crimean Bridge",
+        "BBC World: Russian missile hits Poland as Ukraine's allies hold military exercise, says Tusk"
       ]
     },
     {
       "id": "geopolitics",
       "title": "Külpolitika / Geopolitika",
       "items": [
-        "BBC World: This is a remarkable diplomatic moment for China's Xi - but it comes with pitfalls",
-        "BBC World: Dozens missing after boat carrying 100 migrants sinks off Senegal's coast",
-        "BBC World: Anthropic raises $81bn in record-breaking stock market debut"
+        "BBC World: UK and EU to agree youth mobility scheme, BBC understands",
+        "BBC World: Russia targets Kyiv crossings days after Ukraine hits Crimean Bridge",
+        "BBC World: Russian missile hits Poland as Ukraine's allies hold military exercise, says Tusk"
       ]
     },
     {
       "id": "hungary",
       "title": "Magyarország",
       "items": [
-        "Portfolio.hu: Uniós bővítés: Magyarország támogatja Montenegrót - Portfolio.hu",
-        "Index.hu: Magyarország uniós jogot sértett, újabb kötelezettségszegési eljárást indított az Európai Bizottság - Index.hu",
-        "| hvg.hu: Uniós jogot sértett Magyarország a vasúti igazgatási szervezet függetlenségének hiánya miatt - | hvg.hu"
+        "Infostart: Tűzgömbök Magyarország fölött – fotók - Infostart",
+        "Euronews.com: Magyarország lemond a vétóról Ukrajna EU-csatlakozási kérelmeinek fennmaradó kérdéseiben, értesült az Euronews - Euronews.com",
+        "Agroinform: Két területen is Magyarország legjobb egyeteme lett a MATE a nemzetközi fenntarthatósági rangsorban - Agroinform"
       ]
     },
     {
       "id": "economy",
       "title": "Gazdaság / Piacok",
       "items": [
-        "BBC Business: Anthropic raises $81bn in record-breaking stock market debut",
-        "BBC Business: McDonald's sex abuse: 'They were waiting for the younger girls to turn 18'",
-        "BBC Business: Simon Jack: Can Anthropic's record-breaking IPO stop the AI bubble bursting?"
+        "BBC Business: Tinned food and long-life milk boost retail sales after 'Be Ready' campaign launch",
+        "BBC Business: Airbnb's divisive new house rules come into force",
+        "BBC Business: Anthropic becomes one of world's most valuable public companies in stock market debut"
       ]
     },
     {
       "id": "technology",
       "title": "Technológia / AI",
       "items": [
-        "BBC Technology: UK joins in GTA 6 frenzy as game becomes available worldwide",
-        "BBC Technology: Anthropic raises $81bn in record-breaking stock market debut",
-        "BBC Technology: Elon Musk says record $446m spending on US midterms was 'pretty foolish'"
+        "BBC Technology: White House removes cyber-security chief after series of tech outages",
+        "BBC Technology: Should AI be judging our credit worthiness?",
+        "BBC Technology: GTA 6 breaks records as estimated sales top $2.3bn"
       ]
     },
     {
       "id": "risks",
       "title": "Mai kockázatok",
       "items": [
-        "Figyelmi pont: Putin vows 'far more painful' response to Ukraine's strikes on Crimean Bridge (BBC World).",
-        "Figyelmi pont: Inside the old gas pipeline where Ukraine is fighting an underground war with Russia (BBC World).",
-        "Figyelmi pont: Crew unaware of risks before Mike Lynch's yacht Bayesian sank, say investigators (BBC Business)."
+        "Figyelmi pont: White House removes cyber-security chief after series of tech outages (BBC World)."
       ]
     },
     {
       "id": "watch",
       "title": "Mi számít igazán / Figyelmi szint",
       "items": [
-        "BBC World: This is a remarkable diplomatic moment for China's Xi - but it comes with pitfalls",
-        "BBC World: Dozens missing after boat carrying 100 migrants sinks off Senegal's coast"
+        "BBC World: UK and EU to agree youth mobility scheme, BBC understands",
+        "BBC World: Russia targets Kyiv crossings days after Ukraine hits Crimean Bridge"
       ]
     }
   ],
   "sources": [
     {
-      "title": "This is a remarkable diplomatic moment for China's Xi - but it comes with pitfalls",
+      "title": "UK and EU to agree youth mobility scheme, BBC understands",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cr9d75we51j1o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-19"
+      "url": "https://www.bbc.co.uk/news/articles/c623j4kpg94go?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-20"
     },
     {
-      "title": "Dozens missing after boat carrying 100 migrants sinks off Senegal's coast",
+      "title": "Russia targets Kyiv crossings days after Ukraine hits Crimean Bridge",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/c58j484089ewo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-19"
+      "url": "https://www.bbc.co.uk/news/articles/c6x29gn4pdn9o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-20"
     },
     {
-      "title": "Anthropic raises $81bn in record-breaking stock market debut",
+      "title": "Russian missile hits Poland as Ukraine's allies hold military exercise, says Tusk",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/c6742m39xgzxo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-19"
+      "url": "https://www.bbc.co.uk/news/articles/cqx2x9dklxnro?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-20"
     },
     {
-      "title": "Van Gogh painting sells for record $190.4m after row over its Nazi history",
+      "title": "Nearly 600 women killed in South Africa within three months",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/c5dj1dkwzvzwo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-19"
+      "url": "https://www.bbc.co.uk/news/articles/c69vwyjp0339o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-20"
     },
     {
-      "title": "Putin vows 'far more painful' response to Ukraine's strikes on Crimean Bridge",
+      "title": "White House removes cyber-security chief after series of tech outages",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cm879dqn3e1jo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-19"
+      "url": "https://www.bbc.co.uk/news/articles/cwz0k3nn5p5mo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-20"
     },
     {
-      "title": "US consortium wins huge Kenya mining deal, beating Chinese rivals",
+      "title": "South Korea catches 111 students with new measures against exam cheating",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cm9q84gp0gr3o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-19"
+      "url": "https://www.bbc.co.uk/news/articles/cm3vgw1xevvwo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-20"
     },
     {
-      "title": "Survivors of Uganda's deadly landslide seek justice at the UN",
+      "title": "Nigeria moves to end jail terms for attempted suicide",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/c920xgxp5785o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-19"
+      "url": "https://www.bbc.co.uk/news/articles/cm3rgnvxj339o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-20"
     },
     {
-      "title": "Inside the old gas pipeline where Ukraine is fighting an underground war with Russia",
+      "title": "'I tell my son it's just fireworks': Life inside Yemeni city besieged by Houthis",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/videos/c8p3vw4q6nzzo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-18"
+      "url": "https://www.bbc.co.uk/news/articles/cx7v2d8q879eo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-20"
     },
     {
-      "title": "Uniós bővítés: Magyarország támogatja Montenegrót - Portfolio.hu",
-      "publisher": "Portfolio.hu",
-      "url": "https://news.google.com/rss/articles/CBMipwFBVV95cUxPOUN0VDV2Yk5SaHdLRWlsTm1RWlo1YkRpS1dYb2FLc1dXWWJaZHZ2eVhlV09aMEU1cUI3WGFTUXJrVTRBcTUyMFdZeHhjQ0pjNnh1Z1ZZWFphclQ1UHMzeW5jeVc5NFZ3b1FiRk9WV3llc1ZMSXY4S2lHRDJhWE84UWdXVVBuSUhOSEdHcXR5WWItLTFBcndUa1hBTUdxdk5IcTNhbzB0TdIBrAFBVV95cUxQc2tkalVkZ09WQTROSFFkcU9ERzhDUDN0WkU4NTNTSnVrLTUxa1cxYUR1cTE2R002M2JPbHJxNGxfS0JTRDBHaWo2ZFdCVEFoTFVGUWJyU2lwVDFjVThKMXdIaWtObW50S1duY2xvOGpsUzF0dUp5VUdIQm8ta053VVprU1BVT1owSVo3bGFpbllURF90eXhjRFFWeURUV19NN2prelZOOHlaMHhk?oc=5",
-      "publishedAt": "2026-11-19"
+      "title": "Tűzgömbök Magyarország fölött – fotók - Infostart",
+      "publisher": "Infostart",
+      "url": "https://news.google.com/rss/articles/CBMigAFBVV95cUxNa0pGdDNoaVVDbFRKZGN0dHAtRm44a3RIemY4SUQzOVJyR3RfenpkZDMxZF9KLWM5ZmhlYnRtdWdzN2h5OWxEdFlzZXpQNEtGNlFPWEZLbXdzTFBMU21odW53aXFCWjNIZTZ3a0J6eTJUNHRkUXUtRlRNQkpxTUpzcw?oc=5",
+      "publishedAt": "2026-11-20"
     },
     {
-      "title": "Magyarország uniós jogot sértett, újabb kötelezettségszegési eljárást indított az Európai Bizottság - Index.hu",
+      "title": "Magyarország lemond a vétóról Ukrajna EU-csatlakozási kérelmeinek fennmaradó kérdéseiben, értesült az Euronews - Euronews.com",
+      "publisher": "Euronews.com",
+      "url": "https://news.google.com/rss/articles/CBMiwwFBVV95cUxOZVBZRndoa2hrcXdza1EycW52eWJwUTV2dXRjYjFyZTR3Y1I5aTg2eU1ENG9TMk5qOTJGU1hRM1RUZElJZWxDWVdoZEI4QmZfdnBCQ0UtTVp3RHNaTTZxbmdkNS1sLUpWOVlIdDFNd0hKTk5LYmp6US1xZEN4a3ZmcWNFN3RNM0hieXRrSzUzYnNDTm5Fb0Q3ejBzT2c2U1FvOTVmQkNYY1dudzNodmY5dkhPWXdDdEl3RnpmYU0yc2g4X00?oc=5",
+      "publishedAt": "2026-11-20"
+    },
+    {
+      "title": "Két területen is Magyarország legjobb egyeteme lett a MATE a nemzetközi fenntarthatósági rangsorban - Agroinform",
+      "publisher": "Agroinform",
+      "url": "https://news.google.com/rss/articles/CBMi6AFBVV95cUxNMnBXUXpEWnI1eDRKa2RhSGxLY09uWE1KaXlXaFk3R0RoRTRnaXRhUHhYRmRORjNyT3NrTDBDRzlnQmpUOGlBaWVZNUF0RzZnMkpDcVJocGtIMDdVbUVhNXV5UkhmZHlMMm9qMG1RUXJCMF9Qbmw1bDZEc2ozYkVBYTdCaUZQVnlBZExEb3p5ekkza213ZUhuZG9iZzJNWFk2bnZMQWtVWFdZLXNvZUt1T2NUQ3JrYUFPS0JWTmFiX083cE85ZkVkWXFhRlI4c2c5cjBzRFhOeGtMMTZiaHI0STlabkpnMk9j0gHuAUFVX3lxTE9DOVFtQXZObUJPajYyTUsxU01lY3dPVzhxcnQ3ZDV4R08zRHdiZnBvQ1NvWUVHSTQyd1dDYmF0VTNZNl9wQ29kUkhQTHFYWVczeERZdDNla1JyWFhndE93SXBfUnZwdmFjZVRDZ21XZUJqeVFaLWdjVlNLNWVfVTJFbXlScFVCTXRwdWFva0NSRXZSZWhmbXl6dXBkSUFrNHY2eGdQb0FlT3U0ZmM1alBhcTdyWFRqV0RTYV9DVEdXdlU4NmFCTVY3RmNuYk96SDN0azhIRjRQd1FjblBYY3h6UEIyR1hNZ1RfZEo0bmc?oc=5",
+      "publishedAt": "2026-11-20"
+    },
+    {
+      "title": "Nemzetek Ligája: Szerbiával játszik a magyar válogatott a feljutásért - Telex",
+      "publisher": "Telex",
+      "url": "https://news.google.com/rss/articles/CBMieEFVX3lxTE44cWZIdW0xaHVDRTJvM2pwWlhiTkxzM01HZ1o3WXJ0YXpEVHFqaXFEZFJxSkI0a0w0Y0U4VGdacFJ2U3ZtUGsxdlVVRXpuMmZ6bGVQVW90SnFsYi05bTE1UUpjWG56R2lSUWlkY0dHd1diVU1FNHdmRw?oc=5",
+      "publishedAt": "2026-11-20"
+    },
+    {
+      "title": "Eldőlt, a magyar válogatott a legkönnyebb ellenfelet kapta a Nemzetek Ligája-osztályozón - Index.hu",
       "publisher": "Index.hu",
-      "url": "https://news.google.com/rss/articles/CBMiqAFBVV95cUxNOE1vckdXWUptUlJJQWlMSWw0d2RHS3ptQi05b3d6NV9qcWVJdExTZ3Z2UzREclkxVHZ5eTFxX2V5MV85SnJ0bk1DZzNQSnVvREs0c1dWNmZYM1BKM1VleWtuU2dxT196SVRLSENER25WZkRVTU1EVGxJakNvRG5qSXV2TUhxRmxXU0pUb2xnc2RrN3JLcVd1bkRfX2FEWGVibkFzM1d0SEs?oc=5",
-      "publishedAt": "2026-11-19"
+      "url": "https://news.google.com/rss/articles/CBMiugFBVV95cUxOeVh3OXV1YlFNZ3phVjlub3dyNE1qeEpGRGVPRXBlWWgzbmpic0U2bGladXZycDFIR29wcFppV00yeW9taXFlQld5MFhzT1FOaGI0ZlZwd0xHNUMtN0hsUHdENnAwNVBNZWFmVTB3cGtydkZCRWtaS0tsa3JNc2xiaHJJc1ZySU9kN0FDemotZ0sxZTF6TzFPN2w1b1Z6VGY5TmVTSzR0bGFwRHExVHlnYXEyNUxxVndJOXc?oc=5",
+      "publishedAt": "2026-11-20"
     },
     {
-      "title": "Uniós jogot sértett Magyarország a vasúti igazgatási szervezet függetlenségének hiánya miatt - | hvg.hu",
-      "publisher": "| hvg.hu",
-      "url": "https://news.google.com/rss/articles/CBMikgFBVV95cUxPa2xOOWxGWkYxUENONVFYckxBRW9nNllNSWxxMjFJSnBHVWl3Y1hfQ2tmUVVWcnI3c0oyMUtyc0dZM0NqQVJRSWoxUS1UNktrdkhXZ3JIMFRGcXBxdV9yOU56ZEFRUU4tMm5ra1JBZl9kS0lVNkhsNDA1T2VCYTZVc0V4WjJfVEJySkFWNWlLaklaQQ?oc=5",
-      "publishedAt": "2026-11-19"
-    },
-    {
-      "title": "Díjaztuk Magyarország legkedveltebb közétkeztetésben dolgozó szakembereit - NNGYK",
-      "publisher": "NNGYK",
-      "url": "https://news.google.com/rss/articles/CBMirAFBVV95cUxONG92M0JtT2V2aUUwYkFGNmNad3hxcFBRc3lvT3FaZnZNLXZJUXJNekJNM2hodEdkd3FrVFUzWmswU2NhVW40emhrMENyeThtSmZTYW5oZTdpT0VMWXY4Y19TMlUtTmthNDdrLXNXV1BWc1NweGtMdkpsbkxnc2JXWjBQaXlON29Yc0NPLUxKVzFJNXFCblF4TGFnSlQ3UjlucXVmNVpleVNrS2lx?oc=5",
-      "publishedAt": "2026-11-19"
-    },
-    {
-      "title": "Segítségnyújtás télen - Magyarország Kormánya",
+      "title": "Minimálbér és garantált bérminimum: a megállapodás folyamata és várható hatásai - Magyarország Kormánya",
       "publisher": "Magyarország Kormánya",
-      "url": "https://news.google.com/rss/articles/CBMiUkFVX3lxTE1wVHhzMEdleWhoWFhod0czZTJTOWZBT0FkX2JELTk1RkY2cjcxSXRDVENvalFZTGgwcTI0aVM2VjY5a0h3Q3ZXVGo1RXhDNUc3dGc?oc=5",
-      "publishedAt": "2026-11-19"
+      "url": "https://news.google.com/rss/articles/CBMipgFBVV95cUxNVldXaTVXcmxiM2g0OXlNTjdvLTljVFJyVE50WlN3WUhqWXNyTDF2UC1Ha2x2RUY0aGljQm16Q1hjWFdFTXN5dXdCQmRaTWVLVHRiYW9lZHVGQU9FMnFBekJ5aHcwc2ZkMkJhM2Y3Y25HMC1Vb1hkMkpUdHlRYjNoX252N0tDSXlwYjBOd1VmazZELWc0Zy1IbkFNclJ6Wk05cGtPVUdB?oc=5",
+      "publishedAt": "2026-11-20"
     },
     {
-      "title": "Magyarország az Európai Egészségügyi Adattér kapujában - medicalonline.hu/",
-      "publisher": "medicalonline.hu/",
-      "url": "https://news.google.com/rss/articles/CBMinAFBVV95cUxPUEZhcTlrN3RFNnFtTURCRlY2RDgzcnczX0sxSmQwNE11WDJYUnY5dmxYYU10a1Ixc3J1ZVhuSzk1SFZ1X1I5SGluUXh2OTlpUjIwN3Y5cHFoY1U3VU1jQ3ctSlRxcXVQbE1peWdKRlJidTBtYUF6cWMwRnUtXzlqNkowZGtzMmE3NW5LNV9GeVpnZHYxSjBaV0Y2UzM?oc=5",
-      "publishedAt": "2026-11-19"
+      "title": "A globális Big Mac index alapján Magyarország nem a csórók közé került - Piac&Profit",
+      "publisher": "Piac&Profit",
+      "url": "https://news.google.com/rss/articles/CBMitgFBVV95cUxQdk5fRFdESnJ3MFhYb0tXYkxvUTFhRlp0R0xFaEV2SHlIRjZUZWNHQmV4anBjeEhCN1RVbWRmZTlEN0Uxc2lLNVE0LVNHR29IN0Z1QU9fblpSMENPOW9QcENKSkVkYVFqa0dqaVdJR2FsSTE2ZmVEVTBXdTdnaFdOMkVRNlNMZmdVbklqa2xrN2VkMllTVWh3QU1GOUhVOHlrNlRSVENfNm1ZZFpGZ1VsSlhEcGwyZw?oc=5",
+      "publishedAt": "2026-11-20"
     },
     {
-      "title": "Magyarország jobban látszik közelről – Médiaszemle a független helyi sajtóból – 2026 negyvenhatodik hete - Facebook",
-      "publisher": "Facebook",
-      "url": "https://news.google.com/rss/articles/CBMikgJBVV95cUxPQnBqR0lUb3VXdTd4bFItbjN3X1pHb3dOeVJPX0RyLXJoMlNNMXZ1eDlBckZIczRVcmE0TE5fcHo4Wlg0MWxsdmdIdTZSd3p0a2RMSFBzRG9hUV9mOGV1NnhiV05QMFVSbm5ROUszNTFMMlNqdTlZLURUTFVwR3B0ZkUyLTExN3ZVRHhGSEgtcTJWalo4clRGLTg2M1BZLXF3Q2NQOUFJSjBjalBCLU9DN2hVZS02aXl0ejR4a05KSW83YXlmeHI4WG05STBSWEVBQU5iVFBCNFhRUEFRZ2lUejQzSFN4S0hKU1hlNmp5ODdfcVdCSWNxZS1wdVFDSkd2eExieS1XbzZHcVZCaXJIbXJR?oc=5",
-      "publishedAt": "2026-11-19"
-    },
-    {
-      "title": "Friss toplista, ezeken a magyar településeken a legjobb élni 2026-ban: meglepő helyek az élen - Pénzcentrum",
+      "title": "Itt a friss egyetemi toplista: ez az intézmény lett Magyarország legjobbja - Pénzcentrum",
       "publisher": "Pénzcentrum",
-      "url": "https://news.google.com/rss/articles/CBMi2gFBVV95cUxNeWZoWE1wQ1hJa1pDYUUxdGQ5b2wwMld2Sll0Ny1DQVhDUGk1a0xUVDdmbl83cExSNHloeTkyamMta2hERjh2RUZycUZwb3pscVNxejF6NEFKYnRoRG5ZbF9DNmNLVHZGMXlUQnMwNHNXdFozYXVOWDhqTE5kRDFqSlJZRUx2ZE9nZkpPNGRtOFhHY3hOLS10ano0QWVZZnhkYUZEaW9mcG1XUTR4bnluYWlHODJvcFVNaEZITmNLUS11T010UE1WTWo4Rmk5ZU5xenJ2VktwZTJNdw?oc=5",
-      "publishedAt": "2026-11-19"
+      "url": "https://news.google.com/rss/articles/CBMiwwFBVV95cUxOUWs2bl9jSXNGbXFkVDN4eF9qdmtHSXBCaE9iU0h2R1BUbTlYZFBjTDJVbzJwYWZjYTZ4N3JLWjF5S2psVlQwZ2I4NnBNZWNSa1kycVZnbGlSeTRLYXllNHUtRjZlOXBBV1JSTnpwbDJSWnJndkxtdFpoUHV2TmJFcEF3eHhPUVNOa21LaVdfZFNsWndKZDFPYVVDaDJwbVBrRTN6M1E5WjBVZ0xDZ1l4RXp2a3V4MDFNbUUxTW1aMXl3bEU?oc=5",
+      "publishedAt": "2026-11-20"
     },
     {
-      "title": "McDonald's sex abuse: 'They were waiting for the younger girls to turn 18'",
+      "title": "Tinned food and long-life milk boost retail sales after 'Be Ready' campaign launch",
       "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/c6x2eve321jno?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-19"
+      "url": "https://www.bbc.co.uk/news/articles/ck053mzy2qqeo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-20"
     },
     {
-      "title": "Simon Jack: Can Anthropic's record-breaking IPO stop the AI bubble bursting?",
+      "title": "Airbnb's divisive new house rules come into force",
       "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/cj4gnpzll020o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-18"
+      "url": "https://www.bbc.co.uk/news/articles/cmx278n2genyo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-20"
     },
     {
-      "title": "The seven Anthropic founders who are about to become multi-billionaires",
+      "title": "Anthropic becomes one of world's most valuable public companies in stock market debut",
       "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/cmd7159vlr85o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-19"
+      "url": "https://www.bbc.co.uk/news/articles/c3x29ggenz12o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-20"
     },
     {
-      "title": "Viagogo may have broken law on hidden fees, watchdog provisionally finds",
+      "title": "Eating at your desk? The dos and don'ts of lunch at work",
       "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/cmvg2ex7j30lo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-19"
+      "url": "https://www.bbc.co.uk/news/articles/cwp8g4092zglo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-20"
     },
     {
-      "title": "Crew unaware of risks before Mike Lynch's yacht Bayesian sank, say investigators",
+      "title": "Should AI be judging our credit worthiness?",
       "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/c6e9kn15z9d7o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-19"
+      "url": "https://www.bbc.co.uk/news/articles/c6d94pzk9vleo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-20"
     },
     {
-      "title": "Elon Musk says record $446m spending on US midterms was 'pretty foolish'",
+      "title": "GTA 6 breaks records as estimated sales top $2.3bn",
       "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/cm9q8j2z3gg8o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-19"
+      "url": "https://www.bbc.co.uk/news/articles/c9zr5nyv5dj2o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-20"
     },
     {
-      "title": "Gilts v kilts: What is happening with Scottish government bonds?",
+      "title": "Mouldy, infested housing for vulnerable people sold as ethical investments abroad",
       "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/cmwy8pgj2z8vo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-19"
+      "url": "https://www.bbc.co.uk/news/articles/c6evre8j12vno?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-20"
     },
     {
-      "title": "UK joins in GTA 6 frenzy as game becomes available worldwide",
-      "publisher": "BBC Technology",
-      "url": "https://www.bbc.co.uk/news/articles/c6z74ep2n17zo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-19"
+      "title": "Tens of thousands of UK fridges secured from hackers in secret nationwide operation",
+      "publisher": "BBC Business",
+      "url": "https://www.bbc.co.uk/news/articles/c6eq49zyx7p4o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-20"
     }
   ]
 }
