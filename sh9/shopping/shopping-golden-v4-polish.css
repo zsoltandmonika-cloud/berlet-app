@@ -610,3 +610,59 @@ body[data-lp-v2="on"][data-lp-module="shopping"][data-sh9-golden-unified="on"]
 body[data-lp-v2="on"][data-lp-module="shopping"] #searchForm :is(.search-voice,.search-scan){
  background:linear-gradient(145deg,rgba(75,62,119,.65),rgba(34,55,103,.71))!important;
 }
+
+
+/* V5.3 · QUICK BAR TOP TRIM · mobile visual trial, NOT Golden Standard.
+   User-approved single change: remove exactly 10px from the TOP of the
+   Shopping Quick Bar, retaining its current bottom edge and the placement
+   of everything below it. Existing V5.2 colors, mist, glass/transparency,
+   separator intensity, icons, actions, and horizontal geometry stay intact.
+   Slot: top margin -2→8px, height 51→41px (constant total vertical flow).
+   Real dock: 50→40px; fit existing two-line controls without clipping. */
+body[data-lp-v2="on"][data-lp-module="shopping"] #shoppingGoldenDockSlotV3{
+ margin-top:8px!important;
+ height:41px!important;
+ min-height:41px!important;
+ max-height:41px!important;
+}
+body[data-lp-v2="on"][data-lp-module="shopping"][data-sh9-golden-unified="on"]
+ #shoppingGoldenDockSlotV3 #sh9UnifiedGlassDockV34{
+ height:40px!important;
+ min-height:40px!important;
+ max-height:40px!important;
+}
+/* Preserve the four controls: scale only their vertical whitespace.
+   Label and icon dimensions remain the same, taps stay fully accessible. */
+body[data-lp-v2="on"][data-lp-module="shopping"][data-sh9-golden-unified="on"]
+ #shoppingGoldenDockSlotV3 #sh9UnifiedGlassDockV34 :is(#sh9LauncherProfileV1,#sh9TasksGolden,#sh9DockWalletV34){
+ min-height:40px!important;
+ padding-top:2px!important;
+ padding-bottom:2px!important;
+ gap:2px!important;
+}
+/* The language cell contains a flag row + a text label. Its old 29px
+   row plus 2px cell padding no longer fits neatly into 40px. */
+body[data-lp-v2="on"][data-lp-module="shopping"][data-sh9-golden-unified="on"]
+ #shoppingGoldenDockSlotV3 #sh9UnifiedGlassDockV34 > [data-sh9-dock-cell="language"]{
+ padding-top:0!important;
+ padding-bottom:0!important;
+}
+body[data-lp-v2="on"][data-lp-module="shopping"][data-sh9-golden-unified="on"]
+ #shoppingGoldenDockSlotV3 #sh9UnifiedGlassDockV34 #sh9LanguageSwitchV1{
+ height:26px!important;
+ min-height:26px!important;
+ max-height:26px!important;
+}
+body[data-lp-v2="on"][data-lp-module="shopping"][data-sh9-golden-unified="on"]
+ #shoppingGoldenDockSlotV3 #sh9UnifiedGlassDockV34 #sh9LanguageSwitchV1 [data-sh9-lang]{
+ height:26px!important;
+ min-height:26px!important;
+ max-height:26px!important;
+}
+/* Keep the approved 12%-opacity separator, only adapt its vertical span
+   to the shorter bar. No change to color, width or 4-column positions. */
+body[data-lp-v2="on"][data-lp-module="shopping"][data-sh9-golden-unified="on"]
+ #shoppingGoldenDockSlotV3 #sh9UnifiedGlassDockV34 > .sh9-global-dock-cell + .sh9-global-dock-cell::before{
+ top:10px!important;
+ bottom:10px!important;
+}
