@@ -473,3 +473,34 @@ body[data-lp-module="shopping"] #searchForm .search-main-submit{
  body[data-lp-module="shopping"] .hero .hero-title{height:49px!important;min-height:49px!important}
  body[data-lp-module="shopping"] .gs-ref-logo{min-height:29px!important}
 }
+
+
+/* V3 fidelity final override.
+   Match/exceed legacy V2 selector specificity before setting important
+   crop, border and display geometry. Otherwise original image labels can
+   be clipped despite the new approved reference artwork being loaded. */
+body[data-lp-v2="on"][data-lp-module="shopping"] #categoryGrid.categories > .cat{
+ aspect-ratio:1.62!important;
+ border:0!important;
+ border-radius:14px!important;
+ background:transparent!important;
+ box-shadow:0 3px 11px rgba(5,2,18,.45)!important;
+}
+body[data-lp-v2="on"][data-lp-module="shopping"] #categoryGrid.categories > .cat img{
+ width:100%!important;
+ height:100%!important;
+ max-width:100%!important;
+ min-width:0!important;
+ display:block!important;
+ object-fit:fill!important;
+ object-position:center center!important;
+ transform:none!important;
+ filter:none!important;
+}
+body[data-lp-v2="on"][data-lp-module="shopping"] #categoryGrid.categories > .cat .gs-ref-cat-label{
+ display:none!important;
+}
+body[data-lp-v2="on"][data-lp-module="shopping"] #categoryGrid.categories > .cat::after{
+ display:none!important;
+ content:none!important;
+}
