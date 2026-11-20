@@ -568,3 +568,45 @@ body[data-lp-v2="on"][data-lp-module="shopping"] .gs-ref-shortcuts > .gs-ref-sho
   inset -12px 0 21px -16px rgba(var(--sho-mist-right-rgb),var(--sho-v51-side-illumination)),
   0 3px 9px rgba(7,3,24,.23)!important;
 }
+
+
+/* V5.2 · GLASS MICRO POLISH · Samsung visual trial, NOT Golden Standard.
+   Bring the genuine four-button Quick Bar closer to the approved V5.1
+   search glass while keeping the glow INWARD and all geometry unchanged.
+   Dock only: 8→11px backdrop blur, 4% more surface transparency,
+   slightly softer top edge; discreet separators and HU/CA selection.
+   Search only: subtle right-side mic/scan background transparency.
+   Not a global dock edit: strict Shopping selectors throughout. */
+body[data-lp-v2="on"][data-lp-module="shopping"] #shoppingGoldenDockSlotV3 #sh9UnifiedGlassDockV34{
+ --sho-v51-top-illumination:.29;
+ -webkit-backdrop-filter:blur(11px)!important;
+ backdrop-filter:blur(11px)!important;
+ background:linear-gradient(111deg,rgba(62,31,76,.72),rgba(26,39,81,.68))!important;
+}
+/* Make the light spread a little further inward, not outward. */
+body[data-lp-v2="on"][data-lp-module="shopping"] #shoppingGoldenDockSlotV3::after{
+ background:
+  radial-gradient(ellipse 82% 29px at 50% 0%,
+   rgba(var(--sho-mist-top-rgb),.19),transparent 85%),
+  radial-gradient(ellipse 22px 85% at 0% 43%,
+   rgba(var(--sho-mist-left-rgb),.16),transparent 86%),
+  radial-gradient(ellipse 22px 85% at 100% 43%,
+   rgba(var(--sho-mist-right-rgb),.15),transparent 86%)!important;
+}
+/* Reduce dividers without touching the actual 4-column grid or cell width. */
+body[data-lp-v2="on"][data-lp-module="shopping"][data-sh9-golden-unified="on"]
+ #shoppingGoldenDockSlotV3 #sh9UnifiedGlassDockV34 > .sh9-global-dock-cell + .sh9-global-dock-cell::before{
+ background:rgba(178,215,247,.12)!important;
+}
+/* HU/CA active state keeps its pressed indication, but reads as glass. */
+body[data-lp-v2="on"][data-lp-module="shopping"][data-sh9-golden-unified="on"]
+ #shoppingGoldenDockSlotV3 #sh9UnifiedGlassDockV34 #sh9LanguageSwitchV1 [data-sh9-lang][aria-pressed="true"]{
+ background:rgba(128,111,194,.15)!important;
+ border-color:rgba(209,193,240,.27)!important;
+ box-shadow:inset 0 1px rgba(255,255,255,.08)!important;
+}
+/* Only the microphone and barcode button faces, not the search form,
+   field, icons, focus outlines or tap targets, get a lighter glass wash. */
+body[data-lp-v2="on"][data-lp-module="shopping"] #searchForm :is(.search-voice,.search-scan){
+ background:linear-gradient(145deg,rgba(75,62,119,.65),rgba(34,55,103,.71))!important;
+}
