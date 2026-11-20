@@ -1,23 +1,23 @@
 {
   "schema": "healthhub.daily-health-public/1",
   "date": "2026-11-20",
-  "generatedAt": "2026-11-20T04:37:35+01:00",
+  "generatedAt": "2026-11-20T08:26:53+01:00",
   "location": "Budapest",
   "weather": {
     "available": true,
-    "observedAt": "2026-11-20T04:30",
-    "temperature": 8.6,
-    "apparentTemperature": 6.0,
-    "daytimeMaxFeelsLike": 12.2,
-    "uvMax": 1.6,
-    "pressureHpa": 1002.0,
-    "pressureChange6h": 7.9,
-    "windGust": 23.8
+    "observedAt": "2026-11-20T08:15",
+    "temperature": 7.9,
+    "apparentTemperature": 4.9,
+    "daytimeMaxFeelsLike": 12.4,
+    "uvMax": 1.7,
+    "pressureHpa": 1004.5,
+    "pressureChange6h": 4.1,
+    "windGust": 22.7
   },
   "air": {
     "available": true,
-    "observedAt": "2026-11-20T04:00",
-    "aqi": 17.0,
+    "observedAt": "2026-11-20T08:00",
+    "aqi": 28.0,
     "pm25": 3.9,
     "pollen": {
       "available": true,
@@ -33,14 +33,7 @@
     "periodEnd": "2026-10-25",
     "signals": []
   },
-  "alerts": [
-    {
-      "key": "pressure",
-      "level": "watch",
-      "title": "Jelentős légnyomásváltozás",
-      "explanation": "Egyeseknél fejfájással járhat együtt; ez nem bizonyít ok-okozati kapcsolatot."
-    }
-  ],
+  "alerts": [],
   "methodology": "Szabályalapú, tájékoztató összefoglaló, nem orvosi diagnózis, AI-modell vagy gyógyszerrendelés.",
   "sources": [
     {
