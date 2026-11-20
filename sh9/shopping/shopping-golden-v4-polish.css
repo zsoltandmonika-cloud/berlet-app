@@ -338,3 +338,23 @@ body[data-lp-v2="on"][data-lp-module="shopping"] .gs-ref-shortcuts > .gs-ref-sho
 }
 /* Dock fade above the hero already uses slot::before: leave it untouched.
    Keep all existing z-indices and click targets as they were in V4.6. */
+
+/* V4.8 · OUTWARD SOFT MIST · visual trial only, NOT Golden Standard.
+   Expand only V4.7 decorative layers 3px beyond each surface and soften
+   their existing directional light gradients from 5px to 10px blur.
+   No color, opacity, layout dimensions, touch targets or artwork changes. */
+body[data-lp-v2="on"][data-lp-module="shopping"]{
+ --sho-mist-blur:10px;
+ --sho-mist-outset:3px;
+}
+/* The original dock slot::before fade stays intact; ::after is the glow. */
+body[data-lp-v2="on"][data-lp-module="shopping"] #shoppingGoldenDockSlotV3::after{
+ inset:calc(-1 * var(--sho-mist-outset)) calc(-1 * var(--sho-mist-outset)) calc(1px - var(--sho-mist-outset))!important;
+ border-radius:calc(var(--sho-pdeg-edge-radius) + var(--sho-mist-outset))!important;
+}
+/* These are purely visual pseudo-elements, not clickable children. */
+body[data-lp-v2="on"][data-lp-module="shopping"] #searchForm.search-bar::before,
+body[data-lp-v2="on"][data-lp-module="shopping"] .gs-ref-shortcuts > .gs-ref-shortcut::before{
+ inset:calc(-1 * var(--sho-mist-outset))!important;
+ border-radius:inherit!important;
+}
