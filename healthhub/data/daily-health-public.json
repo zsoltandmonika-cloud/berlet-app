@@ -1,24 +1,24 @@
 {
   "schema": "healthhub.daily-health-public/1",
-  "date": "2026-11-19",
-  "generatedAt": "2026-11-19T08:35:17+01:00",
+  "date": "2026-11-20",
+  "generatedAt": "2026-11-20T04:37:35+01:00",
   "location": "Budapest",
   "weather": {
     "available": true,
-    "observedAt": "2026-11-19T08:30",
-    "temperature": 8.2,
-    "apparentTemperature": 6.1,
-    "daytimeMaxFeelsLike": 9.6,
-    "uvMax": 1.4,
-    "pressureHpa": 1000.9,
-    "pressureChange6h": 0.7,
-    "windGust": 23.0
+    "observedAt": "2026-11-20T04:30",
+    "temperature": 8.6,
+    "apparentTemperature": 6.0,
+    "daytimeMaxFeelsLike": 12.2,
+    "uvMax": 1.6,
+    "pressureHpa": 1002.0,
+    "pressureChange6h": 7.9,
+    "windGust": 23.8
   },
   "air": {
     "available": true,
-    "observedAt": "2026-11-19T08:00",
-    "aqi": 45.0,
-    "pm25": 19.1,
+    "observedAt": "2026-11-20T04:00",
+    "aqi": 17.0,
+    "pm25": 3.9,
     "pollen": {
       "available": true,
       "name": "Éger",
@@ -33,7 +33,14 @@
     "periodEnd": "2026-10-25",
     "signals": []
   },
-  "alerts": [],
+  "alerts": [
+    {
+      "key": "pressure",
+      "level": "watch",
+      "title": "Jelentős légnyomásváltozás",
+      "explanation": "Egyeseknél fejfájással járhat együtt; ez nem bizonyít ok-okozati kapcsolatot."
+    }
+  ],
   "methodology": "Szabályalapú, tájékoztató összefoglaló, nem orvosi diagnózis, AI-modell vagy gyógyszerrendelés.",
   "sources": [
     {
