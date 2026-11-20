@@ -292,3 +292,49 @@ body[data-lp-v2="on"][data-lp-module="shopping"]{
  --sho-pdeg-halo-opacity:.16;
  --sho-pdeg-halo-spread:1px;
 }
+
+
+/* V4.7 · SOFT MIST EDGE · experimental, NOT a Golden Standard sign-off.
+   The V4.5/V4.6 continuous inset 1px rim was still too line-like.
+   Replace its visual painting only on the FOUR approved upper surfaces:
+   1 existing Quick Bar dock, 2 search, 3 Smart List, 4 Kosár Match.
+   The 6 artwork categories, 12 merchants, handlers and all geometry stay as-is. */
+body[data-lp-v2="on"][data-lp-module="shopping"]{
+ --sho-mist-top-rgb:248,198,251;
+ --sho-mist-left-rgb:241,160,224;
+ --sho-mist-right-rgb:179,174,249;
+ --sho-mist-top-strength:.30;
+ --sho-mist-side-strength:.22;
+ --sho-mist-blur:5px;
+}
+body[data-lp-v2="on"][data-lp-module="shopping"] #shoppingGoldenDockSlotV3 #sh9UnifiedGlassDockV34,
+body[data-lp-v2="on"][data-lp-module="shopping"] #searchForm.search-bar,
+body[data-lp-v2="on"][data-lp-module="shopping"] .gs-ref-shortcuts > .gs-ref-shortcut{
+ border-color:transparent!important; /* preserve border's layout width */
+ box-shadow:0 4px 11px rgba(6,3,20,.25)!important;
+}
+/* Reuse V4.5 overlays, do not add elements or dock-grid children.
+   Three soft asymmetrical light sources, instead of a glowing rectangle. */
+body[data-lp-v2="on"][data-lp-module="shopping"] #shoppingGoldenDockSlotV3::after,
+body[data-lp-v2="on"][data-lp-module="shopping"] #searchForm.search-bar::before,
+body[data-lp-v2="on"][data-lp-module="shopping"] .gs-ref-shortcuts > .gs-ref-shortcut::before{
+ box-shadow:
+  0 -5px 14px -9px rgba(var(--sho-mist-top-rgb),.30),
+  -5px 0 13px -11px rgba(var(--sho-mist-left-rgb),.25),
+  5px 0 13px -11px rgba(var(--sho-mist-right-rgb),.24)!important;
+ background:
+  radial-gradient(ellipse 88% 60% at 50% -15%,
+   rgba(var(--sho-mist-top-rgb),var(--sho-mist-top-strength)) 0%,
+   rgba(var(--sho-mist-top-rgb),.05) 42%,transparent 79%),
+  radial-gradient(ellipse 31% 82% at -7% 12%,
+   rgba(var(--sho-mist-left-rgb),var(--sho-mist-side-strength)) 0%,
+   transparent 77%),
+  radial-gradient(ellipse 31% 82% at 107% 12%,
+   rgba(var(--sho-mist-right-rgb),var(--sho-mist-side-strength)) 0%,
+   transparent 77%);
+ filter:blur(var(--sho-mist-blur))!important;
+ pointer-events:none!important;
+ opacity:.95;
+}
+/* Dock fade above the hero already uses slot::before: leave it untouched.
+   Keep all existing z-indices and click targets as they were in V4.6. */
