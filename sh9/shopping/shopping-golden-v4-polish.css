@@ -732,3 +732,26 @@ body[data-lp-v2="on"][data-lp-module="shopping"] #shoppingUnifiedGlassSheetV54::
  backdrop-filter:blur(8px)!important;
  pointer-events:none!important;
 }
+
+
+/* V5.6 · UNIFIED GLASS MICRO BOOST · subtle visual trial, NOT Golden Standard.
+   Approved micro-tune of the COMMON backing glass sheet only:
+   background opacity 20–25% → 25–30% (70–75% transparent),
+   backdrop blur 8 → 9px, faint edge 12% → 14%.
+   Edge-local inner highlights slightly stronger.
+   No edits to V5.3 Quick Bar, search, Smart List, Kosar Match, layouts,
+   hit targets, categories, webshop logos or JS. */
+body[data-lp-v2="on"][data-lp-module="shopping"] #shoppingUnifiedGlassSheetV54::before{
+ background:linear-gradient(133deg,
+   rgba(110,64,138,.30) 0%,
+   rgba(63,41,104,.25) 49%,
+   rgba(49,64,120,.28) 100%)!important;
+ border-color:rgba(224,195,252,.14)!important;
+ box-shadow:
+   inset 0 1px 0 rgba(255,228,253,.15),
+   inset 0 -1px 0 rgba(131,118,199,.10),
+   0 4px 13px rgba(4,2,14,.13)!important;
+ -webkit-backdrop-filter:blur(9px)!important;
+ backdrop-filter:blur(9px)!important;
+ pointer-events:none!important;
+}
