@@ -473,3 +473,98 @@ body[data-lp-v2="on"][data-lp-module="shopping"] .gs-ref-shortcuts > .gs-ref-sho
   radial-gradient(ellipse 15px 78% at 100% 38%,
    rgba(var(--sho-mist-right-rgb),var(--sho-mist-edge-side-internal)),transparent 83%)!important;
 }
+
+
+/* V5.1 · INWARD MIST GLASS · visual experiment, NOT yet Golden Standard.
+   User-approved direction: the glow starts at the tile edge and fades
+   INWARD, not OUTWARD; add restrained translucent smoked-glass tiles.
+   Exactly four upper Shopping surfaces: global Quick Bar, search,
+   Smart List, Kosár Match. No functional, markup or geometry changes.
+   V4.9/V5.0 outward visible glow is explicitly neutralized below. */
+body[data-lp-v2="on"][data-lp-module="shopping"]{
+ --sho-v51-glass-backdrop:8px;
+ --sho-v51-top-illumination:.32;
+ --sho-v51-side-illumination:.22;
+}
+/* Don't double-stack the Quick Bar's semi-opaque slot background behind
+   the translucent real dock; retain its already-approved geometry. */
+body[data-lp-v2="on"][data-lp-module="shopping"] #shoppingGoldenDockSlotV3{
+ background:transparent!important;
+}
+/* No bright exterior halos, only interior light falling away from edges.
+   The dark exterior shadow remains for depth, not a colored cloud. */
+body[data-lp-v2="on"][data-lp-module="shopping"] #shoppingGoldenDockSlotV3 #sh9UnifiedGlassDockV34,
+body[data-lp-v2="on"][data-lp-module="shopping"] #searchForm.search-bar,
+body[data-lp-v2="on"][data-lp-module="shopping"] .gs-ref-shortcuts > .gs-ref-shortcut{
+ border-color:transparent!important;
+ box-shadow:
+  inset 0 13px 22px -16px rgba(var(--sho-mist-top-rgb),var(--sho-v51-top-illumination)),
+  inset 12px 0 21px -16px rgba(var(--sho-mist-left-rgb),var(--sho-v51-side-illumination)),
+  inset -12px 0 21px -16px rgba(var(--sho-mist-right-rgb),var(--sho-v51-side-illumination)),
+  0 3px 9px rgba(7,3,24,.23)!important;
+ -webkit-backdrop-filter:blur(var(--sho-v51-glass-backdrop))!important;
+ backdrop-filter:blur(var(--sho-v51-glass-backdrop))!important;
+}
+/* Opacity belongs to the background layers, NEVER the actual
+   interactive element: text, icons and links stay at 100% opacity. */
+body[data-lp-v2="on"][data-lp-module="shopping"] #shoppingGoldenDockSlotV3 #sh9UnifiedGlassDockV34{
+ background:linear-gradient(111deg,rgba(62,31,76,.76),rgba(26,39,81,.72))!important;
+}
+body[data-lp-v2="on"][data-lp-module="shopping"] #searchForm.search-bar{
+ background:linear-gradient(111deg,rgba(65,39,88,.77),rgba(36,32,73,.75) 55%,rgba(37,38,77,.78))!important;
+}
+body[data-lp-v2="on"][data-lp-module="shopping"] .gs-ref-shortcuts > .gs-ref-shortcut--list{
+ background:linear-gradient(115deg,rgba(107,38,89,.74),rgba(60,38,80,.75) 60%,rgba(43,37,67,.78))!important;
+}
+body[data-lp-v2="on"][data-lp-module="shopping"] .gs-ref-shortcuts > .gs-ref-shortcut--basket{
+ background:linear-gradient(105deg,rgba(93,47,120,.74),rgba(46,45,91,.78))!important;
+}
+/* Restore the decorative layers INSIDE the surface. Radial light sources
+   already have a smooth falloff, so no filter blur that leaks outward.
+   These never capture taps or add any new grid child. */
+body[data-lp-v2="on"][data-lp-module="shopping"] #shoppingGoldenDockSlotV3::after,
+body[data-lp-v2="on"][data-lp-module="shopping"] #searchForm.search-bar::before,
+body[data-lp-v2="on"][data-lp-module="shopping"] .gs-ref-shortcuts > .gs-ref-shortcut::before{
+ inset:0!important;
+ border-radius:inherit!important;
+ box-shadow:none!important;
+ background:
+  radial-gradient(ellipse 82% 25px at 50% 0%,
+   rgba(var(--sho-mist-top-rgb),.22),transparent 85%),
+  radial-gradient(ellipse 22px 85% at 0% 43%,
+   rgba(var(--sho-mist-left-rgb),.16),transparent 86%),
+  radial-gradient(ellipse 22px 85% at 100% 43%,
+   rgba(var(--sho-mist-right-rgb),.15),transparent 86%)!important;
+ filter:none!important;
+ opacity:1!important;
+ pointer-events:none!important;
+}
+/* No merging at the Smart List / Kosár Match inner seam. */
+body[data-lp-v2="on"][data-lp-module="shopping"] .gs-ref-shortcuts > .gs-ref-shortcut--list::before{
+ background:
+  radial-gradient(ellipse 82% 25px at 50% 0%,
+   rgba(var(--sho-mist-top-rgb),.22),transparent 85%),
+  radial-gradient(ellipse 22px 85% at 0% 43%,
+   rgba(var(--sho-mist-left-rgb),.16),transparent 86%)!important;
+}
+body[data-lp-v2="on"][data-lp-module="shopping"] .gs-ref-shortcuts > .gs-ref-shortcut--basket::before{
+ background:
+  radial-gradient(ellipse 82% 25px at 50% 0%,
+   rgba(var(--sho-mist-top-rgb),.22),transparent 85%),
+  radial-gradient(ellipse 22px 85% at 100% 43%,
+   rgba(var(--sho-mist-right-rgb),.15),transparent 86%)!important;
+}
+/* Suppress V5.0's remaining inward-facing inset illumination as well.
+   Keep the outer-facing and top edge light. */
+body[data-lp-v2="on"][data-lp-module="shopping"] .gs-ref-shortcuts > .gs-ref-shortcut--list{
+ box-shadow:
+  inset 0 13px 22px -16px rgba(var(--sho-mist-top-rgb),var(--sho-v51-top-illumination)),
+  inset 12px 0 21px -16px rgba(var(--sho-mist-left-rgb),var(--sho-v51-side-illumination)),
+  0 3px 9px rgba(7,3,24,.23)!important;
+}
+body[data-lp-v2="on"][data-lp-module="shopping"] .gs-ref-shortcuts > .gs-ref-shortcut--basket{
+ box-shadow:
+  inset 0 13px 22px -16px rgba(var(--sho-mist-top-rgb),var(--sho-v51-top-illumination)),
+  inset -12px 0 21px -16px rgba(var(--sho-mist-right-rgb),var(--sho-v51-side-illumination)),
+  0 3px 9px rgba(7,3,24,.23)!important;
+}
