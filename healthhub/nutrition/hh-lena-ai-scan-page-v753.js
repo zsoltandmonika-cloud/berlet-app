@@ -637,8 +637,8 @@ function init(){
  page=$('hhLenaScanPage753');if(!page)return;
  $('hhScanBack753').onclick=close;
  $('hhScanProfile753').onclick=()=>{$('profileBtn')?.click();syncProfile()};
- $('hhScanTabFood753').onclick=()=>{if(favoriteQuickSaving||busy)return;reset('food');revealCaptureControls()};
- $('hhScanTabBarcode753').onclick=()=>{if(favoriteQuickSaving||busy)return;if(mode!=='barcode')clearPhoto();reset('barcode');void cameraOn();revealCaptureControls()};
+ $('hhScanTabFood753').onclick=()=>{if(busy)return;if(favoriteQuickSaving)return;reset('food');revealCaptureControls()};
+ $('hhScanTabBarcode753').onclick=()=>{if(busy)return;const wasFood=mode!=='barcode';if(favoriteQuickSaving)return;reset('barcode');if(wasFood)clearPhoto();void cameraOn();revealCaptureControls()};
  $('hhScanButton753').onclick=()=>{void scan()};
  $('hhScanOwn753').onclick=()=>$('hhScanFile753').click();
  $('hhScanFile753').onchange=e=>{const f=e.target.files?.[0];if(f)void ownImage(f);e.target.value=''};
