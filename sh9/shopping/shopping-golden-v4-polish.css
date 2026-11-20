@@ -219,3 +219,11 @@ body[data-lp-v2="on"][data-lp-module="shopping"] #categoryGrid.categories > .cat
  border-radius:inherit;
  box-shadow:inset 0 0 0 1px rgba(228,193,244,.25);
 }
+
+/* V4.4 · User-approved bottom taskbar height: 75px → 70px (−5px).
+   Keep five navigation destinations, icons, touch targets and safe-area
+   padding intact. Scoped exclusively to Smart Shopping homepage. */
+body[data-lp-v2="on"][data-lp-module="shopping"] .bottomnav{
+ box-sizing:border-box!important;
+ height:70px!important;
+}
