@@ -8,6 +8,7 @@ const $=id=>d.getElementById(id),api=()=>w.HH_NUTRITION_QUICK_API,vision=()=>w.H
 const PAGE='#lena-ai-scan',MEALS=['Reggeli','Tízórai','Ebéd','Uzsonna','Vacsora','Egyéb'];
 let page=null,mode='food',stage='capture',stream=null,photo=null,photoUrl='',draft=null,editing=null,profile='',busy=false,requestId=0,fromTile=false;
 let puterPromise=null,zxingPromise=null,model='',barcode='',unit='g',audio=null;
+let cameraStartPromise=null;
 let sharedId=null,sharedBusy=false,sharedEnhance=false;
 let favoriteReturn=null,favoriteTransferBusy=false;
 let favoriteQuickSaving=false,lastSavedFavoriteSignature='';
@@ -86,12 +87,18 @@ function preview(){
 }
 async function cameraOn(){
  if(page.hidden||stream||photo||editing||!w.navigator?.mediaDevices?.getUserMedia)return;
- try{
-  const current=await w.navigator.mediaDevices.getUserMedia({audio:false,video:{facingMode:'environment',width:{ideal:1280},height:{ideal:1280}}});
-  if(page.hidden||photo){current.getTracks().forEach(x=>x.stop());return}
-  stream=current;const video=$('hhScanVideo753');video.srcObject=current;
-  await video.play();preview();
- }catch(_){cameraOff();status('Kamera nem érhető el. Válassz saját képet vagy engedélyezd a hozzáférést.')}
+ // One shared pending camera request: opening the page and choosing Vonalkód
+ // in quick succession must never request a second stream.
+ if(cameraStartPromise)return cameraStartPromise;
+ cameraStartPromise=(async()=>{
+  try{
+   const current=await w.navigator.mediaDevices.getUserMedia({audio:false,video:{facingMode:'environment',width:{ideal:1280},height:{ideal:1280}}});
+   if(page.hidden||photo){current.getTracks().forEach(x=>x.stop());return}
+   stream=current;const video=$('hhScanVideo753');video.srcObject=current;
+   await video.play();preview();
+  }catch(_){cameraOff();status('Kamera nem érhető el. Válassz saját képet vagy engedélyezd a hozzáférést.')}
+ })();
+ try{return await cameraStartPromise}finally{cameraStartPromise=null}
 }
 async function squareFile(source){
  let image,srcUrl='';
