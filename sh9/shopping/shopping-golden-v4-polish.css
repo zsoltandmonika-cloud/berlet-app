@@ -358,3 +358,44 @@ body[data-lp-v2="on"][data-lp-module="shopping"] .gs-ref-shortcuts > .gs-ref-sho
  inset:calc(-1 * var(--sho-mist-outset))!important;
  border-radius:inherit!important;
 }
+
+
+/* V4.9 · VISIBLE EDGE HALO · diagnostic fix; not yet Golden Standard.
+   A 10px blur on a very faint gradient inside an expanded 3px pseudo-element
+   made V4.8 nearly imperceptible. Paint the outward halo directly as the
+   surface's box-shadow, which is not covered by its opaque card background.
+   Existing V4.8 mist pseudo-elements still supply a soft internal light skim.
+   Only 4 top surfaces; no geometry, functionality or category artwork changes. */
+body[data-lp-v2="on"][data-lp-module="shopping"]{
+ --sho-mist-visible-top:.43;
+ --sho-mist-visible-left:.34;
+ --sho-mist-visible-right:.32;
+}
+/* Directly painted OUTSIDE the real surfaces; z-order no longer depends
+   on the blurred pseudo-element or on the real dock's internal grid cells. */
+body[data-lp-v2="on"][data-lp-module="shopping"] #shoppingGoldenDockSlotV3 #sh9UnifiedGlassDockV34,
+body[data-lp-v2="on"][data-lp-module="shopping"] #searchForm.search-bar,
+body[data-lp-v2="on"][data-lp-module="shopping"] .gs-ref-shortcuts > .gs-ref-shortcut{
+ box-shadow:
+  0 -5px 18px -5px rgba(var(--sho-mist-top-rgb),var(--sho-mist-visible-top)),
+  -5px 0 17px -6px rgba(var(--sho-mist-left-rgb),var(--sho-mist-visible-left)),
+  5px 0 17px -6px rgba(var(--sho-mist-right-rgb),var(--sho-mist-visible-right)),
+  0 4px 10px rgba(6,3,20,.25)!important;
+}
+/* The upper 5px and side edges get diffused luminance rather than a
+   uniform outline. Keep the overlays click-through and above the surface.
+   This does not add a child to the four-column Quick Bar. */
+body[data-lp-v2="on"][data-lp-module="shopping"] #shoppingGoldenDockSlotV3::after,
+body[data-lp-v2="on"][data-lp-module="shopping"] #searchForm.search-bar::before,
+body[data-lp-v2="on"][data-lp-module="shopping"] .gs-ref-shortcuts > .gs-ref-shortcut::before{
+ background:
+  radial-gradient(ellipse 78% 18px at 50% 2px,
+   rgba(var(--sho-mist-top-rgb),.23),transparent 80%),
+  radial-gradient(ellipse 18px 80% at 0% 35%,
+   rgba(var(--sho-mist-left-rgb),.17),transparent 84%),
+  radial-gradient(ellipse 18px 80% at 100% 35%,
+   rgba(var(--sho-mist-right-rgb),.16),transparent 84%)!important;
+ filter:blur(4px)!important;
+ opacity:1!important;
+ pointer-events:none!important;
+}
