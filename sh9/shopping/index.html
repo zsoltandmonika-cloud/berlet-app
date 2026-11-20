@@ -13,7 +13,8 @@
 <link rel="stylesheet" href="./three-store-entry-v2.css?v=single-basket-action-20261117">
 <link rel="stylesheet" href="/berlet-app/sh9/shared/lena-premium-wave-v2.css?v=2-sleep1173">
 <link rel="stylesheet" href="/berlet-app/sh9/shared/sho-premium-dark-system-v3.css?v=3-shopping-sport-20261119">
-<link rel="stylesheet" href="./shopping-golden-reference-v2.css?v=gs-ref-20261120-first-mobile">
+<link rel="stylesheet" href="../shared/sh9-golden-controls-v1.css?v=934-unified-glass-dock">
+<link rel="stylesheet" href="./shopping-golden-recovery-v3.css?v=gs-recovery-v3-assets-20261120">
 <script defer src="/berlet-app/sh9/shared/lena-premium-wave-v2.js?v=2-owner"></script>
 </head>
 <body data-lp-v2="on" data-lp-module="shopping">
@@ -22,9 +23,10 @@
 <section class="hero" aria-label="Smart Shopping családi főképe">
   <h1 class="sr">SHO Smart Shopping</h1>
   <div class="hero-title" aria-label="Shopping fejléc és gyorsműveletek"><span class="hero-kicker">▶ SHO │ Smart Shopping</span><div class="head-actions"><button type="button" id="favoritesOpen" class="icon-btn" aria-label="Kedvencek">♡</button><a href="../" class="icon-btn" aria-label="SHO kezdőlap és értesítések">♧</a><button type="button" id="listsOpen" class="fav-round">✦<span>Smart<br>List</span></button></div></div>
-  <img class="hero-image" src="./assets/hero-lena-ai-shopping-hub-v1.avif?v=20261117" width="1604" height="981" alt="Smart Shopping · Léna AI Shopping Hub: bevásárlás és vonalkódolvasás neon pink SHO arculattal" fetchpriority="high" onerror="this.onerror=null;this.src='./assets/hero-approved.avif?v=sho-shopping-hero-v14-20261117'">
+  <img class="hero-image" src="./assets/golden-v3/hero-shopping-natural-v3.svg?v=approved-natural-20261120" width="941" height="304" alt="Smart Shopping · Léna AI Shopping Hub: bevásárlás és vonalkódolvasás neon pink SHO arculattal" fetchpriority="high" onerror="this.onerror=null;this.src='./assets/hero-approved.avif?v=sho-shopping-hero-v14-20261117'">
 </section>
-<form class="search-bar" id="searchForm" role="search"><label for="searchInput" class="sr">Termék keresése</label><span aria-hidden="true" class="star">✦</span><input id="searchInput" type="search" autocomplete="off" placeholder="Terméket, üzletet vagy akciót keresel?"><button type="button" class="search-voice" id="voiceBtn" aria-label="Hangos keresés">🎙</button><button type="button" class="search-scan" id="scanBtn" aria-label="Vonalkód beolvasása">▥</button><button type="submit" class="search-submit" aria-label="Keresés">⌕</button></form>
+<div id="shoppingGoldenDockSlotV3" class="shopping-golden-dock-slot-v3" aria-label="SHO gyorsvezérlők · Profil, Feladatok, Wallet, Nyelv"></div>
+<form class="search-bar" id="searchForm" role="search"><label for="searchInput" class="sr">Termék keresése</label><button type="submit" class="star search-main-submit" aria-label="Termék keresése"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false"><circle cx="10.5" cy="10.5" r="6.5"></circle><path d="m16 16 5 5"></path></svg></button><input id="searchInput" type="search" autocomplete="off" placeholder="Terméket, üzletet vagy akciót keresel?"><button type="button" class="search-voice" id="voiceBtn" aria-label="Hangos keresés">🎙</button><button type="button" class="search-scan" id="scanBtn" aria-label="Vonalkód beolvasása">▥</button><button type="submit" class="search-submit" aria-label="Keresés">⌕</button></form>
 <section class="gs-ref-shortcuts" aria-label="Smart Shopping legfontosabb műveletei">
   <a class="gs-ref-shortcut gs-ref-shortcut--list" href="./smart-list.html" aria-label="Smart List, közös családi bevásárlólista megnyitása">
     <span class="gs-ref-shortcut-icon" aria-hidden="true"><svg viewBox="0 0 32 32"><rect x="7" y="5" width="19" height="24" rx="3"/><path d="M12 4h9v5h-9zM11 15l2 2 3-3m2 2h5M11 23l2 2 3-3m2 2h5"/></svg></span>
@@ -36,12 +38,12 @@
   </a>
 </section>
 <section aria-label="Vásárlási kategóriák" class="categories" id="categoryGrid">
-  <button type="button" data-category="Élelmiszer" class="cat pink"><img src="./assets/elelmiszer.avif" alt="Élelmiszer" loading="lazy"><span class="gs-ref-cat-label" aria-hidden="true">Élelmiszer</span><span class="sr">Élelmiszer</span></button>
-  <button type="button" data-category="Elektronika" class="cat blue"><img src="./assets/elektronika.avif" alt="Elektronika" loading="lazy"><span class="gs-ref-cat-label" aria-hidden="true">Elektronika</span><span class="sr">Elektronika</span></button>
-  <button type="button" data-category="Divat & Stílus" class="cat pink"><img src="./assets/divat.avif" alt="Divat és stílus" loading="lazy"><span class="gs-ref-cat-label" aria-hidden="true">Divat</span><span class="sr">Divat és stílus</span></button>
-  <button type="button" data-category="Drogéria & Szépség" class="cat cyan"><img src="./assets/drogeria.avif" alt="Drogéria és szépség" loading="lazy"><span class="gs-ref-cat-label" aria-hidden="true">Drogéria</span><span class="sr">Drogéria és szépség</span></button>
-  <button type="button" data-category="Otthon & Háztartás" class="cat gold"><img src="./assets/otthon.avif" alt="Otthon és háztartás" loading="lazy"><span class="gs-ref-cat-label" aria-hidden="true">Otthon</span><span class="sr">Otthon és háztartás</span></button>
-  <button type="button" data-category="Akciók & Árfigyelés" class="cat magenta"><img src="./assets/akciok.avif" alt="Akciók és árfigyelés" loading="lazy"><span class="gs-ref-cat-label" aria-hidden="true">Árfigyelés</span><span class="sr">Akciók és árfigyelés</span></button>
+  <button type="button" data-category="Élelmiszer" class="cat pink"><img src="./assets/golden-v3/categories/elelmiszer.svg?v=approved-natural-20261120" alt="Élelmiszer" loading="lazy"><span class="gs-ref-cat-label" aria-hidden="true">Élelmiszer</span><span class="sr">Élelmiszer</span></button>
+  <button type="button" data-category="Elektronika" class="cat blue"><img src="./assets/golden-v3/categories/elektronika.svg?v=approved-natural-20261120" alt="Elektronika" loading="lazy"><span class="gs-ref-cat-label" aria-hidden="true">Elektronika</span><span class="sr">Elektronika</span></button>
+  <button type="button" data-category="Divat & Stílus" class="cat pink"><img src="./assets/golden-v3/categories/divat.svg?v=approved-natural-20261120" alt="Divat és stílus" loading="lazy"><span class="gs-ref-cat-label" aria-hidden="true">Divat</span><span class="sr">Divat és stílus</span></button>
+  <button type="button" data-category="Drogéria & Szépség" class="cat cyan"><img src="./assets/golden-v3/categories/drogeria.svg?v=approved-natural-20261120" alt="Drogéria és szépség" loading="lazy"><span class="gs-ref-cat-label" aria-hidden="true">Drogéria</span><span class="sr">Drogéria és szépség</span></button>
+  <button type="button" data-category="Otthon & Háztartás" class="cat gold"><img src="./assets/golden-v3/categories/otthon.svg?v=approved-natural-20261120" alt="Otthon és háztartás" loading="lazy"><span class="gs-ref-cat-label" aria-hidden="true">Otthon</span><span class="sr">Otthon és háztartás</span></button>
+  <button type="button" data-category="Akciók & Árfigyelés" class="cat magenta"><img src="./assets/golden-v3/categories/arfigyeles.svg?v=approved-natural-20261120" alt="Akciók és árfigyelés" loading="lazy"><span class="gs-ref-cat-label" aria-hidden="true">Árfigyelés</span><span class="sr">Akciók és árfigyelés</span></button>
 </section>
 <section class="gs-ref-store-overview" aria-label="Webshopok gyors elérése">
   <div class="gs-ref-store-heading">
@@ -49,18 +51,18 @@
     <a href="#shoStoreConnect" aria-label="Összes webshop és áruházkezelés">Összes bolt ›</a>
   </div>
   <div class="gs-ref-store-logos">
-    <a class="gs-ref-logo" data-shop="tesco" href="./tesco-bridge-v3.html" aria-label="Tesco Smart Shopping megnyitása"><img src="https://www.google.com/s2/favicons?domain=bevasarlas.tesco.hu&sz=128" alt="" loading="lazy"><span class="gs-ref-logo-word">Tesco</span></a>
-    <a class="gs-ref-logo" data-shop="auchan" href="./merchant-smart-v1.html?store=auchan&amp;view=shared" aria-label="Auchan Smart Shopping megnyitása"><img src="https://www.google.com/s2/favicons?domain=auchan.hu&sz=128" alt="" loading="lazy"><span class="gs-ref-logo-word">Auchan</span></a>
-    <a class="gs-ref-logo" data-shop="aldi" href="./merchant-smart-v1.html?store=aldi&amp;view=shared" aria-label="ALDI Smart Shopping megnyitása"><img src="./assets/aldi-shop-logo-v1.svg" alt="" loading="lazy"><span class="gs-ref-logo-word">ALDI</span></a>
-    <a class="gs-ref-logo" data-shop="kifli" href="./merchant-smart-v1.html?store=kifli&amp;view=shared" aria-label="Kifli Smart Shopping megnyitása"><img src="https://www.google.com/s2/favicons?domain=kifli.hu&sz=128" alt="" loading="lazy"><span class="gs-ref-logo-word">Kifli</span></a>
-    <a class="gs-ref-logo" data-shop="dm" href="./merchant-smart-v1.html?store=dm&amp;view=shared" aria-label="dm Smart Shopping megnyitása"><img src="https://www.google.com/s2/favicons?domain=dm.hu&sz=128" alt="" loading="lazy"><span class="gs-ref-logo-word">dm</span></a>
-    <a class="gs-ref-logo" data-shop="rossmann" href="./merchant-smart-v1.html?store=rossmann&amp;view=shared" aria-label="Rossmann Smart Shopping megnyitása"><img src="https://www.google.com/s2/favicons?domain=shop.rossmann.hu&sz=128" alt="" loading="lazy"><span class="gs-ref-logo-word">Rossmann</span></a>
-    <a class="gs-ref-logo" data-shop="emag" href="./merchant-smart-v1.html?store=emag&amp;view=shared" aria-label="eMAG Smart Shopping megnyitása"><img src="https://www.google.com/s2/favicons?domain=emag.hu&sz=128" alt="" loading="lazy"><span class="gs-ref-logo-word">eMAG</span></a>
-    <a class="gs-ref-logo" data-shop="alza" href="./merchant-smart-v1.html?store=alza&amp;view=shared" aria-label="Alza Smart Shopping megnyitása"><img src="https://www.google.com/s2/favicons?domain=alza.hu&sz=128" alt="" loading="lazy"><span class="gs-ref-logo-word">Alza</span></a>
-    <a class="gs-ref-logo" data-shop="allegro" href="./merchant-smart-v1.html?store=allegro&amp;view=shared" aria-label="Allegro Smart Shopping megnyitása"><img src="./assets/allegro-shop-logo-v1.svg" alt="" loading="lazy"><span class="gs-ref-logo-word">Allegro</span></a>
-    <a class="gs-ref-logo" data-shop="temu" href="./merchant-smart-v1.html?store=temu&amp;view=shared" aria-label="Temu Smart Shopping megnyitása"><img src="https://www.google.com/s2/favicons?domain=temu.com&sz=128" alt="" loading="lazy"><span class="gs-ref-logo-word">Temu</span></a>
-    <a class="gs-ref-logo" data-shop="shein" href="./merchant-smart-v1.html?store=shein&amp;view=shared" aria-label="SHEIN Smart Shopping megnyitása"><img src="https://www.google.com/s2/favicons?domain=hu.shein.com&sz=128" alt="" loading="lazy"><span class="gs-ref-logo-word">SHEIN</span></a>
-    <a class="gs-ref-logo" data-shop="shoperia" href="./merchant-smart-v1.html?store=shoperia&amp;view=shared" aria-label="Shoperia Smart Shopping megnyitása"><img src="https://www.google.com/s2/favicons?domain=shoperia.hu&sz=128" alt="" loading="lazy"><span class="gs-ref-logo-word">Shoperia</span></a>
+    <a class="gs-ref-logo" data-shop="tesco" href="./tesco-bridge-v3.html" aria-label="Tesco Smart Shopping megnyitása"><img src="./assets/golden-v3/webshops/tesco.svg?v=approved-natural-20261120" alt="" loading="lazy"><span class="gs-ref-logo-word">Tesco</span></a>
+    <a class="gs-ref-logo" data-shop="auchan" href="./merchant-smart-v1.html?store=auchan&amp;view=shared" aria-label="Auchan Smart Shopping megnyitása"><img src="./assets/golden-v3/webshops/auchan.svg?v=approved-natural-20261120" alt="" loading="lazy"><span class="gs-ref-logo-word">Auchan</span></a>
+    <a class="gs-ref-logo" data-shop="aldi" href="./merchant-smart-v1.html?store=aldi&amp;view=shared" aria-label="ALDI Smart Shopping megnyitása"><img src="./assets/golden-v3/webshops/aldi.svg?v=approved-natural-20261120" alt="" loading="lazy"><span class="gs-ref-logo-word">ALDI</span></a>
+    <a class="gs-ref-logo" data-shop="kifli" href="./merchant-smart-v1.html?store=kifli&amp;view=shared" aria-label="Kifli Smart Shopping megnyitása"><img src="./assets/golden-v3/webshops/kifli.svg?v=approved-natural-20261120" alt="" loading="lazy"><span class="gs-ref-logo-word">Kifli</span></a>
+    <a class="gs-ref-logo" data-shop="dm" href="./merchant-smart-v1.html?store=dm&amp;view=shared" aria-label="dm Smart Shopping megnyitása"><img src="./assets/golden-v3/webshops/dm.svg?v=approved-natural-20261120" alt="" loading="lazy"><span class="gs-ref-logo-word">dm</span></a>
+    <a class="gs-ref-logo" data-shop="rossmann" href="./merchant-smart-v1.html?store=rossmann&amp;view=shared" aria-label="Rossmann Smart Shopping megnyitása"><img src="./assets/golden-v3/webshops/rossmann.svg?v=approved-natural-20261120" alt="" loading="lazy"><span class="gs-ref-logo-word">Rossmann</span></a>
+    <a class="gs-ref-logo" data-shop="emag" href="./merchant-smart-v1.html?store=emag&amp;view=shared" aria-label="eMAG Smart Shopping megnyitása"><img src="./assets/golden-v3/webshops/emag.svg?v=approved-natural-20261120" alt="" loading="lazy"><span class="gs-ref-logo-word">eMAG</span></a>
+    <a class="gs-ref-logo" data-shop="alza" href="./merchant-smart-v1.html?store=alza&amp;view=shared" aria-label="Alza Smart Shopping megnyitása"><img src="./assets/golden-v3/webshops/alza.svg?v=approved-natural-20261120" alt="" loading="lazy"><span class="gs-ref-logo-word">Alza</span></a>
+    <a class="gs-ref-logo" data-shop="allegro" href="./merchant-smart-v1.html?store=allegro&amp;view=shared" aria-label="Allegro Smart Shopping megnyitása"><img src="./assets/golden-v3/webshops/allegro.svg?v=approved-natural-20261120" alt="" loading="lazy"><span class="gs-ref-logo-word">Allegro</span></a>
+    <a class="gs-ref-logo" data-shop="temu" href="./merchant-smart-v1.html?store=temu&amp;view=shared" aria-label="Temu Smart Shopping megnyitása"><img src="./assets/golden-v3/webshops/temu.svg?v=approved-natural-20261120" alt="" loading="lazy"><span class="gs-ref-logo-word">Temu</span></a>
+    <a class="gs-ref-logo" data-shop="shein" href="./merchant-smart-v1.html?store=shein&amp;view=shared" aria-label="SHEIN Smart Shopping megnyitása"><img src="./assets/golden-v3/webshops/shein.svg?v=approved-natural-20261120" alt="" loading="lazy"><span class="gs-ref-logo-word">SHEIN</span></a>
+    <a class="gs-ref-logo" data-shop="shoperia" href="./merchant-smart-v1.html?store=shoperia&amp;view=shared" aria-label="Shoperia Smart Shopping megnyitása"><img src="./assets/golden-v3/webshops/shoperia.svg?v=approved-natural-20261120" alt="" loading="lazy"><span class="gs-ref-logo-word">Shoperia</span></a>
   </div>
 </section>
 <section class="shop-connect store-screen" id="shoStoreConnect" aria-label="Áruházak">
@@ -98,5 +100,7 @@
 <script defer src="./store-connect-v2.js?v=single-basket-action-20261117"></script>
 <script defer src="../shared/sho-sound-settings-v1.js?v=1"></script>
 <script defer src="./shopping-snap-v13.js?v=2-sound-studio"></script>
+<script defer src="../shared/sh9-golden-controls-v1.js?v=934-unified-glass-dock"></script>
+<script defer src="./shopping-golden-recovery-v3.js?v=gs-recovery-v3-20261120"></script>
 </body>
 </html>

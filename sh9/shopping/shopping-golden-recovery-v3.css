@@ -1,0 +1,506 @@
+/* Golden Shopping V3 · consolidated Shopping-only presentation stylesheet. */
+/* SHO Smart Shopping – Golden Reference V2, 2026-11-20
+   A presentation-only layer based on the user-approved mobile composition.
+   DO NOT replace any hero/category bitmap, app service, original store card, data path,
+   quick-action handler, search handler, bottom-nav link or merchant API.
+   Full rollback: remove exactly this CSS link and the gs-ref-* blocks in index.html.
+*/
+body[data-lp-v2="on"][data-lp-module="shopping"]{
+ --gs-bg:#0b081a;
+ --gs-rose:#f1a0da;
+ --gs-blue:#9cb8f3;
+ --gs-stroke:rgba(204,162,232,.54);
+ --gs-glass:linear-gradient(140deg,rgba(51,32,77,.95),rgba(27,33,65,.96) 72%,rgba(27,28,63,.96));
+}
+body[data-lp-v2="on"][data-lp-module="shopping"] .app{
+ background:linear-gradient(180deg,#13091c 0%,#110e26 46%,#0a1326 100%)!important;
+}
+body[data-lp-v2="on"][data-lp-module="shopping"] .hero{
+ isolation:isolate;
+ border:0!important;
+ border-radius:0!important;
+ overflow:hidden;
+ background:#15071d!important;
+ box-shadow:none!important;
+}
+body[data-lp-v2="on"][data-lp-module="shopping"] .hero-image{
+ display:block;
+ height:auto;
+ width:100%;
+ aspect-ratio:1604/981;
+ object-fit:contain;
+ object-position:center;
+ /* The source pixels are never touched, filtered or cropped. */
+ filter:none!important;
+}
+body[data-lp-v2="on"][data-lp-module="shopping"] .hero-title{
+ position:absolute;top:0;left:0;right:0;z-index:2;
+ display:flex;align-items:center;justify-content:space-between;
+ width:100%;height:47px;min-height:47px;padding:4px 12px!important;
+ background:linear-gradient(180deg,rgba(9,9,24,.90) 0%,rgba(12,8,30,.64) 60%,transparent 100%)!important;
+ border:0!important;box-shadow:none!important;
+}
+body[data-lp-v2="on"][data-lp-module="shopping"] .hero-title .hero-kicker{
+ max-width:calc(100% - 114px);padding:0;
+ font-size:clamp(12px,3.2vw,16px);line-height:1.1;
+ letter-spacing:.03em;color:#fff!important;font-weight:800;
+ background:none!important;border:0!important;
+}
+body[data-lp-v2="on"][data-lp-module="shopping"] .hero-title .head-actions{gap:2px}
+body[data-lp-v2="on"][data-lp-module="shopping"] .hero-title .icon-btn{
+ width:31px;height:33px;font-size:23px;
+ color:#fff!important;text-shadow:0 1px 5px #000!important;
+}
+body[data-lp-v2="on"][data-lp-module="shopping"] .hero-title .fav-round{
+ width:37px;height:37px;font-size:8px;
+ border:1px solid rgba(255,183,224,.55);
+ box-shadow:0 2px 8px #07071685!important;
+ background:linear-gradient(138deg,rgba(150,58,127,.78),rgba(52,45,99,.84))!important;
+}
+body[data-lp-v2="on"][data-lp-module="shopping"] #searchForm.search-bar{
+ margin:7px 10px 9px!important;
+ min-height:50px;height:50px;
+ border:1px solid rgba(240,157,222,.65)!important;
+ border-radius:28px!important;
+ background:linear-gradient(111deg,rgba(57,39,87,.96),rgba(36,32,71,.96) 52%,rgba(37,38,77,.97))!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.20),0 3px 13px rgba(224,74,166,.13)!important;
+}
+body[data-lp-v2="on"][data-lp-module="shopping"] #searchForm.search-bar input{
+ color:#fff!important;
+}
+body[data-lp-v2="on"][data-lp-module="shopping"] #searchForm.search-bar input::placeholder{
+ color:#dfd7e9!important;opacity:.9;
+}
+/* A real, functioning two-shortcut row with native destinations. */
+.gs-ref-shortcuts{
+ display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;
+ padding:0 10px;margin:0 0 10px;
+}
+.gs-ref-shortcut{
+ display:flex;align-items:center;gap:8px;min-width:0;min-height:64px;
+ padding:8px 10px;border:1px solid rgba(238,137,206,.76);
+ border-radius:15px;
+ background:linear-gradient(126deg,rgba(112,34,82,.85),rgba(51,36,80,.94) 77%);
+ box-shadow:inset 0 1px 0 rgba(255,231,251,.19),0 5px 14px rgba(13,5,25,.26);
+ color:#fff;text-decoration:none;touch-action:manipulation;
+}
+.gs-ref-shortcut--basket{
+ border-color:rgba(153,160,234,.77);
+ background:linear-gradient(125deg,rgba(66,39,103,.85),rgba(31,40,83,.96));
+}
+.gs-ref-shortcut .gs-ref-shortcut-icon{
+ flex:none;display:grid;place-items:center;width:35px;height:38px;
+ color:#fac0ec;font-size:29px;line-height:1;
+}
+.gs-ref-shortcut .gs-ref-shortcut-icon svg{width:32px;height:32px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.gs-ref-shortcut .gs-ref-shortcut-copy{display:flex;flex:1;min-width:0;flex-direction:column;gap:3px}
+.gs-ref-shortcut strong{color:white;font-size:clamp(12px,3.3vw,16px);line-height:1.1;font-weight:850;white-space:nowrap}
+.gs-ref-shortcut small{color:#e1d3eb;font-size:clamp(8px,2.15vw,11px);line-height:1.15;white-space:nowrap}
+.gs-ref-shortcut .gs-ref-arrow{font-size:23px;color:#f6e6ff}
+.gs-ref-shortcut:focus-visible{outline:2px solid #ffb9eb;outline-offset:2px}
+/* Six existing category actions with their current local image assets.
+   Labels are separate real text, not baked into a fictitious picture. */
+body[data-lp-v2="on"][data-lp-module="shopping"] #categoryGrid.categories{
+ display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;
+ gap:8px!important;padding:0 10px 9px!important;margin:0!important;
+ height:auto!important;
+}
+body[data-lp-v2="on"][data-lp-module="shopping"] #categoryGrid.categories > .cat{
+ position:relative;aspect-ratio:1.62!important;min-height:0!important;
+ overflow:hidden;border-radius:14px!important;
+ border:1px solid rgba(202,167,236,.56)!important;
+ background:linear-gradient(145deg,#34244d,#161b35)!important;
+ box-shadow:inset 0 1px rgba(255,255,255,.18),0 5px 12px #08071666!important;
+}
+body[data-lp-v2="on"][data-lp-module="shopping"] #categoryGrid.categories > .cat img{
+ width:100%!important;height:100%!important;object-fit:cover!important;
+}
+body[data-lp-v2="on"][data-lp-module="shopping"] #categoryGrid .gs-ref-cat-label{
+ position:absolute;z-index:1;bottom:0;left:0;right:0;
+ display:block;min-height:23px;padding:7px 2px 4px;
+ color:white;font-weight:800;font-size:clamp(10px,2.7vw,13px);
+ text-align:center;line-height:1.05;text-shadow:0 1px 4px #02030bee;
+ background:linear-gradient(0deg,rgba(8,9,25,.85),transparent);
+ pointer-events:none;
+}
+/* Home-screen merchant overview: visual navigation; original detailed cards remain below. */
+.gs-ref-store-overview{margin:3px 10px 9px}
+.gs-ref-store-heading{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:4px 6px 10px}
+.gs-ref-store-heading h2{display:flex;align-items:center;gap:8px;margin:0;color:#fff!important;font-size:clamp(18px,5vw,23px)!important;letter-spacing:-.5px}
+.gs-ref-store-heading h2 svg{width:23px;height:23px;fill:none;stroke:#ec93d2;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.gs-ref-store-heading>a{display:flex;align-items:center;color:#f8ecff;font-size:12px;text-decoration:none}
+.gs-ref-store-logos{
+ display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;
+}
+.gs-ref-logo{
+ display:flex;align-items:center;justify-content:center;gap:3px;
+ min-width:0;min-height:37px;padding:4px 3px;
+ border:1px solid rgba(187,178,215,.55);border-radius:10px;
+ background:linear-gradient(130deg,#fff,#f4f3fa);
+ box-shadow:0 2px 9px rgba(10,7,23,.24);
+ color:#241b38;text-align:center;text-decoration:none;
+}
+.gs-ref-logo img{width:22px;height:22px;flex:none;object-fit:contain}
+.gs-ref-logo .gs-ref-logo-word{
+ font-weight:950;font-size:clamp(10px,2.8vw,14px);
+ letter-spacing:-.4px;line-height:1;white-space:nowrap;
+ overflow:hidden;text-overflow:clip;
+}
+.gs-ref-logo[data-shop="tesco"]{color:#db1133}
+.gs-ref-logo[data-shop="auchan"]{color:#ca1725}
+.gs-ref-logo[data-shop="aldi"]{color:#2042a0}
+.gs-ref-logo[data-shop="kifli"]{color:#28272e}
+.gs-ref-logo[data-shop="dm"]{color:#1252a4}
+.gs-ref-logo[data-shop="rossmann"]{color:#db1942}
+.gs-ref-logo[data-shop="emag"]{color:#c52986}
+.gs-ref-logo[data-shop="alza"]{color:#234c8c}
+.gs-ref-logo[data-shop="allegro"]{color:#f16a11}
+.gs-ref-logo[data-shop="temu"]{color:#ef5311}
+.gs-ref-logo[data-shop="shein"]{color:#151515}
+.gs-ref-logo[data-shop="shoperia"]{color:#7845a3}
+.gs-ref-logo:active{transform:scale(.98)}
+.gs-ref-logo:focus-visible{outline:2px solid #ff89cb;outline-offset:2px}
+/* Keep the original five fully-functional SHO bottom destinations, new coating only. */
+body[data-lp-v2="on"][data-lp-module="shopping"] .bottomnav{
+ border-top:1px solid rgba(216,165,237,.65)!important;
+ background:linear-gradient(120deg,rgba(53,32,77,.98),rgba(19,27,55,.98))!important;
+ box-shadow:0 -4px 19px rgba(186,72,154,.13)!important;
+}
+body[data-lp-v2="on"][data-lp-module="shopping"] .bottomnav :is(a,button){
+ color:#f1e6ff;
+}
+body[data-lp-v2="on"][data-lp-module="shopping"] .bottomnav .current{
+ color:#ffa2e2!important;
+}
+/* Lower sections are left intact: merchant CTAs, catalog, basket,
+   favorites, local orders and Price Radar remain fully functional. */
+@media(max-width:365px){
+ .gs-ref-shortcut{gap:5px;padding:7px 6px}
+ .gs-ref-shortcut .gs-ref-shortcut-icon{width:29px}
+ .gs-ref-shortcut .gs-ref-shortcut-icon svg{width:27px;height:27px}
+ .gs-ref-shortcut .gs-ref-arrow{font-size:18px}
+ .gs-ref-logo img{width:17px;height:17px}
+ .gs-ref-logo .gs-ref-logo-word{font-size:10px}
+}
+@media(prefers-reduced-motion:reduce){.gs-ref-logo:active{transform:none}}
+
+/* V3 recovery geometry and native unified dock */
+/* SHO Smart Shopping · Golden Recovery V3 · 2026-11-20
+   User-approved natural hero + seamless SHO four-zone dock directly below it.
+   Scope: Shopping home ONLY. No shared styles, scripts, data or API edits.
+   Stage branch only. Revert by removing this file + its one stylesheet link.
+*/
+body[data-lp-v2="on"][data-lp-module="shopping"]{
+ --recovery-plum:#150d23;
+ --recovery-rose:#ff8bcf;
+ --recovery-ice:#adb6f5;
+ --recovery-hairline:rgba(223,173,238,.55);
+ background:#090716;
+}
+body[data-lp-v2="on"][data-lp-module="shopping"] .app{
+ background:
+ radial-gradient(ellipse at 16% 34%,rgba(127,30,100,.18),transparent 38%),
+ linear-gradient(165deg,#140b1d 0%,#120e23 63%,#0e132c 100%)!important;
+}
+body[data-lp-v2="on"][data-lp-module="shopping"] .hero{
+ position:relative;isolation:isolate;overflow:hidden;
+ border-radius:0 0 15px 15px!important;
+ background:#1a1020!important;
+}
+body[data-lp-v2="on"][data-lp-module="shopping"] .hero .hero-image{
+ display:block!important;width:100%!important;height:auto!important;
+ aspect-ratio:2.67/1!important;
+ object-fit:cover!important;
+ object-position:center 43%!important;
+ filter:saturate(.70) contrast(.96) brightness(1.055)!important;
+}
+body[data-lp-v2="on"][data-lp-module="shopping"] .hero::after{
+ content:"";position:absolute;z-index:1;pointer-events:none;
+ left:0;right:0;bottom:0;height:32px;
+ background:linear-gradient(to bottom,transparent,rgba(43,24,49,.18) 32%,rgba(29,16,39,.77) 100%);
+}
+body[data-lp-v2="on"][data-lp-module="shopping"] .hero-title{
+ z-index:3!important;height:50px!important;min-height:50px!important;
+ padding:3px 15px!important;
+ background:linear-gradient(to bottom,rgba(8,8,19,.85),rgba(14,9,28,.46) 72%,transparent)!important;
+}
+body[data-lp-v2="on"][data-lp-module="shopping"] .hero-title .hero-kicker{
+ color:#faf6ff!important;font-size:clamp(12px,3.35vw,16px)!important;
+ letter-spacing:.01em!important;
+}
+body[data-lp-v2="on"][data-lp-module="shopping"] .hero-title .head-actions .icon-btn{
+ width:32px!important;height:38px!important;font-size:24px!important;
+}
+body[data-lp-v2="on"][data-lp-module="shopping"] .hero-title .head-actions .fav-round{
+ height:38px!important;width:38px!important;
+}
+/* Real v934 global dock, relocated by shopping-golden-recovery-v3.js.
+   THIS IS NOT A SECOND OR STATIC COPY OF THE DOCK. */
+body[data-lp-module="shopping"] #shoppingGoldenDockSlotV3{
+ box-sizing:border-box;position:relative;z-index:5;isolation:isolate;
+ width:calc(100% - 20px);height:51px;margin:-2px auto 8px;
+ border-radius:15px;background:linear-gradient(115deg,rgba(58,30,68,.60),rgba(33,35,76,.68));
+}
+body[data-lp-module="shopping"] #shoppingGoldenDockSlotV3::before{
+ content:"";position:absolute;z-index:-1;pointer-events:none;left:1%;right:1%;top:-16px;height:23px;
+ background:linear-gradient(to bottom,transparent,rgba(74,36,77,.28) 65%,rgba(42,25,63,.45));
+ filter:blur(5px);
+}
+body[data-lp-module="shopping"][data-sh9-golden-unified="on"] #shoppingGoldenDockSlotV3 #sh9UnifiedGlassDockV34{
+ position:relative!important;inset:auto!important;top:auto!important;left:0!important;right:auto!important;bottom:auto!important;
+ width:100%!important;height:50px!important;min-height:50px!important;max-height:50px!important;
+ margin:0!important;border-radius:15px!important;
+ background:linear-gradient(111deg,rgba(63,32,79,.77),rgba(26,39,84,.70))!important;
+ border:1px solid rgba(226,168,235,.62)!important;
+ box-shadow:inset 0 1px rgba(255,255,255,.20),0 3px 10px rgba(214,70,158,.19)!important;
+ backdrop-filter:blur(12px)!important;-webkit-backdrop-filter:blur(12px)!important;
+}
+body[data-lp-module="shopping"] #shoppingGoldenDockSlotV3 #sh9UnifiedGlassDockV34 .sh9-global-dock-icon{
+ stroke:#f3a9dc!important;
+}
+body[data-lp-module="shopping"] #shoppingGoldenDockSlotV3 #sh9UnifiedGlassDockV34 .sh9-global-dock-label,
+body[data-lp-module="shopping"] #shoppingGoldenDockSlotV3 #sh9UnifiedGlassDockV34 [data-sh9-dock-label]{
+ color:#fff1ff!important;
+}
+body[data-lp-module="shopping"] #searchForm.search-bar{
+ height:48px!important;min-height:48px!important;
+ margin:8px 10px 11px!important;
+ border-radius:28px!important;border:1px solid rgba(255,155,220,.83)!important;
+ background:linear-gradient(103deg,rgba(94,35,83,.79),rgba(52,32,79,.94) 43%,rgba(35,34,75,.93))!important;
+ box-shadow:inset 0 1px 0 #ffffff30,0 0 12px #e2469f40!important;
+}
+body[data-lp-module="shopping"] #searchForm .star{font-size:21px!important;color:#ffd6ef!important}
+body[data-lp-module="shopping"] #searchForm input{font-size:clamp(11px,3.05vw,15px)!important}
+body[data-lp-module="shopping"] #searchForm .search-voice,
+body[data-lp-module="shopping"] #searchForm .search-scan{
+ display:grid;place-items:center;width:32px;height:35px;color:#ffb3e6;
+ font-size:21px;border-radius:9px;
+}
+body[data-lp-module="shopping"] #searchForm .search-submit{
+ display:none!important; /* User-approved reference: voice + barcode only */
+}
+body[data-lp-module="shopping"] .gs-ref-shortcuts{
+ padding:0 10px!important;gap:8px!important;margin:0 0 10px!important;
+}
+body[data-lp-module="shopping"] .gs-ref-shortcut{
+ min-height:64px!important;border-radius:16px!important;
+ background:linear-gradient(115deg,#732854d7,#40234ddf 64%,#322945f0)!important;
+ border:1px solid rgba(255,160,218,.85)!important;
+ box-shadow:inset 0 1px #ffffff3a,0 4px 14px #0007!important;
+}
+body[data-lp-module="shopping"] .gs-ref-shortcut--basket{
+ background:linear-gradient(105deg,#6b3580e6,#313463f0)!important;
+ border-color:rgba(194,157,248,.83)!important;
+}
+body[data-lp-module="shopping"] .gs-ref-shortcut .gs-ref-shortcut-icon{
+ width:36px!important;color:#ffc1ee!important;
+}
+body[data-lp-module="shopping"] .gs-ref-shortcut .gs-ref-shortcut-copy strong{
+ font-size:clamp(13px,3.75vw,18px)!important;font-weight:810!important;
+}
+body[data-lp-module="shopping"] .gs-ref-shortcut .gs-ref-shortcut-copy small{
+ font-size:clamp(9px,2.38vw,12px)!important;
+}
+body[data-lp-module="shopping"] #categoryGrid.categories{
+ grid-template-columns:repeat(3,minmax(0,1fr))!important;
+ gap:7px!important;padding:0 10px 10px!important;
+}
+body[data-lp-module="shopping"] #categoryGrid .cat{
+ aspect-ratio:1.62!important;isolation:isolate;
+ border-radius:15px!important;
+ border:1px solid rgba(220,174,239,.62)!important;
+ background:linear-gradient(155deg,#39213f,#1b1b37)!important;
+ box-shadow:inset 0 1px #ffffff31,0 4px 10px #02010b66!important;
+}
+body[data-lp-module="shopping"] #categoryGrid .cat img{
+ width:100%!important;height:118%!important;
+ object-fit:cover!important;object-position:center top!important;
+ transform:translateY(-4%) scale(1.035);
+ filter:saturate(.77) contrast(.95)!important;
+}
+body[data-lp-module="shopping"] #categoryGrid .cat::after{
+ content:"";position:absolute;z-index:1;inset:65% 0 0;
+ background:linear-gradient(transparent,rgba(14,12,29,.91) 87%);
+ pointer-events:none;
+}
+body[data-lp-module="shopping"] #categoryGrid .gs-ref-cat-label{
+ z-index:2!important;min-height:0!important;padding:4px 2px 7px!important;
+ font-size:clamp(12px,3.27vw,17px)!important;line-height:1.05!important;
+ font-weight:820!important;
+ background:none!important;text-shadow:0 1px 4px #000d!important;
+}
+body[data-lp-module="shopping"] .gs-ref-store-overview{
+ margin:2px 10px 7px!important;
+}
+body[data-lp-module="shopping"] .gs-ref-store-heading{
+ padding:2px 7px 9px!important;
+}
+body[data-lp-module="shopping"] .gs-ref-store-heading h2{
+ font-size:clamp(19px,5.2vw,24px)!important;
+}
+body[data-lp-module="shopping"] .gs-ref-store-logos{
+ grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:7px!important;
+}
+body[data-lp-module="shopping"] .gs-ref-logo{
+ position:relative;min-height:34px!important;gap:0!important;
+ padding:3px 2px!important;border-radius:10px!important;
+ background:linear-gradient(160deg,#fff,#f0edf4)!important;
+ border:1px solid rgba(255,234,247,.65)!important;
+ box-shadow:0 2px 7px #08031c55!important;
+}
+body[data-lp-module="shopping"] .gs-ref-logo img{
+ width:0!important;height:0!important;opacity:0!important;flex:0 0 0!important;
+}
+body[data-lp-module="shopping"] .gs-ref-logo[data-shop="aldi"] img,
+body[data-lp-module="shopping"] .gs-ref-logo[data-shop="allegro"] img{
+ display:block!important;opacity:1!important;flex:0 0 auto!important;
+ width:min(69%,63px)!important;height:29px!important;object-fit:contain!important;
+}
+body[data-lp-module="shopping"] .gs-ref-logo[data-shop="aldi"] .gs-ref-logo-word,
+body[data-lp-module="shopping"] .gs-ref-logo[data-shop="allegro"] .gs-ref-logo-word{display:none!important}
+body[data-lp-module="shopping"] .gs-ref-logo-word{
+ display:block!important;overflow:visible!important;
+ font-size:clamp(11px,3.65vw,20px)!important;
+ font-weight:900!important;letter-spacing:-.065em!important;
+ font-family:Inter,"Segoe UI",system-ui,sans-serif!important;
+}
+body[data-lp-module="shopping"] .gs-ref-logo[data-shop="rossmann"] .gs-ref-logo-word,
+body[data-lp-module="shopping"] .gs-ref-logo[data-shop="shoperia"] .gs-ref-logo-word{
+ font-size:clamp(10px,3vw,15px)!important;letter-spacing:-.03em!important;
+}
+body[data-lp-module="shopping"] .gs-ref-logo[data-shop="kifli"] .gs-ref-logo-word{font-family:Georgia,serif!important}
+body[data-lp-module="shopping"] .gs-ref-logo[data-shop="emag"] .gs-ref-logo-word{font-style:italic!important;background:linear-gradient(95deg,#d41478,#234dd5);color:transparent!important;background-clip:text;-webkit-background-clip:text}
+body[data-lp-module="shopping"] .bottomnav{
+ height:75px!important;border-radius:23px 23px 0 0!important;
+ background:linear-gradient(120deg,rgba(53,27,66,.98),rgba(22,27,60,.98))!important;
+ border-top:1px solid rgba(221,135,227,.74)!important;
+ box-shadow:0 -6px 16px #c43d9b21!important;
+}
+body[data-lp-module="shopping"] .bottomnav .current{
+ color:#ffa6dd!important;text-shadow:0 0 9px #ff54b5!important;
+}
+body[data-lp-module="shopping"] .bottomnav :is(button,a){min-height:52px;touch-action:manipulation}
+body[data-lp-module="shopping"] .bottomnav span{font-size:23px!important}
+body[data-lp-module="shopping"] .bottom-space{height:88px}
+@media(max-width:365px){
+ body[data-lp-module="shopping"] #searchForm input{font-size:11px!important}
+ body[data-lp-module="shopping"] .gs-ref-shortcut{padding:7px 6px!important;gap:5px!important}
+ body[data-lp-module="shopping"] .gs-ref-shortcut .gs-ref-shortcut-icon{width:29px!important}
+ body[data-lp-module="shopping"] .gs-ref-shortcut .gs-ref-shortcut-copy strong{font-size:12px!important}
+ body[data-lp-module="shopping"] .gs-ref-shortcut .gs-ref-shortcut-copy small{font-size:8.5px!important}
+ body[data-lp-module="shopping"] #categoryGrid .gs-ref-cat-label{font-size:11.5px!important}
+}
+@media(prefers-reduced-motion:reduce){
+ body[data-lp-module="shopping"] .gs-ref-shortcut{transition:none!important}
+}
+
+/* Left search icon is the working submit button; voice and barcode stay intact. */
+body[data-lp-module="shopping"] #searchForm .search-main-submit{
+ flex:0 0 27px!important;display:grid!important;place-items:center!important;
+ width:27px!important;height:36px!important;padding:0!important;
+ background:transparent!important;border:0!important;border-radius:0!important;
+ color:#ffc0eb!important;box-shadow:none!important;
+}
+body[data-lp-module="shopping"] #searchForm .search-main-submit svg{
+ display:block;width:23px;height:23px;fill:none;stroke:currentColor;
+ stroke-width:2.1;stroke-linecap:round;stroke-linejoin:round;
+}
+body[data-lp-module="shopping"] #searchForm .search-main-submit:focus-visible{
+ outline:2px solid #ffcaeb!important;outline-offset:2px!important;border-radius:8px!important;
+}
+
+/* V3 approved visual assets: direct crops of the FINAL natural-color reference.
+   All tiles remain real buttons/links with original functional handlers.
+   The SVG wrappers embed WEBP bytes for predictable GitHub text-file delivery.
+   No external third-party image URL or runtime CDN call is required. */
+body[data-lp-module="shopping"] .hero{
+ border-radius:0!important;
+ background:#130d20!important;
+}
+body[data-lp-module="shopping"] .hero .hero-title{
+ position:relative!important;inset:auto!important;top:auto!important;
+ left:auto!important;right:auto!important;
+ width:100%!important;height:53px!important;min-height:53px!important;
+ padding:3px 12px!important;border:0!important;
+ background:linear-gradient(135deg,#170f20,#100e21 65%,#19132c)!important;
+}
+body[data-lp-module="shopping"] .hero .hero-image{
+ display:block!important;width:100%!important;height:auto!important;
+ aspect-ratio:941/304!important;object-fit:contain!important;
+ object-position:center!important;filter:none!important;
+}
+body[data-lp-module="shopping"] .hero::after{
+ height:25px!important;
+ background:linear-gradient(180deg,transparent,rgba(40,22,44,.21) 38%,rgba(25,15,38,.72))!important;
+}
+body[data-lp-module="shopping"] #categoryGrid .cat{
+ border:0!important;box-shadow:0 4px 12px #02010b5b!important;
+ background:transparent!important;
+}
+body[data-lp-module="shopping"] #categoryGrid .cat img{
+ display:block!important;width:100%!important;height:100%!important;
+ max-width:100%!important;max-height:none!important;
+ object-fit:fill!important;object-position:center!important;
+ transform:none!important;filter:none!important;
+}
+body[data-lp-module="shopping"] #categoryGrid .cat::after{
+ display:none!important;content:none!important;
+}
+body[data-lp-module="shopping"] #categoryGrid .gs-ref-cat-label{
+ display:none!important;
+}
+body[data-lp-module="shopping"] .gs-ref-logo{
+ display:block!important;position:relative!important;overflow:hidden!important;
+ min-height:32px!important;height:auto!important;aspect-ratio:3/1!important;
+ padding:0!important;border:0!important;border-radius:9px!important;
+ background:transparent!important;box-shadow:0 2px 7px rgba(6,3,15,.28)!important;
+}
+body[data-lp-module="shopping"] .gs-ref-logo[data-shop] img{
+ display:block!important;position:absolute!important;inset:0!important;
+ opacity:1!important;visibility:visible!important;flex:none!important;
+ width:100%!important;height:100%!important;max-width:100%!important;
+ max-height:100%!important;object-fit:fill!important;
+ transform:none!important;filter:none!important;
+}
+body[data-lp-module="shopping"] .gs-ref-logo[data-shop] .gs-ref-logo-word{
+ display:none!important;
+}
+/* Voice and barcode remain genuine controls, and the search magnifier submits. */
+body[data-lp-module="shopping"] #searchForm .search-main-submit{
+ color:#ffc0eb!important;
+}
+@media(max-width:360px){
+ body[data-lp-module="shopping"] .hero .hero-title{height:49px!important;min-height:49px!important}
+ body[data-lp-module="shopping"] .gs-ref-logo{min-height:29px!important}
+}
+
+
+/* V3 fidelity final override.
+   Match/exceed legacy V2 selector specificity before setting important
+   crop, border and display geometry. Otherwise original image labels can
+   be clipped despite the new approved reference artwork being loaded. */
+body[data-lp-v2="on"][data-lp-module="shopping"] #categoryGrid.categories > .cat{
+ aspect-ratio:1.62!important;
+ border:0!important;
+ border-radius:14px!important;
+ background:transparent!important;
+ box-shadow:0 3px 11px rgba(5,2,18,.45)!important;
+}
+body[data-lp-v2="on"][data-lp-module="shopping"] #categoryGrid.categories > .cat img{
+ width:100%!important;
+ height:100%!important;
+ max-width:100%!important;
+ min-width:0!important;
+ display:block!important;
+ object-fit:fill!important;
+ object-position:center center!important;
+ transform:none!important;
+ filter:none!important;
+}
+body[data-lp-v2="on"][data-lp-module="shopping"] #categoryGrid.categories > .cat .gs-ref-cat-label{
+ display:none!important;
+}
+body[data-lp-v2="on"][data-lp-module="shopping"] #categoryGrid.categories > .cat::after{
+ display:none!important;
+ content:none!important;
+}
