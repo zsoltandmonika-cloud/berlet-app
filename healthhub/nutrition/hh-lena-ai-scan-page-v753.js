@@ -8,6 +8,7 @@ const $=id=>d.getElementById(id),api=()=>w.HH_NUTRITION_QUICK_API,vision=()=>w.H
 const PAGE='#lena-ai-scan',MEALS=['Reggeli','Tízórai','Ebéd','Uzsonna','Vacsora','Egyéb'];
 let page=null,mode='food',stage='capture',stream=null,photo=null,photoUrl='',draft=null,editing=null,profile='',busy=false,requestId=0,fromTile=false;
 let puterPromise=null,zxingPromise=null,model='',barcode='',unit='g',audio=null;
+let cameraStartPromise=null;
 let sharedId=null,sharedBusy=false,sharedEnhance=false;
 let favoriteReturn=null,favoriteTransferBusy=false;
 let favoriteQuickSaving=false,lastSavedFavoriteSignature='';
@@ -86,12 +87,18 @@ function preview(){
 }
 async function cameraOn(){
  if(page.hidden||stream||photo||editing||!w.navigator?.mediaDevices?.getUserMedia)return;
- try{
-  const current=await w.navigator.mediaDevices.getUserMedia({audio:false,video:{facingMode:{ideal:'environment'},width:{ideal:1280},height:{ideal:1280}}});
-  if(page.hidden||photo){current.getTracks().forEach(x=>x.stop());return}
-  stream=current;const video=$('hhScanVideo753');video.srcObject=current;
-  await video.play();preview();
- }catch(_){cameraOff();status('Kamera nem érhető el. Válassz saját képet vagy engedélyezd a hozzáférést.')}
+ // One shared pending camera request: opening the page and choosing Vonalkód
+ // in quick succession must never request a second stream.
+ if(cameraStartPromise)return cameraStartPromise;
+ cameraStartPromise=(async()=>{
+  try{
+   const current=await w.navigator.mediaDevices.getUserMedia({audio:false,video:{facingMode:'environment',width:{ideal:1280},height:{ideal:1280}}});
+   if(page.hidden||photo){current.getTracks().forEach(x=>x.stop());return}
+   stream=current;const video=$('hhScanVideo753');video.srcObject=current;
+   await video.play();preview();
+  }catch(_){cameraOff();status('Kamera nem érhető el. Válassz saját képet vagy engedélyezd a hozzáférést.')}
+ })();
+ try{return await cameraStartPromise}finally{cameraStartPromise=null}
 }
 async function squareFile(source){
  let image,srcUrl='';
@@ -180,6 +187,32 @@ async function readBarcode(file){
   return code;
  }catch(_){throw Error('Nem sikerült leolvasni a vonalkódot. Próbáld újra, vagy írd be a számát.')}
  finally{URL.revokeObjectURL(url);reader.reset?.()}
+}
+/* Shopping-style live camera frame scanner for nutrition EAN codes.
+ * Keep uploaded-photo ZXing fallback, manual lookup and food-photo mode. */
+async function readLiveBarcode(video,serial){
+ if(!w.BarcodeDetector||!video||!stream)return null;
+ let detector;
+ try{detector=new w.BarcodeDetector({formats:['ean_13','ean_8','upc_a','code_128']})}
+ catch(_){return null}
+ const deadline=Date.now()+12000;
+ while(Date.now()<deadline){
+  if(serial!==requestId||page.hidden||mode!=='barcode'||!stream)
+   throw Error('A vonalkódolvasás megszakadt.');
+  if(video.readyState>=2&&video.videoWidth>0){
+   try{
+    const matches=await detector.detect(video);
+    for(const found of matches){
+     const code=gtin(found.rawValue);
+     if(code)return code;
+    }
+   }catch(_){
+    // A nem kész képkockát átugorjuk; a kamera tovább fut.
+   }
+  }
+  await new Promise(resolve=>setTimeout(resolve,120));
+ }
+ throw Error('Nem sikerült felismerni a kódot. Próbáld több fényben vagy írd be a számát.');
 }
 async function puter(){
  if(w.puter?.ai?.chat&&w.puter?.ai?.listModels)return w.puter;
@@ -277,12 +310,27 @@ function editField(e){
 async function scan(){
  if(busy||favoriteQuickSaving||stage==='saved')return;
  playSound('shutter');busy=true;const serial=++requestId;
- stageTo('scanning');status(mode==='barcode'?'Vonalkód beolvasása…':'Léna elemzi a fotót…');
+ stageTo('scanning');status(mode==='barcode'?'Vonalkód felismerése az élő kameraképen…':'Léna elemzi a fotót…');
+ const processing=$('hhScanProcessing753')?.querySelector('strong');
+ if(processing)processing.textContent=mode==='barcode'?'Vonalkód felismerése…':'Léna elemzi…';
  try{
   if(profile!==api()?.getProfile())throw Error('A profil megváltozott.');
   let data;
   if(mode==='barcode'&&$('hhScanManual753').value.trim())data=await lookup($('hhScanManual753').value.trim());
-  else {
+  else if(mode==='barcode'&&!photo){
+   // Match Shopping: detect the live video repeatedly, not a square snapshot.
+   if(!stream)await cameraOn();
+   if(!stream)throw Error('A kamera nem indult. Engedélyezd, vagy add meg a kódot kézzel.');
+   let found=await readLiveBarcode($('hhScanVideo753'),serial);
+   if(!found){ // No native BarcodeDetector: retain the existing ZXing image fallback.
+    const frame=await squareFile($('hhScanVideo753'));
+    found=await readBarcode(frame);
+   }
+   if(serial!==requestId||page.hidden)return;
+   $('hhScanManual753').value=found;
+   status('Vonalkód: '+found+' · termék és tápérték lekérése…');
+   data=await lookup(found);
+  }else{
    const f=photo||await squareFile($('hhScanVideo753'));
    if(!photo){photo=f;photoUrl=URL.createObjectURL(f);$('hhScanPhoto753').src=photoUrl;preview();}
    if(mode==='barcode'){
@@ -589,8 +637,8 @@ function init(){
  page=$('hhLenaScanPage753');if(!page)return;
  $('hhScanBack753').onclick=close;
  $('hhScanProfile753').onclick=()=>{$('profileBtn')?.click();syncProfile()};
- $('hhScanTabFood753').onclick=()=>{if(favoriteQuickSaving)return;reset('food');revealCaptureControls()};
- $('hhScanTabBarcode753').onclick=()=>{if(favoriteQuickSaving)return;reset('barcode');revealCaptureControls()};
+ $('hhScanTabFood753').onclick=()=>{if(busy)return;if(favoriteQuickSaving)return;reset('food');revealCaptureControls()};
+ $('hhScanTabBarcode753').onclick=()=>{if(busy)return;const wasFood=mode!=='barcode';if(favoriteQuickSaving)return;reset('barcode');if(wasFood)clearPhoto();void cameraOn();revealCaptureControls()};
  $('hhScanButton753').onclick=()=>{void scan()};
  $('hhScanOwn753').onclick=()=>$('hhScanFile753').click();
  $('hhScanFile753').onchange=e=>{const f=e.target.files?.[0];if(f)void ownImage(f);e.target.value=''};
