@@ -206,3 +206,18 @@ body[data-lp-module="shopping"] .bottom-space{height:88px}
 @media(prefers-reduced-motion:reduce){
  body[data-lp-module="shopping"] .gs-ref-shortcut{transition:none!important}
 }
+
+/* Left search icon is the working submit button; voice and barcode stay intact. */
+body[data-lp-module="shopping"] #searchForm .search-main-submit{
+ flex:0 0 27px!important;display:grid!important;place-items:center!important;
+ width:27px!important;height:36px!important;padding:0!important;
+ background:transparent!important;border:0!important;border-radius:0!important;
+ color:#ffc0eb!important;box-shadow:none!important;
+}
+body[data-lp-module="shopping"] #searchForm .search-main-submit svg{
+ display:block;width:23px;height:23px;fill:none;stroke:currentColor;
+ stroke-width:2.1;stroke-linecap:round;stroke-linejoin:round;
+}
+body[data-lp-module="shopping"] #searchForm .search-main-submit:focus-visible{
+ outline:2px solid #ffcaeb!important;outline-offset:2px!important;border-radius:8px!important;
+}
