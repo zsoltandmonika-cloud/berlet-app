@@ -125,3 +125,23 @@ body[data-lp-v2="on"][data-lp-module="shopping"] .gs-ref-store-logos > .gs-ref-l
  body[data-lp-v2="on"][data-lp-module="shopping"] .gs-ref-store-logos{gap:4px!important}
  body[data-lp-v2="on"][data-lp-module="shopping"] .gs-ref-store-logos > .gs-ref-logo[data-shop]{min-height:33px!important;height:33px!important}
 }
+
+/* V4.1 · Equal vertical rhythm, accepted Smart List → categories gap = 4px.
+   Keep sizes, images, dock/shortcut actions, category grid and all webshop cards unchanged.
+   The dock has no bottom margin: the adjacent search top margin creates
+   exactly the same 4px visible layout gap as the other two transitions.
+*/
+body[data-lp-v2="on"][data-lp-module="shopping"]{
+ --shopping-v41-flow-gap:4px;
+}
+body[data-lp-v2="on"][data-lp-module="shopping"] #shoppingGoldenDockSlotV3{
+ margin-bottom:0!important;
+}
+body[data-lp-v2="on"][data-lp-module="shopping"] #searchForm.search-bar{
+ margin-top:var(--shopping-v41-flow-gap)!important;
+ margin-bottom:var(--shopping-v41-flow-gap)!important;
+}
+body[data-lp-v2="on"][data-lp-module="shopping"] .gs-ref-shortcuts{
+ margin-top:0!important;
+ margin-bottom:var(--shopping-v41-flow-gap)!important;
+}
