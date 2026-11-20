@@ -145,3 +145,24 @@ body[data-lp-v2="on"][data-lp-module="shopping"] .gs-ref-shortcuts{
  margin-top:0!important;
  margin-bottom:var(--shopping-v41-flow-gap)!important;
 }
+
+/* V4.2 · Narrow hero header by 10px, with a deliberate slight Smart List overhang.
+   Keep category cards, merchant logos, Quick Bar, actions, and other gaps untouched. */
+body[data-lp-v2="on"][data-lp-module="shopping"] .hero .hero-title{
+ height:43px!important;
+ min-height:43px!important;
+}
+body[data-lp-v2="on"][data-lp-module="shopping"] .hero .hero-title #listsOpen{
+ position:relative!important;
+ z-index:4!important;
+ transform:translateY(4px)!important;
+}
+body[data-lp-v2="on"][data-lp-module="shopping"] #searchForm.search-bar{
+ margin-top:3px!important;
+}
+@media(max-width:360px){
+ body[data-lp-v2="on"][data-lp-module="shopping"] .hero .hero-title{
+  height:39px!important;
+  min-height:39px!important;
+ }
+}
