@@ -134,3 +134,11 @@ body.hhScanOpen753>.shell{display:none!important}
 #hhScanFavoriteSaveStatusV1149{font-size:12px;line-height:1.45;color:#baf3df;margin:3px 0 0;overflow-wrap:anywhere}
 #hhScanFavoriteSaveStatusV1149[data-error="true"]{color:#ffd1b1}
 #hhScanFavoriteSaveStatusV1149[hidden]{display:none!important}
+
+
+/* Live barcode reader: keep camera viewfinder unobscured while the
+   detector examines video frames, exactly as in the working Shopping
+   scanner. Food-photo AI processing overlay remains unchanged. */
+.hhScanPage753[data-stage="scanning"] .hhScanViewport753[data-mode="barcode"] .hhScanProcessing753{
+ display:none!important;
+}
