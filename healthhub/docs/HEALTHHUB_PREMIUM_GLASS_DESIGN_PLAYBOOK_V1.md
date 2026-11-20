@@ -71,6 +71,22 @@ Modulhoz igazítható: ruházat, póz, fény, környezet, kellékek, munkaszitu�
 
 Részletes normatív szabály: [GOLDEN-STANDARD-RULE.md](./GOLDEN-STANDARD-RULE.md).
 
+### 3/B. Premium Diffused Edge Glow — jóváhagyott SHO / HH vizuális effekt (2026-11-20)
+
+**Belső designrendszerbeli név:** **Premium Diffused Edge Glow**. Magyarul: finoman szórt, ködös peremfény. A felhasználó által 2026-11-20-án jóváhagyott vizuális etalon: **SHO Smart Shopping 3 × 2 kategóriacsempe-rács** (Élelmiszer, Elektronika, Divat, Drogéria, Otthon, Árfigyelés). Ez **belső stílusnév**, nem iparági szabvány vagy felhasználói UI-felirat.
+
+**Vizuális tulajdonságok és szerkezet:**
+- Sötét, visszafogott smoked-glass / deep-plum háttér; finom felső és oldalsó, halvány rózsaszín–lila–jegeskék derengés.
+- Szélek mentén lágy, fokozatosan elhalványuló **diffuse edge glow** és még finomabb **inner edge highlight**; soha ne legyen éles neoncsík vagy erős színes keret.
+- HD/3D grafika és felirat végig olvasható; az effekt nem takarhat lényeges tartalmat és nem ronthatja a kontrasztot.
+- Azonos vizuális súly, sarokrádiusz és szélerősség az egymás melletti csempéken; nem következhet a képek eltérő sötét pereméből látszólag inkonzisztens gap.
+- A fény egy **dekoratív, külön CSS-rétegként is alkalmazható**, pl. `::before`/`::after`, `background: linear-gradient(...)`, `box-shadow` (akár `inset`) és óvatos blur használatával, mindig `pointer-events:none` beállítással. A díszítő réteg ne fogja el a valódi gombokra eső érintést, a fókuszjelzés maradjon látható.
+- A képen már beégetett peremfény és a CSS-implementáció **nem feltétlenül külön réteg**: új csempénél preferált a CSS-es, ismételten használható megoldás, a meglévő képanyagból való „kétszeres” glow nélkül.
+- Témafüggő, **visszafogott** árnyalat: Mónika rose/pink; Zsolt ice-blue/cyan. Ne jelentse automatikusan egy már jóváhagyott csempe/hero lecserélését.
+- Árnyék, opacity és blur értékek új komponensenként képi QA-val hangolhatók; nincs automatikus, globális CSS aktiválás.
+
+**Implementációs szerződés:** legyen újrahasználható dizájntoken / komponensosztály, de **opt-in, modulonként tesztelt vizuális réteg**. Kizárólag látványt módosíthat, nem az adatokat, routingot, érintési célokat, scrollpozíciókat vagy az eredeti képeket. S24 Ultra Samsung Internet és Edge screenshot-összehasonlítás kötelező. A jelen dokumentációs rögzítés **nem rollout**.
+
 ## 4. Home információs architektúra — jóváhagyott 3 × 4, tizenkét csempés célkép
 
 **Felhasználó által jóváhagyott navigációs sorrend (2026-10-14):** a Home ne széttöredezett linkgyűjtemény, hanem egységes, 3 oszlopos × 4 soros, **12 Premium Glass navigációs csempéből** álló, kompakt belépőoldal legyen.
