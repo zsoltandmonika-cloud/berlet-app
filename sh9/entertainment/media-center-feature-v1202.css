@@ -9,20 +9,9 @@
  background:#080e20;box-shadow:0 14px 34px rgba(0,0,0,.63),0 0 27px rgba(164,87,232,.21);
  color:#fff;cursor:pointer;-webkit-tap-highlight-color:transparent;
 }
-.mc-feature .mc-art{position:absolute;inset:0;display:flex;overflow:hidden}
-.mc-feature .mc-art span{display:block;height:100%;background-size:cover;background-repeat:no-repeat;filter:saturate(1.16) contrast(1.06)}
-.mc-feature .mc-art .mc-film{
- width:49%;background-image:url('https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&w=1100&q=88');
- background-position:43% center;
-}
-.mc-feature .mc-art .mc-memories{
- width:27%;background-image:url('https://images.unsplash.com/photo-1452587925148-ce544e77e70d?auto=format&fit=crop&w=850&q=88');
- background-position:center center;border-left:2px solid rgba(185,123,255,.45);
-}
-.mc-feature .mc-art .mc-music{
- width:24%;background-image:url('https://images.unsplash.com/photo-1511379938547-c1f69419868d?auto=format&fit=crop&w=850&q=88');
- background-position:57% center;border-left:2px solid rgba(247,121,208,.44);
-}
+/* V5: intentionally no legacy collage or stock-image background at first paint.
+   Approved 16:9 image loads separately only after Microsoft authentication. */
+.mc-feature .mc-feature-card{background:linear-gradient(138deg,#21172d 0%,#11152a 60%,#090e1c 100%)}
 .mc-feature .mc-feature-card:after{
  content:"";position:absolute;inset:0;pointer-events:none;
  background:linear-gradient(180deg,rgba(6,9,22,.08) 10%,rgba(6,7,20,.1) 36%,rgba(4,5,20,.70) 69%,rgba(5,4,17,.99) 100%),
