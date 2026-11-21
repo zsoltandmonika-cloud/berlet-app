@@ -33,7 +33,7 @@ test('Media Center directly opens saved Xiaomi TV remote without Cast registrati
  assert.match(media,/https:\/\/mediaradar\.pages\.dev\//);
  assert.match(media,/sho-family-tv\/remote\.html/);
  assert.doesNotMatch(media,/sho-family-tv\/cast-sender\.html/);
- assert.match(media,/Xiaomi TV · Távirányító/);
+ assert.match(media,/Xiaomi TV Remote megnyitása/);
  assert.match(media,/mentett párosítással/);
  assert.match(media,/id="mediaLibrary"/);
  assert.equal((media.match(/class="tile (?:cinema|photos|videos|music)"/g)||[]).length,4);
@@ -62,28 +62,28 @@ test('V2 includes real read-only OneDrive album, HomeVideo, Full Albums catalogu
 });
 test('V2 preserves QR-free Xiaomi remote and avoids exposing OneDrive session to TV',()=>{
  const logic=read('sh9/entertainment/media-center/onedrive-media-v2.js');
- assert.match(media,/Xiaomi TV · Távirányító/);
+ assert.match(media,/Xiaomi TV Remote megnyitása/);
  assert.match(logic,/No personal media or access tokens sent to the TV/);
  assert.match(logic,/microsoftonline\.com\/consumers/);
  assert.doesNotMatch(logic,/supabase\.co\/realtime|broadcast.+Authorization/);
  assert.doesNotMatch(media,/<p class="note">/);
 });
 
-test('V3 compact C Smart TV remote replaces giant buttons and verbose footer',()=>{
+test('V6 approved transparent remote sits beside Media Center title without giant buttons',()=>{
  const design=read('sh9/entertainment/media-center/onedrive-media-v2.css');
  assert.equal((media.match(/id="mediaFullScreen"/g)||[]).length,1);
  assert.match(media,/<button class="header-fullscreen" id="mediaFullScreen"/);
- assert.match(media,/<a class="remote-smart-card" href="https:\/\/mediaradar\.pages\.dev\/sho-family-tv\/remote\.html"/);
- assert.match(media,/remote-smart-visual/);
+ assert.match(media,/<a class="media-inline-remote" href="https:\/\/mediaradar\.pages\.dev\/sho-family-tv\/remote\.html"/);
+ assert.match(media,/assets\/remote-inline-v6\.webp/);
  assert.match(media,/TV Remote/);
- assert.match(media,/Xiaomi TV · Távirányító/);
+ assert.match(media,/Xiaomi TV Remote megnyitása/);
  assert.doesNotMatch(media,/<p class="note">/);
  assert.doesNotMatch(media,/<footer>/);
  assert.doesNotMatch(media,/class="center-actions"|class="media-fullscreen-btn"/);
  assert.equal((media.match(/class="tile (?:cinema|photos|videos|music)"/g)||[]).length,4);
  assert.match(design,/\.header-fullscreen/);
  assert.match(design,/width:36px;height:36px/);
- assert.match(design,/\.remote-smart-card/);
+ assert.doesNotMatch(design,/\.remote-smart-card/);
 });
 
 test('TV shortcut is one shared, tiny one-tap preview across SHO without leaking phone content',()=>{
@@ -102,7 +102,7 @@ test('TV shortcut is one shared, tiny one-tap preview across SHO without leaking
    readyState:'complete',createElement:element,head:{appendChild(el){if(el.id)all[el.id]=el}},
    body:{appendChild(el){appended.push(el);if(el.id)all[el.id]=el}},
    getElementById(id){return all[id]||null},
-   querySelector(selector){return hasSmartRemote&&selector.indexOf('.remote-smart-card')!==-1?{}:null}
+   querySelector(selector){return hasSmartRemote&&selector.indexOf('.media-inline-remote')!==-1?{}:null}
   };
   const win={location:{pathname,search:'?token=DO-NOT-SEND&gps=47.0'},
    addEventListener(){}};
@@ -186,6 +186,25 @@ test('V5 no old photo layers and compact premium remote on first paint',()=>{
  assert.ok(script.includes('async function updateTileArt()'));
  assert.ok(script.includes('art.onload=function()'));
  assert.ok(fallback.includes('stable dark gradient'));
- assert.ok(media.includes('.remote-smart-card{display:flex;align-items:center;width:min(100%,395px)'));
- assert.ok(media.includes('class="remote-smart-card"'));
+ assert.ok(media.includes('.media-inline-remote{flex:0 0 auto;display:flex;'));
+ assert.ok(media.includes('class="media-inline-remote"'));
+});
+
+test('V6 reference artwork is real optimized user-uploaded TV remote photo, with no wide card',()=>{
+ const asset=fs.readFileSync(path.join(root,'sh9/entertainment/media-center/assets/remote-inline-v6.webp'));
+ assert.equal(asset.subarray(0,4).toString('ascii'),'RIFF');
+ assert.equal(asset.subarray(8,12).toString('ascii'),'WEBP');
+ assert.ok(asset.length>2000&&asset.length<20000,'Small local asset loads immediately without private OneDrive auth');
+ assert.equal((media.match(/class="media-inline-remote"/g)||[]).length,1);
+ assert.equal((media.match(/class="remote-smart-card"/g)||[]).length,0);
+ assert.equal((media.match(/href="https:\/\/mediaradar\.pages\.dev\/sho-family-tv\/remote\.html"/g)||[]).length,1);
+ const intro=media.indexOf('class="intro media-intro-v6"');
+ const title=media.indexOf('id="media-title"');
+ const icon=media.indexOf('class="media-inline-remote"');
+ const grid=media.indexOf('class="grid"');
+ assert.ok(intro>=0&&title>intro&&icon>title&&grid>icon,'Remote image follows title, before 4 content cards');
+ assert.match(media,/media-inline-remote img\{display:block;width:100%;/);
+ assert.match(media,/width="112" height="74" alt="" loading="eager"/);
+ assert.match(media,/aria-label="Xiaomi TV Remote megnyitása a mentett párosítással"/);
+ assert.match(media,/id="mediaFullScreen"/);
 });
