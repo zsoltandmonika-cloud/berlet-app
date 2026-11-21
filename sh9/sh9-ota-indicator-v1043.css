@@ -115,3 +115,25 @@
 .hero > #sh9OtaIndicatorV1043[data-state="warning"]::before{
  background:rgba(63,19,37,.96);border-color:rgba(255,136,150,.86);
 }
+
+/* OTA modal layer hotfix 2026-11-21.
+   The dialog lives directly under <body>, outside .head's overflow:hidden /
+   isolation:isolate stacking context. Keep it above nav and module tiles.
+   Dim background and hide the TV shortcut until the dialog is closed. */
+body > #sh9OtaManualV1044.sh9-ota-manual-v1044:not([hidden]){
+ position:fixed;
+ z-index:1001;
+}
+body:has(> #sh9OtaManualV1044:not([hidden]))::before{
+ content:"";
+ position:fixed;
+ inset:0;
+ z-index:1000;
+ background:rgba(2,8,21,.64);
+ -webkit-backdrop-filter:blur(3px);
+ backdrop-filter:blur(3px);
+ pointer-events:auto;
+}
+body:has(> #sh9OtaManualV1044:not([hidden])) #shoTvShortcutV1{
+ display:none!important;
+}
