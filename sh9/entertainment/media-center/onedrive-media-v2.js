@@ -186,14 +186,14 @@ async function updateTileArt(){
   var list=j.value||[];
   var names={homecinema:'sho-tile-homecinema-v2.webp',photos:'sho-tile-photos-v2.webp',
    videos:'sho-tile-homevideos-approved-v3.webp',music:'sho-tile-music-v2.webp'};
-  for(var slug in names){
+  for(let slug in names){
    var file=list.find(function(x){return x.name===names[slug]&&x.file});
    if(!file)continue;
    try{
     var item=await graph('me/drive/items/'+encodeURIComponent(file.id));
     var link=item['@microsoft.graph.downloadUrl'];
     if(typeof link==='string'&&link.indexOf('https://')===0){
-     var tile=d.querySelector(slug==='homecinema'?'.tile.cinema':'.tile[data-library="'+slug+'"]');
+     let tile=d.querySelector(slug==='homecinema'?'.tile.cinema':'.tile[data-library="'+slug+'"]');
      if(tile){var art=new Image();art.onload=function(){tile.style.setProperty('--image','url("'+link.replace(/"/g,'%22')+'")');if(slug==='videos')tile.classList.add('tile-art-baked-v4');};art.src=link;}
     }
    }catch(_){}
