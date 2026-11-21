@@ -6,7 +6,30 @@
  */
 (function(w,d){
  'use strict';
- if(w.SHO_TV_SHORTCUT_V1)return;
+ // Anchor the universal TV shortcut to SHO's real hero when it exists.
+ function repairHomeAnchorV5(){
+  var p=(w.location&&w.location.pathname)||'';
+  if((p!=='/berlet-app/sh9/'&&p!=='/berlet-app/sh9/index.html')||!d.head||!d.getElementById||!d.querySelector)return;
+  var hero=d.querySelector('main.shell > section.head.hero');
+  if(!hero)return;
+  var badge=d.getElementById('shoTvShortcutV1');
+  if(!d.getElementById('shoTvHeroAnchorV5')){
+   var css=d.createElement('style');css.id='shoTvHeroAnchorV5';
+   css.textContent=[
+    'main.shell > section.head.hero #shoTvShortcutV1.sho-tv-shortcut-v1{position:absolute!important;left:9px!important;top:9px!important;right:auto!important;bottom:auto!important;width:45px!important;height:45px!important;box-sizing:border-box!important;z-index:8!important}',
+    'main.shell > section.head.hero #shoTvShortcutV1.sho-tv-shortcut-v1{background:linear-gradient(145deg,rgba(32,54,84,.91),rgba(12,26,49,.92))!important;border:1px solid rgba(151,208,242,.52)!important;border-radius:13px!important}'
+   ].join('');
+   d.head.appendChild(css);
+  }
+  if(badge&&badge.parentNode!==hero)hero.appendChild(badge);
+ }
+ // Repair an already-mounted shortcut from a cached old script, no duplicate.
+ if(w.SHO_TV_SHORTCUT_V1){
+  if(d.readyState==='loading')d.addEventListener('DOMContentLoaded',repairHomeAnchorV5,{once:true});
+  else repairHomeAnchorV5();
+  if(w.addEventListener)w.addEventListener('pageshow',repairHomeAnchorV5);
+  return;
+ }
  var LINK='https://mediaradar.pages.dev/sho-family-tv/remote.html';
  var ROOT='/berlet-app/';
  function moduleForPath(path){
@@ -33,7 +56,7 @@
   if(/^\/berlet-app\/sh9\/entertainment\/(?:index\.html)?$/.test(route))return;
   if(d.querySelector('.remote-smart-card[href*="sho-family-tv/remote.html"], .media-inline-remote[href*="sho-family-tv/remote.html"]'))return;
   var exists=d.getElementById('shoTvShortcutV1');
-  if(exists){exists.href=LINK+'?show='+module;return;}
+  if(exists){exists.href=LINK+'?show='+module;repairHomeAnchorV5();return;}
   if(!d.getElementById('shoTvShortcutStyleV1')){
    var sheet=d.createElement('style');sheet.id='shoTvShortcutStyleV1';
    sheet.textContent=[
@@ -59,10 +82,12 @@
   a.title='TV-re · 16:9 demó · mentett Xiaomi párosítás';
   a.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.7" y="4.5" width="18.6" height="14.4" rx="2.5"/><path d="M9 21.2h6m-3-2.3v2.3"/><path d="m10.5 9 4 2.7-4 2.7z"/></svg><span>TV-re</span>';
   d.body.appendChild(a);
+  repairHomeAnchorV5();
  }
  function start(){
   mount();
-  if(w.addEventListener)w.addEventListener('pageshow',mount);
+  repairHomeAnchorV5();
+  if(w.addEventListener)w.addEventListener('pageshow',function(){mount();repairHomeAnchorV5()});
  }
  w.SHO_TV_SHORTCUT_V1=Object.freeze({moduleForPath:moduleForPath,mount:mount});
  if(d.readyState==='loading')d.addEventListener('DOMContentLoaded',start,{once:true});else start();
