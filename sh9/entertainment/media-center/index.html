@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="hu">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#090718">
+<meta name="description" content="SHO Média Center: Házimozi, Képek, Videók és Zene">
+<title>SHO · Média Center</title>
+<link rel="icon" href="../../sho-preview/favicon.svg" type="image/svg+xml">
+<style>
+:root{color-scheme:dark;font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;color:#fff;background:radial-gradient(ellipse at 12% 0%,#32183e 0,transparent 35%),radial-gradient(ellipse at 100% 50%,#10233c,transparent 50%),#070a16;-webkit-font-smoothing:antialiased}
+a{text-decoration:none;color:inherit}a:focus-visible{outline:3px solid #e9baff;outline-offset:3px}
+.page{width:min(1160px,100%);padding:18px 20px 42px;margin:auto}
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.back{display:inline-flex;align-items:center;gap:9px;min-height:44px;padding:8px 13px;border:1px solid #af81c24c;border-radius:14px;background:#171327;color:#f4e4ff;font-size:13px;font-weight:750}
+.sho{font-weight:900;letter-spacing:.09em;font-size:13px;color:#e6b2ff}
+.intro{margin:28px 0 22px;display:flex;gap:18px;align-items:end;justify-content:space-between}
+.kicker{display:block;color:#d5a1ef;font-size:11px;font-weight:850;letter-spacing:.17em}
+h1{font-size:clamp(38px,6vw,70px);letter-spacing:-.065em;line-height:1.04;margin:7px 0 12px;font-weight:900}
+h1 em{font-style:normal;color:#d7a6ff}
+.lead{color:#d3cbe3;font-size:clamp(13px,1.6vw,17px);margin:0}
+.tv-action{display:inline-flex;align-items:center;justify-content:center;gap:9px;min-height:48px;white-space:nowrap;border-radius:14px;border:1px solid #d59af7b5;padding:12px 16px;background:linear-gradient(105deg,#7832ad,#184b8d);font-weight:800;box-shadow:0 8px 30px #8a43ca43}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.tile{position:relative;min-height:248px;aspect-ratio:1.7;border-radius:20px;border:1px solid #c69ce075;overflow:hidden;background:#111628;box-shadow:0 13px 26px #0008;isolation:isolate}
+.tile:before{content:"";position:absolute;inset:0;background:var(--image) center/cover no-repeat;transform:scale(1.025);transition:transform .25s ease}
+.tile:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,#05071308 15%,#05081330 45%,#040613e8 100%)}
+.tile:hover:before{transform:scale(1.075)}
+.tile .copy{position:absolute;z-index:2;left:5%;right:5%;bottom:7%;text-shadow:0 2px 13px #000}
+.tile .flag{display:inline-block;border-radius:99px;border:1px solid #f5d6ff70;background:#0b1025a8;padding:5px 9px;font-size:10px;color:#f2dcff;letter-spacing:.04em;font-weight:800;margin-bottom:8px}
+.tile strong{display:block;font-size:clamp(23px,3.1vw,38px);letter-spacing:-.04em;line-height:1.02}
+.tile small{display:block;font-size:clamp(11px,1.4vw,15px);color:#ded5eb;margin-top:6px}
+.tile .arrow{position:absolute;bottom:8%;right:5%;z-index:2;font-size:29px;color:#ffccff}
+.tile.cinema{--image:url("https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&w=1280&q=87");border-color:#7798e58c}
+.tile.photos{--image:url("https://images.unsplash.com/photo-1452587925148-ce544e77e70d?auto=format&fit=crop&w=1280&q=87");border-color:#ffba8a81}
+.tile.videos{--image:url("https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=1280&q=87");border-color:#74d6ff87}
+.tile.music{--image:url("https://images.unsplash.com/photo-1511379938547-c1f69419868d?auto=format&fit=crop&w=1280&q=87");border-color:#db8ce893}
+.note{display:block;margin:18px 3px 0;color:#ababc4;font-size:12px;line-height:1.5}
+footer{margin-top:27px;padding:16px 3px;border-top:1px solid #bb87d433;color:#9898b0;font-size:12px}
+@media(max-width:700px){
+ .page{padding:14px 12px 30px}.intro{display:block;margin:22px 0 18px}
+ h1{font-size:40px}.tv-action{margin-top:16px;width:100%;font-size:14px}
+ .grid{gap:10px}.tile{min-height:0;aspect-ratio:.96;border-radius:15px}
+ .tile .copy{left:9%;right:9%;bottom:8%}.tile strong{font-size:clamp(20px,5.2vw,28px)}
+ .tile small{font-size:10px;line-height:1.3}.tile .flag{font-size:8px;padding:4px 6px}
+ .tile .arrow{font-size:18px;right:8%;bottom:7%}
+}
+@media(prefers-reduced-motion:reduce){.tile:before{transition:none}}
+</style>
+</head>
+<body>
+<main class="page">
+ <div class="top"><a class="back" href="../" aria-label="Vissza a Szórakozás főoldalra">← Szórakozás</a><span class="sho">SHO · SMART HUB ONE</span></div>
+ <section class="intro" aria-labelledby="media-title">
+  <div><span class="kicker">PRÉMIUM SZÓRAKOZTATÓ KÖZPONT</span><h1 id="media-title">Média <em>Center</em></h1><p class="lead">Filmek · Képek · Videók · Zene</p></div>
+  <a class="tv-action" href="https://mediaradar.pages.dev/sho-family-tv/remote.html" aria-label="SHO SmartCast V11 telefonos TV-vezérlő megnyitása">📺 TV vezérlés ↗</a>
+ </section>
+ <section class="grid" aria-label="Média kategóriák">
+  <a class="tile cinema" href="https://mediaradar.pages.dev/" aria-label="Házimozi: MediaRadar megnyitása"><div class="copy"><span class="flag">ÉLŐ · MEDIARADAR</span><strong>🎬 Házimozi</strong><small>Filmek · Sorozatok · Streaming</small></div><span class="arrow" aria-hidden="true">↗</span></a>
+  <a class="tile photos" href="https://mediaradar.pages.dev/sho-family-tv/remote.html" aria-label="Képek: TV minta-vezérlő megnyitása"><div class="copy"><span class="flag">TV DEMÓ</span><strong>🖼️ Képek</strong><small>Családi albumok · OneDrive később</small></div><span class="arrow" aria-hidden="true">↗</span></a>
+  <a class="tile videos" href="https://mediaradar.pages.dev/sho-family-tv/remote.html" aria-label="Videók: TV minta-vezérlő megnyitása"><div class="copy"><span class="flag">TV DEMÓ</span><strong>🎥 Videók</strong><small>HomeVideo · OneDrive később</small></div><span class="arrow" aria-hidden="true">↗</span></a>
+  <a class="tile music" href="https://mediaradar.pages.dev/sho-family-tv/remote.html" aria-label="Zene: TV minta-vezérlő megnyitása"><div class="copy"><span class="flag">TV DEMÓ</span><strong>🎵 Zene</strong><small>Full Albums · OneDrive később</small></div><span class="arrow" aria-hidden="true">↗</span></a>
+ </section>
+ <p class="note">A SmartCast vezérlő a TV-n már megnyitott SHO TV-felületet tudja kezelni. A Samsung TV távoli automatikus alkalmazásindítása és a személyes OneDrive-tartalmak bekötése még nem aktív.</p>
+ <footer>SHO Média Center · Golden Standard · SmartCast V11 telefonos vezérlés</footer>
+</main>
+</body>
+</html>
