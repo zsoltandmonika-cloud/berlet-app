@@ -1,0 +1,32 @@
+name: SHO Media Center v1202 regression QA
+on:
+  pull_request:
+    paths:
+      - 'sh9/entertainment/index.html'
+      - 'sh9/entertainment/media-center/**'
+      - 'sh9/entertainment/media-center-feature-v1202.css'
+      - 'sh9/entertainment/tests/media-center-v1202.test.cjs'
+      - '.github/workflows/sho-media-center-v1202-qa.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'sh9/entertainment/index.html'
+      - 'sh9/entertainment/media-center/**'
+      - 'sh9/entertainment/media-center-feature-v1202.css'
+      - 'sh9/entertainment/tests/media-center-v1202.test.cjs'
+      - '.github/workflows/sho-media-center-v1202-qa.yml'
+permissions:
+  contents: read
+jobs:
+  media-qa:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: SHO Media Center and Book Studio regression
+        run: |
+          node --test sh9/entertainment/tests/media-center-v1202.test.cjs
+          node --test sh9/entertainment/tests/book-studio-program-order-v16.test.cjs
+          node --test sh9/entertainment/tests/book-studio-warm-wood-v18.test.cjs
