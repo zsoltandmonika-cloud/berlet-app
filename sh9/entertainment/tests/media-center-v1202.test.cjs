@@ -31,7 +31,7 @@ test('Media Center retains four modules while adding configured Google Cast TV l
  assert.match(media,/class="grid"/);
  assert.match(media,/https:\/\/mediaradar\.pages\.dev\//);
  assert.match(media,/sho-family-tv\/remote\.html/);
- assert.match(media,/sho-family-tv\\/cast-sender\\.html/);
+ assert.ok(media.includes('sho-family-tv/cast-sender.html'));
  assert.match(media,/Google Cast · TV indítása/);
  assert.match(media,/Custom Receiver regisztráció után/);
  assert.match(media,/személyes OneDrive tartalmak jelenleg nem aktívak/);
