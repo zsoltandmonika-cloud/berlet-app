@@ -1,4 +1,4 @@
-/* SHO universal TV shortcut v2 placement (same API).
+/* SHO universal TV shortcut v3 premium 45x45 layout (same API).
  * "TV-re" opens ONLY a built-in 16:9 demo screen for a known module.
  * Never screen-captures sensitive phone pages or transports GPS, medical data,
  * personal content, URLs, credentials, or OneDrive tokens over public pairing.
@@ -38,13 +38,13 @@
    var sheet=d.createElement('style');sheet.id='shoTvShortcutStyleV1';
    sheet.textContent=[
     '.sho-tv-shortcut-v1{position:fixed;left:11px;top:calc(64px + env(safe-area-inset-top,0px));right:auto;bottom:auto;z-index:70;',
-    'width:51px;height:46px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:0;',
-    'background:linear-gradient(145deg,rgba(18,31,51,.95),rgba(30,61,81,.96));border:1px solid rgba(114,215,242,.8);',
-    'border-radius:14px;color:#e7faff;text-decoration:none;font-family:system-ui,sans-serif;font-size:10px;font-weight:800;',
-    'box-shadow:0 7px 24px rgba(0,0,0,.48),inset 0 1px rgba(255,255,255,.17),0 0 12px rgba(76,204,241,.2);',
-    'touch-action:manipulation;-webkit-tap-highlight-color:transparent}',
-    '.sho-tv-shortcut-v1 svg{display:block;width:23px;height:22px}',
-    '.sho-tv-shortcut-v1:focus-visible{outline:3px solid #a3edff;outline-offset:3px}',
+    'width:45px;height:45px;box-sizing:border-box;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:1px;',
+    'background:linear-gradient(145deg,rgba(32,54,84,.91),rgba(12,26,49,.92));border:1px solid rgba(151,208,242,.52);',
+    'border-radius:13px;color:#eaf7ff;text-decoration:none;font-family:system-ui,sans-serif;font-size:9px;font-weight:750;letter-spacing:.01em;',
+    'box-shadow:0 6px 18px rgba(0,5,21,.37),inset 0 1px rgba(255,255,255,.20),0 0 10px rgba(62,154,228,.13);',
+    '-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);touch-action:manipulation;-webkit-tap-highlight-color:transparent}',
+    '.sho-tv-shortcut-v1 svg{display:block;width:20px;height:19px}',
+    '.sho-tv-shortcut-v1:focus-visible{outline:2px solid #a3edff;outline-offset:3px}',
     '@media(min-width:950px){.sho-tv-shortcut-v1{top:20px;left:20px;right:auto;bottom:auto}}',
     '@media(max-height:420px) and (orientation:landscape){.sho-tv-shortcut-v1{top:12px;left:12px;right:auto;bottom:auto}}',
     '@media print{.sho-tv-shortcut-v1{display:none!important}}'
@@ -57,7 +57,7 @@
   a.target='_blank';a.rel='noopener noreferrer';
   a.setAttribute('aria-label','TV-re: '+module+' modul 16:9-es mintanézete. Személyes adatok nélkül.');
   a.title='TV-re · 16:9 demó · mentett Xiaomi párosítás';
-  a.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.7" y="4.5" width="18.6" height="12.7" rx="2.1"/><path d="M8 21h8m-4-3.8V21m-4.2-10 2.5-2.5m-2.5 2.5 2.5 2.5M13.5 11h5"/></svg><span>TV-re</span>';
+  a.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.7" y="4.5" width="18.6" height="14.4" rx="2.5"/><path d="M9 21.2h6m-3-2.3v2.3"/><path d="m10.5 9 4 2.7-4 2.7z"/></svg><span>TV-re</span>';
   d.body.appendChild(a);
  }
  function start(){
