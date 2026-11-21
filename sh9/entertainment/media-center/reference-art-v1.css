@@ -43,3 +43,30 @@
 @media(max-width:360px){
  .media-tiles-glass .tile.matches strong{font-size:12.5px}
 }
+
+/* V2 pixel-fit correction: photo ratios are NEVER stretched to an arbitrary
+   100% x 58% box. A natural-ratio zoom crops the baked edge from the photo
+   while the actual HTML tile keeps its single Golden Standard glass border. */
+.media-tiles-glass .tile.matches::before,
+.media-tiles-glass .tile.security::before{
+  background-size:100% 100%, 130% auto, 100% 100%;
+  background-position:center,center -8px,center;
+  background-repeat:no-repeat;
+  transform:none!important;
+}
+/* Approved OneDrive Home Videók art already contains an inner painted frame.
+   Crop that frame through cover + a small zoom, with no deformation.
+   We deliberately preserve its baked caption and do not duplicate it in HTML. */
+.media-tiles-glass .tile.videos.tile-art-baked-v4::before{
+  background-size:cover!important;
+  background-position:center center!important;
+  background-repeat:no-repeat!important;
+  transform:scale(1.10)!important;
+}
+.media-tiles-glass .tile.videos.tile-art-baked-v4{
+  border-color:#c78af3;
+  box-shadow:0 5px 16px rgba(1,7,23,.53),0 0 15px rgba(161,88,233,.29);
+}
+/* Avoid reverting to the old inset double edge when the OneDrive artwork
+   becomes available after initial first paint. */
+.media-tiles-glass .tile.videos.tile-art-baked-v4::after{display:none!important}
