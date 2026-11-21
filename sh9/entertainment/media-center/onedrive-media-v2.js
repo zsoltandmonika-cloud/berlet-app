@@ -204,5 +204,17 @@ async function updateTileArt(){
 // authorized Microsoft session is available. Never force an OAuth redirect.
 config=readConfig();
 if(config)void updateTileArt();
+// Foreground-only, lightweight refresh, keeping OneDrive as source of truth.
+var lastAutoSync=Date.now();
+function liveSync(){
+ if(!active||!folder&&!(PATHS[active])||!$('mediaViewer').hidden||d.hidden)return;
+ var now=Date.now();
+ if(now-lastAutoSync<5*60*1000)return;
+ lastAutoSync=now;
+ void list(folder);
+}
+w.setInterval(liveSync,60000);
+if(d.addEventListener)d.addEventListener('visibilitychange',liveSync);
+if(w.addEventListener)w.addEventListener('pageshow',liveSync);
 w.SHOMediaV2=Object.freeze({select:select});
 })(window,document);
