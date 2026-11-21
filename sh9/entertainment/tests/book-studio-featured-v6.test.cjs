@@ -15,7 +15,7 @@ const step1=read('sh9/entertainment/feature-books-etelesize-v5.css');
 test('Six-category slider is loaded after original feature editor, while preserving cinema tiles',()=>{
  assert.ok(html.indexOf('featured-slideshow-v8.js')>html.indexOf('feature-pin-v1189.js'));
  assert.ok(html.indexOf('featured-slideshow-v6.css')>html.indexOf('feature-books-etelesize-v5.css'));
- for(const name of ['Mozi','Színház','Koncertek','Home Media','Kultúra','Rendezvények'])
+ for(const name of ['Mozi','Színház','Koncertek','Média','Kultúra','Rendezvények'])
   assert.ok(html.includes(name));
  assert.match(html,/id="pixelFeatureLink"/);
  assert.match(html,/id="pixelFeatureEdit"/);
