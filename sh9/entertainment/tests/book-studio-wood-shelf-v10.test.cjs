@@ -17,7 +17,7 @@ test('Approved #1 HD bookshelf source is a committed WebP wood texture with no f
  assert.match(css,/background-size:100% 100%/);
 });
 test('Book Studio lands on the immersive bookshelf, keeping admin/settings out of the main view',()=>{
- assert.match(html,/<body class="bshelf-v10-page"(?:\\s[^>]*)?>/);
+ assert.match(html,/<body class="bshelf-v10-page"(?: [^>]*)?>/);
  assert.match(html,/id="bshelfFront"/);
  assert.match(html,/id="bshelfRows"/);
  assert.match(html,/id="bshelfSettingsToggle"/);
