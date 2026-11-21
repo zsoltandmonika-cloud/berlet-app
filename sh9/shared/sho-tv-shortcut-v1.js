@@ -26,7 +26,11 @@
   if(!d.body||!d.head)return;
   var module=moduleForPath(w.location&&w.location.pathname);
   if(!module)return;
-  // The Media Center has the full approved C-style smart remote already.
+  // Smart Entertainment is already navigable via its full-width Media Center hero.
+  // A second tiny floating TV button looks redundant next to the premium media entry.
+  // Inside the Media Center, retain only the approved C-style remote.
+  var route=w.location&&w.location.pathname||'';
+  if(/^\/berlet-app\/sh9\/entertainment\/(?:index\.html)?$/.test(route))return;
   if(d.querySelector('.remote-smart-card[href*="sho-family-tv/remote.html"]'))return;
   var exists=d.getElementById('shoTvShortcutV1');
   if(exists){exists.href=LINK+'?show='+module;return;}

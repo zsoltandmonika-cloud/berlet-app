@@ -24,7 +24,8 @@ test('Only the existing Home Media category becomes a Media Center entry and one
  assert.match(page,/media-center-feature-v1202\.css\?v=1202-only-media/);
  assert.match(css,/aspect-ratio:1\.62/);
  assert.match(css,/height:calc\(\(100vw - 24px\)\/1\.62\)/);
- for(const part of ['mc-film','mc-memories','mc-music'])assert.match(css,new RegExp(part));
+ assert.doesNotMatch(css,/images\.unsplash\.com|\.mc-art/);
+ assert.doesNotMatch(page,/<span class="mc-art"/);
 });
 test('Media Center directly opens saved Xiaomi TV remote without Cast registration',()=>{
  for(const item of ['Házimozi','Képek','Videók','Zene'])assert.ok(media.includes(item));
@@ -121,6 +122,7 @@ test('TV shortcut is one shared, tiny one-tap preview across SHO without leaking
  for(const [route,module] of Object.entries(cases)){
   const {win,doc,appended}=run(route);
   assert.equal(win.SHO_TV_SHORTCUT_V1.moduleForPath(route),module);
+  if(route==='/berlet-app/sh9/entertainment/'){assert.equal(appended.length,0,'no cheap floating TV on Entertainment');continue;}
   assert.equal(appended.length,1,route);
   assert.equal(appended[0].id,'shoTvShortcutV1');
   assert.equal(appended[0].href,'https://mediaradar.pages.dev/sho-family-tv/remote.html?show='+module);
@@ -134,6 +136,7 @@ test('TV shortcut is one shared, tiny one-tap preview across SHO without leaking
  assert.equal(run('https://elsewhere.org/').appended.length,0);
  assert.equal(run('/outside/app').appended.length,0);
  assert.equal(run('/berlet-app/sh9/entertainment/media-center/',true).appended.length,0,'preserve the approved C Smart remote');
+ assert.equal(run('/berlet-app/sh9/entertainment/index.html').appended.length,0,'no double TV button at Entertainment index');
  for(const p of ['sh9/entertainment/book-studio/index.html','sh9/shopping/smart-list.html','sh9/local-storage/index.html','sh9/shopping/store-manager-v1.html']){
   assert.match(read(p),/sho-tv-shortcut-v1\.js/,p);
  }
@@ -164,4 +167,25 @@ test('V4 approved Media Center & Home Videók hero art: order, visual integrity 
  assert.match(homeCss,/tile-art-baked-v4/);
  assert.match(homeCss,/\.tile\.videos\.tile-art-baked-v4 \.copy/);
  assert.doesNotMatch(art,/broadcast|Supabase|Files\.ReadWrite/);
+});
+
+test('V5 no old photo layers and compact premium remote on first paint',()=>{
+ const hero=read('sh9/entertainment/media-center-feature-v1202.css');
+ const fallback=read('sh9/entertainment/media-center-approved-v4.css');
+ const script=read('sh9/entertainment/media-center/onedrive-media-v2.js');
+ assert.equal(media.includes('images.unsplash.com'),false);
+ assert.equal(hero.includes('images.unsplash.com'),false);
+ assert.equal(hero.includes('.mc-film'),false);
+ assert.equal(hero.includes('.mc-memories'),false);
+ assert.equal(page.includes('<span class="mc-art"'),false);
+ for(const tile of ['cinema','photos','videos','music']){
+  assert.ok(media.includes('.tile.'+tile+'{--image:linear-gradient'),tile);
+ }
+ assert.equal(script.includes('Designer assets can be supplied'),false);
+ assert.equal(script.includes('./assets/sho-tile-'),false);
+ assert.ok(script.includes('async function updateTileArt()'));
+ assert.ok(script.includes('art.onload=function()'));
+ assert.ok(fallback.includes('stable dark gradient'));
+ assert.ok(media.includes('.remote-smart-card{display:flex;align-items:center;width:min(100%,395px)'));
+ assert.ok(media.includes('class="remote-smart-card"'));
 });

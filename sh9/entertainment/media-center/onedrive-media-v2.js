@@ -169,13 +169,8 @@ d.addEventListener('keydown',function(e){if(e.key==='Escape'&&!$('mediaViewer').
 Array.prototype.forEach.call(d.querySelectorAll('.tile[data-library]'),function(tile){
  tile.addEventListener('click',function(e){e.preventDefault();void select(tile.getAttribute('data-library'))});
 });
-// Designer assets can be supplied as static resources without a visual regression if missing.
-Array.prototype.forEach.call(d.querySelectorAll('.tile[data-library],.tile.cinema'),function(tile){
- var slug=tile.classList.contains('cinema')?'homecinema':tile.getAttribute('data-library');
- var image=new Image();
- image.onload=function(){tile.style.setProperty('--image','url("./assets/sho-tile-'+slug+'-v2.webp")')};
- image.src='./assets/sho-tile-'+slug+'-v2.webp';
-});
+// V5: no intermediate/stale tile art probe. Start from stable glass gradients.
+// The approved, authenticated OneDrive artwork is installed only after full image load.
 async function updateTileArt(){
  // The approved synthetic tile artwork remains private in OneDrive.
  // Pull transient signed URLs only after a verified Microsoft session.
