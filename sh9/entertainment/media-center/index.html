@@ -47,14 +47,17 @@ footer{margin-top:27px;padding:16px 3px;border-top:1px solid #bb87d433;color:#98
 }
 @media(prefers-reduced-motion:reduce){.tile:before{transition:none}}
 
-/* V5: stable first paint for the TV Remote, before the full glass stylesheet. */
-.remote-smart-card{display:flex;align-items:center;width:min(100%,395px);min-height:62px;gap:8px;margin:0 0 14px;padding:3px 12px 3px 4px;border-radius:14px;border:1px solid #50d1f2d9;background:linear-gradient(115deg,#161321,#111e38 46%,#0a3653);box-shadow:0 6px 21px #0009;color:#f8f6ff;position:relative;overflow:hidden}
-.remote-smart-visual{flex:0 0 105px;height:58px;display:flex;align-items:center;justify-content:center}
-.remote-smart-visual svg{width:105px;max-height:58px}
-.remote-smart-copy{display:flex;flex:1;min-width:0;flex-direction:column;gap:3px}
-.remote-smart-copy strong{font-size:17px;white-space:nowrap}
-.remote-smart-copy small{font-size:11px;color:#c5e4ee;white-space:nowrap}
-.remote-smart-arrow{font-size:27px;color:#85e7ff}
+/* V6 critical first paint: source photo, inline by title; never a wide remote tile. */
+.media-intro-v6{display:flex!important;align-items:center;gap:7px;justify-content:space-between;min-width:0}
+.media-intro-v6 .media-intro-main{flex:1 1 auto;min-width:0}
+.media-intro-v6 h1{font-size:clamp(28px,7.65vw,60px);letter-spacing:-.062em;white-space:nowrap;margin:6px 0 11px}
+.media-intro-v6 .lead{white-space:nowrap;font-size:clamp(10px,2.8vw,16px)}
+.media-inline-remote{flex:0 0 auto;display:flex;align-items:center;justify-content:center;width:clamp(76px,25vw,134px);min-height:65px;border:0;border-radius:12px;background:transparent;position:relative;isolation:isolate;touch-action:manipulation;transition:transform .15s ease,filter .15s ease}
+.media-inline-remote img{display:block;width:100%;max-height:90px;height:auto;object-fit:contain;filter:drop-shadow(0 0 8px #2285e55c)}
+.media-inline-remote:hover,.media-inline-remote:focus-visible{transform:scale(1.06);filter:brightness(1.12);outline:2px solid #83d9ff;outline-offset:2px}
+@media(max-width:700px){.media-intro-v6{margin:10px 0 13px;gap:5px}.media-intro-v6 .kicker{font-size:clamp(8px,2.2vw,11px);letter-spacing:.09em}.media-inline-remote{width:clamp(75px,24vw,103px)}.media-intro-v6 h1{font-size:clamp(28px,7.8vw,36px)}.media-intro-v6 .lead{font-size:clamp(9.4px,2.8vw,12px)}}
+@media(max-width:360px){.media-inline-remote{width:72px}.media-intro-v6 h1{font-size:28px}}
+@media(max-width:900px) and (orientation:landscape){.media-inline-remote{width:80px;min-height:42px}.media-inline-remote img{max-height:55px}.media-intro-v6{margin:8px 0 10px}}
 .header-fullscreen{display:inline-flex;align-items:center;justify-content:center;flex:0 0 36px;width:36px;height:36px;border:1px solid #eac393a6;border-radius:11px;background:#251c2b;color:#f9d7ad}
 @media(max-width:700px){.remote-smart-card{width:100%}}
 </style>
@@ -63,27 +66,15 @@ footer{margin-top:27px;padding:16px 3px;border-top:1px solid #bb87d433;color:#98
 <body>
 <main class="page">
  <div class="top"><a class="back" href="../" aria-label="Vissza a Szórakozás főoldalra">← Szórakozás</a><span class="sho">SHO · SMART HUB ONE</span><button class="header-fullscreen" id="mediaFullScreen" type="button" aria-label="Teljes képernyős nézet" title="Teljes képernyő"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" aria-hidden="true"><path d="M8 3H3v5M16 3h5v5M3 16v5h5M21 16v5h-5"/></svg></button></div>
- <section class="intro" aria-labelledby="media-title">
-  <div><span class="kicker">PRÉMIUM SZÓRAKOZTATÓ KÖZPONT</span><h1 id="media-title">Média <em>Center</em></h1><p class="lead">Filmek · Képek · Home Videók · Zene</p></div>
+ <section class="intro media-intro-v6" aria-labelledby="media-title">
+  <div class="media-intro-main"><span class="kicker">PRÉMIUM SZÓRAKOZTATÓ KÖZPONT</span>
+   <h1 id="media-title">Média <em>Center</em></h1>
+   <p class="lead">Filmek · Képek · Home Videók · Zene</p></div>
+  <a class="media-inline-remote" href="https://mediaradar.pages.dev/sho-family-tv/remote.html"
+   aria-label="Xiaomi TV Remote megnyitása a mentett párosítással" title="TV Remote · Xiaomi TV">
+   <img src="./assets/remote-inline-v6.webp" width="112" height="74" alt="" loading="eager" decoding="async">
+  </a>
  </section>
- <a class="remote-smart-card" href="https://mediaradar.pages.dev/sho-family-tv/remote.html" aria-label="SHO Xiaomi TV telefonos távirányító megnyitása, mentett párosítással">
-  <span class="remote-smart-visual" aria-hidden="true">
-   <svg viewBox="0 0 118 62" width="118" height="62" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <defs><linearGradient id="shoremoteTV" x1="15" y1="4" x2="110" y2="58" gradientUnits="userSpaceOnUse"><stop stop-color="#335d86"/><stop offset=".54" stop-color="#112940"/><stop offset="1" stop-color="#080c20"/></linearGradient><linearGradient id="shoremotePhone" x1="6" y1="9" x2="44" y2="57" gradientUnits="userSpaceOnUse"><stop stop-color="#182d4a"/><stop offset="1" stop-color="#0a1022"/></linearGradient></defs>
-    <rect x="39" y="7" width="69" height="42" rx="5" fill="url(#shoremoteTV)" stroke="#43cdef" stroke-width="1.6"/>
-    <path d="M47 36c16-20 34-13 52-24" stroke="#58d7f3" opacity=".65" stroke-width="2"/><circle cx="78" cy="23" r="9" fill="#367fd0" opacity=".3"/>
-    <path d="M65 54h18M74 49v5" stroke="#99bbd8" stroke-width="2" stroke-linecap="round"/>
-    <rect x="5.5" y="11" width="37" height="49" rx="7" fill="#060b18" stroke="#f2bb8e" stroke-width="1.8"/>
-    <rect x="9.5" y="15.5" width="29" height="40" rx="4" fill="url(#shoremotePhone)"/>
-    <circle cx="24" cy="29" r="8" stroke="#9fcaff" stroke-width="1.4"/><path d="M24 21v4M24 33v4M16 29h4M28 29h4" stroke="#9fcaff" stroke-width="1.3"/>
-    <circle cx="24" cy="29" r="2.4" fill="#f1bd8d"/>
-    <path d="M14 45h7M27 45h7" stroke="#73c9ea" stroke-width="2.4" stroke-linecap="round"/>
-    <path d="M46 18q8-8 16 0M50 22q4-4 8 0" stroke="#53ddff" stroke-width="2.5" stroke-linecap="round"/>
-   </svg>
-  </span>
-  <span class="remote-smart-copy"><strong>TV Remote</strong><small>Xiaomi TV · Távirányító</small></span>
-  <span class="remote-smart-arrow" aria-hidden="true">›</span>
- </a>
  <section class="grid" aria-label="Média kategóriák">
   <a class="tile cinema" href="https://mediaradar.pages.dev/" aria-label="Házimozi: MediaRadar megnyitása"><div class="copy"><span class="flag">ÉLŐ · MEDIARADAR</span><strong>🎬 Házimozi</strong><small>Filmek · Sorozatok · Streaming</small></div><span class="arrow" aria-hidden="true">↗</span></a>
   <a class="tile photos" data-library="photos" href="#mediaLibrary" aria-label="Képek: saját OneDrive albumok böngészése"><div class="copy"><span class="flag">ONEDRIVE</span><strong>🖼️ Képek</strong><small>OneDrive albumok</small></div><span class="arrow" aria-hidden="true">↗</span></a>
