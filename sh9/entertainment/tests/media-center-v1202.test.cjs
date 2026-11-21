@@ -62,7 +62,7 @@ test('V2 includes real read-only OneDrive album, HomeVideo, Full Albums catalogu
 });
 test('V2 preserves QR-free Xiaomi remote and avoids exposing OneDrive session to TV',()=>{
  const logic=read('sh9/entertainment/media-center/onedrive-media-v2.js');
- assert.match(media,/Xiaomi TV · Távirányító/);
+ assert.match(media,/Xiaomi TV Remote megnyitása/);
  assert.match(logic,/No personal media or access tokens sent to the TV/);
  assert.match(logic,/microsoftonline\.com\/consumers/);
  assert.doesNotMatch(logic,/supabase\.co\/realtime|broadcast.+Authorization/);
@@ -76,7 +76,7 @@ test('V6 approved transparent remote sits beside Media Center title without gian
  assert.match(media,/<a class="media-inline-remote" href="https:\/\/mediaradar\.pages\.dev\/sho-family-tv\/remote\.html"/);
  assert.match(media,/assets\/remote-inline-v6\.webp/);
  assert.match(media,/TV Remote/);
- assert.match(media,/Xiaomi TV · Távirányító/);
+ assert.match(media,/Xiaomi TV Remote megnyitása/);
  assert.doesNotMatch(media,/<p class="note">/);
  assert.doesNotMatch(media,/<footer>/);
  assert.doesNotMatch(media,/class="center-actions"|class="media-fullscreen-btn"/);
