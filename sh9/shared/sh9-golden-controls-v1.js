@@ -40,6 +40,16 @@
   dock.appendChild(node);
   return node;
  }
+
+ /* Universal, non-invasive TV-safe module preview. One shared 51px shortcut,
+    never module data or a screencast. Shared controls/nav load it once. */
+ function ensureShoTvShortcut(){
+  if(w.SHO_TV_SHORTCUT_V1||d.querySelector('script[data-sho-tv-shortcut-v1]'))return;
+  const script=d.createElement('script');
+  script.setAttribute('data-sho-tv-shortcut-v1','1');
+  script.src='/berlet-app/sh9/shared/sho-tv-shortcut-v1.js?v=1';
+  d.head?.appendChild(script);
+ }
  function mountDock(host){
   if(!host||!d.body)return;
   let dock=$(DOCK_ID);
@@ -354,6 +364,7 @@
   anchorTo(host);
   w.SH9_GOLDEN_CONTROLS_V1=Object.freeze({version:'934-unified-glass-dock',paint});
   paint();
+  ensureShoTvShortcut();
   if(healthShell())observeHealthPages();
  }
  if(d.readyState==='loading')d.addEventListener('DOMContentLoaded',init,{once:true});else init();
