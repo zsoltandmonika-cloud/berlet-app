@@ -47,15 +47,32 @@ footer{margin-top:27px;padding:16px 3px;border-top:1px solid #bb87d433;color:#98
 }
 @media(prefers-reduced-motion:reduce){.tile:before{transition:none}}
 </style>
-<link rel="stylesheet" href="./onedrive-media-v2.css?v=2">
+<link rel="stylesheet" href="./onedrive-media-v2.css?v=3">
 </head>
 <body>
 <main class="page">
- <div class="top"><a class="back" href="../" aria-label="Vissza a Szórakozás főoldalra">← Szórakozás</a><span class="sho">SHO · SMART HUB ONE</span></div>
+ <div class="top"><a class="back" href="../" aria-label="Vissza a Szórakozás főoldalra">← Szórakozás</a><span class="sho">SHO · SMART HUB ONE</span><button class="header-fullscreen" id="mediaFullScreen" type="button" aria-label="Teljes képernyős nézet" title="Teljes képernyő"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" aria-hidden="true"><path d="M8 3H3v5M16 3h5v5M3 16v5h5M21 16v5h-5"/></svg></button></div>
  <section class="intro" aria-labelledby="media-title">
   <div><span class="kicker">PRÉMIUM SZÓRAKOZTATÓ KÖZPONT</span><h1 id="media-title">Média <em>Center</em></h1><p class="lead">Filmek · Képek · Videók · Zene</p></div>
-  <div class="center-actions"><a class="tv-action" href="https://mediaradar.pages.dev/sho-family-tv/remote.html" aria-label="SHO Xiaomi TV telefonos távirányító megnyitása; a korábban párosított TV automatikusan csatlakozik">📺 Xiaomi TV · Távirányító ↗</a><button class="tv-action media-fullscreen-btn" id="mediaFullScreen" type="button" aria-label="Média Center teljes képernyő és fekvő nézet">⛶ Teljes képernyő</button></div>
  </section>
+ <a class="remote-smart-card" href="https://mediaradar.pages.dev/sho-family-tv/remote.html" aria-label="SHO Xiaomi TV telefonos távirányító megnyitása, mentett párosítással">
+  <span class="remote-smart-visual" aria-hidden="true">
+   <svg viewBox="0 0 118 62" width="118" height="62" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <defs><linearGradient id="shoremoteTV" x1="15" y1="4" x2="110" y2="58" gradientUnits="userSpaceOnUse"><stop stop-color="#335d86"/><stop offset=".54" stop-color="#112940"/><stop offset="1" stop-color="#080c20"/></linearGradient><linearGradient id="shoremotePhone" x1="6" y1="9" x2="44" y2="57" gradientUnits="userSpaceOnUse"><stop stop-color="#182d4a"/><stop offset="1" stop-color="#0a1022"/></linearGradient></defs>
+    <rect x="39" y="7" width="69" height="42" rx="5" fill="url(#shoremoteTV)" stroke="#43cdef" stroke-width="1.6"/>
+    <path d="M47 36c16-20 34-13 52-24" stroke="#58d7f3" opacity=".65" stroke-width="2"/><circle cx="78" cy="23" r="9" fill="#367fd0" opacity=".3"/>
+    <path d="M65 54h18M74 49v5" stroke="#99bbd8" stroke-width="2" stroke-linecap="round"/>
+    <rect x="5.5" y="11" width="37" height="49" rx="7" fill="#060b18" stroke="#f2bb8e" stroke-width="1.8"/>
+    <rect x="9.5" y="15.5" width="29" height="40" rx="4" fill="url(#shoremotePhone)"/>
+    <circle cx="24" cy="29" r="8" stroke="#9fcaff" stroke-width="1.4"/><path d="M24 21v4M24 33v4M16 29h4M28 29h4" stroke="#9fcaff" stroke-width="1.3"/>
+    <circle cx="24" cy="29" r="2.4" fill="#f1bd8d"/>
+    <path d="M14 45h7M27 45h7" stroke="#73c9ea" stroke-width="2.4" stroke-linecap="round"/>
+    <path d="M46 18q8-8 16 0M50 22q4-4 8 0" stroke="#53ddff" stroke-width="2.5" stroke-linecap="round"/>
+   </svg>
+  </span>
+  <span class="remote-smart-copy"><strong>TV Remote</strong><small>Xiaomi TV · Távirányító</small></span>
+  <span class="remote-smart-arrow" aria-hidden="true">›</span>
+ </a>
  <section class="grid" aria-label="Média kategóriák">
   <a class="tile cinema" href="https://mediaradar.pages.dev/" aria-label="Házimozi: MediaRadar megnyitása"><div class="copy"><span class="flag">ÉLŐ · MEDIARADAR</span><strong>🎬 Házimozi</strong><small>Filmek · Sorozatok · Streaming</small></div><span class="arrow" aria-hidden="true">↗</span></a>
   <a class="tile photos" data-library="photos" href="#mediaLibrary" aria-label="Képek: saját OneDrive albumok böngészése"><div class="copy"><span class="flag">ONEDRIVE</span><strong>🖼️ Képek</strong><small>OneDrive albumok</small></div><span class="arrow" aria-hidden="true">↗</span></a>
@@ -74,8 +91,7 @@ footer{margin-top:27px;padding:16px 3px;border-top:1px solid #bb87d433;color:#98
    <strong id="mediaViewerTitle">Média</strong><button id="mediaViewerFullscreen" type="button" aria-label="Teljes képernyő és fekvő nézet">⛶ Teljes képernyő</button><button id="mediaViewerClose" type="button" aria-label="Bezárás">✕</button>
   </div><div class="media-viewer-body"><img id="mediaImage" hidden alt="OneDrive fénykép"><video id="mediaPlayer" hidden playsinline controls preload="metadata"></video><audio id="mediaAudio" hidden controls preload="metadata"></audio></div><p id="mediaViewerMessage" class="media-viewer-message"></p></div>
  </div>
- <p class="note">A Xiaomi Boxon a mentett TV-párosítás működik, új QR-kód nélkül. Telefonon a Képek, Videók és Zene a <strong>meglévő Book Studio Microsoft-munkamenetével</strong> böngészhető és lejátszható, csak olvasásra. A TV APK-ban a OneDrive-saját tartalom még nincs bekötve, a TV-n jelenleg a média demó látható. A telefonon a megjelenítő teljes képernyőre válthat; a fekvő nézetet a böngésző támogatása határozza meg.</p>
- <footer>SHO Média Center · Golden Standard · Xiaomi Android TV V1 · SmartCast párosítás</footer>
+
 </main>
 <script src="../book-studio/onedrive-session-v3.js"></script>
 <script src="./onedrive-media-v2.js?v=2"></script>
