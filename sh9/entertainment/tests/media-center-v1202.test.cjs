@@ -129,7 +129,7 @@ test('TV shortcut is one shared, tiny one-tap preview across SHO without leaking
   assert.equal(appended[0].target,'_blank');
   assert.equal(appended[0].rel,'noopener noreferrer');
   assert.doesNotMatch(appended[0].href,/token|gps|healthhub|shopping|guardian|@|code=/);
-  assert.match(doc.getElementById('shoTvShortcutStyleV1').textContent,/width:51px;height:46px/);
+  assert.match(doc.getElementById('shoTvShortcutStyleV1').textContent,/width:45px;height:45px/);
   win.SHO_TV_SHORTCUT_V1.mount();
   assert.equal(appended.length,1,'no duplicate TV buttons');
  }
