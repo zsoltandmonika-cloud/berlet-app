@@ -1,0 +1,47 @@
+/* SHO Smart Entertainment v1202: add ONE full-size Media Center card.
+   No changes to existing Book Studio, category, hero or programme layouts. */
+.mc-feature{margin:17px 0 20px;box-sizing:border-box;max-width:100%}
+.mc-feature .sh9-feature-heading{margin:0 3px 10px}
+.mc-feature .mc-feature-card{
+ position:relative;isolation:isolate;display:block;overflow:hidden;
+ width:100%;height:auto;min-height:0;aspect-ratio:1.62;
+ border:1px solid rgba(219,155,255,.8);border-radius:18px;
+ background:#080e20;box-shadow:0 14px 34px rgba(0,0,0,.63),0 0 27px rgba(164,87,232,.21);
+ color:#fff;cursor:pointer;-webkit-tap-highlight-color:transparent;
+}
+.mc-feature .mc-art{position:absolute;inset:0;display:flex;overflow:hidden}
+.mc-feature .mc-art span{display:block;height:100%;background-size:cover;background-repeat:no-repeat;filter:saturate(1.16) contrast(1.06)}
+.mc-feature .mc-art .mc-film{
+ width:49%;background-image:url('https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&w=1100&q=88');
+ background-position:43% center;
+}
+.mc-feature .mc-art .mc-memories{
+ width:27%;background-image:url('https://images.unsplash.com/photo-1452587925148-ce544e77e70d?auto=format&fit=crop&w=850&q=88');
+ background-position:center center;border-left:2px solid rgba(185,123,255,.45);
+}
+.mc-feature .mc-art .mc-music{
+ width:24%;background-image:url('https://images.unsplash.com/photo-1511379938547-c1f69419868d?auto=format&fit=crop&w=850&q=88');
+ background-position:57% center;border-left:2px solid rgba(247,121,208,.44);
+}
+.mc-feature .mc-feature-card:after{
+ content:"";position:absolute;inset:0;pointer-events:none;
+ background:linear-gradient(180deg,rgba(6,9,22,.08) 10%,rgba(6,7,20,.1) 36%,rgba(4,5,20,.70) 69%,rgba(5,4,17,.99) 100%),
+ linear-gradient(90deg,rgba(8,5,21,.26),transparent 50%,rgba(11,4,24,.20));
+}
+.mc-feature .mc-caption{position:absolute;z-index:2;bottom:7.5%;left:5%;right:5%;display:flex;justify-content:space-between;align-items:flex-end;gap:10px;text-shadow:0 3px 17px #03020bcc}
+.mc-feature .mc-caption .mc-label{display:block;max-width:86%}
+.mc-feature .mc-kicker{display:block;color:#e8beff;font-weight:820;letter-spacing:.13em;font-size:clamp(9px,1.15vw,13px);margin-bottom:7px}
+.mc-feature .mc-caption strong{display:block;font-size:clamp(30px,5vw,76px);line-height:1;letter-spacing:-.055em;font-weight:920;color:#fff}
+.mc-feature .mc-caption small{display:block;font-size:clamp(11px,1.6vw,19px);color:#ece3fa;margin-top:9px;font-weight:650}
+.mc-feature .mc-enter{display:grid;place-items:center;flex:none;width:clamp(34px,5vw,62px);height:clamp(34px,5vw,62px);border-radius:50%;border:1px solid rgba(237,185,255,.64);font-size:clamp(22px,2.9vw,38px);font-weight:350;background:linear-gradient(125deg,rgba(115,47,162,.65),rgba(19,58,105,.7));box-shadow:0 3px 18px rgba(132,50,196,.39)}
+.mc-feature .mc-feature-card:hover{filter:brightness(1.055)}
+.mc-feature .mc-feature-card:focus-visible{outline:3px solid #f6c1ff;outline-offset:3px}
+@media(max-width:650px){
+ .mc-feature{margin:8px auto 13px!important}
+ .mc-feature .mc-feature-card{width:100%;height:calc((100vw - 24px)/1.62);min-height:0;border-radius:15px}
+ .mc-feature .mc-caption{bottom:8%;left:5.5%;right:5.5%}
+ .mc-feature .mc-caption strong{font-size:clamp(26px,8vw,40px)}
+ .mc-feature .mc-caption small{font-size:clamp(10px,2.8vw,13px);margin-top:5px}
+ .mc-feature .mc-kicker{font-size:9px;letter-spacing:.07em;margin-bottom:5px}
+}
+@media(prefers-reduced-motion:reduce){.mc-feature .mc-feature-card{transition:none}}
