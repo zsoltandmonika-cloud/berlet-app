@@ -98,7 +98,7 @@ test('TV shortcut is one shared, tiny one-tap preview across SHO without leaking
    tagName:tag.toUpperCase(),attributes:{},setAttribute(k,v){this.attributes[k]=v}
   });
   const doc={
-   readyState:'complete',head:{appendChild(el){if(el.id)all[el.id]=el}},
+   readyState:'complete',createElement:element,head:{appendChild(el){if(el.id)all[el.id]=el}},
    body:{appendChild(el){appended.push(el);if(el.id)all[el.id]=el}},
    getElementById(id){return all[id]||null},
    querySelector(selector){return hasSmartRemote&&selector.indexOf('.remote-smart-card')!==-1?{}:null}
