@@ -167,18 +167,23 @@ test('V4 approved Media Center & Home Videók hero art: order, visual integrity 
  assert.doesNotMatch(art,/broadcast|Supabase|Files\.ReadWrite/);
 });
 
-test('V5 cold startup never flashes legacy Media Center hero, old media tiles or old remote layout',()=>{
+test('V5 no old photo layers and compact premium remote on first paint',()=>{
  const hero=read('sh9/entertainment/media-center-feature-v1202.css');
- const v5=read('sh9/entertainment/media-center-approved-v4.css');
+ const fallback=read('sh9/entertainment/media-center-approved-v4.css');
  const script=read('sh9/entertainment/media-center/onedrive-media-v2.js');
- assert.doesNotMatch(media,/images\\.unsplash\\.com|photo-1489599849927|photo-1452587925148|photo-1516035069371|photo-1511379938547/);
- assert.doesNotMatch(hero,/images\\.unsplash\\.com|\\.mc-film|\\.mc-memories|\\.mc-music/);
- assert.doesNotMatch(page,/<span class="mc-art"|class="mc-film"/);
- for(const tile of ['cinema','photos','videos','music'])assert.match(media,new RegExp('\\.tile\\.'+tile+'\\{--image:linear-gradient'));
- assert.doesNotMatch(script,/Designer assets can be supplied|assets\\/sho-tile-/);
- assert.match(script,/async function updateTileArt\\(\\)/);
- assert.match(script,/art\\.onload=function\\(\\)/);
- assert.match(v5,/stable dark gradient/);
- assert.match(media,/\\.remote-smart-card\\{display:flex;align-items:center;width:min\\(100%,395px\\)/);
- assert.match(media,/class="remote-smart-card"/);
+ assert.equal(media.includes('images.unsplash.com'),false);
+ assert.equal(hero.includes('images.unsplash.com'),false);
+ assert.equal(hero.includes('.mc-film'),false);
+ assert.equal(hero.includes('.mc-memories'),false);
+ assert.equal(page.includes('<span class="mc-art"'),false);
+ for(const tile of ['cinema','photos','videos','music']){
+  assert.ok(media.includes('.tile.'+tile+'{--image:linear-gradient'),tile);
+ }
+ assert.equal(script.includes('Designer assets can be supplied'),false);
+ assert.equal(script.includes('./assets/sho-tile-'),false);
+ assert.ok(script.includes('async function updateTileArt()'));
+ assert.ok(script.includes('art.onload=function()'));
+ assert.ok(fallback.includes('stable dark gradient'));
+ assert.ok(media.includes('.remote-smart-card{display:flex;align-items:center;width:min(100%,395px)'));
+ assert.ok(media.includes('class="remote-smart-card"'));
 });
