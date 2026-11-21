@@ -64,3 +64,8 @@ body{background:radial-gradient(ellipse at 50% -30%,#6a402d55,transparent 55%),r
 
 .media-viewer [hidden]{display:none!important}
 .media-viewer-body audio{width:min(700px,90vw);min-height:60px;max-height:25vh}
+
+.center-actions{display:flex;align-items:center;justify-content:flex-end;gap:10px;flex-wrap:wrap}
+.media-fullscreen-btn{font:inherit;cursor:pointer;color:#fff;font-weight:800;white-space:nowrap}
+.page:fullscreen{width:100%;max-width:100%;height:100%;overflow:auto;padding:12px 2vw;background:radial-gradient(ellipse at top,#443020,#070910 67%)}
+@media(max-width:700px){.center-actions{justify-content:stretch}.center-actions>*{flex:1 1 100%;width:100%}}
