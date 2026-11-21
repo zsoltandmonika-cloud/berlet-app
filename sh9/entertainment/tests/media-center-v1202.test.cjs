@@ -26,12 +26,14 @@ test('Only the existing Home Media category becomes a Media Center entry and one
  assert.match(css,/height:calc\(\(100vw - 24px\)\/1\.62\)/);
  for(const part of ['mc-film','mc-memories','mc-music'])assert.match(css,new RegExp(part));
 });
-test('New Media Center has 4 modules and distinguishes functional MediaRadar from TV demos',()=>{
+test('Media Center retains four modules while adding configured Google Cast TV launch',()=>{
  for(const item of ['Házimozi','Képek','Videók','Zene'])assert.ok(media.includes(item));
  assert.match(media,/class="grid"/);
  assert.match(media,/https:\/\/mediaradar\.pages\.dev\//);
  assert.match(media,/sho-family-tv\/remote\.html/);
- assert.match(media,/TV-n már megnyitott SHO TV-felületet/);
- assert.match(media,/automatikus alkalmazásindítása/);
+ assert.ok(media.includes('sho-family-tv/cast-sender.html'));
+ assert.match(media,/Google Cast · TV indítása/);
+ assert.match(media,/Custom Receiver regisztráció után/);
+ assert.match(media,/személyes OneDrive tartalmak jelenleg nem aktívak/);
  assert.equal((media.match(/class="tile (?:cinema|photos|videos|music)"/g)||[]).length,4);
 });
