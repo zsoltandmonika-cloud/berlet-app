@@ -113,3 +113,10 @@ body{background:radial-gradient(ellipse at 50% -30%,#6a402d55,transparent 55%),r
  .remote-smart-visual{height:46px;flex-basis:90px}
  .remote-smart-visual svg{height:48px}
 }
+
+/* Approved Home Videók tile: source artwork contains its own heading and badge.
+   Hide the duplicated HTML label only after the private OneDrive art loads. */
+.tile.videos.tile-art-baked-v4:before{background-size:contain;background-color:#080d1c;transform:none!important}
+.tile.videos.tile-art-baked-v4:after{display:none!important}
+.tile.videos.tile-art-baked-v4 .copy,.tile.videos.tile-art-baked-v4 .arrow{display:none!important}
+.tile.videos.tile-art-baked-v4{border-color:#da97fd;box-shadow:0 0 16px #985ad55c,inset 0 0 0 1px #b5e4ff66}
