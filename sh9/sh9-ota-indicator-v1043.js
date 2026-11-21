@@ -60,7 +60,7 @@
   if(!Number.isFinite(seen)||seen<=0||seen>Date.now()+5000||Date.now()-seen>STATUS_MAX_AGE)return 'unknown';
   return allowedHealth.includes(cached?.health)?cached.health:'unknown';
  }
- let last=0,busy=false,approvedRelease=null;
+ let last=0,busy=false,approvedRelease=null,fallbackToken=0;
  function showManualFallback(){
   manual.hidden=false;
   // Only a known, newer release that passed exact signed-channel URL and
@@ -81,6 +81,7 @@
  // MANUAL fallback on the same page, regardless of indicator colour.
  // Unknown/stale build NEVER receives an unverified direct APK link.
  el.addEventListener('click',event=>{
+  const token=++fallbackToken;
   manual.hidden=true;
   // Browser/PWA and old build37 cannot prove the local installed version.
   // Keep this interaction on the page so there is always a visible action,
@@ -91,10 +92,10 @@
    return;
   }
   w.setTimeout(()=>{
-   if(!d.hidden)showManualFallback();
+   if(token===fallbackToken&&!d.hidden)showManualFallback();
   },1800);
  });
- manualClose.addEventListener('click',()=>{manual.hidden=true;el.focus()});
+ manualClose.addEventListener('click',()=>{fallbackToken++;manual.hidden=true;el.focus()});
 
  function state(name,message,link){
   el.dataset.state=name;

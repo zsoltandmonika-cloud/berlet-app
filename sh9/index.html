@@ -14,7 +14,7 @@
 <meta name="apple-mobile-web-app-title" content="SHO">
 <meta name="mobile-web-app-capable" content="yes">
 <link rel="stylesheet" href="./shared/sh9-golden-bottom-nav-v924.css?v=925-notification-center">
-<link rel="stylesheet" href="./sh9-ota-indicator-v1043.css?v=1067-native-and-browser">
+<link rel="stylesheet" href="./sh9-ota-indicator-v1043.css?v=1068-modal-top-layer">
 <link rel="stylesheet" href="./outlook-agenda-v1.css?v=8-date-time-first">
 <style>
 :root{color-scheme:dark;--accent:#79bfff;--accentSoft:rgba(121,191,255,.22);--border:rgba(150,203,255,.37);--ink:#f2f8ff;--muted:#b8cce4;--pink:#f9a6d3}
@@ -241,23 +241,7 @@ input[type=file]{display:none}
   <span class="sh9-ota-label-v1043" aria-hidden="true">?</span>
  </a>
  <span id="sh9OtaStateV1043" class="visually-hidden" role="status" aria-live="polite">HH One OTA állapot ellenőrzése…</span>
- <section id="sh9OtaManualV1044" class="sh9-ota-manual-v1044" aria-label="Frissítés tartalék módja" hidden>
-  <div class="sh9-ota-manual-heading-v1044">
-   <strong>📦 HH One · OTA állapot és frissítés</strong>
-   <button type="button" id="sh9OtaManualCloseV1044" aria-label="Frissítési panel bezárása">×</button>
-  </div>
-  <p id="sh9OtaManualStatusV1044" role="status">A telefon ellenőrzése folyamatban…</p>
-  <label class="sh9-ota-owner-v1067" for="sh9OtaDeviceSelectV1067">Figyelt családi telefon
-   <select id="sh9OtaDeviceSelectV1067" aria-label="Kijelölt családi telefon">
-    <option value="">Válassz telefont…</option><option value="zsolt">Zsolt telefonja</option><option value="monika">Mónika telefonja</option>
-   </select>
-  </label>
-  <button type="button" class="sh9-ota-recheck-v1067" id="sh9OtaRefreshV1067">🔄 Friss OTA-állapot lekérése</button>
-  <a id="sh9OtaConnectVaultV1067" href="../healthhub/index.html?sh9nav=admin" hidden>🔐 Dropbox-kapcsolat ellenőrzése</a>
-  <a id="sh9OtaManualSettingsV1044" href="healthhubconnect://settings">📱 HH One frissítő megnyitása</a>
-  <a id="sh9OtaManualApkV1044" href="#" hidden rel="noopener noreferrer" target="_blank">📥 Hitelesített APK kézi letöltése</a>
-  <small>Az APK-t csak a hivatalos, engedélyezett kiadásból ajánljuk fel. A telepítést az Androidon jóvá kell hagyni.</small>
- </section>
+ 
 
 <div class="brand"><div class="infinity">∞</div><strong>SHO</strong><small>Smart Hub One</small><em>One Hub · One Family</em></div>
 
@@ -319,6 +303,24 @@ input[type=file]{display:none}
 <button type="button" id="admin"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="m9 2 1 3h4l1-3 3 2-1 3 3 2v4l-3 1 1 3-3-2-2-3h-3l-2 3-3-2 1-3-3-2V9l3-2-1-3z"/></svg><span>Admin</span></button>
 </nav>
 </main>
+<!-- OTA modal is a top-level layer, outside the clipped/isolated hero. -->
+<section id="sh9OtaManualV1044" class="sh9-ota-manual-v1044" role="dialog" aria-modal="true" aria-label="HH One OTA állapot és frissítés" hidden>
+  <div class="sh9-ota-manual-heading-v1044">
+   <strong>📦 HH One · OTA állapot és frissítés</strong>
+   <button type="button" id="sh9OtaManualCloseV1044" aria-label="Frissítési panel bezárása">×</button>
+  </div>
+  <p id="sh9OtaManualStatusV1044" role="status">A telefon ellenőrzése folyamatban…</p>
+  <label class="sh9-ota-owner-v1067" for="sh9OtaDeviceSelectV1067">Figyelt családi telefon
+   <select id="sh9OtaDeviceSelectV1067" aria-label="Kijelölt családi telefon">
+    <option value="">Válassz telefont…</option><option value="zsolt">Zsolt telefonja</option><option value="monika">Mónika telefonja</option>
+   </select>
+  </label>
+  <button type="button" class="sh9-ota-recheck-v1067" id="sh9OtaRefreshV1067">🔄 Friss OTA-állapot lekérése</button>
+  <a id="sh9OtaConnectVaultV1067" href="../healthhub/index.html?sh9nav=admin" hidden>🔐 Dropbox-kapcsolat ellenőrzése</a>
+  <a id="sh9OtaManualSettingsV1044" href="healthhubconnect://settings">📱 HH One frissítő megnyitása</a>
+  <a id="sh9OtaManualApkV1044" href="#" hidden rel="noopener noreferrer" target="_blank">📥 Hitelesített APK kézi letöltése</a>
+  <small>Az APK-t csak a hivatalos, engedélyezett kiadásból ajánljuk fel. A telepítést az Androidon jóvá kell hagyni.</small>
+ </section>
 <section id="sh9AgendaDialog" class="sh9-agenda-overlay" role="dialog" aria-modal="true" aria-label="Outlook Agenda" hidden>
  <div class="sh9-agenda-panel">
   <header class="sh9-agenda-head"><div><p class="sh9-agenda-kicker">SHO · OUTLOOK CALENDAR</p><h2>Agenda</h2></div><button id="sh9AgendaClose" type="button" class="sh9-agenda-x" aria-label="Agenda bezárása">×</button></header>

@@ -30,7 +30,7 @@
   chosen=validProfile(saved)?saved:profile==='m'?'monika':profile==='z'?'zsolt':'';
  }catch(_){}
  select.value=chosen;
- let busy=false,pending=false,lastCheck=0,generation=0,validUntil=0;
+ let busy=false,pending=false,lastCheck=0,generation=0,validUntil=0,fallbackToken=0;
  let latest={state:'unknown',build:null,release:null,chosen,reason:'A telefon állapota még nem ellenőrzött.'};
  function show(state,text,href){
   lamp.dataset.state=state;
@@ -177,13 +177,17 @@
  });
  lamp.addEventListener('click',e=>{
   // Unverified state stays on-page; never claim a successful Android handoff.
+  const token=++fallbackToken;
   if(latest.state==='unknown'){
-   e?.preventDefault?.();choices();return;
+   e?.preventDefault?.();choices();
+   // A tap requests one explicit fresh check; never pretend an old heartbeat is live.
+   if(!busy)void check(true);
+   return;
   }
   panel.hidden=true;
-  w.setTimeout(()=>{if(!d.hidden)choices()},1800);
+  w.setTimeout(()=>{if(token===fallbackToken&&!d.hidden)choices()},1800);
  });
- close.addEventListener('click',()=>{panel.hidden=true;lamp.focus()});
+ close.addEventListener('click',()=>{fallbackToken++;panel.hidden=true;lamp.focus()});
  refresh.addEventListener('click',()=>{void check(true)});
  d.addEventListener('visibilitychange',()=>{
   if(!d.hidden){
