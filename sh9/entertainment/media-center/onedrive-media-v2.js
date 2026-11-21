@@ -157,6 +157,11 @@ async function fullscreen(){
 }
 $('mediaViewerClose').onclick=close;
 $('mediaViewerFullscreen').onclick=function(){void fullscreen()};
+$('mediaFullScreen').onclick=async function(){
+ try{if(!d.fullscreenElement&&d.querySelector('.page').requestFullscreen)await d.querySelector('.page').requestFullscreen();
+  if(w.screen.orientation&&w.screen.orientation.lock)await w.screen.orientation.lock('landscape').catch(function(){});
+ }catch(_){status('Fekvő nézethez fordítsd el a telefont. A böngésző korlátozhatja a teljes képernyőt.',true)}
+};
 $('mediaRefresh').onclick=function(){if(active)void list(folder)};
 $('odMediaConnect').onclick=function(){w.location.href='../book-studio/'};
 $('mediaViewer').addEventListener('click',function(e){if(e.target===$('mediaViewer'))close()});
