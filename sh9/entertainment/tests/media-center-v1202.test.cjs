@@ -33,8 +33,8 @@ test('Media Center directly opens saved Xiaomi TV remote without Cast registrati
  assert.match(media,/sho-family-tv\/remote\.html/);
  assert.doesNotMatch(media,/sho-family-tv\/cast-sender\.html/);
  assert.match(media,/Xiaomi TV · Távirányító/);
- assert.match(media,/mentett TV-párosítás működik/);
- assert.match(media,/meglévő Book Studio Microsoft-munkamenetével/);
+ assert.match(media,/mentett párosítással/);
+ assert.match(media,/id="mediaLibrary"/);
  assert.equal((media.match(/class="tile (?:cinema|photos|videos|music)"/g)||[]).length,4);
 });
 
@@ -65,5 +65,22 @@ test('V2 preserves QR-free Xiaomi remote and avoids exposing OneDrive session to
  assert.match(logic,/No personal media or access tokens sent to the TV/);
  assert.match(logic,/microsoftonline\.com\/consumers/);
  assert.doesNotMatch(logic,/supabase\.co\/realtime|broadcast.+Authorization/);
- assert.match(media,/TV APK-ban a OneDrive-saját tartalom még nincs bekötve/);
+ assert.doesNotMatch(media,/<p class="note">/);
+});
+
+test('V3 compact C Smart TV remote replaces giant buttons and verbose footer',()=>{
+ const design=read('sh9/entertainment/media-center/onedrive-media-v2.css');
+ assert.equal((media.match(/id="mediaFullScreen"/g)||[]).length,1);
+ assert.match(media,/<button class="header-fullscreen" id="mediaFullScreen"/);
+ assert.match(media,/<a class="remote-smart-card" href="https:\/\/mediaradar\.pages\.dev\/sho-family-tv\/remote\.html"/);
+ assert.match(media,/remote-smart-visual/);
+ assert.match(media,/TV Remote/);
+ assert.match(media,/Xiaomi TV · Távirányító/);
+ assert.doesNotMatch(media,/<p class="note">/);
+ assert.doesNotMatch(media,/<footer>/);
+ assert.doesNotMatch(media,/class="center-actions"|class="media-fullscreen-btn"/);
+ assert.equal((media.match(/class="tile (?:cinema|photos|videos|music)"/g)||[]).length,4);
+ assert.match(design,/\.header-fullscreen/);
+ assert.match(design,/width:36px;height:36px/);
+ assert.match(design,/\.remote-smart-card/);
 });
