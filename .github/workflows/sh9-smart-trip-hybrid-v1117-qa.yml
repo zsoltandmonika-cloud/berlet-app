@@ -1,0 +1,45 @@
+name: Smart Trip Hybrid Fast v1117 Preview QA
+
+on:
+  pull_request:
+    paths:
+      - 'sh9/smart-travel/smart-trip/hybrid-fast-core-v1117.mjs'
+      - 'sh9/smart-travel/smart-trip/rail-gtfs-core-fast-v1120.js'
+      - 'sh9/smart-travel/smart-trip/hybrid-offline-compare-v1120.html'
+      - 'healthhub/tests/sh9-hybrid-offline-compare-v1120.test.cjs'
+      - 'sh9/smart-travel/smart-trip/rail-fast-benchmark-v1120.cjs'
+      - 'healthhub/tests/sh9-mav-fast-core-v1120.test.cjs'
+      - 'sh9/smart-travel/smart-trip/hybrid-fast-benchmark-v1117.mjs'
+      - 'sh9/smart-travel/smart-trip/hybrid-shadow-probe-v1118.mjs'
+      - 'sh9/smart-travel/smart-trip/hybrid-shadow-v1118.html'
+      - 'sh9/smart-travel/smart-trip/hybrid-offline-benchmark-v1119.html'
+      - 'healthhub/tests/sh9-hybrid-offline-v1119.test.cjs'
+      - 'healthhub/tests/sh9-hybrid-shadow-v1118.test.mjs'
+      - 'sh9/smart-travel/smart-trip/provider-results-merge-v1110.mjs'
+      - 'healthhub/tests/sh9-hybrid-fast-core-v1117.test.mjs'
+      - 'healthhub/tests/sh9-provider-result-merge-v1110.test.mjs'
+      - '.github/workflows/sh9-smart-trip-hybrid-v1117-qa.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  preview-contract-and-benchmark:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Compile check isolated module
+        run: |
+          node --check sh9/smart-travel/smart-trip/hybrid-fast-core-v1117.mjs
+          node --check sh9/smart-travel/smart-trip/hybrid-shadow-probe-v1118.mjs
+          node --check sh9/smart-travel/smart-trip/rail-gtfs-core-fast-v1120.js
+      - name: Run hybrid and existing merge regression tests
+        run: node --test healthhub/tests/sh9-hybrid-fast-core-v1117.test.mjs healthhub/tests/sh9-hybrid-shadow-v1118.test.mjs healthhub/tests/sh9-hybrid-offline-v1119.test.cjs healthhub/tests/sh9-mav-fast-core-v1120.test.cjs healthhub/tests/sh9-hybrid-offline-compare-v1120.test.cjs healthhub/tests/sh9-provider-result-merge-v1110.test.mjs
+      - name: Synthetic p50/p95 preview performance (not end-to-end)
+        run: node sh9/smart-travel/smart-trip/hybrid-fast-benchmark-v1117.mjs
+      - name: Compare baseline and fast prepared GTFS routing (synthetic, parity gated)
+        run: node sh9/smart-travel/smart-trip/rail-fast-benchmark-v1120.cjs

@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="hu"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Smart Trip · Hybrid Fast · helyi diagnosztika</title>
+<style>
+:root{color-scheme:dark;font:16px system-ui,sans-serif;background:#090f1c;color:#eaf3ff}
+body{max-width:760px;margin:auto;padding:clamp(16px,4vw,36px)}
+main{background:linear-gradient(120deg,#16233c,#131928);border:1px solid #355476;border-radius:20px;padding:24px}
+h1{font-size:1.65rem}p{color:#bcd0e8;line-height:1.5}
+fieldset{border:1px solid #425778;border-radius:14px;display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px}
+label{display:grid;gap:6px}input{width:100%;box-sizing:border-box;border:1px solid #527398;background:#101b2e;color:#fff;border-radius:10px;padding:12px;font:inherit}
+button,a.action{display:inline-block;border:1px solid #7eafe7;background:#244777;color:white;border-radius:14px;padding:12px 18px;font-weight:700;text-decoration:none;margin-top:12px;cursor:pointer}
+button:disabled{opacity:.6;cursor:wait}
+pre{white-space:pre-wrap;overflow-wrap:anywhere;font-size:.86rem;background:#0c1424;border:1px solid #354d6c;padding:16px;border-radius:12px}
+small{color:#bcd0e8}
+</style></head>
+<body><main>
+<h1>🧪 Smart Trip · Hybrid Fast v1118</h1>
+<p><strong>Read-only helyi GTFS teljesítménymérés.</strong> Kizárólag az eszközön már betöltött, erre az originre tartozó privát MÁV/Volán GTFS-t használja. Nincs adatfeltöltés, nincs OpenAI API-hívás, és nem írja át az éles Smart Trip keresést.</p>
+<p>A méréshez pontos, a helyi GTFS-ben szereplő induló és célállomás szükséges. A kezdő és végpont ettől még nem lesz automatikusan ajtótól ajtóig igazolt.</p>
+<fieldset><legend>Keresési paraméterek (helyben maradnak)</legend>
+<label>Honnan<input id="from" maxlength="120" placeholder="Pontos GTFS-állomás" required></label>
+<label>Hová<input id="to" maxlength="120" placeholder="Pontos GTFS-állomás" required></label>
+<label>Dátum<input id="date" type="date" required></label>
+<label>Időpont<input id="time" type="time" value="15:15" required></label>
+</fieldset>
+<button id="run">Helyi mérés indítása</button>
+<p id="status" role="status" aria-live="polite"></p>
+<h2>Teljesítménymérés</h2>
+<pre id="output">Még nincs mérés. A menetrendek a készülék privát IndexedDB-tárolójában maradnak.</pre>
+<small>Az itt mért idő NEM tartalmazza a ChatGPT/GPT-6 várakozását, ellenőrzését és a felhőmentést. A 30 mp-es végponttól végpontig cél továbbra is külön vizsgálandó.</small>
+<p><a class="action" href="../public-transport/smart-trip/">↩ Éles Smart Trip (változatlan)</a></p>
+</main>
+<script src="../public-transport/mav/rail-gtfs-core-v1.js"></script>
+<script type="module">
+import {runShadow} from "./hybrid-shadow-probe-v1118.mjs";
+const $=id=>document.getElementById(id);
+const today=new Intl.DateTimeFormat("en-CA",{timeZone:"Europe/Budapest",year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(new Date());
+const p=Object.fromEntries(today.map(v=>[v.type,v.value]));
+$("date").value=p.year+"-"+p.month+"-"+p.day;
+$("run").addEventListener("click",async()=>{
+ const button=$("run");button.disabled=true;$("status").textContent="Helyi GTFS-mérés…";
+ try{
+  const query={from:$("from").value.trim(),to:$("to").value.trim(),
+   date:$("date").value,time:$("time").value};
+  const result=await runShadow({query});
+  $("status").textContent=result.status==="partial_local_results"?
+   "Mérhető MÁV-eredmények. Nem teljes útvonal, nem éles találat.":
+   "Mérés kész. A hiányzó lefedettség vagy GTFS-adat külön jelölve.";
+  $("output").textContent=JSON.stringify(result,null,2);
+ }catch(_){
+  $("status").textContent="Kérlek, ellenőrizd a dátumot és az állomásneveket.";
+  $("output").textContent="Érvénytelen vagy nem teljes keresési paraméter.";
+ }finally{button.disabled=false}
+});
+</script></body></html>
