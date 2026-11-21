@@ -1,0 +1,175 @@
+/* SHO Media Center · OneDrive read-only phone experience.
+ * Reuses the user's already authorized, same-origin Book Studio session.
+ * No personal media or access tokens sent to the TV or to Supabase broadcasts.
+ */
+(function(w,d){
+'use strict';
+var $=id=>d.getElementById(id);
+var GRAPH='https://graph.microsoft.com/v1.0/';
+var AUTH='https://login.microsoftonline.com/consumers/oauth2/v2.0/token';
+var CFG='sh9-book-ms-config-v2',TOKEN='sh9-book-ms-access-v2';
+var SCOPE='openid profile offline_access User.Read Files.Read';
+var PATHS={photos:{label:'Képek',path:'Képek',mime:/^image\/(jpeg|png|gif|webp|bmp|avif|heic|heif)$/i},
+ videos:{label:'Videók',path:'Videos/HomeVideo',mime:/^video\//i},
+ music:{label:'Zene',path:'Zene/Full Albums',mime:/^audio\//i}};
+var config=null,access='',expires=0,active='',folder='',crumbs=[],entries=[],serial=0,renewing=null,viewer=null,verified=false;
+function parse(v){try{return JSON.parse(v)}catch(_){return null}}
+function get(s,k){try{return s.getItem(k)}catch(_){return null}}
+function put(s,k,v){try{s.setItem(k,v)}catch(_){}}
+function safe(s){return String(s||'').slice(0,180)}
+function status(t,bad){var e=$('odMediaStatus');e.textContent=t;e.dataset.error=bad?'1':'0'}
+function reset(){access='';expires=0;verified=false;try{w.sessionStorage.removeItem(TOKEN)}catch(_){}}
+function readConfig(){
+ var c=parse(get(w.localStorage,CFG))||parse(get(w.localStorage,'sh9-ms-calendar-config-v1'));
+ if(!c||!/^[0-9a-f-]{36}$/i.test(c.clientId||'')||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(c.account||''))return null;
+ return {clientId:c.clientId,account:c.account.toLowerCase()};
+}
+function cachedAccess(){
+ var x=parse(get(w.sessionStorage,TOKEN));
+ if(!x||!config||x.clientId!==config.clientId||x.account!==config.account||
+ !x.accessToken||!Number.isFinite(x.expires)||x.expires<Date.now()+45000)return false;
+ access=x.accessToken;expires=x.expires;return true;
+}
+async function refresh(){
+ if(renewing)return renewing;
+ renewing=(async function(){
+  var vault=w.SH9_BOOK_ONEDRIVE_PERSIST_V3;
+  if(!vault||!config)return false;
+  var saved=await vault.load(w,config.clientId,config.account);if(!saved)return false;
+  try{
+   var response=await fetch(AUTH,{method:'POST',cache:'no-store',credentials:'omit',
+    headers:{'Content-Type':'application/x-www-form-urlencoded'},
+    body:new URLSearchParams({client_id:config.clientId,grant_type:'refresh_token',refresh_token:saved.refreshToken,scope:SCOPE})});
+   if(!response.ok)return false;
+   var data=await response.json();if(!data.access_token)return false;
+   access=data.access_token;expires=Date.now()+Math.max(60,Number(data.expires_in)||3600)*1000;
+   put(w.sessionStorage,TOKEN,JSON.stringify({accessToken:access,expires:expires,clientId:config.clientId,account:config.account}));
+   if(data.refresh_token)await vault.save(w,config.clientId,config.account,data.refresh_token,saved.issuedAt);
+   return true;
+  }catch(_){return false}
+ })().finally(function(){renewing=null});
+ return renewing;
+}
+async function graph(url){
+ if(!config)throw Error('A OneDrive még nincs beállítva a Book Studióban.');
+ var u=new URL(url,GRAPH);
+ if(u.protocol!=='https:'||u.hostname!=='graph.microsoft.com'||u.pathname.indexOf('/v1.0/')!==0)throw Error('Érvénytelen Graph cím.');
+ if(!(access&&expires>Date.now()+45000)&&!cachedAccess()&&!await refresh())throw Error('A Microsoft-munkamenet lejárt. Csatlakozz a Book Studióban.');
+ var send=function(){return fetch(u.href,{method:'GET',cache:'no-store',credentials:'omit',headers:{Authorization:'Bearer '+access}})};
+ var r=await send();if(r.status===401){reset();if(await refresh())r=await send()}
+ if(!r.ok){if(r.status===401)reset();throw Error('OneDrive HTTP '+r.status)}
+ return r.json();
+}
+async function verify(){
+ if(verified)return;
+ var p=await graph('me?$select=mail,userPrincipalName,otherMails');
+ var emails=[p.mail,p.userPrincipalName].concat(p.otherMails||[]).filter(Boolean).map(function(s){return String(s).toLowerCase()});
+ if(emails.indexOf(config.account)<0){reset();throw Error('Másik Microsoft-fiók van bejelentkezve.')}
+ verified=true;
+}
+function typeOf(x){return String((x.file&&x.file.mimeType)||'').toLowerCase()}
+function allow(x){return !!x.folder||PATHS[active].mime.test(typeOf(x))}
+function fmt(n){return n>1048576?(n/1048576).toFixed(1)+' MB':Math.max(1,Math.round(n/1024))+' KB'}
+function pathEncode(p){return p.split('/').map(encodeURIComponent).join('/')}
+function showConnect(){if($('odMediaConnect'))$('odMediaConnect').hidden=false}
+function crumbBar(){
+ var root=$('mediaBreadcrumb');root.replaceChildren();
+ crumbs.forEach(function(c,i){var b=d.createElement('button');b.type='button';b.textContent=c.name;b.onclick=function(){crumbs=crumbs.slice(0,i+1);void list(c.id)};root.appendChild(b)});
+}
+function close(){
+ var f=$('mediaViewer');if(f.hidden)return;
+ var player=$('mediaPlayer');player.pause();player.removeAttribute('src');player.load();
+ $('mediaImage').removeAttribute('src');f.hidden=true;viewer=null;
+ if(d.fullscreenElement)void d.exitFullscreen().catch(function(){});
+}
+function mediaCard(x){
+ var b=d.createElement('button');b.type='button';b.className='media-file';
+ var img=d.createElement('span');img.className='media-file-cover';
+ img.textContent=x.folder?'📁':active==='photos'?'🖼️':active==='videos'?'🎬':'🎧';
+ var t=d.createElement('strong');t.textContent=safe(x.name);
+ var sub=d.createElement('small');sub.textContent=x.folder?'Mappa':fmt(Number(x.size)||0);
+ b.append(img,t,sub);
+ var thumb=x.thumbnails&&x.thumbnails[0]&&(x.thumbnails[0].medium||x.thumbnails[0].small);
+ if(!x.folder&&thumb&&typeof thumb.url==='string'&&thumb.url.indexOf('https://')===0){
+  var poster=d.createElement('img');poster.alt='';poster.loading='lazy';poster.referrerPolicy='no-referrer';poster.src=thumb.url;img.textContent='';img.appendChild(poster);
+ }
+ b.onclick=function(){if(x.folder){crumbs.push({id:x.id,name:x.name});void list(x.id)}else void open(x)};
+ return b;
+}
+async function listing(u){
+ var out=[],next=u,pages=0;
+ while(next&&++pages<=5&&out.length<650){
+  var j=await graph(next);out.push.apply(out,j.value||[]);next=j['@odata.nextLink']||'';
+ }return out;
+}
+async function list(id){
+ if(!PATHS[active])return;
+ var seq=++serial;folder=id;if(!$('mediaViewer').hidden)close();
+ var grid=$('mediaFiles');grid.replaceChildren();crumbBar();status('☁️ OneDrive mappa betöltése…');
+ try{
+  await verify();
+  var path=id?'me/drive/items/'+encodeURIComponent(id)+'/children':
+   'me/drive/root:/'+pathEncode(PATHS[active].path)+':/children';
+  var url=path+'?$top=120&$expand=thumbnails',rows;
+  try{rows=await listing(url)}catch(err){
+   if(/HTTP 400/.test(err.message||''))rows=await listing(path+'?$top=120');
+   else throw err;
+  }
+  if(seq!==serial)return;
+  entries=rows.filter(allow).sort(function(a,b){return Number(!!b.folder)-Number(!!a.folder)||a.name.localeCompare(b.name,'hu')});
+  entries.forEach(function(x){grid.appendChild(mediaCard(x))});
+  if(!entries.length)grid.textContent='Ebben a mappában nincs megjeleníthető média.';
+  status('✓ OneDrive · '+entries.length+' elem · csak olvasás');
+ }catch(err){if(seq!==serial)return;status('⚠ '+safe(err.message),true);showConnect()}
+}
+async function select(kind){
+ if(!PATHS[kind])return;
+ active=kind;config=readConfig();verified=false;access='';expires=0;
+ $('mediaLibrary').hidden=false;
+ $('mediaLibraryTitle').textContent=PATHS[kind].label+' · OneDrive';
+ $('odMediaConnect').hidden=true;crumbs=[{id:'',name:PATHS[kind].label}];entries=[];folder='';
+ $('mediaLibrary').scrollIntoView({behavior:'smooth',block:'start'});
+ if(!config){status('Microsoft-kapcsolat szükséges. Nyisd meg a Book Studiót.',true);showConnect();return}
+ await list('');
+}
+async function open(item){
+ viewer=item;$('mediaViewer').hidden=false;
+ $('mediaViewerTitle').textContent=safe(item.name);
+ $('mediaImage').hidden=true;$('mediaPlayer').hidden=true;
+ $('mediaViewerMessage').textContent='Betöltés…';
+ try{
+  var data=await graph('me/drive/items/'+encodeURIComponent(item.id));
+  var url=data['@microsoft.graph.downloadUrl'];
+  if(typeof url!=='string'||url.indexOf('https://')!==0)throw Error('A Microsoft nem adott lejátszási linket.');
+  if(viewer!==item)return;
+  // Ephemeral URL comes from the authorized Graph item response, never stored or sent to TV.
+  if(active==='photos'){$('mediaImage').src=url;$('mediaImage').hidden=false}
+  else{var video=$('mediaPlayer');video.src=url;video.hidden=false;video.controls=true;video.load()}
+  $('mediaViewerMessage').textContent='';
+ }catch(err){$('mediaViewerMessage').textContent='⚠ '+safe(err.message)}
+}
+async function fullscreen(){
+ var surface=$('mediaViewerFrame');
+ try{
+  if(!d.fullscreenElement&&surface.requestFullscreen)await surface.requestFullscreen();
+  if(w.screen.orientation&&w.screen.orientation.lock)await w.screen.orientation.lock('landscape').catch(function(){});
+ }catch(_){status('Fordítsd el a telefont. A böngésző itt korlátozhatja a teljes képernyőt.',true)}
+}
+$('mediaViewerClose').onclick=close;
+$('mediaViewerFullscreen').onclick=function(){void fullscreen()};
+$('mediaRefresh').onclick=function(){if(active)void list(folder)};
+$('odMediaConnect').onclick=function(){w.location.href='../book-studio/'};
+$('mediaViewer').addEventListener('click',function(e){if(e.target===$('mediaViewer'))close()});
+d.addEventListener('keydown',function(e){if(e.key==='Escape'&&!$('mediaViewer').hidden)close()});
+Array.prototype.forEach.call(d.querySelectorAll('.tile[data-library]'),function(tile){
+ tile.addEventListener('click',function(e){e.preventDefault();void select(tile.getAttribute('data-library'))});
+});
+// Designer assets can be supplied as static resources without a visual regression if missing.
+Array.prototype.forEach.call(d.querySelectorAll('.tile[data-library],.tile.cinema'),function(tile){
+ var slug=tile.classList.contains('cinema')?'homecinema':tile.getAttribute('data-library');
+ var image=new Image();
+ image.onload=function(){tile.style.setProperty('--image','url("./assets/sho-tile-'+slug+'-v2.webp")')};
+ image.src='./assets/sho-tile-'+slug+'-v2.webp';
+});
+w.SHOMediaV2=Object.freeze({select:select});
+})(window,document);
