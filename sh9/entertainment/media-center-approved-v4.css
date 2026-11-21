@@ -1,6 +1,6 @@
 /* Media Center V4 · Approved full-size image above Book Studio.
  * The approved image already includes headings and arrow; do not draw a second caption.
- * Retain the original collage as offline/auth-unavailable fallback. */
+ * Use a stable dark gradient + readable caption while the authorized image loads. */
 .mc-feature .mc-feature-card.mc-v4-approved{
  background-image:var(--mc-approved-art);
  background-size:contain;
@@ -11,6 +11,5 @@
  box-shadow:0 12px 36px #000b,0 0 22px #ba63e35c;
 }
 .mc-feature .mc-feature-card.mc-v4-approved:after,
-.mc-feature .mc-feature-card.mc-v4-approved .mc-art,
 .mc-feature .mc-feature-card.mc-v4-approved .mc-caption{display:none!important}
 .mc-feature .mc-feature-card.mc-v4-approved:focus-visible{outline:3px solid #efbcff;outline-offset:3px}
