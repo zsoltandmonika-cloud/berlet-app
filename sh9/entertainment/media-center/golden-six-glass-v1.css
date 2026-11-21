@@ -1,0 +1,129 @@
+/* SHO Media Center | Golden Standard six-tile glass surface.
+ * 25% dark glass, existing approved photos preserved, original OneDrive actions unchanged.
+ * TV remote remains the header action; six media tiles share a premium single canvas. */
+.media-tiles-glass{
+ position:relative;
+ isolation:isolate;
+ padding:8px;
+ border:1px solid rgba(179,207,249,.29);
+ border-radius:21px;
+ background:
+  radial-gradient(ellipse at 100% 0%,rgba(116,83,217,.14),transparent 49%),
+  radial-gradient(ellipse at 0% 100%,rgba(31,144,213,.10),transparent 45%),
+  rgba(35,55,90,.25);
+ -webkit-backdrop-filter:blur(14px);
+ backdrop-filter:blur(14px);
+ box-shadow:inset 0 1px rgba(255,255,255,.15),
+  inset 0 0 0 1px rgba(128,167,235,.055),
+  0 12px 30px rgba(3,7,25,.32),
+  0 0 18px rgba(91,116,218,.12);
+}
+.media-tiles-glass .grid{margin:0}
+.media-tiles-glass .tile{
+ box-shadow:0 6px 17px rgba(0,4,18,.52),
+  inset 0 1px rgba(255,255,255,.11),
+  0 0 14px rgba(145,117,226,.10);
+}
+.media-tiles-glass .tile:focus-visible{outline:2px solid #b6ebff;outline-offset:2px}
+
+/* Two new equal-size destinations use the same original .tile dimensions. */
+.media-tiles-glass .tile.matches{
+ --image:linear-gradient(180deg,rgba(3,14,27,.05),rgba(3,13,28,.72)),
+  url("../../sport/SHO_Sport_hero_1672x941.webp");
+ border-color:rgba(186,250,124,.61);
+ box-shadow:inset 0 1px rgba(255,255,255,.13),
+  0 5px 16px rgba(1,13,19,.49),
+  0 0 16px rgba(127,239,116,.17);
+}
+.media-tiles-glass .tile.matches .flag{color:#e5ffcb;border-color:rgba(193,255,152,.52)}
+.media-tiles-glass .tile.matches .arrow{color:#d9ff9d}
+.media-tiles-glass .tile.security{
+ --image:
+  radial-gradient(ellipse at 74% 38%,rgba(22,153,225,.31),transparent 48%),
+  repeating-linear-gradient(0deg,transparent 0 20px,rgba(53,161,224,.15) 21px,transparent 22px),
+  repeating-linear-gradient(90deg,transparent 0 24px,rgba(63,178,240,.12) 25px,transparent 26px),
+  linear-gradient(145deg,#152b4b,#071529 72%);
+ border-color:rgba(112,217,255,.66);
+ box-shadow:inset 0 1px rgba(255,255,255,.12),
+  0 5px 16px rgba(0,9,28,.5),
+  0 0 17px rgba(63,175,235,.17);
+}
+.media-tiles-glass .tile.security .security-symbol{
+ position:absolute;top:13%;left:18%;z-index:1;
+ font-size:clamp(38px,8vw,96px);
+ line-height:1;
+ filter:drop-shadow(0 0 12px rgba(251,205,115,.49));
+ transform:rotate(-5deg);
+ pointer-events:none;
+}
+.media-tiles-glass .tile.security .security-pin{
+ position:absolute;top:22%;right:17%;z-index:1;
+ font-size:clamp(25px,5vw,55px);
+ filter:drop-shadow(0 0 11px rgba(101,232,255,.52));
+ pointer-events:none;
+}
+.media-tiles-glass .tile.security .flag{color:#cdf3ff;border-color:rgba(149,210,250,.55)}
+.media-tiles-glass .tile.security .arrow{color:#a2ecff}
+
+/* Compact, half-column-sized TV Remote card aligned with the first content tile.
+ * Keep original approved remote image and one-tap saved pairing destination. */
+.media-intro-v6 .media-inline-remote{
+ flex:0 0 min(255px,calc((100% - 25px)/2));
+ width:min(255px,calc((100% - 25px)/2));
+ height:clamp(74px,19vw,115px);
+ min-height:74px;
+ border:1px solid rgba(202,164,235,.66);
+ border-radius:16px;
+ overflow:hidden;
+ justify-content:flex-end;
+ padding:5px 7px;
+ background:
+  radial-gradient(ellipse at 95% 15%,rgba(60,169,234,.25),transparent 68%),
+  linear-gradient(131deg,rgba(45,29,48,.92),rgba(9,20,41,.95));
+ box-shadow:inset 0 1px rgba(255,255,255,.16),
+  0 0 15px rgba(135,104,213,.22);
+}
+.media-intro-v6 .media-inline-remote img{
+ position:relative;
+ z-index:1;
+ width:55%;height:100%;max-height:none;
+ object-fit:contain;
+ filter:drop-shadow(0 0 9px rgba(57,153,247,.40));
+}
+.media-inline-remote .remote-card-label{
+ position:absolute;z-index:2;
+ left:9px;bottom:13px;max-width:52%;
+ font-weight:900;
+ font-size:clamp(11px,2.7vw,18px);
+ line-height:1.12;
+ letter-spacing:-.025em;
+ text-shadow:0 2px 8px rgba(0,0,0,.75);
+}
+.media-inline-remote .remote-card-label small{
+ display:block;font-size:clamp(8px,1.8vw,11px);
+ font-weight:650;letter-spacing:0;color:#bbd9f4;margin-top:3px;
+}
+
+/* On narrow devices, use original card proportion and avoid header text overlap. */
+@media(max-width:700px){
+ .media-tiles-glass{padding:7px;border-radius:18px}
+ .media-tiles-glass .grid{gap:9px}
+ .media-intro-v6 .media-inline-remote{
+  height:clamp(76px,22vw,98px);
+  min-height:76px;
+  border-radius:14px;
+ }
+ .media-intro-v6 .media-intro-main{overflow:hidden}
+ .media-intro-v6 .lead{white-space:normal;line-height:1.26}
+ .media-intro-v6 h1{font-size:clamp(27px,7.6vw,35px)}
+ .media-tiles-glass .tile.security .security-symbol{font-size:clamp(36px,12vw,58px)}
+ .media-tiles-glass .tile.security .security-pin{font-size:clamp(25px,7vw,36px)}
+}
+@media(max-width:360px){
+ .media-intro-v6 .media-inline-remote{flex-basis:calc((100% - 25px)/2);width:calc((100% - 25px)/2)}
+ .media-intro-v6 h1{font-size:27px}
+ .media-inline-remote .remote-card-label{font-size:11px}
+}
+@media(prefers-reduced-motion:reduce){
+ .media-intro-v6 .media-inline-remote{transition:none}
+}
