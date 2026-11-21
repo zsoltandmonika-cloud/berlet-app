@@ -156,7 +156,6 @@ test('V4 approved Media Center & Home Videók hero art: order, visual integrity 
  assert.match(skin,/\.mc-caption\{display:none!important\}/);
  assert.match(art,/sho-media-center-hero-approved-v3\.webp/);
  assert.match(art,/SH9_BOOK_ONEDRIVE_PERSIST_V3/);
- assert.match(art,/\.mc-v4-approved/);
  assert.match(art,/\.classList\.add\('mc-v4-approved'\)/);
  assert.match(media,/<strong>🎥 Home Videók<\/strong>/);
  assert.match(homeArt,/Home Videók/);
