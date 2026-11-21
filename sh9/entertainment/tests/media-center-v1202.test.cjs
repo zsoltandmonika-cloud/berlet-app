@@ -33,7 +33,7 @@ test('Media Center directly opens saved Xiaomi TV remote without Cast registrati
  assert.match(media,/sho-family-tv\/remote\.html/);
  assert.doesNotMatch(media,/sho-family-tv\/cast-sender\.html/);
  assert.match(media,/Xiaomi TV · Távirányító/);
- assert.match(media,/korábban ellenőrzött, mentett TV-kapcsolatot/);
+ assert.match(media,/mentett TV-párosítás működik/);
  assert.match(media,/meglévő Book Studio Microsoft-munkamenetével/);
  assert.equal((media.match(/class="tile (?:cinema|photos|videos|music)"/g)||[]).length,4);
 });
