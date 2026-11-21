@@ -179,7 +179,10 @@
   // Unverified state stays on-page; never claim a successful Android handoff.
   const token=++fallbackToken;
   if(latest.state==='unknown'){
-   e?.preventDefault?.();choices();return;
+   e?.preventDefault?.();choices();
+   // A tap requests one explicit fresh check; never pretend an old heartbeat is live.
+   if(!busy)void check(true);
+   return;
   }
   panel.hidden=true;
   w.setTimeout(()=>{if(token===fallbackToken&&!d.hidden)choices()},1800);
