@@ -122,6 +122,7 @@ test('TV shortcut is one shared, tiny one-tap preview across SHO without leaking
  for(const [route,module] of Object.entries(cases)){
   const {win,doc,appended}=run(route);
   assert.equal(win.SHO_TV_SHORTCUT_V1.moduleForPath(route),module);
+  if(route==='/berlet-app/sh9/entertainment/'){assert.equal(appended.length,0,'no cheap floating TV on Entertainment');continue;}
   assert.equal(appended.length,1,route);
   assert.equal(appended[0].id,'shoTvShortcutV1');
   assert.equal(appended[0].href,'https://mediaradar.pages.dev/sho-family-tv/remote.html?show='+module);
@@ -135,6 +136,7 @@ test('TV shortcut is one shared, tiny one-tap preview across SHO without leaking
  assert.equal(run('https://elsewhere.org/').appended.length,0);
  assert.equal(run('/outside/app').appended.length,0);
  assert.equal(run('/berlet-app/sh9/entertainment/media-center/',true).appended.length,0,'preserve the approved C Smart remote');
+ assert.equal(run('/berlet-app/sh9/entertainment/index.html').appended.length,0,'no double TV button at Entertainment index');
  for(const p of ['sh9/entertainment/book-studio/index.html','sh9/shopping/smart-list.html','sh9/local-storage/index.html','sh9/shopping/store-manager-v1.html']){
   assert.match(read(p),/sho-tv-shortcut-v1\.js/,p);
  }
