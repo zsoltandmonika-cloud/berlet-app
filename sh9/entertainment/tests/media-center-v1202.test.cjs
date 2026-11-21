@@ -84,3 +84,57 @@ test('V3 compact C Smart TV remote replaces giant buttons and verbose footer',()
  assert.match(design,/width:36px;height:36px/);
  assert.match(design,/\.remote-smart-card/);
 });
+
+test('TV shortcut is one shared, tiny one-tap preview across SHO without leaking phone content',()=>{
+ const vm=require('node:vm');
+ const source=read('sh9/shared/sho-tv-shortcut-v1.js');
+ const nav=read('sh9/shared/sh9-golden-bottom-nav-v924.js');
+ const controls=read('sh9/shared/sh9-golden-controls-v1.js');
+ assert.match(nav,/ensureShoTvShortcut/);
+ assert.match(controls,/ensureShoTvShortcut/);
+ const run=(pathname,hasSmartRemote=false)=>{
+  const all={},appended=[];
+  const element=tag=>({
+   tagName:tag.toUpperCase(),attributes:{},setAttribute(k,v){this.attributes[k]=v}
+  });
+  const doc={
+   readyState:'complete',createElement:element,head:{appendChild(el){if(el.id)all[el.id]=el}},
+   body:{appendChild(el){appended.push(el);if(el.id)all[el.id]=el}},
+   getElementById(id){return all[id]||null},
+   querySelector(selector){return hasSmartRemote&&selector.indexOf('.remote-smart-card')!==-1?{}:null}
+  };
+  const win={location:{pathname,search:'?token=DO-NOT-SEND&gps=47.0'},
+   addEventListener(){}};
+  vm.runInNewContext(source,{window:win,document:doc}, {timeout:500});
+  return {win,doc,appended};
+ };
+ const cases={
+  '/berlet-app/sh9/':'home',
+  '/berlet-app/sh9/shopping/':'shop',
+  '/berlet-app/sh9/entertainment/':'media',
+  '/berlet-app/sh9/smart-travel/taxi/':'travel',
+  '/berlet-app/sh9/sport/':'sports',
+  '/berlet-app/sh9/family-hub/':'guard',
+  '/berlet-app/healthhub/guardian/':'guard',
+  '/berlet-app/healthhub/index.html':'health'
+ };
+ for(const [route,module] of Object.entries(cases)){
+  const {win,doc,appended}=run(route);
+  assert.equal(win.SHO_TV_SHORTCUT_V1.moduleForPath(route),module);
+  assert.equal(appended.length,1,route);
+  assert.equal(appended[0].id,'shoTvShortcutV1');
+  assert.equal(appended[0].href,'https://mediaradar.pages.dev/sho-family-tv/remote.html?show='+module);
+  assert.equal(appended[0].target,'_blank');
+  assert.equal(appended[0].rel,'noopener noreferrer');
+  assert.doesNotMatch(appended[0].href,/token|gps|healthhub|shopping|guardian|@|code=/);
+  assert.match(doc.getElementById('shoTvShortcutStyleV1').textContent,/width:51px;height:46px/);
+  win.SHO_TV_SHORTCUT_V1.mount();
+  assert.equal(appended.length,1,'no duplicate TV buttons');
+ }
+ assert.equal(run('https://elsewhere.org/').appended.length,0);
+ assert.equal(run('/outside/app').appended.length,0);
+ assert.equal(run('/berlet-app/sh9/entertainment/media-center/',true).appended.length,0,'preserve the approved C Smart remote');
+ for(const p of ['sh9/entertainment/book-studio/index.html','sh9/shopping/smart-list.html','sh9/local-storage/index.html','sh9/shopping/store-manager-v1.html']){
+  assert.match(read(p),/sho-tv-shortcut-v1\.js/,p);
+ }
+});
