@@ -33,7 +33,37 @@ test('Media Center directly opens saved Xiaomi TV remote without Cast registrati
  assert.match(media,/sho-family-tv\/remote\.html/);
  assert.doesNotMatch(media,/sho-family-tv\/cast-sender\.html/);
  assert.match(media,/Xiaomi TV · Távirányító/);
- assert.match(media,/korábban ellenőrzött, mentett TV-kapcsolatot/);
- assert.match(media,/személyes OneDrive tartalmak jelenleg nem aktívak/);
+ assert.match(media,/mentett TV-párosítás működik/);
+ assert.match(media,/meglévő Book Studio Microsoft-munkamenetével/);
  assert.equal((media.match(/class="tile (?:cinema|photos|videos|music)"/g)||[]).length,4);
+});
+
+test('V2 includes real read-only OneDrive album, HomeVideo, Full Albums catalogues',()=>{
+ const logic=read('sh9/entertainment/media-center/onedrive-media-v2.js');
+ const design=read('sh9/entertainment/media-center/onedrive-media-v2.css');
+ for(const path of ['Képek','Videos/HomeVideo','Zene/Full Albums'])assert.ok(logic.includes(path),path);
+ assert.match(logic,/Files\.Read/);
+ assert.doesNotMatch(logic,/Files\.ReadWrite|Files\.ReadWrite\.All/);
+ assert.match(logic,/verified=true/);
+ assert.match(logic,/me\?\$select=mail,userPrincipalName,otherMails/);
+ assert.match(logic,/OneDrive.*HTTP/);
+ assert.match(logic,/SHO%20Media%20Center%20Assets/);
+ assert.match(logic,/\.tile\[data-library\]/);
+ assert.match(media,/id="mediaLibrary"/);
+ assert.match(media,/id="mediaFiles"/);
+ assert.match(media,/id="mediaAudio"/);
+ assert.match(media,/id="mediaViewer"/);
+ assert.match(media,/id="mediaFullScreen"/);
+ assert.match(logic,/requestFullscreen/);
+ assert.match(logic,/orientation\.lock/);
+ assert.match(design,/\(orientation:landscape\)/);
+ assert.match(design,/media-file/);
+});
+test('V2 preserves QR-free Xiaomi remote and avoids exposing OneDrive session to TV',()=>{
+ const logic=read('sh9/entertainment/media-center/onedrive-media-v2.js');
+ assert.match(media,/Xiaomi TV · Távirányító/);
+ assert.match(logic,/No personal media or access tokens sent to the TV/);
+ assert.match(logic,/microsoftonline\.com\/consumers/);
+ assert.doesNotMatch(logic,/supabase\.co\/realtime|broadcast.+Authorization/);
+ assert.match(media,/TV APK-ban a OneDrive-saját tartalom még nincs bekötve/);
 });
