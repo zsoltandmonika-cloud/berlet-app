@@ -24,7 +24,7 @@ test('Approved featured graphic is not stretched or cropped',()=>{
  assert.match(css,/\.pixel-extension \.pixel-feature-custom/);
 });
 test('Existing entertainment content and Etele card remain unchanged',()=>{
- for(const label of ['Mozi','Színház','Koncertek','Home Media'])assert.ok(page.includes('>'+label+'</b>'));
+ for(const label of ['Mozi','Színház','Koncertek','Média'])assert.ok(page.includes('>'+label+'</b>'));
  assert.ok(page.includes('class="card etele-featured"'));
  assert.ok(page.includes('id="pixelFeatureLink"'));
  assert.ok(page.includes('books-promo books-promo--immersive'));
