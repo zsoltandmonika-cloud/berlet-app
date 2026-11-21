@@ -1,4 +1,4 @@
-/* SHO universal TV shortcut v1.
+/* SHO universal TV shortcut v2 placement (same API).
  * "TV-re" opens ONLY a built-in 16:9 demo screen for a known module.
  * Never screen-captures sensitive phone pages or transports GPS, medical data,
  * personal content, URLs, credentials, or OneDrive tokens over public pairing.
@@ -37,7 +37,7 @@
   if(!d.getElementById('shoTvShortcutStyleV1')){
    var sheet=d.createElement('style');sheet.id='shoTvShortcutStyleV1';
    sheet.textContent=[
-    '.sho-tv-shortcut-v1{position:fixed;right:11px;bottom:calc(88px + env(safe-area-inset-bottom,0px));z-index:70;',
+    '.sho-tv-shortcut-v1{position:fixed;left:11px;top:calc(64px + env(safe-area-inset-top,0px));right:auto;bottom:auto;z-index:70;',
     'width:51px;height:46px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:0;',
     'background:linear-gradient(145deg,rgba(18,31,51,.95),rgba(30,61,81,.96));border:1px solid rgba(114,215,242,.8);',
     'border-radius:14px;color:#e7faff;text-decoration:none;font-family:system-ui,sans-serif;font-size:10px;font-weight:800;',
@@ -45,8 +45,8 @@
     'touch-action:manipulation;-webkit-tap-highlight-color:transparent}',
     '.sho-tv-shortcut-v1 svg{display:block;width:23px;height:22px}',
     '.sho-tv-shortcut-v1:focus-visible{outline:3px solid #a3edff;outline-offset:3px}',
-    '@media(min-width:950px){.sho-tv-shortcut-v1{bottom:20px;right:20px}}',
-    '@media(max-height:420px) and (orientation:landscape){.sho-tv-shortcut-v1{bottom:12px;right:12px}}',
+    '@media(min-width:950px){.sho-tv-shortcut-v1{top:20px;left:20px;right:auto;bottom:auto}}',
+    '@media(max-height:420px) and (orientation:landscape){.sho-tv-shortcut-v1{top:12px;left:12px;right:auto;bottom:auto}}',
     '@media print{.sho-tv-shortcut-v1{display:none!important}}'
    ].join('');
    d.head.appendChild(sheet);
