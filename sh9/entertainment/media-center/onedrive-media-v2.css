@@ -68,7 +68,7 @@ body{background:radial-gradient(ellipse at 50% -30%,#6a402d55,transparent 55%),r
 .page:fullscreen{width:100%;max-width:100%;height:100%;overflow:auto;padding:12px 2vw;background:radial-gradient(ellipse at top,#443020,#070910 67%)}
 @media(max-width:700px){.center-actions{justify-content:stretch}.center-actions>*{flex:1 1 100%;width:100%}}
 
-/* V3 Golden: single compact C Smart TV Remote, fullscreen in the top right. */
+/* V6: inline illustrated TV Remote sits by the title; fullscreen remains top right. */
 .top{gap:9px}
 .top .sho{margin-left:auto;text-align:right;min-width:0}
 .header-fullscreen{
@@ -80,38 +80,14 @@ body{background:radial-gradient(ellipse at 50% -30%,#6a402d55,transparent 55%),r
  padding:0;
 }
 .header-fullscreen:hover,.header-fullscreen:focus-visible{outline:2px solid #f3c38d;outline-offset:2px;color:#fff}
-.remote-smart-card{
- width:min(100%,395px);min-height:68px;display:flex;align-items:center;
- gap:8px;position:relative;isolation:isolate;overflow:hidden;
- border:1px solid rgba(80,209,242,.85);border-radius:17px;
- background:linear-gradient(115deg,#161321 0%,#111e38 46%,#0a3653 100%);
- color:#f8f6ff;padding:3px 12px 3px 4px;margin:0 0 15px;
- box-shadow:inset 0 1px #ffffff28,0 9px 20px #0008,0 0 17px #25baf42b;
- text-decoration:none;
-}
-.remote-smart-card:before{content:"";pointer-events:none;position:absolute;inset:0;background:radial-gradient(circle at 22% 54%,#aa5f8330,transparent 34%),linear-gradient(115deg,transparent 56%,#51e0ff12);}
-.remote-smart-card:hover,.remote-smart-card:focus-visible{outline:2px solid #7ce5ff;outline-offset:2px;border-color:#a7edff}
-.remote-smart-visual{position:relative;flex:0 0 113px;height:61px;display:flex;align-items:center;justify-content:center;filter:drop-shadow(0 0 7px #36c9fc60)}
-.remote-smart-visual svg{max-width:100%}
-.remote-smart-copy{position:relative;display:flex;flex:1;flex-direction:column;gap:3px;min-width:0}
-.remote-smart-copy strong{font-size:clamp(16px,2.1vw,20px);font-weight:850;letter-spacing:-.025em;white-space:nowrap}
-.remote-smart-copy small{font-size:clamp(10px,1.25vw,12px);color:#c5e4ee;white-space:nowrap}
-.remote-smart-arrow{position:relative;font-size:27px;color:#85e7ff;line-height:1}
 @media(max-width:700px){
  .top{gap:7px}
  .top .sho{font-size:10px;letter-spacing:.065em;white-space:nowrap}
  .intro{margin:11px 0 10px}
- .remote-smart-card{width:100%;min-height:62px;height:62px;border-radius:14px;margin-bottom:12px}
- .remote-smart-visual{flex-basis:105px;height:58px}
- .remote-smart-copy strong{font-size:17px}
- .remote-smart-copy small{font-size:11px}
 }
-@media(max-width:360px){.top .sho{font-size:9px;letter-spacing:0}.remote-smart-visual{flex-basis:91px}.remote-smart-copy strong{font-size:15px}.remote-smart-copy small{font-size:10px}}
+@media(max-width:360px){.top .sho{font-size:9px;letter-spacing:0}}
 @media(max-width:900px) and (orientation:landscape){
  .intro{margin:7px 0 8px}
- .remote-smart-card{width:min(100%,340px);min-height:48px;height:48px;margin-bottom:9px}
- .remote-smart-visual{height:46px;flex-basis:90px}
- .remote-smart-visual svg{height:48px}
 }
 
 /* Approved Home Videók tile: source artwork contains its own heading and badge.
