@@ -7,8 +7,8 @@ const read=p=>fs.readFileSync(path.join(root,p),'utf8');
 const page=read('sh9/entertainment/index.html');
 const css=read('sh9/entertainment/media-center-feature-v1202.css');
 const media=read('sh9/entertainment/media-center/index.html');
-test('SHO previous sections remain in original relative order and Book Studio stays untouched',()=>{
- const marks=['class="categories"','class="pixel-extension"','class="bs-entertainment-feature"','class="mc-feature"','class="section sh9-program-feature"','id="upcoming"','id="mozi"'];
+test('SHO Media Center sits as one full-width card ABOVE Book Studio, with following sections intact',()=>{
+ const marks=['class="categories"','class="pixel-extension"','class="mc-feature"','class="bs-entertainment-feature"','class="section sh9-program-feature"','id="upcoming"','id="mozi"'];
  let previous=-1;
  for(const m of marks){const at=page.indexOf(m);assert.ok(at>previous,'section order '+m);previous=at;}
  for(const cat of ['cat cinema','cat theatre','cat concert','cat home-media'])assert.ok(page.includes('class="'+cat+'"'));
@@ -137,4 +137,32 @@ test('TV shortcut is one shared, tiny one-tap preview across SHO without leaking
  for(const p of ['sh9/entertainment/book-studio/index.html','sh9/shopping/smart-list.html','sh9/local-storage/index.html','sh9/shopping/store-manager-v1.html']){
   assert.match(read(p),/sho-tv-shortcut-v1\.js/,p);
  }
+});
+
+test('V4 approved Media Center & Home Videók hero art: order, visual integrity and privacy',()=>{
+ const art=read('sh9/entertainment/media-center-approved-v4.js');
+ const skin=read('sh9/entertainment/media-center-approved-v4.css');
+ const homeArt=read('sh9/entertainment/media-center/onedrive-media-v2.js');
+ const homeCss=read('sh9/entertainment/media-center/onedrive-media-v2.css');
+ const mediaPos=page.indexOf('class="mc-feature"');
+ const booksPos=page.indexOf('class="bs-entertainment-feature"');
+ assert.ok(mediaPos>0 && booksPos>mediaPos,'Media Center must be ABOVE Book Studio, not beside/below');
+ assert.equal((page.match(/class="mc-feature"/g)||[]).length,1,'exactly one full-width Media Center');
+ assert.match(page,/class="mc-feature-card"/);
+ assert.match(page,/media-center-approved-v4\.css/);
+ assert.match(page,/media-center-approved-v4\.js/);
+ assert.match(skin,/background-size:contain/);
+ assert.match(skin,/\.mc-feature-card\.mc-v4-approved/);
+ assert.match(skin,/\.mc-caption\{display:none!important\}/);
+ assert.match(art,/sho-media-center-hero-approved-v3\.webp/);
+ assert.match(art,/SH9_BOOK_ONEDRIVE_PERSIST_V3/);
+ assert.match(art,/\.mc-v4-approved/);
+ assert.match(art,/\.classList\.add\('mc-v4-approved'\)/);
+ assert.match(media,/<strong>🎥 Home Videók<\/strong>/);
+ assert.match(homeArt,/Home Videók/);
+ assert.match(homeArt,/sho-tile-homevideos-approved-v3\.webp/);
+ assert.match(homeArt,/for\(let slug in names\)/);
+ assert.match(homeCss,/tile-art-baked-v4/);
+ assert.match(homeCss,/\.tile\.videos\.tile-art-baked-v4 \.copy/);
+ assert.doesNotMatch(art,/broadcast|Supabase|Files\.ReadWrite/);
 });
