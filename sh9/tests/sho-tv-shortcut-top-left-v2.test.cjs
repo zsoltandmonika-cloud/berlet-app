@@ -7,12 +7,14 @@ const vm=require('node:vm');
 const root=path.resolve(__dirname,'../..');
 const read=p=>fs.readFileSync(path.join(root,p),'utf8');
 const code=read('sh9/shared/sho-tv-shortcut-v1.js');
-test('Shared floating TV shortcut is top-left and respects mobile safe area',()=>{
+test('Shared TV shortcut is premium 45x45 top-left and respects mobile safe area',()=>{
  assert.match(code,/position:fixed;left:11px;top:calc\(64px \+ env\(safe-area-inset-top,0px\)\);right:auto;bottom:auto/);
  assert.match(code,/@media\(min-width:950px\).*top:20px;left:20px;right:auto;bottom:auto/);
  assert.match(code,/@media\(max-height:420px\).*top:12px;left:12px;right:auto;bottom:auto/);
  assert.doesNotMatch(code,/bottom:calc\(88px \+ env\(safe-area-inset-bottom/);
- assert.match(code,/width:51px;height:46px/);
+ assert.match(code,/width:45px;height:45px/);
+ assert.match(code,/backdrop-filter:blur\\(12px\\)/);
+ assert.match(code,/border-radius:13px/);
 });
 test('Single TV button retains module-only URLs, privacy and approved inline remote exceptions',()=>{
  const mounted={},children=[];
@@ -46,6 +48,6 @@ test('Direct and shared loaders request the cache-refreshed universal shortcut',
   'sh9/smart-travel/public-transport/smart-trip/v5/universal/index.html'
  ];
  for(const file of files){
-  assert.match(read(file),/sho-tv-shortcut-v1\.js\?v=2-top-left-20261121/,file);
+  assert.match(read(file),/sho-tv-shortcut-v1\.js\?v=3-premium45-20261121/,file);
  }
 });
