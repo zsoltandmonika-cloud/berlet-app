@@ -1,4 +1,4 @@
-/* SHO universal TV shortcut v3 premium 45x45 layout (same API).
+/* SHO universal TV shortcut v4: recover stale-mounted shortcut, premium 45x45.
  * "TV-re" opens ONLY a built-in 16:9 demo screen for a known module.
  * Never screen-captures sensitive phone pages or transports GPS, medical data,
  * personal content, URLs, credentials, or OneDrive tokens over public pairing.
@@ -6,6 +6,22 @@
  */
 (function(w,d){
  'use strict';
+ // This small forced-position stylesheet also repairs an already-mounted V1
+ // button if a stale navigation script ran first (browser/PWA offline cache).
+ // Its !important declarations deliberately override old bottom/right rules.
+ function enforcePlacementV4(){
+  if(!d.head||!d.createElement||!d.getElementById)return;
+  if(d.getElementById('shoTvShortcutPositionV4'))return;
+  var fix=d.createElement('style');fix.id='shoTvShortcutPositionV4';
+  fix.textContent=[
+   '#shoTvShortcutV1.sho-tv-shortcut-v1{position:fixed!important;left:11px!important;top:calc(64px + env(safe-area-inset-top,0px))!important;right:auto!important;bottom:auto!important;width:45px!important;height:45px!important;box-sizing:border-box!important;z-index:70!important}',
+   '#shoTvShortcutV1.sho-tv-shortcut-v1{background:linear-gradient(145deg,rgba(32,54,84,.91),rgba(12,26,49,.92))!important;border:1px solid rgba(151,208,242,.52)!important;border-radius:13px!important;-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}',
+   '@media(min-width:950px){#shoTvShortcutV1.sho-tv-shortcut-v1{left:20px!important;top:20px!important}}',
+   '@media(max-height:420px) and (orientation:landscape){#shoTvShortcutV1.sho-tv-shortcut-v1{left:12px!important;top:12px!important}}'
+  ].join('');
+  d.head.appendChild(fix);
+ }
+ enforcePlacementV4();
  if(w.SHO_TV_SHORTCUT_V1)return;
  var LINK='https://mediaradar.pages.dev/sho-family-tv/remote.html';
  var ROOT='/berlet-app/';
