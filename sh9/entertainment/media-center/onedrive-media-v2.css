@@ -61,3 +61,6 @@ body{background:radial-gradient(ellipse at 50% -30%,#6a402d55,transparent 55%),r
  .media-viewer-body img,.media-viewer-body video{max-height:calc(100dvh - 55px)}
 }
 @media(prefers-reduced-motion:reduce){.tile:before{transition:none}}
+
+.media-viewer [hidden]{display:none!important}
+.media-viewer-body audio{width:min(700px,90vw);min-height:60px;max-height:25vh}
