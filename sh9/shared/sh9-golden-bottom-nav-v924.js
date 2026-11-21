@@ -180,6 +180,16 @@
   script.onerror=()=>{};
   d.head?.appendChild(script);
  }
+
+ /* Universal, non-invasive TV-safe module preview. One shared 51px shortcut,
+    never module data or a screencast. Shared controls/nav load it once. */
+ function ensureShoTvShortcut(){
+  if(w.SHO_TV_SHORTCUT_V1||d.querySelector('script[data-sho-tv-shortcut-v1]'))return;
+  const script=d.createElement('script');
+  script.setAttribute('data-sho-tv-shortcut-v1','1');
+  script.src='/berlet-app/sh9/shared/sho-tv-shortcut-v1.js?v=1';
+  d.head?.appendChild(script);
+ }
  function ensureNotificationCore(){
   if(!notificationPilotRoute())return;
   if(w.SHO_NOTIFICATION_CORE_V1){paintNotifications();ensureNotificationSound();ensureSportScheduleFeed();return}
@@ -205,7 +215,7 @@
     existing.remove();
     delete d.body.dataset.sh9GoldenFallback;
    }
-   bindNotifications();paintNotifications();ensureNotificationCore();
+   bindNotifications();paintNotifications();ensureNotificationCore();ensureShoTvShortcut();
    // Never stack a second five-button bar above a module's own nav.
    // In modules with essential non-Timeline actions, keep those actions intact.
    if(!genuine&&!existing&&navs.length===0&&!d.querySelector('#sh9GlobalNavV24'))
