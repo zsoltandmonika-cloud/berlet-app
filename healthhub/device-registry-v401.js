@@ -84,6 +84,13 @@ function panel(force){
   var verified=centralRows.filter(function(x){return x&&['zsolt','monika'].includes(x.profile_key)&&x.device_id&&x.verified_at});
   var centralReady=verified.length>0;
   var html='<div class="hhRegHead401"><div><h3>📱 Családi telefonok</h3><small>Hitelesített központi eszközök · a Dropbox-kapcsolattól független</small></div><span>🔐 Központi</span></div>';
+  // Show the actual browser OAuth account outside the collapsed legacy panel.
+  // Device central pairing does NOT prove that native and browser Dropbox accounts match.
+  html+='<p class="hhRegAccountIdentity401" role="status"><strong>☁️ Webes Dropbox-fiók: '+
+    (suffix?'…'+clean(suffix):'nem ellenőrizhető')+'</strong>'+
+    '<small>A HH ONE natív telefonok ettől eltérő Dropbox-fiókba írhatnak. '+
+    'Egyezés hiányában ne indíts feltöltést vagy felhőegyesítést. '+
+    'A fiókot a natív HH ONE képernyőn látható azonosító utolsó 8 karakterével ellenőrizd.</small></p>';
   if(!centralReady)html+='<p class="hhRegNote401">Központi hitelesítés ellenőrzésre vár. A régi Dropbox-listából nem következtetünk újrapárosításra.</p>';
   ['zsolt','monika'].forEach(function(p){
    var row=verified.find(function(x){return x.profile_key===p}),name=p==='zsolt'?'💙 Zsolt':'🩷 Mónika';
@@ -190,6 +197,7 @@ function style(){
  var x=document.createElement('style');x.id=STYLE;x.textContent=
  '#'+PANEL+'{position:relative;isolation:isolate;z-index:66;pointer-events:auto;background:#fff;border:1px solid #dce8ee;border-radius:17px;padding:12px;margin:10px 0;color:#173f62;font:inherit}'+
  '#'+PANEL+' button{border:1px solid #c9dce9;border-radius:10px;padding:8px 10px;background:#f3f9fc;color:#173f62;font-size:11px;font-weight:800;cursor:pointer;touch-action:manipulation;min-height:38px}'+
+ '.hhRegAccountIdentity401{margin:9px 0 11px;padding:11px 12px;border-radius:12px;background:#fff4e6;border:1px solid #d7a55c;color:#6e4616;font-size:12px;line-height:1.5}.hhRegAccountIdentity401 small{display:block;font-size:10px;margin-top:5px;color:#7a5328;line-height:1.5}'+
  '.hhRegLegacyDetails{margin-top:10px;padding:8px;border:1px dashed #abc9df;border-radius:12px;background:#f5f9fc}.hhRegLegacyDetails>summary{cursor:pointer;font-size:12px;font-weight:700;color:#285379}.hhRegLegacyDetails[open]>summary{margin-bottom:9px}'+
   '.hhFcPanel{border:1px solid #bed8ee;border-radius:14px;padding:12px;background:linear-gradient(135deg,#eff8ff,#e9f2fa);margin-bottom:12px;color:#183b65}.hhFcPanel h4{margin:0 0 5px;font-size:14px}.hhFcPanel small{font-size:10px;display:block;color:#547391;line-height:1.5}.hhFcPanel p{font-size:11px;line-height:1.5}.hhFcPanel button{margin-top:6px}.hhFcLine{padding:9px;margin:7px 0;border-radius:9px;background:#fff;font-size:11px}.hhFcPair summary{font-weight:700;cursor:pointer;font-size:11px}.hhFcPair input{width:100%;box-sizing:border-box;border:1px solid #bad0e2;padding:10px;border-radius:9px;min-height:44px;background:#fff}.hhFcPair label{font-size:11px;display:block;margin:8px 0}.hhFcError{color:#a02b42!important}.hhFcNote{color:#1d6b50!important}.hhRegArchived{margin:8px 0}.hhRegMinor401 p button{margin:4px 0 4px 8px}'+
   '.hhRegReconcile401{display:flex;flex-direction:column;align-items:stretch;gap:7px;padding:10px;border:1px solid #bddef3;border-radius:12px;background:#eef7fd;margin:10px 0}.hhRegReconcile401 label{font-size:11px;font-weight:750}.hhRegReconcile401 input{font:inherit;font-size:14px;min-height:38px;padding:8px;border:1px solid #bcd1e0;border-radius:8px;color:#173f62;background:white}.hhRegReconcile401 small{font-size:10px;line-height:1.4;color:#527188}'+
