@@ -24,7 +24,8 @@ test('Only the existing Home Media category becomes a Media Center entry and one
  assert.match(page,/media-center-feature-v1202\.css\?v=1202-only-media/);
  assert.match(css,/aspect-ratio:1\.62/);
  assert.match(css,/height:calc\(\(100vw - 24px\)\/1\.62\)/);
- for(const part of ['mc-film','mc-memories','mc-music'])assert.match(css,new RegExp(part));
+ assert.doesNotMatch(css,/images\.unsplash\.com|\.mc-art/);
+ assert.doesNotMatch(page,/<span class="mc-art"/);
 });
 test('Media Center directly opens saved Xiaomi TV remote without Cast registration',()=>{
  for(const item of ['Házimozi','Képek','Videók','Zene'])assert.ok(media.includes(item));
@@ -164,4 +165,20 @@ test('V4 approved Media Center & Home Videók hero art: order, visual integrity 
  assert.match(homeCss,/tile-art-baked-v4/);
  assert.match(homeCss,/\.tile\.videos\.tile-art-baked-v4 \.copy/);
  assert.doesNotMatch(art,/broadcast|Supabase|Files\.ReadWrite/);
+});
+
+test('V5 cold startup never flashes legacy Media Center hero, old media tiles or old remote layout',()=>{
+ const hero=read('sh9/entertainment/media-center-feature-v1202.css');
+ const v5=read('sh9/entertainment/media-center-approved-v4.css');
+ const script=read('sh9/entertainment/media-center/onedrive-media-v2.js');
+ assert.doesNotMatch(media,/images\\.unsplash\\.com|photo-1489599849927|photo-1452587925148|photo-1516035069371|photo-1511379938547/);
+ assert.doesNotMatch(hero,/images\\.unsplash\\.com|\\.mc-film|\\.mc-memories|\\.mc-music/);
+ assert.doesNotMatch(page,/<span class="mc-art"|class="mc-film"/);
+ for(const tile of ['cinema','photos','videos','music'])assert.match(media,new RegExp('\\.tile\\.'+tile+'\\{--image:linear-gradient'));
+ assert.doesNotMatch(script,/Designer assets can be supplied|assets\\/sho-tile-/);
+ assert.match(script,/async function updateTileArt\\(\\)/);
+ assert.match(script,/art\\.onload=function\\(\\)/);
+ assert.match(v5,/stable dark gradient/);
+ assert.match(media,/\\.remote-smart-card\\{display:flex;align-items:center;width:min\\(100%,395px\\)/);
+ assert.match(media,/class="remote-smart-card"/);
 });
