@@ -31,10 +31,10 @@ h1 em{font-style:normal;color:#d7a6ff}
 .tile strong{display:block;font-size:clamp(23px,3.1vw,38px);letter-spacing:-.04em;line-height:1.02}
 .tile small{display:block;font-size:clamp(11px,1.4vw,15px);color:#ded5eb;margin-top:6px}
 .tile .arrow{position:absolute;bottom:8%;right:5%;z-index:2;font-size:29px;color:#ffccff}
-.tile.cinema{--image:url("https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&w=1280&q=87");border-color:#7798e58c}
-.tile.photos{--image:url("https://images.unsplash.com/photo-1452587925148-ce544e77e70d?auto=format&fit=crop&w=1280&q=87");border-color:#ffba8a81}
-.tile.videos{--image:url("https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=1280&q=87");border-color:#74d6ff87}
-.tile.music{--image:url("https://images.unsplash.com/photo-1511379938547-c1f69419868d?auto=format&fit=crop&w=1280&q=87");border-color:#db8ce893}
+.tile.cinema{--image:linear-gradient(145deg,#282039,#101d38 65%,#070e1b);border-color:#7798e58c}
+.tile.photos{--image:linear-gradient(145deg,#463126,#222039 60%,#0e1426);border-color:#ffba8a81}
+.tile.videos{--image:linear-gradient(145deg,#272640,#122b49 60%,#0b0f26);border-color:#74d6ff87}
+.tile.music{--image:linear-gradient(145deg,#3d2037,#241836 60%,#0b122b);border-color:#db8ce893}
 .note{display:block;margin:18px 3px 0;color:#ababc4;font-size:12px;line-height:1.5}
 footer{margin-top:27px;padding:16px 3px;border-top:1px solid #bb87d433;color:#9898b0;font-size:12px}
 @media(max-width:700px){
@@ -46,8 +46,19 @@ footer{margin-top:27px;padding:16px 3px;border-top:1px solid #bb87d433;color:#98
  .tile .arrow{font-size:18px;right:8%;bottom:7%}
 }
 @media(prefers-reduced-motion:reduce){.tile:before{transition:none}}
+
+/* V5: stable first paint for the TV Remote, before the full glass stylesheet. */
+.remote-smart-card{display:flex;align-items:center;width:min(100%,395px);min-height:62px;gap:8px;margin:0 0 14px;padding:3px 12px 3px 4px;border-radius:14px;border:1px solid #50d1f2d9;background:linear-gradient(115deg,#161321,#111e38 46%,#0a3653);box-shadow:0 6px 21px #0009;color:#f8f6ff;position:relative;overflow:hidden}
+.remote-smart-visual{flex:0 0 105px;height:58px;display:flex;align-items:center;justify-content:center}
+.remote-smart-visual svg{width:105px;max-height:58px}
+.remote-smart-copy{display:flex;flex:1;min-width:0;flex-direction:column;gap:3px}
+.remote-smart-copy strong{font-size:17px;white-space:nowrap}
+.remote-smart-copy small{font-size:11px;color:#c5e4ee;white-space:nowrap}
+.remote-smart-arrow{font-size:27px;color:#85e7ff}
+.header-fullscreen{display:inline-flex;align-items:center;justify-content:center;flex:0 0 36px;width:36px;height:36px;border:1px solid #eac393a6;border-radius:11px;background:#251c2b;color:#f9d7ad}
+@media(max-width:700px){.remote-smart-card{width:100%}}
 </style>
-<link rel="stylesheet" href="./onedrive-media-v2.css?v=4-home-videos-approved">
+<link rel="stylesheet" href="./onedrive-media-v2.css?v=5-no-legacy-flash">
 </head>
 <body>
 <main class="page">
@@ -94,6 +105,6 @@ footer{margin-top:27px;padding:16px 3px;border-top:1px solid #bb87d433;color:#98
 
 </main>
 <script src="../book-studio/onedrive-session-v3.js"></script>
-<script src="./onedrive-media-v2.js?v=4-home-videos-approved"></script>
+<script src="./onedrive-media-v2.js?v=5-no-legacy-flash"></script>
 </body>
 </html>
