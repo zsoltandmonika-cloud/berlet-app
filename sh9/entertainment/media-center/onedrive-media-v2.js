@@ -200,5 +200,9 @@ async function updateTileArt(){
   }
  }catch(_){/* Keep public fallback image when OneDrive is unavailable. */}
 }
+// Paint the approved premium artwork on the landing page whenever the previously
+// authorized Microsoft session is available. Never force an OAuth redirect.
+config=readConfig();
+if(config)void updateTileArt();
 w.SHOMediaV2=Object.freeze({select:select});
 })(window,document);
