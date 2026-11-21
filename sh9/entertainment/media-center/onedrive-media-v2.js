@@ -78,8 +78,8 @@ function crumbBar(){
 }
 function close(){
  var f=$('mediaViewer');if(f.hidden)return;
- var player=$('mediaPlayer');player.pause();player.removeAttribute('src');player.load();
- $('mediaImage').removeAttribute('src');f.hidden=true;viewer=null;
+ var player=$('mediaPlayer'),audio=$('mediaAudio');player.pause();player.removeAttribute('src');player.load();
+ audio.pause();audio.removeAttribute('src');audio.load();$('mediaImage').removeAttribute('src');f.hidden=true;viewer=null;
  if(d.fullscreenElement)void d.exitFullscreen().catch(function(){});
 }
 function mediaCard(x){
@@ -130,12 +130,12 @@ async function select(kind){
  $('odMediaConnect').hidden=true;crumbs=[{id:'',name:PATHS[kind].label}];entries=[];folder='';
  $('mediaLibrary').scrollIntoView({behavior:'smooth',block:'start'});
  if(!config){status('Microsoft-kapcsolat szükséges. Nyisd meg a Book Studiót.',true);showConnect();return}
- await list('');
+ await Promise.all([list(''),updateTileArt()]);
 }
 async function open(item){
  viewer=item;$('mediaViewer').hidden=false;
  $('mediaViewerTitle').textContent=safe(item.name);
- $('mediaImage').hidden=true;$('mediaPlayer').hidden=true;
+ $('mediaImage').hidden=true;$('mediaPlayer').hidden=true;$('mediaAudio').hidden=true;
  $('mediaViewerMessage').textContent='Betöltés…';
  try{
   var data=await graph('me/drive/items/'+encodeURIComponent(item.id));
@@ -144,7 +144,7 @@ async function open(item){
   if(viewer!==item)return;
   // Ephemeral URL comes from the authorized Graph item response, never stored or sent to TV.
   if(active==='photos'){$('mediaImage').src=url;$('mediaImage').hidden=false}
-  else{var video=$('mediaPlayer');video.src=url;video.hidden=false;video.controls=true;video.load()}
+  else{var player=active==='music'?$('mediaAudio'):$('mediaPlayer');player.src=url;player.hidden=false;player.controls=true;player.load()}
   $('mediaViewerMessage').textContent='';
  }catch(err){$('mediaViewerMessage').textContent='⚠ '+safe(err.message)}
 }
@@ -171,5 +171,29 @@ Array.prototype.forEach.call(d.querySelectorAll('.tile[data-library],.tile.cinem
  image.onload=function(){tile.style.setProperty('--image','url("./assets/sho-tile-'+slug+'-v2.webp")')};
  image.src='./assets/sho-tile-'+slug+'-v2.webp';
 });
+async function updateTileArt(){
+ // The approved synthetic tile artwork remains private in OneDrive.
+ // Pull transient signed URLs only after a verified Microsoft session.
+ if(!config)return;
+ try{
+  await verify();
+  var j=await graph('me/drive/root:/SHO%20Media%20Center%20Assets:/children?$top=30');
+  var list=j.value||[];
+  var names={homecinema:'sho-tile-homecinema-v2.webp',photos:'sho-tile-photos-v2.webp',
+   videos:'sho-tile-videos-v2.webp',music:'sho-tile-music-v2.webp'};
+  for(var slug in names){
+   var file=list.find(function(x){return x.name===names[slug]&&x.file});
+   if(!file)continue;
+   try{
+    var item=await graph('me/drive/items/'+encodeURIComponent(file.id));
+    var link=item['@microsoft.graph.downloadUrl'];
+    if(typeof link==='string'&&link.indexOf('https://')===0){
+     var tile=d.querySelector(slug==='homecinema'?'.tile.cinema':'.tile[data-library="'+slug+'"]');
+     if(tile)tile.style.setProperty('--image','url("'+link.replace(/"/g,'%22')+'")');
+    }
+   }catch(_){}
+  }
+ }catch(_){/* Keep public fallback image when OneDrive is unavailable. */}
+}
 w.SHOMediaV2=Object.freeze({select:select});
 })(window,document);
