@@ -95,10 +95,10 @@ test('fresh second Samsung Pilot needs explicit confirmed owner binding, not HC 
  assert.match(sdk,/if \(prefs\.getString\("device_owner_profile", null\) != profile\)/);
 });
 
-test('candidate HH One 0.15.21 uses the same signed identity and Dropbox, but default OTA stays Samsung-free',()=>{
+test('separately gated Samsung candidate retains a higher version than the normal GPS repair candidate',()=>{
  assert.match(build,/gradleProperty\("hhSamsungIntegratedCandidate"\)/);
  assert.match(build,/val hhSamsungDirectEnabled = hhSamsungPilotEnabled \|\| hhSamsungIntegratedCandidateEnabled/);
- assert.match(build,/versionCode = 47[\s\S]*if \(hhSamsungIntegratedCandidateEnabled\) \{\s*versionCode = 48\s*versionName = "0\.15\.21"/);
+ assert.match(build,/versionCode = 51[\s\S]*if \(hhSamsungIntegratedCandidateEnabled\) \{\s*versionCode = 52\s*versionName = "0\.15\.25"/);
  assert.match(build,/buildConfigField\("boolean", "HH_SAMSUNG_DIRECT_AVAILABLE", hhSamsungDirectEnabled\.toString\(\)\)/);
  assert.match(build,/buildConfigField\("boolean", "HH_SAMSUNG_DIRECT_CANDIDATE", hhSamsungIntegratedCandidateEnabled\.toString\(\)\)/);
  assert.match(main,/if \(BuildConfig\.HH_SAMSUNG_DIRECT_AVAILABLE\) \{/);
@@ -117,7 +117,7 @@ test('integrated Samsung Direct export and Dropbox use canonical source marker',
 });
 
 
-test('0.15.21 Samsung background sync is opt-in, owner-bound, and disabled in normal OTA or separate Pilot',()=>{
+test('Samsung integrated background sync stays opt-in and disabled in normal OTA or separate pilot',()=>{
  assert.match(bg,/check\(BuildConfig\.HH_SAMSUNG_DIRECT_CANDIDATE\)/);
  assert.match(bg,/const val KEY_ENABLED = "samsung_direct_background_enabled"/);
  assert.match(bg,/const val KEY_MANUAL_CLOUD_VERIFIED_OWNER = "samsung_direct_manual_cloud_verified_owner"/);
