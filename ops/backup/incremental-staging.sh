@@ -46,19 +46,19 @@ if ! rclone cat 'onedrive:SHO/Backups/restic-staging-v1/config' >/dev/null 2>&1;
 fi
 restic cat config >/dev/null
 
-# Restic stdin-from-command propagates the generator's error code (unlike a blind pipe).
+# Ubuntu 24.04's Restic 0.16.4 only supports --stdin; Bash pipefail propagates source errors.
 # Streaming tar uses only RAM and reads Dropbox/S3 objects directly; no 40 GB local mirror.
-restic backup --tag "$TAG" --stdin-filename 'dropbox-cloud-vault.tar' --stdin-from-command -- \
-  python3 ops/backup/stream_remote_tar.py 'dropbox:Apps/HealthHub Cloud Vault'
-restic backup --tag "$TAG" --stdin-filename 'dropbox-monika-vault.tar' --stdin-from-command -- \
-  python3 ops/backup/stream_remote_tar.py 'dropbox:Apps/healthhub-vault'
-restic backup --tag "$TAG" --stdin-filename 'supabase-storage.tar' --stdin-from-command -- \
-  python3 ops/backup/stream_remote_tar.py 'supa_s3:'
+python3 ops/backup/stream_remote_tar.py 'dropbox:Apps/HealthHub Cloud Vault' | \
+  restic backup --tag "$TAG" --stdin --stdin-filename 'dropbox-cloud-vault.tar'
+python3 ops/backup/stream_remote_tar.py 'dropbox:Apps/healthhub-vault' | \
+  restic backup --tag "$TAG" --stdin --stdin-filename 'dropbox-monika-vault.tar'
+python3 ops/backup/stream_remote_tar.py 'supa_s3:' | \
+  restic backup --tag "$TAG" --stdin --stdin-filename 'supabase-storage.tar'
 
 # Custom-format pg_dump is streamed directly; staging does not create a local database.dump file.
-restic backup --tag "$TAG" --stdin-filename 'supabase-postgresql17.dump' --stdin-from-command -- \
-  docker run --rm -e SUPABASE_DB_URL postgres:17-alpine \
-  sh -ec 'pg_dump --format=custom --no-owner --no-acl "$SUPABASE_DB_URL" -f -'
+docker run --rm -e SUPABASE_DB_URL postgres:17-alpine \
+  sh -ec 'pg_dump --format=custom --no-owner --no-acl "$SUPABASE_DB_URL" -f -' | \
+  restic backup --tag "$TAG" --stdin --stdin-filename 'supabase-postgresql17.dump'
 
 # Both complete Git histories, including branch/tag refs and any LFS objects, plus deployed functions.
 cat > "$work/askpass.sh" <<'ASK'
