@@ -28,7 +28,7 @@ test('no hidden restore, delete, automatic upload, service-role credentials, or 
  assert.match(js,/w\.confirm\(/);
  assert.match(js,/restoreMode:'plan-only'/);
  assert.match(page,/A GitHub megnyitása még nem indít mentést/);
- assert.match(page,/Állapot/);
+ assert.match(page,/Fejlesztés állapota/);
 });
 function createContext(validSession=true, fakeResponses=[]){
  class Node{
