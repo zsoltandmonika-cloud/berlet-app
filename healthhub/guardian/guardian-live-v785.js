@@ -419,6 +419,7 @@ async function startSharing(){
  if(!user||!access.includes(p)){
   msg('Előbb hitelesítsd a saját családi profilt.');return;
  }
+ const requestingUser=user.id;
  const router=w.HH_GUARDIAN_GPS_ROUTER_V1177;
  if(!router?.forProfile?.(p)){
   msg('Nincs hitelesített natív GPS-route a kiválasztott profilhoz.');return;
@@ -430,7 +431,7 @@ async function startSharing(){
  msg('📡 Natív GPS-adat ellenőrzése az Outlook Dropboxból…');
  try{
   const r=await router.read(p);
-  if(p!==self())return; // a profil időközben megváltozott
+  if(p!==self()||!user||user.id!==requestingUser||!access.includes(p))return; // profil/bejelentkezés időközben megváltozott
   if(r?.status==='ok'){
    const age=Date.now()-Date.parse(r.data?.updated_at||'');
    if(Number.isFinite(age)&&age>=0&&age<=75000){
