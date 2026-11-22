@@ -1,6 +1,11 @@
 # SHO / HealthHub · OneDrive éjszakai teljes mentés
 
-**Státusz:** implementált, külön PR-ben tesztelt jelölt; **nem élesítve**. A GitHub `main` érintetlen, éles forrásból kizárólag olvasunk. A `schedule` csak jóváhagyott merge után aktiválódik. **Az aktuális ChatGPT OneDrive-hozzáférés nem ad automatikus, tartós hozzáférést egy GitHub Actions runnernek.**
+**Státusz:** implementált, külön PR-ben tesztelt jelölt; **nem élesítve**.
+
+
+**2026-11-23 · Biztonsági élesítési korlát:** A `berlet-app` GitHub repository **nyilvános**. A PR #1066-ben mindkét hitelesített mentési workflow most már kifejezetten ellenőrzi, hogy a futtató repository **privát** legyen; a public app repóban nem futhat felhőtitkokkal backup, még későbbi merge esetén sem. Az előző leírás „merge után azonnal aktív éjszakai mentés” állítása ezért érvénytelen. A megbízható élesítéshez **külön privát mentésfuttató repository** szükséges, és **az éjszakai schedule továbbra is le van tiltva**. Teljes egyszeri owner setup: [private-runner/OWNER_BOOTSTRAP.md](private-runner/OWNER_BOOTSTRAP.md), biztonságos, rögzített SHA-s minta: [private-runner/backup-staging.template.yml](private-runner/backup-staging.template.yml).
+
+ A GitHub `main` érintetlen, éles forrásból kizárólag olvasunk. A `schedule` csak jóváhagyott merge után aktiválódik. **Az aktuális ChatGPT OneDrive-hozzáférés nem ad automatikus, tartós hozzáférést egy GitHub Actions runnernek.**
 
 ## Időpont és cél
 - Minden nap **00:15 Europe/Budapest** (téli/nyári időszámítás szerint).
