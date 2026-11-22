@@ -270,7 +270,7 @@ async function inspectPuterAiV1164(){
    const client=api();if(!client)throw Error('A Nutri Info nem töltődött be.');
    const auth=w.puter?.auth;
    if(!auth?.isSignedIn?.()){
-     status('⚠ Puter AI nincs bejelentkezve. A HealthHub-fiók ettől különböző fiók.',true);return;
+     status('⚠ A Puter AI nincs bejelentkezve. Kattints a 🔐 Puter újrabelépés gombra. A HealthHub-fiók ettől különböző.',true);return;
    }
    const [user,quota]=await Promise.allSettled([
      auth.getUser?.(),auth.getMonthlyUsage?.()
@@ -296,11 +296,59 @@ async function inspectPuterAiV1164(){
  finally{if(button){button.disabled=false;button.textContent='🔎 Puter AI kapcsolat'}}
 }
 
+let puterReconnectInProgress=false;
+async function reconnectPuterV1166(){
+ if(puterReconnectInProgress)return false;
+ const button=byId('nutriPuterReconnectV1166');
+ const auth=w.puter?.auth;
+ if(!auth||typeof auth.signIn!=='function'){
+   status('⚠ A Puter.js hitelesítési modulja nem töltődött be. Frissítsd a Recept Stúdió oldalát.',true);
+   return false;
+ }
+ // IMPORTANT: No await before this call. Puter opens its popup only on
+ // explicit user activation; a prior session/HealthHub check would block it.
+ let signInResult;
+ try{
+   signInResult=auth.signIn({request_auth:true,attempt_temp_user_creation:false});
+ }catch(e){
+   status('⚠ Puter belépési ablak: '+puterAuthErrorV1166(e),true);return false;
+ }
+ puterReconnectInProgress=true;
+ if(button){button.disabled=true;button.textContent='🔐 Puter belépés folyamatban…'}
+ status('🔐 A Puter saját belépési ablakában válaszd ki a fiókodat, és add meg az új jelszót. A receptjeid nem változnak.');
+ try{
+   await signInResult;
+   const user=await auth.getUser();
+   if(!auth.isSignedIn?.()||!user)
+     throw Error('A Puter még nem erősítette meg a bejelentkezett fiókot.');
+   w.LENA_PUTER_CREDIT_GATE_V1159?.reset?.();
+   status('✓ Új Puter-munkamenet: '+String(user.username||user.email||'Puter felhasználó').slice(0,90)+'. A HealthHub saját tárhely és a receptek változatlanok.');
+   await inspectPuterAiV1164();
+   return true;
+ }catch(e){
+   status('⚠ Puter újrabelépés: '+puterAuthErrorV1166(e),true);
+   return false;
+ }finally{
+   puterReconnectInProgress=false;
+   if(button){button.disabled=false;button.textContent='🔐 Puter újrabelépés'}
+ }
+}
+function puterAuthErrorV1166(error){
+ const code=String(error?.error||error?.code||'').toLowerCase();
+ const msg=String(error?.msg||error?.message||'').replace(/\s+/g,' ').slice(0,160);
+ if(code==='popup_blocked')return 'A böngésző blokkolta a felugró ablakot. Engedélyezd a Puter bejelentkezési ablakát ennél az oldalnál.';
+ if(code==='auth_window_closed')return 'A belépési ablakot bezártad vagy megszakítottad. Az eddigi adatok megmaradtak.';
+ if(code==='not_available_in_app')return 'Puter-alkalmazáson belül a fiókot a Puter nyitófelületén lehet váltani.';
+ if(code==='unsupported_origin')return 'Az alkalmazás beágyazott ablaka nem engedélyezi a Puter-hitelesítést. Nyisd meg a Recept Stúdiót közvetlen böngészőben.';
+ return [code,msg].filter(Boolean).join(' · ')||'A Puter bejelentkezés nem sikerült. Próbáld meg a böngészőben.';
+}
+
 const start=byId('nutriBulkStartV1155'),stop=byId('nutriBulkStopV1155'),one=byId('nutriSingleStartV1165');
 start?.addEventListener('click',()=>void batch());
 one?.addEventListener('click',()=>void batch(1));
 stop?.addEventListener('click',()=>{stopRequested=true;status('⏸ Megállítás a most futó recept elkészülte után…');});
 byId('nutriPuterCheckV1164')?.addEventListener('click',()=>void inspectPuterAiV1164());
-w.LENA_NUTRI_STANDARD_V1155=Object.freeze({version:1165,generateOne,afterGoldenSave,refresh,stats,needs,signature,diagnoseError:classifyProviderError,runOne:()=>batch(1)});
+byId('nutriPuterReconnectV1166')?.addEventListener('click',()=>void reconnectPuterV1166());
+w.LENA_NUTRI_STANDARD_V1155=Object.freeze({version:1166,generateOne,afterGoldenSave,refresh,stats,needs,signature,diagnoseError:classifyProviderError,runOne:()=>batch(1),reconnectPuter:reconnectPuterV1166});
 refresh();
 })(window,document);
