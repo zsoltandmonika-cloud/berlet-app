@@ -22,7 +22,10 @@ jobs:
         run: |
           node --check healthhub/admin-backup/backup-admin-v1.js
           node --check healthhub/hh-admin-mobile-focus-v748.js
+          node --check supabase/functions/_shared/backup-control-v1.mjs
+          node --test ops/backup/tests/edge-dispatch.test.mjs
           node --test healthhub/tests/hh-backup-admin-v1.test.cjs
+          node --test healthhub/tests/hh-backup-admin-manual-v2.test.cjs
           node --test healthhub/tests/hh-admin-mobile-v748.test.cjs
           node --test healthhub/tests/hh-admin-action-grid-v822.test.cjs
           node healthhub/tests/unified-admin-v745.test.cjs
