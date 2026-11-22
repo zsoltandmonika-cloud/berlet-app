@@ -19,3 +19,19 @@ jobs:
         run: |
           bash -n ops/backup/nightly-full-backup.sh
           python -m unittest discover -s ops/backup/tests -v
+      - name: Read-only credential gate (reports names only, never values)
+        env:
+          HAS_RCLONE: ${{ secrets.SHO_RCLONE_CONFIG_B64 != '' }}
+          HAS_GITHUB: ${{ secrets.SHO_GITHUB_READ_TOKEN != '' }}
+          HAS_SUPA_DB: ${{ secrets.SHO_SUPABASE_DATABASE_URL != '' }}
+          HAS_SUPA_MGMT: ${{ secrets.SHO_SUPABASE_MANAGEMENT_TOKEN != '' }}
+          HAS_ESCROW: ${{ secrets.SHO_RECOVERY_ESCROW_B64 != '' }}
+          HAS_AGE_RECIPIENT: ${{ vars.SHO_BACKUP_AGE_RECIPIENT != '' }}
+        run: |
+          for key in HAS_RCLONE HAS_GITHUB HAS_SUPA_DB HAS_SUPA_MGMT HAS_ESCROW HAS_AGE_RECIPIENT; do
+            if [[ "${!key}" == "false" ]]; then
+              echo "::notice::Backup runner setup needed: $key"
+            else
+              echo "::notice::Backup runner $key is configured"
+            fi
+          done
