@@ -48,7 +48,7 @@ function indexedDBMock(){
 }
 test('Recipe Studio V1 loads new cache before app, preserving original cards and Nutri components',()=>{
  assert.ok(html.indexOf('recipe-asset-cache-v1.js')>0);
- assert.ok(html.indexOf('recipe-asset-cache-v1.js')<html.indexOf('app.js?v=1154'));
+ assert.ok(html.indexOf('recipe-asset-cache-v1.js')<html.indexOf('app.js?v=1163'));
  assert.match(html,/hh-puter-credit-gate-v1159\.js/);
  assert.match(html,/hh-nutrition-export-v1154\.js/);
  assert.match(html,/hh-nutri-golden-standard-v1155\.js/);
@@ -83,9 +83,9 @@ test('Metadata index is account-scoped and refreshed only when stale',async()=>{
 test('Downloads only missing/changed recipe pictures and explicit manual sync bypasses TTL',()=>{
  assert.match(app,/let blob=account\?await RECIPE_ASSET_CACHE_V1\?\.get\(account,v\):null/);
  assert.match(app,/if\(!blob&&!offlineOnly\)/);
- assert.match(app,/blob=await puter\.fs\.read\(v\.cardPath\)/);
+ assert.match(app,/v\.storage==="supabase"\?await HH_OWN_RECIPE_CLOUD_V1\.download\(v\.cardPath\):await puter\.fs\.read\(v\.cardPath\)/);
  assert.match(app,/await RECIPE_ASSET_CACHE_V1\?\.put\(account,v,blob\)/);
- assert.match(app,/if\(!force&&cached&&RECIPE_ASSET_CACHE_V1\?\.fresh\(cached\)/);
+ assert.match(app,/if\(force\|\|!cached\|\|!RECIPE_ASSET_CACHE_V1\?\.fresh\(cached\)/);
  assert.match(app,/async function refreshSharedRecipes\(render=true,force=false\)/);
  assert.match(app,/await refreshSharedRecipes\(true,true\)/);
  assert.match(app,/Date\.now\(\)-__lastCentralRefresh>15\*60\*1000/);
