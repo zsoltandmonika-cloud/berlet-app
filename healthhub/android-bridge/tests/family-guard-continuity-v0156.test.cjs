@@ -13,6 +13,8 @@ const worker=read(android+'java/hu/zsoltmonika/healthhubbridge/OrchestratorWorke
 const scope=read('healthhub/live-v305.js');
 const admin=read('healthhub/hh-one-rag-v500.js');
 const gradle=read('healthhub/android-bridge/app/build.gradle.kts');
+const dropbox=read(android+'java/hu/zsoltmonika/healthhubbridge/DropboxVaultClient.kt');
+const relay=read(android+'java/hu/zsoltmonika/healthhubbridge/FamilyGuardNativeRelay.kt');
 
 test('signed HH One v0.15.11 build38 keeps same physical app identity',()=>{
  assert.match(gradle,/versionCode = [1-9]\d*/);
@@ -77,4 +79,21 @@ test('periodic GPS recovery honors previously approved owner consent and STOP',(
  assert.match(continuity,/putBoolean\(KEY_AUTO_GPS, false\)/);
  assert.doesNotMatch(worker,/FamilyGuardContinuity\.setApproved\(applicationContext, true\)/);
  assert.doesNotMatch(worker,/FamilyGuardNativeRelay\.enable\(applicationContext\)/);
+});
+
+test('Dropbox native reporter keeps consent and exposes safe operation/HTTP diagnostics',()=>{
+ assert.match(dropbox,/existingFolderConflict\(body: String\)/);
+ assert.match(dropbox,/summary\.startsWith\("path\/conflict\/folder\/"\)/);
+ assert.match(dropbox,/summary == "path\/conflict\/folder"/);
+ assert.match(dropbox,/internal fun safeErrorReason\(error: Exception\)/);
+ assert.match(dropbox,/Regex\("""HTTP/);
+ assert.match(dropbox,/phase:HTTP/);
+ assert.match(relay,/DropboxVaultClient\.safeErrorReason\(e\)/);
+ assert.match(relay,/if \(!enabled\(app\) \|\| owner\(app\) != profile \|\| !Sh9GpsService\.active\)/);
+ assert.match(worker,/var dropboxStage = "folders"/);
+ assert.match(worker,/dropboxStage = "heartbeat"/);
+ assert.match(worker,/dropboxStage = "command"/);
+ assert.match(worker,/last_orchestrator_error", safeReason/);
+ assert.match(worker,/hh_registry_diagnostic_only", false\)\) Result\.failure\(\)/);
+ assert.match(act,/relayResult\.removePrefix\("network-error:"\)/);
 });

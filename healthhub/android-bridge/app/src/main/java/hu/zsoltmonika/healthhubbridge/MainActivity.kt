@@ -1660,7 +1660,8 @@ class MainActivity : ComponentActivity() {
                 relayResult == "revoked" -> "✓ Privát pozíció visszavonva"
                 relayResult == "not-selected-in-device-registry" ->
                     "⚠ Nem ez a kijelölt fizikai telefon · Admin → Eszközregiszter"
-                relayResult.startsWith("network-error:") -> "⚠ Hálózati feltöltési hiba"
+                relayResult.startsWith("network-error:") ->
+                    "⚠ Dropbox feltöltési hiba: " + relayResult.removePrefix("network-error:")
                 relayResult.startsWith("revoke-pending:") || relayResult == "stopping" ->
                     "⚠ Visszavonás folyamatban"
                 else -> "Még nincs ellenőrzött feltöltés"

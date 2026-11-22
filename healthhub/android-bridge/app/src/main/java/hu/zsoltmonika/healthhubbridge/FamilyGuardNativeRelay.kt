@@ -199,7 +199,7 @@ object FamilyGuardNativeRelay {
                 lastFailureAt = System.currentTimeMillis()
                 foldersReady = false
                 prefs(app).edit().putString(KEY_RESULT,
-                    "network-error:" + e.javaClass.simpleName.take(40)).apply()
+                    "network-error:" + DropboxVaultClient.safeErrorReason(e)).apply()
             } finally {
                 uploadLock.unlock()
                 uploadInFlight.set(false)
