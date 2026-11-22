@@ -19,8 +19,14 @@ jobs:
         run: |
           bash -n ops/backup/nightly-full-backup.sh
           bash -n ops/backup/incremental-staging.sh
+          bash -n ops/backup/tests/restic_stream_smoke.sh
           python3 -m py_compile ops/backup/stream_remote_tar.py
           python -m unittest discover -s ops/backup/tests -v
+      - name: Offline Restic streaming/restore integration test
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq restic
+          bash ops/backup/tests/restic_stream_smoke.sh
       - name: Read-only credential gate (reports names only, never values)
         env:
           HAS_RCLONE: ${{ secrets.SHO_RCLONE_CONFIG_B64 != '' }}
