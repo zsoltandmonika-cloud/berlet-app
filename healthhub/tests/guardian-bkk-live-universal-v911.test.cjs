@@ -32,5 +32,8 @@ test('server keeps existing BKK feed and auth; browser sends only favorites',()=
  assert.match(edge,/getUser\(token\)/);assert.match(edge,/feedCache/);
  assert.match(edge,/bkk-catalog-v801\.json/);assert.match(edge,/allowed\.has\(v\.routeKey\)/);
  assert.match(read('guardian-live-pilot-v793.js'),/encodeURIComponent\(favoriteKeys\(\)\.join\(','\)\)/);
- assert.match(read('guardian-bkk-watchlist-v814.js'),/if\(route&&liveFilter\)/);
+ const watchlist=read('guardian-bkk-watchlist-v814.js');
+ assert.match(watchlist,/if\(route\)\{/);
+ assert.match(watchlist,/if\(visible&&liveFilter\)/);
+ assert.match(watchlist,/if\(liveFilter\)liveFilter\.setEnabled\(key,false,profile\)/);
 });
