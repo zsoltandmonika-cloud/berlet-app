@@ -289,12 +289,12 @@
    el.textContent='⚠ '+person+': a GPS-források kb. '+km+' km-re térnek el. '+
     'Az eltérő böngészős pozícióra nem ugrunk át; ellenőrizni kell az eszközhozzárendelést.';
   }
-  function clearMarker(){
+  function clearMarker(preserveOwnFix=false){
    lastKnownVisible=false;
    moveToken++;
    if(moveFrame!==null&&w.cancelAnimationFrame)w.cancelAnimationFrame(moveFrame);
    moveFrame=null;markerCoord=null;lastPaintTs=0;lastReceiveAt=0;lastMotionDuration=820;
-   w.HH_GUARDIAN_SMART_PLACES_V1068?.onFix?.(null,null);
+   if(!preserveOwnFix)w.HH_GUARDIAN_SMART_PLACES_V1068?.onFix?.(null,null);
    if(marker){try{marker.remove()}catch(_){}marker=null}
    markerNode=null;speedBadge=null;speedValue=null;routeBadge=null;routeDetails=null;speedVisible=false;
    guardian()?.setRemoteMarkerPreferred?.(false);
@@ -464,7 +464,7 @@
   }
   function showFix(fix){
    if(ownBrowserCurrent()){
-    if(marker)clearMarker();
+    if(marker)clearMarker(true);
     else guardian()?.setRemoteMarkerPreferred?.(false);
     return;
    }
@@ -576,7 +576,7 @@
   // a newly updated, more recent browser GPS portrait.
   function onLocalGpsFix(){
    if(ownBrowserCurrent()){
-    if(marker)clearMarker();
+    if(marker)clearMarker(true);
     else guardian()?.setRemoteMarkerPreferred?.(false);
     return false;
    }
