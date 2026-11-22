@@ -2251,7 +2251,7 @@ window.LENA_NUTRI_STANDARD_CONTEXT_V1155=Object.freeze({
   try{response=await puter.ai.chat(prompt,{model:STUDIO_TEXT_MODEL,normalize:true,verbosity:'low'})}
   catch(error){
    const code=puterErrorCode(error),message=puterErrorText(error).toLowerCase();
-   if(/auth|insufficient_funds|quota|rate_limit|payment|billing/.test(code+' '+message))throw error;
+   if(/auth|insufficient_funds|subscription_required|quota|rate_limit|too_many_requests|payment|billing|(^|\\D)(402|429)(\\D|$)/.test(code+' '+message+' '+String(error?.status||error?.httpStatus||'')))throw error;
    response=await puter.ai.chat(prompt,{normalize:true});
   }
   return parseRecipeJson(puterText(response));
