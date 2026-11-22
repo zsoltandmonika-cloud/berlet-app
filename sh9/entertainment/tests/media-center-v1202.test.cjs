@@ -27,18 +27,14 @@ test('Only the existing Home Media category becomes a Media Center entry and one
  assert.doesNotMatch(css,/images\.unsplash\.com|\.mc-art/);
  assert.doesNotMatch(page,/<span class="mc-art"/);
 });
-test('Media Center directly opens saved Xiaomi TV remote without Cast registration',()=>{
+test('Media Center keeps existing media modules but removes the separate TV shortcut',()=>{
  for(const item of ['Házimozi','Képek','Videók','Zene'])assert.ok(media.includes(item));
  assert.match(media,/class="grid"/);
  assert.match(media,/https:\/\/mediaradar\.pages\.dev\//);
- assert.match(media,/sho-family-tv\/remote\.html/);
- assert.doesNotMatch(media,/sho-family-tv\/cast-sender\.html/);
- assert.match(media,/Xiaomi TV Remote megnyitása/);
- assert.match(media,/mentett párosítással/);
+ assert.doesNotMatch(media,/class="media-inline-remote"|sho-family-tv\/remote\.html/);
  assert.match(media,/id="mediaLibrary"/);
  assert.equal((media.match(/class="tile (?:cinema|photos|videos|music)"/g)||[]).length,4);
 });
-
 test('V2 includes real read-only OneDrive album, HomeVideo, Full Albums catalogues',()=>{
  const logic=read('sh9/entertainment/media-center/onedrive-media-v2.js');
  const design=read('sh9/entertainment/media-center/onedrive-media-v2.css');
@@ -60,88 +56,55 @@ test('V2 includes real read-only OneDrive album, HomeVideo, Full Albums catalogu
  assert.match(design,/\(orientation:landscape\)/);
  assert.match(design,/media-file/);
 });
-test('V2 preserves QR-free Xiaomi remote and avoids exposing OneDrive session to TV',()=>{
+test('V2 preserves OneDrive privacy and no longer exposes mini TV remote',()=>{
  const logic=read('sh9/entertainment/media-center/onedrive-media-v2.js');
- assert.match(media,/Xiaomi TV Remote megnyitása/);
+ assert.doesNotMatch(media,/Xiaomi TV Remote megnyitása/);
  assert.match(logic,/No personal media or access tokens sent to the TV/);
  assert.match(logic,/microsoftonline\.com\/consumers/);
  assert.doesNotMatch(logic,/supabase\.co\/realtime|broadcast.+Authorization/);
  assert.doesNotMatch(media,/<p class="note">/);
 });
-
-test('V6 approved transparent remote sits beside Media Center title without giant buttons',()=>{
+test('V6 Media Center header removes mini TV remote without changing fullscreen or tiles',()=>{
  const design=read('sh9/entertainment/media-center/onedrive-media-v2.css');
  assert.equal((media.match(/id="mediaFullScreen"/g)||[]).length,1);
  assert.match(media,/<button class="header-fullscreen" id="mediaFullScreen"/);
- assert.match(media,/<a class="media-inline-remote" href="https:\/\/mediaradar\.pages\.dev\/sho-family-tv\/remote\.html"/);
- assert.match(media,/assets\/remote-inline-v6\.webp/);
- assert.match(media,/TV Remote/);
- assert.match(media,/Xiaomi TV Remote megnyitása/);
- assert.doesNotMatch(media,/<p class="note">/);
- assert.doesNotMatch(media,/<footer>/);
- assert.doesNotMatch(media,/class="center-actions"|class="media-fullscreen-btn"/);
+ assert.doesNotMatch(media,/class="media-inline-remote"|TV Remote · Xiaomi TV/);
+ assert.doesNotMatch(media,/<p class="note">|<footer>/);
  assert.equal((media.match(/class="tile (?:cinema|photos|videos|music)"/g)||[]).length,4);
  assert.match(design,/\.header-fullscreen/);
  assert.match(design,/width:36px;height:36px/);
- assert.doesNotMatch(design,/\.remote-smart-card/);
 });
-
-test('TV shortcut is one shared, tiny one-tap preview across SHO without leaking phone content',()=>{
+test('TV shortcut is disabled globally across SHO without changing module routing',()=>{
  const vm=require('node:vm');
  const source=read('sh9/shared/sho-tv-shortcut-v1.js');
  const nav=read('sh9/shared/sh9-golden-bottom-nav-v924.js');
  const controls=read('sh9/shared/sh9-golden-controls-v1.js');
- assert.match(nav,/ensureShoTvShortcut/);
- assert.match(controls,/ensureShoTvShortcut/);
- const run=(pathname,hasSmartRemote=false)=>{
-  const all={},appended=[];
-  const element=tag=>({
-   tagName:tag.toUpperCase(),attributes:{},setAttribute(k,v){this.attributes[k]=v}
-  });
-  const doc={
-   readyState:'complete',createElement:element,head:{appendChild(el){if(el.id)all[el.id]=el}},
-   body:{appendChild(el){el.parentNode=this;appended.push(el);if(el.id)all[el.id]=el}},
-   getElementById(id){return all[id]||null},
-   querySelector(selector){return hasSmartRemote&&selector.indexOf('.media-inline-remote')!==-1?{}:null}
-  };
-  const win={location:{pathname,search:'?token=DO-NOT-SEND&gps=47.0'},
-   addEventListener(){}};
-  vm.runInNewContext(source,{window:win,document:doc}, {timeout:500});
-  return {win,doc,appended};
- };
- const cases={
+ assert.match(nav,/function ensureShoTvShortcut/);
+ assert.match(controls,/function ensureShoTvShortcut/);
+ assert.doesNotMatch(nav,/script\.src=['"]\/berlet-app\/sh9\/shared\/sho-tv-shortcut-v1\.js/);
+ assert.doesNotMatch(controls,/script\.src=['"]\/berlet-app\/sh9\/shared\/sho-tv-shortcut-v1\.js/);
+ for(const [route,module] of Object.entries({
   '/berlet-app/sh9/':'home',
   '/berlet-app/sh9/shopping/':'shop',
-  '/berlet-app/sh9/entertainment/':'media',
   '/berlet-app/sh9/smart-travel/taxi/':'travel',
   '/berlet-app/sh9/sport/':'sports',
   '/berlet-app/sh9/family-hub/':'guard',
   '/berlet-app/healthhub/guardian/':'guard',
   '/berlet-app/healthhub/index.html':'health'
- };
- for(const [route,module] of Object.entries(cases)){
-  const {win,doc,appended}=run(route);
+ })){
+  let appended=0;
+  const doc={readyState:'complete',getElementById(){return null},body:{appendChild(){appended++}}};
+  const win={location:{pathname:route},addEventListener(){}};
+  vm.runInNewContext(source,{window:win,document:doc},{timeout:500});
   assert.equal(win.SHO_TV_SHORTCUT_V1.moduleForPath(route),module);
-  if(route==='/berlet-app/sh9/entertainment/'){assert.equal(appended.length,0,'no cheap floating TV on Entertainment');continue;}
-  assert.equal(appended.length,1,route);
-  assert.equal(appended[0].id,'shoTvShortcutV1');
-  assert.equal(appended[0].href,'https://mediaradar.pages.dev/sho-family-tv/remote.html?show='+module);
-  assert.equal(appended[0].target,'_blank');
-  assert.equal(appended[0].rel,'noopener noreferrer');
-  assert.doesNotMatch(appended[0].href,/token|gps|healthhub|shopping|guardian|@|code=/);
-  assert.match(doc.getElementById('shoTvShortcutStyleV1').textContent,/width:31\.5px;height:31\.5px/);
+  assert.equal(win.SHO_TV_SHORTCUT_V1.disabled,true);
   win.SHO_TV_SHORTCUT_V1.mount();
-  assert.equal(appended.length,1,'no duplicate TV buttons');
+  assert.equal(appended,0,'do not add floating TV button on '+route);
  }
- assert.equal(run('https://elsewhere.org/').appended.length,0);
- assert.equal(run('/outside/app').appended.length,0);
- assert.equal(run('/berlet-app/sh9/entertainment/media-center/',true).appended.length,0,'preserve the approved C Smart remote');
- assert.equal(run('/berlet-app/sh9/entertainment/index.html').appended.length,0,'no double TV button at Entertainment index');
- for(const p of ['sh9/entertainment/book-studio/index.html','sh9/shopping/smart-list.html','sh9/local-storage/index.html','sh9/shopping/store-manager-v1.html']){
-  assert.match(read(p),/sho-tv-shortcut-v1\.js/,p);
- }
+ for(const p of ['sh9/entertainment/book-studio/index.html','sh9/shopping/smart-list.html',
+  'sh9/local-storage/index.html','sh9/shopping/store-manager-v1.html'])
+  assert.doesNotMatch(read(p),/<script[^>]*sho-tv-shortcut-v1\.js/,p);
 });
-
 test('V4 approved Media Center & Home Videók hero art: order, visual integrity and privacy',()=>{
  const art=read('sh9/entertainment/media-center-approved-v4.js');
  const skin=read('sh9/entertainment/media-center-approved-v4.css');
@@ -169,7 +132,7 @@ test('V4 approved Media Center & Home Videók hero art: order, visual integrity 
  assert.doesNotMatch(art,/broadcast|Supabase|Files\.ReadWrite/);
 });
 
-test('V5 no old photo layers and compact premium remote on first paint',()=>{
+test('V5 approved artwork stays intact; the mini TV remote is absent',()=>{
  const hero=read('sh9/entertainment/media-center-feature-v1202.css');
  const fallback=read('sh9/entertainment/media-center-approved-v4.css');
  const script=read('sh9/entertainment/media-center/onedrive-media-v2.js');
@@ -178,33 +141,19 @@ test('V5 no old photo layers and compact premium remote on first paint',()=>{
  assert.equal(hero.includes('.mc-film'),false);
  assert.equal(hero.includes('.mc-memories'),false);
  assert.equal(page.includes('<span class="mc-art"'),false);
- for(const tile of ['cinema','photos','videos','music']){
-  assert.ok(media.includes('.tile.'+tile+'{--image:linear-gradient'),tile);
- }
+ for(const tile of ['cinema','photos','videos','music'])assert.ok(media.includes('.tile.'+tile+'{--image:linear-gradient'),tile);
  assert.equal(script.includes('Designer assets can be supplied'),false);
  assert.equal(script.includes('./assets/sho-tile-'),false);
  assert.ok(script.includes('async function updateTileArt()'));
  assert.ok(script.includes('art.onload=function()'));
  assert.ok(fallback.includes('stable dark gradient'));
- assert.ok(media.includes('.media-inline-remote{flex:0 0 auto;display:flex;'));
- assert.ok(media.includes('class="media-inline-remote"'));
+ assert.doesNotMatch(media,/class="media-inline-remote"/);
 });
-
-test('V6 reference artwork is real optimized user-uploaded TV remote photo, with no wide card',()=>{
- const asset=fs.readFileSync(path.join(root,'sh9/entertainment/media-center/assets/remote-inline-v6.webp'));
- assert.equal(asset.subarray(0,4).toString('ascii'),'RIFF');
- assert.equal(asset.subarray(8,12).toString('ascii'),'WEBP');
- assert.ok(asset.length>2000&&asset.length<20000,'Small local asset loads immediately without private OneDrive auth');
- assert.equal((media.match(/class="media-inline-remote"/g)||[]).length,1);
- assert.equal((media.match(/class="remote-smart-card"/g)||[]).length,0);
- assert.equal((media.match(/href="https:\/\/mediaradar\.pages\.dev\/sho-family-tv\/remote\.html"/g)||[]).length,1);
- const intro=media.indexOf('class="intro media-intro-v6"');
- const title=media.indexOf('id="media-title"');
- const icon=media.indexOf('class="media-inline-remote"');
- const grid=media.indexOf('class="grid"');
- assert.ok(intro>=0&&title>intro&&icon>title&&grid>icon,'Remote image follows title, before 4 content cards');
- assert.match(media,/media-inline-remote img\{display:block;width:100%;/);
- assert.match(media,/width="112" height="74" alt="" loading="eager"/);
- assert.match(media,/aria-label="Xiaomi TV Remote megnyitása a mentett párosítással"/);
+test('Media Center keeps all four primary cards and removes the standalone TV shortcut',()=>{
+ assert.match(media,/class="intro media-intro-v6"/);
+ assert.match(media,/id="media-title"/);
+ assert.doesNotMatch(media,/class="media-inline-remote"/);
+ assert.doesNotMatch(media,/sho-family-tv\/remote\.html/);
+ for(const name of ['cinema','photos','videos','music'])assert.match(media,new RegExp('class="tile '+name+'"'));
  assert.match(media,/id="mediaFullScreen"/);
 });
