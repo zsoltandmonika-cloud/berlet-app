@@ -73,7 +73,7 @@ test('GPS Data Saver: source retains authentication, revocation, live freshness 
  assert.match(src,/locationReads\.clear\(\)/);
  assert.match(src,/readSharedLocation\(k\)/);
  assert.match(src,/now-lastPeerReadAt<10000/);
- assert.match(src,/Math\.max\(interval,10000\)/);
+ assert.doesNotMatch(src,/\.from\(TABLE\)\.upsert\(|\.from\(TABLE\)\.delete\(/,'No browser GPS write or delete');
  assert.match(src,/LAST_KNOWN_MS=12\*60\*60\*1000/);
  assert.match(src,/AGE_MS=20000/);
  assert.match(src,/function userStopSharing\(/);
