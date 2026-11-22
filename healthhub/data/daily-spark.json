@@ -1,30 +1,30 @@
 {
   "schemaVersion": 1,
-  "date": "2026-11-21",
-  "generatedAt": "2026-11-21T13:44:29+01:00",
+  "date": "2026-11-22",
+  "generatedAt": "2026-11-22T13:39:17+01:00",
   "profiles": {
     "zsolt": {
       "sign": "Szűz",
-      "headline": "Egy kis rend, egy őszinte mondat és egy lezárt feladat meglepően sokat adhat a naphoz.",
+      "headline": "Egy egyszerűbb megközelítés ma többet érhet, mint egy túlkomplikált terv.",
       "sections": {
-        "focus": "Válassz ki egyetlen ügyet, amely ma valóban számít, és vidd el egy konkrét következő lépésig.",
-        "workMoney": "A jó kompromisszum ma az, amelyik később is könnyen visszaellenőrizhető.",
-        "relationships": "A tömör, egyenes kommunikáció most könnyebben célba ér, mint a túlmagyarázás.",
+        "focus": "Ne próbálj mindent egyszerre optimalizálni. Egy jól befejezett dolog ma többet ér három félkésznél.",
+        "workMoney": "A részletek ma segítenek. Egy rövid ellenőrzés vagy pontosítás megelőzhet egy fölösleges kört.",
+        "relationships": "Egy spontán beszélgetés könnyen közelebb hozhat valakit, ha nem akarod előre irányítani.",
         "energy": "A nap közepén egy rövid szünet többet érhet, mint még egy erőből végigvitt óra.",
-        "evening": "Az este akkor lesz igazán pihentető, ha egy lezárt nap érzésével érkezel meg hozzá.",
-        "lenaThought": "A haladás néha nem látványos. Néha csak annyi, hogy eggyel kevesebb nyitott szál marad."
+        "evening": "Egy nyugodtabb este ma többet adhat, mint egy utolsó nagy nekifutás.",
+        "lenaThought": "A tisztább döntés gyakran abból születik, amit kihagysz, nem abból, amit még hozzáadsz."
       }
     },
     "monika": {
       "sign": "Vízöntő",
-      "headline": "Ma a tiszta prioritás és egy jól időzített döntés hozhat nyugodtabb ritmust.",
+      "headline": "A mai nap akkor működik jól, ha a fontos dolgoknak valódi helyet hagysz.",
       "sections": {
-        "focus": "Egy rövid rendrakás a teendők között meglepően sok mentális helyet szabadíthat fel.",
-        "workMoney": "Az egyszerű, jól ellenőrizhető megoldás ma erősebb, mint a túl sok feltételre épített terv.",
-        "relationships": "Ma érdemes egy fél mondattal többet kérdezni, mielőtt következtetsz.",
-        "energy": "Dolgozz rövidebb, fókuszált blokkokban, majd válts környezetet vagy mozogj pár percet.",
+        "focus": "A mai nap akkor lesz könnyebb, ha a három fontos feladatból először a legkisebb bizonytalanságút zárod le.",
+        "workMoney": "A részletek ma segítenek. Egy rövid ellenőrzés vagy pontosítás megelőzhet egy fölösleges kört.",
+        "relationships": "A tömör, egyenes kommunikáció most könnyebben célba ér, mint a túlmagyarázás.",
+        "energy": "A változatosság segít. Egy másik környezet vagy rövid séta gyorsan visszahozhatja a lendületet.",
         "evening": "Az esti órákban hagyj egy kis helyet valaminek, aminek semmi haszna nincs, csak jólesik.",
-        "lenaThought": "A nap végén az számít, mi lett egyszerűbb, nem az, hány dolgot mozgattál meg."
+        "lenaThought": "A tisztább döntés gyakran abból születik, amit kihagysz, nem abból, amit még hozzáadsz."
       }
     }
   }
