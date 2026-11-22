@@ -47,7 +47,7 @@
   if(w.SHO_TV_SHORTCUT_V1||d.querySelector('script[data-sho-tv-shortcut-v1]'))return;
   const script=d.createElement('script');
   script.setAttribute('data-sho-tv-shortcut-v1','1');
-  script.src='/berlet-app/sh9/shared/sho-tv-shortcut-v1.js?v=3-premium45-20261121';
+  script.src='/berlet-app/sh9/shared/sho-tv-shortcut-v1.js?v=6-compact31-top-left-20261122';
   d.head?.appendChild(script);
  }
  function mountDock(host){
