@@ -70,3 +70,12 @@ Szerveroldali előkészítés, csak tulajdonosi jóváhagyás és az éles rends
 **Restore:** a panel a kiválasztott és igazolt OneDrive-mentésből egyelőre csak **tervet** készít. A valódi restore backendnek az offline integritást, izolált próbavisszaállítást és az éles visszaállításra külön új jóváhagyást kell kikényszerítenie. A jelen PR **nem** készít automatikus éles restore végpontot, és semmilyen éles adatot nem ír.
 
 **Kritikus:** egyetlen ChatGPT-apphoz csatlakozott Microsoft/Dropbox/Supabase-fiók sem elegendő a GitHub Actions és a Supabase Edge Function saját, tartós hozzáféréséhez. A GitHub secret-értékek ma mind hiányoznak; az admin gomb a tényleges konfigurációig letiltott marad.
+
+## Erőforrás és megőrzési kapacitás (kötelező élesítési kapu)
+
+- A standard GitHub Actions `ubuntu-24.04` futtató körülbelül **14 GiB SSD-t** ad, ezért a jelenlegi egész-forrás / tömörített archívum / titkosított archívum / visszaolvasott másolat pipeline **nem használható** 40–45 GB nagyságrendű adatoknál.
+- Az `ops/backup/check_capacity.py` már forrásolvasás előtt megkövetel **legalább 200 GiB szabad ideiglenes területet**. Ez konzervatív belépőkapu, **nem garancia**: a tényleges forrásméret és csúcsterhelés első méréséből kell megerősíteni.
+- A nagy futtató kiválasztása és biztonságos elkülönítése még nincs elvégezve. Public GitHub-repóhoz **nem szabad tartós, érzékeny hitelesítőadatokat tartalmazó self-hosted gépet önmagában PR-jogosultsággal kitenni**. Előbb külön izoláció vagy jóváhagyott ephemerális futtató szükséges.
+- Az OneDrive szabad helyét az archívum feltöltése előtt ellenőrizzük; a titkosított archívum, a `sha256.txt` és a `status.json` mind visszaolvasandó. A 'CLOUD_CORE_VERIFIED' nem állít teljes eszköz-visszaállíthatóságot.
+- **Kapacitásellentmondás**: 45 GB-os napi teljes példányból 30 darab **1,35 TB** (a haviak nélkül), tehát 500 GB rendelkezésre álló keret esetén a '30 napi + 12 havi' szabály önmagában nem tartható. Tartós bevezetéshez deduplikált, inkrementális, titkosított tárolási stratégia és helyreállítási próba kell. A jelenlegi retention program csak tervet készít, nem takarít.
+- Ezeket a blokkoló feltételeket a staging PR elfogadása előtt meg kell oldani. A szokásos Github-futtatóval az első valódi mentést **nem** szabad teljesnek minősíteni.
