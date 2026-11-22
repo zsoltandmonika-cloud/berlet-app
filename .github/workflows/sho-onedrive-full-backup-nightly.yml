@@ -11,6 +11,8 @@ concurrency:
   cancel-in-progress: false
 jobs:
   full-backup:
+    # Fail closed in the public application repo; copy reviewed workflow into a dedicated private runner first.
+    if: ${{ github.event.repository.private == true }}
     runs-on: ubuntu-24.04
     timeout-minutes: 180
     env:
