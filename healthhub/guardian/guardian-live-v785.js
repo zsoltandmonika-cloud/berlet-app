@@ -1,9 +1,9 @@
-/* Family Guard v785 · native-only family GPS publishing; read-only Outlook Dropbox GPS status.
- * Native HH One owns explicit GPS publishing to the owner's private Outlook Dropbox.
- * This browser component NEVER writes or deletes remote position rows; RLS remains strict.
- * Owner-approved native sharing runs independently of browser map GPS.
- * Keep only an authenticated latest fix with timestamp/stale marker;
- * never mistake a missing, revoked or old location for a live position.
+/* Family Guard v785 · user-consented, authenticated, foreground-only Family Live.
+ * Each real phone uploads only its own explicitly selected profile's current GPS fix.
+ * RLS controls readers/writers in hh_guardian_live_locations; never write a history.
+ * Revocable, one-time owner consent enables automatic FOREGROUND reactivation only.
+ * Browser background GPS remains OFF. Keep the consented last known fix with a
+ * timestamp/stale marker, never mistake it for live tracking.
  * No GPS history and no synthetic family markers.
  */
 (function(w,d){
@@ -80,22 +80,25 @@ function updateUi(){
  const login=$('guardianLiveLogin'),logout=$('guardianLiveLogout');
  if(login)login.hidden=!!user||authPending;if(logout)logout.hidden=!user;
  const start=$('guardianLiveStart'),stop=$('guardianLiveStop');
- if(start){
-  start.disabled=!meReady;
-  start.hidden=false;
-  start.textContent='📡 Natív GPS állapot ellenőrzése';
- }
- // The browser cannot start/stop the separately consented HH One native share.
- if(stop){stop.disabled=true;stop.hidden=true}
+ if(start){start.disabled=!meReady||sharing||ownerMismatch;start.hidden=sharing}
+ if(stop){stop.disabled=!sharing;stop.hidden=!sharing}
  const reset=$('guardianLiveResetDevice');if(reset){
   reset.hidden=!owner;
   reset.textContent=ownerMismatch?'📱 Saját telefon hozzárendelésének ellenőrzése':'Ez egy másik családtag telefonja';
  }
- set('guardianLiveAutoStatus',
-  '🛡️ Családi GPS: kizárólag a saját HH One natív helymegosztása → Outlook Dropbox. '+
-  'A böngészős Követés nem küld családi helyadatot.');
- const disableAuto=$('guardianLiveDisableAuto');
- if(disableAuto)disableAuto.hidden=true;
+ const auto=autoEnabled();
+ // v827: a remembered Follow camera setting is NOT evidence of a running GPS.
+ // Explain which own-phone prerequisite is missing without guessing a location.
+ const autoMessage=ownerMismatch?
+  'Automatikus GPS: nem indul · ez a telefon '+label(owner)+' profiljához van rendelve.':
+  !owner?'Automatikus GPS: nincs beállítva · saját telefon hozzárendelése és egyszeri jóváhagyás szükséges.':
+  !auto?'Automatikus GPS: KI · egyszeri jóváhagyás szükséges '+label(me)+' saját telefonján.':
+  !user?'Automatikus GPS: engedélyezve · Google-bejelentkezés ellenőrzésére várunk.':
+  !meReady?'Automatikus GPS: engedélyezve, de ehhez a profilhoz nincs hitelesített hozzáférés.':
+  sharing?'Automatikus GPS: BE · saját telefon · ellenőrizd a GPS-jel frissességét.':
+  'Automatikus GPS: engedélyezve · előtéri GPS-indítás ellenőrzése folyamatban.';
+ set('guardianLiveAutoStatus',autoMessage);
+ const disableAuto=$('guardianLiveDisableAuto');if(disableAuto)disableAuto.hidden=!auto;
  if(!user)set('guardianOtherState','Csak belépés után kérdezhető le');
  else if(!access.includes(other()))set('guardianOtherState','Nincs hozzáférés ehhez a profilhoz');
 }
@@ -261,8 +264,14 @@ function resetPolling(){
   poll();pollTimer=w.setInterval(poll,interval);
  }
 }
-// Retired browser-row deletion: revocation of native consent is ONLY on the phone.
-function clearRow(){return Promise.resolve();}
+function clearRow(k,uid){
+ if(!api||!k||!uid)return Promise.resolve();
+ uploads=uploads.catch(()=>{}).then(async()=>{
+  const {error}=await api.from(TABLE).delete().eq('profile_key',k).eq('owner_id',uid);
+  if(error)msg('Megosztás leállítva. A szerverről a jel törlése nem igazolható; 20 mp után a térképről eltűnik.');
+ }).catch(()=>{msg('Megosztás leállítva. A távoli jel legkésőbb 20 mp után nem látszik élőként.')});
+ return uploads;
+}
 function stopSharing(){
  const k=sharingProfile,uid=user&&user.id;
  // Never serve a cached own fix after explicit Stop/revocation.
@@ -301,11 +310,39 @@ function onProfileChanged(){
  if(!sharing)resumeOwnPhoneAutoFollow();
 }
 function onGpsFix(pos){
- // Legacy owner guard is retained, but browser fixes are LOCAL MAP ONLY.
- if(sharingProfile!==bound())return;
- // Do not upsert to hh_guardian_live_locations; native HH One is the sole publisher.
- // No fallback to older Supabase GPS, including when Outlook is disconnected.
- return;
+ // The desktop browser is not Monika's registered Android device.
+ const ua=String(w.navigator?.userAgent||'');
+ if(sharingProfile==='monika'&&ua&&!/Android/i.test(ua))return;
+ if(!api||!sharing||!user||d.hidden||sharingProfile!==bound()||!access.includes(sharingProfile))return;
+ const c=pos&&pos.coords||{},lat=Number(c.latitude),lon=Number(c.longitude),accuracy=Number(c.accuracy);
+ const ts=Number(pos.timestamp)||Date.now();
+ if(!Number.isFinite(lat)||!Number.isFinite(lon)||!Number.isFinite(accuracy)||
+  Math.abs(lat)>90||Math.abs(lon)>180||accuracy<0||accuracy>ACCURACY_LIMIT||
+  Date.now()-ts>AGE_MS)return;
+ let speed=(typeof c.speed==='number'&&Number.isFinite(c.speed)&&c.speed>=0)?c.speed*3.6:null;
+ if(speed===null&&lastSeen){
+  const dt=(ts-lastSeen.ts)/1000;
+  const toRad=x=>x*Math.PI/180;
+  const dLat=toRad(lat-lastSeen.lat),dLon=toRad(lon-lastSeen.lon);
+  const a=Math.sin(dLat/2)**2+Math.cos(toRad(lat))*Math.cos(toRad(lastSeen.lat))*Math.sin(dLon/2)**2;
+  if(dt>0&&dt<30&&accuracy<40&&lastSeen.accuracy<40)speed=6371000*2*Math.atan2(Math.sqrt(a),Math.sqrt(Math.max(0,1-a)))/dt*3.6;
+ }
+ lastSeen={lat,lon,ts,accuracy};
+ const kmh=speed!==null&&speed<=300?Math.round(speed*10)/10:null;
+ set('guardianLiveOwnSpeed',kmh===null?'—':kmh.toFixed(1).replace('.',',')+' km/h');
+ // Save bandwidth while standing still: keep a genuine heartbeat within 20s.
+ const uploadMs=kmh!==null&&kmh<4?Math.max(interval,10000):interval;
+ const now=Date.now();if(now-lastUploaded<uploadMs)return;
+ lastUploaded=now;
+ const uid=user.id,k=sharingProfile;
+ const payload={profile_key:k,owner_id:uid,latitude:lat,longitude:lon,accuracy_m:accuracy,
+  speed_kmh:kmh,updated_at:new Date(now).toISOString()};
+ uploads=uploads.catch(()=>{}).then(async()=>{
+  if(!sharing||sharingProfile!==k||!user||user.id!==uid||d.hidden)return;
+  const {error}=await api.from(TABLE).upsert(payload,{onConflict:'profile_key'});
+  if(error){lastUploaded=0;msg('GPS működik, de a helymegosztás nem sikerült: '+error.message)}
+  else if(sharing&&sharingProfile===k)msg('ÉLŐ megosztás · '+label(k)+' · frissítve '+time(payload.updated_at));
+ }).catch(e=>{lastUploaded=0;msg('Megosztási hiba: '+(e&&e.message||'hálózat'))});
 }
 function syncSettings(){
  if(!api||!user||!access.includes(self()))return Promise.resolve();
@@ -414,53 +451,39 @@ async function refreshAuth(){
   if(w.dispatchEvent&&w.CustomEvent)w.dispatchEvent(new w.CustomEvent('hh-guardian-auth-changed'));
  }
 }
-async function startSharing(){
+function startSharing(){
  const p=self();
- if(!user||!access.includes(p)){
-  msg('Előbb hitelesítsd a saját családi profilt.');return;
+ const ua=String(w.navigator?.userAgent||'');
+ if(p==='monika'&&ua&&!/Android/i.test(ua)){
+  msg('Mónika natív GPS-e a HH Connect telefonról érkezik; számítógépről nem osztható meg Mónika nevében.');return;
  }
- const requestingUser=user.id;
- const router=w.HH_GUARDIAN_GPS_ROUTER_V1177;
- if(!router?.forProfile?.(p)){
-  msg('Nincs hitelesített natív GPS-route a kiválasztott profilhoz.');return;
+ if(sharing||d.hidden)return;
+ if(!user){msg('Előbb jelentkezz be a Google-fiókoddal.');return}
+ if(!access.includes(p)){msg('Ez a Google-fiók nem jogosult a '+label(p)+' profilhoz.');return}
+ const registered=bound();
+ if(registered&&registered!==p){
+  updateUi();
+  msg('⚠️ Ez a telefon a '+label(registered)+' profilhoz van rögzítve. Ha valóban '+label(p)+' saját készüléke, használd a fenti telefon-hozzárendelés ellenőrzése gombot. Másik személy helyét nem másoljuk.');
+  return;
  }
- if(!router.connected()){
-  msg('📦 Nincs Outlook Dropbox Vault kapcsolat ezen a megjelenítőn. '+
-   'A HH One natív GPS-megosztást a saját telefonodon tudod engedélyezni.');return;
+ if(!autoEnabled()){
+  // The owner must explicitly grant the persistent preference on THIS device.
+  const consent='Ez valóban '+label(p)+' saját telefonja?\n\nEGYSZERI ENGEDÉLY: a Family Guard megnyitásakor vagy előtérbe visszatérve automatikusan indulhat a SAJÁT GPS, a térképes követés és a családi élő helymegosztás.\n\nA böngésző háttérben és lezárt képernyőn NEM követ. A megosztást bármikor visszavonhatod a Leállítás gombbal. Engedélyezed?';
+  if(!w.confirm||!w.confirm(consent)){msg('Az automatikus helymegosztás nincs engedélyezve ezen a telefonon.');return}
+  try{
+   w.localStorage.setItem(DEVICE_KEY,p);
+   w.localStorage.setItem(AUTO_KEY,p);
+  }catch(e){msg('A hozzájárulás tárolása sikertelen. A megosztás nem indult el.');return}
  }
- msg('📡 Natív GPS-adat ellenőrzése az Outlook Dropboxból…');
- try{
-  const r=await router.read(p);
-  if(p!==self()||!user||user.id!==requestingUser||!access.includes(p))return; // profil/bejelentkezés időközben megváltozott
-  if(r?.status==='ok'){
-   const age=Date.now()-Date.parse(r.data?.updated_at||'');
-   if(Number.isFinite(age)&&age>=0&&age<=75000){
-    msg('🟢 '+label(p)+' · hitelesített natív GPS-frissítés érkezett az Outlook Dropboxból.');
-   }else{
-    msg('🟠 '+label(p)+' · natív GPS-adat van, de nem igazoltan élő.');
-   }
-  }else if(r?.status==='revoked'){
-   msg('🔴 '+label(p)+' · a natív helymegosztás vissza van vonva. '+
-    'A saját HH One natív beállításaiban kell újra engedélyezni.');
-  }else if(r?.status==='invalid'){
-   msg('🔴 '+label(p)+' · a natív GPS-adat elavult vagy érvénytelen. '+
-    'A saját HH One telefonon ellenőrizd a Smart Location és a helymegosztás állapotát.');
-  }else if(r?.status==='not-connected'){
-   msg('📦 Nincs hitelesített Outlook Dropbox kapcsolat a megjelenítőn.');
-  }else if(r?.status==='missing'){
-   msg('🔴 '+label(p)+' · még nincs natív GPS-adat az Outlook Dropboxban.');
-  }else{
-   msg('⚠️ Natív GPS-adat nem olvasható ('+String(r?.status||'error')+
-    '). Ellenőrizd az Outlook Dropbox kapcsolatot és a HH One GPS-t.');
-  }
- }catch(_){
-  msg('⚠️ A natív GPS Outlook Dropbox ellenőrzése sikertelen. A telefon GPS-állapota ismeretlen.');
- }
+ sharing=true;sharingProfile=p;lastUploaded=0;lastSeen=null;
+ updateUi();msg('Automatikus előtéri megosztás bekapcsolva · GPS-jelre várunk…');
+ const guardian=w.HH_GUARDIAN_V761;
+ if(guardian&&typeof guardian.startFollowing==='function')guardian.startFollowing();
+ else if(!guardian||!guardian.active){const start=$('guardianStart');if(start)start.click()}
 }
 function maybeAutoStart(){
- // Retired browser auto-publisher must never revive a Supabase location write.
- // Do not erase old local preferences during OTA or alter native consent.
- return;
+ if(sharing||d.hidden||!user||!access.includes(self())||!autoEnabled())return;
+ startSharing();
 }
 // Revalidate auth on foreground return. A transient Google/network check failure
 // must not force a previously consented owner to tap Follow every time.
@@ -471,8 +494,11 @@ function resumeOwnPhoneAutoFollow(){
  maybeAutoStart();
 }
 function userStopSharing(){
- // Browser Stop cannot revoke the independently consented Android share.
- msg('A natív GPS-megosztás csak a saját HH One telefonon állítható le.');
+ removeAuto();
+ stopSharing();
+ const stop=$('guardianStop');if(stop&&!stop.disabled)stop.click();
+ updateUi();
+ msg('Megosztás és automatikus újraindítás kikapcsolva ezen a telefonon.');
 }
 function resetDevice(){
  if(sharing){msg('Előbb állítsd le az élő megosztást.');return}
@@ -488,7 +514,7 @@ function init(){
   const n=Number(select.value);
   if(!validIntervals.includes(n))return;
   interval=n;try{w.localStorage.setItem(INTERVAL_KEY,String(n))}catch(_){}
-  lastUploaded=0;resetPolling();syncSettings();msg('Térképi frissítési cél: '+(interval/1000)+' mp. A natív GPS saját mintavételezést használ.');
+  lastUploaded=0;resetPolling();syncSettings();msg('Élő frissítési cél: '+(interval/1000)+' mp. A GPS valós sebessége eltérhet.');
  })}
  const login=$('guardianLiveLogin');if(login)login.addEventListener('click',async()=>{
   if(!api){msg('Supabase-kapcsolat nem elérhető.');return}
@@ -509,7 +535,7 @@ function init(){
  const disable=$('guardianLiveDisableAuto');if(disable)disable.addEventListener('click',userStopSharing);
  const gpsStop=$('guardianStop');if(gpsStop)gpsStop.addEventListener('click',()=>{
   // Deliberate GPS Stop revokes the persistent choice; browser pagehide does not.
-  if(autoEnabled()){removeAuto();updateUi();msg('A böngészős GPS leállítva. A natív családi megosztás állapotát ez nem módosítja.');}
+  if(autoEnabled()){removeAuto();updateUi();msg('A GPS és az automatikus helymegosztás leállítva.');}
  });
  const reset=$('guardianLiveResetDevice');if(reset)reset.addEventListener('click',resetDevice);
  const ownerFix=$('guardianLiveResolveOwner811');if(ownerFix)ownerFix.addEventListener('click',resetDevice);
