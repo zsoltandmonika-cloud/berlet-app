@@ -26,7 +26,7 @@ test('Single TV button retains module-only URLs, privacy and approved inline rem
  const doc={
   readyState:'complete',createElement:element,
   head:{appendChild(el){mounted[el.id]=el}},
-  body:{appendChild(el){children.push(el);mounted[el.id]=el}},
+  body:{appendChild(el){el.parentNode=this;children.push(el);mounted[el.id]=el}},
   getElementById(id){return mounted[id]||null},
   querySelector(){return null}
  };
