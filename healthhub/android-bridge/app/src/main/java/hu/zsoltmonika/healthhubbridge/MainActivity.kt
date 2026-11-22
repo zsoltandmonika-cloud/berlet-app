@@ -1705,6 +1705,7 @@ class MainActivity : ComponentActivity() {
                 " · utolsó helyreállítás: " + last +
                 "\nNatív Family Guard: " + relayText +
                 "\nUtolsó sikeres telefonos GPS-feltöltés: " + lastSuccess +
+                "\n" + nativeDropboxAccountText() +
                 "\nGPS adatforrás: saját HH One → privát Dropbox (nem böngészős GPS)"
         }
     }
