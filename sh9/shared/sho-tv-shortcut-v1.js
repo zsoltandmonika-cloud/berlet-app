@@ -1,4 +1,4 @@
-/* SHO universal TV shortcut v6: 31.5x31.5 (-30%) at absolute viewport top-left (same API).
+/* SHO universal TV shortcut v7: 31.5x31.5 (-30%) at module-panel top-left (same API).
  * "TV-re" opens ONLY a built-in 16:9 demo screen for a known module.
  * Never screen-captures sensitive phone pages or transports GPS, medical data,
  * personal content, URLs, credentials, or OneDrive tokens over public pairing.
@@ -6,29 +6,48 @@
  */
 (function(w,d){
  'use strict';
- // One placement rule everywhere. 45px -> 31.5px = exactly 30% smaller.
- // Keep the same shortcut and link; only size and top-left placement change.
- function repairGlobalAnchorV6(){
+ // One position rule: top-left of the visible SHO panel, not the browser.
+ // We do NOT alter the panel's CSS positioning, overflow, or module layout.
+ function repairPanelAnchorV7(){
   if(!d.body||!d.head||!d.getElementById)return;
   var badge=d.getElementById('shoTvShortcutV1');
-  // The previous Home-only version reparented into the hero and overrode
-  // fixed positioning with an !important absolute rule. Undo both.
   if(badge&&badge.parentNode!==d.body)d.body.appendChild(badge);
-  if(!d.getElementById('shoTvShortcutGlobalV6')){
-   var css=d.createElement('style');css.id='shoTvShortcutGlobalV6';
+  if(!d.getElementById('shoTvShortcutPanelV7')){
+   var css=d.createElement('style');css.id='shoTvShortcutPanelV7';
    css.textContent=[
-    '#shoTvShortcutV1.sho-tv-shortcut-v1{position:fixed!important;left:0!important;top:0!important;right:auto!important;bottom:auto!important;width:31.5px!important;height:31.5px!important;min-width:0!important;min-height:0!important;z-index:70!important;box-sizing:border-box!important;border-radius:9.1px!important;font-size:6.3px!important;gap:.7px!important;padding:0!important}',
+    '#shoTvShortcutV1.sho-tv-shortcut-v1{position:fixed!important;right:auto!important;bottom:auto!important;width:31.5px!important;height:31.5px!important;min-width:0!important;min-height:0!important;z-index:70!important;box-sizing:border-box!important;border-radius:9.1px!important;font-size:6.3px!important;gap:.7px!important;padding:0!important}',
     '#shoTvShortcutV1.sho-tv-shortcut-v1 svg{width:14px!important;height:13.3px!important}',
     '@media print{#shoTvShortcutV1.sho-tv-shortcut-v1{display:none!important}}'
    ].join('');
    d.head.appendChild(css);
   }
+  if(!badge||!badge.style||!badge.style.setProperty)return;
+  var panel=d.querySelector&&d.querySelector('main.shell,div.shell,.st-shell,.app,.sport-shell,main.wrap,.wrap,main');
+  // The fallback is the viewport origin for pages without an identifiable
+  // module panel. The live panel is measured again after viewport rotation.
+  var rect=panel&&panel.getBoundingClientRect?panel.getBoundingClientRect():null;
+  var x=rect&&isFinite(rect.left)?Math.max(0,Math.round(rect.left)):0;
+  var y=rect&&isFinite(rect.top)?Math.max(0,Math.round(rect.top)):0;
+  badge.style.setProperty('left',x+'px','important');
+  badge.style.setProperty('top',y+'px','important');
+ }
+ function bindPanelAnchorV7(){
+  if(w.__SHO_TV_PANEL_ANCHOR_BOUND_V7)return;
+  w.__SHO_TV_PANEL_ANCHOR_BOUND_V7=true;
+  if(w.addEventListener){
+   w.addEventListener('resize',repairPanelAnchorV7);
+   w.addEventListener('orientationchange',repairPanelAnchorV7);
+   w.addEventListener('pageshow',repairPanelAnchorV7);
+  }
+  if(w.visualViewport&&w.visualViewport.addEventListener)
+   w.visualViewport.addEventListener('resize',repairPanelAnchorV7);
  }
  // Repair an already-mounted shortcut from a cached old script, no duplicate.
+ bindPanelAnchorV7();
  if(w.SHO_TV_SHORTCUT_V1){
-  if(d.readyState==='loading')d.addEventListener('DOMContentLoaded',repairGlobalAnchorV6,{once:true});
-  else repairGlobalAnchorV6();
-  if(w.addEventListener)w.addEventListener('pageshow',repairGlobalAnchorV6);
+  if(d.readyState==='loading')d.addEventListener('DOMContentLoaded',repairPanelAnchorV7,{once:true});
+  else repairPanelAnchorV7();
+  if(w.addEventListener)w.addEventListener('pageshow',repairPanelAnchorV7);
   return;
  }
  var LINK='https://mediaradar.pages.dev/sho-family-tv/remote.html';
@@ -57,7 +76,7 @@
   if(/^\/berlet-app\/sh9\/entertainment\/(?:index\.html)?$/.test(route))return;
   if(d.querySelector('.remote-smart-card[href*="sho-family-tv/remote.html"], .media-inline-remote[href*="sho-family-tv/remote.html"]'))return;
   var exists=d.getElementById('shoTvShortcutV1');
-  if(exists){exists.href=LINK+'?show='+module;repairGlobalAnchorV6();return;}
+  if(exists){exists.href=LINK+'?show='+module;repairPanelAnchorV7();return;}
   if(!d.getElementById('shoTvShortcutStyleV1')){
    var sheet=d.createElement('style');sheet.id='shoTvShortcutStyleV1';
    sheet.textContent=[
@@ -83,12 +102,12 @@
   a.title='TV-re · 16:9 demó · mentett Xiaomi párosítás';
   a.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.7" y="4.5" width="18.6" height="14.4" rx="2.5"/><path d="M9 21.2h6m-3-2.3v2.3"/><path d="m10.5 9 4 2.7-4 2.7z"/></svg><span>TV-re</span>';
   d.body.appendChild(a);
-  repairGlobalAnchorV6();
+  repairPanelAnchorV7();
  }
  function start(){
   mount();
-  repairGlobalAnchorV6();
-  if(w.addEventListener)w.addEventListener('pageshow',function(){mount();repairGlobalAnchorV6()});
+  repairPanelAnchorV7();
+  if(w.addEventListener)w.addEventListener('pageshow',function(){mount();repairPanelAnchorV7()});
  }
  w.SHO_TV_SHORTCUT_V1=Object.freeze({moduleForPath:moduleForPath,mount:mount});
  if(d.readyState==='loading')d.addEventListener('DOMContentLoaded',start,{once:true});else start();
