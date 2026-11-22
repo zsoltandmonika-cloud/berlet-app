@@ -48,7 +48,7 @@ test('Golden Standard frontend scripts and declarations stay syntactically valid
  assert.match(html,/nutriBulkStopV1155/);
  assert.match(html,/nutriAutoStatusV1155/);
  assert.match(css,/nutri-golden-batch-v1155/);
- assert.ok(html.indexOf('app.js?v=1164')<html.indexOf('hh-nutri-golden-standard-v1155.js'));
+ assert.ok(html.indexOf('app.js?v=1165')<html.indexOf('hh-nutri-golden-standard-v1155.js'));
  assert.match(app,/LENA_NUTRI_STANDARD_CONTEXT_V1155/);
  assert.match(app,/nutriStandard\.afterGoldenSave\(id,\{ingredientsChanged\}\)/);
 });
@@ -101,10 +101,10 @@ test('Legacy manual measured entry explicitly records provenance',()=>{
  assert.match(automation,/HealthHub-felhőmentésének/);
 });
 
-test('Puter low balance guard stops before a denied AI request and leaves cloud data unchanged',async()=>{
+test('Confirmed zero balance blocks AI before a denied request and leaves cloud unchanged',async()=>{
  const s=setup();
- s.context.getMonthlyUsage=async()=>({allowanceInfo:{remaining:4000000}});
- await assert.rejects(s.api.generateOne('recipe-1'),/Puter AI-keret alacsony/);
+ s.context.getMonthlyUsage=async()=>({allowanceInfo:{remaining:0}});
+ await assert.rejects(s.api.generateOne('recipe-1'),/Puter.*(?:0.00|maradék)/);
  assert.equal(s.aiCalls(),0);
  assert.equal(s.remote.size,0);
  assert.equal(s.cache.size,0);
@@ -119,7 +119,7 @@ test('Adequate balance allows existing AI generation and verification',async()=>
  assert.equal(s.api.stats().ready,1);
 });
 test('A credit rejection is fail-fast during bulk operation (no three repeated SDK prompts)',()=>{
- assert.match(automation,/if\(isCreditFailure\(e\)\)\{/);
+ assert.match(automation,/classifyProviderError\(e\)/);
  assert.match(automation,/creditStopped=true/);
  assert.match(automation,/if\(!stopRequested&&!creditStopped&&consecutive<3\)/);
  assert.match(app,/getMonthlyUsage:\(\)=>puter\.auth\.getMonthlyUsage\(\)/);
@@ -136,7 +136,7 @@ test('Temporary credit lookup failure does not falsely report exhausted Puter cr
 test('Confirmed low Puter balance is still blocked safely',async()=>{
  const s=setup();
  s.window.LENA_PUTER_CREDIT_GATE_V1159={check:async()=>({allowed:false,reason:'low-balance',remaining:0})};
- await assert.rejects(s.api.generateOne('recipe-1'),/alacsony/i);
+ await assert.rejects(s.api.generateOne('recipe-1'),/0.00/);
  assert.equal(s.aiCalls(),0);
 });
 test('Missing HealthHub write connection cannot consume Puter AI credits',async()=>{
@@ -144,4 +144,42 @@ test('Missing HealthHub write connection cannot consume Puter AI credits',async(
  await assert.rejects(s.api.generateOne('recipe-1'),/HealthHub-belépés/);
  assert.equal(s.aiCalls(),0);
  assert.equal(s.remote.size,0);
+});
+
+test('A local $0.05 threshold is not proof Puter denied positive remaining credit',async()=>{
+ const s=setup();
+ s.window.LENA_PUTER_CREDIT_GATE_V1159={check:async()=>({allowed:false,reason:'low-balance',remaining:4000000})};
+ const out=await s.api.generateOne('recipe-1');
+ assert.equal(out.ok,true);
+ assert.equal(s.aiCalls(),1);
+});
+test('Real 402 provider rejection is labelled, and is not misrepresented as a confirmed empty subscription',()=>{
+ const s=setup();
+ const e={status:402,message:'Payment authorization required'};
+ const info=s.api.diagnoseError(e);
+ assert.equal(info.kind,'billing');
+ assert.match(info.text,/402/);
+ assert.doesNotMatch(info.text,/elfogyott/);
+});
+test('True Puter insufficient_funds is distinguished from subscription_required and 429',()=>{
+ const s=setup();
+ assert.equal(s.api.diagnoseError({code:'insufficient_funds',message:'Not enough balance'}).kind,'credit');
+ assert.equal(s.api.diagnoseError({code:'subscription_required',message:'Plan missing'}).kind,'plan');
+ assert.equal(s.api.diagnoseError({code:'too_many_requests',message:'Slow down'}).kind,'rate');
+ assert.equal(s.api.diagnoseError({code:'request_timeout'}).kind,'timeout');
+});
+test('One-recipe trial performs at most one AI call even if more recipes need nutrition',async()=>{
+ const s=setup(),original=s.context.getRecipe;
+ s.context.allRecipes=()=>[
+  {id:'recipe-1',title:'Almás zab',category:'Desszert',studioData:{servings:'4 fő'}},
+  {id:'recipe-2',title:'Répatorta',category:'Desszert',studioData:{servings:'4 fő'}}
+ ];
+ s.context.getRecipe=id=>id==='recipe-2'?s.context.allRecipes()[1]:original(id);
+ await s.api.runOne();
+ assert.equal(s.aiCalls(),1);
+});
+test('Single-recipe trial control is present, no bulk run starts on page load',()=>{
+ assert.match(html,/id="nutriSingleStartV1165"/);
+ assert.match(automation,/one\?\.addEventListener\('click',\(\)=>void batch\(1\)\)/);
+ assert.match(automation,/classifyProviderError\(e\)/);
 });
