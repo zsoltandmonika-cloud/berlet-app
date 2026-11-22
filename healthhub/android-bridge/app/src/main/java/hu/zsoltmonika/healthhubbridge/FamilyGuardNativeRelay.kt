@@ -102,7 +102,7 @@ object FamilyGuardNativeRelay {
         return when (GuardianLegacyRegistryDecision.inspect(legacy, profile, id)) {
             GuardianLegacyRegistryDecision.Result.SELECTED -> true
             GuardianLegacyRegistryDecision.Result.UNASSIGNED ->
-                FamilyDeviceCentral.verifiedForNativeRelay(p, profile, id, BuildConfig.VERSION_NAME)
+                FamilyDeviceCentral.verifiedForNativeRelay(p, profile, id, BuildConfig.VERSION_NAME, context)
             GuardianLegacyRegistryDecision.Result.CONFLICT,
             GuardianLegacyRegistryDecision.Result.INVALID -> false
         }
@@ -118,7 +118,19 @@ object FamilyGuardNativeRelay {
     }
 
     fun publish(context: Context, location: Location, mode: SmartLocationPolicy.Mode) {
-        if (!enabled(context) || !Sh9GpsService.active) return
+        if (!enabled(context)) {
+            // An active location callback with owner approval but no Dropbox
+            // refresh grant previously failed silently. Report a diagnosis,
+            // never auto-enable consent or create a substitute location.
+            if (prefs(context).getBoolean(KEY_SHARE, false) &&
+                FamilyGuardContinuity.enabled(context) &&
+                owner(context) != null &&
+                !DropboxVaultClient.hasRefreshToken(prefs(context))) {
+                prefs(context).edit().putString(KEY_RESULT, "blocked-no-dropbox-grant").apply()
+            }
+            return
+        }
+        if (!Sh9GpsService.active) return
         val ageMs = System.currentTimeMillis() - location.time
         if (ageMs < -5_000 || ageMs > 20_000 || !location.hasAccuracy() ||
             location.accuracy < 0f || location.accuracy > 100f ||
