@@ -20,9 +20,14 @@
 <div class="card"><h2>📦 Kézi teljes mentés</h2>
 <p>A kézi futtatás és az éjszakai mentés ugyanazt a védett GitHub-munkafolyamatot használja.</p>
 <div class="toolbar">
-<a class="btn" id="manual" href="https://github.com/zsoltandmonika-cloud/berlet-app/actions/workflows/sho-onedrive-full-backup-nightly.yml" rel="noopener noreferrer">Kézi indító megnyitása</a>
+<button type="button" id="manualCheck">Admin mentési hozzáférés ellenőrzése</button>
+<button type="button" id="manualDirect" disabled>▶ Kézi teljes mentés indítása</button>
+<button type="button" id="manualRunStatus" class="secondary">Legutóbbi futás állapota</button></div>
+<p class="result" id="manualStatus" role="status" aria-live="polite">Kézi indítás zárolva: az admin kapcsolatot előbb ellenőrizni kell.</p>
+<div class="toolbar">
+<a class="btn secondary" id="manual" href="https://github.com/zsoltandmonika-cloud/berlet-app/actions/workflows/sho-onedrive-full-backup-nightly.yml" rel="noopener noreferrer">GitHub futtató (tartalék)</a>
 <a class="btn secondary" href="https://github.com/zsoltandmonika-cloud/berlet-app/pull/1066" rel="noopener noreferrer">Fejlesztés állapota</a></div>
-<p class="warn">A GitHub megnyitása még nem indít mentést. Az indítás csak a szükséges jogosultságok beállítása és élesítés után működik.</p></div>
+<p class="warn">Az indítás elfogadása még nem kész mentés. A teljesítés csak sikeres OneDrive-visszaolvasás után igazolt.</p></div>
 <div class="card"><h2>🔎 OneDrive mentések</h2>
 <p>Csak a megfelelő Microsoft-fiókhoz tartozó, név szerint ismert mentéskönyvtárat olvassuk. A böngészőből nem törlünk fájlokat.</p>
 <div class="toolbar"><button id="refresh" type="button">Mentések ellenőrzése</button>
@@ -40,4 +45,4 @@
 <a class="btn secondary" href="https://github.com/zsoltandmonika-cloud/berlet-app/blob/feature/sho-onedrive-nightly-full-backup-20261122/ops/backup/README.md" rel="noopener noreferrer">Helyreállítási dokumentáció</a></div>
 <div id="restoreOutput" class="result" hidden></div></section>
 <footer>Biztonság: csak olvasási műveletek. Nincs automatikus restore, törlés, OTA vagy éles rendszerbe írás.</footer>
-</main><script src="./backup-admin-v1.js?v=1"></script></body></html>
+</main><script src="../central-vault/config.js"></script><script src="./backup-admin-v1.js?v=2"></script></body></html>
