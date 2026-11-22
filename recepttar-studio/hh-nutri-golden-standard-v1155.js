@@ -17,29 +17,52 @@ const MIN_AI_REMAINING_MICROCENTS=5000000; // $0.05 safety buffer
 async function guardPuterBudget(){
  const gate=w.LENA_PUTER_CREDIT_GATE_V1159;
  if(gate){
-   const result=await gate.check();
-   if(result.reason==='signed-out')throw Error('A Puter AI-fiók nincs bejelentkezve. Ellenőrizd a Puter kapcsolatot.');
-   if(result.reason==='low-balance'){
-     const e=Error('A Puter AI-keret az aktív fiókban alacsony. Ellenőrizd a kiválasztott Puter-fiókot.');
-     e.code='low_balance_guard';throw e;
+   const result=await gate.check(true);
+   if(result.reason==='signed-out')throw Error('A Puter AI-fiók nincs bejelentkezve. Ellenőrizd a Puter AI kapcsolatot.');
+   // The old $0.05 blanket threshold was a local safety buffer, not a Puter
+   // billing decision. Allow a user-triggered request when the account still
+   // has positive funds; the official SDK checks the cost of the actual call.
+   if(result.reason==='low-balance'&&Number(result.remaining)===0){
+     const error=Error('Az aktív Puter-fiók lekérdezett felhasználható kerete $0.00. Ellenőrizd a Puter-fiókot és a számlázást.');
+     error.code='puter_balance_zero';throw error;
    }
-   // A failed usage lookup is not evidence that credits are exhausted.
-   // Puter SDK enforces actual limits on explicitly requested AI calls.
    return;
  }
  const client=api();
  if(typeof client?.getMonthlyUsage!=='function')return;
- let usage;try{usage=await client.getMonthlyUsage()}catch(e){
-   console.warn('Puter allowance lookup unavailable; provider enforces real limits',e);return;
+ try{
+   const remaining=(await client.getMonthlyUsage())?.allowanceInfo?.remaining;
+   if(Number.isFinite(remaining)&&remaining===0){
+     const error=Error('A Puter a jelenlegi fiókhoz $0.00 maradék keretet jelent.');
+     error.code='puter_balance_zero';throw error;
+   }
+ }catch(error){
+   if(error.code==='puter_balance_zero')throw error;
+   console.warn('A Puter-keret nem ellenőrizhető, a szolgáltató hiteles AI-válasza dönt.',error);
  }
- const remaining=usage?.allowanceInfo?.remaining;
- if(!Number.isFinite(remaining)||remaining>=MIN_AI_REMAINING_MICROCENTS)return;
- const e=Error('A Puter AI-keret alacsony ('+Math.max(0,Math.round(remaining/1000000))+' cent).');
- e.code='low_balance_guard';throw e;
 }
-function isCreditFailure(e){
- const value=String(e?.code||'')+' '+String(e?.message||e||'');
- return /insufficient[_ -]?funds|low.?balance|low_balance_guard|monthly.?(credit|balance)|not.enough.credit|billing.hard.limit|quota.exhausted/i.test(value);
+function providerErrorCode(error){
+ const raw=error?.code||error?.error?.code||error?.statusCode||error?.status||error?.httpStatus||'';
+ return String(raw).toLowerCase().slice(0,48)
+}
+function providerErrorMessage(error){
+ const text=String(error?.error?.message||error?.message||error?.msg||error||'').trim();
+ return text.replace(/\s+/g,' ').slice(0,190)
+}
+function classifyProviderError(error){
+ const code=providerErrorCode(error),message=providerErrorMessage(error),combined=(code+' '+message).toLowerCase();
+ if(/insufficient[_ -]?funds|puter_balance_zero|low_balance_guard/.test(combined))
+   return {kind:'credit',text:'A Puter az aktív fiók AI-keretét elutasította ('+(code||'keret')+'). '+message};
+ if(/subscription_required/.test(combined))
+   return {kind:'plan',text:'Puter előfizetés/hozzáférés nem igazolt az aktív fiókon ('+code+'). '+message};
+ if(/too_many_requests|rate.?limit|429/.test(combined))
+   return {kind:'rate',text:'Puter sebességkorlát ('+(code||'429')+'). '+message};
+ if(/auth|sign.?in|unauthorized|forbidden|401|403/.test(combined))
+   return {kind:'auth',text:'Puter bejelentkezési/jogosultsági probléma ('+(code||'auth')+'). '+message};
+ return {kind:'other',text:'AI-hívás vagy mentés sikertelen'+(code?' ['+code+']':'')+': '+message};
+}
+function isCreditFailure(error){
+ return ['credit','plan'].includes(classifyProviderError(error).kind)
 }
 const numeric=(v,min,max)=>v!==null&&v!==undefined&&v!==''&&Number.isFinite(Number(v))&&Number(v)>=min&&Number(v)<=max;
 const round=(v,digits=1)=>Math.round(Number(v)*10**digits)/10**digits;
@@ -84,6 +107,7 @@ function refresh(){
  if(el)el.textContent=s.total+' recept · '+s.ready+' kész · '+s.missing+' pótlásra vár'+(s.unstructured?' · '+s.unstructured+' előkészítendő':'');
  const start=byId('nutriBulkStartV1155');
  if(start)start.disabled=running||s.missing===0;
+ const one=byId('nutriSingleStartV1165');if(one)one.disabled=running||s.missing===0;
  const stop=byId('nutriBulkStopV1155');
  if(stop)stop.hidden=!running;
  return s;
@@ -184,7 +208,7 @@ async function afterGoldenSave(id,options={}){
   return {ok:false,reason:String(e?.message||e).slice(0,180)};
  }
 }
-async function batch(){
+async function batch(limit=Infinity){
  if(running)return;
  const c=api();
  if(!c){status('A recepttár még nem töltődött be.',true);return;}
@@ -199,9 +223,10 @@ async function batch(){
   // because another device has already saved its version.
   await c.loadNutritionCache();
   const queue=c.allRecipes().filter(r=>!r.deleted&&needs(r.id));
-  const total=queue.length;
+  const selected=Number.isFinite(limit)?queue.slice(0,Math.max(1,limit)):queue;
+  const total=selected.length;
   if(!total){status('✓ Minden strukturált receptnek már van Nutri Info és készétel-tömeg becslése.');return;}
-  for(const [i,r] of queue.entries()){
+  for(const [i,r] of selected.entries()){
    if(stopRequested){status('⏸ Megállítva. '+done+' mentve · '+failed+' hiba. Folytatáskor a mentetteket kihagyjuk.');break;}
    status('🥗 '+(i+1)+' / '+total+' · '+r.title+' · Nutri Info számítása…');
    try{
@@ -211,19 +236,21 @@ async function batch(){
    }catch(e){
     failed++;consecutive++;
     console.warn('Nutri Info batch',r.id,e);
-    status('⚠ '+(i+1)+' / '+total+' · '+r.title+': '+String(e?.message||e).slice(0,100),true);
-    if(isCreditFailure(e)){
-     creditStopped=true;
-     status('⚠ A Puter AI-keret elfogyott vagy túl alacsony. A további AI-hívásokat leállítottam, hogy ne ismétlődjön a számlázási figyelmeztetés. '+done+' recept kész; a többi később folytatható.',true);
-     break;
+    const diagnosed=classifyProviderError(e);
+    status('⚠ '+(i+1)+' / '+total+' · '+r.title+' · '+diagnosed.text,true);
+    // No retry on real provider billing, plan, auth or rate-limit failures.
+    if(['credit','plan','rate','auth'].includes(diagnosed.kind)){
+     creditStopped=true;break;
     }
-    if(consecutive>=3){status('⚠ Három egymást követő hiba miatt megállítottam. '+done+' recept mentve. Ellenőrizd a Puter AI keretét, majd folytatható.',true);break;}
+    if(consecutive>=3){
+     status('⚠ Három egymást követő hiba. '+done+' mentve. Utolsó hiba: '+diagnosed.text,true);break;
+    }
    }
    await new Promise(resolve=>setTimeout(resolve,240));
   }
   if(!stopRequested&&!creditStopped&&consecutive<3){
    const s=refresh();
-   status('✓ Feldolgozás kész · '+done+' új Nutri Info · '+skipped+' már kész · '+failed+' hiba · '+s.missing+' még hiányzik.'+(s.unstructured?' '+s.unstructured+' recept strukturálásra vár.':''));
+   status('✓ Feldolgozás kész · '+done+' új Nutri Info · '+skipped+' már kész · '+failed+' hiba · '+s.missing+' még hiányzik.'+(limit===1?' Ez egyetlen próbafutás volt.':'')+(s.unstructured?' '+s.unstructured+' recept strukturálásra vár.':''));
   }
  }catch(e){
   status('⚠ A tömeges pótlás megszakadt: '+String(e?.message||e).slice(0,170),true);
@@ -237,19 +264,33 @@ async function inspectPuterAiV1164(){
  if(button){button.disabled=true;button.textContent='🔎 Ellenőrzés…'}
  try{
    const client=api();if(!client)throw Error('A Nutri Info nem töltődött be.');
-   await client.ensureSignedIn();
-   const gate=w.LENA_PUTER_CREDIT_GATE_V1159;
-   const check=gate?await gate.check(true):null;
-   const user=await w.puter?.auth?.getUser?.();
-   const name=user?.username||user?.email||'Puter-fiók';
-   if(check?.reason==='low-balance')status('⚠ Az aktív Puter-fiókban alacsony a keret: '+name,true);
-   else if(check?.reason==='ok')status('✓ Puter-fiók: '+name+' · $'+(check.remaining/100000000).toFixed(2)+' keret.');
-   else status('ℹ Puter: '+name+'. A keret lekérdezése nem sikerült; ez nem jelent kerethiányt.');
- }catch(e){status('⚠ Puter AI: '+String(e?.message||e).slice(0,170),true)}
+   const auth=w.puter?.auth;
+   if(!auth?.isSignedIn?.()){
+     status('⚠ Puter AI nincs bejelentkezve. A HealthHub-fiók ettől különböző fiók.',true);return;
+   }
+   const [user,quota]=await Promise.allSettled([
+     auth.getUser?.(),w.LENA_PUTER_CREDIT_GATE_V1159?.check(true)
+   ]);
+   const profile=user.status==='fulfilled'?user.value:null;
+   const name=String(profile?.username||profile?.email||'azonosítatlan fiók').slice(0,85);
+   const check=quota.status==='fulfilled'?quota.value:null;
+   if(check&&Number.isFinite(check.remaining)){
+     const value=(check.remaining/100000000).toFixed(2);
+     if(check.reason==='low-balance'){
+       status('ℹ Aktív Puter-fiók: '+name+' · lekérdezett maradék: $'+value+'. A $0.05 alatti érték önmagában nem bizonyít sikertelen előfizetést; egyetlen próbareceptet indíts.',false);
+     }else{
+       status('✓ Aktív Puter-fiók: '+name+' · lekérdezett maradék: $'+value+'. Ez az aktuális fiók használati kerete, nem fizetési visszaigazolás.');
+     }
+   }else{
+     status('ℹ Aktív Puter-fiók: '+name+'. Az egyenleg most nem olvasható ki, ezért nem állítjuk, hogy elfogyott. Ellenőrizd az aktív fiókot és próbálj egy receptet.');
+   }
+ }catch(e){status('⚠ Puter kapcsolat: '+providerErrorMessage(e),true)}
  finally{if(button){button.disabled=false;button.textContent='🔎 Puter AI kapcsolat'}}
 }
-const start=byId('nutriBulkStartV1155'),stop=byId('nutriBulkStopV1155');
+
+const start=byId('nutriBulkStartV1155'),stop=byId('nutriBulkStopV1155'),one=byId('nutriSingleStartV1165');
 start?.addEventListener('click',()=>void batch());
+one?.addEventListener('click',()=>void batch(1));
 stop?.addEventListener('click',()=>{stopRequested=true;status('⏸ Megállítás a most futó recept elkészülte után…');});
 byId('nutriPuterCheckV1164')?.addEventListener('click',()=>void inspectPuterAiV1164());
 w.LENA_NUTRI_STANDARD_V1155=Object.freeze({version:1155,generateOne,afterGoldenSave,refresh,stats,needs,signature});
