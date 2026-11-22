@@ -17,7 +17,7 @@ function setup(){
  let aiCalls=0,signIn=0;
  const cache=new Map(),remote=new Map();
  const elements={};
- for(const id of ['nutriBulkCountsV1155','nutriBulkStartV1155','nutriBulkStopV1155','nutriBulkStatusV1155']){
+ for(const id of ['nutriBulkCountsV1155','nutriBulkStartV1155','nutriBulkStopV1155','nutriBulkStatusV1155','nutriPuterReconnectV1166']){
   elements[id]={textContent:'',dataset:{},hidden:false,disabled:false,addEventListener(_event,fn){this.handler=fn}};
  }
  const context={
@@ -182,4 +182,46 @@ test('Single-recipe trial control is present, no bulk run starts on page load',(
  assert.match(html,/id="nutriSingleStartV1165"/);
  assert.match(automation,/one\?\.addEventListener\('click',\(\)=>void batch\(1\)\)/);
  assert.match(automation,/classifyProviderError\(e\)/);
+});
+
+test('Puter password-change reconnect calls official forced account chooser directly from click',async()=>{
+ const s=setup();let prompted=false,refreshed=false,signed=false,userLookups=0;
+ s.window.puter={auth:{
+   signIn(options){prompted=true;assert.equal(options.request_auth,true);assert.equal(options.attempt_temp_user_creation,false);
+    signed=true;return Promise.resolve({success:true});},
+   isSignedIn:()=>signed,
+   getUser:async()=>{userLookups++;return {username:'existing-account'};},
+   getMonthlyUsage:async()=>({allowanceInfo:{remaining:26000000}})
+ }};
+ s.window.LENA_PUTER_CREDIT_GATE_V1159={reset:()=>{refreshed=true},check:async()=>({reason:'ok',remaining:26000000})};
+ const click=s.elements.nutriPuterReconnectV1166.handler;
+ assert.equal(typeof click,'function','explicit button click must be wired');
+ click();
+ assert.equal(prompted,true,'popup must open synchronously within user gesture');
+ await new Promise(resolve=>setImmediate(resolve));
+ assert.equal(refreshed,true,'old balance/session state must be reset');
+ assert.ok(userLookups>=1);
+ assert.match(s.elements.nutriBulkStatusV1155.textContent,/existing-account/);
+ assert.equal(s.elements.nutriPuterReconnectV1166.disabled,false);
+ assert.doesNotMatch(automation,/auth\.signOut\(/,'should not force logout or delete files');
+});
+test('Puter popup blocked or cancelled reports the true failure without touching recipes',async()=>{
+ const s=setup();
+ s.window.puter={auth:{signIn(){throw {error:'popup_blocked'};}}};
+ const ok=await s.api.reconnectPuter();
+ assert.equal(ok,false);
+ assert.match(s.elements.nutriBulkStatusV1155.textContent,/blokkolta a felugró ablakot/i);
+ assert.equal(s.remote.size,0);
+ assert.equal(s.cache.size,0);
+});
+test('Puter account chooser cancellation preserves existing recipe and HealthHub state',async()=>{
+ const s=setup();
+ s.window.puter={auth:{
+   signIn(){return Promise.reject({error:'auth_window_closed'});},
+   getUser:async()=>({username:'original-account'})
+ }};
+ const ok=await s.api.reconnectPuter();
+ assert.equal(ok,false);
+ assert.match(s.elements.nutriBulkStatusV1155.textContent,/megszakítottad/i);
+ assert.equal(s.remote.size,0);
 });
