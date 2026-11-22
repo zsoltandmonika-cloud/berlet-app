@@ -121,11 +121,11 @@ rclone copyto "$DEST/backup.tar.zst.age" "$out/remote-verified.tar.zst.age" --qu
 cmp --silent "$out/backup.tar.zst.age" "$out/remote-verified.tar.zst.age"
 sha256sum "$out/backup.tar.zst.age" | awk '{print $1}' > "$out/sha256.txt"
 sha="$(cat "$out/sha256.txt")"
-printf '{"schema":"sho-backup-status/1","backup_id":"%s","status":"FULL_BACKUP_VERIFIED","encrypted_archive_sha256":"%s","project_ref":"%s","read_back_verified":true}\n' \
+printf '{"schema":"sho-backup-status/1","backup_id":"%s","status":"CLOUD_CORE_VERIFIED","encrypted_archive_sha256":"%s","project_ref":"%s","read_back_verified":true,"full_system":false}\n' \
   "$BACKUP_ID" "$sha" "$PROJECT_REF" > "$out/status.json"
 rclone copyto "$out/sha256.txt" "$DEST/sha256.txt" --immutable --quiet
 rclone copyto "$out/status.json" "$DEST/status.json" --immutable --quiet
-printf 'FULL_BACKUP_VERIFIED: %s\n' "$DEST"
+printf 'CLOUD_CORE_VERIFIED: %s\n' "$DEST"
 if [[ -n "${GITHUB_STEP_SUMMARY:-}" ]]; then
   { echo '### SHO OneDrive FULL BACKUP VERIFIED'; echo "- Backup: $BACKUP_ID";
     echo '- Destination: SHO/Backups'; echo '- GitHub, Dropbox, Supabase DB/Storage/Edge Functions included';
