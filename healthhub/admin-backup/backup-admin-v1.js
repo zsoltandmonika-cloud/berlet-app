@@ -25,7 +25,7 @@ function auth(){
  return session.accessToken;
 }
 async function graph(url,token){
- const u=new URL(String(url).replace(/^\\/+/,''),API+'/');
+ const u=new URL(url[0]==='/'?url.slice(1):url,API+'/');
  if(u.origin!=='https://graph.microsoft.com'||!u.pathname.startsWith('/v1.0/'))
   throw Error('Érvénytelen Graph-hivatkozás');
  const res=await w.fetch(u.toString(),{method:'GET',headers:{Authorization:'Bearer '+token},cache:'no-store',redirect:'follow'});
