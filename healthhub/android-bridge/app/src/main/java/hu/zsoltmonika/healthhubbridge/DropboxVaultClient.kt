@@ -117,13 +117,40 @@ object DropboxVaultClient {
         }
     }
 
-    /** Parse the actual Dropbox conflict variant; never accept a generic 409. */
+    /**
+     * An already existing folder is a successful prerequisite, not a fatal
+     * upload error. Dropbox can encode its folder conflict both as a nested
+     * union variant and as a precise error_summary. Reject every other 409.
+     */
     internal fun existingFolderConflict(body: String): Boolean = try {
-        val root = JSONObject(body).getJSONObject("error")
-        root.optString(".tag") == "path" &&
-            root.optJSONObject("path")?.optString(".tag") == "conflict" &&
-            root.getJSONObject("path").optJSONObject("conflict")?.optString(".tag") == "folder"
+        val response = JSONObject(body)
+        val error = response.optJSONObject("error")
+        val typedFolder = error?.optString(".tag") == "path" &&
+            error.optJSONObject("path")?.optString(".tag") == "conflict" &&
+            error.optJSONObject("path")?.optJSONObject("conflict")?.optString(".tag") == "folder"
+        val summary = response.optString("error_summary").trimEnd('/')
+        typedFolder || summary == "path/conflict/folder" ||
+            summary.startsWith("path/conflict/folder/")
     } catch (_: Exception) { false }
+
+    /**
+     * Safe, actionable diagnostics without copying a Dropbox response body,
+     * access token, coordinates, email or arbitrary server text into device
+     * heartbeats and UI. The exact HTTP status and operation are sufficient
+     * to distinguish account permissions from upload failures.
+     */
+    internal fun safeErrorReason(error: Exception): String {
+        val detail = error.message.orEmpty()
+        val phase = when {
+            detail.startsWith("Dropbox mappa") -> "folder"
+            detail.startsWith("Dropbox upload") -> "upload"
+            detail.startsWith("Dropbox download") -> "download"
+            detail.startsWith("Dropbox HTTP") || detail.contains("access token", true) -> "auth"
+            else -> "transport"
+        }
+        val http = Regex("""HTTP\\s+(\\d{3})""").find(detail)?.groupValues?.get(1)
+        return if (http != null) "$phase:HTTP$http" else "$phase:${error.javaClass.simpleName}"
+    }
 
     suspend fun uploadText(prefs: SharedPreferences, path: String, text: String) {
         val token = accessToken(prefs)
