@@ -404,10 +404,11 @@ async function loadSharedRecipes(force=false){
    const result=await cardsFromCatalogueV1(rows,account,offlineOnly);
    const ids=new Set(next.map(v=>v.id));
    for(const recipe of result.next){
-     if(!ids.has(recipe.id)){next.push(recipe);ids.add(recipe.id)}
-     else if(recipe._url)URL.revokeObjectURL(recipe._url);
+     if(!ids.has(recipe.id)){
+       next.push(recipe);ids.add(recipe.id);
+       if(result.readable[recipe.id])readable[recipe.id]=result.readable[recipe.id];
+     }else if(recipe._url)URL.revokeObjectURL(recipe._url);
    }
-   Object.assign(readable,result.readable);
  }
  if(ownAccount){
    const cached=await RECIPE_ASSET_CACHE_V1?.catalogue(ownAccount);
@@ -473,8 +474,11 @@ async function nutritionImportPhotoV1154(id){
  let photo=null;
  const row=await dbGet(id).catch(()=>null);
  if(row?.heroBlob&&/^image\//.test(row.heroBlob.type||''))photo=row.heroBlob;
- if(!photo&&r.heroPath&&puterCloudReady()&&puter.auth.isSignedIn()&&await canCloudIOV1159()){
-  try{photo=await puter.fs.read(r.heroPath)}catch(e){console.warn('Recipe hero unavailable',e)}
+ if(!photo&&r.heroPath){
+  try{
+   photo=r.storage==='supabase'?await HH_OWN_RECIPE_CLOUD_V1.download(r.heroPath):
+     puterCloudReady()&&puter.auth.isSignedIn()&&await canCloudIOV1159()?await puter.fs.read(r.heroPath):null;
+  }catch(e){console.warn('Recipe hero unavailable',e)}
  }
  if(!photo){
   try{photo=await recipeCardSourceBlob(r)}catch(e){console.warn('Recipe card art unavailable',e)}
@@ -2212,8 +2216,8 @@ $("#recipeVideoCard").onclick=openYoutubePlayer;$("#closeYoutube").onclick=close
 $("#editYoutubeUrl").addEventListener("input",renderEditYoutubePreview);$("#editYoutubeClear").onclick=()=>{$("#editYoutubeUrl").value="";renderEditYoutubePreview();$("#editYoutubeUrl").focus()};
 $("#favBtn").onclick=()=>{if(!currentId)return;setFav(currentId,!isFav(currentId));$("#favBtn").textContent=isFav(currentId)?"★":"☆"};$("#originalMode").onclick=toggleOriginalFullscreen;$("#readableMode").onclick=()=>setMode("readable");$("#editReadable").onclick=editText;$("#saveRecipe").onclick=saveEdit;$("#deleteRecipe").onclick=deleteCurrent;$("#resetRecipe").onclick=resetCurrent;
 $("#saveText").onclick=()=>{if(!currentId)return;setText(currentId,$("#textEditor").value);$("#textDialog").close();const t=getText(currentId);$("#readableText").textContent=t;$("#readableMode").hidden=!t;if(t){setMode("readable");toast("Javított receptszöveg elmentve.")}else{setMode("original");toast("Olvasható szöveg törölve.")}};
-/* v1155 context: canonical Puter KV and recipe state stay here.
- * The companion Golden Standard automation only calls these narrow methods. */
+/* v1163: recipe metadata and nutrition live in HealthHub private storage.
+ * Puter is retained only for optional AI generation and legacy read-only import. */
 window.LENA_NUTRI_STANDARD_CONTEXT_V1155=Object.freeze({
  allRecipes,getRecipe,getReadable,getNutrition,recipeServingText,
  puterAvailable,ensureSignedIn:ensurePuterSignIn,loadNutritionCache,
