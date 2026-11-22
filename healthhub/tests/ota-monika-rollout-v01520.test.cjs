@@ -8,17 +8,17 @@ const manifest = JSON.parse(read('data/bridge-ota.json'));
 const gradle = read('android-bridge/app/build.gradle.kts');
 const native = read('android-bridge/app/src/main/java/hu/zsoltmonika/healthhubbridge/OtaUpdateManager.kt');
 
-test('Monika and Zsolt receive exactly the same immutable signed 0.15.20 APK', () => {
+test('Monika and Zsolt share the same immutable, currently published signed OTA APK', () => {
   assert.equal(manifest.schema, 'healthhub.connect.ota/1');
   assert.equal(manifest.channel, 'signed-release');
   assert.equal(manifest.applicationId, 'hu.zsoltmonika.healthhubbridge');
-  assert.equal(manifest.version, '0.15.20');
-  assert.equal(manifest.versionCode, 47);
+  assert.equal(manifest.version, '0.15.23');
+  assert.equal(manifest.versionCode, 50);
   assert.deepEqual(manifest.rolloutProfiles, ['zsolt', 'monika']);
-  assert.equal(manifest.downloadUrl, 'https://github.com/zsoltandmonika-cloud/berlet-app/releases/download/healthhub-connect-ota-v0.15.20/HealthHub-Connect-v0.15.20-ota.apk');
-  assert.equal(manifest.sha256, '5c416b11cc61d660d84f6d8d0a1db5eab9c6507adef85c6a11efb4f40f43cd45');
-  assert.match(gradle, /versionCode = 47/);
-  assert.match(gradle, /versionName = "0\.15\.20"/);
+  assert.equal(manifest.downloadUrl, 'https://github.com/zsoltandmonika-cloud/berlet-app/releases/download/healthhub-connect-ota-v0.15.23/HealthHub-Connect-v0.15.23-ota.apk');
+  assert.equal(manifest.sha256, 'da838c6467dd3fe37fffb9a886a01b357b3455e498e14533a02595a1366bd155');
+  assert.ok(Number(gradle.match(/versionCode = (\d+)/)?.[1]) > manifest.versionCode);
+  assert.match(gradle, /versionName = "0\.15\.24"/);
 });
 test('Both owner eligibility and integrity verification remain enforced on Android', () => {
   assert.match(native, /rolloutProfiles/);
