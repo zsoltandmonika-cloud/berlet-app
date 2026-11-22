@@ -66,3 +66,15 @@ test('remote control is scoped, bounded and cannot remotely activate mic or came
  assert.doesNotMatch(worker,/requestPermissions|MediaRecorder|CameraManager|RECORD_AUDIO/);
  assert.doesNotMatch(manifest,/RECORD_AUDIO|FOREGROUND_SERVICE_CAMERA|FOREGROUND_SERVICE_MICROPHONE/);
 });
+
+test('periodic GPS recovery honors previously approved owner consent and STOP',()=>{
+ assert.match(worker,/!Sh9GpsService\.active && FamilyGuardContinuity\.canRestart\(applicationContext\)/);
+ assert.match(worker,/!inputData\.getBoolean\("hh_registry_diagnostic_only", false\)/);
+ assert.match(worker,/nowMs - lastMs >= 15 \* 60_000L/);
+ assert.match(worker,/FamilyGuardContinuity\.restartApprovedGps\(applicationContext\)/);
+ assert.match(continuity,/fun canRestart\(context: Context\): Boolean =/);
+ assert.match(continuity,/enabled\(context\) && hasOwner\(context\)/);
+ assert.match(continuity,/putBoolean\(KEY_AUTO_GPS, false\)/);
+ assert.doesNotMatch(worker,/FamilyGuardContinuity\.setApproved\(applicationContext, true\)/);
+ assert.doesNotMatch(worker,/FamilyGuardNativeRelay\.enable\(applicationContext\)/);
+});
