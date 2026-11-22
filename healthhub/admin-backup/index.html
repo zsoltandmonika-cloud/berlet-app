@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="hu"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#071226"><title>SHO Admin · Backup &amp; Restore</title>
+<link rel="stylesheet" href="./backup-admin-v1.css?v=1"></head>
+<body><main>
+<a class="back" href="../index.html">← SHO Admin</a>
+<header class="hero"><span class="kicker">SHO · ADMIN CONTROL CENTER</span>
+<h1>🛡️ Backup &amp; Restore</h1>
+<p>Teljes felhőmag-mentés OneDrive-ra, visszaellenőrzés és ellenőrzött helyreállítási pontok.</p>
+<p class="muted">Cél: <strong>OneDrive / SHO / Backups</strong> · ütemezés: naponta 00:15, Budapest</p>
+<div class="stats">
+<div class="stat"><small>Automatikus mentés</small><strong id="schedule">Előkészítve</strong></div>
+<div class="stat"><small>Utolsó ellenőrzött</small><strong id="lastVerified">Nincs adat</strong></div>
+<div class="stat"><small>Mentési pontok</small><strong id="snapshotCount">0</strong></div>
+<div class="stat"><small>Megőrzés</small><strong>30 napi + 12 havi</strong></div>
+</div>
+<p class="result" id="status" role="status" aria-live="polite">A OneDrive adatkapcsolatot még nem ellenőriztem ezen a böngészőn.</p>
+</header>
+<section class="grid">
+<div class="card"><h2>📦 Kézi teljes mentés</h2>
+<p>A kézi futtatás és az éjszakai mentés ugyanazt a védett GitHub-munkafolyamatot használja.</p>
+<div class="toolbar">
+<a class="btn" id="manual" href="https://github.com/zsoltandmonika-cloud/berlet-app/actions/workflows/sho-onedrive-full-backup-nightly.yml" rel="noopener noreferrer">Kézi indító megnyitása</a>
+<a class="btn secondary" href="https://github.com/zsoltandmonika-cloud/berlet-app/pull/1066" rel="noopener noreferrer">Fejlesztés állapota</a></div>
+<p class="warn">A GitHub megnyitása még nem indít mentést. Az indítás csak a szükséges jogosultságok beállítása és élesítés után működik.</p></div>
+<div class="card"><h2>🔎 OneDrive mentések</h2>
+<p>Csak a megfelelő Microsoft-fiókhoz tartozó, név szerint ismert mentéskönyvtárat olvassuk. A böngészőből nem törlünk fájlokat.</p>
+<div class="toolbar"><button id="refresh" type="button">Mentések ellenőrzése</button>
+<a class="btn secondary" id="onedrive" href="https://onedrive.live.com?cid=BC1FF24AF37EA2B0&amp;id=BC1FF24AF37EA2B0!s923d513dd4494037b00b0f5d6340556c" rel="noopener noreferrer">OneDrive mappa</a></div>
+<p class="muted" id="authHelp">Az ellenőrzéshez a Book Studio meglévő, hitelesített OneDrive-olvasási munkamenete szükséges.</p></div>
+</section>
+<section class="card"><h2>📚 Visszaállítási pontok</h2>
+<div id="backups" aria-live="polite"><p class="muted">Nincs még ellenőrzött mentési lista. Kattints a „Mentések ellenőrzése” gombra.</p></div>
+</section>
+<section class="card"><h2>♻️ Visszaállítás előkészítése</h2>
+<p>Előbb kiválasztunk egy <strong>igazoltan ellenőrzött</strong> mentést. A visszaállítás izolált környezetben végzett próbával kezdődik. Az éles SHO-t innen semmi nem írja felül.</p>
+<label for="restoreId">Kiválasztott mentés azonosítója</label>
+<input id="restoreId" type="text" maxlength="70" placeholder="Válassz ellenőrzött mentést a listából" readonly>
+<div class="toolbar"><button id="prepare" type="button" disabled>Visszaállítási terv előkészítése</button>
+<a class="btn secondary" href="https://github.com/zsoltandmonika-cloud/berlet-app/blob/feature/sho-onedrive-nightly-full-backup-20261122/ops/backup/README.md" rel="noopener noreferrer">Helyreállítási dokumentáció</a></div>
+<div id="restoreOutput" class="result" hidden></div></section>
+<footer>Biztonság: csak olvasási műveletek. Nincs automatikus restore, törlés, OTA vagy éles rendszerbe írás.</footer>
+</main><script src="./backup-admin-v1.js?v=1"></script></body></html>
