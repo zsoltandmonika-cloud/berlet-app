@@ -109,7 +109,7 @@ object FamilyGuardNativeRelay {
     // Errors are deliberately redacted: never store URL, OAuth response,
     // private path, GPS coordinate or arbitrary backend error payload.
     internal fun safeFailure(stage: String, error: Throwable): String {
-        val code = Regex("""\\bHTTP\\s+([1-5][0-9]{2})\\b""")
+        val code = Regex("""\bHTTP\s+([1-5][0-9]{2})\b""")
             .find(error.message.orEmpty())?.groupValues?.getOrNull(1)
         val kind = when (error) {
             is java.net.SocketTimeoutException -> "Időtúllépés"
