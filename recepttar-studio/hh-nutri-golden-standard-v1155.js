@@ -53,10 +53,10 @@ function classifyProviderError(error){
  const code=providerErrorCode(error),message=providerErrorMessage(error),combined=(code+' '+message).toLowerCase();
  if(/insufficient[_ -]?funds|puter_balance_zero|low_balance_guard/.test(combined))
    return {kind:'credit',text:'A Puter az aktív fiók AI-keretét elutasította ('+(code||'keret')+'). '+message};
- if(/\b402\b/.test(combined))
-   return {kind:'billing',text:'A Puter HTTP 402 fizetési/hozzáférési hibát jelzett, de nem tudjuk, hogy a keret vagy az előfizetés állapota okozta. '+message};
  if(/subscription_required/.test(combined))
    return {kind:'plan',text:'Puter előfizetés/hozzáférés nem igazolt az aktív fiókon ('+code+'). '+message};
+ if(/\b402\b/.test(combined))
+   return {kind:'billing',text:'A Puter HTTP 402 fizetési/hozzáférési hibát jelzett, de nem tudjuk, hogy a keret vagy az előfizetés állapota okozta. '+message};
  if(/request_timeout|upstream_timeout|timed.?out/.test(combined))
    return {kind:'timeout',text:'Puter AI-időtúllépés. A kérés akár feldolgozásra és elszámolásra is kerülhetett. '+message};
  if(/too_many_requests|rate.?limit|429/.test(combined))
