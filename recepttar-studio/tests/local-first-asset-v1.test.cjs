@@ -48,7 +48,7 @@ function indexedDBMock(){
 }
 test('Recipe Studio V1 loads new cache before app, preserving original cards and Nutri components',()=>{
  assert.ok(html.indexOf('recipe-asset-cache-v1.js')>0);
- assert.ok(html.indexOf('recipe-asset-cache-v1.js')<html.indexOf('app.js?v=1163'));
+ assert.ok(html.indexOf('recipe-asset-cache-v1.js')<html.indexOf('app.js?v=1164'));
  assert.match(html,/hh-puter-credit-gate-v1159\.js/);
  assert.match(html,/hh-nutrition-export-v1154\.js/);
  assert.match(html,/hh-nutri-golden-standard-v1155\.js/);

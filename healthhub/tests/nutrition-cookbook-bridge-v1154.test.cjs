@@ -49,8 +49,8 @@ test('Food > Cookbook enters Studio in explicit profile-bound import mode only',
 test('Studio remains normally browsable, import mode requires explicit query and single card click',()=>{
  assert.match(studioHTML,/hh-cookbook-portion-math-v1154\.js/);
  assert.match(studioHTML,/hh-nutrition-export-v1154\.js/);
- assert.ok(studioHTML.indexOf('hh-cookbook-portion-math-v1154.js')<studioHTML.indexOf('app.js?v=1163'));
- assert.ok(studioHTML.indexOf('app.js?v=1163')<studioHTML.indexOf('hh-nutrition-export-v1154.js'));
+ assert.ok(studioHTML.indexOf('hh-cookbook-portion-math-v1154.js')<studioHTML.indexOf('app.js?v=1164'));
+ assert.ok(studioHTML.indexOf('app.js?v=1164')<studioHTML.indexOf('hh-nutrition-export-v1154.js'));
  assert.match(studioJS,/a\.dataset\.recipeId=r\.id/);
  assert.match(studioJS,/LENA_RECIPE_NUTRITION_EXPORT_V1154/);
  assert.match(studioHTML,/hhAdd320ButtonV1160/);

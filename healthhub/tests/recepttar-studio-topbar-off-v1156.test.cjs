@@ -15,7 +15,7 @@ test('Shared bottom bar, recipe data and Golden nutrition stay unchanged',()=>{
  assert.match(studio,/sh9-golden-bottom-nav-v924\.css\?v=924-unified/);
  assert.match(studio,/sh9-golden-bottom-nav-v924\.js\?v=924-unified/);
  assert.match(studio,/<nav class="bottom-nav">/);
- assert.match(studio,/src="app\.js\?v=1163-healthhub-own-cloud-v1"/);
+ assert.match(studio,/src="app\.js\?v=1164-healthhub-inline-auth-and-nutri"/);
  assert.match(studio,/hh-nutri-golden-standard-v1155\.js/);
  assert.match(studio,/hh-nutrition-export-v1154\.js/);
 });

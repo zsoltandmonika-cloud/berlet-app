@@ -16,10 +16,43 @@
    try{if(w.localStorage.getItem(REM)==='yes')b=JSON.parse(w.localStorage.getItem(SESSION)||'null')}catch(_){}
    return a?.access_token&&b?.access_token?(Number(a.expires_at||0)>=Number(b.expires_at||0)?a:b):(a?.access_token?a:b);
  }
- function saveSession(v){
+ function saveSession(v,remember){
+   // Same session and trusted-device keys as HealthHub Central Vault v332.
+   if(remember===true)w.localStorage.setItem(REM,'yes');
+   if(remember===false){w.localStorage.removeItem(REM);w.localStorage.removeItem(SESSION)}
    w.sessionStorage.setItem(SESSION,JSON.stringify(v));
    if(w.localStorage.getItem(REM)==='yes')w.localStorage.setItem(SESSION,JSON.stringify(v));
+   userCache=null;cacheToken='';
  }
+ async function signIn(email,password,remember){
+   if(!BASE||!KEY)throw Error('A HealthHub központi kapcsolat hiányzik.');
+   if(!String(email||'').trim()||!password)throw Error('Az e-mail és a jelszó megadása kötelező.');
+   // Validate candidate login before replacing a previously connected account.
+   const loginResponse=await fetch(BASE+'/auth/v1/token?grant_type=password',{
+     method:'POST',headers:{apikey:KEY,'Content-Type':'application/json'},
+     body:JSON.stringify({email:String(email).trim(),password}),cache:'no-store'
+   });
+   if(!loginResponse.ok){
+     if([400,401].includes(loginResponse.status))throw Error('Hibás e-mail-cím vagy jelszó.');
+     throw Error('HealthHub bejelentkezési hiba (HTTP '+loginResponse.status+').');
+   }
+   const data=await loginResponse.json();
+   if(!data?.access_token||!data?.refresh_token)throw Error('Érvénytelen HealthHub munkamenet.');
+   const headers={apikey:KEY,Authorization:'Bearer '+data.access_token};
+   const profiles=await fetch(BASE+'/rest/v1/hh_profiles?select=profile_key&limit=2',{
+     headers,cache:'no-store'
+   });
+   if(!profiles.ok)throw Error('A HealthHub-profiljogosultságok nem ellenőrizhetők (HTTP '+profiles.status+').');
+   const allowed=await profiles.json();
+   if(!Array.isArray(allowed)||!allowed.some(v=>v?.profile_key==='zsolt'||v?.profile_key==='monika'))
+     throw Error('Ehhez a fiókhoz nincs engedélyezett családi HealthHub-profil.');
+   const next={access_token:data.access_token,refresh_token:data.refresh_token,
+     expires_at:Math.floor(Date.now()/1000)+Number(data.expires_in||3600)};
+   saveSession(next,remember===true);
+   w.dispatchEvent?.(new Event('healthhub:central-auth-changed'));
+   return user();
+ }
+
  async function access(){
    if(!BASE||!KEY)throw Error('A HealthHub központi tároló nincs konfigurálva.');
    let s=session();
@@ -174,7 +207,6 @@
    return true;
  }
  w.HH_RECIPE_OWN_CLOUD_V1=Object.freeze({
-   account,available,user,download,putRecipe,listRecipes,listValues,getValue,putValue,deleteValue,deleteRecipe,
-   loginUrl:'../healthhub/index.html'
+   account,available,user,signIn,download,putRecipe,listRecipes,getValue,putValue,listValues,deleteValue,deleteRecipe
  });
 })(window);

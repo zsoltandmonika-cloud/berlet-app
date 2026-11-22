@@ -25,7 +25,7 @@ function boot(remaining,options={}){
 }
 test('Quota guard is loaded ahead of Studio app, without altering Puter UI',()=>{
  assert.match(html,/hh-puter-credit-gate-v1159\.js/);
- assert.ok(html.indexOf('hh-puter-credit-gate-v1159.js')<html.indexOf('app.js?v=1163'));
+ assert.ok(html.indexOf('hh-puter-credit-gate-v1159.js')<html.indexOf('app.js?v=1164'));
  assert.doesNotMatch(gate,/requestUpgrade|MutationObserver|querySelector\(|setInterval\(|\.style\./);
  assert.doesNotThrow(()=>new vm.Script(gate));
  assert.doesNotThrow(()=>new vm.Script(app));
@@ -75,7 +75,7 @@ test('Manual recipe saves remain local-first, no required account login before l
   assert.doesNotMatch(snippet,/await ensurePuterSignIn\(\)/,f+' must not sign in before saving locally');
  }
  assert.match(app,/const savedMessage=synced\?'☁ Recept és Golden kártya felhőben mentve\.':pendingCloudNoticeV1159\(\)/);
- assert.match(app,/if\(!await canCloudIOV1159\(\)\)\{\s*nutriResult=\{ok:false/);
+ assert.match(app,/if\(!await HH_OWN_RECIPE_CLOUD_V1\?\.available\?\.\(\)\)\{\s*nutriResult=\{ok:false/);
 });
 test('Manual cooked weight is stored locally and later queued for cloud',()=>{
  assert.match(app,/localStorage\.setItem\('lena:nutri:pending:'\+id,'1'\)/);
