@@ -27,10 +27,9 @@ test('New tiles open existing supported apps without leaking private data',()=>{
  for(const library of ['photos','videos','music'])assert.match(html,new RegExp('data-library="'+library+'"'));
  assert.match(html,/id="mediaViewer"/);
 });
-test('Premium remote remains one same-size header card and original TV link',()=>{
- assert.equal((html.match(/class="media-inline-remote"/g)||[]).length,1);
- assert.match(html,/assets\/remote-inline-v6\.webp/);
- assert.match(html,/href="https:\/\/mediaradar\.pages\.dev\/sho-family-tv\/remote\.html"/);
- assert.match(skin,/\.media-intro-v6 \.media-inline-remote\{/);
- assert.match(skin,/calc\(\(100% - 25px\)\/2\)/);
+test('Media Center glass retains six cards but no separate mini TV remote',()=>{
+ assert.equal((html.match(/class="media-inline-remote"/g)||[]).length,0);
+ assert.doesNotMatch(html,/sho-family-tv\/remote\.html|Xiaomi TV Remote megnyitása/);
+ assert.match(html,/class="media-tiles-glass"/);
+ assert.match(skin,/\.media-tiles-glass/);
 });

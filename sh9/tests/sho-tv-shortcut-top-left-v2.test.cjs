@@ -1,57 +1,32 @@
 'use strict';
-const {test}=require('node:test');
-const assert=require('node:assert/strict');
-const fs=require('node:fs');
-const path=require('node:path');
-const vm=require('node:vm');
+const {test}=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),vm=require('node:vm');
 const root=path.resolve(__dirname,'../..');
 const read=p=>fs.readFileSync(path.join(root,p),'utf8');
 const code=read('sh9/shared/sho-tv-shortcut-v1.js');
-test('Universal TV shortcut is exactly 30% smaller (45 -> 31.5px) and fixed at viewport 0,0',()=>{
- assert.match(code,/position:fixed;left:0;top:0;right:auto;bottom:auto/);
- assert.match(code,/@media\(min-width:950px\).*top:0;left:0;right:auto;bottom:auto/);
- assert.match(code,/@media\(max-height:420px\).*top:0;left:0;right:auto;bottom:auto/);
- assert.match(code,/width:31\.5px;height:31\.5px/);
- assert.match(code,/font-size:6\.3px/);
- assert.match(code,/border-radius:9\.1px/);
- assert.match(code,/svg\{display:block;width:14px;height:13\.3px/);
- assert.match(code,/#shoTvShortcutV1\.sho-tv-shortcut-v1\{position:fixed!important;left:0!important;top:0!important/);
- assert.doesNotMatch(code,/left:11px;top:calc\(64px/);
- assert.doesNotMatch(code,/position:absolute!important;left:9px/);
- assert.match(code,/backdrop-filter:blur\(12px\)/);
+test('TV-re compact shortcut is globally disabled and cannot create DOM controls',()=>{
+ const nodes={};let appended=0;
+ const d={readyState:'complete',getElementById:k=>nodes[k]||null,body:{appendChild(){appended++}}};
+ const w={addEventListener(){}};
+ vm.runInNewContext(code,{window:w,document:d},{timeout:500});
+ assert.equal(w.SHO_TV_SHORTCUT_V1.disabled,true);
+ assert.equal(appended,0);
+ w.SHO_TV_SHORTCUT_V1.mount();
+ assert.equal(appended,0);
+ assert.doesNotMatch(code,/createElement\('a'\)|sho-tv-shortcut-v1\{position:/);
 });
-test('Single TV button retains module-only URLs, privacy and approved inline remote exceptions',()=>{
- const mounted={},children=[];
- const element=tag=>({tagName:tag.toUpperCase(),setAttribute(){}});
- const doc={
-  readyState:'complete',createElement:element,
-  head:{appendChild(el){mounted[el.id]=el}},
-  body:{appendChild(el){el.parentNode=this;children.push(el);mounted[el.id]=el}},
-  getElementById(id){return mounted[id]||null},
-  querySelector(){return null}
- };
- const win={location:{pathname:'/berlet-app/sh9/'},addEventListener(){}};
- vm.runInNewContext(code,{window:win,document:doc},{timeout:500});
- assert.equal(children.length,1);
- assert.equal(children[0].href,'https://mediaradar.pages.dev/sho-family-tv/remote.html?show=home');
- assert.match(mounted.shoTvShortcutStyleV1.textContent,/position:fixed;left:0;top:0/);
- win.SHO_TV_SHORTCUT_V1.mount();
- assert.equal(children.length,1,'do not duplicate on repeated mount');
- assert.doesNotMatch(children[0].href,/token|gps|healthhub|@|code=/);
-});
-test('Direct and shared loaders request the cache-refreshed universal shortcut',()=>{
- const files=[
-  'sh9/shared/sh9-golden-bottom-nav-v924.js',
-  'sh9/shared/sh9-golden-controls-v1.js',
-  'sh9/local-storage/index.html',
-  'sh9/shopping/store-manager-v1.html',
-  'sh9/shopping/smart-list.html',
-  'sh9/shopping/tesco-pilot.html',
-  'sh9/shopping/merchant-smart-v1.html',
-  'sh9/entertainment/book-studio/index.html',
-  'sh9/smart-travel/public-transport/smart-trip/v5/universal/index.html'
- ];
- for(const file of files){
-  assert.match(read(file),/sho-tv-shortcut-v1\.js\?v=6-compact31-top-left-20261122/,file);
+test('Both shared loaders stop creating small TV-re buttons',()=>{
+ for(const path of ['sh9/shared/sh9-golden-controls-v1.js','sh9/shared/sh9-golden-bottom-nav-v924.js']){
+  const text=read(path);
+  assert.match(text,/function ensureShoTvShortcut/);
+  assert.doesNotMatch(text,/script\.src=['"]\/berlet-app\/sh9\/shared\/sho-tv-shortcut-v1\.js/);
+  assert.match(text,/removeChild\(badge\)/);
  }
+});
+test('Every former direct-loader page no longer loads small TV-re JavaScript',()=>{
+ for(const p of [
+  'sh9/index.html','sh9/local-storage/index.html','sh9/shopping/store-manager-v1.html',
+  'sh9/shopping/smart-list.html','sh9/shopping/tesco-pilot.html',
+  'sh9/shopping/merchant-smart-v1.html','sh9/entertainment/book-studio/index.html',
+  'sh9/smart-travel/public-transport/smart-trip/v5/universal/index.html'
+ ])assert.doesNotMatch(read(p),/<script[^>]+sho-tv-shortcut-v1\.js/,p);
 });
