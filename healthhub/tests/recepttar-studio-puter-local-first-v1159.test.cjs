@@ -25,7 +25,7 @@ function boot(remaining,options={}){
 }
 test('Quota guard is loaded ahead of Studio app, without altering Puter UI',()=>{
  assert.match(html,/hh-puter-credit-gate-v1159\.js/);
- assert.ok(html.indexOf('hh-puter-credit-gate-v1159.js')<html.indexOf('app.js?v=1164'));
+ assert.ok(html.indexOf('hh-puter-credit-gate-v1159.js')<html.indexOf('app.js?v=1165'));
  assert.doesNotMatch(gate,/requestUpgrade|MutationObserver|querySelector\(|setInterval\(|\.style\./);
  assert.doesNotThrow(()=>new vm.Script(gate));
  assert.doesNotThrow(()=>new vm.Script(app));
