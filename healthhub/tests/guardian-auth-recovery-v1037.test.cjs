@@ -73,7 +73,7 @@ test('v1037 temporary 503 preserves login recovery without reactivating retired 
  t.emit('SIGNED_IN');
  await flush();
  assert.equal(t.live.authenticated,true,'revalidated session');
- assert.equal(t.live.sharing,true,'restore only prior consented owner');
+ assert.equal(t.live.sharing,false,'Verified session does not revive retired browser publisher');
  assert.equal(t.counters.followed,0);
  assert.equal(t.counters.deleted,0);
 });
