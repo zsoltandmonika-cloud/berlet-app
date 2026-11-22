@@ -4,6 +4,9 @@ on:
     branches: [main]
     paths:
       - 'recepttar-studio/app.js'
+      - 'recepttar-studio/hh-recipe-own-cloud-v1.js'
+      - 'recepttar-studio/tests/healthhub-own-cloud-v1.test.cjs'
+      - 'recepttar-studio/tests/local-first-asset-v1.test.cjs'
       - 'recepttar-studio/index.html'
       - 'recepttar-studio/hh-puter-credit-gate-v1159.js'
       - 'recepttar-studio/hh-puter-balance-chip-v1158.js'
@@ -13,6 +16,9 @@ on:
   pull_request:
     paths:
       - 'recepttar-studio/app.js'
+      - 'recepttar-studio/hh-recipe-own-cloud-v1.js'
+      - 'recepttar-studio/tests/healthhub-own-cloud-v1.test.cjs'
+      - 'recepttar-studio/tests/local-first-asset-v1.test.cjs'
       - 'recepttar-studio/index.html'
       - 'recepttar-studio/hh-puter-credit-gate-v1159.js'
       - 'recepttar-studio/hh-puter-balance-chip-v1158.js'
@@ -32,6 +38,10 @@ jobs:
           node-version: '22'
       - name: Low balance guard, offline local editing and queued cloud writes
         run: node --test healthhub/tests/recepttar-studio-puter-local-first-v1159.test.cjs
+      - name: HealthHub private cloud read/write and existing local-first cache
+        run: |
+          node --test recepttar-studio/tests/healthhub-own-cloud-v1.test.cjs
+          node --test recepttar-studio/tests/local-first-asset-v1.test.cjs
       - name: Golden Studio existing contracts
         run: |
           node --test healthhub/tests/recepttar-studio-puter-balance-v1158.test.cjs
