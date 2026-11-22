@@ -19,6 +19,8 @@ trap 'rm -rf "$work"' EXIT
 stage="$work/stage"
 out="$work/output"
 mkdir -p "$stage"/{github,supabase/edge-functions,supabase/storage,dropbox,recovery} "$out"
+# The complete capture and read-back require substantial TEMP space; block 14 GiB runners.
+python3 ops/backup/check_capacity.py "$work" --minimum-free-gib "${SHO_BACKUP_MIN_FREE_GIB:-200}"
 printf '%s' "$RCLONE_CONFIG_B64" | base64 -d > "$work/rclone.conf"
 chmod 600 "$work/rclone.conf"
 export RCLONE_CONFIG="$work/rclone.conf"
@@ -48,6 +50,8 @@ case "$1" in *Username*) printf 'x-access-token\n';; *) printf '%s\n' "$GH_BACKU
 ASK
 chmod 700 "$work/askpass.sh"
 export GIT_ASKPASS="$work/askpass.sh" GIT_TERMINAL_PROMPT=0
+# A Git LFS failure must never silently downgrade an alleged complete Git backup.
+git lfs version >/dev/null || { echo "::error::git-lfs is required for a verifiable full Git backup" >&2; exit 2; }
 for repo in berlet-app MediaRadar; do
   echo "Capturing full Git history for $repo"
   git clone --mirror --quiet "https://github.com/zsoltandmonika-cloud/$repo.git" "$work/$repo.git"
@@ -116,6 +120,15 @@ test -s "$out/backup.tar.zst.age"
 # An immutable OneDrive directory per run. Old backups NEVER automatically deleted.
 # Read-back proves the exact ciphertext bytes arrived at the destination.
 echo 'Uploading encrypted recovery bundle to OneDrive'
+# Verify OneDrive currently has space for the ciphertext plus modest headroom.
+if rclone about onedrive: --json > "$work/onedrive-upload-quota.json" 2>/dev/null; then
+  available="$(jq -r '.free // empty | select(type=="number")' "$work/onedrive-upload-quota.json")"
+  archive_bytes="$(stat -c%s "$out/backup.tar.zst.age")"
+  if [[ -n "$available" ]] && (( available < archive_bytes + archive_bytes / 20 )); then
+    echo "::error::Insufficient OneDrive capacity to upload encrypted backup safely" >&2
+    exit 5
+  fi
+fi
 rclone copyto "$out/backup.tar.zst.age" "$DEST/backup.tar.zst.age" --immutable --retries 3 --quiet
 rclone copyto "$DEST/backup.tar.zst.age" "$out/remote-verified.tar.zst.age" --quiet
 cmp --silent "$out/backup.tar.zst.age" "$out/remote-verified.tar.zst.age"
@@ -125,9 +138,14 @@ printf '{"schema":"sho-backup-status/1","backup_id":"%s","status":"CLOUD_CORE_VE
   "$BACKUP_ID" "$sha" "$PROJECT_REF" > "$out/status.json"
 rclone copyto "$out/sha256.txt" "$DEST/sha256.txt" --immutable --quiet
 rclone copyto "$out/status.json" "$DEST/status.json" --immutable --quiet
+# A verified state requires the metadata and checksum objects to be readable too.
+rclone copyto "$DEST/sha256.txt" "$out/remote-sha256.txt" --quiet
+rclone copyto "$DEST/status.json" "$out/remote-status.json" --quiet
+cmp --silent "$out/sha256.txt" "$out/remote-sha256.txt"
+cmp --silent "$out/status.json" "$out/remote-status.json"
 printf 'CLOUD_CORE_VERIFIED: %s\n' "$DEST"
 if [[ -n "${GITHUB_STEP_SUMMARY:-}" ]]; then
-  { echo '### SHO OneDrive FULL BACKUP VERIFIED'; echo "- Backup: $BACKUP_ID";
+  { echo '### SHO OneDrive CLOUD CORE BACKUP VERIFIED (not full device restore)'; echo "- Backup: $BACKUP_ID";
     echo '- Destination: SHO/Backups'; echo '- GitHub, Dropbox, Supabase DB/Storage/Edge Functions included';
     echo '- Encrypted archive read back from OneDrive byte-for-byte';
     echo '- No production source mutation and no automatic deletion'; } >> "$GITHUB_STEP_SUMMARY"
