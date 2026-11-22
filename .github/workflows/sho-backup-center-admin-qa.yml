@@ -1,0 +1,28 @@
+name: SHO Backup Center Admin QA (no cloud write)
+on:
+  pull_request:
+    paths:
+      - 'healthhub/admin-backup/**'
+      - 'healthhub/hh-admin-mobile-focus-v748.js'
+      - 'healthhub/tests/hh-backup-admin-v1.test.cjs'
+      - '.github/workflows/sho-backup-center-admin-qa.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  admin-backup:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Admin panel syntax and read-only integration
+        run: |
+          node --check healthhub/admin-backup/backup-admin-v1.js
+          node --check healthhub/hh-admin-mobile-focus-v748.js
+          node --test healthhub/tests/hh-backup-admin-v1.test.cjs
+          node --test healthhub/tests/hh-admin-mobile-v748.test.cjs
+          node --test healthhub/tests/hh-admin-action-grid-v822.test.cjs
+          node healthhub/tests/unified-admin-v745.test.cjs
