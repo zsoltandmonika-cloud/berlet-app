@@ -14,7 +14,8 @@ concurrency:
   cancel-in-progress: false
 jobs:
   capture:
-    if: ${{ inputs.authorize_read_only_capture == true }}
+    # Owner secrets must never execute in the public SH0 application repository.
+    if: ${{ github.event.repository.private == true && inputs.authorize_read_only_capture == true }}
     runs-on: ubuntu-24.04
     timeout-minutes: 360
     env:
