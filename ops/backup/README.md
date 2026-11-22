@@ -71,11 +71,13 @@ Szerveroldali előkészítés, csak tulajdonosi jóváhagyás és az éles rends
 
 **Kritikus:** egyetlen ChatGPT-apphoz csatlakozott Microsoft/Dropbox/Supabase-fiók sem elegendő a GitHub Actions és a Supabase Edge Function saját, tartós hozzáféréséhez. A GitHub secret-értékek ma mind hiányoznak; az admin gomb a tényleges konfigurációig letiltott marad.
 
-## Erőforrás és megőrzési kapacitás (kötelező élesítési kapu)
+## Erőforrás és megőrzési kapacitás – forrásméret alapján
 
-- A standard GitHub Actions `ubuntu-24.04` futtató körülbelül **14 GiB SSD-t** ad, ezért a jelenlegi egész-forrás / tömörített archívum / titkosított archívum / visszaolvasott másolat pipeline **nem használható** 40–45 GB nagyságrendű adatoknál.
-- Az `ops/backup/check_capacity.py` már forrásolvasás előtt megkövetel **legalább 200 GiB szabad ideiglenes területet**. Ez konzervatív belépőkapu, **nem garancia**: a tényleges forrásméret és csúcsterhelés első méréséből kell megerősíteni.
-- A nagy futtató kiválasztása és biztonságos elkülönítése még nincs elvégezve. Public GitHub-repóhoz **nem szabad tartós, érzékeny hitelesítőadatokat tartalmazó self-hosted gépet önmagában PR-jogosultsággal kitenni**. Előbb külön izoláció vagy jóváhagyott ephemerális futtató szükséges.
-- Az OneDrive szabad helyét az archívum feltöltése előtt ellenőrizzük; a titkosított archívum, a `sha256.txt` és a `status.json` mind visszaolvasandó. A 'CLOUD_CORE_VERIFIED' nem állít teljes eszköz-visszaállíthatóságot.
-- **Kapacitásellentmondás**: 45 GB-os napi teljes példányból 30 darab **1,35 TB** (a haviak nélkül), tehát 500 GB rendelkezésre álló keret esetén a '30 napi + 12 havi' szabály önmagában nem tartható. Tartós bevezetéshez deduplikált, inkrementális, titkosított tárolási stratégia és helyreállítási próba kell. A jelenlegi retention program csak tervet készít, nem takarít.
-- Ezeket a blokkoló feltételeket a staging PR elfogadása előtt meg kell oldani. A szokásos Github-futtatóval az első valódi mentést **nem** szabad teljesnek minősíteni.
+- 2026. november 22-én olvasással ellenőrzött méretek: Dropbox HealthHub Cloud Vault **1 245 291 825 byte**, healthhub-vault **100 105 410 byte**; Supabase adatbázis **30 004 915 byte**, Storage metaadatban nyilvántartott objektumméretek **89 135 520 byte**. A GitHub által jelzett repository méretek: berlet-app 182 272 KiB, MediaRadar 1 155 KiB. Ezek **nem** a teljes, garantált visszaállítható SHO mérését jelentik: telefonos, OneDrive Book Studio és egyéb külső adatok külön ellenőrzendők.
+- Emiatt a korábbi **200 GiB fix runner-minimum tévesen túlzó** volt. A v1 forrásmentő most közvetlenül az rclone-források összméretéből számolja a szabadhely-követelményt: **4 × összes mért Dropbox/Supabase Storage adat + minimum 4 GiB tartalék**. Ha a futtatón nincs ennyi szabad terület, biztonságosan megáll a nagy letöltések előtt.
+- A helyi stagingben további Git mirror, LFS és adatbázis dump keletkezik. A 4 GiB tartalék becslés, nem garantált csúcsterhelési plafon; első valódi backupnál mérni kell a tényleges igényt. Nagy adatnövekedésnél továbbra is külön izolált runner vagy streaming mentés szükséges.
+- Az inkrementális Restic-jelölt külön, **csak kézi staging workflow**, részletek: ops/backup/INCREMENTAL_STAGING.md. Nem írja felül a v1-et, és nem kapcsolja be az éles automatikus mentést.
+- Az OneDrive szabad helyét az archívum feltöltése előtt ellenőrizzük; az archívum, a SHA-256 és a státuszfájl mind visszaolvasandó. Az ellenőrzött felhőmag-mentés sem azonos a teljes telefonos rendszer helyreállításával.
+- A 30 napi + 12 havi megőrzés a **tényleges futásonkénti archívumméret** és a OneDrive felhasználás mérése után véglegesíthető; automatikus törlés jelenleg nincs. A korábbi 45 GB-os teljes példány kizárólag becslési forgatókönyv volt, nem mért tény.
+
+**Élesítés tiltva**, amíg a tartós futtatói titkok, a valódi OneDrive-visszaolvasás és az izolált helyreállítási próba nem sikeres.
