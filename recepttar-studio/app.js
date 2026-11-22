@@ -1465,8 +1465,8 @@ async function studioFinalize(){
    const nutriStandard=window.LENA_NUTRI_STANDARD_V1155;
    let nutriResult=null;
    if(nutriStandard?.afterGoldenSave){
-    if(!await canCloudIOV1159()){
-     nutriResult={ok:false,reason:'A recept helyben mentve. AI-keret hiányában a Nutri Info később pótolható.'};
+    if(!await HH_OWN_RECIPE_CLOUD_V1?.available?.()){
+     nutriResult={ok:false,reason:'A recept helyben mentve. A Nutri Info felhőmentéséhez HealthHub-belépés kell.'};
     }else{
      busy(true,'🥗 Golden Standard Nutri Info automatikus számítása…');
      try{nutriResult=await nutriStandard.afterGoldenSave(id,{ingredientsChanged})}
@@ -1500,10 +1500,32 @@ async function openSyncSettings(){
  $("#syncDialog").showModal();await updateCloudStatus();
  if(await HH_OWN_RECIPE_CLOUD_V1?.available?.())await syncPendingToCloud();
 }
-async function cloudSignIn(){
- // Same-tab navigation preserves the HealthHub sessionStorage token.
- sessionStorage.setItem('hh-recipe-return-after-auth-v1',location.href);
- location.assign(HH_OWN_RECIPE_CLOUD_V1.loginUrl)
+function cloudSignIn(forcePick=false){
+ // Keep the user in Recept Stúdió; account switching validates new credentials
+ // before replacing the existing HealthHub session.
+ const form=$("#syncLoginFormV1164"),feedback=$("#syncLoginStateV1164");
+ form.hidden=false;feedback.textContent=forcePick
+  ?'Fiókváltás: add meg a másik jogosult HealthHub-fiók adatait.'
+  :'A HealthHub családi fiókoddal jelentkezhetsz be.';
+ form.elements.email.value='';form.elements.password.value='';
+ form.elements.email.focus();
+}
+async function submitCloudLoginV1164(event){
+ event.preventDefault();
+ const form=$("#syncLoginFormV1164"),feedback=$("#syncLoginStateV1164");
+ const btn=$("#syncLoginSubmitV1164"),email=form.elements.email.value.trim(),
+  password=form.elements.password.value,remember=!!form.elements.remember.checked;
+ if(!email||!password){feedback.textContent='Add meg az e-mail-címet és a jelszót.';return}
+ btn.disabled=true;feedback.textContent='HealthHub-fiók és családi jogosultság ellenőrzése…';
+ try{
+   const user=await HH_OWN_RECIPE_CLOUD_V1.signIn(email,password,remember);
+   feedback.textContent='✓ Sikeres HealthHub-belépés: '+(user.email||'családi fiók');
+   form.elements.password.value='';form.hidden=true;
+   await cloudRefresh();
+ }catch(error){
+   feedback.textContent='⚠ '+String(error?.message||error).slice(0,180);
+   form.elements.password.value='';
+ }finally{btn.disabled=false}
 }
 async function cloudRefresh(){
  const s=$("#cloudAccountStatus");s.textContent='Szinkronizálás a HealthHub saját tárhelyével…';
@@ -2201,7 +2223,8 @@ $("#saveStructured").onclick=saveStructuredReadable;
 $("#clearStructured").onclick=clearStructuredOverride;
 $("#studioBtn").onclick=openStudio;$("#addRecipeBtn").onclick=openAdd;$("#chooseImageBtn").onclick=()=>$("#newImageInput").click();$("#newImageInput").onchange=e=>handleNewImage(e.target.files&&e.target.files[0]);$("#saveNewRecipe").onclick=saveNew;
 $("#topHome").onclick=()=>showHome(true);$("#homeBtn").onclick=()=>showHome(true);$("#healthRadarExportBtn").onclick=()=>toast("❤️ HealthRadar export előkészítve. Ezt a funkciót később aktiváljuk.");$("#backBtn").onclick=()=>history.back();$("#shareBtn").onclick=shareCurrentRecipe;$("#editBtn").onclick=openEdit;$("#editFullRecipeBtn").onclick=openCurrentRecipeInStudio;$("#replaceCardImageBtn").onclick=()=>{if(!currentId)return;$("#replaceCardImageInput").value="";$("#replaceCardImageInput").click()};$("#replaceCardImageInput").onchange=e=>replaceCurrentCardImage(e.target.files?.[0]);$("#editRegenerateCard").onclick=openCurrentRecipeInStudio;$("#navHome").onclick=()=>showHome(true);$("#navFav").onclick=()=>{favoritesOnly=true;showHome(true)};$("#navAdmin").onclick=openAdmin;$("#navAsk").onclick=askLena;
-$("#closeAdmin").onclick=()=>$("#adminDialog").close();$("#addCategoryBtn").onclick=addManagedCategory;$("#newCategoryName").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();addManagedCategory()}});$("#adminStudio").onclick=()=>{$("#adminDialog").close();openStudio()};$("#adminAddRecipe").onclick=()=>{$("#adminDialog").close();openAdd()};$("#syncSettingsBtn").onclick=openSyncSettings;$("#closeSync").onclick=()=>$("#syncDialog").close();$("#cloudSignIn").onclick=cloudSignIn;$("#cloudSwitchAccount").onclick=cloudSignIn;$("#cloudRefresh").onclick=cloudRefresh;
+$("#closeAdmin").onclick=()=>$("#adminDialog").close();$("#addCategoryBtn").onclick=addManagedCategory;$("#newCategoryName").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();addManagedCategory()}});$("#adminStudio").onclick=()=>{$("#adminDialog").close();openStudio()};$("#adminAddRecipe").onclick=()=>{$("#adminDialog").close();openAdd()};$("#syncSettingsBtn").onclick=openSyncSettings;$("#closeSync").onclick=()=>$("#syncDialog").close();$("#cloudSignIn").onclick=()=>cloudSignIn(false);$("#cloudSwitchAccount").onclick=()=>cloudSignIn(true);$("#cloudRefresh").onclick=cloudRefresh;
+$("#syncLoginFormV1164").addEventListener("submit",submitCloudLoginV1164);$("#syncLoginCancelV1164").onclick=()=>{$("#syncLoginFormV1164").hidden=true;$("#syncLoginStateV1164").textContent=""};
 $("#importLegacyPuterV1").onclick=importLegacyPuterV1;
 $("#closeStudio").onclick=()=>$("#studioDialog").close();
 $("#recipeImage").onclick=()=>{if(!document.body.classList.contains("original-card-fullscreen"))openRecipePhoto()};$("#closePhotoLightbox").onclick=closeRecipePhoto;$("#photoLightbox").onclick=e=>{if(e.target===$("#photoLightbox"))closeRecipePhoto()};$("#photoLightbox").addEventListener("close",()=>{if(photoLightboxObjectUrl){URL.revokeObjectURL(photoLightboxObjectUrl);photoLightboxObjectUrl=null}});
@@ -2221,6 +2244,7 @@ $("#saveText").onclick=()=>{if(!currentId)return;setText(currentId,$("#textEdito
 window.LENA_NUTRI_STANDARD_CONTEXT_V1155=Object.freeze({
  allRecipes,getRecipe,getReadable,getNutrition,recipeServingText,
  puterAvailable,ensureSignedIn:ensurePuterSignIn,loadNutritionCache,
+ healthHubReady:()=>HH_OWN_RECIPE_CLOUD_V1?.available?.(),
  getMonthlyUsage:()=>puter.auth.getMonthlyUsage(),
  chatNutrition:async prompt=>{
   let response;
