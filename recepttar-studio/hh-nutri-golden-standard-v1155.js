@@ -53,8 +53,12 @@ function classifyProviderError(error){
  const code=providerErrorCode(error),message=providerErrorMessage(error),combined=(code+' '+message).toLowerCase();
  if(/insufficient[_ -]?funds|puter_balance_zero|low_balance_guard/.test(combined))
    return {kind:'credit',text:'A Puter az aktív fiók AI-keretét elutasította ('+(code||'keret')+'). '+message};
+ if(/\b402\b/.test(combined))
+   return {kind:'billing',text:'A Puter HTTP 402 fizetési/hozzáférési hibát jelzett, de nem tudjuk, hogy a keret vagy az előfizetés állapota okozta. '+message};
  if(/subscription_required/.test(combined))
    return {kind:'plan',text:'Puter előfizetés/hozzáférés nem igazolt az aktív fiókon ('+code+'). '+message};
+ if(/request_timeout|upstream_timeout|timed.?out/.test(combined))
+   return {kind:'timeout',text:'Puter AI-időtúllépés. A kérés akár feldolgozásra és elszámolásra is kerülhetett. '+message};
  if(/too_many_requests|rate.?limit|429/.test(combined))
    return {kind:'rate',text:'Puter sebességkorlát ('+(code||'429')+'). '+message};
  if(/auth|sign.?in|unauthorized|forbidden|401|403/.test(combined))
@@ -239,7 +243,7 @@ async function batch(limit=Infinity){
     const diagnosed=classifyProviderError(e);
     status('⚠ '+(i+1)+' / '+total+' · '+r.title+' · '+diagnosed.text,true);
     // No retry on real provider billing, plan, auth or rate-limit failures.
-    if(['credit','plan','rate','auth'].includes(diagnosed.kind)){
+    if(['credit','billing','plan','rate','auth','timeout'].includes(diagnosed.kind)){
      creditStopped=true;break;
     }
     if(consecutive>=3){
@@ -269,17 +273,21 @@ async function inspectPuterAiV1164(){
      status('⚠ Puter AI nincs bejelentkezve. A HealthHub-fiók ettől különböző fiók.',true);return;
    }
    const [user,quota]=await Promise.allSettled([
-     auth.getUser?.(),w.LENA_PUTER_CREDIT_GATE_V1159?.check(true)
+     auth.getUser?.(),auth.getMonthlyUsage?.()
    ]);
    const profile=user.status==='fulfilled'?user.value:null;
    const name=String(profile?.username||profile?.email||'azonosítatlan fiók').slice(0,85);
-   const check=quota.status==='fulfilled'?quota.value:null;
+   const allowance=quota.status==='fulfilled'?quota.value?.allowanceInfo:null;
+   const check=Number.isFinite(allowance?.remaining)
+     ?{remaining:allowance.remaining,reason:allowance.remaining<5000000?'low-balance':'ok'}:null;
+   const total=Number.isFinite(allowance?.monthUsageAllowance)
+     ?' / havi $'+(allowance.monthUsageAllowance/100000000).toFixed(2):'';
    if(check&&Number.isFinite(check.remaining)){
      const value=(check.remaining/100000000).toFixed(2);
      if(check.reason==='low-balance'){
-       status('ℹ Aktív Puter-fiók: '+name+' · lekérdezett maradék: $'+value+'. A $0.05 alatti érték önmagában nem bizonyít sikertelen előfizetést; egyetlen próbareceptet indíts.',false);
+       status('ℹ Aktív Puter-fiók: '+name+' · maradék $'+value+total+'. A $0.05 alatti érték önmagában nem bizonyít sikertelen előfizetést; egy próbareceptet indíts.',false);
      }else{
-       status('✓ Aktív Puter-fiók: '+name+' · lekérdezett maradék: $'+value+'. Ez az aktuális fiók használati kerete, nem fizetési visszaigazolás.');
+       status('✓ Aktív Puter-fiók: '+name+' · maradék $'+value+total+'. Ez nem banki fizetési visszaigazolás.');
      }
    }else{
      status('ℹ Aktív Puter-fiók: '+name+'. Az egyenleg most nem olvasható ki, ezért nem állítjuk, hogy elfogyott. Ellenőrizd az aktív fiókot és próbálj egy receptet.');
