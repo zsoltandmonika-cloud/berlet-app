@@ -242,14 +242,17 @@ class OrchestratorWorker(
         DropboxVaultClient.ensureCredentialVersion(prefs)
         if (!DropboxVaultClient.hasRefreshToken(prefs)) return Result.success()
 
+        var dropboxStage = "folders"
         return try {
             ensureFolders(prefs)
+            dropboxStage = "heartbeat"
             uploadHeartbeat(prefs, id, owner)
             // A diagnostic user tap must never consume queued remote commands.
             if (inputData.getBoolean("hh_registry_diagnostic_only", false)) {
                 return Result.success()
             }
 
+            dropboxStage = "command"
             val text = DropboxVaultClient.downloadTextOrNull(prefs, COMMANDS + "/" + id + ".json")
                 ?: return Result.success()
             val cmd = JSONObject(text)
@@ -498,12 +501,14 @@ class OrchestratorWorker(
             uploadHeartbeat(prefs, id, owner)
             Result.success()
         } catch (e: Exception) {
-            OneOpsLog.record(prefs, "orchestrator", "retry", e.javaClass.simpleName)
+            val safeReason = dropboxStage + ":" + DropboxVaultClient.safeErrorReason(e)
+            OneOpsLog.record(prefs, "orchestrator", "retry", safeReason)
             prefs.edit()
                 .putLong("last_orchestrator_error_ms", System.currentTimeMillis())
-                .putString("last_orchestrator_error", e.javaClass.simpleName)
+                .putString("last_orchestrator_error", safeReason)
                 .apply()
-            Result.retry()
+            if (inputData.getBoolean("hh_registry_diagnostic_only", false)) Result.failure()
+            else Result.retry()
         }
     }
 }
