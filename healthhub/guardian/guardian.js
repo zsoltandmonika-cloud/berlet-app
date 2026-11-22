@@ -200,9 +200,12 @@ function onPosition(pos){
   const remote=w.HH_GUARDIAN_PROFILE_FOLLOW_V837;
   // Synchronously hand off visibility between native/shared and browser GPS
   // before either portrait can paint. The freshest real fix wins.
-  const remotePreferred=remote?.onLocalGpsFix?.()??!!remote?.ready;
+  // This physical phone's fresh browser fix is its own visible marker.
+  // A selected-profile/native marker may replace it ONLY if there is
+  // no newer verified local fix. Never treat a remote phone as this one.
+  const remotePreferred=remote?.onLocalGpsFix?.()===true;
   setRemoteMarkerPreferred(remotePreferred);
-  if(follow&&!remotePreferred&&!remoteOnlyMonikaView()&&!w.HH_GUARDIAN_GPS_ROUTER_V1177)
+  if(follow&&!remotePreferred&&!remoteOnlyMonikaView())
    map.easeTo({center:coord,zoom:Math.max(map.getZoom(),15),duration:850});
  }
  if(!hasFix){
@@ -351,20 +354,16 @@ function pauseCameraForMapSearch(){
 }
 function startFollowing(){
  follow=true;renderButtons();notifySettings();
- if(w.HH_GUARDIAN_GPS_ROUTER_V1177){
-  w.HH_GUARDIAN_PROFILE_FOLLOW_V837?.requestFollow?.();
+ // A verified local owner gets their own foreground GPS watch. The native
+ // route is for READING family locations, not a replacement for this sensor.
+ if(!ownGpsBlockReason()){
+  if(!active){start();return}
+  if(marker&&map)map.easeTo({center:marker.getLngLat(),zoom:Math.max(map.getZoom(),15.3),duration:750});
   return;
  }
- if(remoteOnlyMonikaView()){
-  w.HH_GUARDIAN_PROFILE_FOLLOW_V837?.requestFollow?.();
-  return;
- }
- // The existing consented auto-share flow MUST still start this device's own
- // browser GPS; remote coordinates never substitute for a local GPS uploader.
- if(!active){start();return}
- const remote=w.HH_GUARDIAN_PROFILE_FOLLOW_V837;
- if(remote?.ready&&remote.requestFollow())return;
- if(marker&&map)map.easeTo({center:marker.getLngLat(),zoom:Math.max(map.getZoom(),15.3),duration:750});
+ // A remote person's profile can only be followed through their verified
+ // native GPS. Never start this device's browser GPS under their name.
+ w.HH_GUARDIAN_PROFILE_FOLLOW_V837?.requestFollow?.();
 }
 function toggle3D(){
  threeD=!threeD;
@@ -375,7 +374,12 @@ function enableFollow(){
  const remote=w.HH_GUARDIAN_PROFILE_FOLLOW_V837;
  if(w.HH_GUARDIAN_GPS_ROUTER_V1177){
   follow=true;renderButtons();notifySettings();
-  if(!remote?.requestFollow?.())report('A kiválasztott profil natív GPS-jelére várunk.');
+  // On this physical owner's profile, Follow must revive a suspended
+  // foreground browser sensor. For someone else, use only native sharing.
+  if(!ownGpsBlockReason()){
+   if(!active){start();return}
+   if(marker&&map)map.easeTo({center:marker.getLngLat(),zoom:Math.max(map.getZoom(),15.3),duration:750});
+  }else if(!remote?.requestFollow?.())report('A kiválasztott profil natív GPS-jelére várunk.');
   return;
  }
  // On the other person's profile, Follow targets ONLY their verified remote
