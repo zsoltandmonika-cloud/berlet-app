@@ -490,7 +490,7 @@
     <button id="adminAddRecipe" class="outline-btn">＋ Kártya feltöltése</button>
     <button id="syncSettingsBtn" class="outline-btn">☁ Központi tárhely</button>
   </div>
-  <p class="local-note">A központi Puter-felhő az elsődleges tárhely. Sikertelen felhőmentéskor a rendszer csak ideiglenes biztonsági másolatot őriz meg, és figyelmeztet.</p>
+  <p class="local-note">A központi tárhely a privát HealthHub felhő. A saját receptek offline is elmentődnek, majd a HealthHubba szinkronizálódnak. Az AI-generálás továbbra is Putert használ.</p>
 
   <section class="category-admin-box">
     <div class="category-admin-head">
@@ -513,14 +513,15 @@
 <dialog id="syncDialog">
 <div class="dialog-card">
   <div class="dialog-title-row"><h2>☁ Központi tárhely</h2><button id="closeSync" class="icon-close">×</button></div>
-  <p class="local-note">A központi recepttár a Puter felhőben él. <b>Ugyanazzal a Puter-fiókkal</b> bejelentkezve a receptek PC-n, telefonon és másik gépen is megjelennek. Nincs GitHub-token és nincs saját fizetős API-kulcs.</p>
+  <p class="local-note">A saját receptek a <b>HealthHub-Core privát tárhelyén</b> élnek. Zsolt és Mónika jogosult HealthHub-fiókja látja a közös recepteket. A mentéshez nem kell Puter-kredit.</p>
   <div id="cloudAccountStatus" class="cloud-account-status">Kapcsolat ellenőrzése…</div>
   <div class="dialog-actions cloud-actions">
-    <button id="cloudSignIn" type="button" class="primary-btn">🔐 Bejelentkezés</button>
-    <button id="cloudSwitchAccount" type="button" class="outline-btn">⇄ Fiókváltás</button>
+    <button id="cloudSignIn" type="button" class="primary-btn">🔐 HealthHub belépés</button>
+    <button id="cloudSwitchAccount" type="button" class="outline-btn">⇄ HealthHub fiók</button>
     <button id="cloudRefresh" type="button" class="outline-btn">↻ Frissítés</button>
   </div>
-  <p class="local-note">A helyben már elmentett, „szinkronra vár” recepteket a rendszer a bejelentkezés után automatikusan feltölti.</p>
+  <button id="importLegacyPuterV1" type="button" class="outline-btn" style="width:100%;margin-top:12px">📦 Régi Puter-receptek biztonságos átvétele</button>
+  <p class="local-note">A helyben már elmentett receptek HealthHub-belépés után szinkronizálódnak. A régi Puter-adatok külön, visszaellenőrzött másolással vehetők át; az eredeti fájlokat nem töröljük.</p>
 </div>
 </dialog>
 
@@ -708,6 +709,8 @@
 <div id="busyOverlay" class="busy-overlay" hidden><div class="spinner"></div><div id="busyText">Feldolgozás…</div></div>
 <div id="toast" class="toast"></div>
 
+<script src="../healthhub/central-vault/config.js"></script>
+<script src="hh-recipe-own-cloud-v1.js?v=1-hh-recipe-own-cloud"></script>
 <script src="https://js.puter.com/v2/"></script>
 <script src="hh-puter-credit-gate-v1159.js?v=1159-cloud-safe"></script>
 <script src="../recepttar/data.js?v=25"></script>
@@ -717,7 +720,7 @@
 <script src="csabai-burgonyaleves-2026.js?v=1"></script>
 <script src="../healthhub/nutrition/hh-cookbook-portion-math-v1154.js?v=1154"></script>
 <script src="recipe-asset-cache-v1.js?v=1-local-first"></script>
-<script src="app.js?v=1154-cooked-weight&amp;nutri=1160&amp;deletefix=1162&amp;localfirst=1"></script>
+<script src="app.js?v=1163-healthhub-own-cloud-v1"></script>
 <script src="hh-nutrition-export-v1154.js?v=1160-visible-button"></script>
 <script src="hh-nutri-golden-standard-v1155.js?v=1157-credit-preflight"></script>
 <script defer src="hh-puter-balance-chip-v1158.js?v=1158"></script>
