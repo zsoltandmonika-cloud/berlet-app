@@ -397,7 +397,7 @@ async function cardsFromCatalogueV1(rows,account,offlineOnly){
  }
  return {next,readable};
 }
-async function loadSharedRecipes(force=false){
+async function loadSharedRecipes(force=false,readLegacy=false){
  const ownAccount=await HH_OWN_RECIPE_CLOUD_V1?.account(),legacyAccount=await recipeCacheAccountKeyV1();
  let next=[],readable={},successful=false;
  async function takeCatalogue(account,rows,offlineOnly){
@@ -429,7 +429,7 @@ async function loadSharedRecipes(force=false){
  if(legacyAccount){
    const old=await RECIPE_ASSET_CACHE_V1?.catalogue(legacyAccount);
    if(old?.rows?.length)await takeCatalogue(legacyAccount,old.rows,true);
-   if(await canCloudIOV1159()){
+   if(readLegacy&&await canCloudIOV1159()){
      try{
        const rows=(await puter.kv.list(CLOUD_KEY_PREFIX+'*',true))
          .map(r=>({...r.value,storage:'puter'})).filter(v=>v?.id&&v?.title&&v?.cardPath);
@@ -1523,7 +1523,7 @@ async function importLegacyPuterV1(){
  const status=$("#cloudAccountStatus");
  if(!await HH_OWN_RECIPE_CLOUD_V1?.available?.()){status.textContent='A régi Puter-adatok átvételéhez HealthHub-belépés szükséges.';return}
  if(!puterCloudReady()||!puter.auth.isSignedIn()){status.textContent='Előbb jelentkezz be a régi Puter-fiókodba is az átvételhez.';return}
- await loadSharedRecipes(true);
+ await loadSharedRecipes(true,true);
  const legacy=sharedRecipes.filter(r=>r.storage==='puter'),own=new Set(
    (await HH_OWN_RECIPE_CLOUD_V1.listRecipes()).map(r=>r.id)
  );
