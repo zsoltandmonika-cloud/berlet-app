@@ -33,6 +33,23 @@
   return {profile,lat:record.latitude,lng:record.longitude,ts,
     source:native?'HH One Native GPS':'Family Live',accuracy:record.accuracy_m,speedKmh};
  }
+ // Only an already authenticated, active native Dropbox record may be
+ // shown as LAST KNOWN after the 75s LIVE window. Never use browser data
+ // to impersonate a remote household member. Do not follow stale positions.
+ function lastKnownNativeSnapshot(record,profile,now=Date.now()){
+  if(!record||record.source!=='HH One Native GPS'||record.profile_key!==profile||
+     typeof record.latitude!=='number'||typeof record.longitude!=='number'||
+     typeof record.accuracy_m!=='number'||
+     !Number.isFinite(record.latitude)||!Number.isFinite(record.longitude)||
+     !Number.isFinite(record.accuracy_m)||Math.abs(record.latitude)>90||
+     Math.abs(record.longitude)>180||record.accuracy_m<0||
+     record.accuracy_m>MAX_ACCURACY)return null;
+  const ts=Date.parse(record.updated_at),age=now-ts;
+  if(!Number.isFinite(ts)||age<=FRESH_NATIVE_MS||
+     age>VERIFIED_LAST_KNOWN_MS)return null;
+  return {profile,lat:record.latitude,lng:record.longitude,ts,
+   source:'HH One Native GPS',accuracy:record.accuracy_m,speedKmh:null,stale:true};
+ }
  function newest(browser,native,profile,now=Date.now()){
   const a=snapshot(browser,profile,now),b=snapshot(native,profile,now);
   if(!a)return b;
@@ -196,7 +213,18 @@
   const remoteOnlyMonikaView=()=>selected()==='monika'&&
    (!/Android/i.test(String(w.navigator?.userAgent||''))||
     live()?.boundProfile!=='monika');
-  const localFixAt=()=>0; // Browser location may not preempt a named native route.
+  // A real, fresh, owner-matched browser fix always owns the local phone
+  // portrait. This is not a remote location source and is never uploaded here.
+  const ownBrowserCurrent=()=>{
+   const fix=guardian()?.latestOwnBrowserFix,ts=Number(fix?.timestamp);
+   const accuracy=fix?.coords?.accuracy;
+   return bound()===selected()&&!!fix&&Number.isFinite(ts)&&
+    ts<=Date.now()+5000&&Date.now()-ts<=FRESH_BROWSER_MS&&
+    typeof accuracy==='number'&&Number.isFinite(accuracy)&&
+    accuracy>=0&&accuracy<=MAX_ACCURACY;
+  };
+  const localFixAt=()=>ownBrowserCurrent()?
+   Number(guardian()?.latestOwnBrowserFix?.timestamp):0;
   function showNativeSource(profile,source){
    const panel=d.getElementById('guardianNativeGpsSourceV1174');
    const msg=d.getElementById('guardianNativeGpsMessageV1174');
@@ -208,19 +236,26 @@
    if(title)title.textContent=(profile==='monika'?'🩷 ':'🔵 ')+(route?.name||'GPS');
    const account=route?.activeReadAccount==='gmail'?'Gmail bridge':'Outlook';
    const valid=source?.status==='ok'?snapshot(source.data,profile):null;
+   const old=source?.status==='ok'&&!valid?
+    lastKnownNativeSnapshot(source.data,profile):null;
    const needsConnection=!source||source.status==='not-connected'||source.status==='error';
    if(connect)connect.hidden=!needsConnection||profile!=='monika';
    if(valid){
     const t=new Date(valid.ts).toLocaleTimeString('hu-HU',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
     msg.textContent='✅ '+(route?.name||'GPS')+' · HH Connect natív GPS · '+account+' · '+t+' · ±'+Math.round(valid.accuracy)+' m';
+   }else if(old){
+    const t=new Date(old.ts).toLocaleTimeString('hu-HU',
+     {hour:'2-digit',minute:'2-digit',second:'2-digit'});
+    msg.textContent='🕘 '+(route?.name||'GPS')+' · utolsó hitelesített natív hely: '+t+
+     ' · ±'+Math.round(old.accuracy)+' m · NEM ÉLŐ';
    }else if(needsConnection){
     msg.textContent='🟠 '+(route?.name||'GPS')+' · '+account+' kapcsolat nem olvasható. Más profil pozíciója nem használható.';
    }else{
     msg.textContent='🟠 '+(route?.name||'GPS')+' · nincs friss hitelesített natív GPS-jel · NEM ÉLŐ'+(source?.status==='revoked'?' (megosztás leállítva)':'');
    }
   }
-  // Display the age of an authenticated old reading; never re-center the
-  // camera, show a stale portrait or describe it as a live position.
+  // Old native readings are explicitly NEM ÉLŐ. A muted last-known
+  // portrait may be shown without automatic camera follow or motion.
   function unavailableLabel(profile,db,native){
    const person=profile==='monika'?'Mónika':'Zsolt',now=Date.now();
    const candidates=[db,native].filter(row=>{
@@ -293,13 +328,34 @@
    if(routeBadge){routeBadge.hidden=true;routeBadge.textContent=''}
    if(routeDetails){routeDetails.hidden=true;routeDetails.textContent=''}
    markerNode.removeAttribute?.('data-transit-route');
+   const oldMinutes=Math.max(1,Math.floor(age/60000));
+   const ageText=oldMinutes<60?oldMinutes+' perce':
+    Math.floor(oldMinutes/60)+' óra '+oldMinutes%60+' perce';
    const status='🕘 '+who+' · UTOLSÓ ISMERT HELY '+when+
-    ' · NEM ÉLŐ'+(reason?' · '+reason:'');
+    ' · '+ageText+' · NEM ÉLŐ'+(reason?' · '+reason:'');
    const own=d.getElementById('guardianMeState');
    if(own)own.textContent=status;
    const mapLabel=d.getElementById('guardianMapLabel');
    if(mapLabel)mapLabel.textContent=status;
    return true;
+  }
+  // First load of a verified, still shared but aged native fix. Never
+  // start a LIVE marker, show speed, animate movement or auto-follow.
+  function showVerifiedLastKnown(row,profile){
+   const fix=lastKnownNativeSnapshot(row,profile);
+   if(!fix||ownBrowserCurrent())return false;
+   const map=getMap(),Marker=w.maplibregl?.Marker;
+   if(!map||typeof Marker!=='function')return false;
+   if(latest?.profile===profile&&latest.ts>fix.ts&&marker)
+    return retainLastKnown(profile,'új GPS-mérésre vár');
+   if(!marker){
+    markerNode=decorate(fix);
+    marker=new Marker({element:markerNode,anchor:'bottom'})
+     .setLngLat([fix.lng,fix.lat]).addTo(map);
+   }else marker.setLngLat([fix.lng,fix.lat]);
+   markerCoord=[fix.lng,fix.lat];lastPaintTs=fix.ts;
+   latest=fix;authorizedNativeProfile=profile;
+   return retainLastKnown(profile,'új GPS-mérésre vár');
   }
   function paintTransit(fix){
    if(!routeBadge||!routeDetails||!markerNode)return;
@@ -407,6 +463,11 @@
    return el;
   }
   function showFix(fix){
+   if(ownBrowserCurrent()){
+    if(marker)clearMarker();
+    else guardian()?.setRemoteMarkerPreferred?.(false);
+    return;
+   }
    const map=getMap(),Marker=w.maplibregl?.Marker;
    if(!map||typeof Marker!=='function')return;
    lastKnownVisible=false;
@@ -473,6 +534,9 @@
      status==='error'?'átmeneti kapcsolat hiba':'GPS-jel frissítésére vár')){
      showConflict(null);return;
     }
+    if(!fresh&&status==='ok'&&showVerifiedLastKnown(native,k)){
+     showConflict(null);return;
+    }
     if(!fresh||!authorized()){
      authorizedNativeProfile=null;
      latest=null;nativeAnchor=null;clearMarker();
@@ -511,6 +575,11 @@
   // source is freshest. Never allow the older native marker to coexist with
   // a newly updated, more recent browser GPS portrait.
   function onLocalGpsFix(){
+   if(ownBrowserCurrent()){
+    if(marker)clearMarker();
+    else guardian()?.setRemoteMarkerPreferred?.(false);
+    return false;
+   }
    if(!current()){
     if(marker&&(!lastKnownVisible||!retainLastKnown(selected(),'GPS-jel frissítésére vár')))clearMarker();
     return false;
