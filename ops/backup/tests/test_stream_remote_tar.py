@@ -73,6 +73,11 @@ else: sys.exit(2)
 
     def test_manual_script_never_schedules_or_mutates_source(self):
         script = (SOURCE.parent / "incremental-staging.sh").read_text()
+        workflow = (SOURCE.parents[2] / ".github/workflows/sho-restic-incremental-staging.yml").read_text()
+        self.assertIn("workflow_dispatch:", workflow)
+        self.assertNotIn("schedule:", workflow)
+        self.assertIn("authorize_read_only_capture", workflow)
+        self.assertIn("RESTIC_PASSWORD", workflow)
         self.assertIn("SHO_BACKUP_CAPTURE_AUTHORIZED", script)
         self.assertIn("--stdin-from-command", script)
         self.assertIn("restic check --read-data", script)
