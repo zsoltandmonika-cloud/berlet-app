@@ -119,11 +119,62 @@ object DropboxVaultClient {
 
     /** Parse the actual Dropbox conflict variant; never accept a generic 409. */
     internal fun existingFolderConflict(body: String): Boolean = try {
-        val root = JSONObject(body).getJSONObject("error")
-        root.optString(".tag") == "path" &&
+        val json = JSONObject(body)
+        val root = json.optJSONObject("error")
+        val structured = root?.optString(".tag") == "path" &&
             root.optJSONObject("path")?.optString(".tag") == "conflict" &&
-            root.getJSONObject("path").optJSONObject("conflict")?.optString(".tag") == "folder"
+            root.optJSONObject("path")?.optJSONObject("conflict")?.optString(".tag") == "folder"
+        // Dropbox documents error_summary as a stable prefix. Accept ONLY a folder
+        // already existing at the requested path, never a conflicting file or
+        // a generic 409 that could mask a missing permission.
+        val summary = json.optString("error_summary")
+        val explicitFolderSummary = summary == "path/conflict/folder" ||
+            summary.startsWith("path/conflict/folder/") ||
+            summary.startsWith("path/conflict/folder.")
+        structured || (root?.optString(".tag") == "path" && explicitFolderSummary)
     } catch (_: Exception) { false }
+
+    /** No additional Dropbox API call on the normal, already-established upload path. */
+    internal fun missingParentForUpload(e: Exception): Boolean {
+        val prefix = "Dropbox upload HTTP 409: "
+        val message = e.message ?: return false
+        if (e !is IllegalStateException || !message.startsWith(prefix)) return false
+        return try {
+            val summary = JSONObject(message.removePrefix(prefix)).optString("error_summary")
+            summary == "path/not_found" || summary.startsWith("path/not_found/")
+        } catch (_: Exception) { false }
+    }
+
+    /** Upload first. Recreate folders and retry once ONLY on an explicit
+     * Dropbox missing-parent-path error. 401/403/429 and other 409s fail normally.
+     * Existing consent and OAuth checks are unchanged; never create a new owner.
+     */
+    suspend fun uploadTextWithFolderRecovery(
+        prefs: SharedPreferences, path: String, text: String, parents: List<String>
+    ) {
+        try {
+            uploadText(prefs, path, text)
+        } catch (e: Exception) {
+            if (!missingParentForUpload(e)) throw e
+            for (parent in parents) ensureFolder(prefs, parent)
+            uploadText(prefs, path, text)
+        }
+    }
+
+    /** Diagnostic only. No OAuth secrets, response bodies or GPS data exposed. */
+    fun safeDiagnosticCode(e: Exception): String {
+        val message = e.message.orEmpty()
+        val stage = when {
+            message.startsWith("Dropbox mappa művelet sikertelen:") -> "folder"
+            message.startsWith("Dropbox upload HTTP") -> "upload"
+            message.startsWith("Dropbox download HTTP") -> "download"
+            message.startsWith("Dropbox HTTP") -> "oauth"
+            else -> "network"
+        }
+        val http = Regex("""HTTP ([1-5][0-9]{2})""").find(message)?.groupValues?.get(1)
+        return if (http != null) "$stage-http-$http"
+            else "$stage-" + e.javaClass.simpleName.take(32)
+    }
 
     suspend fun uploadText(prefs: SharedPreferences, path: String, text: String) {
         val token = accessToken(prefs)
