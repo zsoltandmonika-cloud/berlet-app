@@ -198,8 +198,17 @@ function renderPanel(){
  var area=$id('hhOneBody500');if(!area)return;
  area.replaceChildren();
  txt('p','HH One · Központi eszközkapcsolat és Léna Service Center. A RAG kizárólag a friss kapcsolati jeleket mutatja, NEM igazolja az egészségügyi adatok szinkronját.',area);
-  if(state.source==='central'){renderCentralPanel(area);return}
- txt('p','Állapot: '+state.message,area,state.color==='red'?'hhWarning':'');
+  if(state.source==='central'){
+   renderCentralPanel(area);
+   // Central proof remains the source of identity. A separately connected,
+   // matching legacy Dropbox registry only unlocks the EXISTING consented
+   // per-phone remote controls; central proof never grants GPS permission.
+   if(!state.connected||!state.registry){
+    txt('small','A távoli műveletekhez a családi Outlook Dropbox kapcsolat és az egyező telefonregiszter szükséges.',area);
+    return;
+   }
+   txt('strong','🛠️ Távoli műveletek · hitelesített készülékek',area);
+  }else txt('p','Állapot: '+state.message,area,state.color==='red'?'hhWarning':'');
  if(state.error)txt('p','Ellenőrzési hiba: '+state.error,area,'hhWarning');
  if(isMain()&&state.color!=='green'){
   // Error status itself is navigable, not just the optional recommendations.
@@ -314,7 +323,10 @@ function renderPanel(){
     }
    }
    var buttons=elt('div','hhActions',line);
-   var authorized=state.connected&&state.registry&&Array.isArray(state.registry.archived)&&
+   var centralOwnerVerified=state.source!=='central'||(state.centralRows||[]).some(function(row){
+    return row.profile_key===p&&row.device_id===d.deviceId&&!!row.verified_at;
+   });
+   var authorized=centralOwnerVerified&&state.connected&&state.registry&&Array.isArray(state.registry.archived)&&
       state.registry.activePhones&&state.registry.activePhones[p]===d.deviceId&&
       !state.registry.archived.includes(d.deviceId);
    var canDiagnose=Number(d.buildCode)>=21&&Array.isArray(d.capabilities)&&
@@ -424,9 +436,27 @@ async function refresh(force){
    try{await center.refresh()}catch(_){}
    var nativeProof=classifyCentral(center.devices?.()||[]);
    if(nativeProof){
-    var matched=[];
+    var matched=[],matchedRegistry=null;
     if(connected()){
-     try{matched=await root.hhOrchestratorDevices305()}catch(_){matched=[]}
+     try{
+      var sources=await Promise.all([
+       root.hhOrchestratorDevices305(),vault().downloadJson(REG)
+      ]);
+      matched=Array.isArray(sources[0])?sources[0]:[];
+      var r=sources[1];
+      // Reject malformed or conflicting Dropbox bindings. Every selected
+      // phone must be the exact independently verified central device.
+      if(r?.schema==='healthhub.device_registry/1'&&r.activePhones&&
+          Array.isArray(r.archived)&&
+          ['zsolt','monika'].every(function(profile){
+           var id=r.activePhones[profile];
+           return idValid(id)&&!r.archived.includes(id)&&
+            nativeProof.verified.some(function(row){
+             return row.profile_key===profile&&row.device_id===id&&!!row.verified_at;
+            });
+          })&&r.activePhones.zsolt!==r.activePhones.monika)
+       matchedRegistry=r;
+     }catch(_){matched=[];matchedRegistry=null}
     }
     var failed=(matched||[]).some(function(d){
      return nativeProof.verified.some(function(v){return v.profile_key===d.activeProfile&&v.device_id===d.deviceId})&&
@@ -435,8 +465,8 @@ async function refresh(force){
     });
     state={color:failed?'amber':nativeProof.color,
       message:nativeProof.message+(failed?' · friss parancshiba ellenőrizendő':''),
-      source:'central',centralRows:nativeProof.verified,devices:matched||[],registry:null,
-      connected:connected(),error:'',feedback:state.feedback||''};
+      source:'central',centralRows:nativeProof.verified,devices:matched||[],
+      registry:matchedRegistry,connected:connected(),error:'',feedback:state.feedback||''};
     return;
    }
    // An unpaired or logged-out central view is UNKNOWN, not proof of a
@@ -471,6 +501,9 @@ async function sendRemote(owner,id,kind,options){
      d.activeProfile===owner&&state.registry.activePhones[owner]===id&&
      !state.registry.archived.includes(id)});
   if(!device)throw Error('A telefon nincs a kijelölt fizikai eszközök között.');
+  if(state.source==='central'&&!(state.centralRows||[]).some(function(row){
+   return row.profile_key===owner&&row.device_id===id&&!!row.verified_at;
+  }))throw Error('A telefon központilag igazolt tulajdonosi azonosítója nem egyezik.');
   if(kind==='diagnostics'&&(!Array.isArray(device.capabilities)||
      !device.capabilities.includes('diagnostics')||Number(device.buildCode)<21))
     throw Error('Ehhez a telefonon engedélyezett HH One Connect v0.14.1+ szükséges.');
