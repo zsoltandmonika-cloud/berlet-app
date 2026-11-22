@@ -122,8 +122,8 @@ object DropboxVaultClient {
         val json = JSONObject(body)
         val root = json.optJSONObject("error")
         val structured = root?.optString(".tag") == "path" &&
-            root.optJSONObject("path")?.optString(".tag") == "conflict" &&
-            root.optJSONObject("path")?.optJSONObject("conflict")?.optString(".tag") == "folder"
+            root?.optJSONObject("path")?.optString(".tag") == "conflict" &&
+            root?.optJSONObject("path")?.optJSONObject("conflict")?.optString(".tag") == "folder"
         // Dropbox documents error_summary as a stable prefix. Accept ONLY a folder
         // already existing at the requested path, never a conflicting file or
         // a generic 409 that could mask a missing permission.
