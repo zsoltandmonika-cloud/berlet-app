@@ -5,19 +5,25 @@ const ROOT=path.resolve(__dirname,'../..');
 const adapter=fs.readFileSync(path.join(ROOT,'recepttar-studio/hh-recipe-own-cloud-v1.js'),'utf8');
 const app=fs.readFileSync(path.join(ROOT,'recepttar-studio/app.js'),'utf8');
 const html=fs.readFileSync(path.join(ROOT,'recepttar-studio/index.html'),'utf8');
-function boot({signed=true,mismatch=false}={}){
+function boot({signed=true,mismatch=false,denyLogin=false,denyProfile=false}={}){
  const state=new Map(),files=new Map(),recipes=new Map(),kv=new Map(),calls=[];
  if(signed)state.set('hh-supabase-health-session-v1',JSON.stringify({
   access_token:'test-jwt',refresh_token:'test-refresh',expires_at:Math.ceil(Date.now()/1000)+3600
  }));
+ const local=new Map();
  const win={HH_CENTRAL_VAULT:{supabaseUrl:'https://test.supabase.co',publishableKey:'sb_publishable_mock'},
-  sessionStorage:{getItem:k=>state.get(k)||null,setItem:(k,v)=>state.set(k,v)},
-  localStorage:{getItem:()=>null,setItem:()=>{}}};
+  sessionStorage:{getItem:k=>state.get(k)||null,setItem:(k,v)=>state.set(k,v),removeItem:k=>state.delete(k)},
+  localStorage:{getItem:k=>local.get(k)||null,setItem:(k,v)=>local.set(k,v),removeItem:k=>local.delete(k)},
+  dispatchEvent:()=>{}};
  const response=(data,status=200)=>({ok:status>=200&&status<300,status,
   async text(){return JSON.stringify(data)},async json(){return data},async blob(){return data}});
  async function fetchMock(url,opts={}){
   const p=url.replace('https://test.supabase.co',''),method=opts.method||'GET';
   calls.push({path:p,method});
+  if(p.startsWith('/auth/v1/token?grant_type=password'))
+    return denyLogin?response({error:'invalid_grant'},400):response({access_token:'new-jwt',refresh_token:'new-refresh',expires_in:3600});
+  if(p.startsWith('/rest/v1/hh_profiles?'))
+    return response(denyProfile?[]:[{profile_key:'zsolt'}]);
   if(p.startsWith('/auth/v1/user'))return response({id:'user-1',email:'mock@example.com'});
   if(p.startsWith('/storage/v1/object/hh-recipe-studio-v1/')){
    const key=decodeURIComponent(p.replace('/storage/v1/object/hh-recipe-studio-v1/',''));
@@ -59,8 +65,8 @@ function boot({signed=true,mismatch=false}={}){
   }
   throw Error('Unexpected remote request '+method+' '+p);
  }
- vm.runInNewContext(adapter,{window:win,fetch:fetchMock,URLSearchParams,Date,console});
- return{api:win.HH_RECIPE_OWN_CLOUD_V1,files,recipes,kv,calls};
+ vm.runInNewContext(adapter,{window:win,fetch:fetchMock,URLSearchParams,Date,console,Event:class Event{}});
+ return{api:win.HH_RECIPE_OWN_CLOUD_V1,files,recipes,kv,calls,state,local};
 }
 test('HealthHub own cloud loads before the Studio and keeps Puter for AI only',()=>{
  assert.ok(html.indexOf('hh-recipe-own-cloud-v1.js')<html.indexOf('app.js?v=1164'));
@@ -100,4 +106,27 @@ test('Failed image readback never marks recipe cloud-synced',async()=>{
  const b=boot({mismatch:true}),blob=new Blob(['recept'],{type:'image/jpeg'});
  await assert.rejects(b.api.putRecipe({id:'u12345',title:'Tesztrecept',blob}),/visszaellenőrzése sikertelen/i);
  assert.equal(b.recipes.size,0);
+});
+
+test('Inline login works without navigating away, with family authorization and trusted session',async()=>{
+ const b=boot({signed:false});
+ assert.match(html,/id="syncLoginFormV1164"/);
+ assert.match(html,/id="syncLoginStateV1164"/);
+ assert.doesNotMatch(app,/location\.assign\(HH_OWN_RECIPE_CLOUD_V1\.loginUrl\)/);
+ assert.match(app,/HH_OWN_RECIPE_CLOUD_V1\.signIn\(email,password,remember\)/);
+ const user=await b.api.signIn('family@example.com','example-pass',true);
+ assert.equal(user.id,'user-1');
+ assert.equal(JSON.parse(b.state.get('hh-supabase-health-session-v1')).access_token,'new-jwt');
+ assert.equal(JSON.parse(b.local.get('hh-supabase-health-session-v1')).access_token,'new-jwt');
+ assert.equal(b.local.get('hh-health-vault-trusted-device-v332'),'yes');
+});
+test('Failed account switch preserves existing authenticated session',async()=>{
+ const b=boot({denyLogin:true}),previous=b.state.get('hh-supabase-health-session-v1');
+ await assert.rejects(b.api.signIn('other@example.com','bad-pass',false),/Hibás e-mail/);
+ assert.equal(b.state.get('hh-supabase-health-session-v1'),previous);
+});
+test('Non-family HealthHub accounts cannot replace the current household session',async()=>{
+ const b=boot({denyProfile:true}),previous=b.state.get('hh-supabase-health-session-v1');
+ await assert.rejects(b.api.signIn('unrelated@example.com','example-pass',false),/nincs engedélyezett/);
+ assert.equal(b.state.get('hh-supabase-health-session-v1'),previous);
 });
