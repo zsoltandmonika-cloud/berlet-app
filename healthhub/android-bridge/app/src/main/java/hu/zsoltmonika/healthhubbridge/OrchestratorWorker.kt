@@ -218,19 +218,28 @@ class OrchestratorWorker(
         // It remains disabled until explicit pairing by the phone's owner.
         val id = deviceId(prefs)
         val owner = ownerProfile(prefs)
+        // Report the Dropbox state over the existing independent, owner-verified
+        // Supabase heartbeat, even if the Dropbox grant is absent or expired.
+        DropboxVaultClient.ensureCredentialVersion(prefs)
+        NativeDropboxHealth.begin(prefs)
+        if (!DropboxVaultClient.hasRefreshToken(prefs))
+            NativeDropboxHealth.missingGrant(prefs)
         if (FamilyDeviceCentral.prepared(prefs) && (owner == "zsolt" || owner == "monika")) {
             try {
-                FamilyDeviceCentral.heartbeat(prefs, owner, id, BuildConfig.VERSION_NAME)
+                FamilyDeviceCentral.heartbeat(prefs, owner, id, BuildConfig.VERSION_NAME, applicationContext)
             } catch (_: Exception) {
                 prefs.edit().putString(FamilyDeviceCentral.RESULT, "temporarily_unavailable").apply()
             }
         }
-        DropboxVaultClient.ensureCredentialVersion(prefs)
         if (!DropboxVaultClient.hasRefreshToken(prefs)) return Result.success()
 
         return try {
+            // Bounded best-effort recovery of an existing, owner-consented
+            // foreground GPS service. No reauthorization or new sharing.
+            NativeDropboxHealth.repairPreviouslyApproved(applicationContext, prefs)
             ensureFolders(prefs)
             uploadHeartbeat(prefs, id, owner)
+            NativeDropboxHealth.success(prefs)
             // A diagnostic user tap must never consume queued remote commands.
             if (inputData.getBoolean("hh_registry_diagnostic_only", false)) {
                 return Result.success()
@@ -484,11 +493,19 @@ class OrchestratorWorker(
             uploadHeartbeat(prefs, id, owner)
             Result.success()
         } catch (e: Exception) {
+            NativeDropboxHealth.failed(prefs, e)
             OneOpsLog.record(prefs, "orchestrator", "retry", e.javaClass.simpleName)
             prefs.edit()
                 .putLong("last_orchestrator_error_ms", System.currentTimeMillis())
                 .putString("last_orchestrator_error", e.javaClass.simpleName)
                 .apply()
+            // Failure is independently observable even when Dropbox rejects
+            // uploads. This is a technical heartbeat, not a GPS location.
+            if (FamilyDeviceCentral.prepared(prefs) && (owner == "zsolt" || owner == "monika")) {
+                try {
+                    FamilyDeviceCentral.heartbeat(prefs, owner, id, BuildConfig.VERSION_NAME, applicationContext)
+                } catch (_: Exception) { /* next scheduled heartbeat will retry */ }
+            }
             Result.retry()
         }
     }
