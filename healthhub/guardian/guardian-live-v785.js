@@ -1,9 +1,9 @@
 /* Family Guard v785 · native-only family GPS publishing; read-only Outlook Dropbox GPS status.
  * Native HH One owns explicit GPS publishing to the owner's private Outlook Dropbox.
  * This browser component NEVER writes or deletes remote position rows; RLS remains strict.
- * Revocable, one-time owner consent enables automatic FOREGROUND reactivation only.
- * Browser background GPS remains OFF. Keep the consented last known fix with a
- * timestamp/stale marker, never mistake it for live tracking.
+ * Owner-approved native sharing runs independently of browser map GPS.
+ * Keep only an authenticated latest fix with timestamp/stale marker;
+ * never mistake a missing, revoked or old location for a live position.
  * No GPS history and no synthetic family markers.
  */
 (function(w,d){
@@ -508,7 +508,7 @@ function init(){
  const disable=$('guardianLiveDisableAuto');if(disable)disable.addEventListener('click',userStopSharing);
  const gpsStop=$('guardianStop');if(gpsStop)gpsStop.addEventListener('click',()=>{
   // Deliberate GPS Stop revokes the persistent choice; browser pagehide does not.
-  if(autoEnabled()){removeAuto();updateUi();msg('A GPS és az automatikus helymegosztás leállítva.');}
+  if(autoEnabled()){removeAuto();updateUi();msg('A böngészős GPS leállítva. A natív családi megosztás állapotát ez nem módosítja.');}
  });
  const reset=$('guardianLiveResetDevice');if(reset)reset.addEventListener('click',resetDevice);
  const ownerFix=$('guardianLiveResolveOwner811');if(ownerFix)ownerFix.addEventListener('click',resetDevice);
