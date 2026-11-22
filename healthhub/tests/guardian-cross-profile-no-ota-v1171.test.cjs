@@ -75,6 +75,6 @@ test('Follow button tracks the other owner even if own GPS watch is active',()=>
 });
 test('One web-only release refreshes both scripts without APK or native settings changes',()=>{
  assert.match(html,/guardian\.js\?v=1171-cross-profile-owner-preservation/);
- assert.match(html,/guardian-live-v785\.js\?v=1171-view-only-switch-keeps-gps/);
+ assert.match(html,/guardian-live-v785\.js\?v=1181-stable-peers/);
  assert.doesNotMatch(live,/eval\(|new Function\(/);
 });

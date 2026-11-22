@@ -66,7 +66,7 @@ test('v1176: remote Monika native office fix overrides even fresh local home GPS
 test('v1176: scripts are cache-busted without changing phone app or Dropbox credentials',()=>{
  const html=read('index.html');
  assert.match(html,/guardian\.js\?v=[^"\n]*camera=1176/);
- assert.match(html,/guardian-profile-follow-v837\.js\?v=[^"\n]*camera=v1176/);
+ assert.match(html,/guardian-profile-follow-v837\.js\?v=[^"\n]*native=156/);
  assert.match(own,/if\(remoteOnlyMonikaView\(\)\)/);
  assert.match(follow,/const localFixAt=\(\)=>0/);
  assert.doesNotMatch(follow,/navigator\.geolocation|watchPosition|getCurrentPosition|\.upsert\(/);

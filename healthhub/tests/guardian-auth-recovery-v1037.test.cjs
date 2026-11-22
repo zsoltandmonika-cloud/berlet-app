@@ -56,11 +56,11 @@ function boot(){
 }
 const flush=()=>new Promise(resolve=>setImmediate(resolve));
 
-test('v1037 temporary 503 does not delete GPS; verified owner resumes without new consent',async()=>{
+test('v1037 temporary 503 preserves login recovery without reactivating retired browser GPS',async()=>{
  const t=boot();
  await flush();
- assert.equal(t.live.sharing,true);
- assert.equal(t.counters.followed,1);
+ assert.equal(t.live.sharing,false,'Native-only GPS cannot auto-start browser sharing');
+ assert.equal(t.counters.followed,0);
  assert.equal(t.counters.dialogs,0);
  t.pushUser({data:{user:null},error:{status:503,message:'network failure'}});
  t.emit('TOKEN_REFRESHED');
@@ -73,15 +73,15 @@ test('v1037 temporary 503 does not delete GPS; verified owner resumes without ne
  t.emit('SIGNED_IN');
  await flush();
  assert.equal(t.live.authenticated,true,'revalidated session');
- assert.equal(t.live.sharing,true,'restore only prior consented owner');
- assert.equal(t.counters.followed,2);
+ assert.equal(t.live.sharing,false,'Verified session does not revive retired browser publisher');
+ assert.equal(t.counters.followed,0);
  assert.equal(t.counters.deleted,0);
 });
 
-test('v1037 transient ACL network error does not delete latest verified GPS fix',async()=>{
+test('v1037 ACL outage does not start any browser GPS upload or revoke native consent',async()=>{
  const t=boot();
  await flush();
- assert.equal(t.live.sharing,true);
+ assert.equal(t.live.sharing,false,'Native-only GPS cannot auto-start browser sharing');
  t.pushAcl({data:null,error:{status:503,message:'network unavailable'}});
  t.emit('TOKEN_REFRESHED');
  await flush();
@@ -90,18 +90,18 @@ test('v1037 transient ACL network error does not delete latest verified GPS fix'
  assert.equal(t.live.authenticated,false);
  t.emit('SIGNED_IN');
  await flush();
- assert.equal(t.live.sharing,true);
+ assert.equal(t.live.sharing,false,'Native-only GPS cannot auto-start browser sharing');
 });
 
-test('v1037 genuine signed-out session still stops consented sharing and deletes server row',async()=>{
+test('v1037 explicit sign-out clears authentication without deleting native GPS data',async()=>{
  const t=boot();
  await flush();
- assert.equal(t.live.sharing,true);
+ assert.equal(t.live.sharing,false,'Native-only GPS cannot auto-start browser sharing');
  t.pushUser({data:{user:null},error:null});
  t.emit('SIGNED_OUT');
  await flush();
  assert.equal(t.live.sharing,false);
- assert.equal(t.counters.deleted,1);
+ assert.equal(t.counters.deleted,0,'Sign-out must not delete native location or old GPS rows');
  assert.equal(t.live.authenticated,false);
  assert.equal(t.elements.guardianLiveLogin.hidden,false);
 });

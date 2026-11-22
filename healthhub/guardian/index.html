@@ -828,7 +828,7 @@ if(hhPackDefault||hhPackPreview.get("devicePack")==="v1053"||
   <div class="family-panel-head"><strong>🛡️ Család a térképen</strong><span>Valós helyadatok, ha elérhetők</span></div>
   <section class="guardian-live-v785" aria-label="Family Live vezérlés">
    <div class="guardian-live-head"><strong>🛡️ Family Live</strong><span class="guardian-live-pill">VALÓDI GPS</span></div>
-   <p class="guardian-live-help">Két telefon · hitelesített családi fiók · böngészős élő GPS csak előtérben. Lezárt vagy háttérben lévő telefon utolsó ismert helye külön, nem élőként, frissítési idővel jelenhet meg.</p>
+   <p class="guardian-live-help">Két hitelesített HH One telefon · családi GPS csak a saját tulajdonosi jóváhagyással, privát Outlook Dropboxon keresztül. A böngészős GPS kizárólag a helyi térképet mozgatja; nem továbbít családi helyadatot.</p>
    <p class="guardian-live-auth" id="guardianLiveAuth">Belépés ellenőrzése…</p>
    <p class="guardian-live-note" id="guardianLocationSyncStatus">Helybeállítások · szinkronizáció előkészítése…</p>
    <p class="guardian-live-note" id="guardianLiveIdentity">Saját telefon: még nincs hozzárendelve</p>
@@ -839,11 +839,11 @@ if(hhPackDefault||hhPackPreview.get("devicePack")==="v1053"||
    <div class="guardian-live-buttons">
     <button id="guardianLiveLogin" type="button">Google-belépés</button>
     <button id="guardianLiveLogout" type="button" hidden>Kijelentkezés</button>
-    <button id="guardianLiveStart" type="button" disabled>📍 Élő megosztás indítása</button>
+    <button id="guardianLiveStart" type="button" disabled>📡 Natív GPS állapot ellenőrzése</button>
     <button id="guardianLiveStop" class="guardian-live-stop" type="button" hidden>■ Megosztás leállítása</button>
    </div>
    <div class="guardian-live-settings">
-    <label>GPS-frissítés (célidő)
+    <label>Térképi ellenőrzés (célidő)
      <select id="guardianLiveInterval" aria-label="Élő pozíció frissítésének célideje">
       <option value="1000">1 másodperc</option>
       <option value="3000">3 másodperc</option>
@@ -857,10 +857,10 @@ if(hhPackDefault||hhPackPreview.get("devicePack")==="v1053"||
      <span id="guardianLiveOwnSpeed" class="guardian-live-speed">—</span>
     </label>
    </div>
-   <p id="guardianLiveStatus" class="guardian-live-status" aria-live="polite">A Family Live csak külön engedéllyel küld helyadatot.</p>
+   <p id="guardianLiveStatus" class="guardian-live-status" aria-live="polite">A natív Family Guard helymegosztását a saját HH One telefonon lehet engedélyezni. Ellenőrzéshez koppints a fenti gombra.</p>
    <p id="guardianLiveGpsDetail811" class="guardian-live-note" role="status">⚪ Böngészős GPS: még nem indult. A külön jóváhagyott HH One natív helymegosztás lezárt képernyőn is működhet.</p>
-   <p class="guardian-live-note">📍 Natív Family Guard: a HH One privát Dropbox-feltöltése külön, a saját telefonon jóváhagyható. A másik családtag böngészőjében a családi <a href="../index.html">HealthHub Dropbox Vault</a> kapcsolata is szükséges. Nincs helyelőzmény vagy rejtett kamera/mikrofon.</p>
-   <p id="guardianLiveAutoStatus" class="guardian-live-note">Automatikus előtéri indulás: KI</p>
+   <p class="guardian-live-note">📍 Natív Family Guard: a HH One privát Outlook Dropbox-feltöltését külön a saját telefonon kell jóváhagyni. <a href="healthhubconnect://settings">📱 HH One natív GPS-beállítások</a> · a másik családtag megjelenítőjén a <a href="../index.html">HealthHub Dropbox Vault</a> kapcsolat is szükséges. Nincs helyelőzmény.</p>
+   <p id="guardianLiveAutoStatus" class="guardian-live-note">Natív GPS: állapotellenőrzésre vár</p>
    <p id="guardianLivePeerStatus" class="guardian-live-peer">A másik telefon élő helyzete belépés után jelenhet meg.</p>
    <p id="guardianSourceStatusV1038" class="guardian-live-note" role="status">📡 Adatcsatorna: ellenőrzésre vár. A privát Dropbox-állapot csak hitelesítés után látható.</p>
    <p id="guardianGpsSourceConflictV1072" class="guardian-live-note" role="alert" hidden></p>
@@ -874,7 +874,7 @@ if(hhPackDefault||hhPackPreview.get("devicePack")==="v1053"||
    </div>
    <button type="button" id="guardianLiveDisableAuto" class="guardian-live-reset" hidden>⏹️ Automatikus GPS és megosztás kikapcsolása</button>
    <button type="button" id="guardianLiveResetDevice" class="guardian-live-reset" hidden>Ez egy másik családtag telefonja</button>
-   <p class="guardian-live-note">🔒 Az automatikus előtéri induláshoz egyszeri, visszavonható engedély kell minden saját telefonon. Másik profilra váltás nem indít idegen helymegosztást. Leállításkor az automatikus újraindítás is kikapcsol. 20 mp frissítés nélkül a jelölő UTOLSÓ ISMERT HELY állapotra vált (legfeljebb 12 óráig). Tudatos leállításkor a szerveroldali hely törlődik. Lezárt telefonon a böngésző nem végez háttérkövetést.</p>
+   <p class="guardian-live-note">🔒 A családi helymegosztás kizárólag a kijelölt fizikai telefon natív HH One alkalmazásában engedélyezhető vagy vonható vissza. A webes gomb csak ellenőrzi a saját hitelesített helyadat állapotát; nem indít vagy állít le natív GPS-t. A lejárt vagy visszavont pozíció soha nem látszik élőként.</p>
   </section>
   <div class="family-grid">
    <div class="family-member" id="guardianMeCard"><img id="guardianMePhoto" alt="" class="family-face" width="38" height="38"><div><strong id="guardianMeName">Saját telefon</strong><small id="guardianMeState">GPS kikapcsolva</small></div><i class="family-dot" aria-hidden="true"></i></div>
@@ -885,7 +885,7 @@ if(hhPackDefault||hhPackPreview.get("devicePack")==="v1053"||
  </section>
  <section class="gps-panel" aria-label="GPS és nyomvonal">
   <div class="state-row"><span id="guardianStatus" role="status" aria-live="polite">GPS kikapcsolva</span><span id="guardianProfile">Profil</span></div>
-  <p class="mode-note" id="guardianModeNote">Böngészős GPS: csak nyitott oldalon. A HH One tartós háttérkövetése még fejlesztés alatt.</p>
+  <p class="mode-note" id="guardianModeNote">Böngészős GPS: saját térképhez, csak nyitott oldalon. Családi megosztás: HH One natív GPS, Outlook Dropbox.</p>
   <div class="actions">
    <button type="button" id="guardianStart" class="primary">◎ GPS indítása</button>
    <button type="button" id="guardianStop" class="secondary" disabled>■ Leállítás</button>
@@ -960,7 +960,7 @@ if(hhPackDefault||hhPackPreview.get("devicePack")==="v1053"||
 <script defer src="./guardian-native-dropbox-v156.js?v=1178-outlook-only-no-gmail-bridge"></script>
 <script defer src="./guardian-gps-router-v1177.js?v=1178-outlook-only"></script>
 <script defer src="./guardian-native-auth-v1063.js?v=1063-pkce-external-browser"></script>
-<script defer src="./guardian-live-v785.js?v=1181-stable-peers&native=156&router=1177"></script>
+<script defer src="./guardian-live-v785.js?v=1181-stable-peers&native=156&router=1177&fix=native-only-20261122"></script>
 <script defer src="./guardian-profile-follow-v837.js?v=1181-stable-selected&native=156&router=1177"></script>
 <script defer src="./guardian-profile-battery-v841.js?v=1038-fresh-cache-on-dropbox-error"></script>
 <script defer src="./guardian-live-trio-v845.js?v=1182-samsung-energy-score&router=1177"></script>
