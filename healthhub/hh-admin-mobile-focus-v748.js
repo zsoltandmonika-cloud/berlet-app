@@ -43,6 +43,7 @@ function style(){
  css.push('#'+ID+' .hhQuickDirectV748{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;align-items:stretch;width:100%;min-width:0;margin-top:12px}');
  css.push('#'+ID+' .hhQuickDirectV748 button{box-sizing:border-box;display:flex;align-items:center;justify-content:flex-start;width:100%;max-width:100%;min-width:0;min-height:84px;padding:13px 11px;white-space:normal;overflow-wrap:anywhere;hyphens:auto;text-align:left;font-size:13px;line-height:1.35;border:1px solid #9eb5d2;background:linear-gradient(135deg,#1b2f4b,#29344f)}');
  css.push('#'+ID+' .hhQuickDirectV748 button[hidden],#'+ID+' .hhQuickDirectV748 a[hidden]{display:none!important}');
+ css.push('#'+ID+' .hhQuickDirectV748 button[hidden]{display:none!important}');
  css.push('#'+ID+' .hhQuickDirectV748 a.hhQuickStatusLinkV748{box-sizing:border-box;display:flex;align-items:center;width:100%;min-height:84px;padding:13px 11px;border-radius:13px;border:1px solid #86bacf;background:linear-gradient(135deg,#143b52,#24445c);color:#f8fbff;text-decoration:none;font:750 13px/1.35 system-ui;overflow-wrap:anywhere;touch-action:manipulation}');
  css.push('#'+ID+' .hhQuickDirectV748 a.hhQuickStatusLinkV748:focus-visible{outline:2px solid #e7f7ff;outline-offset:2px}');
  css.push('@media(max-width:350px){#'+ID+' .hhQuickDirectV748{grid-template-columns:minmax(0,1fr)}#'+ID+' .hhQuickDirectV748 button{min-height:60px}}');
