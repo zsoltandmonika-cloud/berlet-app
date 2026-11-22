@@ -10,39 +10,16 @@ const api=()=>w.LENA_NUTRI_STANDARD_CONTEXT_V1155;
 const byId=id=>d.getElementById(id);
 let running=false,stopRequested=false;
 const required=['kcal','protein_g','carbs_g','fat_g'];
-// v1157: Before an AI call, check the official remaining monthly allowance.
-// Puter owns the native upgrade dialog; this prevents repeated denied calls,
-// it does not conceal billing information or pretend AI output was created.
-const MIN_AI_REMAINING_MICROCENTS=5000000; // $0.05 safety buffer
+// v1167: getMonthlyUsage().allowanceInfo.remaining tracks MONTHLY allowance only.
+// Purchased Puter credits are spent AFTER that monthly allowance is exhausted.
+// Zero MONTHLY allowance must never be treated as proof of AI-credit rejection.
 async function guardPuterBudget(){
- const gate=w.LENA_PUTER_CREDIT_GATE_V1159;
- if(gate){
-   const result=await gate.check(true);
-   if(result.reason==='signed-out')throw Error('A Puter AI-fiók nincs bejelentkezve. Ellenőrizd a Puter AI kapcsolatot.');
-   // The old $0.05 blanket threshold was a local safety buffer, not a Puter
-   // billing decision. Allow a user-triggered request when the account still
-   // has positive funds; the official SDK checks the cost of the actual call.
-   if(result.reason==='low-balance'&&Number(result.remaining)===0){
-     const error=Error('Az aktív Puter-fiók lekérdezett felhasználható kerete $0.00. Ellenőrizd a Puter-fiókot és a számlázást.');
-     error.code='puter_balance_zero';throw error;
-   }
-   return;
- }
- const client=api();
- if(typeof client?.getMonthlyUsage!=='function')return;
- try{
-   const remaining=(await client.getMonthlyUsage())?.allowanceInfo?.remaining;
-   if(Number.isFinite(remaining)&&remaining===0){
-     const error=Error('A Puter a jelenlegi fiókhoz $0.00 maradék keretet jelent.');
-     error.code='puter_balance_zero';throw error;
-   }
- }catch(error){
-   if(error.code==='puter_balance_zero')throw error;
-   console.warn('A Puter-keret nem ellenőrizhető, a szolgáltató hiteles AI-válasza dönt.',error);
- }
+ const auth=w.puter?.auth;
+ if(auth?.isSignedIn&&auth.isSignedIn()===false)
+   throw Error('A Puter AI nincs bejelentkezve. Kattints a 🔐 Puter újrabelépés gombra.');
 }
 function providerErrorCode(error){
- const raw=error?.code||error?.error?.code||error?.statusCode||error?.status||error?.httpStatus||'';
+ const raw=error?.code||error?.error?.code||(typeof error?.error==='string'?error.error:null)||error?.statusCode||error?.status||error?.httpStatus||'';
  return String(raw).toLowerCase().slice(0,48)
 }
 function providerErrorMessage(error){
@@ -51,8 +28,8 @@ function providerErrorMessage(error){
 }
 function classifyProviderError(error){
  const code=providerErrorCode(error),message=providerErrorMessage(error),combined=(code+' '+message).toLowerCase();
- if(/insufficient[_ -]?funds|puter_balance_zero|low_balance_guard/.test(combined))
-   return {kind:'credit',text:'A Puter az aktív fiók AI-keretét elutasította ('+(code||'keret')+'). '+message};
+ if(/insufficient[_ -]?funds/.test(combined))
+   return {kind:'credit',text:'A Puter tényleges AI-hívása insufficient_funds hibával elutasította a kérést ('+(code||'keret')+'). '+message};
  if(/subscription_required/.test(combined))
    return {kind:'plan',text:'Puter előfizetés/hozzáférés nem igazolt az aktív fiókon ('+code+'). '+message};
  if(/\b402\b/.test(combined))
@@ -278,19 +255,13 @@ async function inspectPuterAiV1164(){
    const profile=user.status==='fulfilled'?user.value:null;
    const name=String(profile?.username||profile?.email||'azonosítatlan fiók').slice(0,85);
    const allowance=quota.status==='fulfilled'?quota.value?.allowanceInfo:null;
-   const check=Number.isFinite(allowance?.remaining)
-     ?{remaining:allowance.remaining,reason:allowance.remaining<5000000?'low-balance':'ok'}:null;
    const total=Number.isFinite(allowance?.monthUsageAllowance)
      ?' / havi $'+(allowance.monthUsageAllowance/100000000).toFixed(2):'';
-   if(check&&Number.isFinite(check.remaining)){
-     const value=(check.remaining/100000000).toFixed(2);
-     if(check.reason==='low-balance'){
-       status('ℹ Aktív Puter-fiók: '+name+' · maradék $'+value+total+'. A $0.05 alatti érték önmagában nem bizonyít sikertelen előfizetést; egy próbareceptet indíts.',false);
-     }else{
-       status('✓ Aktív Puter-fiók: '+name+' · maradék $'+value+total+'. Ez nem banki fizetési visszaigazolás.');
-     }
+   if(Number.isFinite(allowance?.remaining)){
+     const value=(allowance.remaining/100000000).toFixed(2);
+     status('ℹ Aktív Puter-fiók: '+name+' · havi keretből maradék $'+value+total+'. A külön vásárolt kreditek itt nem látszanak, a havi $0.00 nem jelenti azt, hogy az AI elutasít. Használd az 1 próbarecept gombot.');
    }else{
-     status('ℹ Aktív Puter-fiók: '+name+'. Az egyenleg most nem olvasható ki, ezért nem állítjuk, hogy elfogyott. Ellenőrizd az aktív fiókot és próbálj egy receptet.');
+     status('ℹ Aktív Puter-fiók: '+name+'. A havi keret most nem olvasható ki; a vásárolt kreditek ettől még rendelkezésre állhatnak. Használd az 1 próbarecept gombot.');
    }
  }catch(e){status('⚠ Puter kapcsolat: '+providerErrorMessage(e),true)}
  finally{if(button){button.disabled=false;button.textContent='🔎 Puter AI kapcsolat'}}
@@ -349,6 +320,6 @@ one?.addEventListener('click',()=>void batch(1));
 stop?.addEventListener('click',()=>{stopRequested=true;status('⏸ Megállítás a most futó recept elkészülte után…');});
 byId('nutriPuterCheckV1164')?.addEventListener('click',()=>void inspectPuterAiV1164());
 byId('nutriPuterReconnectV1166')?.addEventListener('click',()=>void reconnectPuterV1166());
-w.LENA_NUTRI_STANDARD_V1155=Object.freeze({version:1166,generateOne,afterGoldenSave,refresh,stats,needs,signature,diagnoseError:classifyProviderError,runOne:()=>batch(1),reconnectPuter:reconnectPuterV1166});
+w.LENA_NUTRI_STANDARD_V1155=Object.freeze({version:1167,generateOne,afterGoldenSave,refresh,stats,needs,signature,diagnoseError:classifyProviderError,runOne:()=>batch(1),reconnectPuter:reconnectPuterV1166});
 refresh();
 })(window,document);

@@ -101,14 +101,14 @@ test('Legacy manual measured entry explicitly records provenance',()=>{
  assert.match(automation,/HealthHub-felhőmentésének/);
 });
 
-test('Confirmed zero balance blocks AI before a denied request and leaves cloud unchanged',async()=>{
+test('Zero MONTHLY allowance must not block AI with separate purchased credit',async()=>{
  const s=setup();
  s.context.getMonthlyUsage=async()=>({allowanceInfo:{remaining:0}});
- await assert.rejects(s.api.generateOne('recipe-1'),/Puter.*(?:0.00|maradék)/);
- assert.equal(s.aiCalls(),0);
- assert.equal(s.remote.size,0);
- assert.equal(s.cache.size,0);
- assert.equal(s.api.stats().missing,1);
+ const result=await s.api.generateOne('recipe-1');
+ assert.equal(result.ok,true);
+ assert.equal(s.aiCalls(),1);
+ assert.equal(s.remote.size,1);
+ assert.equal(s.cache.size,1);
 });
 test('Adequate balance allows existing AI generation and verification',async()=>{
  const s=setup();
@@ -133,11 +133,19 @@ test('Temporary credit lookup failure does not falsely report exhausted Puter cr
  assert.equal(s.aiCalls(),1);
  assert.equal(s.api.stats().ready,1);
 });
-test('Confirmed low Puter balance is still blocked safely',async()=>{
+test('Even when gate sees zero monthly allowance, real Puter AI decides request permission',async()=>{
  const s=setup();
  s.window.LENA_PUTER_CREDIT_GATE_V1159={check:async()=>({allowed:false,reason:'low-balance',remaining:0})};
- await assert.rejects(s.api.generateOne('recipe-1'),/0.00/);
- assert.equal(s.aiCalls(),0);
+ const result=await s.api.generateOne('recipe-1');
+ assert.equal(result.ok,true);
+ assert.equal(s.aiCalls(),1);
+});
+test('Real Puter insufficient_funds still blocks batch after exactly one rejected call',async()=>{
+ const s=setup();
+ s.context.chatNutrition=async()=>{throw {code:'insufficient_funds',message:'No spendable credits'}};
+ await s.api.runOne();
+ assert.match(s.elements.nutriBulkStatusV1155.textContent,/insufficient_funds/);
+ assert.equal(s.remote.size,0);
 });
 test('Missing HealthHub write connection cannot consume Puter AI credits',async()=>{
  const s=setup();s.context.healthHubReady=async()=>false;
@@ -146,7 +154,7 @@ test('Missing HealthHub write connection cannot consume Puter AI credits',async(
  assert.equal(s.remote.size,0);
 });
 
-test('A local $0.05 threshold is not proof Puter denied positive remaining credit',async()=>{
+test('A local $0.05 threshold is not proof Puter denied purchased or monthly remaining credit',async()=>{
  const s=setup();
  s.window.LENA_PUTER_CREDIT_GATE_V1159={check:async()=>({allowed:false,reason:'low-balance',remaining:4000000})};
  const out=await s.api.generateOne('recipe-1');
@@ -224,4 +232,14 @@ test('Puter account chooser cancellation preserves existing recipe and HealthHub
  assert.equal(ok,false);
  assert.match(s.elements.nutriBulkStatusV1155.textContent,/megszakítottad/i);
  assert.equal(s.remote.size,0);
+});
+
+test('Only real provider AI errors trigger credit or plan denial, not monthly allowance fields',()=>{
+ const s=setup();
+ const script=String(automation);
+ assert.doesNotMatch(script,/puter_balance_zero/);
+ assert.doesNotMatch(script,/low_balance_guard/);
+ assert.doesNotMatch(script,/MIN_AI_REMAINING_MICROCENTS/);
+ assert.match(script,/Purchased Puter credits are spent AFTER/);
+ assert.equal(s.api.diagnoseError({code:'insufficient_funds'}).kind,'credit');
 });

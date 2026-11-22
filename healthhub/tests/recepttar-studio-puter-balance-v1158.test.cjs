@@ -31,13 +31,14 @@ test('v1158 is only a tiny, local, hidden-by-default billing status; provider di
  assert.doesNotMatch(html,/sh9-golden-controls-v1\.(?:js|css)/);
  assert.match(html,/sh9-golden-bottom-nav-v924.js/);
 });
-test('Real low balance reveals a small accessible indicator',async()=>{
+test('Low monthly allowance indicator does not claim purchased credits are empty',async()=>{
  const ui=boot(0);
  await flush();
  assert.equal(ui.badge.hidden,false);
- assert.equal(ui.badge.attributes['aria-label'],'Puter AI-keret alacsony');
+ assert.match(ui.badge.attributes['aria-label'],/havi felhasználási keret alacsony/);
  assert.equal(ui.body.attributes['data-lena-puter-low-balance'],'on');
- assert.match(ui.badge.title,/Puter keret: \$0\.00/);
+ assert.match(ui.badge.title,/vásárolt kreditek/);
+ assert.match(ui.badge.title,/havi alapkeretből maradék: \$0\.00/);
 });
 test('Adequate balance and no user sign-in never show warning',async()=>{
  const ok=boot(25000000);await flush();

@@ -15,8 +15,8 @@
   el.hidden=!low;
   if(low){
    const usd=Math.max(0,remaining/MICRO_CENTS_PER_DOLLAR);
-   el.title='Puter keret: $'+usd.toFixed(2)+'. Az AI-funkciók korlátozottak. A kézi receptmentés megkísérelhető; felhőszinkronhoz is szükség lehet keretre.';
-   el.setAttribute('aria-label','Puter AI-keret alacsony');
+   el.title='Puter havi alapkeretből maradék: $'+usd.toFixed(2)+'. A külön vásárolt kreditek ebben az értékben nem látszanak, és az AI ettől még működhet.';
+   el.setAttribute('aria-label','Puter havi felhasználási keret alacsony; külön vásárolt kredit lehet elérhető');
   }
   if(lastState!==low){
    lastState=low;
@@ -44,7 +44,7 @@
   finally{pending=false}
  }
  el.addEventListener('click',()=>{
-  const msg='💳 A Puter AI-kerete alacsony. A Recept Stúdióban a kézi szerkesztést továbbra is használhatod. Felhőmentésnél külön jelezzük, ha a keret miatt a szinkron nem sikerül.';
+  const msg='💳 A Puter havi alapkerete alacsony. A vásárolt kreditek ettől függetlenül használhatók, de ebben a kijelzőben nem látszanak. A valódi AI-hozzáférést az 1 próbarecept gombbal ellenőrizheted.';
   if(typeof w.toast==='function')w.toast(msg);
   else w.alert?.(msg);
  });
