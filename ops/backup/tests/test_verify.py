@@ -59,5 +59,22 @@ class RecoveryManifestTests(unittest.TestCase):
         self.assertIn('cmp --silent',code)
         self.assertIn('--immutable',code)
 
+
+    def test_offline_restore_verifies_all_bytes_and_detects_damage(self):
+        import sys
+        sys.path.insert(0, str(SCRIPT.parent))
+        import verify_restore
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            self.make_fixture(root)
+            m = verify.manifest(root, 'restore-test')
+            (root / 'manifest.json').write_text(__import__('json').dumps(m))
+            status = verify_restore.validate(root)
+            self.assertEqual('restore-test', status['backup_id'])
+            self.assertEqual(m['file_count'], status['files_verified'])
+            (root / 'github/berlet-app.bundle').write_bytes(b'corrupted fixture')
+            with self.assertRaisesRegex(ValueError, 'mismatch'):
+                verify_restore.validate(root)
+
 if __name__=='__main__':
     unittest.main()
