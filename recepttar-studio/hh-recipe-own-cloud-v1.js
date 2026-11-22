@@ -27,7 +27,7 @@
    if(Number(s.expires_at||0)>Date.now()/1000+70)return s.access_token;
    if(!s.refresh_token)throw Error('A HealthHub bejelentkezés lejárt.');
    if(!refreshing){
-     refreshing=(async()=>{
+     const renew=async()=>{
        // Read again after a different tab has refreshed the shared session.
        const fresh=session();
        if(fresh?.refresh_token!==s.refresh_token&&Number(fresh?.expires_at)>Date.now()/1000+70)return fresh.access_token;
@@ -40,7 +40,11 @@
        const next={access_token:value.access_token,refresh_token:value.refresh_token,
          expires_at:Math.floor(Date.now()/1000)+Number(value.expires_in||3600)};
        saveSession(next);return next.access_token;
-     })().finally(()=>{refreshing=null});
+     };
+     // Reuse the same lock as HealthHub Central Vault to avoid two-tab refresh races.
+     const locks=w.navigator?.locks;
+     refreshing=(locks?.request?locks.request('hh-private-vault-token-refresh',renew):renew())
+       .finally(()=>{refreshing=null});
    }
    return refreshing;
  }
