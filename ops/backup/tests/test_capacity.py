@@ -10,17 +10,33 @@ spec.loader.exec_module(capacity)
 
 
 class BackupCapacityTests(unittest.TestCase):
-    def test_standard_14_gib_runner_is_blocked(self):
-        with self.assertRaisesRegex(RuntimeError, "too small"):
-            capacity.check_capacity("/tmp", disk_usage=lambda _: SimpleNamespace(free=14 * capacity.GIB))
+    def test_actual_small_sources_can_use_standard_runner(self):
+        # Two Dropbox vaults + Supabase Storage are currently about 1.44 GB.
+        source_bytes = 1_434_000_000
+        free, required = capacity.check_capacity(
+            "/tmp", source_bytes,
+            disk_usage=lambda _: SimpleNamespace(free=14 * capacity.GIB))
+        self.assertEqual(free, 14 * capacity.GIB)
+        self.assertLess(required, 14 * capacity.GIB)
 
-    def test_approved_250_gib_runner_passes(self):
-        free = capacity.check_capacity("/tmp", disk_usage=lambda _: SimpleNamespace(free=250 * capacity.GIB))
-        self.assertEqual(250 * capacity.GIB, free)
+    def test_large_45_gb_sources_fail_closed(self):
+        with self.assertRaisesRegex(RuntimeError, "insufficient"):
+            capacity.check_capacity("/tmp", 45 * capacity.GIB,
+                                    disk_usage=lambda _: SimpleNamespace(free=14 * capacity.GIB))
 
-    def test_minimum_cannot_be_silently_reduced(self):
+    def test_runner_with_insufficient_disk_fails(self):
+        with self.assertRaises(RuntimeError):
+            capacity.check_capacity("/tmp", 2 * capacity.GIB,
+                                    disk_usage=lambda _: SimpleNamespace(free=10 * capacity.GIB))
+
+    def test_reserve_cannot_be_silently_reduced(self):
         with self.assertRaises(ValueError):
-            capacity.check_capacity("/tmp", 14, disk_usage=lambda _: SimpleNamespace(free=300 * capacity.GIB))
+            capacity.required_bytes(100, 0)
+
+    def test_missing_negative_source_sizes_are_rejected(self):
+        for invalid in (-1, None, 1.2, "10"):
+            with self.assertRaises(ValueError):
+                capacity.required_bytes(invalid)
 
 
 if __name__ == "__main__":
