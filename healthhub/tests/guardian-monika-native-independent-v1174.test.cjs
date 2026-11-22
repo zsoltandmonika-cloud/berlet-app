@@ -52,12 +52,15 @@ test('v1178 missing Outlook browser OAuth fails closed and exposes safe connect 
  assert.equal(h.widgets.guardianNativeGpsConnectV1174.hidden,false);
  assert.match(h.widgets.guardianNativeGpsMessageV1174.textContent,/Outlook kapcsolat nem olvasható/);
 });
-test('v1174 never paints stale GPS, even with Supabase/browser home source',async()=>{
+test('v1196 shows only a muted, timestamped last-known Monika native pin without tracking',async()=>{
  const h=harness(()=>({status:'ok',data:{...phoneFix(),updated_at:new Date(Date.now()-90000).toISOString()}}));
  await h.tick();
- assert.equal(h.ctrl.ready,false);
- assert.equal(h.moves.length,0);
+ assert.equal(h.ctrl.ready,false,'90-second-old fix must never become LIVE');
+ assert.equal(h.moves.length,0,'stale remote location cannot move the camera');
+ assert.equal(h.positions.length,1,'last verified consented native location can remain visible');
  assert.match(h.widgets.guardianNativeGpsMessageV1174.textContent,/NEM ÉLŐ/);
+ assert.match(h.widgets.guardianMeState.textContent,/UTOLSÓ ISMERT HELY/);
+ assert.match(h.widgets.guardianMeState.textContent,/NEM ÉLŐ/);
 });
 test('v1174 source diagnostics are visible, have a safe OAuth path and do not fake fixes',()=>{
  const html=read('index.html'),js=read('guardian-profile-follow-v837.js');
