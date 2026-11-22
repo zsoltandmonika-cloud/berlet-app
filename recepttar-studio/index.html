@@ -77,9 +77,10 @@
     <div class="nutri-golden-actions-v1155">
       <button id="nutriBulkStartV1155" type="button">✨ Hiányzó Nutri Info pótlása minden recepthez</button>
       <button id="nutriBulkStopV1155" type="button" hidden>⏸ Megállítás</button>
+      <button id="nutriPuterCheckV1164" type="button">🔎 Puter AI kapcsolat</button>
       <span id="nutriBulkCountsV1155">Receptek ellenőrzése…</span>
     </div>
-    <div id="nutriBulkStatusV1155" role="status" aria-live="polite">A pótlás csak a gomb megnyomásakor indul; minden recept után felhőmentés és ellenőrzés történik. A Puter AI-fiók kerete számíthat.</div>
+    <div id="nutriBulkStatusV1155" role="status" aria-live="polite">Puter AI = tápértékbecslés, HealthHub = saját mentés. Az AI-kredit az aktív Puter-fiókhoz tartozik.</div>
   </section>
   <div class="count-row">
     <span><b id="count">0</b> recept</span>
@@ -107,8 +108,8 @@
   </section>
   <div class="recipe-editor-actions" role="group" aria-label="Recept szerkesztési műveletek">
     <button id="hhAdd320ButtonV1160" class="hh-cookbook-add-v1160" type="button" aria-label="Egy 320 grammos adag hozzáadása a HealthHub Napi naplójához">➕ 320 g · Napi naplóba</button>
-    <button id="editFullRecipeBtn" class="recipe-edit-main" type="button" title="Minden recept szerkeszthető, és a módosítások a Puter-felhőbe kerülnek.">✏️ Teljes recept szerkesztése</button>
-    <button id="replaceCardImageBtn" class="recipe-image-replace" type="button" title="Az eredeti receptkártya képfájljának cseréje és automatikus Puter felhőmentés.">🖼️ Kártyakép cseréje</button>
+    <button id="editFullRecipeBtn" class="recipe-edit-main" type="button" title="Minden recept szerkeszthető; a módosítások a HealthHub saját tárhelyére kerülnek.">✏️ Teljes recept szerkesztése</button>
+    <button id="replaceCardImageBtn" class="recipe-image-replace" type="button" title="Receptkártyakép cseréje és mentése a privát HealthHub tárhelyre.">🖼️ Kártyakép cseréje</button>
     <input id="replaceCardImageInput" type="file" accept="image/png,image/jpeg,image/webp" hidden>
   </div>
   <section class="recipe-head">
@@ -520,6 +521,19 @@
     <button id="cloudSwitchAccount" type="button" class="outline-btn">⇄ HealthHub fiók</button>
     <button id="cloudRefresh" type="button" class="outline-btn">↻ Frissítés</button>
   </div>
+  <form id="syncLoginFormV1164" hidden style="display:grid;gap:10px;margin:14px 0 9px;padding:15px;border:1px solid rgba(172,223,225,.28);border-radius:16px;background:rgba(15,36,44,.45)">
+    <label for="syncEmailV1164" style="font-weight:700">HealthHub e-mail</label>
+    <input id="syncEmailV1164" name="email" class="field-input" type="email" autocomplete="username" required placeholder="E-mail-cím">
+    <label for="syncPasswordV1164" style="font-weight:700">Jelszó</label>
+    <input id="syncPasswordV1164" name="password" class="field-input" type="password" autocomplete="current-password" required placeholder="HealthHub-jelszó">
+    <label style="display:flex;gap:8px;align-items:center"><input name="remember" type="checkbox" checked> Jegyezzen meg ezen a saját készüléken</label>
+    <small>Másik fiókra váltáskor a jelenlegi kapcsolat megmarad, amíg az új fiók sikeresen be nem jelentkezik.</small>
+    <div class="dialog-actions">
+      <button id="syncLoginSubmitV1164" type="submit" class="primary-btn">🔐 Belépés</button>
+      <button id="syncLoginCancelV1164" type="button" class="outline-btn">Mégse</button>
+    </div>
+  </form>
+  <div id="syncLoginStateV1164" class="cloud-account-status" role="status" aria-live="polite"></div>
   <button id="importLegacyPuterV1" type="button" class="outline-btn" style="width:100%;margin-top:12px">📦 Régi Puter-receptek biztonságos átvétele</button>
   <p class="local-note">A helyben már elmentett receptek HealthHub-belépés után szinkronizálódnak. A régi Puter-adatok külön, visszaellenőrzött másolással vehetők át; az eredeti fájlokat nem töröljük.</p>
 </div>
@@ -710,7 +724,7 @@
 <div id="toast" class="toast"></div>
 
 <script src="../healthhub/central-vault/config.js"></script>
-<script src="hh-recipe-own-cloud-v1.js?v=1-hh-recipe-own-cloud"></script>
+<script src="hh-recipe-own-cloud-v1.js?v=1164-inline-healthhub-login"></script>
 <script src="https://js.puter.com/v2/"></script>
 <script src="hh-puter-credit-gate-v1159.js?v=1159-cloud-safe"></script>
 <script src="../recepttar/data.js?v=25"></script>
@@ -720,9 +734,9 @@
 <script src="csabai-burgonyaleves-2026.js?v=1"></script>
 <script src="../healthhub/nutrition/hh-cookbook-portion-math-v1154.js?v=1154"></script>
 <script src="recipe-asset-cache-v1.js?v=1-local-first"></script>
-<script src="app.js?v=1163-healthhub-own-cloud-v1"></script>
+<script src="app.js?v=1164-healthhub-inline-auth-and-nutri"></script>
 <script src="hh-nutrition-export-v1154.js?v=1160-visible-button"></script>
-<script src="hh-nutri-golden-standard-v1155.js?v=1157-credit-preflight"></script>
+<script src="hh-nutri-golden-standard-v1155.js?v=1164-budget-diagnostic"></script>
 <script defer src="hh-puter-balance-chip-v1158.js?v=1158"></script>
 
 <script defer src="/berlet-app/sh9/shared/sh9-golden-bottom-nav-v924.js?v=924-unified"></script>
