@@ -15,21 +15,27 @@ const required=['kcal','protein_g','carbs_g','fat_g'];
 // it does not conceal billing information or pretend AI output was created.
 const MIN_AI_REMAINING_MICROCENTS=5000000; // $0.05 safety buffer
 async function guardPuterBudget(){
- // v1159 local-first gate is authoritative even if monthly usage cannot be read.
  const gate=w.LENA_PUTER_CREDIT_GATE_V1159;
- if(gate&&!await gate.permit())throw new Error('A Puter kerete alacsony vagy nem ellenőrizhető; AI-generálás kihagyva, a recept helyben menthető.');
- const c=api();
- if(typeof c?.getMonthlyUsage!=='function')return;
- let usage;
- try{usage=await c.getMonthlyUsage()}catch(e){
-  console.warn('Puter usage check unavailable; keeping normal SDK billing enforcement',e);
-  return;
+ if(gate){
+   const result=await gate.check();
+   if(result.reason==='signed-out')throw Error('A Puter AI-fiók nincs bejelentkezve. Ellenőrizd a Puter kapcsolatot.');
+   if(result.reason==='low-balance'){
+     const e=Error('A Puter AI-keret az aktív fiókban alacsony. Ellenőrizd a kiválasztott Puter-fiókot.');
+     e.code='low_balance_guard';throw e;
+   }
+   // A failed usage lookup is not evidence that credits are exhausted.
+   // Puter SDK enforces actual limits on explicitly requested AI calls.
+   return;
+ }
+ const client=api();
+ if(typeof client?.getMonthlyUsage!=='function')return;
+ let usage;try{usage=await client.getMonthlyUsage()}catch(e){
+   console.warn('Puter allowance lookup unavailable; provider enforces real limits',e);return;
  }
  const remaining=usage?.allowanceInfo?.remaining;
  if(!Number.isFinite(remaining)||remaining>=MIN_AI_REMAINING_MICROCENTS)return;
- const e=new Error('A Puter AI-keret alacsony ('+Math.max(0,Math.round(remaining/1000000))+' cent). A generálás a számlázási felugrók ismétlődésének megelőzésére megállt. A korábban mentett receptek megmaradnak.');
- e.code='low_balance_guard';
- throw e;
+ const e=Error('A Puter AI-keret alacsony ('+Math.max(0,Math.round(remaining/1000000))+' cent).');
+ e.code='low_balance_guard';throw e;
 }
 function isCreditFailure(e){
  const value=String(e?.code||'')+' '+String(e?.message||e||'');
@@ -147,6 +153,8 @@ async function generateOne(id,opts={}){
  if(!c||!supported(id))throw Error('Ehhez a recepthez még ellenőrzött, strukturált hozzávalók szükségesek.');
  const old=c.getNutrition(id);
  if(!opts.force&&!needs(id))return {ok:true,skipped:true,record:old};
+ if(typeof c.healthHubReady==='function'&&!await c.healthHubReady())
+   throw Error('A Nutri Info mentéséhez HealthHub-belépés kell: Admin → Központi tárhely.');
  await c.ensureSignedIn();
  if(!c.puterAvailable())throw Error('A Puter Nutri Info AI nem érhető el.');
  await guardPuterBudget();
@@ -161,7 +169,7 @@ async function generateOne(id,opts={}){
  await c.setCloudNutrition(id,row);
  const checked=await c.getCloudNutrition(id);
  if(!checked||checked.updatedAt!==row.updatedAt||checked.ingredientsSignature!==row.ingredientsSignature)
-  throw Error('A Nutri Info Puter-felhőmentésének visszaellenőrzése sikertelen.');
+  throw Error('A Nutri Info HealthHub-felhőmentésének visszaellenőrzése sikertelen.');
  c.cacheNutrition(id,row);
  c.renderNutrition(id);
  refresh();
@@ -183,7 +191,9 @@ async function batch(){
  running=true;stopRequested=false;refresh();
  let done=0,failed=0,consecutive=0,skipped=0,creditStopped=false;
  try{
-  status('☁ Puter kapcsolat ellenőrzése és hiányzó Nutri Info előkészítése…');
+  status('☁ HealthHub mentés és Puter AI kapcsolat ellenőrzése…');
+  if(typeof c.healthHubReady==='function'&&!await c.healthHubReady())
+    throw Error('A Nutri Info mentéséhez jelentkezz be: Admin → Központi tárhely.');
   await c.ensureSignedIn();
   // Refresh cloud first. Existing data should not be regenerated just
   // because another device has already saved its version.
@@ -222,9 +232,26 @@ async function batch(){
   refresh();
  }
 }
+async function inspectPuterAiV1164(){
+ const button=byId('nutriPuterCheckV1164');
+ if(button){button.disabled=true;button.textContent='🔎 Ellenőrzés…'}
+ try{
+   const client=api();if(!client)throw Error('A Nutri Info nem töltődött be.');
+   await client.ensureSignedIn();
+   const gate=w.LENA_PUTER_CREDIT_GATE_V1159;
+   const check=gate?await gate.check(true):null;
+   const user=await w.puter?.auth?.getUser?.();
+   const name=user?.username||user?.email||'Puter-fiók';
+   if(check?.reason==='low-balance')status('⚠ Az aktív Puter-fiókban alacsony a keret: '+name,true);
+   else if(check?.reason==='ok')status('✓ Puter-fiók: '+name+' · $'+(check.remaining/100000000).toFixed(2)+' keret.');
+   else status('ℹ Puter: '+name+'. A keret lekérdezése nem sikerült; ez nem jelent kerethiányt.');
+ }catch(e){status('⚠ Puter AI: '+String(e?.message||e).slice(0,170),true)}
+ finally{if(button){button.disabled=false;button.textContent='🔎 Puter AI kapcsolat'}}
+}
 const start=byId('nutriBulkStartV1155'),stop=byId('nutriBulkStopV1155');
 start?.addEventListener('click',()=>void batch());
 stop?.addEventListener('click',()=>{stopRequested=true;status('⏸ Megállítás a most futó recept elkészülte után…');});
+byId('nutriPuterCheckV1164')?.addEventListener('click',()=>void inspectPuterAiV1164());
 w.LENA_NUTRI_STANDARD_V1155=Object.freeze({version:1155,generateOne,afterGoldenSave,refresh,stats,needs,signature});
 refresh();
 })(window,document);
