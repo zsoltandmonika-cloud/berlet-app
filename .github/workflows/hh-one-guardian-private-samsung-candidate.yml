@@ -97,8 +97,8 @@ jobs:
           "$SIGNER" verify --verbose "$APK"
           BADGE="$("$AAPT" dump badging "$APK" | head -1)"
           [[ "$BADGE" == *"name='hu.zsoltmonika.healthhubbridge'"* ]]
-          [[ "$BADGE" == *"versionCode='52'"* ]]
-          [[ "$BADGE" == *"versionName='0.15.25'"* ]]
+          [[ "$BADGE" == *"versionCode='53'"* ]]
+          [[ "$BADGE" == *"versionName='0.15.26'"* ]]
           echo "Candidate Samsung APK has correct identity."
           mkdir -p "$RUNNER_TEMP/hh-previous"
           gh release download healthhub-connect-ota-v0.15.23 --repo "$GITHUB_REPOSITORY" --pattern "HealthHub-Connect-v0.15.23-ota.apk" --dir "$RUNNER_TEMP/hh-previous"
@@ -121,7 +121,7 @@ jobs:
               assert b'FamilyGuardNativeRelay' in dex, 'Family Guard GPS sender missing'
           print('PASS: same-signer candidate, Samsung SDK + GPS classes present, content-size sanity checked.')
           PY
-          DEST="$GITHUB_WORKSPACE/HH-One-Guardian-SAMSUNG-GPS-FIX-v0.15.25-SIGNED-NOT-LIVE.apk"
+          DEST="$GITHUB_WORKSPACE/HH-One-Guardian-SAMSUNG-GPS-FIX-v0.15.26-SIGNED-NOT-LIVE.apk"
           cp "$APK" "$DEST"
           {
             echo '### Signed Samsung-integrated GPS fix candidate'
@@ -133,8 +133,8 @@ jobs:
           } >> "$GITHUB_STEP_SUMMARY"
       - uses: actions/upload-artifact@v4
         with:
-          name: HH-One-Guardian-SAMSUNG-GPS-FIX-v0.15.25-SIGNED-NOT-LIVE
-          path: HH-One-Guardian-SAMSUNG-GPS-FIX-v0.15.25-SIGNED-NOT-LIVE.apk
+          name: HH-One-Guardian-SAMSUNG-GPS-FIX-v0.15.26-SIGNED-NOT-LIVE
+          path: HH-One-Guardian-SAMSUNG-GPS-FIX-v0.15.26-SIGNED-NOT-LIVE.apk
           if-no-files-found: error
           retention-days: 3
           compression-level: 0
