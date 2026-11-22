@@ -116,7 +116,91 @@ function prepare(){
  '\nÁllapot: terv elkészült; restore NEM indult.';
  const out=el('restoreOutput');out.textContent=msg;out.hidden=false;
 }
+
+// Server-side manual full backup control: never send a GitHub PAT to this browser.
+const BRIDGE="https://vhsrupphzcjkdrusonzh.supabase.co/functions/v1/hh-backup-control-v1";
+const VAULT_SESSION="hh-supabase-health-session-v1";
+let dispatchReady=false,dispatchBusy=false;
+function vaultAccess(){
+ const cfg=w.HH_CENTRAL_VAULT;
+ if(!cfg?.publishableKey||cfg.supabaseUrl!=="https://vhsrupphzcjkdrusonzh.supabase.co")
+  throw Error('A HealthHub központi beléptetés nincs betöltve.');
+ const session=jsonGet(w.sessionStorage,VAULT_SESSION);
+ const local=jsonGet(w.localStorage,VAULT_SESSION);
+ const s=[session,local].filter(x=>x?.access_token&&
+   Number(x.expires_at||0)*1000>Date.now()+60000)
+   .sort((a,b)=>Number(b.expires_at||0)-Number(a.expires_at||0))[0];
+ if(!s)throw Error('A mentés indításához jelentkezz be a HealthHub Central Vaultba.');
+ return {token:s.access_token,key:cfg.publishableKey};
+}
+function manualMessage(value){text('manualStatus',value)}
+async function control(mode,operation){
+ const auth=vaultAccess();
+ const base=BRIDGE+(mode?'?mode='+encodeURIComponent(mode):'');
+ const params={method:operation?'POST':'GET',headers:{
+   apikey:auth.key,Authorization:'Bearer '+auth.token,
+   ...(operation?{'Content-Type':'application/json','X-SHO-Backup-Confirm':'true'}:{})
+ },cache:'no-store',...(operation?{body:JSON.stringify({operation})}:{})};
+ const response=await w.fetch(base,params);
+ let data;try{data=await response.json()}catch(_){data=null}
+ if(!response.ok){
+  if([401,403].includes(response.status))throw Error('Nincs engedélyezett admin-belépés (HTTP '+response.status+').');
+  if(response.status===409)throw Error('Már folyamatban van vagy nemrég indult mentés.');
+  if(response.status===503)throw Error('A mentési háttérszolgáltatás még nincs beállítva vagy jelenleg nem érhető el.');
+  throw Error('A mentési műveletet a szerver elutasította (HTTP '+response.status+').');
+ }
+ return data;
+}
+function dispatchButton(ready){
+ dispatchReady=ready===true;
+ const b=el('manualDirect');
+ if(b)b.disabled=!dispatchReady||dispatchBusy;
+}
+async function checkManual(){
+ dispatchButton(false);
+ const btn=el('manualCheck');if(btn)btn.disabled=true;
+ manualMessage('Admin-jogosultság és mentési futtató ellenőrzése...');
+ try{
+  const data=await control('readiness');
+  const ready=data?.ready===true&&data?.workflow_active===true&&data?.runner_config_confirmed===true;
+  dispatchButton(ready);
+  manualMessage(ready?'✓ Admin-jogosultság ellenőrizve. Kézi mentés indítható.':
+    '⚠️ A mentési futtató még nincs teljesen beállítva. Kézi indítás zárolva.');
+ }catch(e){dispatchButton(false);manualMessage('⚠️ '+String(e?.message||e))}
+ finally{if(btn)btn.disabled=false}
+}
+async function startManual(){
+ if(!dispatchReady||dispatchBusy)return;
+ if(!w.confirm('Most elindítasz egy új, titkosított SHO felhőmag-mentést a OneDrive-ra. A művelet nem állít vissza és nem töröl adatokat. Indíthatjuk?'))return;
+ dispatchBusy=true;dispatchButton(false);
+ manualMessage('A kézi mentés indítási kérése továbbítva...');
+ try{
+  const result=await control('', 'start_manual_full_backup');
+  if(result?.status!=='ACCEPTED_NOT_VERIFIED')throw Error('A szerver nem erősítette meg a mentési kérés elfogadását.');
+  manualMessage('✓ A GitHub elfogadta a mentési kérés indítását. A mentés még NEM igazolt; ellenőrizd a futás és a OneDrive állapotát.');
+ }catch(e){manualMessage('⚠️ '+String(e?.message||e))}
+ finally{dispatchBusy=false;dispatchButton(false)}
+}
+async function checkRun(){
+ const b=el('manualRunStatus');if(b)b.disabled=true;
+ manualMessage('Legutóbbi mentési futás állapotának ellenőrzése...');
+ try{
+  const data=await control('last_run');
+  const run=data?.last_run;
+  if(!run){manualMessage('Még nincs GitHub mentési futás.');return}
+  const safe=String(run.status||'ismeretlen').slice(0,40);
+  const conclusion=run.conclusion?String(run.conclusion).slice(0,40):'még nincs';
+  manualMessage('GitHub futás: '+safe+' · eredmény: '+conclusion+
+    ' · '+String(run.created_at||'').slice(0,22)+
+    '. GitHub siker esetén is külön OneDrive-visszaellenőrzés szükséges.');
+ }catch(e){manualMessage('⚠️ '+String(e?.message||e))}
+ finally{if(b)b.disabled=false}
+}
+el('manualCheck')?.addEventListener('click',checkManual);
+el('manualDirect')?.addEventListener('click',startManual);
+el('manualRunStatus')?.addEventListener('click',checkRun);
+
 el('refresh')?.addEventListener('click',refresh);
 el('prepare')?.addEventListener('click',prepare);
-w.HH_BACKUP_ADMIN_V1=Object.freeze({version:'1',refresh,readOnly:true,manualStartMode:'external-authenticated-github',restoreMode:'plan-only'});
+w.HH_BACKUP_ADMIN_V1=Object.freeze({version:'2',refresh,checkManual,startManual,checkRun,manualStartMode:'owner-authenticated-edge-dispatch',restoreMode:'plan-only'});
 })(window,document);
