@@ -126,8 +126,8 @@ object DropboxVaultClient {
         val response = JSONObject(body)
         val error = response.optJSONObject("error")
         val typedFolder = error?.optString(".tag") == "path" &&
-            error.optJSONObject("path")?.optString(".tag") == "conflict" &&
-            error.optJSONObject("path")?.optJSONObject("conflict")?.optString(".tag") == "folder"
+            error?.optJSONObject("path")?.optString(".tag") == "conflict" &&
+            error?.optJSONObject("path")?.optJSONObject("conflict")?.optString(".tag") == "folder"
         val summary = response.optString("error_summary").trimEnd('/')
         typedFolder || summary == "path/conflict/folder" ||
             summary.startsWith("path/conflict/folder/")
@@ -148,7 +148,7 @@ object DropboxVaultClient {
             detail.startsWith("Dropbox HTTP") || detail.contains("access token", true) -> "auth"
             else -> "transport"
         }
-        val http = Regex("""HTTP\\s+(\\d{3})""").find(detail)?.groupValues?.get(1)
+        val http = Regex("""HTTP\s+(\d{3})""").find(detail)?.groupValues?.get(1)
         return if (http != null) "$phase:HTTP$http" else "$phase:${error.javaClass.simpleName}"
     }
 
