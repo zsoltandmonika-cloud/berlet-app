@@ -225,6 +225,20 @@ class OrchestratorWorker(
                 prefs.edit().putString(FamilyDeviceCentral.RESULT, "temporarily_unavailable").apply()
             }
         }
+        // Repair an unexpectedly killed location foreground service using only
+        // the owner's already-approved persistent GPS consent. A real STOP clears
+        // that consent and therefore cannot be undone by this worker. This is
+        // intentionally skipped by read-only registration diagnostics.
+        if (!inputData.getBoolean("hh_registry_diagnostic_only", false) &&
+            !Sh9GpsService.active && FamilyGuardContinuity.canRestart(applicationContext)) {
+            val nowMs = System.currentTimeMillis()
+            val lastMs = prefs.getLong("family_guard_periodic_recovery_at_v1", 0L)
+            if (nowMs >= lastMs && nowMs - lastMs >= 15 * 60_000L) {
+                prefs.edit().putLong("family_guard_periodic_recovery_at_v1", nowMs).apply()
+                val recovery = FamilyGuardContinuity.restartApprovedGps(applicationContext)
+                prefs.edit().putString("family_guard_periodic_recovery_result_v1", recovery).apply()
+            }
+        }
         DropboxVaultClient.ensureCredentialVersion(prefs)
         if (!DropboxVaultClient.hasRefreshToken(prefs)) return Result.success()
 
