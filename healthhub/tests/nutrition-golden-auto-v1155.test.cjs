@@ -48,7 +48,7 @@ test('Golden Standard frontend scripts and declarations stay syntactically valid
  assert.match(html,/nutriBulkStopV1155/);
  assert.match(html,/nutriAutoStatusV1155/);
  assert.match(css,/nutri-golden-batch-v1155/);
- assert.ok(html.indexOf('app.js?v=1154')<html.indexOf('hh-nutri-golden-standard-v1155.js'));
+ assert.ok(html.indexOf('app.js?v=1164')<html.indexOf('hh-nutri-golden-standard-v1155.js'));
  assert.match(app,/LENA_NUTRI_STANDARD_CONTEXT_V1155/);
  assert.match(app,/nutriStandard\.afterGoldenSave\(id,\{ingredientsChanged\}\)/);
 });
@@ -98,7 +98,7 @@ test('Legacy manual measured entry explicitly records provenance',()=>{
  assert.match(app,/weightSource:'measured'/);
  assert.match(app,/ingredientsSignature:window\.LENA_NUTRI_STANDARD_V1155/);
  assert.match(app,/AI által becsült készétel-tömeg/);
- assert.match(automation,/Puter-felhőmentésének/);
+ assert.match(automation,/HealthHub-felhőmentésének/);
 });
 
 test('Puter low balance guard stops before a denied AI request and leaves cloud data unchanged',async()=>{
