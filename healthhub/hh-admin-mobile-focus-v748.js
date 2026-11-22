@@ -135,6 +135,8 @@ function apply(){
  if(calendar)calendar.hidden=selected!=='cloud';
  const microsoftStatus=q('hhAdminMicrosoftStatusV1');
  if(microsoftStatus)microsoftStatus.hidden=selected!=='cloud';
+ const backupShortcut=q('hhAdminBackupRestoreV1');
+ if(backupShortcut)backupShortcut.hidden=selected!=='recovery';
  help(CATEGORIES.find(x=>x.id===selected).note);
  registryNotice();
 }
@@ -343,6 +345,15 @@ function mount(){
   dropboxReview.type='button';dropboxReview.id='hhAdminDropboxReviewShortcutV749';
   dropboxReview.addEventListener('click',openDropboxReview);
   actions.appendChild(dropboxReview);
+  // One self-contained Backup Center, reachable only by an explicit Admin tap.
+  // No privileged GitHub or cloud request occurs until the user opens it.
+  const backupCenter=el('button','', '🛡️ OneDrive Backup / Restore');
+  backupCenter.type='button';backupCenter.id='hhAdminBackupRestoreV1';backupCenter.hidden=true;
+  backupCenter.addEventListener('click',()=>{
+    if(!isAdmin()||selected!=='recovery')return;
+    w.location.assign(new URL('./admin-backup/index.html',w.location.href).href);
+  });
+  actions.appendChild(backupCenter);
   // Keep the existing six category cards. One direct Calendar settings link
   // appears only in Cloud & AI; authentication stays in the first-party browser.
   const outlook=el('button','', '📅 Microsoft Calendar · beállítások');
