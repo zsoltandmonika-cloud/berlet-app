@@ -1,5 +1,6 @@
 package hu.zsoltmonika.healthhubbridge
 
+import android.content.Context
 import android.content.SharedPreferences
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -29,7 +30,8 @@ internal object FamilyDeviceCentral {
      * owners, reinstalls or process restarts. No new GPS permission is granted.
      */
     suspend fun verifiedForNativeRelay(
-        prefs: SharedPreferences, owner: String, deviceId: String, build: String
+        prefs: SharedPreferences, owner: String, deviceId: String, build: String,
+        context: Context? = null
     ): Boolean {
         if ((owner != "zsolt" && owner != "monika") || !devicePattern.matches(deviceId) ||
             !prepared(prefs)) return false
@@ -38,7 +40,7 @@ internal object FamilyDeviceCentral {
         if (previous != null && previous.owner == owner &&
             previous.deviceId == deviceId && now < previous.expiresAt) return true
         val verified = try {
-            heartbeat(prefs, owner, deviceId, build) == "verified"
+            heartbeat(prefs, owner, deviceId, build, context) == "verified"
         } catch (_: Exception) { false }
         relayProof = if (verified) RelayProof(owner, deviceId, System.currentTimeMillis() + 90_000L)
                      else null
@@ -63,7 +65,7 @@ internal object FamilyDeviceCentral {
     }
 
     suspend fun heartbeat(prefs: SharedPreferences, owner: String?, deviceId: String?,
-                          build: String): String {
+                          build: String, context: Context? = null): String {
         if (owner !in listOf("zsolt", "monika") || deviceId == null || !devicePattern.matches(deviceId) || !prepared(prefs))
             return "not_enrolled"
         val secret = prefs.getString(SECRET, null) ?: return "not_enrolled"
@@ -80,7 +82,9 @@ internal object FamilyDeviceCentral {
                 val request = JSONObject().put("profile_key", owner)
                     .put("device_id", deviceId)
                     .put("device_secret", secret)
-                    .put("build", build).toString()
+                    .put("build", build)
+                    .put("native_cloud_health", NativeDropboxHealth.snapshot(prefs, context))
+                    .toString()
                 connection.outputStream.use { it.write(request.toByteArray(Charsets.UTF_8)) }
                 val responseCode = connection.responseCode
                 val response = try {
