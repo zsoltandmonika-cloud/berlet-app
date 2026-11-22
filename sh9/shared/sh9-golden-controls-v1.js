@@ -41,8 +41,11 @@
   return node;
  }
 
- /* Universal, non-invasive TV-safe module preview. One shared 51px shortcut,
-    never module data or a screencast. Shared controls/nav load it once. */
+ /* TV-re mini shortcut removed from all SHO modules by user request. */
+ function ensureShoTvShortcut(){
+  const badge=d.getElementById('shoTvShortcutV1');
+  if(badge&&badge.parentNode)badge.parentNode.removeChild(badge);
+ }
  function ensureShoTvShortcut(){
   if(w.SHO_TV_SHORTCUT_V1||d.querySelector('script[data-sho-tv-shortcut-v1]'))return;
   const script=d.createElement('script');
