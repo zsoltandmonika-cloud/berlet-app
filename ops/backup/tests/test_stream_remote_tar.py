@@ -92,6 +92,19 @@ else: sys.exit(2)
         self.assertNotIn("restic forget", script)
         self.assertNotIn("restic prune", script)
 
+    def test_private_runner_template_is_pinned_secret_scoped_and_manual_only(self):
+        private = (SOURCE.parent / "private-runner/backup-staging.template.yml").read_text()
+        self.assertIn("workflow_dispatch:", private)
+        self.assertNotIn("schedule:", private)
+        self.assertNotIn("pull_request:", private)
+        self.assertIn("github.event.repository.private == true", private)
+        self.assertIn("authorize_read_only_capture", private)
+        self.assertIn("environment: sho-backup-staging", private)
+        self.assertIn("persist-credentials: false", private)
+        self.assertIn("ref: 32839d2ddccb99641e003196c5775e4efa754529", private)
+        self.assertIn("RESTIC_PASSWORD: ${{ secrets.SHO_RESTIC_PASSWORD }}", private)
+        self.assertNotIn("sudo gh secret", private)
+
     def test_source_changed_between_listing_passes_is_rejected(self):
         with mock.patch.dict(os.environ, {"EVOLVING": "1", "CALL_FILE": str(Path(self.tmp.name)/"count")}):
             with self.assertRaisesRegex(RuntimeError, "changed during capture"):
