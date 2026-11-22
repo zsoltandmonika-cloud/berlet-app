@@ -62,14 +62,16 @@ function getRecipeFeedback(id){return tasteFeedback[id]||localFeedback(id)||{rat
 async function loadTasteFeedback(){
  const merged={};
  for(let i=0;i<localStorage.length;i++){
-   const k=localStorage.key(i);if(!k||!k.startsWith("lena:taste:local:"))continue;
-   try{const v=JSON.parse(localStorage.getItem(k));if(v&&v.id)merged[v.id]=v}catch(e){}
+   const k=localStorage.key(i);if(!k||!k.startsWith('lena:taste:local:'))continue;
+   try{const v=JSON.parse(localStorage.getItem(k));if(v&&v.id)merged[v.id]=v}catch(_){}
  }
- if(puterCloudReady()&&puter.auth.isSignedIn()&&await canCloudIOV1159()){
+ if(await HH_OWN_RECIPE_CLOUD_V1?.available?.()){
    try{
-     const rows=await puter.kv.list(TASTE_KEY_PREFIX+"*",true);
-     for(const row of rows){const v=row&&row.value;if(v&&v.id&&(v.rating||v.note))merged[String(v.id)]=v}
-   }catch(e){console.warn("Ízlésprofil felhőből nem tölthető",e)}
+     const rows=await HH_OWN_RECIPE_CLOUD_V1.listValues(TASTE_KEY_PREFIX);
+     for(const row of rows){const v=row?.value;if(v?.id&&(v.rating||v.note)){
+       if(!merged[v.id]||String(v.updatedAt||'')>=String(merged[v.id]?.updatedAt||''))merged[v.id]=v;
+     }}
+   }catch(e){console.warn('HealthHub saját ízlésprofil lekérés sikertelen:',e)}
  }
  tasteFeedback=merged;return merged
 }
@@ -99,15 +101,16 @@ async function saveCurrentFeedback(){
  const note=$("#feedbackNote").value.trim(),v={id:currentId,title:r.title,rating:feedbackRating,note,updatedAt:new Date().toISOString()};
  localStorage.setItem(feedbackKey(currentId),JSON.stringify(v));tasteFeedback[currentId]=v;
  $("#feedbackSaveState").textContent="✓ mentve helyben";
- if(puterCloudReady()&&puter.auth.isSignedIn()&&await canCloudIOV1159()){
-   try{await puter.kv.set(TASTE_KEY_PREFIX+currentId,v);$("#feedbackSaveState").textContent="☁ szinkronizálva"}catch(e){console.warn("Ízlésprofil felhőmentés hiba",e)}
+ if(await HH_OWN_RECIPE_CLOUD_V1?.available?.()){
+   try{await HH_OWN_RECIPE_CLOUD_V1.putValue(TASTE_KEY_PREFIX+currentId,v);$("#feedbackSaveState").textContent="☁ HealthHub mentve"}
+   catch(e){console.warn("Ízlésprofil központi mentés várakozik",e)}
  }
  toast("⭐ Saját értékelés elmentve.")
 }
 function renderRecipeFeedback(id){
  const f=getRecipeFeedback(id);feedbackRating=Math.max(0,Math.min(5,Number(f.rating)||0));$("#feedbackNote").value=f.note||"";
  $("#feedbackStars").querySelectorAll("button").forEach(b=>{const n=Number(b.dataset.rating);b.textContent=n<=feedbackRating?"★":"☆";b.classList.toggle("active",n<=feedbackRating)});
- $("#feedbackSaveState").textContent=f.updatedAt?(puterCloudReady()&&puter.auth.isSignedIn()?"ízlésprofil":"helyi"):"nincs értékelve"
+ $("#feedbackSaveState").textContent=f.updatedAt?"elmentve":"nincs értékelve"
 }
 function setFeedbackRating(n){feedbackRating=n;$("#feedbackStars").querySelectorAll("button").forEach(b=>{const x=Number(b.dataset.rating);b.textContent=x<=n?"★":"☆";b.classList.toggle("active",x<=n)})}
 function nutriLocalKey(id){return"lena:nutri:local:"+id}
@@ -137,28 +140,26 @@ function normalizeNutrition(v,id,title){
 async function loadNutritionCache(){
  const merged={};
  for(let i=0;i<localStorage.length;i++){
-   const k=localStorage.key(i);if(!k||!k.startsWith("lena:nutri:local:"))continue;
-   try{const v=JSON.parse(localStorage.getItem(k));if(v&&v.id)merged[v.id]=v}catch(e){}
+   const k=localStorage.key(i);if(!k||!k.startsWith('lena:nutri:local:'))continue;
+   try{const v=JSON.parse(localStorage.getItem(k));if(v?.id)merged[v.id]=v}catch(_){}
  }
- if(puterCloudReady()&&puter.auth.isSignedIn()&&await canCloudIOV1159()){
+ if(await HH_OWN_RECIPE_CLOUD_V1?.available?.()){
    try{
-     const rows=await puter.kv.list(NUTRI_KEY_PREFIX+"*",true);
-     for(const row of rows){const v=row&&row.value;if(v&&v.id){
- const id=String(v.id),local=merged[id],pending=localStorage.getItem('lena:nutri:pending:'+id)==='1';
- if(!pending&&(!local||String(v.updatedAt||'')>=String(local.updatedAt||'')))merged[id]=v;
-}}
-   }catch(e){console.warn("Nutri Info felhőből nem tölthető",e)}
+     const rows=await HH_OWN_RECIPE_CLOUD_V1.listValues(NUTRI_KEY_PREFIX);
+     for(const row of rows){const v=row?.value;if(!v?.id)continue;
+       const id=String(v.id),local=merged[id],pending=localStorage.getItem('lena:nutri:pending:'+id)==='1';
+       if(!pending&&(!local||String(v.updatedAt||'')>=String(local.updatedAt||'')))merged[id]=v;
+     }
+   }catch(e){console.warn('HealthHub Nutri Info felhőolvasás sikertelen',e)}
  }
  nutritionCache=merged;return merged
 }
 async function saveNutrition(v){
  localStorage.setItem(nutriLocalKey(v.id),JSON.stringify(v));nutritionCache[v.id]=v;
  localStorage.setItem('lena:nutri:pending:'+v.id,'1');
- if(puterCloudReady()&&puter.auth.isSignedIn()&&await canCloudIOV1159()){
-   try{
-    await puter.kv.set(NUTRI_KEY_PREFIX+v.id,v);
-    localStorage.removeItem('lena:nutri:pending:'+v.id);
-   }catch(e){console.warn("Nutri Info felhőmentés hiba",e)}
+ if(await HH_OWN_RECIPE_CLOUD_V1?.available?.()){
+   try{await HH_OWN_RECIPE_CLOUD_V1.putValue(NUTRI_KEY_PREFIX+v.id,v);localStorage.removeItem('lena:nutri:pending:'+v.id)}
+   catch(e){console.warn('HealthHub Nutri Info mentés várakozik',e)}
  }
 }
 
@@ -181,15 +182,16 @@ async function saveFinishedWeightV1154(){
   localStorage.setItem('lena:nutri:pending:'+id,'1');
   if(currentId===id)renderNutriCard(id);
   let cloud=false;
-  if(await canCloudIOV1159()){
+  if(await HH_OWN_RECIPE_CLOUD_V1?.available?.()){
    try{
-    await puter.kv.set(NUTRI_KEY_PREFIX+id,next);
-    const check=await puter.kv.get(NUTRI_KEY_PREFIX+id);
-    cloud=Number(check?.finishedWeightGrams)===grams&&check.updatedAt===next.updatedAt;
-    if(cloud)localStorage.removeItem('lena:nutri:pending:'+id);
-   }catch(e){console.warn('Készétel-tömeg felhőmentés várakozik',e)}
+     await HH_OWN_RECIPE_CLOUD_V1.putValue(NUTRI_KEY_PREFIX+id,next);
+     const check=await HH_OWN_RECIPE_CLOUD_V1.getValue(NUTRI_KEY_PREFIX+id);
+     cloud=Number(check?.finishedWeightGrams)===grams&&check.updatedAt===next.updatedAt;
+     if(cloud)localStorage.removeItem('lena:nutri:pending:'+id);
+   }catch(e){console.warn('Készétel-tömeg központi mentés várakozik',e)}
   }
-  if(status)status.textContent=cloud?'✓ '+grams+' g · Puter felhőbe mentve.':'✓ '+grams+' g · Helyben mentve, felhőszinkronra vár.';
+
+  if(status)status.textContent=cloud?'✓ '+grams+' g · HealthHub felhőbe mentve.':'✓ '+grams+' g · Helyben mentve, felhőszinkronra vár.';
   toast(cloud?"✓ Készétel-tömeg elmentve a felhőbe.":pendingCloudNoticeV1159());
  }catch(e){
   if(status)status.textContent="⚠ Nem sikerült a felhőmentés: "+String(e?.message||e).slice(0,120);
@@ -308,8 +310,7 @@ async function canCloudIOV1159(){
  return g?await g.permit():false;
 }
 function pendingCloudNoticeV1159(){
- return window.LENA_PUTER_CREDIT_GATE_V1159?.message?.()||
- '💾 Helyben mentve. A felhőszinkron később próbálható.';
+ return '💾 Biztonságosan helyben mentve. A HealthHub saját felhőszinkronja később újrapróbálható.';
 }
 const META_PENDING_KEY_V1159='lena:meta:pending:v1159';
 function pendingMetaV1159(){
@@ -321,29 +322,26 @@ function markMetaPendingV1159(id,pending){
  localStorage.setItem(META_PENDING_KEY_V1159,JSON.stringify([...q]));
 }
 async function flushMetaPendingV1159(){
- if(!await canCloudIOV1159())return;
- for(const id of pendingMetaV1159()){
-  if(!await saveRecipeMetaCloud(id,getMeta(id)))break;
- }
+ if(!await HH_OWN_RECIPE_CLOUD_V1?.available?.())return;
+ for(const id of pendingMetaV1159()){if(!await saveRecipeMetaCloud(id,getMeta(id)))break}
 }
 async function flushLocalNutritionV1159(){
- if(!await canCloudIOV1159())return;
+ if(!await HH_OWN_RECIPE_CLOUD_V1?.available?.())return;
  const keys=[];
  for(let i=0;i<localStorage.length;i++){
-  const key=localStorage.key(i);
-  if(key?.startsWith('lena:nutri:pending:')&&localStorage.getItem(key)==='1')keys.push(key);
+   const key=localStorage.key(i);
+   if(key?.startsWith('lena:nutri:pending:')&&localStorage.getItem(key)==='1')keys.push(key);
  }
  for(const key of keys){
-  const id=key.slice('lena:nutri:pending:'.length),n=localNutrition(id);
-  if(!n){localStorage.removeItem(key);continue}
-  try{
-   await puter.kv.set(NUTRI_KEY_PREFIX+id,n);
-   const c=await puter.kv.get(NUTRI_KEY_PREFIX+id);
-   if(c?.updatedAt!==n.updatedAt)break;
-   localStorage.removeItem(key);
-  }catch(e){console.warn('Pending Nutri Info sync failed',e);break}
+   const id=key.slice('lena:nutri:pending:'.length),n=localNutrition(id);
+   if(!n){localStorage.removeItem(key);continue}
+   try{
+     await HH_OWN_RECIPE_CLOUD_V1.putValue(NUTRI_KEY_PREFIX+id,n);
+     localStorage.removeItem(key);
+   }catch(e){console.warn('Nutri Info HealthHub szinkron várakozik',e);break}
  }
 }
+
 function puterCloudReady(){return !!(window.puter&&puter.auth&&puter.kv&&puter.fs)}
 async function currentPuterUser(){
  if(!puterCloudReady()||!puter.auth.isSignedIn())return null;
@@ -360,6 +358,7 @@ async function ensurePuterSignIn(forcePick=false){
  * Show locally stored pictures first, then check metadata when stale.
  * Never read/modify the existing local-recipe DB schema or pending edit queue. */
 const RECIPE_ASSET_CACHE_V1=window.LENA_RECIPE_ASSET_CACHE_V1;
+const HH_OWN_RECIPE_CLOUD_V1=window.HH_RECIPE_OWN_CLOUD_V1;
 let recipeCacheAccountV1='';
 async function recipeCacheAccountKeyV1(){
  if(!puterCloudReady()||!puter.auth.isSignedIn())return '';
@@ -371,7 +370,7 @@ function remoteRecipeCardV1(v,blob){
  return {id:String(v.id),title:String(v.title),category:String(v.category||'Egyéb'),
   file:url,mime:String(v.mime||blob.type||'image/jpeg'),
   originalName:String(v.originalName||v.title+'.jpg'),central:true,
-  createdAt:v.createdAt||null,heroPath:v.heroPath||null,processPath:v.processPath||null,
+  createdAt:v.createdAt||null,heroPath:v.heroPath||null,processPath:v.processPath||null,storage:v.storage||"puter",
   studioData:v.studioData||null,youtubeId:String(v.youtubeId||''),_url:url};
 }
 function applySharedCardsV1(next,readable){
@@ -387,8 +386,8 @@ async function cardsFromCatalogueV1(rows,account,offlineOnly){
   try{
    let blob=account?await RECIPE_ASSET_CACHE_V1?.get(account,v):null;
    if(!blob&&!offlineOnly){
-    // Paid Puter file read occurs ONLY for a missing/changed card.
-    blob=await puter.fs.read(v.cardPath);
+    // Own storage is quota-independent; legacy Puter reads are strictly read-only.
+    blob=v.storage==="supabase"?await HH_OWN_RECIPE_CLOUD_V1.download(v.cardPath):await puter.fs.read(v.cardPath);
     if(account)await RECIPE_ASSET_CACHE_V1?.put(account,v,blob);
    }
    if(!blob?.size)continue;
@@ -398,48 +397,52 @@ async function cardsFromCatalogueV1(rows,account,offlineOnly){
  }
  return {next,readable};
 }
-async function loadSharedRecipes(force=false){
- const account=await recipeCacheAccountKeyV1();
- // A prior user's cached shared cookbook must not leak after sign-out
- // or a Puter account switch on the same phone.
- if(!account){
-  recipeCacheAccountV1='';
-  if(sharedRecipes.length){applySharedCardsV1([],{});renderHome()}
-  return false;
+async function loadSharedRecipes(force=false,readLegacy=false){
+ const ownAccount=await HH_OWN_RECIPE_CLOUD_V1?.account(),legacyAccount=await recipeCacheAccountKeyV1();
+ let next=[],readable={},successful=false;
+ async function takeCatalogue(account,rows,offlineOnly){
+   const result=await cardsFromCatalogueV1(rows,account,offlineOnly);
+   const ids=new Set(next.map(v=>v.id));
+   for(const recipe of result.next){
+     if(!ids.has(recipe.id)){
+       next.push(recipe);ids.add(recipe.id);
+       if(result.readable[recipe.id])readable[recipe.id]=result.readable[recipe.id];
+     }else if(recipe._url)URL.revokeObjectURL(recipe._url);
+   }
  }
- if(recipeCacheAccountV1!==account){
-  recipeCacheAccountV1=account;
-  if(sharedRecipes.length){applySharedCardsV1([],{});renderHome()}
+ if(ownAccount){
+   const cached=await RECIPE_ASSET_CACHE_V1?.catalogue(ownAccount);
+   if(cached?.rows?.length)await takeCatalogue(ownAccount,cached.rows,true);
+   try{
+     if(force||!cached||!RECIPE_ASSET_CACHE_V1?.fresh(cached)||next.length!==cached.rows.length){
+       const rows=await HH_OWN_RECIPE_CLOUD_V1.listRecipes();
+       const oldNext=next;next=[];readable={};
+       await takeCatalogue(ownAccount,rows,false);
+       if(rows.length&&!next.length){next=oldNext}
+       else{oldNext.forEach(r=>r._url&&URL.revokeObjectURL(r._url));await RECIPE_ASSET_CACHE_V1?.saveCatalogue(ownAccount,rows)}
+     }
+     successful=true;
+   }catch(error){console.warn('HealthHub recepttár átmenetileg offline, helyi kártyák maradnak:',error)}
  }
- const cached=await RECIPE_ASSET_CACHE_V1?.catalogue(account);
- let hydrated=0;
- if(cached?.rows?.length&&!sharedRecipes.length){
-  const local=await cardsFromCatalogueV1(cached.rows,account,true);
-  hydrated=local.next.length;
-  if(hydrated){applySharedCardsV1(local.next,local.readable);renderHome()}
- }else if(cached?.rows?.length){
-  hydrated=sharedRecipes.filter(r=>r.central).length;
+ // Keep pre-migration Puter recipes visible, but do not perform Puter writes.
+ // Existing verified local asset cache works even when Puter credit is exhausted.
+ if(legacyAccount){
+   const old=await RECIPE_ASSET_CACHE_V1?.catalogue(legacyAccount);
+   if(old?.rows?.length)await takeCatalogue(legacyAccount,old.rows,true);
+   if(readLegacy&&await canCloudIOV1159()){
+     try{
+       const rows=(await puter.kv.list(CLOUD_KEY_PREFIX+'*',true))
+         .map(r=>({...r.value,storage:'puter'})).filter(v=>v?.id&&v?.title&&v?.cardPath);
+       await takeCatalogue(legacyAccount,rows,false);
+       await RECIPE_ASSET_CACHE_V1?.saveCatalogue(legacyAccount,rows);
+       successful=true;
+     }catch(error){console.warn('Régi Puter-receptek csak a meglévő cache-ből érhetők el:',error)}
+   }
  }
- // Metadata is not polled on every screen return: max one recheck/15 min.
- // An explicit sync action below passes force=true to bypass this TTL.
- if(!force&&cached&&RECIPE_ASSET_CACHE_V1?.fresh(cached)&&hydrated===cached.rows.length)
-  return true;
- if(!await canCloudIOV1159())return !!sharedRecipes.length;
- try{
-  const rows=await puter.kv.list(CLOUD_KEY_PREFIX+'*',true);
-  const freshRows=rows.map(r=>r?.value).filter(v=>v?.id&&v?.title&&v?.cardPath);
-  const result=await cardsFromCatalogueV1(freshRows,account,false);
-  // If all file reads fail, keep the already verified device copy rather
-  // than replacing a populated bookshelf with an empty, misleading one.
-  if(freshRows.length&&!result.next.length&&sharedRecipes.length)return false;
-  applySharedCardsV1(result.next,result.readable);
-  renderHome();
-  await RECIPE_ASSET_CACHE_V1?.saveCatalogue(account,freshRows);
-  return true;
- }catch(error){
-  console.warn('Puter receptkatalógus most nem érhető el, helyi könyvtár marad:',error);
-  return !!sharedRecipes.length;
- }
+ // Keep the previous complete list if both remote services are temporarily offline.
+ if(!successful&&!next.length&&sharedRecipes.length)return true;
+ applySharedCardsV1(next,readable);renderHome();
+ return successful||!!next.length
 }
 async function refreshSharedRecipes(render=true,force=false){
  const ok=await loadSharedRecipes(force);
@@ -471,8 +474,11 @@ async function nutritionImportPhotoV1154(id){
  let photo=null;
  const row=await dbGet(id).catch(()=>null);
  if(row?.heroBlob&&/^image\//.test(row.heroBlob.type||''))photo=row.heroBlob;
- if(!photo&&r.heroPath&&puterCloudReady()&&puter.auth.isSignedIn()&&await canCloudIOV1159()){
-  try{photo=await puter.fs.read(r.heroPath)}catch(e){console.warn('Recipe hero unavailable',e)}
+ if(!photo&&r.heroPath){
+  try{
+   photo=r.storage==='supabase'?await HH_OWN_RECIPE_CLOUD_V1.download(r.heroPath):
+     puterCloudReady()&&puter.auth.isSignedIn()&&await canCloudIOV1159()?await puter.fs.read(r.heroPath):null;
+  }catch(e){console.warn('Recipe hero unavailable',e)}
  }
  if(!photo){
   try{photo=await recipeCardSourceBlob(r)}catch(e){console.warn('Recipe card art unavailable',e)}
@@ -504,47 +510,49 @@ function storeCategoryConfigLocal(){
 }
 async function loadCategoryConfig(){
  const local=categoryConfigLocal(),merged={added:[...local.added],hidden:[...local.hidden]};
- if(puterCloudReady()&&puter.auth.isSignedIn()&&await canCloudIOV1159()){
+ if(await HH_OWN_RECIPE_CLOUD_V1?.available?.()){
    try{
-     const remote=await puter.kv.get(CATEGORY_CONFIG_KEY);
-     if(remote&&typeof remote==="object"){
+     const remote=await HH_OWN_RECIPE_CLOUD_V1.getValue(CATEGORY_CONFIG_KEY);
+     if(remote&&typeof remote==='object'){
        merged.added=[...new Set([...merged.added,...(Array.isArray(remote.added)?remote.added:[])].map(cleanCategoryName).filter(Boolean))];
-       merged.hidden=[...new Set([...(Array.isArray(remote.hidden)?remote.hidden:[]),...merged.hidden].map(cleanCategoryName).filter(Boolean))]
+       merged.hidden=[...new Set([...(Array.isArray(remote.hidden)?remote.hidden:[]),...merged.hidden].map(cleanCategoryName).filter(Boolean))];
      }
-   }catch(e){console.warn("Kategória-beállítások felhőből nem tölthetők",e)}
+   }catch(e){console.warn('Kategória-beállítások központi olvasása sikertelen',e)}
  }
  categoryConfig=merged;storeCategoryConfigLocal();return categoryConfig
 }
 async function saveCategoryConfig(){
  storeCategoryConfigLocal();
- if(puterCloudReady()&&puter.auth.isSignedIn()&&await canCloudIOV1159()){
-   try{await puter.kv.set(CATEGORY_CONFIG_KEY,{added:categoryConfig.added,hidden:categoryConfig.hidden,updatedAt:new Date().toISOString()})}
-   catch(e){console.warn("Kategória-beállítások felhőmentése sikertelen",e)}
+ if(await HH_OWN_RECIPE_CLOUD_V1?.available?.()){
+   try{await HH_OWN_RECIPE_CLOUD_V1.putValue(CATEGORY_CONFIG_KEY,{
+     added:categoryConfig.added,hidden:categoryConfig.hidden,updatedAt:new Date().toISOString()
+   })}catch(e){console.warn('Kategória-beállítás központi mentés várakozik',e)}
  }
 }
 async function saveRecipeMetaCloud(id,meta){
- if(!puterCloudReady()||!puter.auth.isSignedIn()||!await canCloudIOV1159()){
-  markMetaPendingV1159(id,true);return false;
+ if(!await HH_OWN_RECIPE_CLOUD_V1?.available?.()){
+   markMetaPendingV1159(id,true);return false;
  }
  try{
-  await puter.kv.set(RECIPE_META_KEY_PREFIX+id,{id,...meta,updatedAt:new Date().toISOString()});
-  markMetaPendingV1159(id,false);return true;
+   await HH_OWN_RECIPE_CLOUD_V1.putValue(RECIPE_META_KEY_PREFIX+id,{id,...meta,updatedAt:new Date().toISOString()});
+   markMetaPendingV1159(id,false);return true;
  }catch(e){
-  markMetaPendingV1159(id,true);
-  console.warn("Recept metaadat felhőmentése sikertelen",id,e);return false;
+   markMetaPendingV1159(id,true);console.warn('Recept metaadat HealthHub szinkron várakozik',id,e);
+   return false;
  }
 }
 async function loadCloudRecipeMeta(){
- if(!puterCloudReady()||!puter.auth.isSignedIn()||!await canCloudIOV1159())return;
+ if(!await HH_OWN_RECIPE_CLOUD_V1?.available?.())return;
  try{
-   const rows=await puter.kv.list(RECIPE_META_KEY_PREFIX+"*",true);
+   const rows=await HH_OWN_RECIPE_CLOUD_V1.listValues(RECIPE_META_KEY_PREFIX);
    for(const row of rows){
-     const v=row&&row.value;if(!v||!v.id)continue;
-     const local=getMeta(String(v.id)),lu=String(local.updatedAt||""),ru=String(v.updatedAt||"");
-     if(!lu||!ru||ru>=lu)setMeta(String(v.id),{...local,...v})
+     const v=row?.value;if(!v?.id)continue;
+     const local=getMeta(String(v.id)),lu=String(local.updatedAt||''),ru=String(v.updatedAt||'');
+     if(!lu||!ru||ru>=lu)setMeta(String(v.id),{...local,...v});
    }
- }catch(e){console.warn("Recept metaadatok felhőből nem tölthetők",e)}
+ }catch(e){console.warn('Recept metaadat HealthHub lekérés sikertelen',e)}
 }
+
 function allCategoryNamesRaw(){
  const s=new Set(baseCategories);allRecipes().forEach(r=>r.category&&s.add(cleanCategoryName(r.category)));(categoryConfig.added||[]).forEach(c=>s.add(cleanCategoryName(c)));
  return Array.from(s).filter(Boolean).sort((a,b)=>a.localeCompare(b,"hu"))
@@ -701,8 +709,12 @@ async function recipeHeroSource(r){
    const row=await dbGet(r.id);
    if(row&&row.heroBlob){photoLightboxObjectUrl=URL.createObjectURL(row.heroBlob);return photoLightboxObjectUrl}
  }
- if(r.central&&r.heroPath&&puterCloudReady()&&puter.auth.isSignedIn()&&await canCloudIOV1159()){
-   try{const b=await puter.fs.read(r.heroPath);photoLightboxObjectUrl=URL.createObjectURL(b);return photoLightboxObjectUrl}catch(e){console.warn("Központi ételfotó nem olvasható",e)}
+ if(r.central&&r.heroPath){
+   try{
+     const b=r.storage==='supabase'?await HH_OWN_RECIPE_CLOUD_V1.download(r.heroPath):
+       puterCloudReady()&&puter.auth.isSignedIn()&&await canCloudIOV1159()?await puter.fs.read(r.heroPath):null;
+     if(b){photoLightboxObjectUrl=URL.createObjectURL(b);return photoLightboxObjectUrl}
+   }catch(e){console.warn('Központi ételfotó nem olvasható',e)}
  }
  return r.file||null
 }
@@ -803,13 +815,12 @@ async function deleteCurrent(){
 async function resetCurrent(){
  if(!currentId)return;const id=currentId;
  try{
-   if(!await ensurePuterSignIn())throw new Error("Puter bejelentkezés szükséges.");
    const m={...getMeta(id),updatedAt:new Date().toISOString(),deleted:false};
    delete m.title;delete m.category;
-   if(!await saveRecipeMetaCloud(id,m))throw new Error("Felhőhiba");
    setMeta(id,m);
+   const synced=await saveRecipeMetaCloud(id,m);
    const r=getRecipe(id);$("#editTitle").value=r.title;fillEditCategorySelect(r.category);
-   toast("☁ Alapadatok felhőben visszaállítva.")
+   toast(synced?"☁ Alapadatok HealthHubban visszaállítva.":pendingCloudNoticeV1159())
  }catch(e){alert("A visszaállítás nem sikerült: "+(e.message||e))}
 }
 
@@ -1144,9 +1155,14 @@ async function recipeStudioSource(r){
 async function loadStudioArtwork(r){
  let hero=null,process=null;
  if(r.localCustom){const row=await dbGet(r.id);hero=row&&row.heroBlob;process=row&&row.processBlob}
- else if(r.central&&puterCloudReady()&&puter.auth.isSignedIn()&&await canCloudIOV1159()){
-  if(r.heroPath)try{hero=await puter.fs.read(r.heroPath)}catch(e){console.warn("A régi címlapkép nem tölthető be",e)}
-  if(r.processPath)try{process=await puter.fs.read(r.processPath)}catch(e){console.warn("A régi lépésképek nem tölthetők be",e)}
+ else if(r.central){
+  const own=r.storage==='supabase',legacy=!own&&puterCloudReady()&&puter.auth.isSignedIn()&&await canCloudIOV1159();
+  if(own||legacy){
+   if(r.heroPath)try{hero=own?await HH_OWN_RECIPE_CLOUD_V1.download(r.heroPath):await puter.fs.read(r.heroPath)}
+    catch(e){console.warn('Recept címlapkép nem tölthető be',e)}
+   if(r.processPath)try{process=own?await HH_OWN_RECIPE_CLOUD_V1.download(r.processPath):await puter.fs.read(r.processPath)}
+    catch(e){console.warn('Recept lépésképek nem tölthetők be',e)}
+  }
  }
  studioPhotoBlob=hero||null;studioProcessBlob=process||null;
  if(studioPhotoBlob){studioPhotoUrl=URL.createObjectURL(studioPhotoBlob);$("#studioPhotoPreview").src=studioPhotoUrl;$("#studioPhotoPreview").hidden=false;$("#studioHero").style.backgroundImage='linear-gradient(rgba(0,0,0,.08),rgba(0,0,0,.42)),url("'+studioPhotoUrl+'")';$("#studioHero").classList.add("has-photo")}
@@ -1182,7 +1198,7 @@ async function replaceCurrentCardImage(file){
    if(synced)await loadSharedRecipes(true);
    await loadCustomRecipes();
    renderHome();openRecipe(id,false);
-   toast(synced?"☁ Az új receptkártya a Puter-felhőben mentve és visszaellenőrizve.":pendingCloudNoticeV1159());
+   toast(synced?"☁ Az új receptkártya a HealthHub-felhőben mentve és visszaellenőrizve.":pendingCloudNoticeV1159());
  }catch(e){
    console.error(e);alert("A képkártya mentése nem sikerült: "+(e.message||e))
  }finally{busy(false)}
@@ -1470,61 +1486,119 @@ async function studioFinalize(){
 
 async function updateCloudStatus(){
  const s=$("#cloudAccountStatus");if(!s)return;
- if(!puterCloudReady()){s.textContent="✕ A Puter felhő nem érhető el.";return}
- if(!puter.auth.isSignedIn()){s.textContent="Nincs bejelentkezve. Ugyanazzal a Puter-fiókkal lépj be minden eszközön.";return}
- const u=await currentPuterUser();s.textContent=u?"✓ Bejelentkezve: "+(u.username||u.email||"Puter felhasználó"):"✓ Bejelentkezve a Puter felhőbe."
+ try{
+   if(await HH_OWN_RECIPE_CLOUD_V1?.available?.()){
+     const u=await HH_OWN_RECIPE_CLOUD_V1.user();
+     s.textContent='✓ HealthHub saját tárhely csatlakoztatva'+(u.email?' · '+u.email:'');
+     return;
+   }
+ }catch(e){console.warn('HealthHub tárolókapcsolat nem elérhető',e)}
+ s.textContent='Nincs aktív HealthHub-belépés. A helyi receptmentés ettől függetlenül működik.';
 }
 async function openSyncSettings(){
- if($("#adminDialog").open)$("#adminDialog").close();$("#syncDialog").showModal();await updateCloudStatus();
- if(puterCloudReady()&&puter.auth.isSignedIn()){await syncPendingToCloud();await updateCloudStatus()}
+ if($("#adminDialog").open)$("#adminDialog").close();
+ $("#syncDialog").showModal();await updateCloudStatus();
+ if(await HH_OWN_RECIPE_CLOUD_V1?.available?.())await syncPendingToCloud();
 }
-async function cloudSignIn(forcePick=false){
- const s=$("#cloudAccountStatus");s.textContent="Bejelentkezés…";
- try{
-   await ensurePuterSignIn(forcePick);
-   await loadCloudRecipeMeta();await loadCategoryConfig();
-   const n=await syncPendingToCloud();
-   await refreshSharedRecipes(true,true);await updateCloudStatus();
-   toast(n?"☁ "+n+" helyi recept feltöltve.":"✓ Központi tárhely csatlakoztatva.")
- }catch(e){console.error(e);s.textContent="✕ Bejelentkezés nem sikerült: "+(e.msg||e.message||e)}
+async function cloudSignIn(){
+ // Same-tab navigation preserves the HealthHub sessionStorage token.
+ sessionStorage.setItem('hh-recipe-return-after-auth-v1',location.href);
+ location.assign(HH_OWN_RECIPE_CLOUD_V1.loginUrl)
 }
 async function cloudRefresh(){
- const s=$("#cloudAccountStatus");s.textContent="Szinkronizálás…";
+ const s=$("#cloudAccountStatus");s.textContent='Szinkronizálás a HealthHub saját tárhelyével…';
  try{
-   if(!puter.auth.isSignedIn())await ensurePuterSignIn();
+   if(!await HH_OWN_RECIPE_CLOUD_V1?.available?.()){
+     s.textContent='Előbb jelentkezz be a HealthHubba, majd térj vissza a Recept Stúdióba.';
+     return;
+   }
    await loadCloudRecipeMeta();await loadCategoryConfig();
    const n=await syncPendingToCloud();
-   await refreshSharedRecipes(true,true);await updateCloudStatus();
-   toast(n?"☁ "+n+" helyi recept feltöltve és frissítve.":"✓ Központi receptek frissítve.")
- }catch(e){console.error(e);s.textContent="✕ Frissítés nem sikerült: "+(e.msg||e.message||e)}
+   await refreshSharedRecipes(true,true);
+   await loadTasteFeedback();await loadNutritionCache();await updateCloudStatus();
+   toast(n?'☁ '+n+' recept saját tárhelyre szinkronizálva.':'✓ HealthHub recepttár frissítve.');
+ }catch(e){console.warn('HealthHub recepttár frissítési hiba',e);s.textContent='⚠ A kapcsolat jelenleg nem érhető el. Helyi receptek megmaradtak.'}
 }
+async function importLegacyPuterV1(){
+ const status=$("#cloudAccountStatus");
+ if(!await HH_OWN_RECIPE_CLOUD_V1?.available?.()){status.textContent='A régi Puter-adatok átvételéhez HealthHub-belépés szükséges.';return}
+ if(!puterCloudReady()||!puter.auth.isSignedIn()){status.textContent='Előbb jelentkezz be a régi Puter-fiókodba is az átvételhez.';return}
+ await loadSharedRecipes(true,true);
+ const legacy=sharedRecipes.filter(r=>r.storage==='puter'),own=new Set(
+   (await HH_OWN_RECIPE_CLOUD_V1.listRecipes()).map(r=>r.id)
+ );
+ let migrated=0,blocked=0;
+ busy(true,'Régi Puter-receptek biztonságos másolása…');
+ try{
+   for(const r of legacy){
+     if(own.has(r.id))continue;
+     try{
+       const cached=await dbGet(r.id),res=cached?.blob||await (await fetch(r.file)).blob();
+       if(!res?.size)throw Error('Hiányzó receptkép');
+       let hero=cached?.heroBlob||null,process=cached?.processBlob||null;
+       // Do not silently mark a rich recipe migrated with missing artwork.
+       if((r.heroPath&&!hero)||(r.processPath&&!process)){
+         if(!await canCloudIOV1159())throw Error('A Puter-képátvételre jelenleg nincs keret.');
+         if(r.heroPath&&!hero)hero=await puter.fs.read(r.heroPath);
+         if(r.processPath&&!process)process=await puter.fs.read(r.processPath);
+       }
+       await dbPut({
+         ...cached,id:r.id,title:r.title,category:r.category,blob:res,heroBlob:hero,processBlob:process,
+         mime:r.mime||res.type,originalName:r.originalName||r.title+'.jpg',pending:true,
+         createdAt:cached?.createdAt||r.createdAt||Date.now(),
+         readable:cached?.readable||getReadable(r.id),studioData:cached?.studioData||r.studioData||null,
+         youtubeId:String(r.youtubeId||'')
+       });
+       if(!await syncLocalRecipe(r.id,{silent:true,refresh:false}))throw Error('HealthHub felhőmentés nem sikerült');
+       own.add(r.id);migrated++;
+     }catch(e){blocked++;console.warn('Régi Puter-recept megőrizve, átvétel várakozik:',r.id,e)}
+   }
+   // Copy legacy Puter KV only when its read allowance is available; never overwrite HealthHub edits.
+   if(await canCloudIOV1159()){
+     for(const prefix of [RECIPE_META_KEY_PREFIX,TASTE_KEY_PREFIX,NUTRI_KEY_PREFIX]){
+       try{
+         const rows=await puter.kv.list(prefix+'*',true);
+         for(const entry of rows){
+           const key=entry?.key, value=entry?.value;
+           if(!key||!value||await HH_OWN_RECIPE_CLOUD_V1.getValue(key))continue;
+           await HH_OWN_RECIPE_CLOUD_V1.putValue(key,value);
+         }
+       }catch(e){console.warn('Régi Puter-beállítások részleges átvétele:',prefix,e);blocked++}
+     }
+     try{
+       const oldCategory=await puter.kv.get(CATEGORY_CONFIG_KEY);
+       if(oldCategory&&!await HH_OWN_RECIPE_CLOUD_V1.getValue(CATEGORY_CONFIG_KEY))
+         await HH_OWN_RECIPE_CLOUD_V1.putValue(CATEGORY_CONFIG_KEY,oldCategory);
+     }catch(e){console.warn('Régi kategóriák átadása várakozik:',e);blocked++}
+   }else blocked++;
+   await loadCloudRecipeMeta();await loadCategoryConfig();await loadTasteFeedback();await loadNutritionCache();
+   await loadSharedRecipes(true);await loadCustomRecipes();renderHome();renderPending();
+   status.textContent='HealthHub átvétel: '+migrated+' új recept átmentve, '+blocked+' elem ellenőrzésre vár. A Puter-adatok változatlanok.';
+   toast('☁ '+migrated+' recept átvéve. Régi adat nem törölve.');
+ }finally{busy(false)}
+}
+
 async function syncLocalRecipe(id,{silent=false,refresh=true}={}){
  const row=await dbGet(id);if(!row)return false;
- if(!await canCloudIOV1159()){
-  if(!silent)toast(pendingCloudNoticeV1159());return false;
- }
  try{
-   if(!puterCloudReady())throw new Error("A Puter felhő nem érhető el.");
-   if(!puter.auth.isSignedIn())await ensurePuterSignIn();
-   if(!silent)busy(true,"Mentés a központi Recepttárba…");
-   const base=CLOUD_DIR+"/"+id,cardMime=row.mime||row.blob?.type||"image/jpeg",cardExt=cardMime.includes("png")?"png":cardMime.includes("webp")?"webp":cardMime.includes("svg")?"svg":cardMime.includes("pdf")?"pdf":"jpg",cardPath=base+"/card."+cardExt;
-   const oldShared=sharedRecipes.find(r=>r.id===id),heroPath=row.heroBlob?base+"/hero.jpg":oldShared?.heroPath||null,processPath=row.processBlob?base+"/process.jpg":oldShared?.processPath||null;
-   await puter.fs.write(cardPath,row.blob,{createMissingParents:true,overwrite:true});
-   if(row.heroBlob)await puter.fs.write(heroPath,row.heroBlob,{createMissingParents:true,overwrite:true});
-   if(row.processBlob)await puter.fs.write(processPath,row.processBlob,{createMissingParents:true,overwrite:true});
-   const entry={id,title:row.title,category:row.category,cardPath,heroPath,processPath,mime:cardMime,originalName:row.originalName||row.title+".jpg",createdAt:row.createdAt||Date.now(),updatedAt:new Date().toISOString(),readable:row.readable||null,studioData:row.studioData||null,youtubeId:String(row.youtubeId||getMeta(id).youtubeId||"")};
-   await puter.kv.set(CLOUD_KEY_PREFIX+id,entry);
-   const check=await puter.kv.get(CLOUD_KEY_PREFIX+id),checkBlob=await puter.fs.read(cardPath);
-   if(!check||check.cardPath!==cardPath||checkBlob.size!==row.blob.size)throw new Error("A felhőmentés visszaolvasása sikertelen.");
+   if(!HH_OWN_RECIPE_CLOUD_V1?.available||!await HH_OWN_RECIPE_CLOUD_V1.available()){
+     if(!silent)toast('💾 Recept helyben mentve. HealthHub-belépés után szinkronizálható.');
+     return false;
+   }
+   if(!silent)busy(true,'Mentés a saját HealthHub-tárhelyre…');
+   await HH_OWN_RECIPE_CLOUD_V1.putRecipe(row);
    row.pending=false;await dbPut(row);
    if(refresh){await loadSharedRecipes(true);await loadCustomRecipes();renderHome();renderPending()}
-   if(!silent)toast("✓ Központi mentés kész. Másik gépen is megnyitható.");
-   return true
- }catch(e){console.error(e);if(!silent)toast("Központi mentési hiba: "+(e.msg||e.message||e));return false}
- finally{if(!silent)busy(false)}
+   if(!silent)toast('✓ Recept mentve a HealthHub saját felhőjébe.');
+   return true;
+ }catch(e){
+   console.warn('HealthHub saját receptmentés függőben, helyi másolat megmaradt:',e);
+   if(!silent)toast('💾 Helyben mentve. Központi mentésre vár.');
+   return false;
+ }finally{if(!silent)busy(false)}
 }
 async function syncPendingToCloud(){
- if(!puterCloudReady()||!puter.auth.isSignedIn()||!await canCloudIOV1159())return 0;
+ if(!await HH_OWN_RECIPE_CLOUD_V1?.available?.())return 0;
  const rows=(await dbAll()).filter(r=>r.pending);
  let ok=0;for(const row of rows){if(await syncLocalRecipe(row.id,{silent:true,refresh:false}))ok++}
  await flushMetaPendingV1159();
@@ -1532,7 +1606,6 @@ async function syncPendingToCloud(){
  if(ok){await loadSharedRecipes(true);await loadCustomRecipes();renderHome();renderPending()}
  return ok
 }
-
 function renderPending(){const box=$("#pendingList");box.innerHTML="";const list=customRecipes.slice().sort((a,b)=>a.title.localeCompare(b.title,"hu"));if(!list.length){const e=document.createElement("div");e.className="empty-admin";e.textContent="Nincs csak helyben tárolt új recept.";box.appendChild(e);return}list.forEach(r=>{const row=document.createElement("div");row.className="deleted-item";const main=document.createElement("div");main.className="deleted-main",t=document.createElement("div");t.className="deleted-title";t.textContent=r.title;const c=document.createElement("div");c.className="deleted-cat";c.textContent=r.category+(r.pending?" · szinkronra vár":" · feltöltve, frissítésre vár");main.append(t,c);const b=document.createElement("button");b.className="sync-btn";b.textContent=r.pending?"☁ Feltöltés":"✓ Fent";b.disabled=!r.pending;b.onclick=()=>syncLocalRecipe(r.id);row.append(main,b);box.appendChild(row)})}
 function clearRecipeLocalState(id,{keepMeta=false}={}){
  const exact=[keyFav(id),keyText(id),keyReadable(id),feedbackKey(id),nutriLocalKey(id),cookStepKey(id)];
@@ -1553,33 +1626,30 @@ function puterDeleteNotFound(error){
  return code.includes("not_found")||code.includes("not-found")||message.includes("not found")||message.includes("nem található")
 }
 async function deleteCloudRecipeData(id){
- if(!await canCloudIOV1159())throw new Error('A Puter keret alacsony. A felhőadatok törlését biztonságból leállítottam.');
- if(!puterCloudReady())throw new Error("A Puter felhő nem érhető el.");
- if(!puter.auth.isSignedIn())await ensurePuterSignIn();
- try{await puter.fs.delete(CLOUD_DIR+"/"+id,{recursive:true})}catch(e){if(!puterDeleteNotFound(e))throw e}
- await puter.kv.del(CLOUD_KEY_PREFIX+id);
- await Promise.allSettled([
-   puter.kv.del(RECIPE_META_KEY_PREFIX+id),
-   puter.kv.del(TASTE_KEY_PREFIX+id),
-   puter.kv.del(NUTRI_KEY_PREFIX+id)
- ])
+ if(!await HH_OWN_RECIPE_CLOUD_V1?.available?.())throw Error('A végleges felhőtörléshez HealthHub-belépés szükséges.');
+ await HH_OWN_RECIPE_CLOUD_V1.deleteRecipe(id);
+ for(const prefix of [RECIPE_META_KEY_PREFIX,TASTE_KEY_PREFIX,NUTRI_KEY_PREFIX]){
+   await HH_OWN_RECIPE_CLOUD_V1.deleteValue(prefix+id)
+ }
 }
 async function permanentlyDeleteRecipe(id){
  const r=getRecipe(id);if(!r||!r.deleted)return;
- const builtIn=baseRecipes.some(x=>x.id===id),cloudRecipe=sharedRecipes.some(x=>x.id===id);
+ const builtIn=baseRecipes.some(x=>x.id===id),cloudRecipe=sharedRecipes.some(x=>x.id===id),legacyOnly=sharedRecipes.some(x=>x.id===id&&x.storage==="puter")&&!sharedRecipes.some(x=>x.id===id&&x.storage==="supabase");
  const action=builtIn?"véglegesen elrejted":"véglegesen törlöd";
  if(!confirm("Biztosan "+action+" ezt a receptet?\n\n"+r.title+"\n\nEz a művelet nem vonható vissza."))return;
  const answer=prompt("Biztonsági megerősítésként írd be: TÖRLÉS");
  if(norm(answer)!=="torles"){if(answer!==null)toast("A végleges törlés megszakadt.");return}
  busy(true,builtIn?"Recept végleges elrejtése…":"Recept végleges törlése…");
  try{
-   if(cloudRecipe)await deleteCloudRecipeData(id);
+   if(cloudRecipe&&!legacyOnly)await deleteCloudRecipeData(id);
    try{await dbDelete(id)}catch(e){console.warn("A helyi receptrekord nem törölhető",e);if(!builtIn&&!cloudRecipe)throw e}
    sharedRecipes.filter(x=>x.id===id).forEach(x=>x._url&&URL.revokeObjectURL(x._url));
    customRecipes.filter(x=>x.id===id).forEach(x=>x._url&&URL.revokeObjectURL(x._url));
    sharedRecipes=sharedRecipes.filter(x=>x.id!==id);customRecipes=customRecipes.filter(x=>x.id!==id);delete sharedReadable[id];
-   if(builtIn){
-     const m={...getMeta(id),deleted:true,permanentlyDeleted:true,updatedAt:new Date().toISOString()};setMeta(id,m);await saveRecipeMetaCloud(id,m);clearRecipeLocalState(id,{keepMeta:true})
+   if(builtIn||legacyOnly){
+     // Puter stays read-only: retain a tombstone instead of deleting legacy cloud files.
+     const m={...getMeta(id),deleted:true,permanentlyDeleted:true,updatedAt:new Date().toISOString()};
+     setMeta(id,m);await saveRecipeMetaCloud(id,m);clearRecipeLocalState(id,{keepMeta:true})
    }else clearRecipeLocalState(id);
    renderDeleted();renderPending();renderHome();toast(builtIn?"Recept véglegesen elrejtve.":"Recept véglegesen törölve.")
  }catch(e){
@@ -2131,7 +2201,8 @@ $("#saveStructured").onclick=saveStructuredReadable;
 $("#clearStructured").onclick=clearStructuredOverride;
 $("#studioBtn").onclick=openStudio;$("#addRecipeBtn").onclick=openAdd;$("#chooseImageBtn").onclick=()=>$("#newImageInput").click();$("#newImageInput").onchange=e=>handleNewImage(e.target.files&&e.target.files[0]);$("#saveNewRecipe").onclick=saveNew;
 $("#topHome").onclick=()=>showHome(true);$("#homeBtn").onclick=()=>showHome(true);$("#healthRadarExportBtn").onclick=()=>toast("❤️ HealthRadar export előkészítve. Ezt a funkciót később aktiváljuk.");$("#backBtn").onclick=()=>history.back();$("#shareBtn").onclick=shareCurrentRecipe;$("#editBtn").onclick=openEdit;$("#editFullRecipeBtn").onclick=openCurrentRecipeInStudio;$("#replaceCardImageBtn").onclick=()=>{if(!currentId)return;$("#replaceCardImageInput").value="";$("#replaceCardImageInput").click()};$("#replaceCardImageInput").onchange=e=>replaceCurrentCardImage(e.target.files?.[0]);$("#editRegenerateCard").onclick=openCurrentRecipeInStudio;$("#navHome").onclick=()=>showHome(true);$("#navFav").onclick=()=>{favoritesOnly=true;showHome(true)};$("#navAdmin").onclick=openAdmin;$("#navAsk").onclick=askLena;
-$("#closeAdmin").onclick=()=>$("#adminDialog").close();$("#addCategoryBtn").onclick=addManagedCategory;$("#newCategoryName").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();addManagedCategory()}});$("#adminStudio").onclick=()=>{$("#adminDialog").close();openStudio()};$("#adminAddRecipe").onclick=()=>{$("#adminDialog").close();openAdd()};$("#syncSettingsBtn").onclick=openSyncSettings;$("#closeSync").onclick=()=>$("#syncDialog").close();$("#cloudSignIn").onclick=()=>cloudSignIn(false);$("#cloudSwitchAccount").onclick=()=>cloudSignIn(true);$("#cloudRefresh").onclick=cloudRefresh;
+$("#closeAdmin").onclick=()=>$("#adminDialog").close();$("#addCategoryBtn").onclick=addManagedCategory;$("#newCategoryName").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();addManagedCategory()}});$("#adminStudio").onclick=()=>{$("#adminDialog").close();openStudio()};$("#adminAddRecipe").onclick=()=>{$("#adminDialog").close();openAdd()};$("#syncSettingsBtn").onclick=openSyncSettings;$("#closeSync").onclick=()=>$("#syncDialog").close();$("#cloudSignIn").onclick=cloudSignIn;$("#cloudSwitchAccount").onclick=cloudSignIn;$("#cloudRefresh").onclick=cloudRefresh;
+$("#importLegacyPuterV1").onclick=importLegacyPuterV1;
 $("#closeStudio").onclick=()=>$("#studioDialog").close();
 $("#recipeImage").onclick=()=>{if(!document.body.classList.contains("original-card-fullscreen"))openRecipePhoto()};$("#closePhotoLightbox").onclick=closeRecipePhoto;$("#photoLightbox").onclick=e=>{if(e.target===$("#photoLightbox"))closeRecipePhoto()};$("#photoLightbox").addEventListener("close",()=>{if(photoLightboxObjectUrl){URL.revokeObjectURL(photoLightboxObjectUrl);photoLightboxObjectUrl=null}});
 $("#studioGenerate").onclick=studioGenerate;$("#studioGenerateImage").onclick=studioGenerateImage;$("#studioFridgeCameraBtn").onclick=()=>$("#studioFridgeCamera").click();$("#studioFridgeGalleryBtn").onclick=()=>$("#studioFridgeGallery").click();$("#studioFridgeCamera").onchange=e=>analyzeFridgePhoto(e.target.files&&e.target.files[0]);$("#studioFridgeGallery").onchange=e=>analyzeFridgePhoto(e.target.files&&e.target.files[0]);$("#studioUseInventory").onclick=()=>useFridgeInventory();$("#studioCardTab").onclick=()=>setStudioPreviewMode("card");$("#studioReadableTab").onclick=()=>setStudioPreviewMode("readable");
@@ -2145,8 +2216,8 @@ $("#recipeVideoCard").onclick=openYoutubePlayer;$("#closeYoutube").onclick=close
 $("#editYoutubeUrl").addEventListener("input",renderEditYoutubePreview);$("#editYoutubeClear").onclick=()=>{$("#editYoutubeUrl").value="";renderEditYoutubePreview();$("#editYoutubeUrl").focus()};
 $("#favBtn").onclick=()=>{if(!currentId)return;setFav(currentId,!isFav(currentId));$("#favBtn").textContent=isFav(currentId)?"★":"☆"};$("#originalMode").onclick=toggleOriginalFullscreen;$("#readableMode").onclick=()=>setMode("readable");$("#editReadable").onclick=editText;$("#saveRecipe").onclick=saveEdit;$("#deleteRecipe").onclick=deleteCurrent;$("#resetRecipe").onclick=resetCurrent;
 $("#saveText").onclick=()=>{if(!currentId)return;setText(currentId,$("#textEditor").value);$("#textDialog").close();const t=getText(currentId);$("#readableText").textContent=t;$("#readableMode").hidden=!t;if(t){setMode("readable");toast("Javított receptszöveg elmentve.")}else{setMode("original");toast("Olvasható szöveg törölve.")}};
-/* v1155 context: canonical Puter KV and recipe state stay here.
- * The companion Golden Standard automation only calls these narrow methods. */
+/* v1163: recipe metadata and nutrition live in HealthHub private storage.
+ * Puter is retained only for optional AI generation and legacy read-only import. */
 window.LENA_NUTRI_STANDARD_CONTEXT_V1155=Object.freeze({
  allRecipes,getRecipe,getReadable,getNutrition,recipeServingText,
  puterAvailable,ensureSignedIn:ensurePuterSignIn,loadNutritionCache,
@@ -2161,14 +2232,8 @@ window.LENA_NUTRI_STANDARD_CONTEXT_V1155=Object.freeze({
   }
   return parseRecipeJson(puterText(response));
  },
- setCloudNutrition:async(id,value)=>{
-  if(!await canCloudIOV1159())throw new Error('Puter-keret alacsony; a Nutri Info felhőmentése szünetel.');
-  return puter.kv.set(NUTRI_KEY_PREFIX+id,value);
- },
- getCloudNutrition:async id=>{
-  if(!await canCloudIOV1159())throw new Error('Puter-keret alacsony; felhőolvasás szünetel.');
-  return puter.kv.get(NUTRI_KEY_PREFIX+id);
- },
+ setCloudNutrition:async(id,value)=>HH_OWN_RECIPE_CLOUD_V1.putValue(NUTRI_KEY_PREFIX+id,value),
+ getCloudNutrition:async id=>HH_OWN_RECIPE_CLOUD_V1.getValue(NUTRI_KEY_PREFIX+id),
  cacheNutrition:(id,value)=>{localStorage.setItem(nutriLocalKey(id),JSON.stringify(value));nutritionCache[id]=value;},
  renderNutrition:id=>{
   if(currentId===id){renderRecipeNutriStrip(id);renderNutriCard(id)}
@@ -2202,5 +2267,5 @@ function openInitialRoute(preservePending=false){
  else if(!currentId)renderHome();
  window.LENA_NUTRI_STANDARD_V1155?.refresh?.();
  updateStudioProviderBadge();
- if(puterCloudReady()&&puter.auth.isSignedIn())await syncPendingToCloud();
+ if(await HH_OWN_RECIPE_CLOUD_V1?.available?.())await syncPendingToCloud();
 })().catch(e=>{console.error(e);renderHome()});

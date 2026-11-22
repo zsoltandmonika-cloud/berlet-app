@@ -49,8 +49,8 @@ test('Food > Cookbook enters Studio in explicit profile-bound import mode only',
 test('Studio remains normally browsable, import mode requires explicit query and single card click',()=>{
  assert.match(studioHTML,/hh-cookbook-portion-math-v1154\.js/);
  assert.match(studioHTML,/hh-nutrition-export-v1154\.js/);
- assert.ok(studioHTML.indexOf('hh-cookbook-portion-math-v1154.js')<studioHTML.indexOf('app.js?v=1154'));
- assert.ok(studioHTML.indexOf('app.js?v=1154')<studioHTML.indexOf('hh-nutrition-export-v1154.js'));
+ assert.ok(studioHTML.indexOf('hh-cookbook-portion-math-v1154.js')<studioHTML.indexOf('app.js?v=1163'));
+ assert.ok(studioHTML.indexOf('app.js?v=1163')<studioHTML.indexOf('hh-nutrition-export-v1154.js'));
  assert.match(studioJS,/a\.dataset\.recipeId=r\.id/);
  assert.match(studioJS,/LENA_RECIPE_NUTRITION_EXPORT_V1154/);
  assert.match(studioHTML,/hhAdd320ButtonV1160/);
@@ -62,12 +62,12 @@ test('Studio remains normally browsable, import mode requires explicit query and
  assert.match(studioBridge,/sessionStorage\.setItem\(storageKey,JSON\.stringify\(payload\)\)/);
  assert.doesNotMatch(studioBridge,/\.recordCookbookPortion\(/);
 });
-test('Cooked yield saves only after Puter verification; no assumption from recipe count',()=>{
+test('Cooked yield saves only after HealthHub verification; no assumption from recipe count',()=>{
  assert.match(studioHTML,/id="nutriFinishedWeightV1154"/);
  assert.match(studioHTML,/id="nutriSaveWeightV1154"/);
  assert.match(studioJS,/async function saveFinishedWeightV1154/);
- assert.match(studioJS,/puter\.kv\.set\(NUTRI_KEY_PREFIX\+id,next\)/);
- assert.match(studioJS,/puter\.kv\.get\(NUTRI_KEY_PREFIX\+id\)/);
+ assert.match(studioJS,/HH_OWN_RECIPE_CLOUD_V1\.putValue\(NUTRI_KEY_PREFIX\+id,next\)/);
+ assert.match(studioJS,/HH_OWN_RECIPE_CLOUD_V1\.getValue\(NUTRI_KEY_PREFIX\+id\)/);
  assert.match(studioJS,/finishedWeightGrams/);
 });
 test('Nutrition imports one profile-specific immutable snapshot using the existing diary',()=>{
