@@ -41,7 +41,7 @@ test('v1173: both Family Guard viewers fail closed for unverified Monika browser
  assert.match(live,/const relay=w\.HH_GUARDIAN_GPS_ROUTER_V1177/);
  assert.match(live,/const selected=nativeFix&&peerSnapshot\(nativeFix\)\?nativeFix:null/);
  assert.match(f,/const dbRead=Promise\.resolve\(\{data:null,error:null\}\)/);
- assert.match(html,/guardian-live-v785\.js\?v=[^"\n]*owner=v1174/);
- assert.match(html,/guardian-profile-follow-v837\.js\?v=[^"\n]*owner=v1174/);
+ assert.match(html,/guardian-live-v785\.js\?v=[^"\n]*fix=native-only-20261122/);
+ assert.match(html,/guardian-profile-follow-v837\.js\?v=[^"\n]*native=156/);
  assert.doesNotMatch(f,/navigator\.geolocation|watchPosition|\.upsert\(|files\/upload/);
 });
