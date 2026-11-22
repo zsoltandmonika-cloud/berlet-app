@@ -521,7 +521,8 @@
     <button id="cloudSwitchAccount" type="button" class="outline-btn">⇄ HealthHub fiók</button>
     <button id="cloudRefresh" type="button" class="outline-btn">↻ Frissítés</button>
   </div>
-  <form id="syncLoginFormV1164" hidden style="display:grid;gap:10px;margin:14px 0 9px;padding:15px;border:1px solid rgba(172,223,225,.28);border-radius:16px;background:rgba(15,36,44,.45)">
+  <style>#syncLoginFormV1164[hidden]{display:none!important}#syncLoginFormV1164:not([hidden]){display:grid}</style>
+  <form id="syncLoginFormV1164" hidden style="gap:10px;margin:14px 0 9px;padding:15px;border:1px solid rgba(172,223,225,.28);border-radius:16px;background:rgba(15,36,44,.45)">
     <label for="syncEmailV1164" style="font-weight:700">HealthHub e-mail</label>
     <input id="syncEmailV1164" name="email" class="field-input" type="email" autocomplete="username" required placeholder="E-mail-cím">
     <label for="syncPasswordV1164" style="font-weight:700">Jelszó</label>
