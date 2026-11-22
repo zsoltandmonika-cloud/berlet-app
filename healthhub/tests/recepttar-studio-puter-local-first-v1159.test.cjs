@@ -25,7 +25,7 @@ function boot(remaining,options={}){
 }
 test('Quota guard is loaded ahead of Studio app, without altering Puter UI',()=>{
  assert.match(html,/hh-puter-credit-gate-v1159\.js/);
- assert.ok(html.indexOf('hh-puter-credit-gate-v1159.js')<html.indexOf('app.js?v=1154'));
+ assert.ok(html.indexOf('hh-puter-credit-gate-v1159.js')<html.indexOf('app.js?v=1163'));
  assert.doesNotMatch(gate,/requestUpgrade|MutationObserver|querySelector\(|setInterval\(|\.style\./);
  assert.doesNotThrow(()=>new vm.Script(gate));
  assert.doesNotThrow(()=>new vm.Script(app));
@@ -55,14 +55,14 @@ test('Usable funds allow sync; unsigned/unknown balances fail closed safely',asy
 });
 test('All cloud bulk/background operations use credit gate',()=>{
  assert.match(app,/async function canCloudIOV1159\(\)/);
- assert.match(app,/async function loadSharedRecipes\(force=false\)/);
- assert.match(app,/if\(!await canCloudIOV1159\(\)\)return !!sharedRecipes\.length/);
- assert.match(app,/if\(!force&&cached&&RECIPE_ASSET_CACHE_V1\?\.fresh\(cached\)/);
- assert.match(app,/async function syncLocalRecipe\(id,\{silent=false,refresh=true\}=\{\}\)\{\s*const row=await dbGet\(id\);if\(!row\)return false;\s*if\(!await canCloudIOV1159\(\)\)/);
- assert.match(app,/async function syncPendingToCloud\(\)\{\s*if\(!puterCloudReady\(\)\|\|!puter\.auth\.isSignedIn\(\)\|\|!await canCloudIOV1159\(\)\)return 0/);
- assert.match(app,/async function loadTasteFeedback\(\)[\s\S]*?await canCloudIOV1159\(\)/);
- assert.match(app,/async function loadNutritionCache\(\)[\s\S]*?await canCloudIOV1159\(\)/);
- assert.match(app,/async function loadCloudRecipeMeta\(\)[\s\S]*?await canCloudIOV1159\(\)/);
+ assert.match(app,/async function loadSharedRecipes\(force=false,readLegacy=false\)/);
+ assert.match(app,/if\(readLegacy&&await canCloudIOV1159\(\)\)/);
+ assert.match(app,/if\(force\|\|!cached\|\|!RECIPE_ASSET_CACHE_V1\?\.fresh\(cached\)/);
+ assert.match(app,/async function syncLocalRecipe\(id,\{silent=false,refresh=true\}=\{\}\)[\s\S]*?HH_OWN_RECIPE_CLOUD_V1\.putRecipe\(row\)/);
+ assert.match(app,/async function syncPendingToCloud\(\)\{\s*if\(!await HH_OWN_RECIPE_CLOUD_V1\?\.available\?\.\(\)\)return 0/);
+ assert.match(app,/async function loadTasteFeedback\(\)[\s\S]*?HH_OWN_RECIPE_CLOUD_V1\.listValues\(TASTE_KEY_PREFIX\)/);
+ assert.match(app,/async function loadNutritionCache\(\)[\s\S]*?HH_OWN_RECIPE_CLOUD_V1\.listValues\(NUTRI_KEY_PREFIX\)/);
+ assert.match(app,/async function loadCloudRecipeMeta\(\)[\s\S]*?HH_OWN_RECIPE_CLOUD_V1\.listValues\(RECIPE_META_KEY_PREFIX\)/);
 });
 test('Manual recipe saves remain local-first, no required account login before local write',()=>{
  for(const f of ['saveEdit','saveNew','studioFinalize','saveStructuredReadable','replaceCurrentCardImage']){
@@ -85,7 +85,7 @@ test('Manual cooked weight is stored locally and later queued for cloud',()=>{
  assert.match(app,/markMetaPendingV1159\(id,false\)/);
 });
 test('Provider credit state never pretends local pending writes were cloud synced',()=>{
- assert.match(app,/if\(!await canCloudIOV1159\(\)\)\{\s*if\(!silent\)toast\(pendingCloudNoticeV1159\(\)\);return false/);
+ assert.match(app,/if\(!HH_OWN_RECIPE_CLOUD_V1\?\.available\|\|!await HH_OWN_RECIPE_CLOUD_V1\.available\(\)\)/);
  assert.match(app,/const savedMessage=synced\?/);
  assert.match(app,/if\(synced\)await loadSharedRecipes\(true\)/);
 });
