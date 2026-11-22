@@ -43,7 +43,7 @@ test('Dropbox failures expose a safe stage and HTTP code without GPS or OAuth se
   assert.match(worker, /putString\("last_orchestrator_error", diagnostic\)/);
   assert.match(gps, /"network-error:" \+ DropboxVaultClient\.safeDiagnosticCode\(e\)/);
   assert.match(main, /"⚠ Dropbox feltöltési hiba · "/);
-  assert.doesNotMatch(dropbox, /fun safeDiagnosticCode[\s\S]*?fun uploadText\(/g);
+  assert.match(dropbox, /val stage = when/);
 });
 
 test('existing owner consent and STOP privacy contract remains intact', () => {
