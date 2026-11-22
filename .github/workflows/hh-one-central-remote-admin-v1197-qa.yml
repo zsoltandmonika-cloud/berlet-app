@@ -1,0 +1,24 @@
+name: HH One Central Remote Admin v1197 QA
+on:
+  pull_request:
+    paths:
+      - 'healthhub/hh-one-rag-v500.js'
+      - 'healthhub/tests/hh-one-service-central-remote-admin-v1197.test.cjs'
+      - '.github/workflows/hh-one-central-remote-admin-v1197-qa.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  central-remote-admin:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate HH One Service Center source
+        run: node --check healthhub/hh-one-rag-v500.js
+      - name: Verify centrally matched owner, Dropbox registry and GPS repair dispatch
+        run: node --test healthhub/tests/hh-one-service-central-remote-admin-v1197.test.cjs
