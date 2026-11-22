@@ -119,7 +119,7 @@ test('Adequate balance allows existing AI generation and verification',async()=>
  assert.equal(s.api.stats().ready,1);
 });
 test('A credit rejection is fail-fast during bulk operation (no three repeated SDK prompts)',()=>{
- assert.match(automation,/if\(isCreditFailure\(e\)\)\{/);
+ assert.match(automation,/classifyProviderError\(e\)/);
  assert.match(automation,/creditStopped=true/);
  assert.match(automation,/if\(!stopRequested&&!creditStopped&&consecutive<3\)/);
  assert.match(app,/getMonthlyUsage:\(\)=>puter\.auth\.getMonthlyUsage\(\)/);
@@ -181,5 +181,5 @@ test('One-recipe trial performs at most one AI call even if more recipes need nu
 test('Single-recipe trial control is present, no bulk run starts on page load',()=>{
  assert.match(html,/id="nutriSingleStartV1165"/);
  assert.match(automation,/one\?\.addEventListener\('click',\(\)=>void batch\(1\)\)/);
- assert.match(automation,/if\(isCreditFailure\(e\)\)/);
+ assert.match(automation,/classifyProviderError\(e\)/);
 });
