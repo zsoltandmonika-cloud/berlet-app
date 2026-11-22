@@ -35,7 +35,7 @@ function setup(){
  const window={LENA_NUTRI_STANDARD_CONTEXT_V1155:context};
  const document={getElementById:id=>elements[id]||null};
  vm.runInNewContext(automation,{window,document,setTimeout,console}, {filename:'golden-auto.js'});
- return {api:window.LENA_NUTRI_STANDARD_V1155,context,cache,remote,elements,
+ return {api:window.LENA_NUTRI_STANDARD_V1155,context,cache,remote,elements,window,
   aiCalls:()=>aiCalls,signIns:()=>signIn};
 }
 
@@ -123,4 +123,25 @@ test('A credit rejection is fail-fast during bulk operation (no three repeated S
  assert.match(automation,/creditStopped=true/);
  assert.match(automation,/if\(!stopRequested&&!creditStopped&&consecutive<3\)/);
  assert.match(app,/getMonthlyUsage:\(\)=>puter\.auth\.getMonthlyUsage\(\)/);
+});
+
+test('Temporary credit lookup failure does not falsely report exhausted Puter credits',async()=>{
+ const s=setup();
+ s.window.LENA_PUTER_CREDIT_GATE_V1159={check:async()=>({allowed:false,reason:'usage-unavailable'})};
+ const result=await s.api.generateOne('recipe-1');
+ assert.equal(result.ok,true);
+ assert.equal(s.aiCalls(),1);
+ assert.equal(s.api.stats().ready,1);
+});
+test('Confirmed low Puter balance is still blocked safely',async()=>{
+ const s=setup();
+ s.window.LENA_PUTER_CREDIT_GATE_V1159={check:async()=>({allowed:false,reason:'low-balance',remaining:0})};
+ await assert.rejects(s.api.generateOne('recipe-1'),/alacsony/i);
+ assert.equal(s.aiCalls(),0);
+});
+test('Missing HealthHub write connection cannot consume Puter AI credits',async()=>{
+ const s=setup();s.context.healthHubReady=async()=>false;
+ await assert.rejects(s.api.generateOne('recipe-1'),/HealthHub-belépés/);
+ assert.equal(s.aiCalls(),0);
+ assert.equal(s.remote.size,0);
 });
