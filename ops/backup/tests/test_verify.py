@@ -60,6 +60,15 @@ class RecoveryManifestTests(unittest.TestCase):
         self.assertIn('--immutable',code)
 
 
+    def test_cloud_status_requires_remote_metadata_readback_and_large_runner(self):
+        code=(SCRIPT.parent/'nightly-full-backup.sh').read_text()
+        self.assertIn('check_capacity.py', code)
+        self.assertIn('remote-sha256.txt', code)
+        self.assertIn('remote-status.json', code)
+        self.assertIn('cmp --silent "$out/status.json" "$out/remote-status.json"', code)
+        self.assertIn('full_system', code)
+        self.assertLess(code.index('check_capacity.py'), code.index('git clone'))
+
     def test_offline_restore_verifies_all_bytes_and_detects_damage(self):
         import sys
         sys.path.insert(0, str(SCRIPT.parent))
