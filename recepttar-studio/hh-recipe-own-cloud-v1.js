@@ -133,13 +133,20 @@
    const rows=await request('/rest/v1/'+KV+'?'+q.toString());
    return rows?.[0]?.value||null;
  }
+ function canonical(value){
+   if(Array.isArray(value))return value.map(canonical);
+   if(value&&typeof value==='object'){
+     const next={};for(const k of Object.keys(value).sort())next[k]=canonical(value[k]);return next;
+   }
+   return value;
+ }
  async function putValue(key,value){
    const who=await user(),payload={key:String(key),value,household:HOUSE,
      updated_at:new Date().toISOString(),created_by:who.id};
    const result=await request('/rest/v1/'+KV+'?on_conflict=key',{method:'POST',
      headers:{'Content-Type':'application/json','Prefer':'resolution=merge-duplicates,return=representation'},
      body:JSON.stringify(payload)});
-   if(!Array.isArray(result)||result[0]?.key!==key||JSON.stringify(result[0]?.value)!==JSON.stringify(value))
+   if(!Array.isArray(result)||result[0]?.key!==key||JSON.stringify(canonical(result[0]?.value))!==JSON.stringify(canonical(value)))
      throw Error('Recept-beállítás visszaellenőrzése sikertelen.');
    return true;
  }
@@ -154,9 +161,11 @@
    const match=new URLSearchParams({id:'eq.'+id});
    await request('/rest/v1/'+TABLE+'?'+match.toString(),{method:'DELETE'});
    const paths=[item.card_path,item.hero_path,item.process_path].filter(Boolean);
-   for(const path of paths){
-     try{await request('/storage/v1/object/'+BUCKET+'/'+encodedPath(path),{method:'DELETE'})}
-     catch(e){console.warn('Privát receptkép törlése később pótolható:',e)}
+   if(paths.length){
+     try{
+       await request('/storage/v1/object/'+BUCKET,{method:'DELETE',
+         headers:{'Content-Type':'application/json'},body:JSON.stringify({prefixes:paths})});
+     }catch(e){console.warn('Privát receptképek törlése később pótolható:',e)}
    }
    return true;
  }
