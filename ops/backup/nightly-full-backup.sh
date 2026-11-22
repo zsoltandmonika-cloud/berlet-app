@@ -29,6 +29,17 @@ printf '%s' "$SHO_RECOVERY_ESCROW_B64" | base64 -d > "$stage/recovery/escrow.age
 for remote in dropbox onedrive supa_s3; do
   rclone listremotes | grep -qx "${remote}:" || { echo "::error::Missing rclone remote: $remote" >&2; exit 2; }
 done
+# Capacity is diagnostic only: a full Dropbox must not block reading its backups.
+for remote in dropbox onedrive; do
+  if rclone about "$remote:" --json > "$work/$remote-quota.json" 2>/dev/null; then
+    percent="$(jq -r 'if (.total // 0)>0 then ((.used // 0)*100/(.total))|floor else 0 end' "$work/$remote-quota.json")"
+    if (( percent >= 80 )); then
+      echo "::warning::Storage capacity warning: $remote is ${percent}% occupied"
+    fi
+  else
+    echo "::warning::Capacity unavailable for $remote; backup integrity checks remain mandatory"
+  fi
+done
 
 # Mirror complete Git history; GitHub private repo uses a read-only owner grant.
 cat > "$work/askpass.sh" <<'ASK'
