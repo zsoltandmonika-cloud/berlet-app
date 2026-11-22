@@ -54,3 +54,17 @@ test('existing owner consent and STOP privacy contract remains intact', () => {
   assert.match(gps, /put\("active", false\)/);
   assert.doesNotMatch(worker, /FamilyGuardNativeRelay\.enable\(applicationContext\)/);
 });
+
+test('upload 409 exposes only known Dropbox structural tags, never full error body or secrets', () => {
+  assert.match(dropbox, /internal fun safeUpload409Reason\(message: String\): String\?/);
+  assert.match(dropbox, /JSONObject\(message\.removePrefix\(prefix\)\)\.optString\("error_summary"\)/);
+  for (const tag of ['path/no_write_permission', 'path/conflict/file', 'path/conflict/folder',
+    'path/not_found', 'path/insufficient_space', 'path/too_many_write_operations']) {
+    assert.ok(dropbox.includes('"' + tag + '"'), 'reason allowlist missing: ' + tag);
+  }
+  assert.match(dropbox, /summary == it \|\| summary\.startsWith\("\$it\/"\) \|\| summary\.startsWith\("\$it\."\)/);
+  assert.match(dropbox, /val detail = if \(stage == "upload" && http == "409"\) safeUpload409Reason\(message\)/);
+  assert.match(dropbox, /detail\?\.let \{ "-\$it" \}/);
+  assert.doesNotMatch(dropbox, /putString\(KEY_RESULT,\s*e\.message/);
+  assert.match(gps, /DropboxVaultClient\.safeDiagnosticCode\(e\)/);
+});
