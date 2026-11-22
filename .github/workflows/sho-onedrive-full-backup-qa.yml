@@ -18,6 +18,8 @@ jobs:
       - name: Parse shell and test recovery manifest
         run: |
           bash -n ops/backup/nightly-full-backup.sh
+          bash -n ops/backup/incremental-staging.sh
+          python3 -m py_compile ops/backup/stream_remote_tar.py
           python -m unittest discover -s ops/backup/tests -v
       - name: Read-only credential gate (reports names only, never values)
         env:
