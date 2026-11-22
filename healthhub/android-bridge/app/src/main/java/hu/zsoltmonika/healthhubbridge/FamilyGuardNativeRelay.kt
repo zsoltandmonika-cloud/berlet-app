@@ -47,7 +47,6 @@ object FamilyGuardNativeRelay {
     private val uploadInFlight = AtomicBoolean(false)
     @Volatile private var lastQueuedAt = 0L
     @Volatile private var lastFailureAt = 0L
-    @Volatile private var foldersReady = false
 
     fun prefs(context: Context): SharedPreferences =
         context.getSharedPreferences(SyncScheduler.PREFS, Context.MODE_PRIVATE)
@@ -106,15 +105,6 @@ object FamilyGuardNativeRelay {
             GuardianLegacyRegistryDecision.Result.CONFLICT,
             GuardianLegacyRegistryDecision.Result.INVALID -> false
         }
-    }
-
-    private suspend fun ensureFolder(context: Context) {
-        if (foldersReady) return
-        val p = prefs(context)
-        DropboxVaultClient.ensureFolder(p, DropboxVaultClient.ROOT)
-        DropboxVaultClient.ensureFolder(p, DIRECTORY)
-        DropboxVaultClient.ensureFolder(p, LIVE_DIRECTORY)
-        foldersReady = true
     }
 
     fun publish(context: Context, location: Location, mode: SmartLocationPolicy.Mode) {
@@ -180,7 +170,6 @@ object FamilyGuardNativeRelay {
                     prefs(app).edit().putString(KEY_RESULT, "not-selected-in-device-registry").apply()
                     return@launch
                 }
-                ensureFolder(app)
                 if (!enabled(app) || owner(app) != profile || !Sh9GpsService.active) return@launch
                 // Consent can be withdrawn while an earlier GPS snapshot is
                 // waiting on the upload lock. Remove battery fields again at
@@ -190,16 +179,18 @@ object FamilyGuardNativeRelay {
                     finalPayload.put("battery_pct", JSONObject.NULL)
                         .put("battery_charging", JSONObject.NULL)
                 }
-                DropboxVaultClient.uploadText(prefs(app), latestPath(profile), finalPayload.toString())
+                DropboxVaultClient.uploadTextWithFolderRecovery(
+                    prefs(app), latestPath(profile), finalPayload.toString(),
+                    listOf(DropboxVaultClient.ROOT, DIRECTORY, LIVE_DIRECTORY)
+                )
                 lastFailureAt = 0L
                 prefs(app).edit().putLong(KEY_LAST_UPLOAD, System.currentTimeMillis())
                     .putString(KEY_RESULT, "uploaded").apply()
             } catch (e: Exception) {
                 // Retry at most once a minute on Dropbox errors: no request storm.
                 lastFailureAt = System.currentTimeMillis()
-                foldersReady = false
                 prefs(app).edit().putString(KEY_RESULT,
-                    "network-error:" + e.javaClass.simpleName.take(40)).apply()
+                    "network-error:" + DropboxVaultClient.safeDiagnosticCode(e)).apply()
             } finally {
                 uploadLock.unlock()
                 uploadInFlight.set(false)
@@ -235,18 +226,20 @@ object FamilyGuardNativeRelay {
                     prefs(context).edit().putString(KEY_RESULT, "not-selected-in-device-registry").apply()
                     return true
                 }
-                ensureFolder(context)
-                DropboxVaultClient.uploadText(prefs(context), latestPath(profile),
+                DropboxVaultClient.uploadTextWithFolderRecovery(
+                    prefs(context), latestPath(profile),
                     JSONObject().put("schema", "healthhub.guardian.native/1")
                         .put("source", "HH One Native GPS")
                         .put("profile", profile)
                         .put("active", false)
-                        .put("updated_at", Instant.now().toString()).toString())
+                        .put("updated_at", Instant.now().toString()).toString(),
+                    listOf(DropboxVaultClient.ROOT, DIRECTORY, LIVE_DIRECTORY)
+                )
                 prefs(context).edit().putString(KEY_RESULT, "revoked").apply()
                 true
             } catch (e: Exception) {
                 prefs(context).edit().putString(KEY_RESULT,
-                    "revoke-pending:" + e.javaClass.simpleName.take(40)).apply()
+                    "revoke-pending:" + DropboxVaultClient.safeDiagnosticCode(e)).apply()
                 false
             }
         } finally {

@@ -41,14 +41,6 @@ class OrchestratorWorker(
         return listOf(maker, model).filter { it.isNotBlank() }.joinToString(" ").ifBlank { "Android device" }
     }
 
-    private suspend fun ensureFolders(prefs: android.content.SharedPreferences) {
-        DropboxVaultClient.ensureFolder(prefs, DropboxVaultClient.ROOT)
-        DropboxVaultClient.ensureFolder(prefs, ROOT)
-        DropboxVaultClient.ensureFolder(prefs, DEVICES)
-        DropboxVaultClient.ensureFolder(prefs, COMMANDS)
-        DropboxVaultClient.ensureFolder(prefs, STATUS)
-    }
-
     private suspend fun uploadHeartbeat(
         prefs: android.content.SharedPreferences,
         id: String,
@@ -126,7 +118,10 @@ class OrchestratorWorker(
             .put("lastHealthError", prefs.getString(ResilientHealthSync.KEY_LAST_ERROR, null) ?: JSONObject.NULL)
             .put("lastCommandId", prefs.getString(LAST_COMMAND_KEY, null) ?: JSONObject.NULL)
             .put("visible", false)
-        DropboxVaultClient.uploadText(prefs, DEVICES + "/" + id + ".json", obj.toString(2) + "\n")
+        DropboxVaultClient.uploadTextWithFolderRecovery(
+            prefs, DEVICES + "/" + id + ".json", obj.toString(2) + "\n",
+            listOf(DropboxVaultClient.ROOT, ROOT, DEVICES)
+        )
     }
 
     private suspend fun writeStatus(
@@ -158,7 +153,10 @@ class OrchestratorWorker(
             .put("steps", steps)
             .put("message", message)
         if (technicalSnapshot != null) obj.put("diagnostics", technicalSnapshot)
-        DropboxVaultClient.uploadText(prefs, STATUS + "/" + id + ".json", obj.toString(2) + "\n")
+        DropboxVaultClient.uploadTextWithFolderRecovery(
+            prefs, STATUS + "/" + id + ".json", obj.toString(2) + "\n",
+            listOf(DropboxVaultClient.ROOT, ROOT, STATUS)
+        )
     }
 
     private fun step(id: String, label: String, status: String, error: String? = null): JSONObject =
@@ -243,7 +241,6 @@ class OrchestratorWorker(
         if (!DropboxVaultClient.hasRefreshToken(prefs)) return Result.success()
 
         return try {
-            ensureFolders(prefs)
             uploadHeartbeat(prefs, id, owner)
             // A diagnostic user tap must never consume queued remote commands.
             if (inputData.getBoolean("hh_registry_diagnostic_only", false)) {
@@ -498,10 +495,11 @@ class OrchestratorWorker(
             uploadHeartbeat(prefs, id, owner)
             Result.success()
         } catch (e: Exception) {
-            OneOpsLog.record(prefs, "orchestrator", "retry", e.javaClass.simpleName)
+            val diagnostic = DropboxVaultClient.safeDiagnosticCode(e)
+            OneOpsLog.record(prefs, "orchestrator", "retry", diagnostic)
             prefs.edit()
                 .putLong("last_orchestrator_error_ms", System.currentTimeMillis())
-                .putString("last_orchestrator_error", e.javaClass.simpleName)
+                .putString("last_orchestrator_error", diagnostic)
                 .apply()
             Result.retry()
         }
