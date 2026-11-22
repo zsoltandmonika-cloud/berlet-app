@@ -52,3 +52,21 @@ A kötelező adatforrásokat sikerült beolvasni, archiválni, hash-elni, titkos
 Az automatikusan ellenőrzött **CLOUD_CORE_VERIFIED** azt jelenti, hogy a felhőmag adatforrásai megvannak, titkosítva és OneDrive-ról visszaolvasva. **Nem** jelenti, hogy a teljes SHO telefonos rendszer egyetlen gombbal visszaállítható. A telefonokon esetleg még csak lokálisan tárolt Health Connect/IndexedDB módosítások, Book Studio OneDrive-könyvek és külső Home Media forrásfájlok önálló archiválása, a licencelt Samsung SDK és aláírókulcsok biztonságos megőrzése, valamint a valódi próbavisszaállítás külön kötelező feltételek a teljes rendszermentésre történő minősítéshez.
 
 A 30 napi + 12 havi visszaállítási pont kiválasztását az `ops/backup/retention_plan.py` végzi. Régi mentések automatikus törlése **nincs engedélyezve**, amíg az első független helyreállítási teszt sikeresen le nem futott és a tulajdonos azt külön jóvá nem hagyja. A tárhelyfigyelő 80%-os foglaltságnál figyelmeztet; a forrásoldali tárhelytelítettség nem blokkolhatja a csak olvasási mentést.
+
+
+## Adminból közvetlen kézi mentésindítás (staging)
+
+A \`healthhub/admin-backup/\` panelen a **„Admin mentési hozzáférés ellenőrzése”** után, csak zöld szerveroldali előfeltételekkel, egy **„▶ Kézi teljes mentés indítása”** gomb látható. A Google/Dropbox/OneDrive tárolási jogosultság **SOHA** nem kerül a weboldal JavaScript-kódjába. Az admin a meglévő HealthHub Central Vault bejelentkezését használja, a szerver \`auth/v1/user\` JWT-ellenőrzés és előre konfigurált owner UUID-engedélyezési lista alapján dönt.
+
+Szerveroldali előkészítés, csak tulajdonosi jóváhagyás és az éles rendszerre történő külön release után:
+
+1. Supabase Edge Function: \`supabase/functions/hh-backup-control-v1/index.ts\`, \`verify_jwt=true\`; a közös \`_shared/backup-control-v1.mjs\` modul ugyanebből a PR-ből kerül fel. **PR-ben nem települ** és nem változtat Supabase táblákat.
+2. Az Edge Function privát környezetében \`SHO_BACKUP_GITHUB_DISPATCH_TOKEN\`: fine-grained GitHub PAT, kizárólag a **berlet-app Actions: Read and write** jogkörrel; ne használjunk globális account tokent.  A \`SUPABASE_ANON_KEY\` vagy \`SUPABASE_PUBLISHABLE_KEY\` csak felhasználó-jogosultságellenőrzésre kell, nem service_role.
+3. \`SHO_BACKUP_OWNER_USER_IDS\`: előzetesen ellenőrzött, vesszővel elválasztott Supabase Auth felhasználó-UUID-k. **E-mail-cím vagy telefon-profilnév önmagában nem admin jogosultság**.
+4. \`SHO_BACKUP_RUNNER_CONFIRMED=true\` csak a GitHub-futtató **összes 6 előfeltételének** tényleges konfigurálása és jogosultságtesztje után. Enélkül a gomb biztonságosan tiltva marad.
+5. A workflow csak a \`main\` ágon, aktív \`workflow_dispatch\` eseménnyel hívható; POST előtt kötelező külön kattintás és JS confirm. A szerver csak a \`start_manual_full_backup\` műveletet fogadja el, kizárja az idegen Origin-t, a hiányzó tulajdonosi jogosultságot és a párhuzamos/recent mentésindítást.
+6. A 202-es válasz kizárólag **GitHub indítási kérés elfogadva**, sosem kész backup. Az admin külön a legutóbbi futás és OneDrive státusz ellenőrzésével mutat valódi állapotot.
+
+**Restore:** a panel a kiválasztott és igazolt OneDrive-mentésből egyelőre csak **tervet** készít. A valódi restore backendnek az offline integritást, izolált próbavisszaállítást és az éles visszaállításra külön új jóváhagyást kell kikényszerítenie. A jelen PR **nem** készít automatikus éles restore végpontot, és semmilyen éles adatot nem ír.
+
+**Kritikus:** egyetlen ChatGPT-apphoz csatlakozott Microsoft/Dropbox/Supabase-fiók sem elegendő a GitHub Actions és a Supabase Edge Function saját, tartós hozzáféréséhez. A GitHub secret-értékek ma mind hiányoznak; az admin gomb a tényleges konfigurációig letiltott marad.
