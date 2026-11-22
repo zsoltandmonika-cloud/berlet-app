@@ -1,0 +1,28 @@
+name: HH One · Guardian Dropbox uploader targeted QA
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "healthhub/android-bridge/app/src/main/java/hu/zsoltmonika/healthhubbridge/DropboxVaultClient.kt"
+      - "healthhub/android-bridge/app/src/main/java/hu/zsoltmonika/healthhubbridge/FamilyGuardNativeRelay.kt"
+      - "healthhub/android-bridge/app/src/main/java/hu/zsoltmonika/healthhubbridge/OrchestratorWorker.kt"
+      - "healthhub/android-bridge/app/src/main/java/hu/zsoltmonika/healthhubbridge/MainActivity.kt"
+      - "healthhub/android-bridge/tests/dropbox-uploader-recovery-20261122.test.cjs"
+      - ".github/workflows/hh-one-guardian-dropbox-upload-qa.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  uploader-contract:
+    name: Native GPS Dropbox uploader contract (no APK)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Verify upload-first, error recovery, consent and STOP safety
+        run: node --test healthhub/android-bridge/tests/dropbox-uploader-recovery-20261122.test.cjs
