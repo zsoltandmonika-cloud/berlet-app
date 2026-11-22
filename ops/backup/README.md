@@ -15,7 +15,7 @@
 4. Supabase Storage **tényleges objektumtartalmak**, nem csupán adatbázisbeli fájljegyzék.
 5. Valamennyi telepített Supabase Edge Function aktuális forrása a Management API-ból.
 6. Külön, előre titkosított, tulajdonos által biztosított **recovery escrow** a felhőszolgáltatók külső beállításainak és a visszaállításhoz szükséges hozzáféréseknek.
-7. SHA-256 fájljegyzék, `age` titkosított archívum, OneDrive feltöltés és **teljes távoli visszaolvasás, byte-by-byte összehasonlítással**. Csak ezután kerül fel a `FULL_BACKUP_VERIFIED` státusz.
+7. SHA-256 fájljegyzék, `age` titkosított archívum, OneDrive feltöltés és **teljes távoli visszaolvasás, byte-by-byte összehasonlítással**. Csak ezután kerül fel a `CLOUD_CORE_VERIFIED` státusz.
 
 ## Egyszeri, külön delegálandó futtatói jogosultságok
 
@@ -32,7 +32,7 @@ A workflow az alábbi Github Actions secret/variable értékeket követeli meg; 
 
 **Ne oszd meg a titkokat chatben, ne commitold őket GitHubba.** A rendszer biztonságosan *megtagadja* a teljesnek nevezett mentést, amíg bármely alapfeltétel hiányzik.
 
-## Mit jelent a FULL_BACKUP_VERIFIED?
+## Mit jelent a CLOUD_CORE_VERIFIED?
 
 A kötelező adatforrásokat sikerült beolvasni, archiválni, hash-elni, titkosítani, OneDrive-ra feltölteni és újra letölteni. **Nem jelenti**, hogy egy teljes produkciós helyreállítás már sikeresen lezajlott. A Supabase szolgáltatáskonfigurációk, OAuth-engedélyek, titkosítási kulcsok, telefonon lévő engedélyek és alkalmazáspárosítások külön helyreállítást igényelnek. A különböző felhőszolgáltatások olvasása nem tranzakcionálisan atomikus.
 
@@ -46,3 +46,9 @@ A kötelező adatforrásokat sikerült beolvasni, archiválni, hash-elni, titkos
 6. Éles rendszer visszaállítása soha nem indul külön tulajdonosi jóváhagyás nélkül.
 
 **Kezdeti élesítés:** külön teszt + PR review, éjszakai futtatóhoz önálló, tartós OAuth-engedélyek, első kézi, *read-only source* ellenőrzött backup; majd minden éjjel automatikusan. A `HealthHub Level 3 Guard` Git-tagje önmagában NEM teljes backup.
+
+## Határok / teljes rendszer helyreállítás
+
+Az automatikusan ellenőrzött **CLOUD_CORE_VERIFIED** azt jelenti, hogy a felhőmag adatforrásai megvannak, titkosítva és OneDrive-ról visszaolvasva. **Nem** jelenti, hogy a teljes SHO telefonos rendszer egyetlen gombbal visszaállítható. A telefonokon esetleg még csak lokálisan tárolt Health Connect/IndexedDB módosítások, Book Studio OneDrive-könyvek és külső Home Media forrásfájlok önálló archiválása, a licencelt Samsung SDK és aláírókulcsok biztonságos megőrzése, valamint a valódi próbavisszaállítás külön kötelező feltételek a teljes rendszermentésre történő minősítéshez.
+
+A 30 napi + 12 havi visszaállítási pont kiválasztását az `ops/backup/retention_plan.py` végzi. Régi mentések automatikus törlése **nincs engedélyezve**, amíg az első független helyreállítási teszt sikeresen le nem futott és a tulajdonos azt külön jóvá nem hagyja. A tárhelyfigyelő 80%-os foglaltságnál figyelmeztet; a forrásoldali tárhelytelítettség nem blokkolhatja a csak olvasási mentést.
