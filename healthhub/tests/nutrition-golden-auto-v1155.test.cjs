@@ -48,7 +48,7 @@ test('Golden Standard frontend scripts and declarations stay syntactically valid
  assert.match(html,/nutriBulkStopV1155/);
  assert.match(html,/nutriAutoStatusV1155/);
  assert.match(css,/nutri-golden-batch-v1155/);
- assert.ok(html.indexOf('app.js?v=1164')<html.indexOf('hh-nutri-golden-standard-v1155.js'));
+ assert.ok(html.indexOf('app.js?v=1165')<html.indexOf('hh-nutri-golden-standard-v1155.js'));
  assert.match(app,/LENA_NUTRI_STANDARD_CONTEXT_V1155/);
  assert.match(app,/nutriStandard\.afterGoldenSave\(id,\{ingredientsChanged\}\)/);
 });
