@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import {handleBackupControl} from "../../supabase/functions/_shared/backup-control-v1.mjs";
+import {handleBackupControl} from "../../../supabase/functions/_shared/backup-control-v1.mjs";
 
 const ORIGIN="https://zsoltandmonika-cloud.github.io";
 const USER="11111111-1111-4111-8111-111111111111";
