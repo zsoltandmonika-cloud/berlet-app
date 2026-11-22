@@ -66,7 +66,7 @@ test('v1174 source diagnostics are visible, have a safe OAuth path and do not fa
  assert.match(html,/id="guardianNativeGpsConnectV1174"/);
  assert.match(html,/href="\.\.\/index\.html"/);
  assert.match(html,/guardian-native-source-v1174\.css/);
- assert.match(html,/guardian-profile-follow-v837\.js\?v=[^"\n]*owner=v1174/);
+ assert.match(html,/guardian-profile-follow-v837\.js\?v=[^"\n]*native=156/);
  assert.match(live,/sharingProfile==='monika'&&ua&&!\/Android\/i.test\(ua\)/);
  assert.match(own,/selected==='monika'&&ua&&!\/Android\/i.test\(ua\)/);
  assert.doesNotMatch(js,/navigator\.geolocation|watchPosition|getCurrentPosition|\.upsert\(|files\/upload/);
