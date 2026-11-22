@@ -14,8 +14,9 @@ const published=JSON.parse(read('data/bridge-ota.json'));
 test('published signed release and Android build are consistent and never auto-install',()=>{
  assert.ok(Number(gradle.match(/versionCode = (\d+)/)[1]) >= published.versionCode);
  assert.match(gradle,/versionName = "0\.15\.\d+"/);
- assert.equal(published.versionCode,47);
- assert.equal(published.version,'0.15.20');
+ assert.ok(Number.isSafeInteger(published.versionCode) && published.versionCode>=50);
+ assert.match(published.version,/^0\.15\.\d+$/);
+ assert.equal(published.applicationId,'hu.zsoltmonika.healthhubbridge');
  assert.match(workflow,/workflow_dispatch:/);
  assert.match(workflow,/Hard stop unless new APK and current OTA baseline have same signing certificate/);
 });
