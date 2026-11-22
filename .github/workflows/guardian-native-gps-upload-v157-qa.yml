@@ -1,0 +1,42 @@
+name: HH One native GPS Dropbox diagnostics v157 QA
+on:
+  pull_request:
+    paths:
+      - 'healthhub/android-bridge/app/src/main/java/hu/zsoltmonika/healthhubbridge/FamilyGuardNativeRelay.kt'
+      - 'healthhub/android-bridge/app/src/main/java/hu/zsoltmonika/healthhubbridge/MainActivity.kt'
+      - 'healthhub/android-bridge/app/src/test/java/hu/zsoltmonika/healthhubbridge/FamilyGuardNativeUploadFailureTest.kt'
+      - 'healthhub/android-bridge/tests/guardian-native-gps-upload-diagnostics-v157.test.cjs'
+      - '.github/workflows/guardian-native-gps-upload-v157-qa.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  gps-uploader-safety:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Native GPS safety and privacy regressions
+        run: |
+          node --test healthhub/android-bridge/tests/guardian-native-gps-upload-diagnostics-v157.test.cjs
+          node --test healthhub/tests/guardian-native-relay-v156.test.cjs
+          node --test healthhub/android-bridge/tests/family-guard-continuity-v0156.test.cjs
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Install Android SDK 36
+        run: |
+          SDKMANAGER="$(find "$ANDROID_HOME/cmdline-tools" -type f -name sdkmanager | head -1)"
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" "platforms;android-36" "build-tools;35.0.0"
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.13'
+      - name: Compile Android and test sanitized error classifier (NOT SIGNED OTA)
+        working-directory: healthhub/android-bridge
+        run: gradle :app:testDebugUnitTest --no-daemon --stacktrace

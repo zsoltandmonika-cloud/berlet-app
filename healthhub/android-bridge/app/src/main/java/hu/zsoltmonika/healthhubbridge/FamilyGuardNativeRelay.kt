@@ -37,6 +37,11 @@ object FamilyGuardNativeRelay {
     const val KEY_BATTERY_SHARE = "family_guard_battery_share_v842"
     const val KEY_RESULT = "family_guard_native_upload_status_v156"
     const val KEY_LAST_UPLOAD = "family_guard_native_last_upload_v156"
+    // Only timestamps, bounded HTTP status and a workflow stage. Never persist
+    // Dropbox token, response body, coordinates or raw exception messages.
+    const val KEY_ATTEMPT_AT = "family_guard_native_attempt_at_v157"
+    const val KEY_FAILURE_AT = "family_guard_native_failure_at_v157"
+    const val KEY_FAILURE_DETAIL = "family_guard_native_failure_detail_v157"
     private const val DIRECTORY = "/HealthHub/guardian"
     private const val LIVE_DIRECTORY = "/HealthHub/guardian/native-live"
     private const val REVOKE_WORK = "hh-one-guardian-native-revoke"
@@ -78,9 +83,43 @@ object FamilyGuardNativeRelay {
     fun enable(context: Context): Boolean {
         if (owner(context) == null || !DropboxVaultClient.hasRefreshToken(prefs(context)) ||
             !FamilyGuardContinuity.hasBackgroundLocation(context)) return false
-        prefs(context).edit().putBoolean(KEY_SHARE, true).apply()
+        prefs(context).edit().putBoolean(KEY_SHARE, true)
+            .putString(KEY_RESULT, "awaiting-first-fix")
+            .apply()
+        // An earlier failed upload or revocation must not throttle a new
+        // explicit approval for another full minute.
+        lastQueuedAt = 0L
+        lastFailureAt = 0L
         WorkManager.getInstance(context).cancelUniqueWork(REVOKE_WORK)
         return true
+    }
+
+    /** User-visible, consent-preserving retry. Never changes owner, location
+     * permissions, Dropbox credentials or the selected household account.
+     * The existing foreground GPS must provide a fresh real location fix.
+     */
+    fun requestRetry(context: Context): Boolean {
+        if (!enabled(context) || !Sh9GpsService.active) return false
+        lastFailureAt = 0L
+        lastQueuedAt = 0L
+        prefs(context).edit().putString(KEY_RESULT, "retry-requested").apply()
+        return true
+    }
+
+    // Errors are deliberately redacted: never store URL, OAuth response,
+    // private path, GPS coordinate or arbitrary backend error payload.
+    internal fun safeFailure(stage: String, error: Throwable): String {
+        val code = Regex("""\bHTTP\s+([1-5][0-9]{2})\b""")
+            .find(error.message.orEmpty())?.groupValues?.getOrNull(1)
+        val kind = when (error) {
+            is java.net.SocketTimeoutException -> "Időtúllépés"
+            is java.net.UnknownHostException -> "DNS hiba"
+            is java.net.ConnectException -> "Kapcsolati hiba"
+            is java.net.SocketException -> "Hálózati socket hiba"
+            is java.io.IOException -> "I/O hiba"
+            else -> error.javaClass.simpleName.filter { it.isLetterOrDigit() }.take(36)
+        }
+        return "$stage · " + (if (code != null) "HTTP $code" else kind)
     }
 
     fun latestPath(profile: String): String {
@@ -135,6 +174,10 @@ object FamilyGuardNativeRelay {
         if (!uploadInFlight.compareAndSet(false, true)) return
         lastQueuedAt = now
         val app = context.applicationContext
+        prefs(app).edit()
+            .putLong(KEY_ATTEMPT_AT, now)
+            .putString(KEY_RESULT, "uploading")
+            .apply()
         val profile = owner(app)
         if (profile == null) {
             uploadInFlight.set(false)
@@ -174,12 +217,14 @@ object FamilyGuardNativeRelay {
             .toString()
         io.launch {
             uploadLock.lock()
+            var stage = "Eszközellenőrzés"
             try {
                 if (!enabled(app) || owner(app) != profile || !Sh9GpsService.active) return@launch
                 if (!isSelectedPhysicalPhone(app, profile)) {
                     prefs(app).edit().putString(KEY_RESULT, "not-selected-in-device-registry").apply()
                     return@launch
                 }
+                stage = "Dropbox-mappa"
                 ensureFolder(app)
                 if (!enabled(app) || owner(app) != profile || !Sh9GpsService.active) return@launch
                 // Consent can be withdrawn while an earlier GPS snapshot is
@@ -190,16 +235,23 @@ object FamilyGuardNativeRelay {
                     finalPayload.put("battery_pct", JSONObject.NULL)
                         .put("battery_charging", JSONObject.NULL)
                 }
+                stage = "GPS feltöltés"
                 DropboxVaultClient.uploadText(prefs(app), latestPath(profile), finalPayload.toString())
                 lastFailureAt = 0L
-                prefs(app).edit().putLong(KEY_LAST_UPLOAD, System.currentTimeMillis())
-                    .putString(KEY_RESULT, "uploaded").apply()
+                prefs(app).edit()
+                    .putLong(KEY_LAST_UPLOAD, System.currentTimeMillis())
+                    .putString(KEY_RESULT, "uploaded")
+                    .remove(KEY_FAILURE_DETAIL)
+                    .apply()
             } catch (e: Exception) {
                 // Retry at most once a minute on Dropbox errors: no request storm.
                 lastFailureAt = System.currentTimeMillis()
                 foldersReady = false
-                prefs(app).edit().putString(KEY_RESULT,
-                    "network-error:" + e.javaClass.simpleName.take(40)).apply()
+                prefs(app).edit()
+                    .putString(KEY_RESULT, "network-error:" + e.javaClass.simpleName.take(40))
+                    .putLong(KEY_FAILURE_AT, lastFailureAt)
+                    .putString(KEY_FAILURE_DETAIL, safeFailure(stage, e))
+                    .apply()
             } finally {
                 uploadLock.unlock()
                 uploadInFlight.set(false)
@@ -212,7 +264,8 @@ object FamilyGuardNativeRelay {
         val app = context.applicationContext
         prefs(app).edit().putBoolean(KEY_SHARE, false)
             .putBoolean(KEY_BATTERY_SHARE, false)
-            .putString(KEY_RESULT, "stopping").apply()
+            .putString(KEY_RESULT, "stopping")
+            .remove(KEY_FAILURE_DETAIL).apply()
         lastQueuedAt = 0L
         lastFailureAt = 0L
         val req = OneTimeWorkRequestBuilder<GuardianNativeRevokeWorker>()
@@ -236,6 +289,9 @@ object FamilyGuardNativeRelay {
                     return true
                 }
                 ensureFolder(context)
+                // An owner may have re-approved sharing while folder setup was
+                // waiting for the network; never publish a stale tombstone.
+                if (enabled(context)) return true
                 DropboxVaultClient.uploadText(prefs(context), latestPath(profile),
                     JSONObject().put("schema", "healthhub.guardian.native/1")
                         .put("source", "HH One Native GPS")
