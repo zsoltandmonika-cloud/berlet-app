@@ -360,6 +360,7 @@ async function ensurePuterSignIn(forcePick=false){
  * Show locally stored pictures first, then check metadata when stale.
  * Never read/modify the existing local-recipe DB schema or pending edit queue. */
 const RECIPE_ASSET_CACHE_V1=window.LENA_RECIPE_ASSET_CACHE_V1;
+const HH_OWN_RECIPE_CLOUD_V1=window.HH_RECIPE_OWN_CLOUD_V1;
 let recipeCacheAccountV1='';
 async function recipeCacheAccountKeyV1(){
  if(!puterCloudReady()||!puter.auth.isSignedIn())return '';
@@ -371,7 +372,7 @@ function remoteRecipeCardV1(v,blob){
  return {id:String(v.id),title:String(v.title),category:String(v.category||'Egyéb'),
   file:url,mime:String(v.mime||blob.type||'image/jpeg'),
   originalName:String(v.originalName||v.title+'.jpg'),central:true,
-  createdAt:v.createdAt||null,heroPath:v.heroPath||null,processPath:v.processPath||null,
+  createdAt:v.createdAt||null,heroPath:v.heroPath||null,processPath:v.processPath||null,storage:v.storage||"puter",
   studioData:v.studioData||null,youtubeId:String(v.youtubeId||''),_url:url};
 }
 function applySharedCardsV1(next,readable){
@@ -387,8 +388,8 @@ async function cardsFromCatalogueV1(rows,account,offlineOnly){
   try{
    let blob=account?await RECIPE_ASSET_CACHE_V1?.get(account,v):null;
    if(!blob&&!offlineOnly){
-    // Paid Puter file read occurs ONLY for a missing/changed card.
-    blob=await puter.fs.read(v.cardPath);
+    // Own storage is quota-independent; legacy Puter reads are strictly read-only.
+    blob=v.storage==="supabase"?await HH_OWN_RECIPE_CLOUD_V1.download(v.cardPath):await puter.fs.read(v.cardPath);
     if(account)await RECIPE_ASSET_CACHE_V1?.put(account,v,blob);
    }
    if(!blob?.size)continue;
@@ -399,47 +400,50 @@ async function cardsFromCatalogueV1(rows,account,offlineOnly){
  return {next,readable};
 }
 async function loadSharedRecipes(force=false){
- const account=await recipeCacheAccountKeyV1();
- // A prior user's cached shared cookbook must not leak after sign-out
- // or a Puter account switch on the same phone.
- if(!account){
-  recipeCacheAccountV1='';
-  if(sharedRecipes.length){applySharedCardsV1([],{});renderHome()}
-  return false;
+ const ownAccount=await HH_OWN_RECIPE_CLOUD_V1?.account(),legacyAccount=await recipeCacheAccountKeyV1();
+ let next=[],readable={},successful=false;
+ async function takeCatalogue(account,rows,offlineOnly){
+   const result=await cardsFromCatalogueV1(rows,account,offlineOnly);
+   const ids=new Set(next.map(v=>v.id));
+   for(const recipe of result.next){
+     if(!ids.has(recipe.id)){next.push(recipe);ids.add(recipe.id)}
+     else if(recipe._url)URL.revokeObjectURL(recipe._url);
+   }
+   Object.assign(readable,result.readable);
  }
- if(recipeCacheAccountV1!==account){
-  recipeCacheAccountV1=account;
-  if(sharedRecipes.length){applySharedCardsV1([],{});renderHome()}
+ if(ownAccount){
+   const cached=await RECIPE_ASSET_CACHE_V1?.catalogue(ownAccount);
+   if(cached?.rows?.length)await takeCatalogue(ownAccount,cached.rows,true);
+   try{
+     if(force||!cached||!RECIPE_ASSET_CACHE_V1?.fresh(cached)||next.length!==cached.rows.length){
+       const rows=await HH_OWN_RECIPE_CLOUD_V1.listRecipes();
+       const oldNext=next;next=[];readable={};
+       await takeCatalogue(ownAccount,rows,false);
+       if(rows.length&&!next.length){next=oldNext}
+       else{oldNext.forEach(r=>r._url&&URL.revokeObjectURL(r._url));await RECIPE_ASSET_CACHE_V1?.saveCatalogue(ownAccount,rows)}
+     }
+     successful=true;
+   }catch(error){console.warn('HealthHub recepttár átmenetileg offline, helyi kártyák maradnak:',error)}
  }
- const cached=await RECIPE_ASSET_CACHE_V1?.catalogue(account);
- let hydrated=0;
- if(cached?.rows?.length&&!sharedRecipes.length){
-  const local=await cardsFromCatalogueV1(cached.rows,account,true);
-  hydrated=local.next.length;
-  if(hydrated){applySharedCardsV1(local.next,local.readable);renderHome()}
- }else if(cached?.rows?.length){
-  hydrated=sharedRecipes.filter(r=>r.central).length;
+ // Keep pre-migration Puter recipes visible, but do not perform Puter writes.
+ // Existing verified local asset cache works even when Puter credit is exhausted.
+ if(legacyAccount){
+   const old=await RECIPE_ASSET_CACHE_V1?.catalogue(legacyAccount);
+   if(old?.rows?.length)await takeCatalogue(legacyAccount,old.rows,true);
+   if(await canCloudIOV1159()){
+     try{
+       const rows=(await puter.kv.list(CLOUD_KEY_PREFIX+'*',true))
+         .map(r=>({...r.value,storage:'puter'})).filter(v=>v?.id&&v?.title&&v?.cardPath);
+       await takeCatalogue(legacyAccount,rows,false);
+       await RECIPE_ASSET_CACHE_V1?.saveCatalogue(legacyAccount,rows);
+       successful=true;
+     }catch(error){console.warn('Régi Puter-receptek csak a meglévő cache-ből érhetők el:',error)}
+   }
  }
- // Metadata is not polled on every screen return: max one recheck/15 min.
- // An explicit sync action below passes force=true to bypass this TTL.
- if(!force&&cached&&RECIPE_ASSET_CACHE_V1?.fresh(cached)&&hydrated===cached.rows.length)
-  return true;
- if(!await canCloudIOV1159())return !!sharedRecipes.length;
- try{
-  const rows=await puter.kv.list(CLOUD_KEY_PREFIX+'*',true);
-  const freshRows=rows.map(r=>r?.value).filter(v=>v?.id&&v?.title&&v?.cardPath);
-  const result=await cardsFromCatalogueV1(freshRows,account,false);
-  // If all file reads fail, keep the already verified device copy rather
-  // than replacing a populated bookshelf with an empty, misleading one.
-  if(freshRows.length&&!result.next.length&&sharedRecipes.length)return false;
-  applySharedCardsV1(result.next,result.readable);
-  renderHome();
-  await RECIPE_ASSET_CACHE_V1?.saveCatalogue(account,freshRows);
-  return true;
- }catch(error){
-  console.warn('Puter receptkatalógus most nem érhető el, helyi könyvtár marad:',error);
-  return !!sharedRecipes.length;
- }
+ // Keep the previous complete list if both remote services are temporarily offline.
+ if(!successful&&!next.length&&sharedRecipes.length)return true;
+ applySharedCardsV1(next,readable);renderHome();
+ return successful||!!next.length
 }
 async function refreshSharedRecipes(render=true,force=false){
  const ok=await loadSharedRecipes(force);
@@ -1500,31 +1504,25 @@ async function cloudRefresh(){
 }
 async function syncLocalRecipe(id,{silent=false,refresh=true}={}){
  const row=await dbGet(id);if(!row)return false;
- if(!await canCloudIOV1159()){
-  if(!silent)toast(pendingCloudNoticeV1159());return false;
- }
  try{
-   if(!puterCloudReady())throw new Error("A Puter felhő nem érhető el.");
-   if(!puter.auth.isSignedIn())await ensurePuterSignIn();
-   if(!silent)busy(true,"Mentés a központi Recepttárba…");
-   const base=CLOUD_DIR+"/"+id,cardMime=row.mime||row.blob?.type||"image/jpeg",cardExt=cardMime.includes("png")?"png":cardMime.includes("webp")?"webp":cardMime.includes("svg")?"svg":cardMime.includes("pdf")?"pdf":"jpg",cardPath=base+"/card."+cardExt;
-   const oldShared=sharedRecipes.find(r=>r.id===id),heroPath=row.heroBlob?base+"/hero.jpg":oldShared?.heroPath||null,processPath=row.processBlob?base+"/process.jpg":oldShared?.processPath||null;
-   await puter.fs.write(cardPath,row.blob,{createMissingParents:true,overwrite:true});
-   if(row.heroBlob)await puter.fs.write(heroPath,row.heroBlob,{createMissingParents:true,overwrite:true});
-   if(row.processBlob)await puter.fs.write(processPath,row.processBlob,{createMissingParents:true,overwrite:true});
-   const entry={id,title:row.title,category:row.category,cardPath,heroPath,processPath,mime:cardMime,originalName:row.originalName||row.title+".jpg",createdAt:row.createdAt||Date.now(),updatedAt:new Date().toISOString(),readable:row.readable||null,studioData:row.studioData||null,youtubeId:String(row.youtubeId||getMeta(id).youtubeId||"")};
-   await puter.kv.set(CLOUD_KEY_PREFIX+id,entry);
-   const check=await puter.kv.get(CLOUD_KEY_PREFIX+id),checkBlob=await puter.fs.read(cardPath);
-   if(!check||check.cardPath!==cardPath||checkBlob.size!==row.blob.size)throw new Error("A felhőmentés visszaolvasása sikertelen.");
+   if(!HH_OWN_RECIPE_CLOUD_V1?.available||!await HH_OWN_RECIPE_CLOUD_V1.available()){
+     if(!silent)toast('💾 Recept helyben mentve. HealthHub-belépés után szinkronizálható.');
+     return false;
+   }
+   if(!silent)busy(true,'Mentés a saját HealthHub-tárhelyre…');
+   await HH_OWN_RECIPE_CLOUD_V1.putRecipe(row);
    row.pending=false;await dbPut(row);
    if(refresh){await loadSharedRecipes(true);await loadCustomRecipes();renderHome();renderPending()}
-   if(!silent)toast("✓ Központi mentés kész. Másik gépen is megnyitható.");
-   return true
- }catch(e){console.error(e);if(!silent)toast("Központi mentési hiba: "+(e.msg||e.message||e));return false}
- finally{if(!silent)busy(false)}
+   if(!silent)toast('✓ Recept mentve a HealthHub saját felhőjébe.');
+   return true;
+ }catch(e){
+   console.warn('HealthHub saját receptmentés függőben, helyi másolat megmaradt:',e);
+   if(!silent)toast('💾 Helyben mentve. Központi mentésre vár.');
+   return false;
+ }finally{if(!silent)busy(false)}
 }
 async function syncPendingToCloud(){
- if(!puterCloudReady()||!puter.auth.isSignedIn()||!await canCloudIOV1159())return 0;
+ if(!await HH_OWN_RECIPE_CLOUD_V1?.available?.())return 0;
  const rows=(await dbAll()).filter(r=>r.pending);
  let ok=0;for(const row of rows){if(await syncLocalRecipe(row.id,{silent:true,refresh:false}))ok++}
  await flushMetaPendingV1159();
@@ -1532,7 +1530,6 @@ async function syncPendingToCloud(){
  if(ok){await loadSharedRecipes(true);await loadCustomRecipes();renderHome();renderPending()}
  return ok
 }
-
 function renderPending(){const box=$("#pendingList");box.innerHTML="";const list=customRecipes.slice().sort((a,b)=>a.title.localeCompare(b.title,"hu"));if(!list.length){const e=document.createElement("div");e.className="empty-admin";e.textContent="Nincs csak helyben tárolt új recept.";box.appendChild(e);return}list.forEach(r=>{const row=document.createElement("div");row.className="deleted-item";const main=document.createElement("div");main.className="deleted-main",t=document.createElement("div");t.className="deleted-title";t.textContent=r.title;const c=document.createElement("div");c.className="deleted-cat";c.textContent=r.category+(r.pending?" · szinkronra vár":" · feltöltve, frissítésre vár");main.append(t,c);const b=document.createElement("button");b.className="sync-btn";b.textContent=r.pending?"☁ Feltöltés":"✓ Fent";b.disabled=!r.pending;b.onclick=()=>syncLocalRecipe(r.id);row.append(main,b);box.appendChild(row)})}
 function clearRecipeLocalState(id,{keepMeta=false}={}){
  const exact=[keyFav(id),keyText(id),keyReadable(id),feedbackKey(id),nutriLocalKey(id),cookStepKey(id)];
