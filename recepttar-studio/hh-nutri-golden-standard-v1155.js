@@ -301,6 +301,6 @@ start?.addEventListener('click',()=>void batch());
 one?.addEventListener('click',()=>void batch(1));
 stop?.addEventListener('click',()=>{stopRequested=true;status('⏸ Megállítás a most futó recept elkészülte után…');});
 byId('nutriPuterCheckV1164')?.addEventListener('click',()=>void inspectPuterAiV1164());
-w.LENA_NUTRI_STANDARD_V1155=Object.freeze({version:1155,generateOne,afterGoldenSave,refresh,stats,needs,signature});
+w.LENA_NUTRI_STANDARD_V1155=Object.freeze({version:1165,generateOne,afterGoldenSave,refresh,stats,needs,signature,diagnoseError:classifyProviderError,runOne:()=>batch(1)});
 refresh();
 })(window,document);
