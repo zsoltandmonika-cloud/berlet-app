@@ -63,7 +63,7 @@ function boot({signed=true,mismatch=false}={}){
  return{api:win.HH_RECIPE_OWN_CLOUD_V1,files,recipes,kv,calls};
 }
 test('HealthHub own cloud loads before the Studio and keeps Puter for AI only',()=>{
- assert.ok(html.indexOf('hh-recipe-own-cloud-v1.js')<html.indexOf('app.js?v=1163'));
+ assert.ok(html.indexOf('hh-recipe-own-cloud-v1.js')<html.indexOf('app.js?v=1164'));
  assert.ok(html.indexOf('central-vault/config.js')<html.indexOf('hh-recipe-own-cloud-v1.js'));
  assert.match(app,/HH_OWN_RECIPE_CLOUD_V1\.putRecipe\(row\)/);
  assert.match(app,/async function loadSharedRecipes\(force=false,readLegacy=false\)/);
