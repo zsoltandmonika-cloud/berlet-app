@@ -19,8 +19,6 @@ trap 'rm -rf "$work"' EXIT
 stage="$work/stage"
 out="$work/output"
 mkdir -p "$stage"/{github,supabase/edge-functions,supabase/storage,dropbox,recovery} "$out"
-# The complete capture and read-back require substantial TEMP space; block 14 GiB runners.
-python3 ops/backup/check_capacity.py "$work" --minimum-free-gib "${SHO_BACKUP_MIN_FREE_GIB:-200}"
 printf '%s' "$RCLONE_CONFIG_B64" | base64 -d > "$work/rclone.conf"
 chmod 600 "$work/rclone.conf"
 export RCLONE_CONFIG="$work/rclone.conf"
@@ -31,6 +29,17 @@ printf '%s' "$SHO_RECOVERY_ESCROW_B64" | base64 -d > "$stage/recovery/escrow.age
 for remote in dropbox onedrive supa_s3; do
   rclone listremotes | grep -qx "${remote}:" || { echo "::error::Missing rclone remote: $remote" >&2; exit 2; }
 done
+# Size every remote payload before any bulk download; do not assume a 45 GB backup.
+# Unlike a fixed 200 GiB threshold, this passes modest snapshots on normal runners.
+SOURCE_BYTES=0
+for src in 'dropbox:Apps/HealthHub Cloud Vault' 'dropbox:Apps/healthhub-vault' 'supa_s3:'; do
+  measured="$(rclone size "$src" --json | jq -er '.bytes | select(type=="number" and .>=0) | floor')"
+  [[ "$measured" =~ ^[0-9]+$ ]] || { echo "::error::Invalid rclone source size" >&2; exit 2; }
+  SOURCE_BYTES=$((SOURCE_BYTES + measured))
+done
+python3 ops/backup/check_capacity.py "$work" --source-bytes "$SOURCE_BYTES" \
+  --extra-reserve-gib "${SHO_BACKUP_EXTRA_RESERVE_GIB:-4}"
+
 # Capacity is diagnostic only: a full Dropbox must not block reading its backups.
 for remote in dropbox onedrive; do
   if rclone about "$remote:" --json > "$work/$remote-quota.json" 2>/dev/null; then
