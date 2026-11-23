@@ -88,6 +88,10 @@ test('five real RESTIC formats map into five monitored areas, and Graph only rea
  assert.ok(requests.length>=13);
  assert.ok(requests.every(x=>x.method==='GET'&&x.url.startsWith('https://graph.microsoft.com/v1.0/')));
  assert.ok(requests.some(x=>x.url.includes('restic-partial-runs')));
+ const manualLinks=nodes.stagingRuns.children.slice(0,5).map(row=>row.children[2]);
+ assert.equal(manualLinks.length,5);
+ assert.ok(manualLinks.every(x=>x.href.startsWith('https://github.com/zsoltandmonika-cloud/SHO-Backup-Runner/actions/workflows/')));
+ assert.ok(manualLinks.every(x=>x.target==='_blank'&&x.rel==='noopener noreferrer'));
 });
 test('invalid status or full_system true never becomes verified',async()=>{
  const {win,nodes}=createHarness({
