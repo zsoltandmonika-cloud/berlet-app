@@ -12,7 +12,7 @@ var SCOPE='openid profile offline_access User.Read Files.Read';
 var PATHS={photos:{label:'Képek',path:'Képek',mime:/^image\/(jpeg|png|gif|webp|bmp|avif|heic|heif)$/i},
  videos:{label:'Home Videók',path:'Videos/HomeVideo',mime:/^video\//i},
  music:{label:'Zene',path:'Zene/Full Albums',mime:/^audio\//i}};
-var config=null,access='',expires=0,active='',folder='',crumbs=[],entries=[],serial=0,renewing=null,viewer=null,verified=false;
+var config=null,access='',expires=0,active='',folder='',crumbs=[],entries=[],serial=0,renewing=null,viewer=null,verified=false,photoTouch=null;
 function parse(v){try{return JSON.parse(v)}catch(_){return null}}
 function get(s,k){try{return s.getItem(k)}catch(_){return null}}
 function put(s,k,v){try{s.setItem(k,v)}catch(_){}}
@@ -78,18 +78,27 @@ function crumbBar(){
 }
 function close(){
  var f=$('mediaViewer');if(f.hidden)return;
- var player=$('mediaPlayer'),audio=$('mediaAudio');player.pause();player.removeAttribute('src');player.load();
- audio.pause();audio.removeAttribute('src');audio.load();$('mediaImage').removeAttribute('src');f.hidden=true;viewer=null;
+ var player=$('mediaPlayer'),audio=$('mediaAudio');
+ player.pause();player.removeAttribute('src');player.load();
+ audio.pause();audio.removeAttribute('src');audio.load();
+ var photo=$('mediaImage');photo.onload=null;photo.onerror=null;photo.removeAttribute('src');
+ photoTouch=null;viewer=null;f.hidden=true;syncViewerTools();
  if(d.fullscreenElement)void d.exitFullscreen().catch(function(){});
 }
 function mediaCard(x){
  var b=d.createElement('button');b.type='button';b.className='media-file';
+ b.dataset.kind=x.folder?'folder':active;
+ b.setAttribute('aria-label',(x.folder?'Mappa megnyitása: ':'Média megnyitása: ')+safe(x.name));
  var img=d.createElement('span');img.className='media-file-cover';
  img.textContent=x.folder?'📁':active==='photos'?'🖼️':active==='videos'?'🎬':'🎧';
+ var kind=d.createElement('span');kind.className='media-file-kind';
+ kind.textContent=x.folder?'ALBUM / MAPPA':active==='photos'?'FÉNYKÉP':active==='videos'?'HOME VIDEÓ':'ZENE';
  var t=d.createElement('strong');t.textContent=safe(x.name);
- var sub=d.createElement('small');sub.textContent=x.folder?'Mappa':fmt(Number(x.size)||0);
- b.append(img,t,sub);
+ var sub=d.createElement('small');
+ sub.textContent=x.folder?(Number.isFinite(Number(x.folder.childCount))?x.folder.childCount+' elem':'Mappa megnyitása'):fmt(Number(x.size)||0);
+ b.append(img,kind,t,sub);
  var thumb=x.thumbnails&&x.thumbnails[0]&&(x.thumbnails[0].medium||x.thumbnails[0].small);
+ // Thumbnails are temporary network images. Never save or prefetch media into local application storage.
  if(!x.folder&&thumb&&typeof thumb.url==='string'&&thumb.url.indexOf('https://')===0){
   var poster=d.createElement('img');poster.alt='';poster.loading='lazy';poster.referrerPolicy='no-referrer';poster.src=thumb.url;img.textContent='';img.appendChild(poster);
  }
@@ -106,6 +115,8 @@ async function list(id){
  if(!PATHS[active])return;
  var seq=++serial;folder=id;if(!$('mediaViewer').hidden)close();
  var grid=$('mediaFiles');grid.replaceChildren();crumbBar();status('☁️ OneDrive mappa betöltése…');
+ $('mediaLibrarySummary').textContent='';
+ $('mediaLibrarySubtitle').textContent=crumbs.map(function(c){return c.name}).join(' › ')+' · saját OneDrive médiatár';
  try{
   await verify();
   var path=id?'me/drive/items/'+encodeURIComponent(id)+'/children':
@@ -119,6 +130,8 @@ async function list(id){
   entries=rows.filter(allow).sort(function(a,b){return Number(!!b.folder)-Number(!!a.folder)||a.name.localeCompare(b.name,'hu')});
   entries.forEach(function(x){grid.appendChild(mediaCard(x))});
   if(!entries.length)grid.textContent='Ebben a mappában nincs megjeleníthető média.';
+  var folderCount=entries.filter(function(x){return !!x.folder}).length;
+  $('mediaLibrarySummary').textContent=folderCount+' mappa · '+(entries.length-folderCount)+' médiaelem';
   status('✓ OneDrive · '+entries.length+' elem · csak olvasás');
  }catch(err){if(seq!==serial)return;status('⚠ '+safe(err.message),true);showConnect()}
 }
@@ -127,26 +140,71 @@ async function select(kind){
  active=kind;config=readConfig();verified=false;access='';expires=0;
  $('mediaLibrary').hidden=false;
  $('mediaLibraryTitle').textContent=PATHS[kind].label+' · OneDrive';
+ $('mediaLibrarySubtitle').textContent=kind==='photos'?'Saját fotóalbumok, lapozható galéria':kind==='videos'?'Családi felvételek, prémium lejátszó':'Albumok és zenék, prémium lejátszó';
+ $('mediaLibrarySummary').textContent='';
  $('odMediaConnect').hidden=true;crumbs=[{id:'',name:PATHS[kind].label}];entries=[];folder='';
  $('mediaLibrary').scrollIntoView({behavior:'smooth',block:'start'});
  if(!config){status('Microsoft-kapcsolat szükséges. Nyisd meg a Book Studiót.',true);showConnect();return}
  await Promise.all([list(''),updateTileArt()]);
 }
+function photosInFolder(){
+ return active==='photos'?entries.filter(function(x){return !x.folder&&PATHS.photos.mime.test(typeOf(x))}):[];
+}
+function currentPlayer(){return active==='music'?$('mediaAudio'):active==='videos'?$('mediaPlayer'):null}
+function syncTransportLabel(){
+ var p=currentPlayer();$('mediaTransportPlay').textContent=p&&!p.paused?'Ⅱ Szünet':'▶ Lejátszás';
+}
+function syncViewerTools(){
+ var visible=!!viewer&&!$('mediaViewer').hidden;
+ var gallery=visible&&active==='photos'?photosInFolder():[];
+ var at=visible&&active==='photos'?gallery.findIndex(function(x){return x.id===viewer.id}):-1;
+ var isPhoto=visible&&active==='photos';
+ $('mediaPhotoCounter').hidden=!isPhoto;
+ $('mediaPhotoCounter').textContent=isPhoto?(at>=0?at+1:0)+' / '+gallery.length:'';
+ $('mediaPhotoPrev').hidden=!isPhoto||gallery.length<2;
+ $('mediaPhotoNext').hidden=!isPhoto||gallery.length<2;
+ $('mediaPhotoPrev').disabled=at<=0;
+ $('mediaPhotoNext').disabled=at<0||at>=gallery.length-1;
+ $('mediaViewerTransport').hidden=!visible||isPhoto;
+ syncTransportLabel();
+}
+function movePhoto(direction){
+ if($('mediaViewer').hidden||active!=='photos'||!viewer)return;
+ var gallery=photosInFolder();
+ var at=gallery.findIndex(function(x){return x.id===viewer.id});
+ var next=at+direction;
+ if(at<0||next<0||next>=gallery.length)return;
+ // Only the requested photo is opened. Adjacent photos are NEVER prefetched.
+ void open(gallery[next]);
+}
 async function open(item){
  viewer=item;$('mediaViewer').hidden=false;
  $('mediaViewerTitle').textContent=safe(item.name);
- $('mediaImage').hidden=true;$('mediaPlayer').hidden=true;$('mediaAudio').hidden=true;
+ var photo=$('mediaImage');photo.onload=null;photo.onerror=null;photo.removeAttribute('src');
+ photo.alt=safe(item.name);
+ photo.hidden=true;$('mediaPlayer').hidden=true;$('mediaAudio').hidden=true;
  $('mediaViewerMessage').textContent='Betöltés…';
+ syncViewerTools();
  try{
   var data=await graph('me/drive/items/'+encodeURIComponent(item.id));
   var url=data['@microsoft.graph.downloadUrl'];
   if(typeof url!=='string'||url.indexOf('https://')!==0)throw Error('A Microsoft nem adott lejátszási linket.');
   if(viewer!==item)return;
-  // Ephemeral URL comes from the authorized Graph item response, never stored or sent to TV.
-  if(active==='photos'){$('mediaImage').src=url;$('mediaImage').hidden=false}
-  else{var player=active==='music'?$('mediaAudio'):$('mediaPlayer');player.src=url;player.hidden=false;player.controls=true;player.load()}
-  $('mediaViewerMessage').textContent='';
- }catch(err){$('mediaViewerMessage').textContent='⚠ '+safe(err.message)}
+  // Ephemeral OneDrive URL: no local media cache and no adjacent image prefetch.
+  if(active==='photos'){
+   photo.onload=function(){if(viewer===item)$('mediaViewerMessage').textContent=''};
+   photo.onerror=function(){if(viewer===item)$('mediaViewerMessage').textContent='⚠ A fénykép nem tölthető be.'};
+   photo.hidden=false;
+   photo.src=url;
+   $('mediaViewerMessage').textContent='Kép betöltése… · lapozás ujjal vagy a nyilakkal';
+  }else{
+   var player=currentPlayer();
+   player.src=url;player.hidden=false;player.controls=true;
+   // preload="none" is preserved; never start media downloads or playback automatically.
+   $('mediaViewerMessage').textContent='Koppints a ▶ Lejátszás gombra.';
+   syncTransportLabel();
+  }
+ }catch(err){if(viewer===item)$('mediaViewerMessage').textContent='⚠ '+safe(err.message)}
 }
 async function fullscreen(){
  var surface=$('mediaViewerFrame');
@@ -157,6 +215,40 @@ async function fullscreen(){
 }
 $('mediaViewerClose').onclick=close;
 $('mediaViewerFullscreen').onclick=function(){void fullscreen()};
+$('mediaPhotoPrev').onclick=function(){movePhoto(-1)};
+$('mediaPhotoNext').onclick=function(){movePhoto(1)};
+function seek(seconds){
+ var p=currentPlayer();
+ if(!p||!viewer||$('mediaViewer').hidden)return;
+ var now=Number(p.currentTime)||0;
+ if(Number.isFinite(p.duration))p.currentTime=Math.max(0,Math.min(p.duration,now+seconds));
+ else if(seconds<0)p.currentTime=Math.max(0,now+seconds);
+}
+$('mediaTransportBack').onclick=function(){seek(-10)};
+$('mediaTransportForward').onclick=function(){seek(10)};
+$('mediaTransportPlay').onclick=function(){
+ var p=currentPlayer();
+ if(!p||!viewer||$('mediaViewer').hidden)return;
+ if(!p.paused){p.pause();return}
+ var playing=p.play();
+ if(playing&&typeof playing.catch==='function')void playing.catch(function(){
+  $('mediaViewerMessage').textContent='⚠ A lejátszást a böngésző vagy a formátum blokkolta.';
+ });
+};
+[$('mediaPlayer'),$('mediaAudio')].forEach(function(p){
+ ['play','pause','ended'].forEach(function(event){p.addEventListener(event,syncTransportLabel)});
+});
+$('mediaImage').addEventListener('touchstart',function(e){
+ photoTouch=active==='photos'&&viewer&&e.touches.length===1?
+  {x:e.touches[0].clientX,y:e.touches[0].clientY}:null;
+},{passive:true});
+$('mediaImage').addEventListener('touchend',function(e){
+ var start=photoTouch;photoTouch=null;
+ if(!start||active!=='photos'||!viewer||e.changedTouches.length!==1)return;
+ var dx=e.changedTouches[0].clientX-start.x,dy=e.changedTouches[0].clientY-start.y;
+ if(Math.abs(dx)>=55&&Math.abs(dx)>Math.abs(dy)*1.4)movePhoto(dx<0?1:-1);
+},{passive:true});
+$('mediaImage').addEventListener('touchcancel',function(){photoTouch=null});
 $('mediaFullScreen').onclick=async function(){
  try{if(!d.fullscreenElement&&d.querySelector('.page').requestFullscreen)await d.querySelector('.page').requestFullscreen();
   if(w.screen.orientation&&w.screen.orientation.lock)await w.screen.orientation.lock('landscape').catch(function(){});
@@ -165,7 +257,14 @@ $('mediaFullScreen').onclick=async function(){
 $('mediaRefresh').onclick=function(){if(active)void list(folder)};
 $('odMediaConnect').onclick=function(){w.location.href='../book-studio/'};
 $('mediaViewer').addEventListener('click',function(e){if(e.target===$('mediaViewer'))close()});
-d.addEventListener('keydown',function(e){if(e.key==='Escape'&&!$('mediaViewer').hidden)close()});
+d.addEventListener('keydown',function(e){
+ if($('mediaViewer').hidden)return;
+ if(e.key==='Escape'){close();return}
+ if(active==='photos'&&!e.altKey&&!e.ctrlKey&&!e.metaKey){
+  if(e.key==='ArrowLeft'){e.preventDefault();movePhoto(-1)}
+  if(e.key==='ArrowRight'){e.preventDefault();movePhoto(1)}
+ }
+});
 Array.prototype.forEach.call(d.querySelectorAll('.tile[data-library]'),function(tile){
  tile.addEventListener('click',function(e){e.preventDefault();void select(tile.getAttribute('data-library'))});
 });
