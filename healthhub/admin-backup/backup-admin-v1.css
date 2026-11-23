@@ -44,3 +44,7 @@ a:focus-visible,button:focus-visible{outline:2px solid #d1f5ff;outline-offset:3p
  .monitor-item{padding:13px;flex-direction:column;align-items:stretch;gap:10px}
  .monitor-item button{width:100%}
 }
+
+.monitor-item>a.monitor-manual{min-height:38px;min-width:150px;align-self:center;text-align:center;white-space:normal;font-size:12px}
+@media(max-width:820px){.monitor-item>a.monitor-manual{min-width:0}}
+@media(max-width:680px){.monitor-item>a.monitor-manual{width:100%;align-self:stretch}}
