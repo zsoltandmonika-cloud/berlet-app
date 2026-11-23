@@ -11,16 +11,24 @@ const AUTH='https://login.microsoftonline.com/common/oauth2/v2.0';
 const API='https://graph.microsoft.com/v1.0';
 // Standard OneDrive folder outside /special/approot needs delegated Files.ReadWrite.
 // Never infer that AppFolder grants access to arbitrary personal OneDrive folders.
-const SCOPE='Files.ReadWrite openid profile offline_access';
+// User.Read supports an authoritative /me identity check BEFORE any OneDrive access.
+const SCOPE='Files.ReadWrite User.Read openid profile offline_access';
+const EXPECTED_ACCOUNT='zsolt.monika@outlook.com';
 const ROOT_FOLDER='/me/drive/root:/Appok/Lak%C3%A1s%20Fizetnival%C3%B3k';
 const DATA_FILE=ROOT_FOLDER+'/lakas_fizetnivalok.json';
 const PHOTO_FOLDER=ROOT_FOLDER+'/meter_photos';
 const STATE_KEY='sho_lakas_pkce_single_v1';
 const LOCAL_DATA='lakas_fizetnivalok_v1_1';
-let credentials=null,baseline=null,writeEnabled=false,serial=Promise.resolve(),pending=null,timer=null;
+let credentials=null,baseline=null,writeEnabled=false,accountVerified=false,serial=Promise.resolve(),pending=null,timer=null;
 const report=message=>{if(typeof w.onOneDriveStatus==='function')w.onOneDriveStatus(message); else console.info(message)};
 const description=e=>e?.message || String(e);
 const uri=()=>w.location.origin+w.location.pathname;
+function showAccount(email){
+ const badge=w.document?.getElementById('oneDriveAccountBadge');
+ if(!badge)return;
+ badge.textContent=email?'🔐 Ellenőrzött OneDrive-fiók: '+email:'🔒 OneDrive-fiók: nincs ellenőrzött bejelentkezés';
+ badge.style.color=email?'#b6f8d1':'#d4b681';
+}
 function b64(bytes){let s='';for(let b of bytes)s+=String.fromCharCode(b);return btoa(s).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');}
 function rand(n){const a=new Uint8Array(n);crypto.getRandomValues(a);return b64(a);}
 async function pkceHash(verifier){return b64(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(verifier))));}
@@ -34,7 +42,7 @@ async function signIn(){
  const state=rand(24),verifier=rand(48),challenge=await pkceHash(verifier);
  sessionStorage.setItem(STATE_KEY,JSON.stringify({state,verifier,at:Date.now(),redirect:uri()}));
  const url=new URL(AUTH+'/authorize');
- Object.entries({client_id:APP_ID,response_type:'code',redirect_uri:uri(),response_mode:'query',scope:SCOPE,code_challenge:challenge,code_challenge_method:'S256',state,prompt:'select_account'}).forEach(([k,v])=>url.searchParams.set(k,v));
+ Object.entries({client_id:APP_ID,response_type:'code',redirect_uri:uri(),response_mode:'query',scope:SCOPE,code_challenge:challenge,code_challenge_method:'S256',state,prompt:'select_account',login_hint:EXPECTED_ACCOUNT}).forEach(([k,v])=>url.searchParams.set(k,v));
  w.location.assign(url.toString());
 }
 async function consumeRedirect(){
@@ -46,7 +54,9 @@ async function consumeRedirect(){
  if(!data)throw Error('Hiányzik a bejelentkezés biztonsági állapota.');
  const saved=JSON.parse(data);if(!state||state!==saved.state||saved.redirect!==uri()||Date.now()-saved.at>600000)throw Error('Érvénytelen OAuth állapot.');
  await exchange({client_id:APP_ID,grant_type:'authorization_code',code,code_verifier:saved.verifier,redirect_uri:uri(),scope:SCOPE});
- report('Microsoft-fiók csatlakoztatva. A OneDrive-ot csak a Letöltés gombbal olvassuk be.');
+ try{await verifyAccount();}
+ catch(e){signOut(false);throw e;}
+ report('✅ Ellenőrzött Microsoft-fiók: '+EXPECTED_ACCOUNT+'. A OneDrive-ot csak a Letöltés gombbal olvassuk be.');
 }
 async function token(){
  if(credentials && Date.now()+60000<credentials.until)return credentials.access;
@@ -55,11 +65,25 @@ async function token(){
  return credentials.access;
 }
 async function graph(path,opts={}){
+ if(!accountVerified && !path.startsWith('/me?'))requireAccount();
  const res=await fetch(API+path,{...opts,cache:'no-store',headers:{Authorization:'Bearer '+await token(),...(opts.headers||{})}});
  if(!res.ok)throw Error('Microsoft Graph HTTP '+res.status+(res.status===412?' (másik eszköz módosította a fájlt)':''));
  return res.json();
 }
-async function meta(){return graph(DATA_FILE+'?$select=id,name,eTag,size,@microsoft.graph.downloadUrl');}
+async function verifyAccount(){
+ // The login_hint merely pre-fills the picker; this Graph check enforces the real identity.
+ // Never infer account identity from cached browser sessions or the selected login label.
+ const user=await graph('/me?$select=id,mail,userPrincipalName');
+ const emails=[user.mail,user.userPrincipalName].filter(v=>typeof v==='string').map(v=>v.trim().toLowerCase());
+ if(!emails.includes(EXPECTED_ACCOUNT)){
+  const actual=emails.join(' / ')||'nem azonosítható';
+  throw Error('Nem a Lakásfizetnivalókhoz tartozó Microsoft-fiók jelentkezett be ('+actual+'). Válaszd ezt: '+EXPECTED_ACCOUNT+'. OneDrive-művelet letiltva.');
+ }
+ accountVerified=true;
+ showAccount(EXPECTED_ACCOUNT);
+}
+function requireAccount(){if(!accountVerified)throw Error('OneDrive hozzáférés tiltva: előbb igazold a '+EXPECTED_ACCOUNT+' fiókot.');}
+async function meta(){requireAccount();return graph(DATA_FILE+'?$select=id,name,eTag,size,@microsoft.graph.downloadUrl');}
 function valid(x){
  if(!x||!Array.isArray(x.months)||!Array.isArray(x.expenses)||x.months.length>120||x.expenses.length>20000||x.months.some(y=>typeof y.key!=='string'))throw Error('A OneDrive adatfájl szerkezete nem megfelelő, nem módosítunk adatot.');return x;
 }
@@ -138,8 +162,8 @@ async function uploadPhotoData(month,picture){
   await uploadSession(path,bytes,previous?.eTag);report('✅ Mérőóra-fotó feltöltve: '+name);
  }catch(e){report('Fotómentés elmaradt: '+description(e));}
 }
-function signOut(){credentials=null;baseline=null;writeEnabled=false;report('Microsoft-kapcsolat bontva, helyi adatok maradtak.');}
+function signOut(notify=true){clearTimeout(timer);pending=null;credentials=null;baseline=null;writeEnabled=false;accountVerified=false;showAccount(null);if(notify)report('Microsoft-kapcsolat bontva, helyi adatok maradtak.');}
 w.OneDriveBridge={signIn:()=>signIn().catch(e=>report(description(e))),signOut,downloadData:()=>downloadData().catch(e=>report('Letöltés elmaradt: '+description(e))),uploadData:data=>queued(data,true),autoUploadData,uploadPhotoData,autoUploadPhotoData:(month,picture)=>{if(writeEnabled)void uploadPhotoData(month,picture)}};
-w.SHO_LAKAS_WEB_PILOT={get hasCloudBaseline(){return !!baseline},get cloudWriteEnabled(){return writeEnabled},get redirectUri(){return uri()},clientId:APP_ID};
+w.SHO_LAKAS_WEB_PILOT={get hasCloudBaseline(){return !!baseline},get cloudWriteEnabled(){return writeEnabled},get accountVerified(){return accountVerified},get redirectUri(){return uri()},clientId:APP_ID};
 w.addEventListener('DOMContentLoaded',()=>{void consumeRedirect().catch(e=>report('Bejelentkezési hiba: '+description(e)))});
 })(window);
