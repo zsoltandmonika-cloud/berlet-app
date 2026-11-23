@@ -1,0 +1,69 @@
+# INSTALL ONLY IN A DEDICATED PRIVATE REPOSITORY: SHO-Backup-Runner
+# Path in the private repository: .github/workflows/sho-backup-unified.yml
+# Staging until full source coverage + isolated disaster-recovery restoration are proven.
+name: SHO OneDrive Backup · Nightly + Manual
+run-name: "SHO Backup · ${{ inputs.backup_kind || 'nightly' }} · ${{ github.run_number }}"
+on:
+  workflow_dispatch:
+    inputs:
+      backup_kind:
+        description: "Kézi teljes forrásmentés vagy fejlesztés előtti mentés"
+        type: choice
+        required: true
+        default: manual
+        options:
+          - manual
+          - pre_development
+  schedule:
+    - cron: '15 0 * * *'
+      timezone: 'Europe/Budapest'
+permissions:
+  contents: read
+concurrency:
+  group: sho-restic-canonical
+  cancel-in-progress: false
+jobs:
+  capture:
+    if: ${{ github.event.repository.private == true }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 360
+    environment: sho-backup-staging
+    env:
+      SHO_BACKUP_CAPTURE_AUTHORIZED: staging-read-only
+      SHO_BACKUP_KIND: ${{ inputs.backup_kind || 'nightly' }}
+      RCLONE_CONFIG_B64: ${{ secrets.SHO_RCLONE_CONFIG_B64 }}
+      GH_BACKUP_PAT: ${{ secrets.SHO_GITHUB_READ_TOKEN }}
+      SUPABASE_DB_URL: ${{ secrets.SHO_SUPABASE_DATABASE_URL }}
+      SUPABASE_MANAGEMENT_TOKEN: ${{ secrets.SHO_SUPABASE_MANAGEMENT_TOKEN }}
+      SHO_RECOVERY_ESCROW_B64: ${{ secrets.SHO_RECOVERY_ESCROW_B64 }}
+      RESTIC_PASSWORD: ${{ secrets.SHO_RESTIC_PASSWORD }}
+    steps:
+      - name: Checkout pinned reviewed source; no checkout credential persistence
+        uses: actions/checkout@v4
+        with:
+          repository: zsoltandmonika-cloud/berlet-app
+          ref: 72e28f511ebb3c15add3dc421fd88ef2159451d8
+          path: sho-source
+          persist-credentials: false
+      - name: Install required tools
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq restic rclone jq git-lfs
+      - name: Validate private runner secrets without leaking values
+        env:
+          HAS_RCLONE: ${{ secrets.SHO_RCLONE_CONFIG_B64 != '' }}
+          HAS_GITHUB: ${{ secrets.SHO_GITHUB_READ_TOKEN != '' }}
+          HAS_DB: ${{ secrets.SHO_SUPABASE_DATABASE_URL != '' }}
+          HAS_SUPABASE: ${{ secrets.SHO_SUPABASE_MANAGEMENT_TOKEN != '' }}
+          HAS_ESCROW: ${{ secrets.SHO_RECOVERY_ESCROW_B64 != '' }}
+          HAS_RESTIC: ${{ secrets.SHO_RESTIC_PASSWORD != '' }}
+        run: |
+          for name in HAS_RCLONE HAS_GITHUB HAS_DB HAS_SUPABASE HAS_ESCROW HAS_RESTIC; do
+            if [[ "${!name}" != "true" ]]; then
+              echo "::error::Missing credential: $name" >&2
+              exit 2
+            fi
+          done
+      - name: Capture all mandatory sources to encrypted, deduplicated OneDrive Restic repository
+        working-directory: sho-source
+        run: bash ops/backup/incremental-staging.sh

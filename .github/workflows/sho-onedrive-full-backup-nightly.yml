@@ -1,0 +1,33 @@
+name: SHO OneDrive Full Backup (staging until approved)
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '15 0 * * *'
+      timezone: 'Europe/Budapest'
+permissions:
+  contents: read
+concurrency:
+  group: sho-onedrive-full-backup
+  cancel-in-progress: false
+jobs:
+  full-backup:
+    # Fail closed in the public application repo; copy reviewed workflow into a dedicated private runner first.
+    if: ${{ github.event.repository.private == true }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+    env:
+      RCLONE_CONFIG_B64: ${{ secrets.SHO_RCLONE_CONFIG_B64 }}
+      GH_BACKUP_PAT: ${{ secrets.SHO_GITHUB_READ_TOKEN }}
+      SUPABASE_DB_URL: ${{ secrets.SHO_SUPABASE_DATABASE_URL }}
+      SUPABASE_MANAGEMENT_TOKEN: ${{ secrets.SHO_SUPABASE_MANAGEMENT_TOKEN }}
+      BACKUP_AGE_RECIPIENT: ${{ vars.SHO_BACKUP_AGE_RECIPIENT }}
+      SHO_RECOVERY_ESCROW_B64: ${{ secrets.SHO_RECOVERY_ESCROW_B64 }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install recovery tools
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq rclone age zstd jq git-lfs
+      - name: Preflight and encrypted backup
+        shell: bash
+        run: bash ops/backup/nightly-full-backup.sh

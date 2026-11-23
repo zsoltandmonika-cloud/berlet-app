@@ -1,0 +1,45 @@
+name: SHO OneDrive Full Backup QA (no production access)
+on:
+  pull_request:
+    paths:
+      - 'ops/backup/**'
+      - '.github/workflows/sho-onedrive-full-backup-*.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Parse shell and test recovery manifest
+        run: |
+          bash -n ops/backup/nightly-full-backup.sh
+          bash -n ops/backup/incremental-staging.sh
+          bash -n ops/backup/tests/restic_stream_smoke.sh
+          python3 -m py_compile ops/backup/stream_remote_tar.py
+          python -m unittest discover -s ops/backup/tests -v
+      - name: Offline Restic streaming/restore integration test
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq restic
+          bash ops/backup/tests/restic_stream_smoke.sh
+      - name: Read-only credential gate (reports names only, never values)
+        env:
+          HAS_RCLONE: ${{ secrets.SHO_RCLONE_CONFIG_B64 != '' }}
+          HAS_GITHUB: ${{ secrets.SHO_GITHUB_READ_TOKEN != '' }}
+          HAS_SUPA_DB: ${{ secrets.SHO_SUPABASE_DATABASE_URL != '' }}
+          HAS_SUPA_MGMT: ${{ secrets.SHO_SUPABASE_MANAGEMENT_TOKEN != '' }}
+          HAS_ESCROW: ${{ secrets.SHO_RECOVERY_ESCROW_B64 != '' }}
+          HAS_AGE_RECIPIENT: ${{ vars.SHO_BACKUP_AGE_RECIPIENT != '' }}
+        run: |
+          for key in HAS_RCLONE HAS_GITHUB HAS_SUPA_DB HAS_SUPA_MGMT HAS_ESCROW HAS_AGE_RECIPIENT; do
+            if [[ "${!key}" == "false" ]]; then
+              echo "::notice::Backup runner setup needed: $key"
+            else
+              echo "::notice::Backup runner $key is configured"
+            fi
+          done

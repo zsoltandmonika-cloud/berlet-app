@@ -1,0 +1,37 @@
+name: SHO Restic incremental capture (manual STAGING only)
+on:
+  workflow_dispatch:
+    inputs:
+      authorize_read_only_capture:
+        description: 'Explicitly authorize read-only capture to separate OneDrive staging repo'
+        type: boolean
+        required: true
+        default: false
+permissions:
+  contents: read
+concurrency:
+  group: sho-restic-incremental-staging
+  cancel-in-progress: false
+jobs:
+  capture:
+    # Owner secrets must never execute in the public SH0 application repository.
+    if: ${{ github.event.repository.private == true && inputs.authorize_read_only_capture == true }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 360
+    env:
+      SHO_BACKUP_CAPTURE_AUTHORIZED: staging-read-only
+      RCLONE_CONFIG_B64: ${{ secrets.SHO_RCLONE_CONFIG_B64 }}
+      GH_BACKUP_PAT: ${{ secrets.SHO_GITHUB_READ_TOKEN }}
+      SUPABASE_DB_URL: ${{ secrets.SHO_SUPABASE_DATABASE_URL }}
+      SUPABASE_MANAGEMENT_TOKEN: ${{ secrets.SHO_SUPABASE_MANAGEMENT_TOKEN }}
+      SHO_RECOVERY_ESCROW_B64: ${{ secrets.SHO_RECOVERY_ESCROW_B64 }}
+      RESTIC_PASSWORD: ${{ secrets.SHO_RESTIC_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install staging-only recovery prerequisites
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq restic rclone jq git-lfs
+      - name: Read-only incremental snapshot candidate
+        shell: bash
+        run: bash ops/backup/incremental-staging.sh

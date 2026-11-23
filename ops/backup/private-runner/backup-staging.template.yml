@@ -1,0 +1,64 @@
+# COPY THIS FILE ONLY INTO A DEDICATED PRIVATE GITHUB REPOSITORY:
+# .github/workflows/backup-staging.yml
+# Keep the private repo default branch reviewed; no PR-triggered job or schedule.
+name: SHO private backup runner - staged first capture
+on:
+  workflow_dispatch:
+    inputs:
+      authorize_read_only_capture:
+        description: "I authorize an isolated read-only source capture to OneDrive staging"
+        required: true
+        type: boolean
+        default: false
+permissions:
+  contents: read
+concurrency:
+  group: sho-private-restic-staging
+  cancel-in-progress: false
+jobs:
+  capture:
+    if: ${{ github.event.repository.private == true && inputs.authorize_read_only_capture == true }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 360
+    environment: sho-backup-staging
+    env:
+      SHO_BACKUP_CAPTURE_AUTHORIZED: staging-read-only
+      RCLONE_CONFIG_B64: ${{ secrets.SHO_RCLONE_CONFIG_B64 }}
+      GH_BACKUP_PAT: ${{ secrets.SHO_GITHUB_READ_TOKEN }}
+      SUPABASE_DB_URL: ${{ secrets.SHO_SUPABASE_DATABASE_URL }}
+      SUPABASE_MANAGEMENT_TOKEN: ${{ secrets.SHO_SUPABASE_MANAGEMENT_TOKEN }}
+      SHO_RECOVERY_ESCROW_B64: ${{ secrets.SHO_RECOVERY_ESCROW_B64 }}
+      RESTIC_PASSWORD: ${{ secrets.SHO_RESTIC_PASSWORD }}
+    steps:
+      - name: Check out immutable reviewed SHO staging commit
+        uses: actions/checkout@v4
+        with:
+          repository: zsoltandmonika-cloud/berlet-app
+          ref: 32839d2ddccb99641e003196c5775e4efa754529
+          path: sho-source
+          persist-credentials: false
+      - name: Preflight tool installation
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq restic rclone jq git-lfs
+          restic version
+          rclone version | head -n 1
+      - name: Backup credentials presence check (names only; never print secrets)
+        env:
+          HAS_RCLONE: ${{ secrets.SHO_RCLONE_CONFIG_B64 != '' }}
+          HAS_GITHUB: ${{ secrets.SHO_GITHUB_READ_TOKEN != '' }}
+          HAS_DB: ${{ secrets.SHO_SUPABASE_DATABASE_URL != '' }}
+          HAS_SUPABASE: ${{ secrets.SHO_SUPABASE_MANAGEMENT_TOKEN != '' }}
+          HAS_ESCROW: ${{ secrets.SHO_RECOVERY_ESCROW_B64 != '' }}
+          HAS_RESTIC: ${{ secrets.SHO_RESTIC_PASSWORD != '' }}
+        run: |
+          for name in HAS_RCLONE HAS_GITHUB HAS_DB HAS_SUPABASE HAS_ESCROW HAS_RESTIC; do
+            if [[ "${!name}" != "true" ]]; then
+              echo "::error::Missing private runner prerequisite: $name" >&2
+              exit 2
+            fi
+          done
+          echo "Private backup runner prerequisites are populated"
+      - name: Capture isolated encrypted deduplicated snapshots
+        working-directory: sho-source
+        run: bash ops/backup/incremental-staging.sh

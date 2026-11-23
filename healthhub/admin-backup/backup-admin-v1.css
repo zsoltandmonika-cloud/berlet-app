@@ -1,0 +1,50 @@
+:root{color-scheme:dark;--bg:#071226;--panel:#0e2440;--line:#5a83b560;--ink:#eff7ff;--muted:#b3cde1;--accent:#81cfff;--pink:#ffaddc}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 80% -10%,#285b8272,transparent 40%),radial-gradient(ellipse at -10% 45%,#48275d66,transparent 40%),var(--bg);font:15px/1.5 system-ui,Segoe UI,sans-serif;color:var(--ink)}
+main{width:min(1060px,100% - 28px);margin:0 auto;padding:22px 0 65px}
+a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
+.back{display:inline-flex;align-items:center;gap:7px;min-height:42px;margin-bottom:14px;font-weight:700}
+.kicker{font-weight:800;font-size:11px;letter-spacing:.15em;color:var(--pink)}
+h1{font-size:clamp(28px,4vw,42px);line-height:1.15;margin:6px 0 10px}h2{font-size:20px;margin:0 0 10px}
+p{margin:7px 0 12px}.muted,small{color:var(--muted)}
+.hero,.card{border:1px solid var(--line);border-radius:22px;background:linear-gradient(130deg,#112943ec,#0a1d34ed);box-shadow:inset 0 1px #cbeaff1b,0 20px 38px #020a1990;backdrop-filter:blur(14px)}
+.hero{padding:26px;margin-bottom:16px}.card{padding:21px;margin-bottom:14px}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:16px 0}
+.stat{background:#101e38e8;border:1px solid #6688a63a;border-radius:15px;padding:12px;min-width:0}.stat strong{display:block;font-size:19px;overflow-wrap:anywhere}.stat small{font-size:12px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:12px 0}
+button,.btn{display:inline-flex;align-items:center;justify-content:center;gap:5px;min-height:45px;padding:11px 15px;border-radius:12px;font:750 14px/1.3 system-ui;background:linear-gradient(120deg,#254f79,#326d91);border:1px solid #8dc7e5;color:#fff;cursor:pointer;text-decoration:none}
+button:hover,.btn:hover{background:#337096;text-decoration:none}
+button:disabled{opacity:.45;cursor:not-allowed}
+button.secondary,.btn.secondary{background:#112a45;border-color:#7f9eb15c}
+button.danger{background:#653950;border-color:#d999b3}
+ul{padding-left:18px}.result{padding:13px;background:#09223d;border:1px solid #49759767;border-radius:12px;white-space:pre-wrap;overflow-wrap:anywhere}
+.snapshot{display:flex;gap:12px;align-items:center;justify-content:space-between;padding:12px 0;border-top:1px solid #8dbdd733}
+.snapshot strong{display:block;font-size:14px}.snapshot small{display:block;margin-top:2px}
+.snapshot button{min-height:38px;font-size:12px;white-space:nowrap}
+.status{color:#a2f1dc;font-weight:750}.warn{color:#ffd49a}
+label{display:block;font-size:13px;font-weight:700}
+input{width:100%;padding:11px;margin:7px 0 10px;border:1px solid #799ebe9e;border-radius:10px;background:#08162b;color:white}
+footer{font-size:12px;color:#a7c3d7;padding-top:10px}
+@media(max-width:680px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.grid{grid-template-columns:1fr}.hero,.card{padding:17px}.snapshot{align-items:flex-start;flex-direction:column}}
+
+
+/* V4 · live component monitoring, accessible Golden Premium Glass */
+.monitor-item{position:relative;padding:15px 14px;margin:8px 0;gap:14px;border:1px solid #87b8e84d;border-radius:15px;background:linear-gradient(115deg,#123047e8,#10203cec);box-shadow:inset 0 1px #cceaff1b}
+.monitor-item:first-child{border-color:#78c5ac88}
+.monitor-item strong{font-size:15px;letter-spacing:.01em;color:#f0f8ff}
+.monitor-item small{margin-top:5px;font-size:12px;line-height:1.5;color:#b9e5d5}
+.monitor-item>div{min-width:0;flex:1}
+.monitor-item>button{flex-shrink:0;min-width:132px}
+.monitor-item button:disabled{opacity:.65}
+#stagingRuns>p{padding:12px 10px;font-size:13px}
+#status{border-color:#70b9d17c}
+a:focus-visible,button:focus-visible{outline:2px solid #d1f5ff;outline-offset:3px}
+@media(max-width:680px){
+ .monitor-item{padding:13px;flex-direction:column;align-items:stretch;gap:10px}
+ .monitor-item button{width:100%}
+}
+
+.monitor-item>a.monitor-manual{min-height:38px;min-width:150px;align-self:center;text-align:center;white-space:normal;font-size:12px}
+@media(max-width:820px){.monitor-item>a.monitor-manual{min-width:0}}
+@media(max-width:680px){.monitor-item>a.monitor-manual{width:100%;align-self:stretch}}
