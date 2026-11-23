@@ -83,13 +83,33 @@ async function verifyAccount(){
  showAccount(EXPECTED_ACCOUNT);
 }
 function requireAccount(){if(!accountVerified)throw Error('OneDrive hozzáférés tiltva: előbb igazold a '+EXPECTED_ACCOUNT+' fiókot.');}
-async function meta(){requireAccount();return graph(DATA_FILE+'?$select=id,name,eTag,size,@microsoft.graph.downloadUrl');}
+async function meta(){
+ requireAccount();
+ // Keep full driveItem metadata; select filters sometimes omit transient downloadUrl.
+ return graph(DATA_FILE);
+}
 function valid(x){
  if(!x||!Array.isArray(x.months)||!Array.isArray(x.expenses)||x.months.length>120||x.expenses.length>20000||x.months.some(y=>typeof y.key!=='string'))throw Error('A OneDrive adatfájl szerkezete nem megfelelő, nem módosítunk adatot.');return x;
 }
 async function bodyOf(fileMeta){
- const link=fileMeta['@microsoft.graph.downloadUrl'];if(!link)throw Error('A OneDrive nem adott letöltési URL-t.');
- const res=await fetch(link,{credentials:'omit',cache:'no-store'});if(!res.ok)throw Error('OneDrive letöltés: HTTP '+res.status);return res;
+ // The downloadUrl is a transient Microsoft Graph instance annotation.
+ // The first metadata call may omit it even though the file exists.
+ let link=fileMeta?.['@microsoft.graph.downloadUrl'];
+ if(!link && fileMeta?.id){
+  const id=encodeURIComponent(fileMeta.id);
+  const again=await graph('/me/drive/items/'+id+'?$select=id,%40microsoft.graph.downloadUrl');
+  link=again['@microsoft.graph.downloadUrl'];
+  if(!link){
+   const full=await graph('/me/drive/items/'+id);
+   link=full['@microsoft.graph.downloadUrl'];
+  }
+ }
+ if(!link || !/^https:\/\//i.test(link))throw Error('A Microsoft Graph nem adott letöltési URL-t. Az eredeti OneDrive-adatokhoz nem nyúltunk.');
+ // A preauthenticated download URL needs NO Authorization header.
+ // Never use /content in a browser: its 302 redirect fails with CORS preflight.
+ const res=await fetch(link,{credentials:'omit',cache:'no-store'});
+ if(!res.ok)throw Error('OneDrive letöltés: HTTP '+res.status);
+ return res;
 }
 async function downloadData(){
  report('OneDrive eredeti adatok ellenőrzése, csak olvasás…');
@@ -108,7 +128,7 @@ async function restorePhotos(months){
  for(const m of months){
   if(!m.meterPhotoFile||!/^20\d{2}-(0[1-9]|1[0-2])$/.test(m.key))continue;
   try{
-   const item=await graph(PHOTO_FOLDER+'/'+m.key+'_meter.jpg?$select=id,@microsoft.graph.downloadUrl');
+   const item=await graph(PHOTO_FOLDER+'/'+m.key+'_meter.jpg');
    const blob=await (await bodyOf(item)).blob();if(blob.size>8000000)continue;
    const data=await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=()=>reject(reader.error);reader.readAsDataURL(blob)});
    if(w.applyOneDriveMeterPhoto)w.applyOneDriveMeterPhoto(m.key,data);count++;
