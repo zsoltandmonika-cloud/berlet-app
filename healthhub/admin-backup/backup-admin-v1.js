@@ -67,43 +67,90 @@ function showSnapshots(items){
   row.append(detail,button);root.appendChild(row);
  }
 }
+// V4: The actual production-isolated restic-partial-runs folder holds
+// five different component backups. Never promote any of these to full_system.
+const MONITOR_FORMATS=Object.freeze([
+ {key:'dropbox',title:'☁️ Dropbox · 2 vault',code:'PARTIAL_RESTIC_READ_DATA_AND_FULL_FILE_RESTORE_VERIFIED',valid:s=>Array.isArray(s.snapshot_ids)&&s.snapshot_ids.length===1&&s.sources?.length===2},
+ {key:'git',title:'🧩 GitHub · 4 repo + 25 Edge',code:'GIT_EDGE_PARTIAL_RESTIC_READBACK_AND_RESTORE_VERIFIED',valid:s=>s.git_repositories===4&&s.edge_functions_listed===25&&s.edge_bodies_included===25},
+ {key:'db',title:'🗄️ PostgreSQL · adatok',code:'LOGICAL_POSTGRES_READONLY_DATA_RESTIC_SHA256_RESTORE_PASS',valid:s=>s.pg_dump===false&&s.tables>=113&&s.verified_files>=118&&s.rows>=0},
+ {key:'schema',title:'🛡️ PostgreSQL · séma és RLS',code:'POSTGRES_SCHEMA_CATALOG_RESTIC_SHA256_RESTORE_PASS',valid:s=>s.pg_dump===false&&s.catalog_categories===15&&s.catalog_files_verified===16},
+ {key:'storage',title:'📦 Supabase Storage · 7 tároló',code:'STORAGE_RESTIC_READ_DATA_FULL_SHA256_RESTORE_PASS',valid:s=>s.file_count===203&&s.postgres_dump_included===false}
+]);
+const resticVerified=new Map();
+const SNAPSHOT_HEX=/^[a-f0-9]{64}$/;
+function timeOfRun(id){
+ const m=/^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})Z-/.exec(id||'');
+ if(!m)return 'ismeretlen';
+ const iso=m[1]+'-'+m[2]+'-'+m[3]+'T'+m[4]+':'+m[5]+':'+m[6]+'Z';
+ const stamp=new Date(iso);
+ if(Number.isNaN(stamp.getTime()))return 'ismeretlen';
+ return stamp.toLocaleString('hu-HU',{timeZone:'Europe/Budapest',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});
+}
+function validateResticStatus(s,runId){
+ if(!s||s.backup_id!==runId||s.full_system!==false)return null;
+ const snapshots=Array.isArray(s.snapshot_ids)?s.snapshot_ids:[s.snapshot_id||s.snapshot];
+ if(!snapshots.length||!snapshots.every(x=>typeof x==='string'&&SNAPSHOT_HEX.test(x)))return null;
+ const match=MONITOR_FORMATS.find(x=>x.code===s.status&&x.valid(s));
+ return match?{runId,kind:match.key,title:match.title,snapshots,when:timeOfRun(runId),status:s}:null;
+}
+async function readResticRun(folder,token){
+ try{
+  const list=await readJson('/me/drive/items/'+encodeURIComponent(folder.id)+'/children?$select=id,name,file&$top=20',token);
+  const statusFile=(Array.isArray(list.value)?list.value:[]).find(v=>v?.name==='status.json'&&v.file&&v.id);
+  if(!statusFile)return null;
+  const status=await readJson('/me/drive/items/'+encodeURIComponent(statusFile.id)+'/content',token);
+  return validateResticStatus(status,folder.name);
+ }catch(_){return null} // Missing/invalid/forbidden never counts as a verified backup.
+}
 async function refreshStaging(token){
  const target=el('stagingRuns');
- if(!target)return;
- clearNode(target);
+ if(!target)return [];
+ clearNode(target);resticVerified.clear();
+ const base='/me/drive/root:/SHO/Backups/restic-partial-runs:/children?$select=id,name,folder&$top=200';
  let folders;
- try{
-  folders=await readJson('/me/drive/root:/SHO/Backups/restic-staging-runs:/children?$select=id,name,folder&$top=100',token);
- }catch(e){
-  target.appendChild(block('p','muted','Nincs még külön Restic próbamentés, vagy nem olvasható.'));
-  return;
+ try{folders=await readJson(base,token)}
+ catch(e){
+  target.appendChild(block('p','warn','⚠️ A tényleges Restic-státuszmappa nem olvasható. Ellenőrizd a OneDrive-jogosultságot.'));
+  return [];
  }
  const runs=(Array.isArray(folders.value)?folders.value:[])
   .filter(x=>x?.folder&&RUN_RE.test(x.name||'')&&typeof x.id==='string')
-  .sort((a,b)=>b.name.localeCompare(a.name)).slice(0,30);
- if(!runs.length){
-  target.appendChild(block('p','muted','Még nem található próbamentés.'));
-  return;
+  .sort((a,b)=>b.name.localeCompare(a.name)).slice(0,40);
+ const result=new Array(runs.length);
+ let cursor=0;
+ async function worker(){
+  while(cursor<runs.length){
+   const idx=cursor++;
+   result[idx]=await readResticRun(runs[idx],token);
+  }
  }
- for(const run of runs){
-  const row=block('div','snapshot');
-  let label='Nem ellenőrzött · nem állítható vissza';
-  try{
-   const list=await readJson('/me/drive/items/'+encodeURIComponent(run.id)+'/children?$select=id,name,file&$top=100',token);
-   const statusFile=(Array.isArray(list.value)?list.value:[]).find(x=>x?.name==='status.json'&&x.file&&x.id);
-   if(statusFile){
-    const st=await readJson('/me/drive/items/'+encodeURIComponent(statusFile.id)+'/content',token);
-    if(st?.schema==='sho-restic-staging-status/1'&&st?.backup_id===run.name&&
-       st?.status==='STAGING_INCREMENTAL_REPO_DATA_VERIFIED'&&
-       st?.read_back_verified===true&&st?.full_system===false&&
-       st?.metadata_restore_smoke_tested===true&&Array.isArray(st?.snapshot_ids)&&st.snapshot_ids.length>=5)
-     label='✓ Restic-adatok ellenőrizve · '+(st.backup_kind==='pre_development'?'Fejlesztés előtt':'Próbamentés')+' · teljes restore MÉG NEM igazolt';
-   }
-  }catch(_){ /* Never promote unreadable states to verified. */ }
-  row.appendChild(block('strong','',run.name));
-  row.appendChild(block('small',label));
-  target.appendChild(row);
+ await Promise.all(Array.from({length:Math.min(4,runs.length)},()=>worker()));
+ const valid=result.filter(Boolean);
+ for(const s of valid){resticVerified.set(s.runId,s);verified.add(s.runId)}
+ for(const kind of MONITOR_FORMATS){
+  const last=valid.find(v=>v.kind===kind.key);
+  const row=block('div','snapshot monitor-item');
+  const details=block('div');
+  details.appendChild(block('strong','',kind.title));
+  details.appendChild(block('small',last?
+   '✓ SHA-256 restore PASS jelentve · '+last.when+' · '+last.snapshots[0].slice(0,8):
+   '⚠️ Nincs ellenőrzött mentési státusz az utolsó 40 futásban'));
+  const btn=block('button','secondary',last?'Helyreállítási terv':'Nem választható');
+  btn.type='button';btn.disabled=!last;
+  if(last)btn.addEventListener('click',()=>{
+    el('restoreId').value=last.runId;
+    el('prepare').disabled=false;
+    el('restoreOutput').hidden=true;
+  });
+  row.append(details,btn);target.appendChild(row);
  }
+ const bad=runs.length-valid.length;
+ const summary=block('p',bad?'warn':'muted',
+  'Ellenőrzött részmentések: '+valid.length+' / '+runs.length+
+  ' megvizsgált futás. '+(bad?'Nem ellenőrzött vagy hiányos státusz: '+bad+'. ':'')+
+  'Ez nem teljes adatbázis-restore és nem 100%-os rendszermentés.');
+ target.appendChild(summary);
+ return valid;
 }
 async function refresh(){
  const btn=el('refresh');btn.disabled=true;
@@ -128,13 +175,17 @@ async function refresh(){
    data.push({name:item.name,verified:good});
   }
   showSnapshots(data);
-  await refreshStaging(token);
-  const last=data.find(x=>x.verified);
-  text('lastVerified',last?last.name.slice(0,8):'Nincs igazolt');
+  const restic=await refreshStaging(token);
+  const categories=new Set(restic.map(x=>x.kind));
+  const latestRestic=restic[0];
+  const legacyLast=data.find(x=>x.verified);
+  text('lastVerified',latestRestic?latestRestic.when:(legacyLast?legacyLast.name.slice(0,8):'Nincs igazolt'));
   text('snapshotCount',String(verified.size));
-  text('status',last?
-    '✓ '+verified.size+' ellenőrzött felhőmag-mentés. Ez még nem bizonyított teljes telefonos rendszer-visszaállítás.':
-    'Nincs ellenőrzött felhőmag-mentés. A sikeres feltöltés önmagában nem elegendő.');
+  text('schedule','5 ütemezés · 00:15–04:15');
+  text('status',restic.length?
+    '✓ '+categories.size+'/5 mentési terület igazolt OneDrive-státusszal; '+restic.length+' Restic részmentés. Az éjszakai ütemezett futások külön validálandók. NEM teljes PostgreSQL vagy SHO restore.':
+    (legacyLast?'Korábbi felhőmag-mentés látható, de új Restic-státusz nem igazolt.':
+    '⚠️ Nincs olvasható, igazolt Restic-státusz. A mentések meglétét itt még nem bizonyítottuk.'));
   text('authHelp','Csak olvasási Microsoft Graph-kapcsolat. Nincs felülírás, törlés vagy helyreállítás.');
  }catch(err){
   showSnapshots([]);
@@ -147,13 +198,22 @@ function prepare(){
  const id=el('restoreId').value;
  if(!verified.has(id)||!RUN_RE.test(id))return;
  if(!w.confirm('A '+id+' mentés helyreállítási tervét készíted elő. Az éles SHO nem módosul. Folytatod?'))return;
- const msg='Kiválasztott helyreállítási pont: '+id+
- '\n1. OneDrive: status.json + sha256.txt + backup.tar.zst.age azonosítása'+
- '\n2. Offline dekódolás és teljes SHA-256 ellenőrzés'+
- '\n3. Külön tesztprojektbe történő próbahelyreállítás'+
- '\n4. Klinikai adat-, modul- és hozzáférésellenőrzés'+
- '\n5. Éles rendszer csak új, kifejezett jóváhagyással állítható vissza.'+
- '\nÁllapot: terv elkészült; restore NEM indult.';
+ const restic=resticVerified.get(id);
+ const msg=restic?
+  'Mentési komponens: '+restic.title+' · '+restic.when+
+  '\nRestic snapshot: '+restic.snapshots.join(', ')+
+  '\n1. OneDrive: SHO/Backups/restic-partial-v1 titkosított Restic-tár'
+  +'\n2. Snapshot integritásellenőrzése és visszaállítása külön, nem éles környezetbe'
+  +'\n3. Fájl SHA-256 és tartalmi ellenőrzés; komponensfüggő helyreállítási sorrend'
+  +'\n4. PostgreSQL teljes helyreállításához natív dump és izolált teszt szükséges'
+  +'\n5. Éles SHO csak új, kifejezett jóváhagyással változhat'
+  +'\nÁllapot: CSAK terv, restore NEM indult.':
+  'Kiválasztott helyreállítási pont: '+id+
+  '\n1. OneDrive: korábbi, külön formátumú felhőmag-mentés ellenőrzése'+
+  '\n2. Teljes SHA-256 ellenőrzés'+
+  '\n3. Külön tesztprojektbe történő próbahelyreállítás'+
+  '\n4. Éles rendszer csak új, kifejezett jóváhagyással állítható vissza.'+
+  '\nÁllapot: terv elkészült; restore NEM indult.';
  const out=el('restoreOutput');out.textContent=msg;out.hidden=false;
 }
 
@@ -253,5 +313,5 @@ el('prepare')?.addEventListener('click',prepare);
     (w.sessionStorage?.getItem(VAULT_SESSION)||w.localStorage?.getItem(VAULT_SESSION))){
   void checkManual();
  }
-w.HH_BACKUP_ADMIN_V1=Object.freeze({version:'3',refresh,checkManual,startManual,checkRun,manualStartMode:'private-runner-owner-authenticated',restoreMode:'plan-only'});
+w.HH_BACKUP_ADMIN_V1=Object.freeze({version:'4',refresh,checkManual,startManual,checkRun,manualStartMode:'private-runner-owner-authenticated',restoreMode:'plan-only'});
 })(window,document);
