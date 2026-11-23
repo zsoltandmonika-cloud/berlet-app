@@ -1,186 +1,225 @@
 {
   "schemaVersion": 1,
-  "date": "2026-11-22",
-  "generatedAt": "2026-11-22T13:39:17+01:00",
-  "headline": "A reggel fő témái: South Korea education minister resigns over exam cheating scandal; Russia-bound ship still on fire after attack in Gulf of Finland",
+  "date": "2026-11-23",
+  "generatedAt": "2026-11-23T15:48:11+01:00",
+  "headline": "A reggel fő témái: Russian warship hit by Ukrainian drones in Libya, Zelensky says; Longest-ever UN climate talks end with no deal as deep divisions exposed",
   "sections": [
     {
       "id": "executive",
       "title": "Vezetői összefoglaló",
       "items": [
-        "BBC World: South Korea education minister resigns over exam cheating scandal",
-        "BBC World: Russia-bound ship still on fire after attack in Gulf of Finland",
-        "BBC World: Mexican drug lord on FBI's 10 most wanted list arrested in shoot-out",
-        "BBC World: Three killed and dozens missing after fire at Indonesian factory"
+        "BBC World: Russian warship hit by Ukrainian drones in Libya, Zelensky says",
+        "BBC World: Longest-ever UN climate talks end with no deal as deep divisions exposed",
+        "BBC World: Israeli attacks have turned Gaza into 'toxic wasteland', Oxfam says",
+        "BBC World: Boy, 7, pulled alive from rubble hours after Russian strike on Ukraine, rescuers say"
       ]
     },
     {
       "id": "overnight",
       "title": "Éjszakai fejlemények",
       "items": [
-        "BBC World: South Korea education minister resigns over exam cheating scandal",
-        "BBC World: Russia-bound ship still on fire after attack in Gulf of Finland",
-        "BBC World: Mexican drug lord on FBI's 10 most wanted list arrested in shoot-out"
+        "BBC World: Russian warship hit by Ukrainian drones in Libya, Zelensky says",
+        "BBC World: Longest-ever UN climate talks end with no deal as deep divisions exposed",
+        "BBC World: Israeli attacks have turned Gaza into 'toxic wasteland', Oxfam says"
       ]
     },
     {
       "id": "geopolitics",
       "title": "Külpolitika / Geopolitika",
       "items": [
-        "BBC World: South Korea education minister resigns over exam cheating scandal",
-        "BBC World: Russia-bound ship still on fire after attack in Gulf of Finland",
-        "BBC World: Mexican drug lord on FBI's 10 most wanted list arrested in shoot-out"
+        "BBC World: Russian warship hit by Ukrainian drones in Libya, Zelensky says",
+        "BBC World: Longest-ever UN climate talks end with no deal as deep divisions exposed",
+        "BBC World: Israeli attacks have turned Gaza into 'toxic wasteland', Oxfam says"
       ]
     },
     {
       "id": "hungary",
       "title": "Magyarország",
       "items": [
-        "MédiaKlikk: Tenisz Billie Jean King-kupa Egyesült Államok - Magyarország mérkőzés - MédiaKlikk",
-        "EY: Webinár | Visszaélés-bejelentés a gyakorlatban - EY",
-        "Autoszektor: Európa veszi az autókat, de mások kaszálhatnak rajta – ezt pedig Magyarország is megérezheti - Autoszektor"
+        "Magyarország Kormánya: Magyar Péter: Ukrajna felé és Brüsszelben is szót emelünk a magyarokért - Magyarország Kormánya",
+        "Facebook: Magyarország Kormánya. . Miniszterelnöki viszontválasz – napirend előtt - Facebook",
+        "Economx: Magyar Péter: Magyarország nem tudja elfogadni az uniós költségvetést - Economx"
       ]
     },
     {
       "id": "economy",
       "title": "Gazdaság / Piacok",
       "items": [
-        "BBC Business: Employers are being asked to give interview feedback - here's what applicants want",
-        "BBC Business: Italian jeweller and businessman Paolo Bulgari dies aged 89",
-        "BBC Business: MP criticises Guernsey and Jersey company ownership register plans"
+        "BBC Business: Capita shares plunge 70% as boss quits after civil service pensions failure",
+        "BBC Business: Catering giant to switch main share listing to US in further blow to UK",
+        "BBC Business: Next data accessed in cyber breach"
       ]
     },
     {
       "id": "technology",
       "title": "Technológia / AI",
-      "items": []
+      "items": [
+        "BBC Technology: GTA 6 hacker released on licence with warning 'don't let this happen again'",
+        "BBC Technology: San Francisco is enjoying an AI boom, but worries about a crash are growing"
+      ]
     },
     {
       "id": "risks",
       "title": "Mai kockázatok",
       "items": [
-        "Figyelmi pont: Russia-bound ship still on fire after attack in Gulf of Finland (BBC World).",
-        "Figyelmi pont: Zelensky says Crimean Bridge strikes 'fair response' as he meets UK's Streeting (BBC World).",
-        "Figyelmi pont: Itt élhetnek kiskirályként a nyugdíjasok 2026-ban: nem fenyegeti őket elszegényedés, az infláció, magas rezsi - Pénzcentrum (Pénzcentrum)."
+        "Figyelmi pont: Russian warship hit by Ukrainian drones in Libya, Zelensky says (BBC World).",
+        "Figyelmi pont: Israeli attacks have turned Gaza into 'toxic wasteland', Oxfam says (BBC World).",
+        "Figyelmi pont: Boy, 7, pulled alive from rubble hours after Russian strike on Ukraine, rescuers say (BBC World)."
       ]
     },
     {
       "id": "watch",
       "title": "Mi számít igazán / Figyelmi szint",
       "items": [
-        "BBC World: South Korea education minister resigns over exam cheating scandal",
-        "BBC World: Russia-bound ship still on fire after attack in Gulf of Finland"
+        "BBC World: Russian warship hit by Ukrainian drones in Libya, Zelensky says",
+        "BBC World: Longest-ever UN climate talks end with no deal as deep divisions exposed"
       ]
     }
   ],
   "sources": [
     {
-      "title": "South Korea education minister resigns over exam cheating scandal",
+      "title": "Russian warship hit by Ukrainian drones in Libya, Zelensky says",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cw3dgk29d37no?at_medium=RSS&at_campaign=rss",
+      "url": "https://www.bbc.co.uk/news/articles/cr894gjz0j0yo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-23"
+    },
+    {
+      "title": "Longest-ever UN climate talks end with no deal as deep divisions exposed",
+      "publisher": "BBC World",
+      "url": "https://www.bbc.co.uk/news/articles/cqwy06zrd26lo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-23"
+    },
+    {
+      "title": "Israeli attacks have turned Gaza into 'toxic wasteland', Oxfam says",
+      "publisher": "BBC World",
+      "url": "https://www.bbc.co.uk/news/articles/c8r4gzzxvxl3o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-23"
+    },
+    {
+      "title": "Boy, 7, pulled alive from rubble hours after Russian strike on Ukraine, rescuers say",
+      "publisher": "BBC World",
+      "url": "https://www.bbc.co.uk/news/articles/cqdr15l32d3go?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-23"
+    },
+    {
+      "title": "Flights and train services cancelled in Belgium due to strike",
+      "publisher": "BBC World",
+      "url": "https://www.bbc.co.uk/news/articles/cwdr155e2d05o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-23"
+    },
+    {
+      "title": "Mexican soldiers attacked in wake of drug lord's arrest",
+      "publisher": "BBC World",
+      "url": "https://www.bbc.co.uk/news/articles/c5rmgkv2lk73o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-23"
+    },
+    {
+      "title": "Miley Cyrus marries Maxx Morando in California ceremony",
+      "publisher": "BBC World",
+      "url": "https://www.bbc.co.uk/news/articles/cq8e0p87l89lo?at_medium=RSS&at_campaign=rss",
       "publishedAt": "2026-11-22"
     },
     {
-      "title": "Russia-bound ship still on fire after attack in Gulf of Finland",
+      "title": "Kenya and DR Congo agree to restore ties after tensions over conflict",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cj752ddve27ko?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-22"
+      "url": "https://www.bbc.co.uk/news/articles/cmvg2qnn95vro?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-23"
     },
     {
-      "title": "Mexican drug lord on FBI's 10 most wanted list arrested in shoot-out",
-      "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/ckz749ey0r75o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-22"
+      "title": "Magyar Péter: Ukrajna felé és Brüsszelben is szót emelünk a magyarokért - Magyarország Kormánya",
+      "publisher": "Magyarország Kormánya",
+      "url": "https://news.google.com/rss/articles/CBMimwFBVV95cUxQOFpXNS1uakZ2Yjl3RVpYMTkyclZkLVFuVHFUNWp1UEN4SXpNQ3RDNW95YjdhblNUcG9BX3RrM2ZMTUZidUk0RnNZX2VUbk9EZzVtWEd6ODNRaU9qVEdZUzRzNkxaRnVzM2MyM1cyalN4Q2RpRVliVWpGZnFtcFFva2oyX3JsZy1Ca3dVUU4wbk40VWROdTVMendyVQ?oc=5",
+      "publishedAt": "2026-11-23"
     },
     {
-      "title": "Three killed and dozens missing after fire at Indonesian factory",
-      "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cw8dvg5pgm0eo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-22"
+      "title": "Magyarország Kormánya. . Miniszterelnöki viszontválasz – napirend előtt - Facebook",
+      "publisher": "Facebook",
+      "url": "https://news.google.com/rss/articles/CBMivAFBVV95cUxOSEhJQzFGdkY3d01rQnNrSVZrMXItRE1RRlZva1o2cU03UXd2QWRRZ1V4cUNYbTFOblpHTklQV2dNMi1KeFVYNkxPVVdoQ2FVMjFKcWh5T01GajFnQm1CQ2ZKR1k3NS1WaXM1UnFsWERvWTNtaWtvbzA0Tl9qNGhwcldkcy01WGxpdHpYbzk4b3VST1NfR2JVYUZ2VXZOanBzTlludFAwX1dvQk94bEV0ZVIwck9xZzVuanVtUg?oc=5",
+      "publishedAt": "2026-11-23"
     },
     {
-      "title": "Italian jeweller and businessman Paolo Bulgari dies aged 89",
-      "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/c8e39qk5vrpdo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-22"
+      "title": "Magyar Péter: Magyarország nem tudja elfogadni az uniós költségvetést - Economx",
+      "publisher": "Economx",
+      "url": "https://news.google.com/rss/articles/CBMipgFBVV95cUxQbmVreWdURkYyWkFCYlBmQWg1MTVmWjh0S0lfcTktUWp1bHBjd3pDZmwtNm5FRDhsc1JzT3VNQjB1NklQc2x6VnVEdUVkOXM0MkZ1QmNodjNlYU1qY2taclA4emxvcTgwb3R5Ym9zQmQteXBtaDVLN1ZHdmNnTDduRWtVbThORDJoV3pyVGFXRlpJWXllbW4wbXRQVVVtYnBrRUo4bllR?oc=5",
+      "publishedAt": "2026-11-23"
     },
     {
-      "title": "Zelensky says Crimean Bridge strikes 'fair response' as he meets UK's Streeting",
-      "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/c6wy0qj7w5zqo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-21"
+      "title": "Már a saját bőrünkön érezzük: megváltozott Magyarország éghajlata? - Agroinform",
+      "publisher": "Agroinform",
+      "url": "https://news.google.com/rss/articles/CBMihAFBVV95cUxNUVhreWNFNDJhLUtrakpTWThVNzBDbHliOWpqblJjclBuY3dCVUk0ZTZRQ1ZaYXFxTlVYeDAzc3hzSElUOW5hOXMzVnhPaGd6OWlkZ1VQQ1gxMHk4Y1BXcWNzeHBYSzNiRmd0MkpRWE1iQm9FYUNPaVZYVzU4WFY1ZzlCTkrSAYoBQVVfeXFMT0MxeTh2WkdTTGhKVVg3ekQ0ZFFVcXJCendWYTVEMkVtazR5TzhMT2lVM2pYeFJETlFrZUhaYWtXZXJXSEZjbUluWjlLUmpHWk9ZMjI4NXY1cEpOd082V2hKT19yRktUUHlVbmZCeUwwUXZGanBrN3BRWXpIa3dCRUJPcXI2ZEFsNUR3?oc=5",
+      "publishedAt": "2026-11-23"
     },
     {
-      "title": "FBI reportedly investigating apparent hack of its criminal database",
-      "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cvze7de86pk3o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-22"
+      "title": "Hatalmas meglepetést hozott a podcast piac globális felmérése, Afrika tarolt, Magyarország a 39. - Piac&Profit",
+      "publisher": "Piac&Profit",
+      "url": "https://news.google.com/rss/articles/CBMi1gFBVV95cUxPWGZyZGNpdHFDb1pjcnNuZWJ1enpSZk9XZ25SeVg3dUlpWTByRzRfQUxQSGVoaVVhc0psbXJfd2lJUzBUSWNBYzg1OUhLeW1xZ3U4X1FFb0x5amdoTGNKeWtlSlVjTjV2c2djbEJnR0lPdHEtWS1OakJWVmFfMVEwNDg0U3o3SERWNzBPenM1aHMwS1c5RUVBWk9IalBXQzRQdDR6U083SU1FRGN1VTZNY0xKcGNueTVyMTNWQzduR2tIWEk3cXRuaVl6Tkh6Vk1aaEo1LU1B?oc=5",
+      "publishedAt": "2026-11-23"
     },
     {
-      "title": "Lock of former US President George Washington's hair sells for $4,000",
-      "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cwe9k23dpz0do?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-21"
-    },
-    {
-      "title": "Tenisz Billie Jean King-kupa Egyesült Államok - Magyarország mérkőzés - MédiaKlikk",
-      "publisher": "MédiaKlikk",
-      "url": "https://news.google.com/rss/articles/CBMiqgFBVV95cUxNVzdaUzBmX3RqaG0zOURvbnI4aG5oTUR5NVJUdVQzS0thM05lY203UlA1S19yU2JpMmRhdDA4RXIxbGJRYkdNY2E5c2U5cTVlTXdOSlN0dVR3bmNlZ0V0UmhxYnJWYUFieHE1ZUFVSGU3QkEtNEFtMUVLMFVVTnlxRWQwdnRuTENDQjRCaEozVnBWTEc0dVhQY0MyMTNvVjA5YkJxai00LUw2Zw?oc=5",
-      "publishedAt": "2026-11-21"
-    },
-    {
-      "title": "Webinár | Visszaélés-bejelentés a gyakorlatban - EY",
-      "publisher": "EY",
-      "url": "https://news.google.com/rss/articles/CBMijAFBVV95cUxQZDhVZzgzakRtQXJlM19FanZTUTJaZmNPUjQ0eFdic3dnNGVybEJ4eWRaRkpJQ1p0LWFrTmFnZlFmN0RsVlVOamU2aVR0NUxhZmFSdHYtd0VnR2xoOTV4QXlGZkpyV0hia1FLYXUtLU94UWNoYnltM3lISkc2eEVnNDRfSGRWODlZbUtTUQ?oc=5",
-      "publishedAt": "2026-11-22"
-    },
-    {
-      "title": "Európa veszi az autókat, de mások kaszálhatnak rajta – ezt pedig Magyarország is megérezheti - Autoszektor",
+      "title": "Magyarország az autóiparra tette fel a jövője egy részét – most jön az igazi próbatétel - Autoszektor",
       "publisher": "Autoszektor",
-      "url": "https://news.google.com/rss/articles/CBMiwgFBVV95cUxPd2ZidDZCckk5cTBCX0JYdTAteV9YMnRwZTdaLTlmbEFmekpHN25sYjh2dlZURGktek1mc2wtWERIdUpEbVJ2S3lkWGw4X0ZHUFpsd3NtdzhKMTY2eWZZMVM2Q19HUjZOQ0JCN2xsZjVOcklTY3g3b2ljV2EwTkhwaWl2MnVWdEY4VkZUcEtfYWhHS1kwWmdoZDgyQ1FuclVjZi1meV94THZuNHdRNVNEdmxyQVVrY1gxUFZ6VS1yNHAtdw?oc=5",
-      "publishedAt": "2026-11-22"
+      "url": "https://news.google.com/rss/articles/CBMivgFBVV95cUxONnFzeGkyY0o3eUNTdm5fOVJDSkRVMGJWZFhYVXl2cWRaYk5rQmd4S01XMU1BRnZBUE9RekhrWDJ6TmIyNHpmTHpvLV81d1VNd3E1THVueTlHX0tjWTE5MHRMS2xlVEppYkhQWEZnYS1pOFJDcVFEbFE0bHk2bmIwQWQ3ZUFPeTNiandBOE1QNExJYllDbG03aWhvZ1luRkVUd1dPN0lCTjdrUXgteTVIM0c5aGNNZWxyV1ZKbmxB?oc=5",
+      "publishedAt": "2026-11-23"
     },
     {
-      "title": "A magyar sport Trianonja – az 1956-os olimpia a forradalom és a szovjet invázió árnyékában - Telex",
-      "publisher": "Telex",
-      "url": "https://news.google.com/rss/articles/CBMioAFBVV95cUxNSC1MSmtWNE9rLVd6NG42RElqTGthLVFldzBBWDFUUkRObWNCenhvMFRfOXctUUhGWHJrN0RLaTFxd2cyZmZNTkJvZm5zRlFSNGJZdkpaeVl3YU00dEMyUHo4a3lvcWhKQkNNQy1ZU0poMFpfMjBDWFM5SEJtdEtqNHg2QU42aTliVkh6bV8wLUp0clVxQVJRSWFwRkFaRDJT?oc=5",
-      "publishedAt": "2026-11-22"
+      "title": "Ezek lettek Magyarország legjobb munkahelyei - MMOnline",
+      "publisher": "MMOnline",
+      "url": "https://news.google.com/rss/articles/CBMiekFVX3lxTE1GaVZvbllxUndHRkd5TTM5dlhRTU1hWWYyNnptdnNHbkhTUkVKSS1HTnFyME1wRzNYMFVGTVh3a0ZLQkU3SVc2Tnh0LVZJMklLd1VPTzR1bXlJeXdNU2NZVHJNOFN0endmeHkzTWFfTXk3VWI1QVlWS05B?oc=5",
+      "publishedAt": "2026-11-23"
     },
     {
-      "title": "Itt élhetnek kiskirályként a nyugdíjasok 2026-ban: nem fenyegeti őket elszegényedés, az infláció, magas rezsi - Pénzcentrum",
-      "publisher": "Pénzcentrum",
-      "url": "https://news.google.com/rss/articles/CBMi7wFBVV95cUxQTnJLZU9DN3FjRlRRLUF1LVNYb2FFdHdqWUJMbXZ3SXpydlZZUlNsaC1kM2RERnVhSklYTUxvZFZlWFVTUUFBbHhHeDhmbUt3a084R1RYYVpUdlVvb0w0RTR0eGRvVnpuOFVuXzVfMEktR2szeDQxeXljZkNYMlZpSGswRDNiSGZUVGF0aHdST25tWE0xcHJoZlltT2R2MEtIOVp4UGNwSlVkYnZ2aE40LVZzb2xHaFdxSlJyWWctUUVBYTJGVHNpaVJtYWdrZUhsbXNXTE1yOTVQdVlXdVJ4WnZGRi1uT3c0MXZub193RQ?oc=5",
-      "publishedAt": "2026-11-22"
+      "title": "Továbbra is veretlen a magyar női kosárlabda válogatott az Eb selejtező csoportjában. - Magyar Olimpiai Bizottság",
+      "publisher": "Magyar Olimpiai Bizottság",
+      "url": "https://news.google.com/rss/articles/CBMipwFBVV95cUxOVXROXzJJUi1HUUFheVFQN3RxblNGQklnWGRMX0tOQTlYZXloTFJiVnU4YVlIYlYzWFFJb2tHQS1TWWtNY1lTMDdDN0k0UTVZUkdwWFRZMUZMYlZZNmlxVVptd29WTWhTMzZVamtNSHNfTHZqazNyV1dORV8zc05CVlJjYVp1dVFRcHZDQTdXTTZhbzhuRGNUT090N3lzaHNjRW9WVkN4SQ?oc=5",
+      "publishedAt": "2026-11-23"
     },
     {
-      "title": "Tűzvész fogadta Magyarország első gőzvonatát - Drive.hu",
-      "publisher": "Drive.hu",
-      "url": "https://news.google.com/rss/articles/CBMidEFVX3lxTE5LbVdFZGJJTmxlREp4MlFrQU1FYnpDaGZzamRFaHZFY09mSkZvYjNxNUxld05Kb3BhbGFDWFJPMHJ5aFBYRHA0bTlGSEhIOXJwT2hYRGs2M2JkWTBjWklnWEFrN1JQOEJ6ZTdRN1JoODNLX0lC?oc=5",
-      "publishedAt": "2026-11-22"
-    },
-    {
-      "title": "Magyarország 30 napos csapadékösszeg térképe - MetNet",
-      "publisher": "MetNet",
-      "url": "https://news.google.com/rss/articles/CBMia0FVX3lxTE5HS0hRREpHXzF2VV9INk1LczZVRmdxaHVFWXUxdFdvV1NGcExFRFBUR0tkeERWZ3I5eVQxQ3hBYmV6MmtjNlNzalZ4LU5PX015c09Yb2I2SnMxOVloay1sdEtWeXhwQmdBNWVn?oc=5",
-      "publishedAt": "2026-11-22"
-    },
-    {
-      "title": "Bizottsági előrejelzés: az ukrán kukorica kevés lesz - Magyar Mezőgazdaság",
-      "publisher": "Magyar Mezőgazdaság",
-      "url": "https://news.google.com/rss/articles/CBMimAFBVV95cUxPdll4ZnZSRDdnYy0xdF9ja3ZmYXBScThUbUU2TFNsQnc0VEFpdHZISUk2Tlk3MjBlVkJmRWZlZ1N2Nmx3X0xLcF84OWhiVFhqUWFqV0x4TzM4NzJMb05qMEpZVkd3RlRndzVtMlkyWTZ6T3h1NV9wc1ZuYWEyY2xCT0szTEVKVVdXcEh2aHlYLUhzd0ZNMlZJTw?oc=5",
-      "publishedAt": "2026-11-22"
-    },
-    {
-      "title": "Employers are being asked to give interview feedback - here's what applicants want",
+      "title": "Capita shares plunge 70% as boss quits after civil service pensions failure",
       "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/cm2d94le23xyo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-22"
+      "url": "https://www.bbc.co.uk/news/articles/c65y1qqw3kjxo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-23"
     },
     {
-      "title": "MP criticises Guernsey and Jersey company ownership register plans",
+      "title": "Catering giant to switch main share listing to US in further blow to UK",
       "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/cqkgmy2nxy4lo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-22"
+      "url": "https://www.bbc.co.uk/news/articles/ckz74098jq5po?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-23"
+    },
+    {
+      "title": "Next data accessed in cyber breach",
+      "publisher": "BBC Business",
+      "url": "https://www.bbc.co.uk/news/articles/cqj3kjr7ez3vo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-23"
+    },
+    {
+      "title": "Energy bills will soar - here's how you can ease the pain",
+      "publisher": "BBC Business",
+      "url": "https://www.bbc.co.uk/news/articles/crm4rygl4m3o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-23"
+    },
+    {
+      "title": "San Francisco is enjoying an AI boom, but worries about a crash are growing",
+      "publisher": "BBC Business",
+      "url": "https://www.bbc.co.uk/news/articles/cqe9k09j9jv4o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-23"
+    },
+    {
+      "title": "Poundland is facing collapse - what's gone wrong?",
+      "publisher": "BBC Business",
+      "url": "https://www.bbc.co.uk/news/articles/cm4g10p2r0g9o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-23"
+    },
+    {
+      "title": "Pip assessments need 'fundamental overhaul', report to say",
+      "publisher": "BBC Business",
+      "url": "https://www.bbc.co.uk/news/articles/cvlyj3rn201xo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-23"
+    },
+    {
+      "title": "South East Water reports loss after supply issues",
+      "publisher": "BBC Business",
+      "url": "https://www.bbc.co.uk/news/articles/c6n90j1qxel8o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-23"
     }
   ]
 }
