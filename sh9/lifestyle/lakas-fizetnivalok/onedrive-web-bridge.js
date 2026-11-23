@@ -23,6 +23,12 @@ let credentials=null,baseline=null,writeEnabled=false,accountVerified=false,seri
 const report=message=>{if(typeof w.onOneDriveStatus==='function')w.onOneDriveStatus(message); else console.info(message)};
 const description=e=>e?.message || String(e);
 const uri=()=>w.location.origin+w.location.pathname;
+function showAccount(email){
+ const badge=w.document?.getElementById('oneDriveAccountBadge');
+ if(!badge)return;
+ badge.textContent=email?'🔐 Ellenőrzött OneDrive-fiók: '+email:'🔒 OneDrive-fiók: nincs ellenőrzött bejelentkezés';
+ badge.style.color=email?'#b6f8d1':'#d4b681';
+}
 function b64(bytes){let s='';for(let b of bytes)s+=String.fromCharCode(b);return btoa(s).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');}
 function rand(n){const a=new Uint8Array(n);crypto.getRandomValues(a);return b64(a);}
 async function pkceHash(verifier){return b64(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(verifier))));}
@@ -74,6 +80,7 @@ async function verifyAccount(){
   throw Error('Nem a Lakásfizetnivalókhoz tartozó Microsoft-fiók jelentkezett be ('+actual+'). Válaszd ezt: '+EXPECTED_ACCOUNT+'. OneDrive-művelet letiltva.');
  }
  accountVerified=true;
+ showAccount(EXPECTED_ACCOUNT);
 }
 function requireAccount(){if(!accountVerified)throw Error('OneDrive hozzáférés tiltva: előbb igazold a '+EXPECTED_ACCOUNT+' fiókot.');}
 async function meta(){requireAccount();return graph(DATA_FILE+'?$select=id,name,eTag,size,@microsoft.graph.downloadUrl');}
@@ -155,7 +162,7 @@ async function uploadPhotoData(month,picture){
   await uploadSession(path,bytes,previous?.eTag);report('✅ Mérőóra-fotó feltöltve: '+name);
  }catch(e){report('Fotómentés elmaradt: '+description(e));}
 }
-function signOut(notify=true){clearTimeout(timer);pending=null;credentials=null;baseline=null;writeEnabled=false;accountVerified=false;if(notify)report('Microsoft-kapcsolat bontva, helyi adatok maradtak.');}
+function signOut(notify=true){clearTimeout(timer);pending=null;credentials=null;baseline=null;writeEnabled=false;accountVerified=false;showAccount(null);if(notify)report('Microsoft-kapcsolat bontva, helyi adatok maradtak.');}
 w.OneDriveBridge={signIn:()=>signIn().catch(e=>report(description(e))),signOut,downloadData:()=>downloadData().catch(e=>report('Letöltés elmaradt: '+description(e))),uploadData:data=>queued(data,true),autoUploadData,uploadPhotoData,autoUploadPhotoData:(month,picture)=>{if(writeEnabled)void uploadPhotoData(month,picture)}};
 w.SHO_LAKAS_WEB_PILOT={get hasCloudBaseline(){return !!baseline},get cloudWriteEnabled(){return writeEnabled},get accountVerified(){return accountVerified},get redirectUri(){return uri()},clientId:APP_ID};
 w.addEventListener('DOMContentLoaded',()=>{void consumeRedirect().catch(e=>report('Bejelentkezési hiba: '+description(e)))});
