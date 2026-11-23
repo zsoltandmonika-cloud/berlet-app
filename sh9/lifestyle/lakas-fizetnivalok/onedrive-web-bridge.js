@@ -1,5 +1,5 @@
 /* SHO Lakásfizetnivalók · isolated OneDrive web pilot
- * Existing native app client ID, Graph AppFolder, OAuth 2.0 PKCE.
+ * Existing native app client ID, existing OneDrive Appok/Lakás Fizetnivalók folder, OAuth 2.0 PKCE.
  * A Microsoft Entra SPA redirect registration is required for the hosting URL.
  * Does not write until an existing, valid OneDrive JSON was downloaded.
  * All tokens are memory-only; no credentials saved to localStorage.
@@ -9,10 +9,15 @@
 const APP_ID='506955c0-a62c-4391-8807-1e7ab2e237fd';
 const AUTH='https://login.microsoftonline.com/common/oauth2/v2.0';
 const API='https://graph.microsoft.com/v1.0';
-const SCOPE='Files.ReadWrite.AppFolder openid profile offline_access';
+// Standard OneDrive folder outside /special/approot needs delegated Files.ReadWrite.
+// Never infer that AppFolder grants access to arbitrary personal OneDrive folders.
+const SCOPE='Files.ReadWrite openid profile offline_access';
+const ROOT_FOLDER='/me/drive/root:/Appok/Lak%C3%A1s%20Fizetnival%C3%B3k';
+const DATA_FILE=ROOT_FOLDER+'/lakas_fizetnivalok.json';
+const PHOTO_FOLDER=ROOT_FOLDER+'/meter_photos';
 const STATE_KEY='sho_lakas_pkce_single_v1';
 const LOCAL_DATA='lakas_fizetnivalok_v1_1';
-let credentials=null,appRoot=null,baseline=null,writeEnabled=false,serial=Promise.resolve(),pending=null,timer=null;
+let credentials=null,baseline=null,writeEnabled=false,serial=Promise.resolve(),pending=null,timer=null;
 const report=message=>{if(typeof w.onOneDriveStatus==='function')w.onOneDriveStatus(message); else console.info(message)};
 const description=e=>e?.message || String(e);
 const uri=()=>w.location.origin+w.location.pathname;
@@ -54,8 +59,7 @@ async function graph(path,opts={}){
  if(!res.ok)throw Error('Microsoft Graph HTTP '+res.status+(res.status===412?' (másik eszköz módosította a fájlt)':''));
  return res.json();
 }
-async function rootId(){if(!appRoot){appRoot=(await graph('/me/drive/special/approot')).id;if(!appRoot)throw Error('AppFolder nem található.');}return appRoot;}
-async function meta(){return graph('/me/drive/items/'+encodeURIComponent(await rootId())+':/lakas_fizetnivalok.json?$select=id,name,eTag,size,@microsoft.graph.downloadUrl');}
+async function meta(){return graph(DATA_FILE+'?$select=id,name,eTag,size,@microsoft.graph.downloadUrl');}
 function valid(x){
  if(!x||!Array.isArray(x.months)||!Array.isArray(x.expenses)||x.months.length>120||x.expenses.length>20000||x.months.some(y=>typeof y.key!=='string'))throw Error('A OneDrive adatfájl szerkezete nem megfelelő, nem módosítunk adatot.');return x;
 }
@@ -72,7 +76,7 @@ async function downloadData(){
  if(typeof w.applyOneDriveData!=='function')throw Error('Az alkalmazás adatbetöltője hiányzik.');
  w.applyOneDriveData(data);
  baseline={id:remote.id,etag:remote.eTag};writeEnabled=false;
- report('✅ Felhőadatok letöltve. A felhőben nem történt módosítás.');
+ report('✅ Eredeti Appok/Lakás Fizetnivalók adatok letöltve. A felhőben nem történt módosítás.');
  void restorePhotos(data.months);
 }
 async function restorePhotos(months){
@@ -80,7 +84,7 @@ async function restorePhotos(months){
  for(const m of months){
   if(!m.meterPhotoFile||!/^20\d{2}-(0[1-9]|1[0-2])$/.test(m.key))continue;
   try{
-   const item=await graph('/me/drive/items/'+encodeURIComponent(await rootId())+':/meter_photos/'+m.key+'_meter.jpg?$select=id,@microsoft.graph.downloadUrl');
+   const item=await graph(PHOTO_FOLDER+'/'+m.key+'_meter.jpg?$select=id,@microsoft.graph.downloadUrl');
    const blob=await (await bodyOf(item)).blob();if(blob.size>8000000)continue;
    const data=await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=()=>reject(reader.error);reader.readAsDataURL(blob)});
    if(w.applyOneDriveMeterPhoto)w.applyOneDriveMeterPhoto(m.key,data);count++;
@@ -118,9 +122,9 @@ function autoUploadData(data){
  pending=data;clearTimeout(timer);timer=setTimeout(()=>{const now=pending;pending=null;if(now)void queued(now,false)},1400);
 }
 async function photoFolder(){
- try{return await graph('/me/drive/items/'+encodeURIComponent(await rootId())+':/meter_photos')}catch(e){
+ try{return await graph(PHOTO_FOLDER)}catch(e){
   if(!description(e).includes('404'))throw e;
-  return graph('/me/drive/items/'+encodeURIComponent(await rootId())+'/children',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:'meter_photos',folder:{},'@microsoft.graph.conflictBehavior':'fail'})});
+  return graph(ROOT_FOLDER+':/children',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:'meter_photos',folder:{},'@microsoft.graph.conflictBehavior':'fail'})});
  }
 }
 async function uploadPhotoData(month,picture){
@@ -134,7 +138,7 @@ async function uploadPhotoData(month,picture){
   await uploadSession(path,bytes,previous?.eTag);report('✅ Mérőóra-fotó feltöltve: '+name);
  }catch(e){report('Fotómentés elmaradt: '+description(e));}
 }
-function signOut(){credentials=null;appRoot=null;baseline=null;writeEnabled=false;report('Microsoft-kapcsolat bontva, helyi adatok maradtak.');}
+function signOut(){credentials=null;baseline=null;writeEnabled=false;report('Microsoft-kapcsolat bontva, helyi adatok maradtak.');}
 w.OneDriveBridge={signIn:()=>signIn().catch(e=>report(description(e))),signOut,downloadData:()=>downloadData().catch(e=>report('Letöltés elmaradt: '+description(e))),uploadData:data=>queued(data,true),autoUploadData,uploadPhotoData,autoUploadPhotoData:(month,picture)=>{if(writeEnabled)void uploadPhotoData(month,picture)}};
 w.SHO_LAKAS_WEB_PILOT={get hasCloudBaseline(){return !!baseline},get cloudWriteEnabled(){return writeEnabled},get redirectUri(){return uri()},clientId:APP_ID};
 w.addEventListener('DOMContentLoaded',()=>{void consumeRedirect().catch(e=>report('Bejelentkezési hiba: '+description(e)))});
