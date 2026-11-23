@@ -12,15 +12,17 @@ const env={
  SHO_BACKUP_RUNNER_CONFIRMED:"true"
 };
 function scenario({origin=ORIGIN, auth=true, owner=true, runner=true,
-                  workflow=true, recent=false, dispatch=204}={}){
+                  workflow=true, privateRepo=true, recent=false, dispatch=204}={}){
  const calls=[];
  const local={...env,SHO_BACKUP_RUNNER_CONFIRMED:runner?"true":"false"};
  const fetchImpl=async (u,opt)=>{
-  calls.push({url:u,method:opt.method,authorization:opt.headers?.Authorization});
+  calls.push({url:u,method:opt.method,authorization:opt.headers?.Authorization,body:opt.body});
   if(u.endsWith("/auth/v1/user"))return new Response(JSON.stringify({id:owner?USER:"22222222-2222-4222-8222-222222222222"}),{status:auth?200:401});
-  if(u.includes("/workflows/sho-onedrive-full-backup-nightly.yml/runs"))return new Response(JSON.stringify({workflow_runs:recent?[{id:3,created_at:new Date().toISOString(),status:"in_progress"}]:[]}),{status:200});
-  if(u.includes("/workflows/sho-onedrive-full-backup-nightly.yml/dispatches"))return new Response(null,{status:dispatch});
-  if(u.includes("/workflows/sho-onedrive-full-backup-nightly.yml"))return new Response(JSON.stringify({state:workflow?"active":"disabled_manually",name:"SHO OneDrive Full Backup"}),{status:200});
+  if(u==="https://api.github.com/repos/zsoltandmonika-cloud/SHO-Backup-Runner")
+    return new Response(JSON.stringify({private:privateRepo,archived:false}),{status:200});
+  if(u.includes("/workflows/sho-backup-unified.yml/runs"))return new Response(JSON.stringify({workflow_runs:recent?[{id:3,created_at:new Date().toISOString(),status:"in_progress"}]:[]}),{status:200});
+  if(u.includes("/workflows/sho-backup-unified.yml/dispatches"))return new Response(null,{status:dispatch});
+  if(u.includes("/workflows/sho-backup-unified.yml"))return new Response(JSON.stringify({state:workflow?"active":"disabled_manually",name:"SHO OneDrive Full Backup"}),{status:200});
   throw Error("Unexpected request: "+u);
  };
  const request=(method="GET",mode="readiness",body)=>new Request("https://vhsrupphzcjkdrusonzh.supabase.co/functions/v1/hh-backup-control-v1?mode="+mode,{
@@ -59,6 +61,8 @@ test("readiness is false until runner prerequisites and default workflow exist",
  const b=scenario({workflow:false});
  const rr=await b.run(b.request());
  assert.equal((await rr.json()).ready,false);
+ const publicRunner=scenario({privateRepo:false});
+ assert.equal((await (await publicRunner.run(publicRunner.request())).json()).ready,false);
 });
 test("admin manual POST dispatches the single allowlisted workflow on main, never a restore",async()=>{
  const t=scenario();
@@ -68,10 +72,16 @@ test("admin manual POST dispatches the single allowlisted workflow on main, neve
  assert.equal(data.status,"ACCEPTED_NOT_VERIFIED");
  const dispatch=t.calls.find(x=>x.url.endsWith("/dispatches"));
  assert.equal(dispatch.method,"POST");
+ assert.deepEqual(JSON.parse(dispatch.body),{ref:"main",inputs:{backup_kind:"manual"}});
  assert.ok(t.calls.every(x=>!x.url.includes("releases")&&!x.url.includes("contents")));
  assert.ok(!JSON.stringify(data).includes("INTERNAL_BACKEND_ONLY_TEST"));
+ const pre=scenario();
+ const preRes=await pre.run(pre.request("POST","ready",{operation:"start_predevelopment_full_backup"}));
+ assert.equal(preRes.status,202);
+ assert.deepEqual(JSON.parse(pre.calls.find(x=>x.url.endsWith("/dispatches")).body),
+   {ref:"main",inputs:{backup_kind:"pre_development"}});
 });
-test("unknown commands, duplicate runs and missing approval fail closed",async()=>{
+test("unknown commands, duplicate runs and missing private runner fail closed",async()=>{
  const t=scenario();
  const bad=await t.run(t.request("POST","ready",{operation:"delete_backup"}));
  assert.equal(bad.status,400);
@@ -82,12 +92,9 @@ test("unknown commands, duplicate runs and missing approval fail closed",async()
  assert.equal(recent.calls.some(x=>x.url.endsWith("/dispatches")),false);
  const noRunner=scenario({runner:false});
  assert.equal((await noRunner.run(noRunner.request("POST","ready",{operation:"start_manual_full_backup"}))).status,503);
- const denied=scenario();
- const request=new Request("https://vhsrupphzcjkdrusonzh.supabase.co/functions/v1/hh-backup-control-v1",{
-  method:"POST",headers:{Origin:ORIGIN,Authorization:"Bearer "+"A".repeat(32),"Content-Type":"application/json"},
-  body:JSON.stringify({operation:"start_manual_full_backup"})
- });
- assert.equal((await denied.run(request)).status,428);
+ const publicRepo=scenario({privateRepo:false});
+ assert.equal((await publicRepo.run(publicRepo.request("POST","ready",{operation:"start_manual_full_backup"}))).status,503);
+ assert.equal(publicRepo.calls.some(x=>x.url.endsWith("/dispatches")),false);
 });
 test("GitHub unexpected dispatch responses are NOT reported as accepted",async()=>{
  const t=scenario({dispatch:403});
