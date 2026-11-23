@@ -70,11 +70,11 @@ function showSnapshots(items){
 // V4: The actual production-isolated restic-partial-runs folder holds
 // five different component backups. Never promote any of these to full_system.
 const MONITOR_FORMATS=Object.freeze([
- {key:'dropbox',title:'☁️ Dropbox · 2 vault',code:'PARTIAL_RESTIC_READ_DATA_AND_FULL_FILE_RESTORE_VERIFIED',valid:s=>Array.isArray(s.snapshot_ids)&&s.snapshot_ids.length===1&&s.sources?.length===2},
- {key:'git',title:'🧩 GitHub · 4 repo + 25 Edge',code:'GIT_EDGE_PARTIAL_RESTIC_READBACK_AND_RESTORE_VERIFIED',valid:s=>s.git_repositories===4&&s.edge_functions_listed===25&&s.edge_bodies_included===25},
- {key:'db',title:'🗄️ PostgreSQL · adatok',code:'LOGICAL_POSTGRES_READONLY_DATA_RESTIC_SHA256_RESTORE_PASS',valid:s=>s.pg_dump===false&&s.tables>=113&&s.verified_files>=118&&s.rows>=0},
- {key:'schema',title:'🛡️ PostgreSQL · séma és RLS',code:'POSTGRES_SCHEMA_CATALOG_RESTIC_SHA256_RESTORE_PASS',valid:s=>s.pg_dump===false&&s.catalog_categories===15&&s.catalog_files_verified===16},
- {key:'storage',title:'📦 Supabase Storage · 7 tároló',code:'STORAGE_RESTIC_READ_DATA_FULL_SHA256_RESTORE_PASS',valid:s=>s.file_count===203&&s.postgres_dump_included===false}
+ {key:'dropbox',workflow:'partial-first-capture.yml',title:'☁️ Dropbox · 2 vault',code:'PARTIAL_RESTIC_READ_DATA_AND_FULL_FILE_RESTORE_VERIFIED',valid:s=>Array.isArray(s.snapshot_ids)&&s.snapshot_ids.length===1&&s.sources?.length===2},
+ {key:'git',workflow:'capture-git-edge.yml',title:'🧩 GitHub · 4 repo + 25 Edge',code:'GIT_EDGE_PARTIAL_RESTIC_READBACK_AND_RESTORE_VERIFIED',valid:s=>s.git_repositories===4&&s.edge_functions_listed===25&&s.edge_bodies_included===25},
+ {key:'db',workflow:'capture-supabase-db-only.yml',title:'🗄️ PostgreSQL · adatok',code:'LOGICAL_POSTGRES_READONLY_DATA_RESTIC_SHA256_RESTORE_PASS',valid:s=>s.pg_dump===false&&s.tables>=113&&s.verified_files>=118&&s.rows>=0},
+ {key:'schema',workflow:'capture-supabase-schema-catalog.yml',title:'🛡️ PostgreSQL · séma és RLS',code:'POSTGRES_SCHEMA_CATALOG_RESTIC_SHA256_RESTORE_PASS',valid:s=>s.pg_dump===false&&s.catalog_categories===15&&s.catalog_files_verified===16},
+ {key:'storage',workflow:'capture-supabase-storage.yml',title:'📦 Supabase Storage · 7 tároló',code:'STORAGE_RESTIC_READ_DATA_FULL_SHA256_RESTORE_PASS',valid:s=>s.file_count===203&&s.postgres_dump_included===false}
 ]);
 const resticVerified=new Map();
 const SNAPSHOT_HEX=/^[a-f0-9]{64}$/;
@@ -154,7 +154,10 @@ async function refreshStaging(token){
     el('prepare').disabled=false;
     el('restoreOutput').hidden=true;
   });
-  row.append(details,btn);target.appendChild(row);
+  const manual=block('a','btn secondary monitor-manual','Kézi indítás GitHubon');
+  manual.href='https://github.com/zsoltandmonika-cloud/SHO-Backup-Runner/actions/workflows/'+kind.workflow;
+  manual.target='_blank';manual.rel='noopener noreferrer';
+  row.append(details,btn,manual);target.appendChild(row);
  }
  const bad=runs.length-valid.length;
  const summary=block('p',bad?'warn':'muted',
