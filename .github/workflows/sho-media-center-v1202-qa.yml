@@ -29,5 +29,7 @@ jobs:
         run: |
           node --test sh9/entertainment/tests/media-center-v1202.test.cjs
           node --test sh9/entertainment/media-center/ui-shell-v1.test.cjs
+          node --test sh9/entertainment/media-center/golden-gallery-v1.test.cjs
+          node --check sh9/entertainment/media-center/onedrive-media-v2.js
           node --test sh9/entertainment/tests/book-studio-program-order-v16.test.cjs
           node --test sh9/entertainment/tests/book-studio-warm-wood-v18.test.cjs
