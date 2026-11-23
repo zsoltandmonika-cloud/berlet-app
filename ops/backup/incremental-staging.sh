@@ -62,7 +62,7 @@ docker run --rm -e SUPABASE_DB_URL postgres:17-alpine \
   sh -ec 'pg_dump --format=custom --no-owner --no-acl "$SUPABASE_DB_URL" -f -' | \
   restic backup --tag "$TAG" --stdin --stdin-filename 'supabase-postgresql17.dump'
 
-# Both complete Git histories, including branch/tag refs and any LFS objects, plus deployed functions.
+# All three complete Git histories, including branch/tag refs and any LFS objects, plus deployed functions.
 cat > "$work/askpass.sh" <<'ASK'
 #!/usr/bin/env sh
 case "$1" in *Username*) printf 'x-access-token\n';; *) printf '%s\n' "$GH_BACKUP_PAT";; esac
@@ -70,7 +70,7 @@ ASK
 chmod 700 "$work/askpass.sh"
 export GIT_ASKPASS="$work/askpass.sh" GIT_TERMINAL_PROMPT=0
 lfs_paths=()
-for repo in berlet-app MediaRadar; do
+for repo in berlet-app MediaRadar MecsRadar; do
   git clone --mirror --quiet "https://github.com/zsoltandmonika-cloud/$repo.git" "$work/$repo.git"
   git -C "$work/$repo.git" bundle create "$work/stage/github/$repo.bundle" --all
   git -C "$work/$repo.git" bundle verify "$work/stage/github/$repo.bundle" >/dev/null
@@ -137,7 +137,7 @@ status = {
   'metadata_restore_smoke_tested': True,
   'production_restored': False,
   'components': ['Dropbox vaults x2', 'Supabase Storage bodies', 'PostgreSQL 17 custom dump',
-                 'Git full history x2 plus available LFS', 'deployed Edge Functions', 'encrypted recovery escrow'],
+                 'Git full history x3 plus available LFS', 'deployed Edge Functions', 'encrypted recovery escrow'],
 }
 with open(dest, 'w', encoding='utf-8') as f:
     json.dump(status, f, indent=2, ensure_ascii=False)
