@@ -67,6 +67,44 @@ function showSnapshots(items){
   row.append(detail,button);root.appendChild(row);
  }
 }
+async function refreshStaging(token){
+ const target=el('stagingRuns');
+ if(!target)return;
+ clearNode(target);
+ let folders;
+ try{
+  folders=await readJson('/me/drive/root:/SHO/Backups/restic-staging-runs:/children?$select=id,name,folder&$top=100',token);
+ }catch(e){
+  target.appendChild(block('p','muted','Nincs még külön Restic próbamentés, vagy nem olvasható.'));
+  return;
+ }
+ const runs=(Array.isArray(folders.value)?folders.value:[])
+  .filter(x=>x?.folder&&RUN_RE.test(x.name||'')&&typeof x.id==='string')
+  .sort((a,b)=>b.name.localeCompare(a.name)).slice(0,30);
+ if(!runs.length){
+  target.appendChild(block('p','muted','Még nem található próbamentés.'));
+  return;
+ }
+ for(const run of runs){
+  const row=block('div','snapshot');
+  let label='Nem ellenőrzött · nem állítható vissza';
+  try{
+   const list=await readJson('/me/drive/items/'+encodeURIComponent(run.id)+'/children?$select=id,name,file&$top=100',token);
+   const statusFile=(Array.isArray(list.value)?list.value:[]).find(x=>x?.name==='status.json'&&x.file&&x.id);
+   if(statusFile){
+    const st=await readJson('/me/drive/items/'+encodeURIComponent(statusFile.id)+'/content',token);
+    if(st?.schema==='sho-restic-staging-status/1'&&st?.backup_id===run.name&&
+       st?.status==='STAGING_INCREMENTAL_REPO_DATA_VERIFIED'&&
+       st?.read_back_verified===true&&st?.full_system===false&&
+       st?.metadata_restore_smoke_tested===true&&Array.isArray(st?.snapshot_ids)&&st.snapshot_ids.length>=5)
+     label='✓ Restic-adatok ellenőrizve · '+(st.backup_kind==='pre_development'?'Fejlesztés előtt':'Próbamentés')+' · teljes restore MÉG NEM igazolt';
+   }
+  }catch(_){ /* Never promote unreadable states to verified. */ }
+  row.appendChild(block('strong','',run.name));
+  row.appendChild(block('small',label));
+  target.appendChild(row);
+ }
+}
 async function refresh(){
  const btn=el('refresh');btn.disabled=true;
  text('status','OneDrive jogosultság és mentési pontok ellenőrzése...');
@@ -90,6 +128,7 @@ async function refresh(){
    data.push({name:item.name,verified:good});
   }
   showSnapshots(data);
+  await refreshStaging(token);
   const last=data.find(x=>x.verified);
   text('lastVerified',last?last.name.slice(0,8):'Nincs igazolt');
   text('snapshotCount',String(verified.size));
@@ -99,6 +138,7 @@ async function refresh(){
   text('authHelp','Csak olvasási Microsoft Graph-kapcsolat. Nincs felülírás, törlés vagy helyreállítás.');
  }catch(err){
   showSnapshots([]);
+  const staging=el('stagingRuns');if(staging){clearNode(staging);staging.appendChild(block('p','muted','OneDrive kapcsolat nem elérhető.'));}
   text('lastVerified','Nem igazolt');text('snapshotCount','0');
   text('status','⚠️ '+String(err?.message||err));
  }finally{btn.disabled=false}
@@ -153,31 +193,35 @@ async function control(mode,operation){
 }
 function dispatchButton(ready){
  dispatchReady=ready===true;
- const b=el('manualDirect');
- if(b)b.disabled=!dispatchReady||dispatchBusy;
+ for(const id of ['manualDirect','predevDirect']){
+  const b=el(id);if(b)b.disabled=!dispatchReady||dispatchBusy;
+ }
 }
 async function checkManual(){
  dispatchButton(false);
+ text('runnerState','Ellenőrzés...');
  const btn=el('manualCheck');if(btn)btn.disabled=true;
  manualMessage('Admin-jogosultság és mentési futtató ellenőrzése...');
  try{
   const data=await control('readiness');
   const ready=data?.ready===true&&data?.workflow_active===true&&data?.runner_config_confirmed===true;
   dispatchButton(ready);
+  text('runnerState',ready?'Privát · kész':'Nem üzemel');
   manualMessage(ready?'✓ Admin-jogosultság ellenőrizve. Kézi mentés indítható.':
     '⚠️ A mentési futtató még nincs teljesen beállítva. Kézi indítás zárolva.');
- }catch(e){dispatchButton(false);manualMessage('⚠️ '+String(e?.message||e))}
+ }catch(e){dispatchButton(false);text('runnerState','Zárolt');manualMessage('⚠️ '+String(e?.message||e))}
  finally{if(btn)btn.disabled=false}
 }
-async function startManual(){
+async function startManual(kind='manual'){
  if(!dispatchReady||dispatchBusy)return;
- if(!w.confirm('Most elindítasz egy új, titkosított SHO felhőmag-mentést a OneDrive-ra. A művelet nem állít vissza és nem töröl adatokat. Indíthatjuk?'))return;
+ const op=kind==='pre_development'?'start_predevelopment_full_backup':'start_manual_full_backup';
  dispatchBusy=true;dispatchButton(false);
- manualMessage('A kézi mentés indítási kérése továbbítva...');
+ manualMessage(kind==='pre_development'?'Fejlesztés előtti teljes mentés kérése elküldve...':'Kézi teljes mentés indítási kérése elküldve...');
  try{
-  const result=await control('', 'start_manual_full_backup');
-  if(result?.status!=='ACCEPTED_NOT_VERIFIED')throw Error('A szerver nem erősítette meg a mentési kérés elfogadását.');
-  manualMessage('✓ A GitHub elfogadta a mentési kérés indítását. A mentés még NEM igazolt; ellenőrizd a futás és a OneDrive állapotát.');
+  const result=await control('',op);
+  if(result?.status!=='ACCEPTED_NOT_VERIFIED'||result?.backup_kind!==(kind==='pre_development'?'pre_development':'manual'))
+   throw Error('A szerver nem igazolta vissza a megfelelő mentési kérés elfogadását.');
+  manualMessage('✓ '+(kind==='pre_development'?'Fejlesztés előtti':'Kézi')+' mentésindítás elfogadva. A backup még NEM kész. Fejlesztést csak ellenőrzött OneDrive mentés és szükség esetén restore-próba után kezdj.');
  }catch(e){manualMessage('⚠️ '+String(e?.message||e))}
  finally{dispatchBusy=false;dispatchButton(false)}
 }
@@ -197,10 +241,17 @@ async function checkRun(){
  finally{if(b)b.disabled=false}
 }
 el('manualCheck')?.addEventListener('click',checkManual);
-el('manualDirect')?.addEventListener('click',startManual);
+el('manualDirect')?.addEventListener('click',()=>startManual('manual'));
+el('predevDirect')?.addEventListener('click',()=>startManual('pre_development'));
 el('manualRunStatus')?.addEventListener('click',checkRun);
 
 el('refresh')?.addEventListener('click',refresh);
 el('prepare')?.addEventListener('click',prepare);
-w.HH_BACKUP_ADMIN_V1=Object.freeze({version:'2',refresh,checkManual,startManual,checkRun,manualStartMode:'owner-authenticated-edge-dispatch',restoreMode:'plan-only'});
+// Readiness is a non-mutating check; it runs once as the admin opens the panel,
+ // making the pre-development backup a genuine single-click action when ready.
+ if(el('manualCheck')&&el('predevDirect')&&
+    (w.sessionStorage?.getItem(VAULT_SESSION)||w.localStorage?.getItem(VAULT_SESSION))){
+  void checkManual();
+ }
+w.HH_BACKUP_ADMIN_V1=Object.freeze({version:'3',refresh,checkManual,startManual,checkRun,manualStartMode:'private-runner-owner-authenticated',restoreMode:'plan-only'});
 })(window,document);
