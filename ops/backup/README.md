@@ -1,88 +1,65 @@
-# SHO / HealthHub · OneDrive éjszakai teljes mentés
+# SHO / HealthHub · OneDrive Backup / Restore · canonical design (2026-11-23)
 
-**Státusz:** implementált, külön PR-ben tesztelt jelölt; **nem élesítve**.
+**State: STAGING, NOT LIVE.** The public `berlet-app` main branch and production Supabase data are untouched. Do not claim a successful backup merely because source code, a Git commit, or setup ZIP exists.
 
+## Single reliable backup mechanism
 
-**2026-11-23 · Biztonsági élesítési korlát:** A `berlet-app` GitHub repository **nyilvános**. A PR #1066-ben mindkét hitelesített mentési workflow most már kifejezetten ellenőrzi, hogy a futtató repository **privát** legyen; a public app repóban nem futhat felhőtitkokkal backup, még későbbi merge esetén sem. Az előző leírás „merge után azonnal aktív éjszakai mentés” állítása ezért érvénytelen. A megbízható élesítéshez **külön privát mentésfuttató repository** szükséges, és **az éjszakai schedule továbbra is le van tiltva**. Teljes egyszeri owner setup: [private-runner/OWNER_BOOTSTRAP.md](private-runner/OWNER_BOOTSTRAP.md), biztonságos, rögzített SHA-s minta: [private-runner/backup-staging.template.yml](private-runner/backup-staging.template.yml).
+Use **Restic** with an independently authorized **rclone OneDrive target**. Restic supplies **one encryption layer**, deduplication, snapshot indexes and integrity verification. No parallel second encrypted ZIP/age backup is necessary for the *canonical* job. The older `nightly-full-backup.sh` is a legacy experimental candidate and is NOT the chosen runner.
 
- A GitHub `main` érintetlen, éles forrásból kizárólag olvasunk. A `schedule` csak jóváhagyott merge után aktiválódik. **Az aktuális ChatGPT OneDrive-hozzáférés nem ad automatikus, tartós hozzáférést egy GitHub Actions runnernek.**
+- Canonical data target: `onedrive:SHO/Backups/restic-staging-v1`.
+- Readable run reports: `onedrive:SHO/Backups/restic-staging-runs/<backup_id>/status.json`.
+- Existing account: `zsolt.monika@outlook.com`, drive ID `BC1FF24AF37EA2B0`.
+- Schedule: **00:15 Europe/Budapest**, daily, using GitHub Actions' timezone-aware schedule.
+- Manual and **pre-development** buttons dispatch the **same capture code**, with a `backup_kind` tag of `manual` or `pre_development`. Neither source mutates data.
+- Always create a unique run ID, do not overwrite prior snapshots. A pre-development snapshot must remain identifiable and must never be deleted by an automatic cleanup before recovery has been proven.
+- No automatic deletion, OneDrive cleanup, cloud-source write, OTA or production restore from this workflow.
 
-## Időpont és cél
-- Minden nap **00:15 Europe/Budapest** (téli/nyári időszámítás szerint).
-- Személyes OneDrive: `zsolt.monika@outlook.com`, drive ID `BC1FF24AF37EA2B0`.
-- Gyökér: `OneDrive/SHO/Backups/<UTC_ID>-<run_id>/`.
-- Minden futás **új mappát** készít, a korábbi backup sosem íródik felül, és nincs automatikus törlés.
+## Required captured sources (current staging)
 
-## Kötelező komponensek
-1. `berlet-app` és a **privát MediaRadar** Git-tárak teljes előzménye, branch-ei és tagjei, ellenőrizhető `git bundle` csomagokban, szükség esetén Git LFS-objektumokkal.
-2. Két Dropbox-tár: `Apps/HealthHub Cloud Vault` és `Apps/healthhub-vault`, az összes HealthHub-profillal, dokumentummal, napi adattal, Family Guard- és eszközadatokkal.
-3. A **HealthHub-Core** Supabase PostgreSQL 17 adatbázis teljes, saját formátumú `pg_dump` mentése, Auth és Storage metaadatokkal.
-4. Supabase Storage **tényleges objektumtartalmak**, nem csupán adatbázisbeli fájljegyzék.
-5. Valamennyi telepített Supabase Edge Function aktuális forrása a Management API-ból.
-6. Külön, előre titkosított, tulajdonos által biztosított **recovery escrow** a felhőszolgáltatók külső beállításainak és a visszaállításhoz szükséges hozzáféréseknek.
-7. SHA-256 fájljegyzék, `age` titkosított archívum, OneDrive feltöltés és **teljes távoli visszaolvasás, byte-by-byte összehasonlítással**. Csak ezután kerül fel a `CLOUD_CORE_VERIFIED` státusz.
+| Component | Capture |
+| --- | --- |
+| Public berlet-app and private MediaRadar | Git mirrors, verified bundles, all refs, available LFS |
+| Dropbox HealthHub Cloud Vault and healthhub-vault | Read-only complete source tar streams |
+| HealthHub-Core PostgreSQL 17 | Full custom pg_dump, streamed into Restic |
+| Supabase Storage | **Actual object bytes**, not just storage.objects metadata |
+| Deployed Supabase Edge Functions | Management API body of every deployed function |
+| Recovery configuration | Pre-encrypted owner-controlled recovery escrow |
 
-## Egyszeri, külön delegálandó futtatói jogosultságok
+The pipeline rejects missing sources, fails on an invalid credential, checks **all Restic pack data** from OneDrive via `restic check --read-data`, and restores an inventory object to prove a nontrivial read-back. The live sources across services are **not an atomic multi-system snapshot**.
 
-A workflow az alábbi Github Actions secret/variable értékeket követeli meg; hiányuk esetén hibaállapottal megáll:
+## What is not yet covered / meaning of 100%
 
-| Név | Funkció |
-|---|---|
-| `SHO_RCLONE_CONFIG_B64` | Három külön, tulajdonos által delegált rclone remote: `dropbox` (olvasás mindkét Apps-vaultból), `onedrive` (mentési célhoz írás), `supa_s3` (Supabase Storage olvasás). Base64 kódolt rclone.conf; önálló OAuth refresh, tokenrotáció/megújítás kezelése szükséges. |
-| `SHO_GITHUB_READ_TOKEN` | Fine-grained **read-only** engedély a berlet-app és a privát MediaRadar repohoz. |
-| `SHO_SUPABASE_DATABASE_URL` | A PG17 adatbázis mentéséhez szükséges SSL-kapcsolat (adatolvasás/séma dump). |
-| `SHO_SUPABASE_MANAGEMENT_TOKEN` | A telepített Edge Function-kódok olvasási joga. |
-| `SHO_BACKUP_AGE_RECIPIENT` (variable) | A helyreállító titkosítás nyilvános `age1...` kulcsa; a privát dekódoló kulcsot a tulajdonos **GitHubon és OneDrive-on kívül** tárolja. |
-| `SHO_RECOVERY_ESCROW_B64` | Előzetesen titkosított konfiguráció/credential-recovery archívum; soha nem nyers jelszó vagy token. |
+**STAGING_INCREMENTAL_REPO_DATA_VERIFIED is not FULL_SYSTEM_RESTORE_READY.** A full device/system restore must also cover phone-only/offline data, device-bound secrets and pairing (where recoverable), Book Studio and external OneDrive media/book libraries, any non-archived content, Samsung-SDK-inclusive signed APK build provenance, and provider-side configuration. Supabase Auth, Storage and Edge Function service configuration must be independently restored in an isolated Supabase project. A successful checksum verifies data, not whether each restored application works.
 
-**Ne oszd meg a titkokat chatben, ne commitold őket GitHubba.** A rendszer biztonságosan *megtagadja* a teljesnek nevezett mentést, amíg bármely alapfeltétel hiányzik.
+Only after *every mandatory source* is inventoried, a **full sandbox restore** succeeds, tests prove user-facing functions/data and the owner signs off, can any dashboard display FULL SYSTEM RESTORE READY. The restore button currently only prepares a non-destructive plan.
 
-## Mit jelent a CLOUD_CORE_VERIFIED?
+## Minimal security, no duplicate approvals
 
-A kötelező adatforrásokat sikerült beolvasni, archiválni, hash-elni, titkosítani, OneDrive-ra feltölteni és újra letölteni. **Nem jelenti**, hogy egy teljes produkciós helyreállítás már sikeresen lezajlott. A Supabase szolgáltatáskonfigurációk, OAuth-engedélyek, titkosítási kulcsok, telefonon lévő engedélyek és alkalmazáspárosítások külön helyreállítást igényelnek. A különböző felhőszolgáltatások olvasása nem tranzakcionálisan atomikus.
+1. **One private GitHub repo** named `SHO-Backup-Runner` runs backup jobs and holds runner credentials. The public SHO app repo never handles those secrets.
+2. The existing **HealthHub owner-authenticated admin session** authorizes the backup action. No fresh PIN, backup-specific user login or repeated confirmation clicks are needed for read-only backup. The Edge bridge checks the owner UUID and that the runner repository is private before dispatch.
+3. **One Restic encryption password**, retained securely **outside GitHub and OneDrive**, plus the already pre-encrypted recovery escrow. The private runner has narrowly scoped OAuth/API permissions. No raw tokens in HTML, source, issues, chat or logs.
+4. **Production restore** is the sensitive write operation and needs separate explicit owner authorization and isolated recovery rehearsal.
 
-## Visszaállítás (csak izolált környezetben)
+## One-time activation
 
-1. OneDrive-ból töltsd le a kijelölt `backup.tar.zst.age`, `sha256.txt`, `status.json` fájlokat.
-2. Ellenőrizd a SHA-256 azonosítót; a magán `age` kulccsal dekódold az archívumot: `age -d -i <private-key> -o backup.tar.zst backup.tar.zst.age`.
-3. `tar -I zstd -xf backup.tar.zst`, majd a `manifest.json` összes fájljának SHA-256 ellenőrzése.
-4. A `.bundle` Git-mentéseket helyreállíthatod külön Git-repókba; Supabase DB, Storage és Edge Functions visszaállítása **külön tesztprojektbe**, sémakompatibilitási ellenőrzés után.
-5. Ellenőrizd a HealthHub/SHO funkciókat, dokumentumokat, zárt jogosultságokat, telefonpárosításokat és Family Guardot; csak igazolt próbavisszaállítás után beszélhetünk teljesen bizonyított disaster recovery-ről.
-6. Éles rendszer visszaállítása soha nem indul külön tulajdonosi jóváhagyás nélkül.
+The initial private runner has **not** been created and persistent delegated runner credentials have **not** been verified. Follow `private-runner/OWNER_BOOTSTRAP.md` to prepare the private `SHO-Backup-Runner` repo and six secrets. The GitHub workflow template is `private-runner/sho-backup-unified.template.yml`, to be installed as `.github/workflows/sho-backup-unified.yml` inside that private repository. Do **not** install secrets in public `berlet-app` (including GitHub Actions environments there).
 
-**Kezdeti élesítés:** külön teszt + PR review, éjszakai futtatóhoz önálló, tartós OAuth-engedélyek, első kézi, *read-only source* ellenőrzött backup; majd minden éjjel automatikusan. A `HealthHub Level 3 Guard` Git-tagje önmagában NEM teljes backup.
+After deployment review, install the owner-only Supabase `hh-backup-control-v1` Edge bridge with a scoped dispatch token for **only the private runner**, explicit Auth UUID allowlist and readiness confirmation. Never deploy this Edge endpoint merely to bypass an unconfigured runner. The admin page is `healthhub/admin-backup/` inside the existing `Biztonság` category, not a new admin portal. A `202 Accepted` response means **requested**, not verified.
 
-## Határok / teljes rendszer helyreállítás
+Perform a manual isolated backup, read-back, Restic integrity scan, **full sandbox restore**, and an incremental second run before enabling the automatic daily schedule in the private runner. The committed template includes the scheduled trigger, but no actual nightly job exists until the private repo is configured and its workflow enabled.
 
-Az automatikusan ellenőrzött **CLOUD_CORE_VERIFIED** azt jelenti, hogy a felhőmag adatforrásai megvannak, titkosítva és OneDrive-ról visszaolvasva. **Nem** jelenti, hogy a teljes SHO telefonos rendszer egyetlen gombbal visszaállítható. A telefonokon esetleg még csak lokálisan tárolt Health Connect/IndexedDB módosítások, Book Studio OneDrive-könyvek és külső Home Media forrásfájlok önálló archiválása, a licencelt Samsung SDK és aláírókulcsok biztonságos megőrzése, valamint a valódi próbavisszaállítás külön kötelező feltételek a teljes rendszermentésre történő minősítéshez.
+## Operational status model
 
-A 30 napi + 12 havi visszaállítási pont kiválasztását az `ops/backup/retention_plan.py` végzi. Régi mentések automatikus törlése **nincs engedélyezve**, amíg az első független helyreállítási teszt sikeresen le nem futott és a tulajdonos azt külön jóvá nem hagyja. A tárhelyfigyelő 80%-os foglaltságnál figyelmeztet; a forrásoldali tárhelytelítettség nem blokkolhatja a csak olvasási mentést.
+- `NOT_CONFIGURED`: private runner or its credentials absent; manual buttons remain disabled.
+- `REQUESTED` / `QUEUED` / `RUNNING`: GitHub workflow state, **not** success.
+- `FAILED`: error, no promotion.
+- `STAGING_INCREMENTAL_REPO_DATA_VERIFIED`: all listed cloud sources captured and Restic remote pack read-back passed; **not** full restore.
+- `FULL_SYSTEM_RESTORE_READY`: reserved for independent full restore and validated complete coverage; **not emitted** by the current code.
 
+Recovery points: initially aim for 30 daily + 12 monthly snapshots. **Do not enable automated retention/prune** before measuring real sizes, full restore validation, and explicit owner agreement. Monitor target quota with warning at 80%; zero automatic zombie-file cleanup without verified scope.
 
-## Adminból közvetlen kézi mentésindítás (staging)
+## Blocking limitations discovered in the initial audit
 
-A \`healthhub/admin-backup/\` panelen a **„Admin mentési hozzáférés ellenőrzése”** után, csak zöld szerveroldali előfeltételekkel, egy **„▶ Kézi teljes mentés indítása”** gomb látható. A Google/Dropbox/OneDrive tárolási jogosultság **SOHA** nem kerül a weboldal JavaScript-kódjába. Az admin a meglévő HealthHub Central Vault bejelentkezését használja, a szerver \`auth/v1/user\` JWT-ellenőrzés és előre konfigurált owner UUID-engedélyezési lista alapján dönt.
+The OneDrive `SHO/Backups` folder contains only the earlier setup ZIP and PowerShell health-check script, not a full snapshot. The current Microsoft connector can list the folder, while fetching the PowerShell item returned HTTP 403 `serviceReadOnly`. This is not proof the new runner has persistent upload permission. Full production restore is currently not available.
 
-Szerveroldali előkészítés, csak tulajdonosi jóváhagyás és az éles rendszerre történő külön release után:
-
-1. Supabase Edge Function: \`supabase/functions/hh-backup-control-v1/index.ts\`, \`verify_jwt=true\`; a közös \`_shared/backup-control-v1.mjs\` modul ugyanebből a PR-ből kerül fel. **PR-ben nem települ** és nem változtat Supabase táblákat.
-2. Az Edge Function privát környezetében \`SHO_BACKUP_GITHUB_DISPATCH_TOKEN\`: fine-grained GitHub PAT, kizárólag a **berlet-app Actions: Read and write** jogkörrel; ne használjunk globális account tokent.  A \`SUPABASE_ANON_KEY\` vagy \`SUPABASE_PUBLISHABLE_KEY\` csak felhasználó-jogosultságellenőrzésre kell, nem service_role.
-3. \`SHO_BACKUP_OWNER_USER_IDS\`: előzetesen ellenőrzött, vesszővel elválasztott Supabase Auth felhasználó-UUID-k. **E-mail-cím vagy telefon-profilnév önmagában nem admin jogosultság**.
-4. \`SHO_BACKUP_RUNNER_CONFIRMED=true\` csak a GitHub-futtató **összes 6 előfeltételének** tényleges konfigurálása és jogosultságtesztje után. Enélkül a gomb biztonságosan tiltva marad.
-5. A workflow csak a \`main\` ágon, aktív \`workflow_dispatch\` eseménnyel hívható; POST előtt kötelező külön kattintás és JS confirm. A szerver csak a \`start_manual_full_backup\` műveletet fogadja el, kizárja az idegen Origin-t, a hiányzó tulajdonosi jogosultságot és a párhuzamos/recent mentésindítást.
-6. A 202-es válasz kizárólag **GitHub indítási kérés elfogadva**, sosem kész backup. Az admin külön a legutóbbi futás és OneDrive státusz ellenőrzésével mutat valódi állapotot.
-
-**Restore:** a panel a kiválasztott és igazolt OneDrive-mentésből egyelőre csak **tervet** készít. A valódi restore backendnek az offline integritást, izolált próbavisszaállítást és az éles visszaállításra külön új jóváhagyást kell kikényszerítenie. A jelen PR **nem** készít automatikus éles restore végpontot, és semmilyen éles adatot nem ír.
-
-**Kritikus:** egyetlen ChatGPT-apphoz csatlakozott Microsoft/Dropbox/Supabase-fiók sem elegendő a GitHub Actions és a Supabase Edge Function saját, tartós hozzáféréséhez. A GitHub secret-értékek ma mind hiányoznak; az admin gomb a tényleges konfigurációig letiltott marad.
-
-## Erőforrás és megőrzési kapacitás – forrásméret alapján
-
-- 2026. november 22-én olvasással ellenőrzött méretek: Dropbox HealthHub Cloud Vault **1 245 291 825 byte**, healthhub-vault **100 105 410 byte**; Supabase adatbázis **30 004 915 byte**, Storage metaadatban nyilvántartott objektumméretek **89 135 520 byte**. A GitHub által jelzett repository méretek: berlet-app 182 272 KiB, MediaRadar 1 155 KiB. Ezek **nem** a teljes, garantált visszaállítható SHO mérését jelentik: telefonos, OneDrive Book Studio és egyéb külső adatok külön ellenőrzendők.
-- Emiatt a korábbi **200 GiB fix runner-minimum tévesen túlzó** volt. A v1 forrásmentő most közvetlenül az rclone-források összméretéből számolja a szabadhely-követelményt: **4 × összes mért Dropbox/Supabase Storage adat + minimum 4 GiB tartalék**. Ha a futtatón nincs ennyi szabad terület, biztonságosan megáll a nagy letöltések előtt.
-- A helyi stagingben további Git mirror, LFS és adatbázis dump keletkezik. A 4 GiB tartalék becslés, nem garantált csúcsterhelési plafon; első valódi backupnál mérni kell a tényleges igényt. Nagy adatnövekedésnél továbbra is külön izolált runner vagy streaming mentés szükséges.
-- Az inkrementális Restic-jelölt külön, **csak kézi staging workflow**, részletek: ops/backup/INCREMENTAL_STAGING.md. Nem írja felül a v1-et, és nem kapcsolja be az éles automatikus mentést.
-- Az OneDrive szabad helyét az archívum feltöltése előtt ellenőrizzük; az archívum, a SHA-256 és a státuszfájl mind visszaolvasandó. Az ellenőrzött felhőmag-mentés sem azonos a teljes telefonos rendszer helyreállításával.
-- A 30 napi + 12 havi megőrzés a **tényleges futásonkénti archívumméret** és a OneDrive felhasználás mérése után véglegesíthető; automatikus törlés jelenleg nincs. A korábbi 45 GB-os teljes példány kizárólag becslési forgatókönyv volt, nem mért tény.
-
-**Élesítés tiltva**, amíg a tartós futtatói titkok, a valódi OneDrive-visszaolvasás és az izolált helyreállítási próba nem sikeres.
+See also `INCREMENTAL_STAGING.md`, `verify_restore.py` and the regression tests. The older draft PR #1066 contains historical design work but its branch is no longer available as a named ref. This work is continued in a new protected feature branch.
