@@ -52,7 +52,7 @@ function block(tag,cls,value){
 }
 function showSnapshots(items){
  const root=el('backups');clearNode(root);
- if(!items.length){root.appendChild(block('p','muted','Nem található mentési mappa. A manuális backup még nem készült el.'));return}
+ if(!items.length){root.appendChild(block('p','muted','Régi formátumú mentés nincs a gyökérmappában. A működő Restic-mentéseket az ötkomponenses monitor mutatja.'));return}
  for(const item of items){
   const row=block('div','snapshot');
   const detail=block('div');
@@ -108,9 +108,21 @@ async function refreshStaging(token){
  clearNode(target);resticVerified.clear();
  const base='/me/drive/root:/SHO/Backups/restic-partial-runs:/children?$select=id,name,folder&$top=200';
  let folders;
- try{folders=await readJson(base,token)}
- catch(e){
-  target.appendChild(block('p','warn','⚠️ A tényleges Restic-státuszmappa nem olvasható. Ellenőrizd a OneDrive-jogosultságot.'));
+ try{
+  let next=base,pages=0;
+  const all=[];
+  // Enumerate enough pages for ~1 year of five daily components; do not assume
+  // OneDrive returns the newest entries first. A browser holds no service secret.
+  while(next&&pages<12){
+   const page=await readJson(next,token);
+   all.push(...(Array.isArray(page.value)?page.value:[]));
+   next=typeof page['@odata.nextLink']==='string'?page['@odata.nextLink']:null;
+   pages++;
+  }
+  if(next)throw Error('A lista túl hosszú; a részleges leltárt nem tekintjük teljesnek.');
+  folders={value:all};
+ }catch(e){
+  target.appendChild(block('p','warn','⚠️ A tényleges Restic-státuszlista nem olvasható vagy hiányos. OneDrive-jogosultság / lapozás ellenőrzendő.'));
   return [];
  }
  const runs=(Array.isArray(folders.value)?folders.value:[])
