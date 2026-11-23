@@ -7,7 +7,7 @@ umask 077
 [[ "${SHO_BACKUP_CAPTURE_AUTHORIZED:-}" == 'staging-read-only' ]] || {
   echo '::error::Explicit staging read-only capture confirmation required' >&2; exit 2;
 }
-required=(RCLONE_CONFIG_B64 GH_BACKUP_PAT SUPABASE_DB_URL SUPABASE_MANAGEMENT_TOKEN RESTIC_PASSWORD)
+required=(RCLONE_CONFIG_B64 GH_BACKUP_PAT SUPABASE_DB_URL SUPABASE_MANAGEMENT_TOKEN RESTIC_PASSWORD SUPABASE_S3_ACCESS_KEY_ID SUPABASE_S3_SECRET_ACCESS_KEY)
 for key in "${required[@]}"; do
   [[ -n "${!key:-}" ]] || { echo "::error::Missing required staged runner credential: $key" >&2; exit 2; }
 done
@@ -29,6 +29,15 @@ export RESTIC_CACHE_DIR="$work/restic-cache"
 printf '%s' "$RCLONE_CONFIG_B64" | base64 -d > "$work/rclone.conf"
 chmod 600 "$work/rclone.conf"
 export RCLONE_CONFIG="$work/rclone.conf"
+# S3 key remains only inside the isolated private runner and is not committed
+# nor included in the PC's rclone configuration.
+if ! rclone config create supa_s3 s3 provider Other env_auth false \
+  access_key_id "$SUPABASE_S3_ACCESS_KEY_ID" \
+  secret_access_key "$SUPABASE_S3_SECRET_ACCESS_KEY" \
+  endpoint 'https://vhsrupphzcjkdrusonzh.storage.supabase.co/storage/v1/s3' \
+  region eu-central-1 force_path_style true --non-interactive >/dev/null 2>&1; then
+  echo '::error::Unable to configure temporary Supabase Storage remote' >&2; exit 2
+fi
 # An escrow containing recovery credentials can only be added after the owner has
 # supplied a genuinely encrypted recovery bundle. A missing escrow must never
 # prevent an initial DATA-only capture, nor count as a FULL SYSTEM restore.
