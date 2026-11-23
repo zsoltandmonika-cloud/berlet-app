@@ -27,3 +27,20 @@ label{display:block;font-size:13px;font-weight:700}
 input{width:100%;padding:11px;margin:7px 0 10px;border:1px solid #799ebe9e;border-radius:10px;background:#08162b;color:white}
 footer{font-size:12px;color:#a7c3d7;padding-top:10px}
 @media(max-width:680px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.grid{grid-template-columns:1fr}.hero,.card{padding:17px}.snapshot{align-items:flex-start;flex-direction:column}}
+
+
+/* V4 · live component monitoring, accessible Golden Premium Glass */
+.monitor-item{position:relative;padding:15px 14px;margin:8px 0;gap:14px;border:1px solid #87b8e84d;border-radius:15px;background:linear-gradient(115deg,#123047e8,#10203cec);box-shadow:inset 0 1px #cceaff1b}
+.monitor-item:first-child{border-color:#78c5ac88}
+.monitor-item strong{font-size:15px;letter-spacing:.01em;color:#f0f8ff}
+.monitor-item small{margin-top:5px;font-size:12px;line-height:1.5;color:#b9e5d5}
+.monitor-item>div{min-width:0;flex:1}
+.monitor-item>button{flex-shrink:0;min-width:132px}
+.monitor-item button:disabled{opacity:.65}
+#stagingRuns>p{padding:12px 10px;font-size:13px}
+#status{border-color:#70b9d17c}
+a:focus-visible,button:focus-visible{outline:2px solid #d1f5ff;outline-offset:3px}
+@media(max-width:680px){
+ .monitor-item{padding:13px;flex-direction:column;align-items:stretch;gap:10px}
+ .monitor-item button{width:100%}
+}
