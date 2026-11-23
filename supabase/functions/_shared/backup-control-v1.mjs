@@ -1,5 +1,6 @@
 /* SHO backup dispatch bridge, server-only. No Github token or cloud credentials in browser. */
-const OWNER="zsoltandmonika-cloud",REPO="berlet-app",WORKFLOW="sho-onedrive-full-backup-nightly.yml";
+// The public SHO application is NEVER the secret-bearing backup runner.
+const OWNER="zsoltandmonika-cloud",REPO="SHO-Backup-Runner",WORKFLOW="sho-backup-unified.yml";
 const EXPECTED_ORIGIN="https://zsoltandmonika-cloud.github.io";
 const ACTIVE=new Set(["queued","in_progress","requested","pending","waiting"]);
 const MAX_REQUEST_AGE_MS=15*60*1000;
@@ -51,10 +52,17 @@ async function authOwner(request,env,impl){
   return {ok:true,userId:user.id};
 }
 async function workflowDetails(token,impl){
+  // Refuse dispatch if the designated runner repository is not private.
+  const repoRes=await serviceFetch("https://api.github.com/repos/"+OWNER+"/"+REPO,{
+    method:"GET",headers:githubHeaders(token)
+  },impl);
+  if(!repoRes.ok)return null;
+  const repo=await repoRes.json();
+  if(repo.private!==true||repo.archived===true)return null;
   const res=await gh("workflows/"+WORKFLOW,token,impl);
   if(!res.ok)return null;
   const data=await res.json();
-  return {state:data.state,name:data.name};
+  return {state:data.state,name:data.name,private_repo_verified:true};
 }
 async function latestRuns(token,impl){
   const res=await gh("workflows/"+WORKFLOW+"/runs?per_page=10",token,impl);
@@ -64,7 +72,7 @@ async function latestRuns(token,impl){
   return body.workflow_runs.map(x=>({
     id:Number(x.id)||null,created_at:String(x.created_at||""),
     status:String(x.status||"unknown"),conclusion:x.conclusion||null,
-    event:String(x.event||"unknown"),
+    event:String(x.event||"unknown"),name:String(x.name||""),
     url:typeof x.html_url==="string"&&x.html_url.startsWith("https://github.com/")?x.html_url:null
   }));
 }
@@ -93,7 +101,7 @@ export async function handleBackupControl(request,ctx={}){
         const runnerReady=getEnv(env,"SHO_BACKUP_RUNNER_CONFIRMED")==="true";
         return reply({ok:true,bridge:"authenticated",workflow_active:workflow?.state==="active",
           runner_config_confirmed:runnerReady,
-          ready:workflow?.state==="active"&&runnerReady,
+          ready:workflow?.state==="active"&&workflow?.private_repo_verified===true&&runnerReady,
           enabled_operation:"manual_backup_only"},200,origin);
       }
       if(mode==="last_run"){
@@ -109,21 +117,26 @@ export async function handleBackupControl(request,ctx={}){
     const raw=await request.text();
     if(raw.length>1024)return fail("Request too large",413,origin);
     let body;try{body=JSON.parse(raw)}catch{return fail("Invalid JSON",400,origin)}
-    if(!body||body.operation!=="start_manual_full_backup"||Object.keys(body).length!==1)
+    const kinds=Object.freeze({
+      start_manual_full_backup:"manual",
+      start_predevelopment_full_backup:"pre_development"
+    });
+    if(!body||typeof body.operation!=="string"||!Object.prototype.hasOwnProperty.call(kinds,body.operation)||
+       Object.keys(body).length!==1)
       return fail("Unsupported backup operation",400,origin);
-    if(request.headers.get("x-sho-backup-confirm")!=="true")return fail("Explicit confirmation required",428,origin);
+    // Backup is source-read-only. Reuse owner authentication, no redundant confirmation tokens.
     if(getEnv(env,"SHO_BACKUP_RUNNER_CONFIRMED")!=="true")
       return fail("Runner prerequisites have not been verified",503,origin);
     const workflow=await workflowDetails(dispatchToken,impl);
-    if(workflow?.state!=="active")return fail("Backup workflow not active on default branch",503,origin);
+    if(workflow?.state!=="active"||workflow.private_repo_verified!==true)return fail("Private backup workflow not active",503,origin);
     const runs=await latestRuns(dispatchToken,impl);
     const now=Date.now();
     const recent=runs.some(r=>ACTIVE.has(r.status)||
       (Number.isFinite(Date.parse(r.created_at))&&now-Date.parse(r.created_at)<MAX_REQUEST_AGE_MS&&now>=Date.parse(r.created_at)));
     if(recent)return fail("Backup running or dispatched recently",409,origin);
-    const response=await gh("workflows/"+WORKFLOW+"/dispatches",dispatchToken,impl,"POST",{ref:"main"});
+    const response=await gh("workflows/"+WORKFLOW+"/dispatches",dispatchToken,impl,"POST",{ref:"main",inputs:{backup_kind:kinds[body.operation]}});
     if(response.status!==204)return fail("GitHub did not accept backup request",502,origin);
-    return reply({ok:true,requested:true,operation:"start_manual_full_backup",
+    return reply({ok:true,requested:true,operation:body.operation,backup_kind:kinds[body.operation],
       status:"ACCEPTED_NOT_VERIFIED",detail:"The workflow was requested, no backup has been verified yet."},202,origin);
   }catch(_e){
     return fail("Backup control temporarily unavailable. No job completion has been confirmed.",503,origin);
