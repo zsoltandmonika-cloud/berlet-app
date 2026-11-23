@@ -29,6 +29,20 @@ export RESTIC_CACHE_DIR="$work/restic-cache"
 printf '%s' "$RCLONE_CONFIG_B64" | base64 -d > "$work/rclone.conf"
 chmod 600 "$work/rclone.conf"
 export RCLONE_CONFIG="$work/rclone.conf"
+# Normalize user-pasted Postgres connection URL; raw passwords may contain @/#/?.
+# A failed parse reports no URL/password fragments.
+SUPABASE_DB_URL="$(python3 ops/backup/normalize_supabase_db_uri.py)" || exit 3
+export SUPABASE_DB_URL
+# Test DB read permission before any Restic/OneDrive write.
+# Keep pg client stderr private: it can contain a malformed URI/password fragment.
+if ! docker run --rm -e SUPABASE_DB_URL postgres:17-alpine \
+  sh -ec 'psql "$SUPABASE_DB_URL" -X -A -t -c "SELECT 1"' \
+  >"$work/db-preflight-out" 2>"$work/db-preflight-private"; then
+  echo '::error::Supabase database connection failed. Review private URI/credentials.' >&2
+  exit 3
+fi
+grep -qx '1' "$work/db-preflight-out" || { echo '::error::Unexpected database preflight result' >&2; exit 3; }
+echo 'PASS: database read-only preflight'
 # S3 key remains only inside the isolated private runner and is not committed
 # nor included in the PC's rclone configuration.
 if ! rclone config create supa_s3 s3 provider Other env_auth false \
