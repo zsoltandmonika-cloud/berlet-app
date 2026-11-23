@@ -14,6 +14,8 @@ const REAL_ROUTES=Object.freeze({
  'Szórakozás':SH9+'entertainment/',
  'Bevásárlás':SH9+'shopping/',
  'Sport':SH9+'sport/',
+ // Navigate to the working Golden Standard web pilot; no change to cloud write safeguards.
+ 'Életmód':SH9+'lifestyle/',
  'Táplálkozás':HH+'nutrition/',
  'Aktivitás':HH+'activity-one/?source=sho',
  'Alvás':HH+'sleep-one/?source=sho'
