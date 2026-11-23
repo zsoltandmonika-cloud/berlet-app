@@ -37,8 +37,8 @@ function harness(){
  const photos=[
   {id:'dir',name:'Nyaralás 2026',folder:{childCount:3}},
   {id:'p1',name:'Első.jpg',file:{mimeType:'image/jpeg'},size:1024},
-  {id:'p2',name:'Második.jpg',file:{mimeType:'image/jpeg'},size:2000},
-  {id:'p3',name:'Harmadik.jpg',file:{mimeType:'image/jpeg'},size:3000}
+  {id:'p2',name:'Középső.jpg',file:{mimeType:'image/jpeg'},size:2000},
+  {id:'p3',name:'Utolsó.jpg',file:{mimeType:'image/jpeg'},size:3000}
  ];
  const getItem=function(k){return this._data[k]||null};
  const localStorage={_data:{'sh9-book-ms-config-v2':JSON.stringify({clientId,account})},getItem};
