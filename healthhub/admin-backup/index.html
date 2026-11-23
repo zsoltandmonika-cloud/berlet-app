@@ -27,13 +27,13 @@
 <p class="result" id="manualStatus" role="status" aria-live="polite">Mentésindítás még nem elérhető: privát mentési futtató szükséges.</p>
 <p class="muted">A fejlesztés előtti mentés külön jelölést kap. Mindkét gomb ugyanazt a teljes forráslistát használja; éles adatot nem módosít.</p>
 <div class="toolbar">
-<a class="btn secondary" id="manual" href="https://github.com/zsoltandmonika-cloud/SHO-Backup-Runner/actions/workflows/sho-backup-unified.yml" rel="noopener noreferrer">GitHub futtató (tartalék)</a>
+<a class="btn secondary" id="manual" href="https://github.com/zsoltandmonika-cloud/SHO-Backup-Runner/actions/workflows/sho-backup-unified.yml" rel="noopener noreferrer">Privát futtató (telepítés után)</a>
 <a class="btn secondary" href="https://github.com/zsoltandmonika-cloud/berlet-app/pull/1066" rel="noopener noreferrer">Fejlesztés állapota</a></div>
 <p class="warn">Az indítás elfogadása még nem kész mentés. A teljesítés csak sikeres OneDrive-visszaolvasás után igazolt.</p></div>
 <div class="card"><h2>🔎 OneDrive mentések</h2>
 <p>Csak a megfelelő Microsoft-fiókhoz tartozó, név szerint ismert mentéskönyvtárat olvassuk. A böngészőből nem törlünk fájlokat.</p>
 <div class="toolbar"><button id="refresh" type="button">Mentések ellenőrzése</button>
-<a class="btn secondary" id="onedrive" href="https://onedrive.live.com?cid=BC1FF24AF37EA2B0&amp;id=BC1FF24AF37EA2B0!s923d513dd4494037b00b0f5d6340556c" rel="noopener noreferrer">OneDrive mappa</a></div>
+<a class="btn secondary" id="onedrive" href="https://onedrive.live.com?cid=BC1FF24AF37EA2B0&amp;id=BC1FF24AF37EA2B0!sea731d68fcb440d6a6f2103e66d2536e" rel="noopener noreferrer">OneDrive mappa</a></div>
 <p class="muted" id="authHelp">Az ellenőrzéshez a Book Studio meglévő, hitelesített OneDrive-olvasási munkamenete szükséges.</p></div>
 </section>
 <section class="card"><h2>📚 Visszaállítási pontok</h2>
@@ -48,7 +48,7 @@
 <label for="restoreId">Kiválasztott mentés azonosítója</label>
 <input id="restoreId" type="text" maxlength="70" placeholder="Válassz ellenőrzött mentést a listából" readonly>
 <div class="toolbar"><button id="prepare" type="button" disabled>Visszaállítási terv előkészítése</button>
-<a class="btn secondary" href="https://github.com/zsoltandmonika-cloud/berlet-app/blob/feature/sho-onedrive-nightly-full-backup-20261122/ops/backup/README.md" rel="noopener noreferrer">Helyreállítási dokumentáció</a></div>
+<a class="btn secondary" href="https://github.com/zsoltandmonika-cloud/berlet-app/blob/feature/sho-backup-admin-predev-20261123/ops/backup/README.md" rel="noopener noreferrer">Helyreállítási dokumentáció</a></div>
 <div id="restoreOutput" class="result" hidden></div></section>
 <footer>Mentési források: GitHub teljes történet, Dropbox-tárak, Supabase DB/Storage/Edge; telefonos lokális adatok és külső források lefedettsége még validálandó. A mentési panel nem töröl, nem végez production restore-t és nem indít OTA-t.</footer>
 </main><script src="../central-vault/config.js"></script><script src="./backup-admin-v1.js?v=3"></script></body></html>
