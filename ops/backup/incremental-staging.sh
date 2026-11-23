@@ -7,7 +7,7 @@ umask 077
 [[ "${SHO_BACKUP_CAPTURE_AUTHORIZED:-}" == 'staging-read-only' ]] || {
   echo '::error::Explicit staging read-only capture confirmation required' >&2; exit 2;
 }
-required=(RCLONE_CONFIG_B64 GH_BACKUP_PAT SUPABASE_DB_URL SUPABASE_MANAGEMENT_TOKEN SHO_RECOVERY_ESCROW_B64 RESTIC_PASSWORD)
+required=(RCLONE_CONFIG_B64 GH_BACKUP_PAT SUPABASE_DB_URL SUPABASE_MANAGEMENT_TOKEN RESTIC_PASSWORD)
 for key in "${required[@]}"; do
   [[ -n "${!key:-}" ]] || { echo "::error::Missing required staged runner credential: $key" >&2; exit 2; }
 done
@@ -29,8 +29,15 @@ export RESTIC_CACHE_DIR="$work/restic-cache"
 printf '%s' "$RCLONE_CONFIG_B64" | base64 -d > "$work/rclone.conf"
 chmod 600 "$work/rclone.conf"
 export RCLONE_CONFIG="$work/rclone.conf"
-printf '%s' "$SHO_RECOVERY_ESCROW_B64" | base64 -d > "$work/stage/recovery/escrow.age"
-[[ -s "$work/stage/recovery/escrow.age" ]] || { echo '::error::Empty pre-encrypted escrow' >&2; exit 2; }
+# An escrow containing recovery credentials can only be added after the owner has
+# supplied a genuinely encrypted recovery bundle. A missing escrow must never
+# prevent an initial DATA-only capture, nor count as a FULL SYSTEM restore.
+ESCROW_PRESENT=false
+if [[ -n "${SHO_RECOVERY_ESCROW_B64:-}" ]]; then
+  printf '%s' "$SHO_RECOVERY_ESCROW_B64" | base64 -d > "$work/stage/recovery/escrow.age"
+  [[ -s "$work/stage/recovery/escrow.age" ]] || { echo '::error::Invalid encrypted recovery escrow' >&2; exit 2; }
+  ESCROW_PRESENT=true
+fi
 
 for remote in dropbox onedrive supa_s3; do
   rclone listremotes | grep -qx "${remote}:" || { echo "::error::Missing remote $remote" >&2; exit 2; }
@@ -120,9 +127,9 @@ restic check --read-data
 LOCAL_SNAPSHOT_ID="$(jq -er --arg path "$work/stage"   '[.[] | select(.paths | index($path)) | .id] | first' "$work/snapshots.json")"
 restic dump "$LOCAL_SNAPSHOT_ID" "$work/stage/local-inventory.json" > "$work/local-inventory-restored.json"
 cmp -s "$work/stage/local-inventory.json" "$work/local-inventory-restored.json"
-python3 - "$BACKUP_ID" "$TAG" "$BACKUP_KIND" "$work/snapshots.json" "$work/status.json" <<'PY'
+python3 - "$BACKUP_ID" "$TAG" "$BACKUP_KIND" "$ESCROW_PRESENT" "$work/snapshots.json" "$work/status.json" <<'PY'
 import json, sys
-run, tag, backup_kind, snaps, dest = sys.argv[1:]
+run, tag, backup_kind, escrow_present, snaps, dest = sys.argv[1:]
 ids = [s['id'] for s in json.load(open(snaps, encoding='utf-8'))]
 status = {
   'schema': 'sho-restic-staging-status/1',
@@ -133,11 +140,13 @@ status = {
   'snapshot_ids': ids,
   'read_back_verified': True,
   'full_system': False,
+  'recovery_escrow_included': escrow_present == 'true',
   'restore_tested': False,
   'metadata_restore_smoke_tested': True,
   'production_restored': False,
   'components': ['Dropbox vaults x2', 'Supabase Storage bodies', 'PostgreSQL 17 custom dump',
-                 'Git full history x3 plus available LFS', 'deployed Edge Functions', 'encrypted recovery escrow'],
+                 'Git full history x3 plus available LFS', 'deployed Edge Functions'] +
+                 (['encrypted recovery escrow'] if escrow_present == 'true' else []),
 }
 with open(dest, 'w', encoding='utf-8') as f:
     json.dump(status, f, indent=2, ensure_ascii=False)
