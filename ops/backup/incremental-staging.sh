@@ -74,9 +74,13 @@ python3 ops/backup/stream_remote_tar.py 'supa_s3:' | \
   restic backup --tag "$TAG" --stdin --stdin-filename 'supabase-storage.tar'
 
 # Custom-format pg_dump is streamed directly; staging does not create a local database.dump file.
-docker run --rm -e SUPABASE_DB_URL postgres:17-alpine \
-  sh -ec 'pg_dump --format=custom --no-owner --no-acl "$SUPABASE_DB_URL" -f -' | \
-  restic backup --tag "$TAG" --stdin --stdin-filename 'supabase-postgresql17.dump'
+# Never print libpq errors: malformed URIs may contain clear-text password fragments.
+if ! docker run --rm -e SUPABASE_DB_URL postgres:17-alpine \
+  sh -ec 'pg_dump --format=custom --no-owner --no-acl "$SUPABASE_DB_URL" -f -' 2>"$work/pgdump-stderr-private" | \
+  restic backup --tag "$TAG" --stdin --stdin-filename 'supabase-postgresql17.dump'; then
+  echo '::error::Database backup failed. Inspect secret URI encoding privately; database not changed.' >&2
+  exit 5
+fi
 
 # All three complete Git histories, including branch/tag refs and any LFS objects, plus deployed functions.
 cat > "$work/askpass.sh" <<'ASK'
