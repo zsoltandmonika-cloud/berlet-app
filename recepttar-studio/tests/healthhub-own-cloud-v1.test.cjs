@@ -130,3 +130,19 @@ test('Non-family HealthHub accounts cannot replace the current household session
  await assert.rejects(b.api.signIn('unrelated@example.com','example-pass',false),/nincs engedélyezett/);
  assert.equal(b.state.get('hh-supabase-health-session-v1'),previous);
 });
+
+test('Storage and Puter AI have separate controls, state and credentials',()=>{
+ assert.match(html,/id="healthhubAccessTitleV1168"/);
+ assert.match(html,/id="puterAiAccessTitleV1168"/);
+ assert.match(html,/id="puterAiAccountStatusV1168"/);
+ assert.match(html,/id="puterAiSignInV1168"/);
+ assert.match(html,/id="puterAiRefreshV1168"/);
+ assert.match(html,/HealthHub-jelszó \(nem Puter-jelszó\)/);
+ const start=html.indexOf('id="puterAiAccessTitleV1168"'),end=html.indexOf('</section>',start);
+ const puterPanel=html.slice(start,end);
+ assert.doesNotMatch(puterPanel,/type="password"/);
+ assert.match(app,/async function signInPuterAiV1168\(\)/);
+ assert.match(app,/await ensurePuterSignIn\(\)/);
+ assert.match(app,/void updatePuterAiStatusV1168\(\)/);
+ assert.match(app,/HH_OWN_RECIPE_CLOUD_V1\.signIn\(email,password,remember\)/);
+});

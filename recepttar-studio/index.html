@@ -515,30 +515,50 @@
 
 <dialog id="syncDialog">
 <div class="dialog-card">
-  <div class="dialog-title-row"><h2>☁ Központi tárhely</h2><button id="closeSync" class="icon-close">×</button></div>
-  <p class="local-note">A saját receptek a <b>HealthHub-Core privát tárhelyén</b> élnek. Zsolt és Mónika jogosult HealthHub-fiókja látja a közös recepteket. A mentéshez nem kell Puter-kredit.</p>
+  <div class="dialog-title-row"><h2>☁ Fiókok és központi tárhely</h2><button id="closeSync" class="icon-close">×</button></div>
+  <style>
+    #syncDialog .cloud-provider-box{margin:12px 0 0;padding:14px;border:1px solid rgba(176,211,227,.26);border-radius:17px;background:linear-gradient(135deg,rgba(19,45,49,.62),rgba(20,30,35,.36))}
+    #syncDialog .cloud-provider-puter{border-color:rgba(245,170,218,.28);background:linear-gradient(135deg,rgba(58,29,47,.44),rgba(29,29,37,.35))}
+    #syncDialog .cloud-provider-box h3{font-size:1rem;margin:0 0 9px;line-height:1.35}
+    #syncDialog .cloud-provider-box > .local-note{margin:8px 0 12px}
+    #syncDialog .cloud-provider-box .cloud-actions{flex-wrap:wrap}
+    #syncLoginFormV1164[hidden]{display:none!important}
+    #syncLoginFormV1164:not([hidden]){display:grid}
+  </style>
+  <section class="cloud-provider-box cloud-provider-healthhub" aria-labelledby="healthhubAccessTitleV1168">
+    <h3 id="healthhubAccessTitleV1168">☁ HealthHub · privát recepttár</h3>
+    <p class="local-note">A saját és közös recepteket a <b>HealthHub-Core privát tárhelye</b> menti. Ide <b>HealthHub-fiókkal</b> jelentkezz be. A Puter belépés ettől független, és nem szükséges a receptmentéshez.</p>
   <div id="cloudAccountStatus" class="cloud-account-status">Kapcsolat ellenőrzése…</div>
   <div class="dialog-actions cloud-actions">
     <button id="cloudSignIn" type="button" class="primary-btn">🔐 HealthHub belépés</button>
     <button id="cloudSwitchAccount" type="button" class="outline-btn">⇄ HealthHub fiók</button>
     <button id="cloudRefresh" type="button" class="outline-btn">↻ Frissítés</button>
   </div>
-  <style>#syncLoginFormV1164[hidden]{display:none!important}#syncLoginFormV1164:not([hidden]){display:grid}</style>
   <form id="syncLoginFormV1164" hidden style="gap:10px;margin:14px 0 9px;padding:15px;border:1px solid rgba(172,223,225,.28);border-radius:16px;background:rgba(15,36,44,.45)">
-    <label for="syncEmailV1164" style="font-weight:700">HealthHub e-mail</label>
+    <label for="syncEmailV1164" style="font-weight:700">HealthHub-fiók e-mail-címe</label>
     <input id="syncEmailV1164" name="email" class="field-input" type="email" autocomplete="username" required placeholder="E-mail-cím">
-    <label for="syncPasswordV1164" style="font-weight:700">Jelszó</label>
+    <label for="syncPasswordV1164" style="font-weight:700">HealthHub-jelszó (nem Puter-jelszó)</label>
     <input id="syncPasswordV1164" name="password" class="field-input" type="password" autocomplete="current-password" required placeholder="HealthHub-jelszó">
     <label style="display:flex;gap:8px;align-items:center"><input name="remember" type="checkbox" checked> Jegyezzen meg ezen a saját készüléken</label>
-    <small>Másik fiókra váltáskor a jelenlegi kapcsolat megmarad, amíg az új fiók sikeresen be nem jelentkezik.</small>
+    <small>A Puter-fiók belépése lent, külön gombbal indítható. A meglévő HealthHub-kapcsolat a sikeres fiókváltásig megmarad.</small>
     <div class="dialog-actions">
       <button id="syncLoginSubmitV1164" type="submit" class="primary-btn">🔐 Belépés</button>
       <button id="syncLoginCancelV1164" type="button" class="outline-btn">Mégse</button>
     </div>
   </form>
   <div id="syncLoginStateV1164" class="cloud-account-status" role="status" aria-live="polite"></div>
+  </section>
+  <section class="cloud-provider-box cloud-provider-puter" aria-labelledby="puterAiAccessTitleV1168">
+    <h3 id="puterAiAccessTitleV1168">✨ Puter AI · receptgenerálás</h3>
+    <p class="local-note">Ez egy <b>külön Puter-fiók</b>, amelyet az AI-generálás és a régi Puter-receptek elérése használ. A Puter bejelentkezési ablaka nyílik meg, nem kell Puter-jelszót a HealthHub űrlapjába írni.</p>
+    <div id="puterAiAccountStatusV1168" class="cloud-account-status" role="status" aria-live="polite">Puter AI kapcsolat ellenőrzése…</div>
+    <div class="dialog-actions cloud-actions">
+      <button id="puterAiSignInV1168" type="button" class="primary-btn">🔐 Puter AI belépés</button>
+      <button id="puterAiRefreshV1168" type="button" class="outline-btn">↻ Puter állapot</button>
+    </div>
   <button id="importLegacyPuterV1" type="button" class="outline-btn" style="width:100%;margin-top:12px">📦 Régi Puter-receptek biztonságos átvétele</button>
-  <p class="local-note">A helyben már elmentett receptek HealthHub-belépés után szinkronizálódnak. A régi Puter-adatok külön, visszaellenőrzött másolással vehetők át; az eredeti fájlokat nem töröljük.</p>
+  <p class="local-note">A helyben már elmentett receptek HealthHub-belépés után szinkronizálódnak. A régi Puter-adatok csak külön, visszaellenőrzött másolással vehetők át; az eredeti fájlokat nem töröljük.</p>
+  </section>
 </div>
 </dialog>
 
@@ -737,7 +757,7 @@
 <script src="csabai-burgonyaleves-2026.js?v=1"></script>
 <script src="../healthhub/nutrition/hh-cookbook-portion-math-v1154.js?v=1154"></script>
 <script src="recipe-asset-cache-v1.js?v=1-local-first"></script>
-<script src="app.js?v=1165-healthhub-nutri-provider-errors"></script>
+<script src="app.js?v=1165-separated-healthhub-puter-login"></script>
 <script src="hh-nutrition-export-v1154.js?v=1160-visible-button"></script>
 <script src="hh-nutri-golden-standard-v1155.js?v=1167-monthly-vs-purchased-credits"></script>
 <script defer src="hh-puter-balance-chip-v1158.js?v=1167-monthly-only-badge"></script>

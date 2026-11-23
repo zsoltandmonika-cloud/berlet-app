@@ -1497,7 +1497,7 @@ async function updateCloudStatus(){
 }
 async function openSyncSettings(){
  if($("#adminDialog").open)$("#adminDialog").close();
- $("#syncDialog").showModal();await updateCloudStatus();
+ $("#syncDialog").showModal();void updatePuterAiStatusV1168();await updateCloudStatus();
  if(await HH_OWN_RECIPE_CLOUD_V1?.available?.())await syncPendingToCloud();
 }
 function cloudSignIn(forcePick=false){
@@ -1506,9 +1506,45 @@ function cloudSignIn(forcePick=false){
  const form=$("#syncLoginFormV1164"),feedback=$("#syncLoginStateV1164");
  form.hidden=false;feedback.textContent=forcePick
   ?'Fiókváltás: add meg a másik jogosult HealthHub-fiók adatait.'
-  :'A HealthHub családi fiókoddal jelentkezhetsz be.';
+  :'Itt kizárólag a HealthHub családi fiókoddal jelentkezhetsz be. A Puter AI külön gombbal érhető el.';
  form.elements.email.value='';form.elements.password.value='';
  form.elements.email.focus();
+}
+async function updatePuterAiStatusV1168(){
+ const status=$("#puterAiAccountStatusV1168");
+ if(!status)return;
+ try{
+   if(!puterCloudReady()){
+     status.textContent='A Puter AI jelenleg nem érhető el. A HealthHub receptmentés ettől független.';
+     return;
+   }
+   if(!puter.auth.isSignedIn()){
+     status.textContent='Nincs aktív Puter AI-belépés. A HealthHub tárhely ettől függetlenül működik.';
+     return;
+   }
+   const user=await currentPuterUser();
+   const account=String(user?.username||user?.email||user?.name||'').trim();
+   status.textContent='✓ Puter AI csatlakoztatva'+(account?' · '+account:'');
+ }catch(error){
+   console.warn('Puter AI kapcsolatellenőrzés',error);
+   status.textContent='⚠ A Puter AI-kapcsolat nem ellenőrizhető. A HealthHub-fiók változatlan.';
+ }
+}
+async function signInPuterAiV1168(){
+ const button=$("#puterAiSignInV1168"),status=$("#puterAiAccountStatusV1168");
+ if(button.disabled)return;
+ button.disabled=true;
+ status.textContent='Puter AI belépés megnyitása…';
+ try{
+   await ensurePuterSignIn();
+   await updatePuterAiStatusV1168();
+ }catch(error){
+   const code=String(error?.code||error?.error||'').toLowerCase();
+   status.textContent=code==='popup_blocked'
+     ?'⚠ Engedélyezd a Puter bejelentkezési felugró ablakát, majd próbáld újra.'
+     :'⚠ A Puter-belépés nem sikerült vagy megszakadt. A HealthHub-fiók változatlan.';
+   console.warn('Puter AI belépés',error);
+ }finally{button.disabled=false}
 }
 async function submitCloudLoginV1164(event){
  event.preventDefault();
@@ -1544,7 +1580,7 @@ async function cloudRefresh(){
 async function importLegacyPuterV1(){
  const status=$("#cloudAccountStatus");
  if(!await HH_OWN_RECIPE_CLOUD_V1?.available?.()){status.textContent='A régi Puter-adatok átvételéhez HealthHub-belépés szükséges.';return}
- if(!puterCloudReady()||!puter.auth.isSignedIn()){status.textContent='Előbb jelentkezz be a régi Puter-fiókodba is az átvételhez.';return}
+ if(!puterCloudReady()||!puter.auth.isSignedIn()){$("#puterAiAccountStatusV1168").textContent='Előbb jelentkezz be a Puter AI-fiókodba is a régi receptek átvételéhez.';return}
  await loadSharedRecipes(true,true);
  const legacy=sharedRecipes.filter(r=>r.storage==='puter'),own=new Set(
    (await HH_OWN_RECIPE_CLOUD_V1.listRecipes()).map(r=>r.id)
@@ -2224,6 +2260,7 @@ $("#clearStructured").onclick=clearStructuredOverride;
 $("#studioBtn").onclick=openStudio;$("#addRecipeBtn").onclick=openAdd;$("#chooseImageBtn").onclick=()=>$("#newImageInput").click();$("#newImageInput").onchange=e=>handleNewImage(e.target.files&&e.target.files[0]);$("#saveNewRecipe").onclick=saveNew;
 $("#topHome").onclick=()=>showHome(true);$("#homeBtn").onclick=()=>showHome(true);$("#healthRadarExportBtn").onclick=()=>toast("❤️ HealthRadar export előkészítve. Ezt a funkciót később aktiváljuk.");$("#backBtn").onclick=()=>history.back();$("#shareBtn").onclick=shareCurrentRecipe;$("#editBtn").onclick=openEdit;$("#editFullRecipeBtn").onclick=openCurrentRecipeInStudio;$("#replaceCardImageBtn").onclick=()=>{if(!currentId)return;$("#replaceCardImageInput").value="";$("#replaceCardImageInput").click()};$("#replaceCardImageInput").onchange=e=>replaceCurrentCardImage(e.target.files?.[0]);$("#editRegenerateCard").onclick=openCurrentRecipeInStudio;$("#navHome").onclick=()=>showHome(true);$("#navFav").onclick=()=>{favoritesOnly=true;showHome(true)};$("#navAdmin").onclick=openAdmin;$("#navAsk").onclick=askLena;
 $("#closeAdmin").onclick=()=>$("#adminDialog").close();$("#addCategoryBtn").onclick=addManagedCategory;$("#newCategoryName").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();addManagedCategory()}});$("#adminStudio").onclick=()=>{$("#adminDialog").close();openStudio()};$("#adminAddRecipe").onclick=()=>{$("#adminDialog").close();openAdd()};$("#syncSettingsBtn").onclick=openSyncSettings;$("#closeSync").onclick=()=>$("#syncDialog").close();$("#cloudSignIn").onclick=()=>cloudSignIn(false);$("#cloudSwitchAccount").onclick=()=>cloudSignIn(true);$("#cloudRefresh").onclick=cloudRefresh;
+$("#puterAiSignInV1168").onclick=signInPuterAiV1168;$("#puterAiRefreshV1168").onclick=updatePuterAiStatusV1168;
 $("#syncLoginFormV1164").addEventListener("submit",submitCloudLoginV1164);$("#syncLoginCancelV1164").onclick=()=>{$("#syncLoginFormV1164").hidden=true;$("#syncLoginStateV1164").textContent=""};
 $("#importLegacyPuterV1").onclick=importLegacyPuterV1;
 $("#closeStudio").onclick=()=>$("#studioDialog").close();
