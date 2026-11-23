@@ -1,0 +1,1173 @@
+<!doctype html>
+<html lang="hu">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0b101b" />
+  <title>Lakás Fizetnivalók</title>
+  <style>
+    :root {
+      --bg1: #ecfeff;
+      --bg2: #f8fafc;
+      --bg3: #ecfdf5;
+      --dark: #020617;
+      --cyan: #0891b2;
+      --emerald: #10b981;
+      --muted: #64748b;
+      --border: #cffafe;
+      --amber: #f59e0b;
+      --shadow: 0 14px 30px rgba(8,47,73,.12);
+    }
+    * { box-sizing: border-box; }
+    html, body { margin:0; padding:0; min-height:100%; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; color: var(--dark); background: #020617; }
+    body { -webkit-font-smoothing: antialiased; }
+    .phone { min-height: 100vh; max-width: 430px; margin: 0 auto; background: linear-gradient(180deg,var(--bg1),var(--bg2) 55%,var(--bg3)); box-shadow: 0 0 40px rgba(0,0,0,.3); position: relative; overflow-x: hidden; }
+    header { position: sticky; top:0; z-index:20; background: rgba(236,254,255,.96); backdrop-filter: blur(10px); border-bottom: 1px solid var(--border); padding: calc(14px + env(safe-area-inset-top)) 16px 14px; }
+    .sync { color:#155e75; font-size:12px; font-weight:850; margin-bottom:6px; }
+    .header-row { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+    h1 { margin:0; font-size:24px; line-height:1.05; letter-spacing:-.03em; }
+    select { border:1px solid var(--border); border-radius:14px; padding:10px 8px; background:white; color:#0f172a; font-weight:850; max-width:160px; }
+    .field select, .field textarea { width:100%; border:1px solid var(--border); background:#ecfeff; border-radius:14px; padding:13px; margin-top:8px; font-size:16px; font-weight:850; color:#020617; outline:none; max-width:none; }
+    .field textarea { min-height:74px; resize:vertical; font-family:inherit; }
+    .field select:focus, .field textarea:focus { border-color: var(--cyan); background:white; }
+    main { padding:16px 16px 104px; }
+    .screen { display:none; }
+    .screen.active { display:block; }
+    .hero { border-radius:30px; background: linear-gradient(135deg,#020617,#0f172a 50%,#164e63); color:white; padding:22px; box-shadow: var(--shadow); }
+    .small { color:#a5f3fc; font-size:14px; }
+    .total { font-size:38px; line-height:1.05; font-weight:950; letter-spacing:-.04em; margin-top:4px; }
+    .badge { display:inline-flex; margin-top:12px; border-radius:999px; padding:7px 10px; font-size:12px; font-weight:950; background:rgba(16,185,129,.18); color:#d1fae5; border:1px solid rgba(167,243,208,.35); }
+    .hero-grid { display:grid; grid-template-columns: repeat(3,1fr); gap:8px; margin-top:20px; }
+    .hero-tile { background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.12); border-radius:18px; padding:12px 8px; text-align:center; font-size:12px; }
+    .hero-tile b { display:block; margin-top:4px; color:white; font-size:12px; }
+    .grid2 { display:grid; grid-template-columns: repeat(2,1fr); gap:12px; margin-top:14px; }
+    .card { background: rgba(255,255,255,.94); border:1px solid var(--border); border-radius:22px; padding:16px; box-shadow: 0 5px 16px rgba(8,47,73,.06); }
+    .card-title { display:flex; justify-content:space-between; gap:8px; color:var(--muted); font-size:13px; }
+    .value { color:#020617; font-size:20px; font-weight:950; margin-top:5px; word-break:break-word; }
+    .note { color:#94a3b8; font-size:12px; margin-top:3px; }
+    .warning { color:#f59e0b; font-weight:950; }
+    .rule { border-radius:20px; background:#fffbeb; border:1px solid #fde68a; color:#92400e; padding:14px; margin-top:14px; font-size:14px; }
+    .rule b { display:block; margin-bottom:4px; }
+    .section-card { background:rgba(255,255,255,.94); border:1px solid var(--border); border-radius:26px; padding:16px; box-shadow: 0 5px 16px rgba(8,47,73,.06); margin-bottom:12px; }
+    .section-card .label { color:var(--muted); font-size:14px; }
+    .section-card .big { font-size:30px; font-weight:950; letter-spacing:-.03em; margin-top:3px; }
+    label.field { display:block; background:rgba(255,255,255,.94); border:1px solid var(--border); border-radius:22px; padding:15px; box-shadow: 0 5px 16px rgba(8,47,73,.05); margin-bottom:10px; }
+    label.field span { display:block; color:#475569; font-weight:850; font-size:14px; }
+    input { width:100%; border:1px solid var(--border); background:#ecfeff; border-radius:14px; padding:13px; margin-top:8px; font-size:18px; font-weight:900; color:#020617; outline:none; }
+    input:focus { border-color: var(--cyan); background:white; }
+    .meter-input { font-size:34px; border-radius:20px; padding:16px; }
+    .primary { width:100%; border:0; border-radius:20px; padding:16px; color:white; font-size:15px; font-weight:950; background: linear-gradient(90deg,#020617,#0e7490); box-shadow: var(--shadow); }
+    .secondary { width:100%; border:1px solid #bae6fd; border-radius:18px; padding:12px; color:#075985; font-size:13px; font-weight:900; background:#f0f9ff; margin-top:10px; }
+    .save-msg { margin: 0 0 12px; border-radius:18px; border:1px solid #a7f3d0; background:#ecfdf5; color:#065f46; padding:12px; font-size:13px; }
+    .save-msg b { display:block; font-size:14px; }
+    .report-item { background:rgba(255,255,255,.94); border:1px solid var(--border); border-radius:22px; padding:15px; box-shadow: 0 5px 16px rgba(8,47,73,.05); margin-bottom:10px; }
+    .report-item.current { background:#ecfdf5; border:2px solid #6ee7b7; box-shadow: 0 12px 24px rgba(16,185,129,.15); }
+    .current-pill { display:inline-block; margin-left:6px; vertical-align:middle; border-radius:999px; background:#059669; color:white; padding:4px 7px; font-size:10px; font-weight:950; }
+    .report-top { display:flex; justify-content:space-between; gap:10px; align-items:center; font-size:14px; }
+    .report-top b:last-child { white-space:nowrap; }
+    .bar { height:12px; border-radius:99px; background:#cffafe; overflow:hidden; margin-top:12px; }
+    .bar > div { height:100%; border-radius:99px; background: linear-gradient(90deg,#06b6d4,#10b981); width:30%; }
+    .report-bottom { display:flex; justify-content:space-between; color:#64748b; font-size:12px; margin-top:7px; }
+    nav { position:fixed; left:16px; right:16px; bottom: calc(14px + env(safe-area-inset-bottom)); max-width:398px; margin:0 auto; background:rgba(255,255,255,.97); border:1px solid var(--border); border-radius:26px; padding:8px; box-shadow:0 20px 40px rgba(8,47,73,.25); }
+    .nav-grid { display:grid; grid-template-columns:repeat(5,1fr); gap:5px; }
+    nav button { border:0; background:transparent; color:#64748b; font-size:11px; font-weight:900; padding:13px 3px; border-radius:18px; }
+    nav button.active { color:white; background:#0e7490; }
+
+    .sync-actions { display:grid; grid-template-columns:1fr; gap:8px; margin-top:12px; }
+    .sync-actions button { border:0; border-radius:16px; padding:13px; font-size:13px; font-weight:950; }
+    .sync-login { background:#0e7490; color:white; }
+    .sync-upload { background:#059669; color:white; }
+    .sync-download { background:#f0f9ff; color:#075985; border:1px solid #bae6fd !important; }
+
+    .sync-toast { position:fixed; z-index:99; left:12px; right:12px; top:12px; border-radius:18px; background:#0f172a; color:#fff; padding:12px 14px; box-shadow:0 14px 30px rgba(15,23,42,.25); font-size:13px; font-weight:850; display:none; }
+    .sync-log { margin-top:10px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:14px; padding:10px; max-height:150px; overflow:auto; font-size:11px; color:#334155; white-space:pre-wrap; }
+    .sync-logout { background:#fff7ed; color:#9a3412; border:1px solid #fed7aa !important; }
+    .photo-box { margin-top:14px; border:1px dashed #67e8f9; border-radius:22px; background:#f0fdfa; padding:14px; }
+    .photo-actions { display:grid; grid-template-columns:1fr; gap:8px; margin-top:10px; }
+    .photo-preview { display:none; margin-top:12px; }
+    .photo-preview img { width:100%; max-height:260px; object-fit:cover; border-radius:18px; border:1px solid #bae6fd; box-shadow:0 8px 18px rgba(8,47,73,.12); }
+    .danger { width:100%; border:1px solid #fecaca; border-radius:18px; padding:12px; color:#991b1b; font-size:13px; font-weight:900; background:#fef2f2; margin-top:8px; }
+
+    .budget-kpi-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:12px; }
+    .budget-kpi { background:rgba(255,255,255,.94); border:1px solid var(--border); border-radius:20px; padding:13px; box-shadow:0 5px 16px rgba(8,47,73,.05); }
+    .budget-kpi span { display:block; color:#64748b; font-size:12px; font-weight:850; }
+    .budget-kpi b { display:block; margin-top:4px; font-size:16px; letter-spacing:-.02em; }
+    .expense-row { display:grid; grid-template-columns:1fr auto; gap:10px; align-items:start; background:rgba(255,255,255,.94); border:1px solid var(--border); border-radius:18px; padding:12px; margin-bottom:8px; }
+    .expense-row b { display:block; font-size:14px; }
+    .expense-row .meta { color:#64748b; font-size:12px; margin-top:2px; }
+    .expense-row .amt { font-weight:950; white-space:nowrap; }
+    .mini-delete { border:1px solid #fecaca; border-radius:12px; color:#991b1b; background:#fef2f2; font-size:11px; font-weight:950; padding:8px; margin-top:6px; }
+    .summary-row { display:grid; grid-template-columns:1fr auto; gap:8px; padding:10px 0; border-bottom:1px solid #e0f2fe; font-size:13px; }
+    .summary-row:last-child { border-bottom:0; }
+    .summary-row small { display:block; color:#64748b; margin-top:2px; }
+    @media (min-width: 650px) { .phone { border-radius:32px; min-height:92vh; margin-top:24px; margin-bottom:24px; } nav { bottom:38px; } }
+
+    /* SHO Premium Glassy · UI-only test layer: existing calculations & OneDrive bridge unchanged */
+    :root{--bg1:#101723;--bg2:#0d1320;--bg3:#111925;--dark:#edf1f8;--cyan:#deb76c;--emerald:#56d69c;--muted:#a8b1c1;--border:rgba(219,185,114,.22);--amber:#f3c679;--shadow:0 14px 34px rgba(0,0,0,.4)}
+    html,body{background:#080c14;color:#f6f3ed}
+    .phone{width:100%;max-width:480px;background:radial-gradient(ellipse at 85% 3%,rgba(234,177,81,.15),transparent 34%),linear-gradient(180deg,#1b1e25,#0d1422 32%,#0a101b);box-shadow:0 0 60px rgba(0,0,0,.6);color:#f5f6fa}
+    header{padding:calc(10px + env(safe-area-inset-top)) 14px 10px;background:rgba(11,17,27,.95);border-color:rgba(231,187,111,.26);box-shadow:0 6px 22px rgba(0,0,0,.24)}
+    .sync{font-size:10px;color:#c3b9a7;letter-spacing:.01em;margin-bottom:7px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .header-row{align-items:center;gap:8px}
+    .brand-stack{min-width:0;flex:1}
+    .brand-kicker{font-size:10px;font-weight:850;letter-spacing:.12em;color:#e4bb72;white-space:nowrap}
+    .edition{font-size:8px;border:1px solid rgba(219,185,114,.36);border-radius:99px;padding:3px 6px;margin-left:4px;color:#fde7ac;letter-spacing:.02em}
+    h1{font-size:20px;line-height:1.15;font-weight:850;letter-spacing:-.025em;margin-top:5px}
+    select{border:1px solid rgba(238,197,117,.29);background:#1b2739;color:#f4efe3;border-radius:12px;padding:10px 6px;font-size:12px;max-width:146px}
+    main{padding:13px 12px 112px}
+    .hero{position:relative;overflow:hidden;padding:0;border:1px solid rgba(235,184,102,.48);border-radius:24px;background:linear-gradient(135deg,#2a2532,#102536);box-shadow:inset 0 1px rgba(255,255,255,.16),0 12px 26px rgba(0,0,0,.36),0 0 22px rgba(220,161,72,.13)}
+    .hero-core{padding:14px 16px 14px;background:radial-gradient(ellipse at 88% 12%,rgba(213,157,71,.15),transparent 55%),linear-gradient(142deg,#242532,#121c2b)}
+    .small{font-size:10px;font-weight:800;color:#e3c992;letter-spacing:.09em;text-transform:uppercase}
+    .total{font-size:35px;letter-spacing:-.035em;color:white;margin-top:5px}
+    .badge{margin-top:8px;font-size:10px;color:#b2ffdc;background:rgba(16,185,129,.12);border-color:rgba(80,215,147,.36)}
+    .hero-grid{margin-top:13px;gap:7px}
+    .hero-tile{font-size:11px;padding:9px 5px;border-radius:14px;background:rgba(255,255,255,.06);border-color:rgba(230,192,121,.24);color:#c1c9d4}
+    .hero-tile b{font-size:11px;margin-top:4px;white-space:nowrap}
+    .grid2{gap:9px;margin-top:10px}
+    .card,.section-card,label.field,.report-item,.budget-kpi,.expense-row{color:#f5f6fa;background:linear-gradient(138deg,rgba(37,46,62,.92),rgba(16,25,40,.95));border:1px solid rgba(213,175,113,.29);box-shadow:inset 0 1px rgba(255,255,255,.08),0 6px 18px rgba(0,0,0,.22)}
+    .card{padding:13px;border-radius:18px;min-width:0}
+    .section-card{padding:14px;border-radius:19px}
+    .card-title,.section-card .label,.note,.report-bottom,.expense-row .meta,.summary-row small,.budget-kpi span{color:#afbdce}
+    .card-title{font-size:12px}.value{color:#fff;font-size:17px}
+    .note{font-size:12px;line-height:1.4}
+    .warning{color:#ffd47c}
+    .rule{border-color:rgba(221,185,112,.25);background:rgba(113,83,37,.17);color:#eed6a8;font-size:12px;padding:12px;border-radius:17px}
+    .rule b{color:#ffe3a3}
+    .section-card .big{font-size:27px;color:#fff}
+    label.field{padding:13px;border-radius:16px}
+    label.field span{color:#d9dfeb;font-size:13px}
+    input,.field select,.field textarea,.manager-label input,.manager-label select{background:#0c1626!important;color:#f5f7fc!important;border:1px solid rgba(211,177,110,.34)!important;border-radius:12px;padding:12px;font-size:16px;max-width:none;min-height:46px}
+    input:focus,.field select:focus,.field textarea:focus,.manager-label input:focus,.manager-label select:focus{outline:2px solid rgba(231,193,117,.55);outline-offset:1px}
+    input::placeholder, textarea::placeholder{color:#8091a9}
+    .meter-input{font-size:30px}
+    .primary{border-radius:17px;background:linear-gradient(115deg,#9d6b2f,#deb566 52%,#815522);color:#21170d;box-shadow:inset 0 1px rgba(255,255,255,.37),0 7px 25px rgba(195,130,52,.27);min-height:49px}
+    .secondary,.sync-download{border-color:rgba(239,191,109,.38)!important;background:#243044;color:#fde2a6}
+    .sync-login{background:#ab7b40;color:#fff}.sync-upload{background:#11694b;color:#fff}
+    .sync-log{background:#0c1625;color:#d4dbe6;border-color:rgba(213,175,113,.23)}
+    .sync-toast{background:#172132;border:1px solid rgba(240,204,131,.36);top:calc(8px + env(safe-area-inset-top));color:#f5eddf}
+    .save-msg{background:#11352a;border-color:#317b5b;color:#baf3db}
+    .photo-box{border-color:rgba(240,202,129,.35);background:rgba(238,198,112,.08)}
+    .photo-preview img{border-color:rgba(240,202,129,.3)}
+    .report-item.current{background:linear-gradient(140deg,#1f392c,#121f29);border-color:rgba(96,198,148,.56)}
+    .current-pill{background:#1f8758}.bar{background:#26354b}.bar>div{background:linear-gradient(90deg,#ac7d42,#f0d08c)}
+    nav{z-index:30;left:8px;right:8px;bottom:calc(7px + env(safe-area-inset-bottom));max-width:460px;margin:auto;background:rgba(20,27,41,.97);border:1px solid rgba(235,185,102,.46);border-radius:21px;padding:6px;box-shadow:0 6px 30px rgba(0,0,0,.52),0 0 13px rgba(220,164,74,.12)}
+    .nav-grid{gap:3px}nav button{font-size:10px;padding:11px 2px;min-height:53px;color:#bac6d9;border-radius:13px;line-height:1.2}
+    nav button.active{color:#181509;background:linear-gradient(120deg,#e9c47e,#ad7b37);box-shadow:0 3px 10px rgba(228,175,86,.25)}
+    .budget-kpi-grid{gap:6px}.budget-kpi{padding:11px 8px;border-radius:14px;min-width:0}.budget-kpi span{font-size:10px}.budget-kpi b{font-size:clamp(11px,3.1vw,15px);overflow-wrap:anywhere;color:#fff}
+    .summary-row{border-bottom-color:rgba(223,188,115,.19)}.expense-row{border-radius:16px}
+    .expense-row .amt{color:#ffe0a0}
+    .category-manager{margin-top:10px}
+    .category-manager summary{cursor:pointer;list-style:none;display:flex;justify-content:space-between;gap:10px;color:#f4d69e;font-weight:850;font-size:13px;min-height:28px;align-items:center}
+    .category-manager summary::-webkit-details-marker{display:none}
+    .manager-chevron{font-size:19px}.category-manager[open] .manager-chevron{transform:rotate(180deg)}
+    .manager-inner{padding-top:12px;display:flex;flex-direction:column;gap:9px}
+    .manager-label{display:block;color:#dee5ef;font-weight:750;font-size:12px}
+    .manager-label input,.manager-label select{display:block;margin-top:6px;width:100%;font-weight:650}
+    .manager-actions{display:grid;grid-template-columns:1.4fr 1fr;gap:7px}
+    .manager-action{background:linear-gradient(140deg,#775627,#d6ab62);border:1px solid rgba(248,218,160,.55);color:#fff;font-size:12px;border-radius:12px;padding:11px 8px;min-height:45px;font-weight:850;cursor:pointer}
+    .manager-danger{background:rgba(123,43,44,.24);color:#ffc5c0;border:1px solid rgba(228,128,122,.38)}
+    .manager-add{background:rgba(41,74,62,.77);border-color:rgba(103,212,148,.38);color:#d6fce8}
+    .manager-divider{height:1px;background:linear-gradient(90deg,transparent,rgba(239,202,133,.34),transparent);margin:3px 0}
+    .manager-status{font-size:12px;color:#b9f9d4;min-height:18px}.manager-status.error{color:#ffbbb3}
+    @media(max-width:350px){h1{font-size:17px} .edition{display:none} .brand-kicker{font-size:9px} select{max-width:123px} .hero-photo{height:127px}}
+    @media(min-width:650px){.phone{min-height:92vh;margin-top:24px;margin-bottom:24px;border-radius:28px;overflow:visible}nav{bottom:30px}}
+
+/* OneDrive Web Pilot - responsive status ribbon */
+    .sho-back{display:inline-flex;align-items:center;min-height:38px;color:#ffda8b;text-decoration:none;font-weight:850;font-size:13px;letter-spacing:.015em;margin:-5px 0 6px;padding:2px 10px;border:1px solid rgba(231,184,99,.33);border-radius:999px;background:rgba(235,175,74,.08)}
+    .web-pilot-banner{padding:9px 13px;text-align:center;font-size:11px;line-height:1.45;background:linear-gradient(110deg,#1c2a30,#16242b);color:#ffe5b7;border:1px solid rgba(234,189,108,.45);border-radius:0 0 13px 13px}
+    .web-pilot-banner b{color:#f7c97b}
+    button:focus-visible,a:focus-visible,summary:focus-visible{outline:3px solid #ffdc93;outline-offset:2px}
+    /* Golden Standard Pixel Test · AI artwork adapted to mobile; only UI and read-only derived preview. */
+:root{--pixel-gold:#f3cd7d;--pixel-line:rgba(240,192,98,.58)}
+.phone{max-width:580px;background:radial-gradient(circle at 80% 0%,rgba(224,156,64,.14),transparent 33%),linear-gradient(180deg,#181d26 0%,#0b1423 43%,#07111e 100%)}
+header{position:relative;background:linear-gradient(135deg,#161b25,#0b121e);box-shadow:none;border-bottom:1px solid rgba(229,169,68,.3)}
+main{padding:9px 10px 112px}
+.pixel-hero{isolation:isolate;position:relative;overflow:hidden;border-radius:15px 15px 8px 8px;min-height:225px;background:#28302b url('./hero-kocsis-6a.webp') center center/cover no-repeat;box-shadow:0 10px 30px rgba(0,0,0,.47)}
+.pixel-hero-shade{position:absolute;inset:0;background:linear-gradient(90deg,rgba(5,12,21,.93) 0%,rgba(7,14,24,.76) 38%,rgba(9,16,24,.07) 90%),linear-gradient(0deg,rgba(4,10,17,.22),transparent 55%)}
+.pixel-hero-copy{position:relative;z-index:2;padding:25px 17px 42px;max-width:90%;text-shadow:0 2px 11px #071019}
+.pixel-hero h2{font-family:Georgia,serif;font-size:clamp(25px,6.2vw,36px);line-height:1.07;letter-spacing:-.027em;color:#f9d88b;margin:6px 0 9px;font-weight:700;max-width:360px}
+.pixel-hero .pixel-eyebrow{font-size:12px;letter-spacing:.19em;font-weight:850;color:#fbd783}
+.pixel-hero p{margin:0 0 17px;font-size:clamp(9px,2.7vw,12px);letter-spacing:.11em;color:#e7d7ac;font-weight:750}
+.pixel-address{display:inline-flex;align-items:center;padding:8px 12px;border:1px solid #e3b459;border-radius:99px;background:rgba(7,13,22,.65);color:#f8e4b7;font-size:clamp(11px,3.4vw,16px);font-weight:800;box-shadow:0 0 13px rgba(209,149,59,.21);max-width:100%}
+.pixel-ai-caption{position:absolute;right:12px;top:8px;z-index:3;background:rgba(6,14,25,.6);border-radius:10px;padding:4px 7px;color:#eee2c8;font-size:9px;letter-spacing:.02em}
+.pixel-gold-wave{z-index:3;position:absolute;bottom:-1px;left:0;width:100%;height:28px;filter:drop-shadow(0 0 9px rgba(255,190,74,.44))}
+.pixel-shortcuts{margin-top:11px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.pixel-shortcut{position:relative;min-width:0;min-height:111px;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:3px;padding:10px 5px 11px;overflow:hidden;background:radial-gradient(circle at 50% -12%,rgba(255,220,144,.22),transparent 65%),linear-gradient(145deg,rgba(57,57,59,.97),rgba(16,27,39,.97));border:1px solid rgba(233,185,96,.78);border-radius:17px;box-shadow:inset 0 1px rgba(255,238,204,.29),0 4px 16px rgba(0,0,0,.42),0 0 13px rgba(221,157,58,.23);color:#fff;cursor:pointer}
+.pixel-shortcut::after{content:'';position:absolute;bottom:0;height:3px;left:14%;right:14%;background:radial-gradient(ellipse at center,#ffce73 0%,rgba(251,192,90,.32) 43%,transparent 75%)}
+.pixel-shortcut:active{transform:scale(.985)}
+.pixel-icon{font-size:30px;font-weight:850;line-height:1;color:#f7c76c;text-shadow:0 0 14px rgba(254,192,94,.28);margin:2px 0 5px}
+.pixel-shortcut strong{font-size:clamp(11px,2.8vw,14px);text-align:center;line-height:1.2;white-space:normal;overflow-wrap:anywhere}
+.pixel-shortcut small{font-size:clamp(8px,2.05vw,10px);color:#c7c9ca;font-weight:500;text-align:center;line-height:1.2}
+.pixel-shortcuts .pixel-shortcut:nth-child(4){grid-column:1 / 2}.pixel-shortcuts .pixel-shortcut:nth-child(5){grid-column:2 / 4}
+.pixel-ribbon{margin-top:13px;display:grid;grid-template-columns:1fr 1fr;gap:11px;padding:13px;border:1px solid var(--pixel-line);border-radius:19px;background:linear-gradient(110deg,#131b25,#101a29);box-shadow:0 0 14px rgba(219,152,57,.1)}
+.pixel-month{display:flex;flex-direction:column;gap:5px;min-width:0;padding-right:8px;border-right:1px solid rgba(233,185,96,.26)}
+.pixel-month strong{font-size:14px;line-height:1.3;color:#f5e7c7}
+.pixel-month-total{display:flex;flex-direction:column;gap:4px;min-width:0}
+.pixel-month-total strong{font-size:clamp(18px,5.5vw,25px);line-height:1.3;color:#ffdb80;white-space:nowrap}
+.pixel-small-label{font-size:11px;color:#d7d6d2;font-weight:650}
+.pixel-budget{grid-column:1/-1;display:flex;flex-direction:column;gap:8px;border-top:1px solid rgba(234,182,89,.22);padding-top:11px}
+.pixel-budget-title{display:flex;gap:6px;justify-content:space-between;font-size:11px;color:#dadce3}.pixel-budget-title b{color:#ffe4a0}
+.pixel-track{height:9px;background:#263039;border-radius:30px;overflow:hidden;box-shadow:inset 0 1px 2px #030810}.pixel-track>div{height:100%;width:0;background:linear-gradient(90deg,#158a51,#61df8a,#e8b34c);border-radius:30px;transition:width .25s}
+.pixel-bills-head{margin:21px 0 12px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.pixel-bills-head h2{font-size:clamp(17px,4.7vw,23px);font-weight:840;letter-spacing:-.03em;line-height:1.15;margin:0;color:#f8f8fb}
+.pixel-bills-head button{border:1px solid #ddae58;box-shadow:0 0 12px rgba(215,161,61,.22);border-radius:99px;background:linear-gradient(135deg,#202733,#0e1725);color:#f7d383;font-size:clamp(10px,2.6vw,12px);font-weight:750;padding:11px;min-height:42px;white-space:nowrap}
+.pixel-bill-rows{display:flex;flex-direction:column;gap:9px}
+.pixel-bill{border:1px solid rgba(211,172,102,.45);border-radius:17px;background:linear-gradient(110deg,rgba(37,43,51,.96),rgba(15,27,42,.94));box-shadow:inset 0 1px rgba(243,210,138,.12);display:flex;gap:12px;align-items:center;justify-content:space-between;padding:13px 12px;min-width:0}
+.pixel-bill-main{display:flex;gap:10px;align-items:center;min-width:0;flex:1}.pixel-bill-symbol{border-radius:13px;min-width:47px;width:47px;height:47px;display:grid;place-items:center;background:linear-gradient(145deg,#765a2d,#1c2430);box-shadow:inset 0 1px #b98c43;color:#ffdb92;font-weight:900;font-size:24px}
+.pixel-bill-name{min-width:0}.pixel-bill-name strong{display:block;font-size:14px;color:#f5f5f6}.pixel-bill-name small{display:block;color:#aab6c3;font-size:11px;margin-top:2px}
+.pixel-bill-amount{color:#ffe2a0;font-weight:900;font-size:clamp(14px,4vw,18px);white-space:nowrap}
+.pixel-bill-empty{border:1px dashed rgba(243,201,120,.39);border-radius:16px;color:#d7d9e2;padding:16px;font-size:13px}
+.pixel-more{background:rgba(14,24,37,.85);border:1px solid rgba(223,185,112,.29);border-radius:18px;margin-top:14px;padding:12px}
+.pixel-more summary{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;font-weight:800;color:#f4d69b;font-size:13px;min-height:27px}
+.pixel-more summary::-webkit-details-marker{display:none}.pixel-detail-grid{margin-top:14px}.pixel-more .grid2{margin-top:14px}
+@media(min-width:530px){.pixel-hero{min-height:270px}.pixel-hero-copy{padding:32px 24px 56px}.pixel-shortcuts{grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}.pixel-shortcuts .pixel-shortcut:nth-child(4),.pixel-shortcuts .pixel-shortcut:nth-child(5){grid-column:auto}.pixel-shortcut{min-height:120px}.pixel-shortcut strong{font-size:12px}.pixel-ribbon{grid-template-columns:1fr 1.2fr .9fr}.pixel-budget{grid-column:auto;border-top:0;padding-top:0;border-left:1px solid rgba(234,182,89,.22);padding-left:12px}}
+@media(max-width:360px){.pixel-hero{min-height:205px}.pixel-hero-copy{padding:22px 13px 38px}.pixel-shortcut{min-height:106px}.pixel-bill{gap:7px;padding:11px 9px}.pixel-bill-symbol{min-width:39px;width:39px;height:39px}.pixel-bill-name strong{font-size:12px}.pixel-bill-amount{font-size:13px}}
+@media(prefers-reduced-motion:reduce){.pixel-shortcut:active{transform:none}.pixel-track>div{transition:none}}
+
+  </style>
+<link rel="stylesheet" href="../assets/embedded-golden.css?v=20261123">
+</head>
+<body>
+<div id="syncToast" class="sync-toast"></div>
+<div class="phone">
+  <div class="web-pilot-banner" role="status"><b>SHO ÉLETMÓD · WEB PILOT</b> &nbsp; Az éles APK és a OneDrive fájlok érintetlenek. Mentés csak ellenőrzött felhő-letöltés után.</div>
+  <header>
+    <a class="sho-back" href="../" aria-label="Vissza az SHO Életmód főoldalra">‹ &nbsp; SHO Életmód</a>
+    <div class="sync">💾 Helyi mentés aktív · ☁ <span id="syncStatus">OneDrive webes kapcsolat: nincs bejelentkezve</span></div>
+    <div class="header-row">
+      <div class="brand-stack"><div class="brand-kicker">⌂ &nbsp; SHO · ÉLETMÓD <span class="edition">GOLDEN STANDARD · PIXEL TESZT</span></div><h1>Lakásfizetnivalók</h1></div>
+      <select id="monthSelect"></select>
+    </div>
+  </header>
+
+  <main>
+    <div id="saveMsg" class="save-msg" style="display:none"><b>Mentés kész</b>Az adat telefonon megmarad appbezárás után is.</div>
+
+    <section id="dashboard" class="screen active">
+      <div class="pixel-hero" role="img" aria-label="AI-val készített, hangulatos társasházi bejárat, 6/A házszámmal. Illusztráció, nem helyszíni fotó.">
+        <div class="pixel-hero-shade"></div>
+        <div class="pixel-hero-copy">
+          <div class="pixel-eyebrow">⌂ &nbsp; SHO · ÉLETMÓD</div>
+          <h2>Lakás Fizetnivalók</h2>
+          <p>KÖLTSÉGKÖVETÉS ÉS KIADÁSKEZELÉS</p>
+          <div class="pixel-address">⌖ &nbsp; Kocsis Sándor út 6/A</div>
+        </div>
+        <span class="pixel-ai-caption">AI-illusztráció</span>
+        <svg class="pixel-gold-wave" viewBox="0 0 800 62" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="goldWave" x1="0" x2="1"><stop stop-color="#9c5815"/><stop offset=".45" stop-color="#ffe6a2"/><stop offset="1" stop-color="#a86b22"/></linearGradient></defs><path d="M0 36 Q175 80 390 38 T800 35 L800 62 L0 62Z" fill="#0c1420"/><path d="M0 35 Q175 79 390 37 T800 34" fill="none" stroke="url(#goldWave)" stroke-width="7"/></svg>
+      </div>
+      <div class="pixel-shortcuts" aria-label="Lakásfizetnivalók funkciók">
+        <button class="pixel-shortcut" onclick="switchTab('payments')" aria-label="Fizetnivalók megnyitása"><span class="pixel-icon" aria-hidden="true">▣</span><strong>Fizetnivalók</strong><small>Számlák, havi tételek</small></button>
+        <button class="pixel-shortcut" onclick="switchTab('budget')" aria-label="Kiadások megnyitása"><span class="pixel-icon" aria-hidden="true">▥</span><strong>Kiadások</strong><small>Költségkövetés</small></button>
+        <button class="pixel-shortcut" onclick="switchTab('meter')" aria-label="Mérőórák megnyitása"><span class="pixel-icon" aria-hidden="true">◴</span><strong>Mérőórák</strong><small>Állások, fotók</small></button>
+        <button class="pixel-shortcut" onclick="openGoldenCategories()" aria-label="Kategóriák szerkesztése"><span class="pixel-icon" aria-hidden="true">▱</span><strong>Kategóriák</strong><small>Szerkeszthető</small></button>
+        <button class="pixel-shortcut" onclick="switchTab('report')" aria-label="Riportok megnyitása"><span class="pixel-icon" aria-hidden="true">▤</span><strong>Riportok</strong><small>Havi összesítők</small></button>
+      </div>
+      <div class="pixel-ribbon" aria-label="Havi áttekintés">
+        <div class="pixel-month"><span class="pixel-small-label">▦ &nbsp; Aktuális hónap</span><strong id="dashboardMonthLabel">—</strong></div>
+        <div class="pixel-month-total"><span class="pixel-small-label">◉ &nbsp; Havi összesen</span><strong id="heroTotal">—</strong></div>
+        <div class="pixel-budget"><span class="pixel-budget-title">Keretfelhasználás: <b id="dashboardBudgetPct">—</b></span><div class="pixel-track"><div id="dashboardBudgetBar"></div></div></div>
+      </div>
+      <div class="pixel-bills-head"><h2>Havi fizetnivalók</h2><button type="button" onclick="switchTab('payments')">＋ Tételek szerkesztése</button></div>
+      <div id="dashboardBillRows" class="pixel-bill-rows"></div>
+      <details class="pixel-more"><summary>Részletes havi adatok <span aria-hidden="true">⌄</span></summary>
+        <div class="hero-grid pixel-detail-grid">
+          <div class="hero-tile">Bérlet<b id="heroRent">—</b></div>
+          <div class="hero-tile">Közös<b id="heroCommon">—</b></div>
+          <div class="hero-tile">Áram<b id="heroElectricity">—</b></div>
+        </div>
+        <div id="currentBadge"></div>
+        <div class="grid2">
+          <div class="card"><div class="card-title"><span>Mérőóraállás</span><span id="meterWarn" class="warning"></span></div><div id="meterVal" class="value">—</div><div id="usageNote" class="note">—</div></div>
+          <div class="card"><div class="card-title">MVM számla</div><div id="mvmVal" class="value">—</div><div id="balanceNote" class="note">—</div></div>
+          <div class="card"><div class="card-title">Befizetés dátuma</div><div id="paidDate" class="value">—</div><div class="note">Rögzített dátum</div></div>
+          <div class="card"><div class="card-title"><span>Státusz</span><span id="paidWarn" class="warning"></span></div><div id="paidStatus" class="value">—</div><div id="paidNote" class="note">—</div></div>
+        </div>
+        <div class="rule"><b>ℹ️ Mérőóra-kalkuláció</b>Ha nincs új mérőóraállás, az app nem számol negatív fogyasztást.</div>
+      </details>
+    </section>
+
+    <section id="payments" class="screen">
+      <div class="section-card"><div class="label">Számított havi összesen</div><div id="paymentTotal" class="big">—</div></div>
+      <div id="paymentFields"></div>
+      <button class="primary" onclick="savePayments()">Fizetnivalók mentése</button>
+    </section>
+
+    <section id="meter" class="screen">
+      <div class="section-card">
+        <div class="label">Villanyóra rögzítés</div>
+        <div id="meterMonth" class="big" style="font-size:21px">—</div>
+        <label class="field" style="margin-top:16px"><span>Aktuális mérőóraállás</span><input id="meterInput" class="meter-input" inputmode="numeric" placeholder="pl. 35 334" oninput="renderMeterCalc()" onfocus="focusRaw(this)" onblur="blurFormat(this); renderMeterCalc();" /></label>
+      </div>
+      <div class="grid2">
+        <div class="card"><div class="card-title">Előző állás</div><div id="previousMeterVal" class="value">—</div></div>
+        <div class="card"><div class="card-title"><span>Fogyasztás</span><span id="usageWarn" class="warning"></span></div><div id="calcUsage" class="value">—</div></div>
+        <div class="card"><div class="card-title">Kalkulált díj</div><div id="calcFee" class="value">—</div></div>
+        <div class="card"><div class="card-title">Felkerekítve</div><div id="calcRounded" class="value">—</div></div>
+      </div>
+      <div class="rule"><b>Áramdíj kalkuláció</b>A1 lakossági tarifa alapján: 2523 kWh/év kedvezményes mennyiség 30 napra időarányosítva, felette lakossági piaci ár. 300 kWh ≈ 14 000 Ft, nem 15 600 Ft.</div>
+      <div class="photo-box">
+        <b>📷 Mérőóra fotó</b>
+        <div id="photoNote" class="note">Fotó csatolható az aktuális hónap mérőóraállásához. OneDrive-on külön JPG-ként látszik majd.</div>
+        <input id="meterPhotoInput" type="file" accept="image/*" capture="environment" style="display:none" onchange="handleMeterPhoto(event)">
+        <div class="photo-actions">
+          <button class="secondary" type="button" onclick="openMeterPhotoPicker()">Fotó csatolása / készítése</button>
+        </div>
+        <div id="photoPreviewWrap" class="photo-preview">
+          <img id="meterPhotoPreview" alt="Mérőóra fotó előnézet">
+          <button class="danger" type="button" onclick="removeMeterPhoto()">Fotó törlése</button>
+        </div>
+      </div>
+      <button class="primary" style="margin-top:14px" onclick="saveMeter()">Mérőóra mentése</button>
+    </section>
+
+
+    <section id="budget" class="screen">
+      <div class="section-card">
+        <b>💸 Kiadás tracker</b>
+        <div class="note">Excel-logika mobilra ültetve: kategória, alkategória, 500 Ft-os összeglépcső, havi összesítés.</div>
+      </div>
+      <div class="budget-kpi-grid">
+        <div class="budget-kpi"><span>Havi keret</span><b id="budgetLimit">—</b></div>
+        <div class="budget-kpi"><span>Tényleges</span><b id="budgetSpent">—</b></div>
+        <div class="budget-kpi"><span>Maradék</span><b id="budgetLeft">—</b></div>
+      </div>
+      <details class="category-manager section-card" id="categoryManager">
+        <summary>⚙️ Kategóriák és alkategóriák szerkesztése <span class="manager-chevron">⌄</span></summary>
+        <p class="note">Hozzáadás, átnevezés, keretmódosítás. A változások menthetők a megszokott OneDrive-adatokkal. Törléskor a rögzített kiadásokat védjük.</p>
+        <div class="manager-inner">
+          <label class="manager-label">Szerkesztett kategória
+            <select id="manageCategory" onchange="populateCategoryEditor()"></select>
+          </label>
+          <label class="manager-label">Kategórianév
+            <input id="categoryEditName" maxlength="64" placeholder="Kategória neve">
+          </label>
+          <label class="manager-label">Havi kategóriakeret (Ft)
+            <input id="categoryEditBudget" inputmode="numeric" placeholder="pl. 31000">
+          </label>
+          <div class="manager-actions">
+            <button type="button" class="manager-action" onclick="saveCategoryEdit()">💾 Kategória mentése</button>
+            <button type="button" class="manager-action manager-danger" onclick="removeCategory()">Kategória törlése</button>
+          </div>
+          <div class="manager-divider"></div>
+          <label class="manager-label">Alkategória kiválasztása
+            <select id="manageSubcategory" onchange="syncSubcategoryEditor()"></select>
+          </label>
+          <label class="manager-label">Alkategória neve
+            <input id="subcategoryEditName" maxlength="64" placeholder="Alkategória neve">
+          </label>
+          <div class="manager-actions">
+            <button type="button" class="manager-action" onclick="saveSubcategoryEdit()">💾 Alkategória mentése</button>
+            <button type="button" class="manager-action manager-danger" onclick="removeSubcategory()">Alkategória törlése</button>
+          </div>
+          <div class="manager-divider"></div>
+          <label class="manager-label">Új kategória neve
+            <input id="newCategoryName" maxlength="64" placeholder="pl. Otthon és kert">
+          </label>
+          <button type="button" class="manager-action manager-add" onclick="addCategory()">＋ Új kategória</button>
+          <label class="manager-label">Új alkategória az aktuális kategóriához
+            <input id="newSubcategoryName" maxlength="64" placeholder="pl. Telekom összevont számla">
+          </label>
+          <button type="button" class="manager-action manager-add" onclick="addSubcategory()">＋ Új alkategória</button>
+          <div role="status" id="categoryManagerStatus" class="manager-status" aria-live="polite"></div>
+        </div>
+      </details>
+      <label class="field"><span>Dátum</span><input id="expenseDate" type="date"></label>
+      <label class="field"><span>Kategória</span><select id="expenseCategory" onchange="updateExpenseSubcategories()"></select></label>
+      <label class="field"><span>Alkategória</span><select id="expenseSubcategory"></select></label>
+      <label class="field"><span>Tétel / megnevezés</span><input id="expenseName" placeholder="pl. heti bevásárlás, Netflix, gyógyszer"></label>
+      <label class="field"><span>Összeg</span><select id="expenseAmount"></select></label>
+      <label class="field"><span>Fizetési mód</span><select id="expensePayment"></select></label>
+      <label class="field"><span>Megjegyzés</span><textarea id="expenseNote" placeholder="opcionális"></textarea></label>
+      <button class="primary" onclick="saveExpense()">Kiadás hozzáadása</button>
+      <div class="section-card" style="margin-top:12px"><b>Kategória szerinti havi kontroll</b><div id="expenseSummary" style="margin-top:8px"></div></div>
+      <div class="section-card"><b>Legutóbbi tételek</b><div id="expenseList" style="margin-top:8px"></div></div>
+    </section>
+
+    <section id="report" class="screen">
+      <div class="section-card"><b>2026 havi összesítő</b><div class="note">Helyi adatból töltve. A felhőben lévő adatok első letöltése után válik elérhetővé az ellenőrzött mentés.</div></div>
+      <div class="section-card">
+        <b>OneDrive webes szinkron · tesztüzem · először letöltés, utána mentés</b>
+        <div id="oneDriveStatus" class="note">Nincs bejelentkezve. A helyi mentés ettől függetlenül működik.</div>
+        <div class="sync-actions">
+          <button class="sync-login" onclick="oneDriveLogin()">Microsoft bejelentkezés</button>
+          <button class="sync-upload" onclick="oneDriveUpload()">Feltöltés OneDrive-ra</button>
+          <button class="sync-download" onclick="oneDriveDownload()">Letöltés OneDrive-ról</button>
+          <button class="sync-logout" onclick="oneDriveLogout()">Kijelentkezés</button>
+        </div>
+        <div id="syncLog" class="sync-log">Sync napló: várakozás...</div>
+      </div>
+
+      <div id="reportList"></div>
+      <button class="secondary" onclick="resetDemoData()">Demo adatok visszaállítása</button>
+    </section>
+  </main>
+
+  <nav>
+    <div class="nav-grid">
+      <button class="active" data-tab="dashboard" onclick="switchTab('dashboard')">Főoldal</button>
+      <button data-tab="payments" onclick="switchTab('payments')">Fizetnivalók</button>
+      <button data-tab="meter" onclick="switchTab('meter')">Villanyóra</button>
+      <button data-tab="budget" onclick="switchTab('budget')">Kiadás</button>
+      <button data-tab="report" onclick="switchTab('report')">Riport</button>
+    </div>
+  </nav>
+</div>
+<script src="./onedrive-web-bridge.js" defer></script>
+<script>
+const STORAGE_KEY = "lakas_fizetnivalok_v1_1";
+const AUTO_SYNC_ENABLED = true;
+function getCurrentMonthKey(){
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  return `${year}-${month}`;
+}
+const CURRENT_MONTH_KEY = getCurrentMonthKey();
+
+const EXPENSE_STORAGE_VERSION = "1.5.0";
+const EXPENSE_BUDGET_LIMIT = 740000;
+const EXPENSE_CATEGORIES_DEFAULT = {
+  "Lakhatás": ["Lakás fizetnivaló"],
+  "Élelmiszer": ["Tesco", "Auchan", "Lidl", "Spar", "Aldi", "Kifli", "Étterem"],
+  "Egészség": ["Gyógyszer / supplement"],
+  "Kisállat": ["Corky"],
+  "Streaming / előfizetés": ["Netflix", "SkyShowtime", "HBO", "Amazon Prime Video", "Youtube", "Spotify"],
+  "AI / app előfizetés": ["ChatGPT Pro"],
+  "App előfizetés": ["Life 360 Pro"],
+  "Telekom": ["Telekom összevont számla"],
+  "Ruházat": ["Ruházat"],
+  "Szépség / fodrász": ["Fodrász"],
+  "Egyéb": ["Egyéb kiadás"]
+};
+const EXPENSE_CATEGORY_BUDGETS_DEFAULT = {
+  "Lakhatás": 460000,
+  "Élelmiszer": 110000,
+  "Egészség": 50000,
+  "Kisállat": 6000,
+  "Streaming / előfizetés": 12000,
+  "AI / app előfizetés": 9000,
+  "App előfizetés": 3000,
+  "Telekom": 31000,
+  "Ruházat": 20000,
+  "Szépség / fodrász": 25000,
+  "Egyéb": 14000
+};
+// Editable category configuration is carried in the same local and OneDrive JSON
+// envelope, keeping the existing month and expense schema fully backward compatible.
+function normalizedCategoryConfig(raw){
+  const values = raw && typeof raw === 'object' && !Array.isArray(raw) ? raw : EXPENSE_CATEGORIES_DEFAULT;
+  const out = Object.create(null);
+  Object.entries(values).forEach(([name, list]) => {
+    const key = String(name).trim();
+    if(!key || key.length>64 || ['__proto__','constructor','prototype'].includes(key)) return;
+    const names = Array.isArray(list) ? [...new Set(list.map(x=>String(x).trim()).filter(x=>x.length>0 && x.length<=64))] : [];
+    out[key] = names.length ? names : ['Általános'];
+  });
+  if(!Object.keys(out).length) return normalizedCategoryConfig(EXPENSE_CATEGORIES_DEFAULT);
+  return out;
+}
+function normalizedCategoryBudgets(raw, categories){
+  const result = Object.create(null);
+  Object.keys(categories).forEach(cat=>{
+    const value = raw && Object.prototype.hasOwnProperty.call(raw,cat) ? raw[cat] : EXPENSE_CATEGORY_BUDGETS_DEFAULT[cat];
+    const amount = Number(value);
+    result[cat] = Number.isFinite(amount) && amount>=0 ? Math.round(amount) : 0;
+  });
+  return result;
+}
+function storedCategoryConfig(){
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}'); }
+  catch(e){ return {}; }
+}
+const INITIAL_CATEGORY_CONFIG = storedCategoryConfig();
+let EXPENSE_CATEGORIES = normalizedCategoryConfig(INITIAL_CATEGORY_CONFIG.expenseCategories);
+let EXPENSE_CATEGORY_BUDGETS = normalizedCategoryBudgets(INITIAL_CATEGORY_CONFIG.expenseCategoryBudgets,EXPENSE_CATEGORIES);
+const EXPENSE_PAYMENT_METHODS = ["Bankkártya", "Készpénz", "Átutalás", "Csoportos beszedés", "Revolut", "SZÉP / egyéb"];
+const EXPENSE_AMOUNTS = Array.from({length: 500}, (_, i) => (i + 1) * 500);
+// v1.4.5: aktuális hónap már a telefon dátuma alapján számolódik, nem fix május.
+// MVM A1 lakossági áramdíj-kalkuláció.
+// v1.4.3 javítás: nem fix 52 Ft/kWh, hanem sávos rezsicsökkentett + lakossági piaci tarifa.
+const ELECTRICITY_ANNUAL_DISCOUNT_KWH = 2523;
+const ELECTRICITY_BILLING_DAYS = 30;
+const ELECTRICITY_DISCOUNT_RATE = 36.386;
+const ELECTRICITY_MARKET_RATE = 70.104;
+const ELECTRICITY_MONTHLY_DISCOUNT_KWH = ELECTRICITY_ANNUAL_DISCOUNT_KWH / 365 * ELECTRICITY_BILLING_DAYS;
+const DEFAULT_MONTHS = Array.from({length:12}, (_,i) => {
+  const key=`2026-${String(i+1).padStart(2,'0')}`;
+  const label=new Date(2026,i,5).toLocaleDateString('hu-HU',{year:'numeric',month:'long'});
+  return {key,label,rent:null,common:null,electricity:null,heat:null,water:null,parking:null,paid:null,paidDate:null,meter:null,usage:null,mvmBill:null,balance:null};
+});
+let months = loadMonths();
+let expenseEntries = loadExpenses();
+let currentKey = CURRENT_MONTH_KEY;
+const fields = [
+  ["rent", "Bérleti díj"], ["common", "Közös költség"], ["electricity", "Áramdíj"], ["heat", "Hődíj"], ["water", "Vízdíj"], ["parking", "Extra parkoló"], ["paid", "Befizetett összeg"]
+];
+let meterPhotoDraft = null;
+function parseNum(v){
+  if(v===null||v===undefined||v==="") return 0;
+  const cleaned = String(v).replace(/[\s\u00A0]/g, "").replace(/,/g, ".").replace(/[^0-9.\-]/g, "");
+  const n = Number(cleaned);
+  return Number.isNaN(n) ? 0 : n;
+}
+function num(v){
+  if(v===null||v===undefined||v===""||Number.isNaN(Number(String(v).replace(/[\s\u00A0]/g,"")))) return "—";
+  return new Intl.NumberFormat("hu-HU", { maximumFractionDigits: 0 }).format(parseNum(v)).replace(/\u00A0/g," ");
+}
+function huf(v){
+  if(v===null||v===undefined||v===""||Number.isNaN(parseNum(v))) return "—";
+  return `${num(v)} Ft`;
+}
+function fmtInput(v){ return (v===null||v===undefined||v==="") ? "" : num(v); }
+function focusRaw(input){ input.value = String(input.value || "").replace(/[\s\u00A0]/g, ""); }
+function blurFormat(input){ input.value = fmtInput(parseNum(input.value)); }
+function total(r){ return parseNum(r.rent)+parseNum(r.common)+parseNum(r.electricity)+parseNum(r.heat)+parseNum(r.water)+parseNum(r.parking); }
+function calculateMvmElectricityFee(usage){
+  if (usage === null || usage === undefined || Number.isNaN(Number(usage))) return null;
+  const safeUsage = Math.max(0, Number(usage));
+  const discounted = Math.min(safeUsage, ELECTRICITY_MONTHLY_DISCOUNT_KWH);
+  const market = Math.max(0, safeUsage - ELECTRICITY_MONTHLY_DISCOUNT_KWH);
+  return Math.round(discounted * ELECTRICITY_DISCOUNT_RATE + market * ELECTRICITY_MARKET_RATE);
+}
+function recommendedElectricityPayment(fee){
+  return fee === null ? null : Math.ceil(fee / 1000) * 1000;
+}
+function current(){ return months.find(m=>m.key===currentKey)||months[0]; }
+function el(id){ return document.getElementById(id); }
+function cloneDefaults(){ return DEFAULT_MONTHS.map(m => ({...m})); }
+function loadMonths(){
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return cloneDefaults();
+    const parsed = JSON.parse(raw);
+    const storedMonths = Array.isArray(parsed.months) ? parsed.months : [];
+    return cloneDefaults().map(base => ({...base, ...(storedMonths.find(m => m.key === base.key) || {})}));
+  } catch (e) {
+    return cloneDefaults();
+  }
+}
+
+function loadExpenses(){
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed.expenses) ? parsed.expenses : [];
+  } catch (e) { return []; }
+}
+function selectedMonthExpenseEntries(){
+  return expenseEntries.filter(e => e.month === currentKey);
+}
+function sumExpensesForMonth(monthKey){
+  return expenseEntries.filter(e => e.month === monthKey).reduce((s,e)=>s+parseNum(e.amount),0);
+}
+function sumExpensesByCategory(monthKey, category){
+  return expenseEntries.filter(e => e.month === monthKey && e.category === category).reduce((s,e)=>s+parseNum(e.amount),0);
+}
+function todayIso(){ return new Date().toISOString().slice(0,10); }
+function monthFromDate(dateStr){ return (dateStr || todayIso()).slice(0,7); }
+function escapeHtml(v){
+  return String(v || '').replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; });
+}
+
+function persist(){
+  localStorage.setItem(STORAGE_KEY, JSON.stringify({ version: EXPENSE_STORAGE_VERSION, updatedAt: new Date().toISOString(), months, expenses: expenseEntries, expenseCategories: EXPENSE_CATEGORIES, expenseCategoryBudgets: EXPENSE_CATEGORY_BUDGETS }));
+  localStorage.setItem("lakas_current_month", currentKey);
+}
+function init(){
+  const select=el('monthSelect');
+  select.innerHTML = '';
+  months.forEach(m=>{ const o=document.createElement('option'); o.value=m.key; o.textContent=m.key===CURRENT_MONTH_KEY ? `${m.label} • aktuális` : m.label; select.appendChild(o); });
+  if (!months.some(m => m.key === currentKey)) currentKey = CURRENT_MONTH_KEY;
+  select.value=currentKey;
+  select.onchange=()=>{ currentKey=select.value; persist(); renderAll(); };
+  renderAll();
+}
+function renderAll(){ renderDashboard(); renderPayments(); renderMeter(); renderBudget(); renderReport(); }
+function renderDashboard(){
+  const r=current(); const paid=Boolean(r.paid);
+  el('heroTotal').textContent=huf(total(r));
+  el('heroRent').textContent=huf(r.rent);
+  el('heroCommon').textContent=huf(r.common);
+  el('heroElectricity').textContent=huf(r.electricity);
+  el('currentBadge').innerHTML = r.key===CURRENT_MONTH_KEY ? '<span class="badge">Aktuális hónap</span>' : '';
+  el('meterVal').textContent=r.meter?`${num(r.meter)} kWh`:'Nincs adat';
+  el('usageNote').textContent=(r.usage?`${num(r.usage)} kWh havi fogyasztás`:'Következő beolvasás kell') + (r.meterPhotoDataUrl ? ' · fotó csatolva' : '');
+  el('meterWarn').textContent=r.meter?'':'!';
+  el('mvmVal').textContent=huf(r.mvmBill);
+  el('balanceNote').textContent=r.balance?`Eltérés: ${huf(r.balance)}`:'Nincs eltérés adat';
+  el('paidDate').textContent=r.paidDate||'—';
+  el('paidStatus').textContent=paid?'Befizetve':'Nyitott';
+  el('paidNote').textContent=paid?huf(r.paid):'Még nincs rögzítve';
+  el('paidWarn').textContent=paid?'':'!';
+  renderGoldenDashboard();
+}
+function renderPayments(){
+  const r=current();
+  el('paymentFields').innerHTML='';
+  fields.forEach(([key,label])=>{
+    const wrap=document.createElement('label');
+    wrap.className='field';
+    wrap.innerHTML=`<span>${label}</span><input inputmode="numeric" id="pay_${key}" value="${fmtInput(r[key])}" onfocus="focusRaw(this)" onblur="blurFormat(this); updatePaymentTotalPreview();">`;
+    el('paymentFields').appendChild(wrap);
+    el(`pay_${key}`).oninput=updatePaymentTotalPreview;
+  });
+  updatePaymentTotalPreview();
+}
+function readPaymentDraft(){
+  const draft = {...current()};
+  fields.forEach(([key]) => {
+    const input = el(`pay_${key}`);
+    draft[key] = input && input.value !== '' ? parseNum(input.value) : null;  });
+  return draft;
+}
+function updatePaymentTotalPreview(){
+  el('paymentTotal').textContent=huf(total(readPaymentDraft()));
+}
+function savePayments(){
+  const draft = readPaymentDraft();
+  months = months.map(m => m.key === currentKey ? {...m, ...draft} : m);
+  persist();
+  showSaved();
+  renderAll();
+  autoSyncAfterSave('Fizetnivalók mentve.');
+}
+function getPreviousMeter(){
+  const idx = months.findIndex(m => m.key === currentKey);
+  for (let i = idx - 1; i >= 0; i--) {
+    if (months[i].meter !== null && months[i].meter !== undefined && months[i].meter !== '') return parseNum(months[i].meter);
+  }
+  return 35071;
+}
+function renderMeter(){
+  const r=current();
+  el('meterMonth').textContent=r.label;
+  el('meterInput').value=fmtInput(r.meter);
+  meterPhotoDraft = r.meterPhotoDataUrl || null;
+  renderMeterPhotoPreview();
+  renderMeterCalc();
+}
+function renderMeterCalc(){
+  const reading=el('meterInput').value;
+  const previous=getPreviousMeter();
+  el('previousMeterVal').textContent=`${num(previous)} kWh`; 
+  const n=reading===''?null:parseNum(reading);
+  const usage=(n===null||Number.isNaN(n))?null:Math.max(0,n-previous);
+  const fee=calculateMvmElectricityFee(usage);
+  const rounded=recommendedElectricityPayment(fee);
+  el('calcUsage').textContent=usage===null?'—':`${num(usage)} kWh`; 
+  el('calcFee').textContent=huf(fee);
+  el('calcRounded').textContent=huf(rounded);
+  el('usageWarn').textContent=usage===0?'!':'';
+}
+function saveMeter(){
+  const reading=el('meterInput').value;
+  const previous=getPreviousMeter();
+  const n=reading===''?null:parseNum(reading);
+  const usage=(n===null||Number.isNaN(n))?null:Math.max(0,n-previous);
+  const fee=calculateMvmElectricityFee(usage);
+  const rounded=recommendedElectricityPayment(fee);
+  months = months.map(m => m.key === currentKey ? {
+    ...m,
+    meter:n,
+    usage,
+    mvmBill:fee,
+    electricity:rounded,
+    meterPhotoDataUrl: meterPhotoDraft || null,
+    meterPhotoFile: meterPhotoDraft ? `meter_photos/${currentKey}_meter.jpg` : null,
+    meterPhotoAt: meterPhotoDraft ? new Date().toISOString() : null
+  } : m);
+  persist();
+  showSaved();
+  renderAll();
+  autoUploadCurrentMeterPhoto();
+  autoSyncAfterSave('Mérőóra mentve.');
+}
+
+function initBudgetInputs(){
+  const cat = el('expenseCategory');
+  const amount = el('expenseAmount');
+  const pay = el('expensePayment');
+  const date = el('expenseDate');
+  if(cat){
+    const selected = cat.value;
+    const names = Object.keys(EXPENSE_CATEGORIES);
+    if([...cat.options].map(o=>o.value).join('\x1f') !== names.join('\x1f')){
+      cat.innerHTML = '';
+      names.forEach(c => { const o=document.createElement('option'); o.value=c; o.textContent=c; cat.appendChild(o); });
+      if(names.includes(selected))cat.value=selected;
+    }
+  }
+  if(amount && !amount.options.length){
+    EXPENSE_AMOUNTS.forEach(v => { const o=document.createElement('option'); o.value=v; o.textContent=huf(v); amount.appendChild(o); });
+    amount.value = "5000";
+  }
+  if(pay && !pay.options.length){
+    EXPENSE_PAYMENT_METHODS.forEach(v => { const o=document.createElement('option'); o.value=v; o.textContent=v; pay.appendChild(o); });
+  }
+  if(date && !date.value) date.value = todayIso();
+  updateExpenseSubcategories();
+  refreshCategoryManager();
+}
+function updateExpenseSubcategories(){
+  const cat = el('expenseCategory');
+  const sub = el('expenseSubcategory');
+  if(!cat || !sub) return;
+  const selected = sub.value;
+  sub.innerHTML = '';
+  (EXPENSE_CATEGORIES[cat.value] || ["Nincs alkategória"]).forEach(v => {
+    const o=document.createElement('option'); o.value=v; o.textContent=v; sub.appendChild(o);
+  });
+  if ([...sub.options].some(o => o.value === selected)) sub.value = selected;
+}
+// Category manager: safe renames carry historical entries; deletes refuse to erase booked expenses.
+function categoryManagerMessage(msg, isError){
+  const box=el('categoryManagerStatus');
+  if(box){box.textContent=msg;box.classList.toggle('error',Boolean(isError));}
+}
+function refreshCategoryManager(preferred){
+  const sel=el('manageCategory');
+  if(!sel) return;
+  const names=Object.keys(EXPENSE_CATEGORIES);
+  const selected=preferred||sel.value||el('expenseCategory')?.value;
+  if([...sel.options].map(o=>o.value).join('\x1f')!==names.join('\x1f')){
+    sel.innerHTML='';
+    names.forEach(name=>{const opt=document.createElement('option');opt.value=name;opt.textContent=name;sel.appendChild(opt);});
+  }
+  sel.value=names.includes(selected)?selected:names[0];
+  populateCategoryEditor();
+}
+function populateCategoryEditor(){
+  const category=el('manageCategory')?.value;
+  if(!category || !EXPENSE_CATEGORIES[category])return;
+  el('categoryEditName').value=category;
+  el('categoryEditBudget').value=String(EXPENSE_CATEGORY_BUDGETS[category]||0);
+  const sub=el('manageSubcategory');
+  const selected=sub.value;
+  sub.innerHTML='';
+  EXPENSE_CATEGORIES[category].forEach(name=>{const opt=document.createElement('option');opt.value=name;opt.textContent=name;sub.appendChild(opt);});
+  if(EXPENSE_CATEGORIES[category].includes(selected))sub.value=selected;
+  syncSubcategoryEditor();
+}
+function syncSubcategoryEditor(){ el('subcategoryEditName').value=el('manageSubcategory')?.value||''; }
+function safeCategoryName(value){
+  const name=String(value||'').trim();
+  return name.length>0 && name.length<=64 && !['__proto__','prototype','constructor'].includes(name)?name:'';
+}
+function saveCategoryConfig(note){
+  persist();renderBudget();showSaved();categoryManagerMessage(note,false);
+  autoSyncAfterSave(note);
+}
+function saveCategoryEdit(){
+  const oldName=el('manageCategory').value;
+  const newName=safeCategoryName(el('categoryEditName').value);
+  const rawBudget=String(el('categoryEditBudget').value).replace(/[\s\u00a0]/g,'');
+  const budget=Number(rawBudget);
+  if(!newName){categoryManagerMessage('Adj meg egy érvényes kategórianevet (max. 64 karakter).',true);return;}
+  if(rawBudget===''||!Number.isFinite(budget)||budget<0||budget>1000000000){categoryManagerMessage('A keret 0 és 1 milliárd Ft közötti szám legyen.',true);return;}
+  if(oldName!==newName&&Object.prototype.hasOwnProperty.call(EXPENSE_CATEGORIES,newName)){
+    categoryManagerMessage('Ilyen nevű kategória már létezik.',true);return;
+  }
+  if(oldName!==newName){
+    const changed=Object.create(null);
+    Object.entries(EXPENSE_CATEGORIES).forEach(([k,v])=>changed[k===oldName?newName:k]=v);
+    EXPENSE_CATEGORIES=changed;
+    expenseEntries.forEach(e=>{if(e.category===oldName)e.category=newName;});
+  }
+  const budgets=Object.create(null);
+  Object.entries(EXPENSE_CATEGORY_BUDGETS).forEach(([k,v])=>budgets[k===oldName?newName:k]=v);
+  budgets[newName]=Math.round(budget);
+  EXPENSE_CATEGORY_BUDGETS=budgets;
+  const expenseWasSelected=el('expenseCategory').value===oldName;
+  initBudgetInputs();
+  if(expenseWasSelected){el('expenseCategory').value=newName;updateExpenseSubcategories();}
+  refreshCategoryManager(newName);
+  saveCategoryConfig('Kategória és havi keret mentve.');
+}
+function addCategory(){
+  const name=safeCategoryName(el('newCategoryName').value);
+  if(!name){categoryManagerMessage('Adj meg egy érvényes új kategórianevet.',true);return;}
+  if(Object.prototype.hasOwnProperty.call(EXPENSE_CATEGORIES,name)){
+    categoryManagerMessage('Ez a kategória már létezik.',true);return;
+  }
+  EXPENSE_CATEGORIES[name]=['Általános'];
+  EXPENSE_CATEGORY_BUDGETS[name]=0;
+  el('newCategoryName').value='';
+  refreshCategoryManager(name);
+  saveCategoryConfig('Új kategória létrehozva.');
+}
+function removeCategory(){
+  const category=el('manageCategory').value;
+  if(Object.keys(EXPENSE_CATEGORIES).length===1){categoryManagerMessage('Az utolsó kategória nem törölhető.',true);return;}
+  if(expenseEntries.some(e=>e.category===category)){
+    categoryManagerMessage('Ez a kategória már tartalmaz kiadásokat. Előbb rendezd át a tételeket; nem törlünk előzményt.',true);return;
+  }
+  if(!confirm(`Töröljük a(z) „${category}” kategóriát?`))return;
+  delete EXPENSE_CATEGORIES[category];delete EXPENSE_CATEGORY_BUDGETS[category];
+  refreshCategoryManager();saveCategoryConfig('Üres kategória törölve.');
+}
+function saveSubcategoryEdit(){
+  const cat=el('manageCategory').value;
+  const oldName=el('manageSubcategory').value;
+  const newName=safeCategoryName(el('subcategoryEditName').value);
+  if(!newName){categoryManagerMessage('Adj meg egy érvényes alkategórianevet.',true);return;}
+  if(oldName!==newName&&EXPENSE_CATEGORIES[cat].includes(newName)){
+    categoryManagerMessage('Ilyen alkategória már létezik.',true);return;
+  }
+  EXPENSE_CATEGORIES[cat]=EXPENSE_CATEGORIES[cat].map(x=>x===oldName?newName:x);
+  expenseEntries.forEach(e=>{if(e.category===cat&&e.subcategory===oldName)e.subcategory=newName;});
+  refreshCategoryManager(cat);el('manageSubcategory').value=newName;syncSubcategoryEditor();
+  saveCategoryConfig('Alkategória átnevezve.');
+}
+function addSubcategory(){
+  const cat=el('manageCategory').value;
+  const name=safeCategoryName(el('newSubcategoryName').value);
+  if(!name){categoryManagerMessage('Adj meg egy érvényes alkategórianevet.',true);return;}
+  if(EXPENSE_CATEGORIES[cat].includes(name)){
+    categoryManagerMessage('Ez az alkategória már létezik.',true);return;
+  }
+  EXPENSE_CATEGORIES[cat].push(name);
+  el('newSubcategoryName').value='';
+  refreshCategoryManager(cat);
+  el('manageSubcategory').value=name;syncSubcategoryEditor();
+  saveCategoryConfig('Új alkategória létrehozva.');
+}
+function removeSubcategory(){
+  const cat=el('manageCategory').value;
+  const name=el('manageSubcategory').value;
+  if(EXPENSE_CATEGORIES[cat].length<=1){categoryManagerMessage('Legalább egy alkategóriának maradnia kell.',true);return;}
+  if(expenseEntries.some(e=>e.category===cat&&e.subcategory===name)){
+    categoryManagerMessage('Ehhez az alkategóriához már tartozik kiadás. A korábbi tételek védelme miatt nem törölhető.',true);return;
+  }
+  if(!confirm(`Töröljük a(z) „${name}” alkategóriát?`))return;
+  EXPENSE_CATEGORIES[cat]=EXPENSE_CATEGORIES[cat].filter(x=>x!==name);
+  refreshCategoryManager(cat);saveCategoryConfig('Üres alkategória törölve.');
+}
+function renderBudget(){
+  initBudgetInputs();
+  const spent = sumExpensesForMonth(currentKey);
+  const left = EXPENSE_BUDGET_LIMIT - spent;
+  if(el('budgetLimit')) el('budgetLimit').textContent = huf(EXPENSE_BUDGET_LIMIT);
+  if(el('budgetSpent')) el('budgetSpent').textContent = huf(spent);
+  if(el('budgetLeft')) el('budgetLeft').textContent = huf(left);
+  const summary = el('expenseSummary');
+  if(summary){
+    summary.innerHTML = Object.keys(EXPENSE_CATEGORY_BUDGETS).map(cat => {
+      const budget = EXPENSE_CATEGORY_BUDGETS[cat];
+      const actual = sumExpensesByCategory(currentKey, cat);
+      const diff = budget - actual;
+      const status = diff >= 0 ? 'OK' : 'Túllépés';
+      return `<div class="summary-row"><div><b>${escapeHtml(cat)}</b><small>Keret: ${huf(budget)} · Tény: ${huf(actual)} · ${status}</small></div><b>${huf(diff)}</b></div>`;
+    }).join('');
+  }
+  const list = el('expenseList');
+  if(list){
+    const rows = selectedMonthExpenseEntries().slice().sort((a,b)=>String(b.date).localeCompare(String(a.date))).slice(0,30);
+    list.innerHTML = rows.length ? rows.map(e => `<div class="expense-row"><div><b>${escapeHtml(e.category)} · ${escapeHtml(e.subcategory)}</b><div class="meta">${escapeHtml(e.date)} · ${escapeHtml(e.name || 'kiadás')} · ${escapeHtml(e.payment || '')}${e.note ? ' · ' + escapeHtml(e.note) : ''}</div></div><div><div class="amt">${huf(e.amount)}</div><button class="mini-delete" onclick="deleteExpense('${e.id}')">Törlés</button></div></div>`).join('') : '<div class="note">Még nincs rögzített kiadás ebben a hónapban.</div>';
+  }
+}
+function saveExpense(){
+  const date = el('expenseDate').value || todayIso();
+  const category = el('expenseCategory').value;
+  const subcategory = el('expenseSubcategory').value;
+  const amount = parseNum(el('expenseAmount').value);
+  const payment = el('expensePayment').value;
+  const name = el('expenseName').value.trim();
+  const note = el('expenseNote').value.trim();
+  if(!category || !amount){ oneDriveStatus('Kiadás mentéshez kategória és összeg kell.'); return; }
+  expenseEntries.push({ id: String(Date.now()) + '_' + Math.random().toString(16).slice(2), date, month: monthFromDate(date), category, subcategory, name, amount, payment, note, createdAt: new Date().toISOString() });
+  currentKey = monthFromDate(date);
+  if(months.some(m => m.key === currentKey)) el('monthSelect').value = currentKey;
+  persist();
+  if(el('expenseName')) el('expenseName').value = '';
+  if(el('expenseNote')) el('expenseNote').value = '';
+  showSaved();
+  renderAll();
+  autoSyncAfterSave('Kiadás hozzáadva.');
+}
+function deleteExpense(id){
+  if(!confirm('Töröljük ezt a kiadást?')) return;
+  expenseEntries = expenseEntries.filter(e => e.id !== id);
+  persist();
+  renderAll();
+  autoSyncAfterSave('Kiadás törölve.');
+}
+
+function renderReport(){
+  const max=Math.max(...months.map(total));
+  el('reportList').innerHTML='';
+  months.forEach(m=>{
+    const t=total(m);
+    const width=max>0?Math.max(8,Math.round(t/max*100)):8;
+    const item=document.createElement('div');
+    item.className=m.key===CURRENT_MONTH_KEY?'report-item current':'report-item';
+    item.innerHTML=`<div class="report-top"><b>${m.meterPhotoDataUrl?'📷 ':''}${m.label}${m.key===CURRENT_MONTH_KEY?'<span class="current-pill">aktuális</span>':''}</b><b>${huf(t)}</b></div><div class="bar"><div style="width:${width}%"></div></div><div class="report-bottom"><span>${m.usage?`${num(m.usage)} kWh`:'nincs fogyasztás adat'}</span><span>${m.paid?'befizetve':'nyitott'}</span></div>`;
+    el('reportList').appendChild(item);
+  });
+}
+
+// Read-only on-screen presentation, not a financial transaction or data schema change.
+function renderGoldenDashboard(){
+  const r=current();
+  const month=el('dashboardMonthLabel');
+  if(month) month.textContent=r.label;
+  const spent=sumExpensesForMonth(currentKey);
+  const pct=EXPENSE_BUDGET_LIMIT>0?Math.round(100*spent/EXPENSE_BUDGET_LIMIT):0;
+  const pctEl=el('dashboardBudgetPct'),bar=el('dashboardBudgetBar');
+  if(pctEl) pctEl.textContent=`${pct}%`;
+  if(bar) bar.style.width=Math.max(0,Math.min(100,pct))+'%';
+  const container=el('dashboardBillRows');
+  if(!container)return;
+  const icon={rent:'⌂',common:'▥',electricity:'ϟ',heat:'♨',water:'≈',parking:'▣'};
+  const billRows=fields.filter(([k])=>k!=='paid' && r[k]!=null && parseNum(r[k])>0);
+  // Do not fabricate Telecom charges. Telecom lives in the actual expense ledger.
+  const telecomRows=selectedMonthExpenseEntries().filter(e=>e.category==='Telekom' && parseNum(e.amount)>0);
+  const values=billRows.map(([k,label])=>`<div class="pixel-bill"><div class="pixel-bill-main"><span class="pixel-bill-symbol" aria-hidden="true">${icon[k]||'▣'}</span><div class="pixel-bill-name"><strong>${escapeHtml(label)}</strong><small>Havi nyilvántartás · ${escapeHtml(r.label)}</small></div></div><span class="pixel-bill-amount">${huf(r[k])}</span></div>`);
+  telecomRows.forEach(e=>{values.push(`<div class="pixel-bill"><div class="pixel-bill-main"><span class="pixel-bill-symbol" aria-hidden="true" style="background:linear-gradient(145deg,#e81482,#5b1c59)">T</span><div class="pixel-bill-name"><strong>Telekom</strong><small>${escapeHtml(e.name||e.subcategory||'Összevont számla')} · kiadás</small></div></div><span class="pixel-bill-amount">${huf(e.amount)}</span></div>`);});
+  container.innerHTML=values.join('') || '<div class="pixel-bill-empty">Ehhez a hónaphoz még nincs rögzített fizetnivaló.</div>';
+}
+function openGoldenCategories(){
+  switchTab('budget');
+  const section=el('categoryManager');
+  if(section){section.open=true;section.scrollIntoView({behavior:'smooth',block:'start'});}
+}
+
+function switchTab(tab){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  el(tab).classList.add('active');
+  document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));
+}
+function showSaved(){
+  const msg=el('saveMsg');
+  msg.style.display='block';
+  setTimeout(()=>{msg.style.display='none';},1800);
+}
+function resetDemoData(){
+  if (!confirm('Biztos visszaállítod a demo adatokat? A helyi módosítások törlődnek.')) return;
+  localStorage.removeItem(STORAGE_KEY);
+  localStorage.removeItem("lakas_current_month");
+  months = cloneDefaults();
+  expenseEntries = [];
+  currentKey = CURRENT_MONTH_KEY;
+  init();
+  showSaved();
+}
+
+function openMeterPhotoPicker(){
+  const input = el('meterPhotoInput');
+  if(input){ input.value = ''; input.click(); }
+}
+function renderMeterPhotoPreview(){
+  const wrap = el('photoPreviewWrap');
+  const img = el('meterPhotoPreview');
+  const note = el('photoNote');
+  if(!wrap || !img || !note) return;
+  if(meterPhotoDraft){
+    img.src = meterPhotoDraft;
+    wrap.style.display = 'block';
+    note.textContent = 'Fotó csatolva. A Mérőóra mentése gombbal rögzül és szinkronizálható.';
+  } else {
+    img.removeAttribute('src');
+    wrap.style.display = 'none';
+    note.textContent = 'Fotó csatolható az aktuális hónap mérőóraállásához. OneDrive-on külön JPG-ként látszik majd.';
+  }
+}
+function handleMeterPhoto(event){
+  const file = event && event.target && event.target.files ? event.target.files[0] : null;
+  if(!file) return;
+  if(!file.type || !file.type.startsWith('image/')){
+    oneDriveStatus('A kiválasztott fájl nem kép.');
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = function(e){
+    const img = new Image();
+    img.onload = function(){
+      const maxSide = 1280;
+      let w = img.width;
+      let h = img.height;
+      if(w > h && w > maxSide){ h = Math.round(h * maxSide / w); w = maxSide; }
+      else if(h >= w && h > maxSide){ w = Math.round(w * maxSide / h); h = maxSide; }
+      const canvas = document.createElement('canvas');
+      canvas.width = w;
+      canvas.height = h;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, w, h);
+      meterPhotoDraft = canvas.toDataURL('image/jpeg', 0.72);
+      renderMeterPhotoPreview();
+      oneDriveStatus('Mérőóra fotó csatolva. Nyomd meg a Mérőóra mentése gombot.');
+    };
+    img.onerror = function(){ oneDriveStatus('Fotó betöltési hiba.'); };
+    img.src = e.target.result;
+  };
+  reader.onerror = function(){ oneDriveStatus('Fotó olvasási hiba.'); };
+  reader.readAsDataURL(file);
+}
+function removeMeterPhoto(){
+  meterPhotoDraft = null;
+  months = months.map(m => m.key === currentKey ? {...m, meterPhotoDataUrl:null, meterPhotoFile:null, meterPhotoAt:null} : m);
+  persist();
+  renderMeterPhotoPreview();
+  renderAll();
+  showSaved();
+  autoSyncAfterSave('Mérőóra fotó törölve.');
+}
+
+init();
+// SHO Életmód deep-link: a költségvetés-csempe közvetlenül a Kiadásokra nyit.
+try{
+  const deepView=new URLSearchParams(window.location.search).get('view');
+  if(['dashboard','payments','meter','budget','report'].includes(deepView)) switchTab(deepView);
+}catch(e){}
+
+function monthsForOneDrive(){
+  return months.map(m => {
+    const copy = {...m};
+    if(copy.meterPhotoDataUrl){
+      copy.meterPhotoFile = copy.meterPhotoFile || `meter_photos/${copy.key}_meter.jpg`;
+    }
+    delete copy.meterPhotoDataUrl;
+    return copy;
+  });
+}
+function uploadAllLocalMeterPhotos(manual){
+  try{
+    if(!(window.OneDriveBridge && window.OneDriveBridge.uploadPhotoData)){
+      oneDriveStatus('Fotó sync kihagyva: OneDriveBridge nem elérhető.');
+      return;
+    }
+    const photoMonths = months.filter(m => m.meterPhotoDataUrl);
+    if(photoMonths.length === 0){
+      if(manual) oneDriveStatus('Nincs feltöltendő mérőóra fotó a helyi adatokban.');
+      return;
+    }
+    photoMonths.forEach(m => {
+      oneDriveStatus(`Fotó külön JPG feltöltése indul: ${m.key}_meter.jpg`);
+      window.OneDriveBridge.uploadPhotoData(m.key, m.meterPhotoDataUrl);
+    });
+  }catch(e){
+    oneDriveStatus('Fotó sync JS hiba: ' + e.message);
+  }
+}
+function autoUploadCurrentMeterPhoto(){
+  try{
+    if(!meterPhotoDraft) return;
+    if(window.OneDriveBridge && window.OneDriveBridge.autoUploadPhotoData){
+      oneDriveStatus(`Aktuális mérőóra fotó külön JPG sync indul: ${currentKey}_meter.jpg`);
+      window.OneDriveBridge.autoUploadPhotoData(currentKey, meterPhotoDraft);
+    }
+  }catch(e){ oneDriveStatus('Automatikus fotó sync JS hiba: ' + e.message); }
+}
+function getAppDataJson(){
+  persist();
+  return JSON.stringify({version: EXPENSE_STORAGE_VERSION, updatedAt:new Date().toISOString(), months: monthsForOneDrive(), expenses: expenseEntries, expenseCategories: EXPENSE_CATEGORIES, expenseCategoryBudgets: EXPENSE_CATEGORY_BUDGETS});
+}
+function appendSyncLog(msg){
+  const log = el('syncLog');
+  const line = `[${new Date().toLocaleTimeString('hu-HU')}] ${msg}`;
+  if(log){
+    if(log.textContent === 'Sync napló: várakozás...') log.textContent = '';
+    log.textContent = line + "\n" + log.textContent;
+  }
+}
+function flashSyncToast(msg){
+  const t = el('syncToast');
+  if(!t) return;
+  t.textContent = msg;
+  t.style.display = 'block';
+  clearTimeout(window.__syncToastTimer);
+  window.__syncToastTimer = setTimeout(()=>{ t.style.display='none'; }, 4500);
+}
+function oneDriveStatus(msg){
+  const header = el('syncStatus');
+  const box = el('oneDriveStatus');
+  if(header) header.textContent = msg;
+  if(box) box.textContent = msg;
+  appendSyncLog(msg);
+  flashSyncToast(msg);
+}
+window.onOneDriveStatus = oneDriveStatus;
+
+function autoSyncAfterSave(reason){
+  if(!AUTO_SYNC_ENABLED) return;
+  try{
+    if(window.OneDriveBridge && window.OneDriveBridge.autoUploadData){
+      const payload = getAppDataJson();
+      oneDriveStatus((reason || 'Mentés kész.') + ' Automatikus OneDrive sync indul...');
+      window.OneDriveBridge.autoUploadData(payload);
+    } else {
+      oneDriveStatus((reason || 'Mentés kész.') + ' OneDriveBridge nem elérhető, csak helyi mentés történt.');
+    }
+  }catch(e){
+    oneDriveStatus('Automatikus sync JS hiba: ' + e.message);
+  }
+}
+
+function oneDriveLogin(){
+  try{
+    oneDriveStatus('Microsoft bejelentkezés indul...');
+    if(window.OneDriveBridge && window.OneDriveBridge.signIn){ window.OneDriveBridge.signIn(); }
+    else oneDriveStatus('OneDriveBridge nem elérhető. Csak APK-ban működik, böngészőben nem.');
+  }catch(e){ oneDriveStatus('Login JS hiba: ' + e.message); }
+}
+function oneDriveUpload(){
+  try{
+    const payload = getAppDataJson();
+    oneDriveStatus('Feltöltés előkészítése... adatméret: ' + payload.length + ' karakter');
+    if(window.OneDriveBridge && window.OneDriveBridge.uploadData){
+      Promise.resolve(window.OneDriveBridge.uploadData(payload))
+        .then(saved=>{if(saved===true)uploadAllLocalMeterPhotos(true);})
+        .catch(e=>oneDriveStatus('Feltöltési hiba: '+e.message));
+    }
+    else oneDriveStatus('OneDriveBridge nem elérhető. Csak APK-ban működik.');
+  }catch(e){ oneDriveStatus('Feltöltés JS hiba: ' + e.message); }
+}
+function oneDriveDownload(){
+  try{
+    oneDriveStatus('Letöltés előkészítése...');
+    if(window.OneDriveBridge && window.OneDriveBridge.downloadData){ window.OneDriveBridge.downloadData(); }
+    else oneDriveStatus('OneDriveBridge nem elérhető. Csak APK-ban működik.');
+  }catch(e){ oneDriveStatus('Letöltés JS hiba: ' + e.message); }
+}
+function oneDriveLogout(){
+  try{
+    oneDriveStatus('Kijelentkezés indítása...');
+    if(window.OneDriveBridge && window.OneDriveBridge.signOut){ window.OneDriveBridge.signOut(); }
+    else oneDriveStatus('OneDriveBridge nem elérhető.');
+  }catch(e){ oneDriveStatus('Kijelentkezés JS hiba: ' + e.message); }
+}
+window.applyOneDriveData = function(json){
+  try{
+    const parsed = typeof json === 'string' ? JSON.parse(json) : json;
+    if(!parsed || !Array.isArray(parsed.months)) throw new Error('Nincs months tömb a JSON-ben');
+    const oldMonths = months;
+    months = cloneDefaults().map(base => {
+      const incoming = parsed.months.find(m => m.key === base.key) || {};
+      const old = oldMonths.find(m => m.key === base.key) || {};
+      return {...base, ...incoming, meterPhotoDataUrl: incoming.meterPhotoDataUrl || old.meterPhotoDataUrl || null};
+    });
+    expenseEntries = Array.isArray(parsed.expenses) ? parsed.expenses : expenseEntries;
+    // Older OneDrive payloads have no category metadata. Preserve local edits in that case.
+    if(parsed.expenseCategories && typeof parsed.expenseCategories === 'object'){
+      EXPENSE_CATEGORIES=normalizedCategoryConfig(parsed.expenseCategories);
+      EXPENSE_CATEGORY_BUDGETS=normalizedCategoryBudgets(parsed.expenseCategoryBudgets,EXPENSE_CATEGORIES);
+    }
+    persist();
+    renderAll();
+    showSaved();
+    oneDriveStatus('OneDrive adat és elérhető fotók betöltve, helyben elmentve.');
+  }catch(e){
+    oneDriveStatus('OneDrive adat betöltési hiba: ' + e.message);
+  }
+};
+
+window.applyOneDriveMeterPhoto = function(monthKey, dataUrl){
+  if(!/^20\d{2}-(0[1-9]|1[0-2])$/.test(monthKey)||!/^data:image\/(jpeg|jpg);base64,/.test(dataUrl))return;
+  months=months.map(m=>m.key===monthKey?{...m,meterPhotoDataUrl:dataUrl,meterPhotoFile:`meter_photos/${monthKey}_meter.jpg`}:m);
+  persist();
+  if(currentKey===monthKey){meterPhotoDraft=dataUrl;renderMeterPhotoPreview();}
+};
+
+</script>
+</body>
+</html>

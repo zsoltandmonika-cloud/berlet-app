@@ -1,0 +1,37 @@
+<!doctype html><html lang="hu"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#080d16"><title>SHO · Életmód</title>
+<style>
+:root{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;color-scheme:dark;background:#080d16;color:#f7f4ef}*{box-sizing:border-box}html,body{margin:0;min-height:100%}body{background:radial-gradient(ellipse at 62% 0%,#382b22 0%,#0e1520 40%,#080d16 80%);-webkit-font-smoothing:antialiased}
+.shell{width:min(100%,540px);min-height:100dvh;margin:auto;background:linear-gradient(180deg,rgba(36,28,29,.4),#0b1220 49%);padding-bottom:calc(93px + env(safe-area-inset-bottom))}
+.top{display:flex;align-items:center;gap:12px;padding:calc(12px + env(safe-area-inset-top)) 15px 10px;background:linear-gradient(115deg,rgba(19,19,20,.98),rgba(42,32,26,.95));border-bottom:1px solid #f1be6360}
+.brand{display:flex;gap:7px;align-items:center;text-decoration:none;color:#f1d092;font-size:17px;font-weight:900}.brand svg{width:35px;height:35px}
+.title{font-size:21px;font-weight:850;flex:1;text-align:center}.top small{color:#ffda8b;border:1px solid #e6b76663;border-radius:99px;padding:6px;font-size:10px}
+.hero{position:relative;height:clamp(215px,53vw,282px);overflow:hidden;background:#1e1c1b url('./assets/hero.webp') right center/cover;border-radius:0 0 22px 22px;box-shadow:0 12px 25px #0008}
+.hero:before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,#080d17fa 1%,#0c111bc4 40%,transparent 94%)}
+.hero-text{position:relative;padding:25px 18px 28px;max-width:79%;text-shadow:0 2px 12px black}.kicker{color:#f3c77c;font-size:11px;font-weight:850;letter-spacing:.08em}.hero h1{font-size:clamp(36px,9vw,50px);letter-spacing:-.05em;margin:9px 0 11px;line-height:1.07}.hero p{font-size:clamp(12px,3.1vw,15px);line-height:1.5;margin:0;color:#f2e9d9}
+.wave{position:absolute;left:0;bottom:-1px;width:100%;height:28px;filter:drop-shadow(0 0 10px #ffb9557a)}
+.content{padding:16px 12px}.section-title{color:#f0cb82;font-size:12px;font-weight:820;letter-spacing:.06em;margin:0 3px 13px}
+.tiles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.tile{position:relative;isolation:isolate;display:flex;flex-direction:column;justify-content:space-between;text-decoration:none;color:#fff;padding:13px 11px;min-height:181px;border:1px solid #eebc6ecc;border-radius:19px;overflow:hidden;box-shadow:inset 0 1px #fff3,0 8px 21px #0009,0 0 12px #bd8c432a;touch-action:manipulation;background:#142131}
+.tile:before{content:"";z-index:-1;position:absolute;inset:0;background-position:center;background-size:cover}.tile:after{content:"";z-index:-1;position:absolute;inset:0;background:linear-gradient(90deg,#111722fa,#131e28cf 65%,#1d283943)}
+.recipes:before{background-image:url('./assets/recipes.webp')}.home:before{background-image:url('./assets/home.webp')}.budget:before{background-image:url('./assets/budget.webp')}.shop:before{background-image:url('./assets/shop.webp')}
+.icon{display:grid;place-items:center;width:43px;height:43px;border:1px solid #eec9828a;border-radius:13px;background:linear-gradient(130deg,#aa7344aa,#101724);font-size:25px;box-shadow:inset 0 1px #fff3}
+.recipes .icon{background:#99462ea8}.home .icon{background:#2c6093c5}.budget .icon{background:#416a37ce}.shop .icon{background:#784292bc}
+.copy strong{display:block;font-size:clamp(15px,4vw,21px);line-height:1.13;letter-spacing:-.025em;text-shadow:0 2px 8px black}.copy small{display:block;font-size:clamp(10px,2.65vw,12px);font-weight:570;line-height:1.3;color:#d9dde5;margin-top:8px;max-width:90%}
+.go{position:absolute;right:10px;bottom:8px;font-size:28px;color:#ffdc92}.tile:active{transform:scale(.985)}a:focus-visible{outline:3px solid #ffe4ac;outline-offset:3px}
+.hint{margin:19px 8px;text-align:center;font-size:11px;line-height:1.45;color:#b7becb}
+.dock{position:fixed;bottom:calc(8px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);width:min(calc(100% - 16px),522px);min-height:63px;display:flex;align-items:center;justify-content:space-around;padding:7px;background:#121b2bf4;border:1px solid #dca95999;border-radius:19px;box-shadow:0 8px 24px #000a;backdrop-filter:blur(15px)}.dock a{display:flex;flex-direction:column;align-items:center;text-decoration:none;color:#f1e4d0;font-size:11px;font-weight:800;min-width:70px;gap:1px}.dock a span{color:#f1c87c;font-size:23px}
+@media(min-width:601px){.shell{margin:24px auto;border:1px solid #d8b57266;border-radius:24px;overflow:hidden;min-height:92vh}.hero{height:286px}.tile{min-height:205px}}
+@media(max-width:355px){.tiles{gap:9px}.tile{min-height:168px;padding:10px}.copy strong{font-size:14px}.hero-text{padding:19px 12px}.hero h1{font-size:35px}}
+</style><link rel="stylesheet" href="./assets/embedded-golden.css?v=20261123">
+</head><body><main class="shell">
+<header class="top"><a class="brand" href="/berlet-app/sh9/" aria-label="SHO főoldal"><svg viewBox="0 0 50 44" fill="none" stroke="#edc27a" stroke-width="3"><path d="M3 23 25 4l22 19M8 20v20h34V20"/><path d="M19 40V27h12v13"/></svg>SHO</a><div class="title">❧ Életmód</div><small>GOLDEN</small></header>
+<section class="hero"><div class="hero-text"><div class="kicker">SHO · MINDENNAPOK EGY HELYEN</div><h1>Életmód</h1><p>Receptek, otthon, pénzügyek és bevásárlás, egyetlen elegáns felületen.</p></div><svg class="wave" viewBox="0 0 800 62" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="w" x1="0" x2="1"><stop stop-color="#965617"/><stop offset=".5" stop-color="#ffe1a0"/><stop offset="1" stop-color="#a26c2b"/></linearGradient></defs><path d="M0 36 Q200 78 390 38 T800 36 L800 62H0Z" fill="#111721"/><path d="M0 36 Q200 78 390 38 T800 36" fill="none" stroke="url(#w)" stroke-width="7"/></svg></section>
+<section class="content"><p class="section-title">✦ AZ ÉLETMÓD ALKALMAZÁSAI</p><div class="tiles">
+<a class="tile recipes" href="https://zsoltandmonika-cloud.github.io/berlet-app/recepttar-studio/"><span class="icon" aria-hidden="true">♨</span><span class="copy"><strong>Léna<br>Recept Stúdió</strong><small>Receptek, főzés és Nutri Info</small></span><span class="go" aria-hidden="true">›</span></a>
+<a class="tile home" href="./lakas-fizetnivalok/"><span class="icon" aria-hidden="true">⌂</span><span class="copy"><strong>Lakás-<br>fizetnivalók</strong><small>Rezsi, mérőóra, határidők</small></span><span class="go" aria-hidden="true">›</span></a>
+<a class="tile budget" href="./lakas-fizetnivalok/?view=budget"><span class="icon" aria-hidden="true">◉</span><span class="copy"><strong>Családi<br>költségvetés</strong><small>A meglévő kiadáskövető nézete</small></span><span class="go" aria-hidden="true">›</span></a>
+<a class="tile shop" href="https://zsoltandmonika-cloud.github.io/berlet-app/sh9/shopping/smart-list.html"><span class="icon" aria-hidden="true">🛒</span><span class="copy"><strong>Smart<br>Shopping List</strong><small>Élő, közös bevásárlólista</small></span><span class="go" aria-hidden="true">›</span></a>
+</div><p class="hint">A Családi költségvetés jelenleg a Lakásfizetnivalók beépített Kiadások nézetét nyitja meg, nem külön alkalmazást vagy új adattárolót.</p></section></main>
+<nav class="dock" aria-label="SHO navigáció"><a href="/berlet-app/sh9/"><span>⌂</span>Főoldal</a><a href="https://zsoltandmonika-cloud.github.io/berlet-app/sh9/shopping/smart-list.html"><span>🛒</span>Smart List</a><a href="./lakas-fizetnivalok/"><span>▣</span>Fizetnivalók</a></nav>
+</body></html>
