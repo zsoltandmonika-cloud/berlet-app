@@ -18,8 +18,8 @@ function harness(){
   put:async(key,response)=>{store.set(typeof key==='string'?key:key.url,response)}
  };
  const caches={
-  open:async name=>{assert.equal(name,'sho-media-center-ui-shell-v1');return cache},
-  keys:async()=>['sho-media-center-ui-shell-v1'],
+  open:async name=>{assert.equal(name,'sho-media-center-ui-shell-v2-golden-gallery');return cache},
+  keys:async()=>['sho-media-center-ui-shell-v2-golden-gallery'],
   delete:async()=>true
  };
  class Request {
@@ -68,10 +68,10 @@ test('Media Center registers a private UI-only SW without modifying other module
  assert.doesNotMatch(sw,/mediaCache|indexedDB|localStorage|caches\.open\('all-/i);
  assert.doesNotMatch(sw,/caches\.delete\('sh9-|caches\.delete\('sho-book/);
 });
-test('install precaches ONLY seven UI shell files; never photos, music, thumbnails or videos',async()=>{
+test('install precaches ONLY eight UI shell files; never photos, music, thumbnails or videos',async()=>{
  const h=harness();
  await h.fire('install');
- assert.equal(h.store.size,7);
+ assert.equal(h.store.size,8);
  const keys=[...h.store.keys()];
  assert.ok(keys.every(x=>x.startsWith('https://sho.test/')));
  assert.ok(keys.every(x=>/\/$|\.css\?|\.js(\?|$)/.test(x)));
@@ -105,7 +105,7 @@ test('navigation and known versioned UI JS are cache-first, with network refresh
  const nav=await h.fire('fetch',h.request(SCOPE,'navigate'));
  assert.equal(nav.intercepted,true);
  assert.equal(nav.result.url,SCOPE);
- const code=await h.fire('fetch',h.request(SCOPE+'onedrive-media-v2.js?v=5-no-legacy-flash','no-cors'));
+ const code=await h.fire('fetch',h.request(SCOPE+'onedrive-media-v2.js?v=6-golden-photo-swipe','no-cors'));
  assert.equal(code.intercepted,true);
  assert.equal(h.store.size,base);
  assert.ok(h.requests.every(x=>x.url.startsWith('https://sho.test/')));

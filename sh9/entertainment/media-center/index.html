@@ -64,6 +64,7 @@ footer{margin-top:27px;padding:16px 3px;border-top:1px solid #bb87d433;color:#98
 <link rel="stylesheet" href="./onedrive-media-v2.css?v=5-no-legacy-flash">
 <link rel="stylesheet" href="./golden-six-glass-v1.css?v=20261121-six-golden-glass">
 <link rel="stylesheet" href="./reference-art-v1.css?v=20261121-crop-fix-v2">
+<link rel="stylesheet" href="./media-library-golden-v1.css?v=1">
 </head>
 <body>
 <main class="page">
@@ -85,21 +86,22 @@ footer{margin-top:27px;padding:16px 3px;border-top:1px solid #bb87d433;color:#98
  </section>
  </div>
  <section class="media-library" id="mediaLibrary" hidden aria-label="Privát OneDrive médiatár">
-  <div class="media-library-head"><h2 id="mediaLibraryTitle">OneDrive médiatár</h2><button type="button" id="mediaRefresh" aria-label="Mappa frissítése">⟳ Frissítés</button></div>
+  <div class="media-library-head"><div class="media-library-heading"><span class="media-library-kicker">SHO · GOLDEN COLLECTION</span><h2 id="mediaLibraryTitle">OneDrive médiatár</h2><p id="mediaLibrarySubtitle" class="media-library-subtitle">Privát albumok · csak olvasás</p></div><button type="button" id="mediaRefresh" aria-label="Mappa frissítése">⟳ Frissítés</button></div>
   <p class="media-library-status" id="odMediaStatus" aria-live="polite">Készen áll</p>
+  <div class="media-library-summary" id="mediaLibrarySummary" aria-live="polite"></div>
   <button type="button" id="odMediaConnect" hidden>🔐 OneDrive összekapcsolása a Book Studióban</button>
   <nav id="mediaBreadcrumb" class="media-breadcrumb" aria-label="Mappák"></nav>
   <div class="media-files" id="mediaFiles" aria-live="polite"></div>
  </section>
  <div class="media-viewer" id="mediaViewer" hidden role="dialog" aria-modal="true" aria-label="Média teljes képernyőn">
   <div class="media-viewer-frame" id="mediaViewerFrame"><div class="media-viewer-header">
-   <strong id="mediaViewerTitle">Média</strong><button id="mediaViewerFullscreen" type="button" aria-label="Teljes képernyő és fekvő nézet">⛶ Teljes képernyő</button><button id="mediaViewerClose" type="button" aria-label="Bezárás">✕</button>
-  </div><div class="media-viewer-body"><img id="mediaImage" hidden alt="OneDrive fénykép"><video id="mediaPlayer" hidden playsinline controls preload="none"></video><audio id="mediaAudio" hidden controls preload="none"></audio></div><p id="mediaViewerMessage" class="media-viewer-message"></p></div>
+   <strong id="mediaViewerTitle">Média</strong><span id="mediaPhotoCounter" class="media-photo-counter" aria-live="polite" hidden></span><button id="mediaViewerFullscreen" type="button" aria-label="Teljes képernyő és fekvő nézet">⛶ Teljes képernyő</button><button id="mediaViewerClose" type="button" aria-label="Bezárás">✕</button>
+  </div><div class="media-viewer-body" id="mediaViewerBody"><button type="button" id="mediaPhotoPrev" class="media-photo-nav prev" aria-label="Előző fénykép" hidden>‹</button><img id="mediaImage" hidden draggable="false" alt="OneDrive fénykép"><video id="mediaPlayer" hidden playsinline controls preload="none"></video><audio id="mediaAudio" hidden controls preload="none"></audio><button type="button" id="mediaPhotoNext" class="media-photo-nav next" aria-label="Következő fénykép" hidden>›</button></div><div id="mediaViewerTransport" class="media-viewer-transport" aria-label="Médialejátszás vezérlői" hidden><button type="button" id="mediaTransportBack" aria-label="Visszatekerés 10 másodperccel">↶ 10 mp</button><button type="button" id="mediaTransportPlay" class="media-transport-primary" aria-label="Lejátszás vagy szünet">▶ Lejátszás</button><button type="button" id="mediaTransportForward" aria-label="Előretekerés 10 másodperccel">10 mp ↷</button></div><p id="mediaViewerMessage" class="media-viewer-message" aria-live="polite"></p></div>
  </div>
 
 </main>
 <script src="../book-studio/onedrive-session-v3.js"></script>
-<script src="./onedrive-media-v2.js?v=5-no-legacy-flash"></script>
+<script src="./onedrive-media-v2.js?v=6-golden-photo-swipe"></script>
 <script src="./ui-shell-register-v1.js?v=1"></script>
 </body>
 </html>
