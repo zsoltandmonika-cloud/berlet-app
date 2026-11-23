@@ -1,0 +1,30 @@
+name: Family Guard UI-only cache QA
+on:
+  pull_request:
+    paths:
+      - 'healthhub/guardian/index.html'
+      - 'healthhub/guardian/ui-shell-*.js'
+      - 'healthhub/guardian/tests/ui-only-shell.test.cjs'
+      - '.github/workflows/guardian-ui-only-shell-qa.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'healthhub/guardian/index.html'
+      - 'healthhub/guardian/ui-shell-*.js'
+      - 'healthhub/guardian/tests/ui-only-shell.test.cjs'
+      - '.github/workflows/guardian-ui-only-shell-qa.yml'
+permissions:
+  contents: read
+jobs:
+  guardian-ui:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify Family Guard UI-only shell, zero GPS/BKK/map/image cache
+        run: |
+          node --check healthhub/guardian/ui-shell-sw-v1.js
+          node --check healthhub/guardian/ui-shell-register-v1.js
+          node --test healthhub/guardian/tests/ui-only-shell.test.cjs
