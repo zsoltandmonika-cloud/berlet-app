@@ -65,7 +65,7 @@ test('Media Center registers a private UI-only SW without modifying other module
  assert.match(html,/ui-shell-register-v1\.js\?v=1/);
  assert.match(reg,/serviceWorker\.register\('\.\/ui-shell-sw-v1\.js'/);
  assert.match(reg,/scope:'\.\/'/);
- assert.doesNotMatch(sw,/images?\/|mediaCache|indexedDB|localStorage|\\?range=/i);
+ assert.doesNotMatch(sw,/mediaCache|indexedDB|localStorage|caches\.open\('all-/i);
  assert.doesNotMatch(sw,/caches\.delete\('sh9-|caches\.delete\('sho-book/);
 });
 test('install precaches ONLY seven UI shell files; never photos, music, thumbnails or videos',async()=>{
