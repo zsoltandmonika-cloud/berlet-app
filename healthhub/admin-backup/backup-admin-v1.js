@@ -221,7 +221,7 @@ async function startManual(kind='manual'){
   const result=await control('',op);
   if(result?.status!=='ACCEPTED_NOT_VERIFIED'||result?.backup_kind!==(kind==='pre_development'?'pre_development':'manual'))
    throw Error('A szerver nem igazolta vissza a megfelelő mentési kérés elfogadását.');
-  manualMessage('✓ '+(kind==='pre_development'?'Fejlesztés előtti':'Kézi')+' mentésindítás elfogadva. A backup még NEM kész. Fejlesztést csak ellenőrzött OneDrive mentés és szükség esetén restore-próba után kezdj.');
+  manualMessage('✓ '+(kind==='pre_development'?'Fejlesztés előtti':'Kézi')+' mentésindítás elfogadva. A backup még NEM igazolt, a mentés még NEM kész. Fejlesztést csak ellenőrzött OneDrive mentés és szükség esetén restore-próba után kezdj.');
  }catch(e){manualMessage('⚠️ '+String(e?.message||e))}
  finally{dispatchBusy=false;dispatchButton(false)}
 }
