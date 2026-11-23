@@ -221,6 +221,27 @@ main{padding:9px 10px 112px}
 @media(max-width:360px){.pixel-hero{min-height:205px}.pixel-hero-copy{padding:22px 13px 38px}.pixel-shortcut{min-height:106px}.pixel-bill{gap:7px;padding:11px 9px}.pixel-bill-symbol{min-width:39px;width:39px;height:39px}.pixel-bill-name strong{font-size:12px}.pixel-bill-amount{font-size:13px}}
 @media(prefers-reduced-motion:reduce){.pixel-shortcut:active{transform:none}.pixel-track>div{transition:none}}
 
+
+/* S24 dashboard: prominent monthly payable total above the compact 2×2 tools. */
+.pixel-featured-payment{width:100%;min-width:0;min-height:96px;display:flex;align-items:center;gap:11px;text-align:left;margin:11px 0 0;padding:13px 14px;position:relative;overflow:hidden;cursor:pointer;color:#fff;border:1.5px solid rgba(243,200,119,.94);border-radius:19px;background:radial-gradient(ellipse at 92% 20%,rgba(245,189,78,.22),transparent 58%),linear-gradient(112deg,rgba(64,45,28,.98),rgba(15,26,41,.98) 74%);box-shadow:inset 0 1px rgba(255,247,220,.24),0 0 16px rgba(232,167,57,.19),0 9px 20px rgba(0,0,0,.31)}
+.pixel-featured-payment:active{transform:scale(.992)}
+.pixel-featured-payment:focus-visible{outline:3px solid #ffe1a1;outline-offset:2px}
+.pixel-featured-icon{flex:0 0 42px;width:42px;height:42px;display:grid;place-items:center;border-radius:13px;border:1px solid rgba(253,219,139,.61);background:linear-gradient(145deg,#806030,#3e3228);box-shadow:inset 0 1px rgba(255,240,204,.25);color:#ffe3a4;font:800 26px/1 system-ui}
+.pixel-featured-copy{flex:0 1 105px;min-width:0;display:flex;flex-direction:column;gap:5px}
+.pixel-featured-copy strong{font-size:clamp(13px,3.55vw,17px);line-height:1.1;color:#fff}
+.pixel-featured-copy small{font-size:clamp(10px,2.75vw,12px);color:#e6d0a8;line-height:1.2;font-weight:650}
+.pixel-featured-total{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;align-items:flex-end;gap:3px;text-align:right}
+.pixel-featured-total small{font-size:11px;font-weight:800;color:#efcb87;letter-spacing:.02em}
+.pixel-featured-total strong{font-size:clamp(24px,7.3vw,34px);line-height:1.08;letter-spacing:-.045em;white-space:nowrap;font-variant-numeric:tabular-nums;color:#ffe19a;text-shadow:0 0 15px rgba(244,176,66,.42)}
+.pixel-shortcuts-secondary{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:9px}
+.pixel-shortcuts-secondary .pixel-shortcut{grid-column:auto!important;min-height:84px;padding:8px 6px}
+.pixel-shortcuts-secondary .pixel-icon{font-size:25px;margin:0 0 2px}
+.pixel-budget-standalone{grid-column:auto;display:flex;flex-direction:column;gap:5px;margin-top:9px;padding:10px 13px;border:1px solid rgba(226,183,106,.45);border-radius:14px;background:rgba(15,25,39,.94);box-shadow:inset 0 1px rgba(255,255,255,.05);border-top-color:rgba(226,183,106,.45)}
+.pixel-budget-standalone .pixel-budget-title{font-size:11px}
+.pixel-budget-standalone .pixel-track{height:6px}
+@media(min-width:530px){.pixel-shortcuts-secondary{grid-template-columns:repeat(4,minmax(0,1fr))}.pixel-shortcuts-secondary .pixel-shortcut{min-height:105px}.pixel-featured-payment{min-height:110px}}
+@media(max-width:360px){.pixel-featured-payment{gap:7px;padding:10px 9px;min-height:88px}.pixel-featured-icon{flex-basis:35px;width:35px;height:35px}.pixel-featured-copy{flex-basis:90px}.pixel-featured-total strong{font-size:clamp(22px,6.8vw,26px)}.pixel-featured-total small{font-size:10px}.pixel-shortcuts-secondary .pixel-shortcut{min-height:76px}}
+
   </style>
 <link rel="stylesheet" href="../assets/embedded-golden.css?v=20261123">
 </head>
@@ -250,17 +271,21 @@ main{padding:9px 10px 112px}
         <span class="pixel-ai-caption">AI-illusztráció</span>
         <svg class="pixel-gold-wave" viewBox="0 0 800 62" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="goldWave" x1="0" x2="1"><stop stop-color="#9c5815"/><stop offset=".45" stop-color="#ffe6a2"/><stop offset="1" stop-color="#a86b22"/></linearGradient></defs><path d="M0 36 Q175 80 390 38 T800 35 L800 62 L0 62Z" fill="#0c1420"/><path d="M0 35 Q175 79 390 37 T800 34" fill="none" stroke="url(#goldWave)" stroke-width="7"/></svg>
       </div>
-      <div class="pixel-shortcuts" aria-label="Lakásfizetnivalók funkciók">
-        <button class="pixel-shortcut" onclick="switchTab('payments')" aria-label="Fizetnivalók megnyitása"><span class="pixel-icon" aria-hidden="true">▣</span><strong>Fizetnivalók</strong><small>Számlák, havi tételek</small></button>
+      <!-- Primary financial action: above the secondary tiles, directly under the hero. -->
+      <button type="button" class="pixel-featured-payment" onclick="switchTab('payments')" aria-label="Havi fizetnivalók megnyitása">
+        <span class="pixel-featured-icon" aria-hidden="true">▣</span>
+        <span class="pixel-featured-copy"><strong>Fizetnivalók</strong><small id="dashboardMonthLabel">—</small></span>
+        <span class="pixel-featured-total"><small>Havi összesen</small><strong id="heroTotal" aria-live="polite">—</strong></span>
+      </button>
+      <div class="pixel-shortcuts pixel-shortcuts-secondary" aria-label="Lakásfizetnivalók további funkciók">
         <button class="pixel-shortcut" onclick="switchTab('budget')" aria-label="Kiadások megnyitása"><span class="pixel-icon" aria-hidden="true">▥</span><strong>Kiadások</strong><small>Költségkövetés</small></button>
         <button class="pixel-shortcut" onclick="switchTab('meter')" aria-label="Mérőórák megnyitása"><span class="pixel-icon" aria-hidden="true">◴</span><strong>Mérőórák</strong><small>Állások, fotók</small></button>
         <button class="pixel-shortcut" onclick="openGoldenCategories()" aria-label="Kategóriák szerkesztése"><span class="pixel-icon" aria-hidden="true">▱</span><strong>Kategóriák</strong><small>Szerkeszthető</small></button>
         <button class="pixel-shortcut" onclick="switchTab('report')" aria-label="Riportok megnyitása"><span class="pixel-icon" aria-hidden="true">▤</span><strong>Riportok</strong><small>Havi összesítők</small></button>
       </div>
-      <div class="pixel-ribbon" aria-label="Havi áttekintés">
-        <div class="pixel-month"><span class="pixel-small-label">▦ &nbsp; Aktuális hónap</span><strong id="dashboardMonthLabel">—</strong></div>
-        <div class="pixel-month-total"><span class="pixel-small-label">◉ &nbsp; Havi összesen</span><strong id="heroTotal">—</strong></div>
-        <div class="pixel-budget"><span class="pixel-budget-title">Keretfelhasználás: <b id="dashboardBudgetPct">—</b></span><div class="pixel-track"><div id="dashboardBudgetBar"></div></div></div>
+      <div class="pixel-budget pixel-budget-standalone" aria-label="Keretfelhasználás">
+        <span class="pixel-budget-title">Keretfelhasználás: <b id="dashboardBudgetPct">—</b></span>
+        <div class="pixel-track"><div id="dashboardBudgetBar"></div></div>
       </div>
       <div class="pixel-bills-head"><h2>Havi fizetnivalók</h2><button type="button" onclick="switchTab('payments')">＋ Tételek szerkesztése</button></div>
       <div id="dashboardBillRows" class="pixel-bill-rows"></div>
