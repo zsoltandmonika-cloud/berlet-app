@@ -6,29 +6,29 @@
 <a class="back" href="../index.html">← SHO Admin</a>
 <header class="hero"><span class="kicker">SHO · ADMIN CONTROL CENTER</span>
 <h1>🛡️ Backup &amp; Restore</h1>
-<p>Teljes felhőmag-mentés OneDrive-ra, visszaellenőrzés és ellenőrzött helyreállítási pontok.</p>
-<p class="muted">Cél: <strong>OneDrive / SHO / Backups</strong> · ütemezés: naponta 00:15, Budapest</p>
+<p>Öt valós mentési terület · titkosított OneDrive Restic · komponensenkénti visszaállítási bizonyíték.</p>
+<p class="muted">Cél: <strong>OneDrive / SHO / Backups / restic-partial-v1</strong> · öt napi mentés: 00:15, 02:15, 03:15, 03:45, 04:15 (Budapest)</p>
 <div class="stats">
-<div class="stat"><small>Automatikus mentés</small><strong id="schedule">00:15 · előkészítve</strong></div>
+<div class="stat"><small>Éjszakai rend</small><strong id="schedule">5 feladat · futásra vár</strong></div>
 <div class="stat"><small>Utolsó ellenőrzött</small><strong id="lastVerified">Nincs adat</strong></div>
-<div class="stat"><small>Mentési pontok</small><strong id="snapshotCount">0</strong></div>
+<div class="stat"><small>Ellenőrzött futások</small><strong id="snapshotCount">0</strong></div>
 <div class="stat"><small>Futtató állapota</small><strong id="runnerState">Nem ellenőrzött</strong></div>
 </div>
 <p class="result" id="status" role="status" aria-live="polite">A OneDrive adatkapcsolatot még nem ellenőriztem ezen a böngészőn.</p>
 </header>
 <section class="grid">
-<div class="card"><h2>📦 Kézi teljes mentés</h2>
-<p>A kézi futtatás és az éjszakai mentés ugyanazt a védett GitHub-munkafolyamatot használja.</p>
+<div class="card"><h2>📦 Kézi mentés · admin indító</h2>
+<p>Az öt valódi komponens-munkafolyamat már létezik. Az egygombos admin indítás csak akkor aktiválódhat, ha a védett szerveroldali kapcsolat ténylegesen ellenőrzött. Az elfogadott indítás nem jelent kész mentést.</p>
 <div class="toolbar">
 <button type="button" id="manualCheck">Admin mentési hozzáférés ellenőrzése</button>
 <button type="button" id="manualDirect" disabled>▶ Full Backup Now</button>
 <button type="button" id="predevDirect" disabled>🛡️ Fejlesztés előtti teljes mentés</button>
 <button type="button" id="manualRunStatus" class="secondary">Legutóbbi futás állapota</button></div>
-<p class="result" id="manualStatus" role="status" aria-live="polite">Mentésindítás még nem elérhető: privát mentési futtató szükséges.</p>
-<p class="muted">A fejlesztés előtti mentés külön jelölést kap. Mindkét gomb ugyanazt a teljes forráslistát használja; éles adatot nem módosít.</p>
+<p class="result" id="manualStatus" role="status" aria-live="polite">Az egylépéses Admin indító még nem validált. A privát GitHub-futtatóban az egyes komponensmentések külön kézzel indíthatók.</p>
+<p class="muted">Az Admin-dispatch még nincs összekötve a ma validált öt komponensmentéssel. A gombok zárolva maradnak, amíg nincs ellenőrzött, biztonságos összehangolt futtató. Nincs éles adatírás.</p>
 <div class="toolbar">
-<a class="btn secondary" id="manual" href="https://github.com/zsoltandmonika-cloud/SHO-Backup-Runner/actions/workflows/sho-backup-unified.yml" rel="noopener noreferrer">Privát futtató (telepítés után)</a>
-<a class="btn secondary" href="https://github.com/zsoltandmonika-cloud/berlet-app/pull/1066" rel="noopener noreferrer">Fejlesztés állapota</a></div>
+<a class="btn secondary" id="manual" href="https://github.com/zsoltandmonika-cloud/SHO-Backup-Runner/actions" rel="noopener noreferrer">Privát mentések / GitHub Actions</a>
+<a class="btn secondary" href="https://github.com/zsoltandmonika-cloud/berlet-app/pull/1068" rel="noopener noreferrer">Fejlesztés állapota</a></div>
 <p class="warn">Az indítás elfogadása még nem kész mentés. A teljesítés csak sikeres OneDrive-visszaolvasás után igazolt.</p></div>
 <div class="card"><h2>🔎 OneDrive mentések</h2>
 <p>Csak a megfelelő Microsoft-fiókhoz tartozó, név szerint ismert mentéskönyvtárat olvassuk. A böngészőből nem törlünk fájlokat.</p>
@@ -36,19 +36,19 @@
 <a class="btn secondary" id="onedrive" href="https://onedrive.live.com?cid=BC1FF24AF37EA2B0&amp;id=BC1FF24AF37EA2B0!sea731d68fcb440d6a6f2103e66d2536e" rel="noopener noreferrer">OneDrive mappa</a></div>
 <p class="muted" id="authHelp">Az ellenőrzéshez a Book Studio meglévő, hitelesített OneDrive-olvasási munkamenete szükséges.</p></div>
 </section>
-<section class="card"><h2>📚 Visszaállítási pontok</h2>
+<section class="card"><h2>📚 Korábbi formátumú mentések</h2>
 <div id="backups" aria-live="polite"><p class="muted">Nincs még ellenőrzött mentési lista. Kattints a „Mentések ellenőrzése” gombra.</p></div>
 </section>
-<section class="card"><h2>🧪 Próba-mentések · még nem teljes restore</h2>
-<p>Az ellenőrzött Restic-forrásmentések külön listában láthatók. Ezeket csak sikeres izolált helyreállítás után lehet FULL RESTORE READY minősítésűvé tenni.</p>
-<div id="stagingRuns" aria-live="polite"><p class="muted">OneDrive ellenőrzésre vár.</p></div>
+<section class="card"><h2>🛡️ Éles mentésmonitor · 5 komponens</h2>
+<p>Az <strong>SHO/Backups/restic-partial-runs</strong> OneDrive könyvtár tényleges státuszfájljait olvassa. A PASS az izolált Restic-fájlvisszaállítás és SHA-256 ellenőrzés igazolása, <strong>nem teljes SHO-rendszer-restore</strong>. Az első automatikus éjszakai futást külön validálni kell.</p>
+<div id="stagingRuns" aria-live="polite"><p class="muted">Az öt komponens státuszának betöltéséhez nyomd meg a „Mentések ellenőrzése” gombot.</p></div>
 </section>
 <section class="card"><h2>♻️ Visszaállítás előkészítése</h2>
 <p>Előbb kiválasztunk egy <strong>igazoltan ellenőrzött</strong> mentést. A visszaállítás izolált környezetben végzett próbával kezdődik. Az éles SHO-t innen semmi nem írja felül.</p>
 <label for="restoreId">Kiválasztott mentés azonosítója</label>
 <input id="restoreId" type="text" maxlength="70" placeholder="Válassz ellenőrzött mentést a listából" readonly>
 <div class="toolbar"><button id="prepare" type="button" disabled>Visszaállítási terv előkészítése</button>
-<a class="btn secondary" href="https://github.com/zsoltandmonika-cloud/berlet-app/blob/feature/sho-backup-admin-predev-20261123/ops/backup/README.md" rel="noopener noreferrer">Helyreállítási dokumentáció</a></div>
+<a class="btn secondary" href="https://github.com/zsoltandmonika-cloud/SHO-Backup-Runner/blob/main/docs/SHO-RECOVERY-CHECKPOINT-2026-11-23.md" rel="noopener noreferrer">Helyreállítási dokumentáció</a></div>
 <div id="restoreOutput" class="result" hidden></div></section>
-<footer>Mentési források: GitHub teljes történet, Dropbox-tárak, Supabase DB/Storage/Edge; telefonos lokális adatok és külső források lefedettsége még validálandó. A mentési panel nem töröl, nem végez production restore-t és nem indít OTA-t.</footer>
-</main><script src="../central-vault/config.js"></script><script src="./backup-admin-v1.js?v=3"></script></body></html>
+<footer>Mentési források: Dropbox-vaultok, négy GitHub-repo, 25 Edge-funkció, PostgreSQL logikai adatok és sémaleltár, Supabase Storage. Hiányzik a natív pg_dump és az egyben helyreállított SHO validálása. A monitor csak olvas; nem töröl, nem indít production restore-t vagy OTA-t.</footer>
+</main><script src="../central-vault/config.js"></script><script src="./backup-admin-v1.js?v=4"></script></body></html>
