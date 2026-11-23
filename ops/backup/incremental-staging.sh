@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# MANUAL STAGING ONLY. Reads production sources, writes encrypted snapshots to isolated OneDrive staging.
-# NEVER merge as a scheduled prod backup without independent review and a sandbox restore.
+# STAGING RECOVERY CAPTURE. Nightly and manual modes run the SAME source-read-only process.
+# Never certify FULL SYSTEM until independent isolated restore and local-device coverage pass.
 set -Eeuo pipefail
 umask 077
 
@@ -18,7 +18,9 @@ git lfs version >/dev/null || { echo '::error::git-lfs is required' >&2; exit 2;
 
 PROJECT_REF='vhsrupphzcjkdrusonzh'
 BACKUP_ID="$(date -u +'%Y%m%dT%H%M%SZ')-${GITHUB_RUN_ID:-manual}"
-TAG="sho-stage-$BACKUP_ID"
+BACKUP_KIND="${SHO_BACKUP_KIND:-staging_test}"
+case "$BACKUP_KIND" in nightly|manual|pre_development|staging_test) ;; *) echo '::error::Invalid backup kind' >&2; exit 2;; esac
+TAG="sho-stage-${BACKUP_KIND}-$BACKUP_ID"
 export RESTIC_REPOSITORY='rclone:onedrive:SHO/Backups/restic-staging-v1'
 work="$(mktemp -d)"
 trap 'rm -rf "$work"' EXIT
@@ -118,14 +120,15 @@ restic check --read-data
 LOCAL_SNAPSHOT_ID="$(jq -er --arg path "$work/stage"   '[.[] | select(.paths | index($path)) | .id] | first' "$work/snapshots.json")"
 restic dump "$LOCAL_SNAPSHOT_ID" "$work/stage/local-inventory.json" > "$work/local-inventory-restored.json"
 cmp -s "$work/stage/local-inventory.json" "$work/local-inventory-restored.json"
-python3 - "$BACKUP_ID" "$TAG" "$work/snapshots.json" "$work/status.json" <<'PY'
+python3 - "$BACKUP_ID" "$TAG" "$BACKUP_KIND" "$work/snapshots.json" "$work/status.json" <<'PY'
 import json, sys
-run, tag, snaps, dest = sys.argv[1:]
+run, tag, backup_kind, snaps, dest = sys.argv[1:]
 ids = [s['id'] for s in json.load(open(snaps, encoding='utf-8'))]
 status = {
   'schema': 'sho-restic-staging-status/1',
   'backup_id': run,
   'tag': tag,
+  'backup_kind': backup_kind,
   'status': 'STAGING_INCREMENTAL_REPO_DATA_VERIFIED',
   'snapshot_ids': ids,
   'read_back_verified': True,
