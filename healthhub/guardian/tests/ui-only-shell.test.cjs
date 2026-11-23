@@ -24,7 +24,7 @@ function harness(){
   requests.push(href);
   const pathname=new URL(href).pathname;
   const type=pathname.endsWith('.css')?'text/css':
-   /\\.m?js$/.test(pathname)?'text/javascript':'text/html';
+   /\.m?js$/.test(pathname)?'text/javascript':'text/html';
   return {ok:true,type:'basic',headers:{get:k=>k==='content-type'?type:null},
    url:href,clone(){return this}};
  };
@@ -52,8 +52,8 @@ function harness(){
  return {fire,make,stored,requests,deleted,paths:self.__sourcePaths};
 }
 test('registration has its own scope and preserves existing application',()=>{
- assert.match(HTML,/ui-shell-register-v1\\.js\\?v=1/);
- assert.match(REGISTER,/serviceWorker\\.register\\('\.\/ui-shell-sw-v1\\.js'/);
+ assert.match(HTML,/ui-shell-register-v1\.js\?v=1/);
+ assert.match(REGISTER,/serviceWorker\.register\('\.\/ui-shell-sw-v1\.js'/);
  assert.match(REGISTER,/scope:'\.\/'/);
  assert.match(SW,/if\(!key\)return/);
 });
@@ -64,9 +64,9 @@ test('install stores ONLY static HTML CSS and JavaScript; no media or API conten
  for(const [key] of h.stored){
   const u=new URL(key);
   assert.equal(u.origin,new URL(SCOPE).origin);
-  assert.ok(u.href===SCOPE||/\\.(?:m?js|css)$/.test(u.pathname),'non-UI resource: '+key);
-  assert.doesNotMatch(key,/\\.(?:png|jpeg|jpg|webp|svg|heic|gif|mp3|mp4|mkv|flac|pdf|json)(?:\\?|$)/i);
-  assert.doesNotMatch(key,/\\/(?:api|data|oauth|auth|graphql|storage)\\//i);
+  assert.ok(u.href===SCOPE||/\.(?:m?js|css)$/.test(u.pathname),'non-UI resource: '+key);
+  assert.doesNotMatch(key,/\.(?:png|jpeg|jpg|webp|svg|heic|gif|mp3|mp4|mkv|flac|pdf|json)(?:\?|$)/i);
+  assert.doesNotMatch(key,/\/(?:api|data|oauth|auth|graphql|storage)\//i);
  }
 });
 test('images posters maps music video GPS live APIs and all JSON bypass the worker',async()=>{
@@ -88,7 +88,7 @@ test('images posters maps music video GPS live APIs and all JSON bypass the work
   'https://signed.onedrive.live.com/video.mp4?token=secret'
  ];
  for(const url of bad){
-  const destination=/\\.(?:mp4|mp3)(?:\\?|$)/i.test(url)?'video':'image';
+  const destination=/\.(?:mp4|mp3)(?:\?|$)/i.test(url)?'video':'image';
   const result=await h.fire('fetch',h.make(url,destination));
   assert.equal(result.intercepted,false,url);
  }
