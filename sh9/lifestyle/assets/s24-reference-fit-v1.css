@@ -44,3 +44,12 @@ html,body{overscroll-behavior:none}
 @media(max-width:365px){.top{gap:7px}.top-action{width:22px}.hero{height:170px}.tile .icon{width:32px;height:32px}.tile .icon svg{width:22px;height:22px}.tile{padding:9px 8px;gap:4px}.tile strong{font-size:12px}.tile .description{font-size:10px}.content{padding:9px 8px 3px}}
 @media(max-height:720px){.hero{height:clamp(140px,23dvh,165px)}.top{height:51px;min-height:51px}.content{padding-top:8px}.tile{padding:8px 9px}.tile .icon{width:31px;height:31px}.tile .icon svg{width:22px;height:22px}.tile strong{font-size:12px}.tile .description{font-size:10px}.dock{height:60px;min-height:60px}.shell{padding-bottom:calc(70px + env(safe-area-inset-bottom,0px))}}
 @media(min-width:601px){html,body{overflow:auto}.shell{height:auto;min-height:100vh;max-width:1199px;width:100%;overflow:visible;padding-bottom:125px;margin:0 auto}.shell:after{bottom:79px}.top{height:78px;min-height:78px;padding:9px 29px;gap:24px}.top .brand{font-size:19px}.top .brand svg{width:60px;height:32px}.top .title{font-size:31px}.top .title svg{width:31px;height:31px}.top-action{width:42px;height:42px}.top-action svg{width:34px;height:34px}.hero{height:375px;border-radius:0 0 26px 26px;background-position:center center}.hero-text{padding:80px 54px 35px;max-width:47%}.hero h1{font-size:66px}.hero p{font-size:22px;max-width:450px;line-height:1.4}.hero .wave{height:50px}.content{padding:25px 19px 12px;overflow:visible}.tiles{height:auto;max-height:none;grid-template-rows:repeat(2,285px);gap:19px}.tile{padding:32px 27px}.tile .icon{width:80px;height:80px;border-radius:23px}.tile .icon svg{width:54px;height:54px}.tile-top{gap:20px}.tile strong{font-size:34px}.tile .description{font-size:22px}.tile .go{width:52px;height:52px;font-size:43px}.dock{height:85px;min-height:85px;bottom:9px}.dock svg{width:32px;height:32px}.dock small{font-size:14px}}
+
+/* S24 reference finishing pass · reduce oversized footer void, keep flatter cards. */
+@media(max-width:600px){
+ .hero{height:clamp(220px,34dvh,315px);background-position:61% center}
+ .hero-text{padding-top:clamp(24px,4dvh,36px);max-width:69%}
+ .tiles{height:clamp(280px,42dvh,355px)}
+ .tile strong{font-size:clamp(14px,3.7vw,17px);line-height:1.13}
+ .tile .description{font-size:clamp(10.5px,2.75vw,12px);line-height:1.27}
+}
