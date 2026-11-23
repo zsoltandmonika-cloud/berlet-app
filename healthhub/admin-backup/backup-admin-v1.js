@@ -179,7 +179,7 @@ async function control(mode,operation){
  const base=BRIDGE+(mode?'?mode='+encodeURIComponent(mode):'');
  const params={method:operation?'POST':'GET',headers:{
    apikey:auth.key,Authorization:'Bearer '+auth.token,
-   ...(operation?{'Content-Type':'application/json','X-SHO-Backup-Confirm':'true'}:{})
+   ...(operation?{'Content-Type':'application/json'}:{})
  },cache:'no-store',...(operation?{body:JSON.stringify({operation})}:{})};
  const response=await w.fetch(base,params);
  let data;try{data=await response.json()}catch(_){data=null}
