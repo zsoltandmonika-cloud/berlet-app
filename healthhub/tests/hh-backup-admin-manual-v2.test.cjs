@@ -19,9 +19,9 @@ function harness({session=true,ready=true,confirm=true,responseStatus=202}={}){
   replaceChildren(...c){this.children=[...c]}
  }
  const ids=['refresh','prepare','restoreId','restoreOutput','status','lastVerified','snapshotCount','backups','authHelp',
- 'manualCheck','manualDirect','manualRunStatus','manualStatus'];
+ 'manualCheck','manualDirect','predevDirect','manualRunStatus','manualStatus','runnerState','stagingRuns'];
  const nodes=Object.fromEntries(ids.map(id=>[id,new Elem()]));
- nodes.manualDirect.disabled=true;
+ nodes.manualDirect.disabled=true;nodes.predevDirect.disabled=true;
  const storage=new Map();
  if(session)storage.set('hh-supabase-health-session-v1',JSON.stringify(validSession()));
  const win={
@@ -37,7 +37,7 @@ function harness({session=true,ready=true,confirm=true,responseStatus=202}={}){
     ok:true,ready,workflow_active:true,runner_config_confirmed:true
    })};
    if(options.method==='POST')return {ok:responseStatus===202,status:responseStatus,json:async()=>responseStatus===202?{
-    ok:true,status:'ACCEPTED_NOT_VERIFIED'
+    ok:true,status:'ACCEPTED_NOT_VERIFIED',backup_kind:JSON.parse(options.body).operation==='start_predevelopment_full_backup'?'pre_development':'manual'
    }:{ok:false,error:'Blocked'}};
    if(url.includes('mode=last_run'))return {ok:true,status:200,json:async()=>({
     ok:true,last_run:{status:'in_progress',created_at:'2026-11-22T22:00:00Z',conclusion:null}
@@ -50,7 +50,8 @@ function harness({session=true,ready=true,confirm=true,responseStatus=202}={}){
 }
 
 test('Admin one-tap backup requires a server endpoint, no raw github token in browser',()=>{
- assert.match(html,/Kézi teljes mentés indítása/);
+ assert.match(html,/Full Backup Now/);
+ assert.match(html,/Fejlesztés előtti teljes mentés/);
  assert.match(html,/manualCheck/);
  assert.match(html,/manualRunStatus/);
  assert.match(html,/central-vault\/config.js/);
@@ -69,8 +70,8 @@ test('runner not ready disables direct start even with valid owner session',asyn
  const t=harness({ready:false});
  await t.nodes.manualCheck.handlers.click();
  assert.equal(t.nodes.manualDirect.disabled,true);
- assert.equal(t.requests.length,1);
- assert.equal(t.requests[0].options.method,'GET');
+ assert.ok(t.requests.length>=1);
+ assert.ok(t.requests.every(x=>x.options.method==='GET'));
 });
 test('readiness + click confirmation sends one and only one backup dispatch to authenticated Edge',async()=>{
  const t=harness();
@@ -83,12 +84,22 @@ test('readiness + click confirmation sends one and only one backup dispatch to a
  assert.deepEqual(JSON.parse(post[0].options.body),{operation:'start_manual_full_backup'});
  assert.equal(post[0].options.headers.Authorization,'Bearer OWNER_TEST_JWT');
  assert.equal(post[0].options.headers.apikey,'sb_publishable_testing');
- assert.equal(post[0].options.headers['X-SHO-Backup-Confirm'],'true');
+ assert.equal(post[0].options.headers['X-SHO-Backup-Confirm'],undefined);
  assert.match(t.nodes.manualStatus.textContent,/még NEM igazolt/);
  assert.equal(t.nodes.manualDirect.disabled,true);
 });
-test('manual backup confirmation declined does not touch server',async()=>{
- const t=harness({confirm:false});
+test('pre-development backup is exactly one owner-authorized POST without repeated confirmation',async()=>{
+ const t=harness();
+ await t.nodes.manualCheck.handlers.click();
+ await t.nodes.predevDirect.handlers.click();
+ const posts=t.requests.filter(x=>x.options.method==='POST');
+ assert.equal(posts.length,1);
+ assert.deepEqual(JSON.parse(posts[0].options.body),{operation:'start_predevelopment_full_backup'});
+ assert.match(t.nodes.manualStatus.textContent,/Fejlesztés előtti/);
+ assert.match(t.nodes.manualStatus.textContent,/még NEM kész/);
+});
+test('backup without backend readiness stays blocked even if there is no confirm dialog',async()=>{
+ const t=harness({ready:false,confirm:false});
  await t.nodes.manualCheck.handlers.click();
  await t.nodes.manualDirect.handlers.click();
  assert.equal(t.requests.filter(x=>x.options.method==='POST').length,0);
@@ -103,7 +114,7 @@ test('server failure never marks backup as completed',async()=>{
 test('last run only gets Github workflow status, not a restore action',async()=>{
  const t=harness();
  await t.nodes.manualRunStatus.handlers.click();
- assert.equal(t.requests.length,1);
- assert.equal(t.requests[0].options.method,'GET');
+ assert.ok(t.requests.length>=1);
+ assert.ok(t.requests.every(x=>x.options.method==='GET'));
  assert.match(t.nodes.manualStatus.textContent,/külön OneDrive-visszaellenőrzés/);
 });
