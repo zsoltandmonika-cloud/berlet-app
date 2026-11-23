@@ -9,10 +9,10 @@
 <p>Teljes felhőmag-mentés OneDrive-ra, visszaellenőrzés és ellenőrzött helyreállítási pontok.</p>
 <p class="muted">Cél: <strong>OneDrive / SHO / Backups</strong> · ütemezés: naponta 00:15, Budapest</p>
 <div class="stats">
-<div class="stat"><small>Automatikus mentés</small><strong id="schedule">Előkészítve</strong></div>
+<div class="stat"><small>Automatikus mentés</small><strong id="schedule">00:15 · előkészítve</strong></div>
 <div class="stat"><small>Utolsó ellenőrzött</small><strong id="lastVerified">Nincs adat</strong></div>
 <div class="stat"><small>Mentési pontok</small><strong id="snapshotCount">0</strong></div>
-<div class="stat"><small>Megőrzés</small><strong>30 napi + 12 havi</strong></div>
+<div class="stat"><small>Futtató állapota</small><strong id="runnerState">Nem ellenőrzött</strong></div>
 </div>
 <p class="result" id="status" role="status" aria-live="polite">A OneDrive adatkapcsolatot még nem ellenőriztem ezen a böngészőn.</p>
 </header>
@@ -21,11 +21,13 @@
 <p>A kézi futtatás és az éjszakai mentés ugyanazt a védett GitHub-munkafolyamatot használja.</p>
 <div class="toolbar">
 <button type="button" id="manualCheck">Admin mentési hozzáférés ellenőrzése</button>
-<button type="button" id="manualDirect" disabled>▶ Kézi teljes mentés indítása</button>
+<button type="button" id="manualDirect" disabled>▶ Full Backup Now</button>
+<button type="button" id="predevDirect" disabled>🛡️ Fejlesztés előtti teljes mentés</button>
 <button type="button" id="manualRunStatus" class="secondary">Legutóbbi futás állapota</button></div>
-<p class="result" id="manualStatus" role="status" aria-live="polite">Kézi indítás zárolva: az admin kapcsolatot előbb ellenőrizni kell.</p>
+<p class="result" id="manualStatus" role="status" aria-live="polite">Mentésindítás még nem elérhető: privát mentési futtató szükséges.</p>
+<p class="muted">A fejlesztés előtti mentés külön jelölést kap. Mindkét gomb ugyanazt a teljes forráslistát használja; éles adatot nem módosít.</p>
 <div class="toolbar">
-<a class="btn secondary" id="manual" href="https://github.com/zsoltandmonika-cloud/berlet-app/actions/workflows/sho-onedrive-full-backup-nightly.yml" rel="noopener noreferrer">GitHub futtató (tartalék)</a>
+<a class="btn secondary" id="manual" href="https://github.com/zsoltandmonika-cloud/SHO-Backup-Runner/actions/workflows/sho-backup-unified.yml" rel="noopener noreferrer">GitHub futtató (tartalék)</a>
 <a class="btn secondary" href="https://github.com/zsoltandmonika-cloud/berlet-app/pull/1066" rel="noopener noreferrer">Fejlesztés állapota</a></div>
 <p class="warn">Az indítás elfogadása még nem kész mentés. A teljesítés csak sikeres OneDrive-visszaolvasás után igazolt.</p></div>
 <div class="card"><h2>🔎 OneDrive mentések</h2>
@@ -37,6 +39,10 @@
 <section class="card"><h2>📚 Visszaállítási pontok</h2>
 <div id="backups" aria-live="polite"><p class="muted">Nincs még ellenőrzött mentési lista. Kattints a „Mentések ellenőrzése” gombra.</p></div>
 </section>
+<section class="card"><h2>🧪 Próba-mentések · még nem teljes restore</h2>
+<p>Az ellenőrzött Restic-forrásmentések külön listában láthatók. Ezeket csak sikeres izolált helyreállítás után lehet FULL RESTORE READY minősítésűvé tenni.</p>
+<div id="stagingRuns" aria-live="polite"><p class="muted">OneDrive ellenőrzésre vár.</p></div>
+</section>
 <section class="card"><h2>♻️ Visszaállítás előkészítése</h2>
 <p>Előbb kiválasztunk egy <strong>igazoltan ellenőrzött</strong> mentést. A visszaállítás izolált környezetben végzett próbával kezdődik. Az éles SHO-t innen semmi nem írja felül.</p>
 <label for="restoreId">Kiválasztott mentés azonosítója</label>
@@ -44,5 +50,5 @@
 <div class="toolbar"><button id="prepare" type="button" disabled>Visszaállítási terv előkészítése</button>
 <a class="btn secondary" href="https://github.com/zsoltandmonika-cloud/berlet-app/blob/feature/sho-onedrive-nightly-full-backup-20261122/ops/backup/README.md" rel="noopener noreferrer">Helyreállítási dokumentáció</a></div>
 <div id="restoreOutput" class="result" hidden></div></section>
-<footer>Biztonság: csak olvasási műveletek. Nincs automatikus restore, törlés, OTA vagy éles rendszerbe írás.</footer>
-</main><script src="../central-vault/config.js"></script><script src="./backup-admin-v1.js?v=2"></script></body></html>
+<footer>Mentési források: GitHub teljes történet, Dropbox-tárak, Supabase DB/Storage/Edge; telefonos lokális adatok és külső források lefedettsége még validálandó. A mentési panel nem töröl, nem végez production restore-t és nem indít OTA-t.</footer>
+</main><script src="../central-vault/config.js"></script><script src="./backup-admin-v1.js?v=3"></script></body></html>
