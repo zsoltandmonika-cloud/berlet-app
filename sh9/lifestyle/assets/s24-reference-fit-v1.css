@@ -59,3 +59,11 @@ html,body{overscroll-behavior:none}
  .content{padding-bottom:8px}
  .tiles{height:clamp(272px,calc(42dvh - 8px),347px)}
 }
+
+/* Independent Életmód reload control: unobtrusive, keeps S24 header geometry. */
+.top .title{gap:4px}
+.lifestyle-refresh{flex:0 0 27px;width:27px;height:27px;min-width:27px;display:grid;place-items:center;padding:2px;margin:0 0 0 3px;border:1px solid rgba(239,196,119,.45);border-radius:10px;background:rgba(184,132,53,.1);color:#efc477;cursor:pointer;touch-action:manipulation}
+.top .title .lifestyle-refresh svg{width:20px;height:20px;stroke:#efc477;stroke-width:1.85;fill:none}
+.lifestyle-refresh:active{background:rgba(218,173,93,.3);transform:scale(.96)}
+.lifestyle-refresh:focus-visible{outline:2px solid #ffe1a0;outline-offset:1px}
+@media(max-width:365px){.top .title{font-size:18px}.lifestyle-refresh{width:24px;height:24px;min-width:24px;flex-basis:24px;margin-left:0}.top .title .lifestyle-refresh svg{width:18px;height:18px}}
