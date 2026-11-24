@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="hu">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="theme-color" content="#07192c">
+<title>Family Guard · TV olvasási engedély · LAB</title>
+<style>
+:root{color-scheme:dark;font-family:system-ui,"Segoe UI",sans-serif;color:#f0f8ff}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 70% -10%,#243b70,#091729 62%,#070e21);min-height:100dvh;padding:20px}
+main{width:min(100%,520px);margin:0 auto;display:flex;flex-direction:column;gap:16px}
+.card{padding:20px;border:1px solid #7cbdea94;border-radius:22px;background:#122945d9;box-shadow:0 12px 35px #0006}
+.kicker{font-size:12px;letter-spacing:.13em;color:#a1deff;font-weight:850}
+h1{font-size:27px;line-height:1.08;margin:10px 0}p{font-size:14px;color:#d5e6f6;line-height:1.5}
+label{display:block;margin:18px 0 7px;font-size:14px;font-weight:850}
+input{width:100%;background:#071a34;color:#fff6d7;border:1px solid #f7d395;border-radius:13px;padding:14px 12px;font:750 20px ui-monospace,Consolas,monospace;letter-spacing:.055em;text-transform:uppercase}
+input:focus-visible,button:focus-visible{outline:3px solid #ffda83;outline-offset:2px}
+button{width:100%;border:1px solid #83bdf1;border-radius:13px;font-size:17px;font-weight:850;padding:14px;cursor:pointer;background:linear-gradient(115deg,#1761a3,#25446f);color:#fff}
+button:disabled{opacity:.55;cursor:default}
+button.stop{background:#342836;border-color:#f0b8c7}
+.buttons{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.status{padding:12px;border:1px solid #f9d49c91;border-radius:12px;background:#312b31;color:#ffe4b6;font-weight:700;font-size:14px;line-height:1.45}
+.mini{font-size:12px;color:#b2cadd;line-height:1.5}
+strong.confirm{color:#8fffd1}
+</style>
+<script defer src="../guardian-native-dropbox-v156.js"></script>
+<script defer src="../guardian-gps-routes-v1177.js"></script>
+<script defer src="../guardian-gps-router-v1177.js"></script>
+<script defer src="./guardian-readonly-codec-v1.js"></script>
+<script defer src="./tv-share-lab.js"></script>
+</head>
+<body>
+<main>
+ <section class="card">
+  <div class="kicker">SHO FAMILY GUARD · ISOLATED TV LAB</div>
+  <h1>🔐 Családi GPS a TV-n</h1>
+  <p>Csak a már engedélyezett <strong>HH One natív GPS-adatokat</strong> olvassa
+  az Outlook Dropbox-forrásból. A TV felé kizárólag titkosított,
+  rövid életű megjelenítési adat érkezik.</p>
+  <label for="tvCode">A TV-n látható 24 karakteres ideiglenes kód</label>
+  <input id="tvCode" maxlength="36" type="text" autocomplete="off"
+    autocapitalize="characters" spellcheck="false" placeholder="XXXX XXXX XXXX XXXX XXXX XXXX"
+    aria-describedby="codeHelp" />
+  <p id="codeHelp" class="mini">Ez <b>nem</b> új TV-párosítás. Csak a családi GPS megtekintésének külön, visszavonható engedélye.
+  A kód nem kerül a felhőbe vagy a böngésző tárhelyére.</p>
+  <div class="buttons">
+   <button id="startShare" type="button">📺 Engedélyezés</button>
+   <button id="stopShare" type="button" class="stop" disabled>⏹ Leállítás</button>
+  </div>
+  <p id="sourceStatus" class="status" role="status" aria-live="polite">Ellenőrzés indítása…</p>
+ </section>
+ <section class="card mini">
+  <strong class="confirm">✅ Csak olvasás, külön engedéllyel</strong>
+  <p>Nem kapcsoljuk be vagy módosítjuk egyik telefon GPS-ét sem, és
+  nem töltünk fel semmit a Dropboxba. A TV nem kap Dropbox/OAuth hozzáférést.
+  Ha egy forrás visszavont, hiányzik, túl régi vagy nem hitelesíthető,
+  a TV nem mutathatja élőként.</p>
+  <p>A megosztás megszűnik a Leállítás gombbal, az ablak bezárásával,
+  vagy a Family Guard TV-nézet elhagyásával. A vevőoldali titkosító kód
+  újragenerálható a TV-n.</p>
+  <p><strong>LAB:</strong> ez a külön fejlesztési ág első, még nem publikált kísérleti funkciója.</p>
+ </section>
+</main>
+</body>
+</html>
