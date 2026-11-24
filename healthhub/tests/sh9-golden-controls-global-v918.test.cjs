@@ -64,7 +64,7 @@ test('native profile switches preserve module authorization instead of direct un
  assert.match(src,/w\.SH9_GOLDEN_CONTROLS_V1=Object\.freeze/);
  assert.doesNotMatch(src,/fetch\s*\(|supabase\.|navigator\.geolocation|setInterval/);
 });
-test('v934 unified four-zone glass dock has production SHO dimensions and profile-aware colors',()=>{
+test('Unified five-zone glass dock has production SHO dimensions and profile-aware colors',()=>{
  const css=read('sh9/shared/sh9-golden-controls-v1.css');
  const js=read('sh9/shared/sh9-golden-controls-v1.js');
  assert.match(css,/#sh9UnifiedGlassDockV34/);
@@ -73,7 +73,7 @@ test('v934 unified four-zone glass dock has production SHO dimensions and profil
  assert.match(css,/border-radius:14px!important/);
  assert.match(css,/#79bfff/);
  assert.match(css,/#f9a6d3/);
- assert.match(css,/grid-template-columns:1\.1fr 1\.15fr \.95fr \.92fr/);
+ assert.match(css,/grid-template-columns:1\.03fr 1\.08fr \.84fr \.78fr 1fr/);
  assert.match(css,/backdrop-filter:blur\(10px\)/);
  assert.match(css,/#guardianProfileSwitch/);
  assert.match(css,/#profileLabel/);
@@ -85,6 +85,9 @@ test('v934 unified four-zone glass dock has production SHO dimensions and profil
  assert.match(js,/dockCell\(dock,'tasks'\)/);
  assert.match(js,/dockCell\(dock,'wallet'\)/);
  assert.match(js,/dockCell\(dock,'language'\)/);
+ assert.match(js,/dockCell\(dock,'notes'\)/);
+ assert.match(js,/title\.textContent='SN'/);
+ assert.match(css,/stroke:#f3d18b!important/);
  assert.match(js,/task\.replaceChildren\(\)/);
  assert.match(js,/data-sh9-golden-unified/);
  assert.match(js,/SHO='\/berlet-app\/sh9\/\?sho=wallet'/);
