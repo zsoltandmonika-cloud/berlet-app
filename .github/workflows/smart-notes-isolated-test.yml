@@ -1,5 +1,10 @@
 name: Smart Notes isolated PostgreSQL validation
 on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'sh9/smart-notes/**'
+      - '.github/workflows/smart-notes-isolated-test.yml'
   push:
     branches: [feature/sho-smart-notes]
     paths:
