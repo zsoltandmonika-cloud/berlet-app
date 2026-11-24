@@ -44,6 +44,8 @@ end;$;
 revoke all on function public.hh_smart_note_create_task(uuid,uuid,text,text,text,text) from public,anon;
 grant execute on function public.hh_smart_note_create_task(uuid,uuid,text,text,text,text) to authenticated;
 
+-- Realtime only on new tables. Existing shopping and tasks publications unchanged.
+alter publication supabase_realtime add table public.hh_smart_notebooks,public.hh_smart_notes,public.hh_smart_note_tasks;
 commit;
 -- Private notes must be explicitly shared before linking to family tasks.
 -- Draft: shared editing, revision trigger, RLS tests remain pending; atomic task creation implemented in this draft.
