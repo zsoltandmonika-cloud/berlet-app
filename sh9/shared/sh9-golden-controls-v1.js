@@ -1,4 +1,4 @@
-/* SH9 Golden Standard · global unified four-control dock v934.
+/* SH9 Golden Standard · global unified five-control dock v934.
    Every navigable user-facing leaf page shares ONE visual standard.
    Existing module profile handlers own authorization and refresh. */
 (function(w,d){
@@ -28,7 +28,8 @@
  const DOCK_ICONS=Object.freeze({
   profile:'<circle cx="12" cy="8" r="3.4"/><path d="M5 20v-2.3A5.2 5.2 0 0 1 10.2 12.5h3.6A5.2 5.2 0 0 1 19 17.7V20"/><path d="m18.5 5.5 2 2-2 2m2-2h-5"/>',
   tasks:'<rect x="4" y="4" width="16" height="16" rx="3"/><path d="m7.5 9 1.5 1.5 2.5-3M13.5 9H17M7.5 15h9"/>',
-  wallet:'<rect x="3" y="6" width="18" height="14" rx="3"/><path d="M3 10h18M15 15h3M6 6V4h12"/>'
+  wallet:'<rect x="3" y="6" width="18" height="14" rx="3"/><path d="M3 10h18M15 15h3M6 6V4h12"/>',
+  notes:'<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M3 7h4M3 12h4M3 17h4M10 8h5M10 12h5M10 16h5"/>'
  });
  function dockIcon(name){
   return '<svg class="sh9-global-dock-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">'+DOCK_ICONS[name]+'</svg>';
@@ -54,7 +55,7 @@
    dock.className='sh9-global-glass-dock';
    dock.setAttribute('role','group');
    dock.setAttribute('aria-label','SHO gyorsvezérlők');
-   dockCell(dock,'profile');dockCell(dock,'tasks');dockCell(dock,'wallet');dockCell(dock,'language');
+   dockCell(dock,'profile');dockCell(dock,'tasks');dockCell(dock,'wallet');dockCell(dock,'notes');dockCell(dock,'language');
   }
   if(dock.parentNode!==host)host.appendChild(dock);
   const cell=(part)=>dock.querySelector('[data-sh9-dock-cell="'+part+'"]');
@@ -81,6 +82,14 @@
    const title=d.createElement('span');title.textContent='Wallet';title.className='sh9-global-dock-label';wallet.appendChild(title);
    wallet.addEventListener('click',()=>w.location.assign(SHO));
   }else if(wallet.parentNode!==cell('wallet'))cell('wallet').appendChild(wallet);
+  let notes=$('sh9DockNotesV34');
+  if(!notes){
+   notes=add('a','sh9DockNotesV34',cell('notes'));
+   notes.href='/berlet-app/sh9/smart-notes/';
+   notes.title='Smart Notes';notes.setAttribute('aria-label','Smart Notes');
+   notes.insertAdjacentHTML('afterbegin',dockIcon('notes'));
+   const title=d.createElement('span');title.textContent='SN';title.className='sh9-global-dock-label';notes.appendChild(title);
+  }else if(notes.parentNode!==cell('notes'))cell('notes').appendChild(notes);
   if(group&&group.parentNode!==cell('language'))cell('language').appendChild(group);
   let languageLabel=$('sh9DockLanguageLabelV34');
   if(!languageLabel){
@@ -358,7 +367,7 @@
   if(!launcher)d.body.setAttribute('data-sh9-golden-pilot','on');
   mountDock(host);
   anchorTo(host);
-  w.SH9_GOLDEN_CONTROLS_V1=Object.freeze({version:'934-unified-glass-dock',paint});
+  w.SH9_GOLDEN_CONTROLS_V1=Object.freeze({version:'1204-five-zone-sn-dock',paint});
   paint();
   ensureShoTvShortcut();
   if(healthShell())observeHealthPages();
