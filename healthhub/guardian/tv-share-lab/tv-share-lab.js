@@ -10,11 +10,16 @@
  const CODEC=w.SHO_GUARDIAN_RO_CODEC_V1;
  const INTERVAL=12000;
  const $=id=>d.getElementById(id);
- let seq=0,secret='',timer=null,busy=false,enabled=false,gate=false;
+ let seq=0,secret='',timer=null,busy=false,enabled=false,gate=false,openerVerified=false;
  function status(s){$('sourceStatus').textContent=String(s||'');}
  function trustedOpener(){
-  if(!w.opener||w.opener.closed)return false;
-  try{return new URL(d.referrer).origin===TV_REMOTE_ORIGIN;}catch(_){return false;}
+  return !!(w.opener&&!w.opener.closed&&openerVerified);
+ }
+ // The remote intentionally has no-referrer policy; verify cross-origin
+ // ownership using an exact postMessage challenge rather than spoofable URL.
+ function askOpener(){
+  if(!w.opener||w.opener.closed)return;
+  try{w.opener.postMessage({kind:'SHO_GUARDIAN_RO_HELPER_READY_V1'},TV_REMOTE_ORIGIN);}catch(_){}
  }
  function publish(event){
   if(!trustedOpener())return false;
@@ -89,15 +94,30 @@
   poll();timer=w.setInterval(poll,INTERVAL);
  }
  function init(){
+  w.addEventListener('message',event=>{
+   if(event.source!==w.opener||event.origin!==TV_REMOTE_ORIGIN||
+      event.data?.kind!=='SHO_GUARDIAN_RO_HELPER_ACK_V1')return;
+   openerVerified=true;
+   $('startShare').disabled=false;
+   status(w.HH_GUARDIAN_GPS_ROUTER_V1177?.connected?.()?
+    '🔐 Meglévő telefonos TV-párosítás igazolva. A kód beírásáig NINCS adatmegosztás.':
+    '⚠ A TV kapcsolat igazolva, de a böngésző Outlook Dropbox-engedélye hiányzik.');
+  });
   $('startShare').addEventListener('click',start);
   $('stopShare').addEventListener('click',()=>stop());
   w.addEventListener('pagehide',()=>stop('Megosztás leállítva.'));
-  if(!trustedOpener()){
-   gate=false;$('startShare').disabled=true;
-   status('⚠ Nem megbízható megnyitás. Nyisd meg a TV-re párosított SHO Remote gombjával.');
-  }else if(!w.HH_GUARDIAN_GPS_ROUTER_V1177?.connected?.()){
-   status('⚠ Outlook Dropbox: ezen a böngészőn nincs aktív hozzáférés. Nem olvasunk személyes adatot.');
-  }else status('🔐 Outlook Dropbox rendelkezésre áll. Kód + Engedélyezés szükséges; nincs automatikus adatmegosztás.');
+  $('startShare').disabled=true;
+  if(!w.opener||w.opener.closed){
+   status('⚠ Ezt az oldalt a már párosított SHO Remote gombjával kell megnyitni.');
+  }else{
+   status('🔒 Telefonos távirányító eredetének biztonságos ellenőrzése…');
+   askOpener();
+   let attempts=0;
+   const readyTimer=w.setInterval(()=>{
+    if(openerVerified||++attempts>10){w.clearInterval(readyTimer);return;}
+    askOpener();
+   },1000);
+  }
  }
  init();
 })(window,document);
