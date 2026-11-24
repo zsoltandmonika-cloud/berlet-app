@@ -36,7 +36,7 @@
   <div class="fh-tools"><input id="fhSearch" type="search" placeholder="🔎 Keresés feladatok, virág, csomag…" autocomplete="off" aria-label="Feladatok keresése"><button id="fhHiddenToggle" class="fh-hidden-toggle" type="button" aria-pressed="false" hidden>👁 Rejtettek</button></div>
   <p id="fhStatus" class="fh-status" role="status" aria-live="polite">Family Tasks betöltése…</p>
   <section id="fhList" class="fh-list" aria-label="Feladatlista"></section>
-  <button id="fhAdd" class="fh-new" type="button">＋ Új feladat</button>
+  <nav aria-label="Smart Notes" style="display:flex;gap:8px;flex-wrap:wrap;margin:10px 0"><a class="fh-tab" href="../smart-notes/">▤ Smart Notes</a><a class="fh-tab" href="../smart-notes/?new=1">＋ Új jegyzet</a></nav><button id="fhAdd" class="fh-new" type="button">＋ Új feladat</button>
 </main>
 <nav class="fh-standard-nav" aria-label="SH9 Golden Standard navigáció">
 <a href="../" aria-label="Kezdőlap"><svg viewBox="0 0 24 24"><path d="m3 11 9-8 9 8v10h-7v-7h-4v7H3z"/></svg><span>Kezdőlap</span></a>
@@ -49,7 +49,7 @@
 <section class="fh-sheet" id="fhSheet" role="dialog" aria-modal="true" aria-label="Új feladat gyors felvitele" hidden>
   <div class="fh-sheet-scroll">
   <header class="fh-quick-hero" aria-label="Family Tasks családi hero kép"><button class="fh-close" type="button" id="fhClose" aria-label="Bezárás">×</button></header>
-  <form id="fhForm">
+  <form id="fhForm"><div style="display:flex;gap:8px;flex-wrap:wrap;margin:8px 0"><a class="fh-chip" href="../smart-notes/">▤ Smart Notes</a><a class="fh-chip" href="../smart-notes/?new=1">🎙 Új jegyzet</a></div>
     <div class="fh-field fh-title-field"><label for="fhTitle" class="fh-sr-only">Mit kell elintézni?</label>
       <div class="fh-input-wrap">
         <input id="fhTitle" class="fh-title" name="title" type="text" maxlength="180" required
