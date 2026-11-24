@@ -238,7 +238,7 @@ body[data-sh9-golden-unified="on"] #sh9UnifiedGlassDockV34{
  position:absolute!important;z-index:210!important;
  top:auto!important;bottom:1px!important;left:2px!important;right:2px!important;
  width:auto!important;height:50px!important;min-height:50px!important;max-height:50px!important;
- display:grid!important;grid-template-columns:1.1fr 1.15fr .95fr .92fr!important;
+ display:grid!important;grid-template-columns:1.03fr 1.08fr .84fr .78fr 1fr!important;
  align-items:stretch!important;justify-content:stretch!important;gap:0!important;
  padding:0!important;margin:0!important;
  transform:none!important;visibility:visible!important;opacity:1!important;
@@ -276,7 +276,8 @@ body[data-sh9-golden-unified="on"] #sh9UnifiedGlassDockV34 #sh9HeaderControlsV2{
 }
 body[data-sh9-golden-unified="on"] #sh9UnifiedGlassDockV34 #sh9LauncherProfileV1,
 body[data-sh9-golden-unified="on"] #sh9UnifiedGlassDockV34 #sh9HeaderControlsV2 #sh9TasksGolden,
-body[data-sh9-golden-unified="on"] #sh9UnifiedGlassDockV34 #sh9DockWalletV34{
+body[data-sh9-golden-unified="on"] #sh9UnifiedGlassDockV34 #sh9DockWalletV34,
+body[data-sh9-golden-unified="on"] #sh9UnifiedGlassDockV34 #sh9DockNotesV34{
  box-sizing:border-box!important;appearance:none!important;position:static!important;
  inset:auto!important;top:auto!important;left:auto!important;right:auto!important;bottom:auto!important;
  display:flex!important;flex-direction:column!important;align-items:center!important;
@@ -327,7 +328,7 @@ body[data-sh9-golden-unified="on"] #sh9UnifiedGlassDockV34 #sh9LanguageSwitchV1{
  top:auto!important;bottom:auto!important;left:auto!important;right:auto!important;
  transform:none!important;opacity:1!important;visibility:visible!important;
  width:100%!important;min-width:0!important;max-width:100%!important;
- height:29px!important;min-height:29px!important;max-height:29px!important;
+ height:25px!important;min-height:25px!important;max-height:25px!important;
  margin:0!important;padding:0!important;
  border:0!important;border-radius:0!important;
  background:transparent!important;box-shadow:none!important;
@@ -339,13 +340,13 @@ body[data-sh9-golden-unified="on"] #sh9UnifiedGlassDockV34 #sh9LanguageSwitchV1:
 body[data-sh9-golden-unified="on"] #sh9UnifiedGlassDockV34 #sh9LanguageSwitchV1 [data-sh9-lang]{
  box-sizing:border-box!important;position:relative!important;
  display:grid!important;place-items:center!important;
- flex:0 0 32px!important;width:32px!important;min-width:32px!important;max-width:32px!important;
- height:30px!important;min-height:30px!important;max-height:30px!important;
+ flex:0 0 27.2px!important;width:27.2px!important;min-width:27.2px!important;max-width:27.2px!important;
+ height:25.5px!important;min-height:25.5px!important;max-height:25.5px!important;
  top:auto!important;left:auto!important;right:auto!important;bottom:auto!important;
  margin:0!important;padding:0!important;border:1px solid transparent!important;
  border-radius:9px!important;background:transparent!important;
  box-shadow:none!important;
- font:23px/1 "Segoe UI Emoji","Noto Color Emoji","Apple Color Emoji",system-ui!important;
+ font:19.55px/1 "Segoe UI Emoji","Noto Color Emoji","Apple Color Emoji",system-ui!important;
  cursor:pointer!important;touch-action:manipulation!important;pointer-events:auto!important;
 }
 body[data-sh9-golden-unified="on"] #sh9UnifiedGlassDockV34 #sh9LanguageSwitchV1 [data-sh9-lang][aria-pressed="true"]{
@@ -373,14 +374,14 @@ body[data-sh9-golden-unified="on"][data-sh9-golden-floating="on"] #sh9UnifiedGla
 }
 @media(max-width:350px){
  body[data-sh9-golden-unified="on"] #sh9UnifiedGlassDockV34{
-  grid-template-columns:1fr 1.1fr .9fr .93fr!important;
+  grid-template-columns:1.03fr 1.08fr .84fr .78fr 1fr!important;
  }
  body[data-sh9-golden-unified="on"] #sh9UnifiedGlassDockV34 #sh9LanguageSwitchV1 [data-sh9-lang]{
-  flex-basis:29px!important;width:29px!important;min-width:29px!important;font-size:21px!important;
+  flex-basis:24.65px!important;width:24.65px!important;min-width:24.65px!important;max-width:24.65px!important;font-size:17.85px!important;
  }
  body[data-sh9-golden-unified="on"] #sh9UnifiedGlassDockV34 .sh9-global-dock-label,
  body[data-sh9-golden-unified="on"] #sh9UnifiedGlassDockV34 [data-sh9-dock-label]{
-  font-size:9.7px!important;
+  font-size:9.3px!important;
  }
 }
 
@@ -406,3 +407,6 @@ body[data-sh9-golden-unified="on"][data-sh9-dock-lift10="on"][data-sh9-golden-fl
  top:calc(34px + env(safe-area-inset-top,0px))!important;
  bottom:auto!important;
 }
+
+/* SN: identical gold outline to the approved SHO home dock. */
+body[data-sh9-golden-unified="on"] #sh9UnifiedGlassDockV34 #sh9DockNotesV34 .sh9-global-dock-icon{stroke:#f3d18b!important}
