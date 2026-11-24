@@ -26,6 +26,24 @@ create policy link_delete on public.hh_smart_note_tasks for delete to authentica
 revoke update on public.hh_smart_note_tasks from authenticated;
 create index on public.hh_smart_notes(notebook_id);
 create index on public.hh_smart_note_tasks(task_id);
+-- Atomic creation: task and note link succeed or roll back together.
+create function public.hh_smart_note_create_task(p_note_id uuid,p_task_id uuid,p_title text,p_creator text,p_assignee text,p_excerpt text default null)
+returns uuid language plpgsql security invoker set search_path='' as $
+begin
+ if p_creator not in ('zsolt','monika') or p_assignee not in ('zsolt','monika','lena') or nullif(trim(p_title),'') is null or length(p_title)>180 then
+  raise exception 'Invalid task parameters';
+ end if;
+ if not exists(select 1 from public.hh_smart_notes n join public.hh_smart_notebooks b on b.id=n.notebook_id where n.id=p_note_id and n.shared and b.shared and not n.archived) then
+  raise exception 'Shared note required';
+ end if;
+ insert into public.hh_family_tasks(id,title,category,creator_profile,assigned_profile,assigned_agent,created_by,updated_by_profile)
+ values(p_task_id,trim(p_title),'💡 Egyéb',p_creator,case when p_assignee='lena' then p_creator else p_assignee end,case when p_assignee='lena' then 'lena' else null end,auth.uid(),p_creator);
+ insert into public.hh_smart_note_tasks(note_id,task_id,owner_id,excerpt) values(p_note_id,p_task_id,auth.uid(),p_excerpt);
+ return p_task_id;
+end;$;
+revoke all on function public.hh_smart_note_create_task(uuid,uuid,text,text,text,text) from public,anon;
+grant execute on function public.hh_smart_note_create_task(uuid,uuid,text,text,text,text) to authenticated;
+
 commit;
 -- Private notes must be explicitly shared before linking to family tasks.
--- Draft: shared editing, revision trigger, transactional task creation and RLS tests remain pending.
+-- Draft: shared editing, revision trigger, RLS tests remain pending; atomic task creation implemented in this draft.
