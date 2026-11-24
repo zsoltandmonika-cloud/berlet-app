@@ -8,6 +8,16 @@
  'use strict';
  const TV_REMOTE_ORIGIN='https://mediaradar.pages.dev';
  const CODEC=w.SHO_GUARDIAN_RO_CODEC_V1;
+ // Both canonical native routes require this already-verified Outlook Dropbox
+ // account. Do NOT trust a legacy Gmail/browser token simply because connected.
+ const OUTLOOK_ACCOUNT_SUFFIX='cEjkW3UM';
+ function trustedOutlookAccount(){
+  try{
+   const t=JSON.parse(w.localStorage.getItem('hh-dropbox-token-v2')||'null');
+   return !!(t&&typeof t.account_id==='string'&&
+    t.account_id.startsWith('dbid:')&&t.account_id.slice(-8)===OUTLOOK_ACCOUNT_SUFFIX);
+  }catch(_){return false;}
+ }
  const INTERVAL=12000;
  const $=id=>d.getElementById(id);
  let seq=0,secret='',timer=null,busy=false,enabled=false,gate=false,openerVerified=false;
@@ -27,7 +37,7 @@
  }
  function available(){
   return !!(CODEC&&w.crypto?.subtle&&w.crypto?.getRandomValues&&
-   w.HH_GUARDIAN_GPS_ROUTER_V1177?.connected?.()&&trustedOpener());
+   w.HH_GUARDIAN_GPS_ROUTER_V1177?.connected?.()&&trustedOutlookAccount()&&trustedOpener());
  }
  async function readProfile(profile){
   const route=w.HH_GUARDIAN_GPS_ROUTER_V1177;
@@ -80,8 +90,8 @@
   if(!CODEC||!w.crypto?.subtle||!w.crypto?.getRandomValues){
    status('⚠ Ez a böngésző nem tudja biztonságosan titkosítani a családi helyadatokat.');return;
   }
-  if(!w.HH_GUARDIAN_GPS_ROUTER_V1177?.connected?.()){
-   status('⚠ Ezen a telefonos böngészőn nincs aktív, engedélyezett Outlook Dropbox-kapcsolat. Előbb a meglévő Family Guardot csatlakoztasd.');
+  if(!w.HH_GUARDIAN_GPS_ROUTER_V1177?.connected?.()||!trustedOutlookAccount()){
+   status('⚠ Ezen a telefonos böngészőn nincs igazolt Outlook Dropbox-fiók. A korábbi Gmail-token nem használható.');
    return;
   }
   try{secret=CODEC.normalizeCode($('tvCode').value);}
@@ -99,7 +109,7 @@
       event.data?.kind!=='SHO_GUARDIAN_RO_HELPER_ACK_V1')return;
    openerVerified=true;
    $('startShare').disabled=false;
-   status(w.HH_GUARDIAN_GPS_ROUTER_V1177?.connected?.()?
+   status(w.HH_GUARDIAN_GPS_ROUTER_V1177?.connected?.()&&trustedOutlookAccount()?
     '🔐 Meglévő telefonos TV-párosítás igazolva. A kód beírásáig NINCS adatmegosztás.':
     '⚠ A TV kapcsolat igazolva, de a böngésző Outlook Dropbox-engedélye hiányzik.');
   });
