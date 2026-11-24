@@ -223,6 +223,14 @@ input[type=file]{display:none}
  stroke:#9aabbf!important;
 }
 /* Szórakozás is enabled, with the same default tile styling as other live modules. */
+
+/* Five-cell Golden dock; preserve the original outer dimensions. */
+.head .sho-unified-dock{grid-template-columns:1.03fr 1.08fr .84fr .78fr 1fr}
+.head .sho-dock-flags button{width:27.2px;min-width:27.2px;height:25.5px;font-size:19.55px}
+.head .sho-dock-flags{height:25px}
+.head #heroNotes{text-decoration:none;box-sizing:border-box}
+.head #heroNotes .sho-dock-icon{stroke:#f3d18b}
+@media(max-width:350px){.head .sho-unified-dock{grid-template-columns:1.03fr 1.08fr .84fr .78fr 1fr}.head .sho-dock-flags button{width:24.65px;min-width:24.65px;height:25.5px;font-size:17.85px}.head .sho-dock-title{font-size:9.3px}}
 </style>
 <link rel="stylesheet" href="/berlet-app/sh9/shared/lena-premium-wave-v2.css?v=2-sleep1173">
 <script defer src="/berlet-app/sh9/shared/lena-premium-wave-v2.js?v=2-owner"></script>
@@ -262,6 +270,12 @@ input[type=file]{display:none}
    <svg class="sho-dock-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="6" width="18" height="14" rx="3"/><path d="M3 10h18M15 15h3M6 6V4h12"/></svg>
    <span class="sho-dock-title">Wallet</span>
   </button>
+ </div>
+ <div class="sho-dock-cell">
+  <a id="heroNotes" class="sho-dock-action" href="/berlet-app/sh9/smart-notes/" aria-label="Smart Notes megnyitása" title="Smart Notes">
+   <svg class="sho-dock-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M3 7h4M3 12h4M3 17h4M10 8h5M10 12h5M10 16h5"/></svg>
+   <span class="sho-dock-title">SM</span>
+  </a>
  </div>
  <div class="sho-dock-cell sho-dock-language" role="group" aria-label="Nyelvválasztó">
   <div class="sho-dock-flags">
