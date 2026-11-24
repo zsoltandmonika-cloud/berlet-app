@@ -1,0 +1,44 @@
+name: Smart Notes isolated PostgreSQL validation
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'sh9/smart-notes/**'
+      - '.github/workflows/smart-notes-isolated-test.yml'
+  push:
+    branches: [feature/sho-smart-notes]
+    paths:
+      - 'sh9/smart-notes/**'
+      - '.github/workflows/smart-notes-isolated-test.yml'
+permissions:
+  contents: read
+jobs:
+  sql:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: ci-only-local
+          POSTGRES_DB: notes_ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Apply fixture and schema, assert RLS and transactions
+        env:
+          PGPASSWORD: ci-only-local
+        run: |
+          psql -v ON_ERROR_STOP=1 -h 127.0.0.1 -U postgres -d notes_ci -f sh9/smart-notes/tests/fixture.sql
+          psql -v ON_ERROR_STOP=1 -h 127.0.0.1 -U postgres -d notes_ci -f sh9/smart-notes/schema-draft.sql
+          psql -v ON_ERROR_STOP=1 -h 127.0.0.1 -U postgres -d notes_ci -f sh9/smart-notes/tests/rls.sql
+      - name: Check JavaScript syntax
+        run: |
+          node -e "const fs=require('fs');const s=fs.readFileSync('sh9/smart-notes/index.html','utf8');new Function(s.match(/<script>\\s*([\\s\\S]*?)<\\/script>/)[1]);"
+          node --check sh9/family-hub/family-tasks-v880.js

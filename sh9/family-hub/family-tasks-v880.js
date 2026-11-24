@@ -173,6 +173,11 @@ function render(){
      head.append(pose);
    }
    card.append(provenance);
+   const notesLink=button('▤ Csatolt jegyzetek','fh-smart-list-task-link',()=>{
+     w.location.assign('/berlet-app/sh9/smart-notes/?task='+encodeURIComponent(t.id));
+   });
+   notesLink.setAttribute('aria-label','Jegyzetek megnyitása: '+t.title);
+   card.append(notesLink);
    const rag=element('div','fh-rag');
    [['todo','🔴 Teendő'],['progress','🟠 Folyamatban'],['done','🟢 Kész'],['failed','⚫ Nem teljesült']].forEach(([k,name])=>{
      const b=button(name,t.status===k?'active':'',()=>{
