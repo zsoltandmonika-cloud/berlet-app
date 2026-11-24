@@ -1,0 +1,23 @@
+name: Guardian TV owner-side encrypted read-only LAB QA
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'healthhub/guardian/tv-share-lab/**'
+      - 'healthhub/tests/guardian-tv-readonly-viewer-lab.test.cjs'
+      - '.github/workflows/guardian-tv-readonly-viewer-lab.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  owner-origin-readonly-qa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Confirm source-only separate LAB files and owner-attributed E2E encryption
+        run: node --test healthhub/tests/guardian-tv-readonly-viewer-lab.test.cjs
+      # No deployment; does not touch live Guardian, Dropbox, Supabase or APK.
