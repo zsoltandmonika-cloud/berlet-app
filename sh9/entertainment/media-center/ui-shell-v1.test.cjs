@@ -18,8 +18,8 @@ function harness(){
   put:async(key,response)=>{store.set(typeof key==='string'?key:key.url,response)}
  };
  const caches={
-  open:async name=>{assert.equal(name,'sho-media-center-ui-shell-v4');return cache},
-  keys:async()=>['sho-media-center-ui-shell-v4'],
+  open:async name=>{assert.equal(name,'sho-media-center-ui-shell-v5');return cache},
+  keys:async()=>['sho-media-center-ui-shell-v5'],
   delete:async()=>true
  };
  class Request {
@@ -100,11 +100,14 @@ test('OneDrive Graph, signed media, thumbnails and unlisted local images bypass 
  }
  assert.equal(h.store.size,before);
 });
-test('navigation and known versioned UI JS are cache-first, with network refresh limited to static files',async()=>{
+test('HTML navigation revalidates online; known versioned UI JS remains cache-first',async()=>{
  const h=harness();
  await h.fire('install');
  const base=h.store.size;
+ const old={url:'retired-shell',ok:true};
+ h.store.set(SCOPE,old);
  const nav=await h.fire('fetch',h.request(SCOPE,'navigate'));
+ assert.notEqual(nav.result,old,'online navigation must not serve old cached HTML');
  assert.equal(nav.intercepted,true);
  assert.equal(nav.result.url,SCOPE);
  const code=await h.fire('fetch',h.request(SCOPE+'media-center-direct-v8.js?v=8','no-cors'));
