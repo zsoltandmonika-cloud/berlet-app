@@ -1,7 +1,7 @@
 name: SH9 Lena BKK Verified Scheduled Feed v1106
 on:
   schedule:
-    - cron: "23 3 * * *"
+    - cron: "23 3,15 * * *"
   workflow_dispatch:
   push:
     branches: [main]
@@ -35,6 +35,7 @@ jobs:
         with:
           ref: main
           persist-credentials: true
+          fetch-depth: 0
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
@@ -136,7 +137,23 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git commit -m "data(sh9): refresh verified BKK GTFS v1106 [skip ci]"
-          git push origin HEAD:main
+          # Retry concurrent main updates without overwriting other changes.
+          for attempt in 1 2 3 4 5; do
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            if [[ "$attempt" == 5 ]]; then
+              echo "::error::BKK publication failed after five attempts"
+              exit 1
+            fi
+            sleep "$((attempt * 5))"
+            git fetch origin main
+            if ! git rebase origin/main; then
+              git rebase --abort
+              echo "::error::Concurrent conflicting change; refusing to overwrite"
+              exit 1
+            fi
+          done
       - name: Audit (no health data, TripPack writes or secrets)
         run: |
           echo "Public BKK CC BY 4.0 schedule only, not real-time service."
