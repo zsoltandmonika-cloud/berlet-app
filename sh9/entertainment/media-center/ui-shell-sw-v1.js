@@ -26,13 +26,18 @@ const ARTWORK=[
  './assets/sho-tile-homecinema-v2.webp',
  './assets/sho-tile-photos-v2.webp',
  './assets/sho-tile-homevideos-approved-v3.webp',
- './assets/sho-tile-music-v2.webp'
+ './assets/sho-tile-music-v2.webp',
+ './assets/streaming-hero-approved-b.png',
+ './assets/streaming-facebook.webp',
+ './assets/streaming-youtube.webp',
+ './assets/streaming-tiktok.webp',
+ './assets/streaming-spotify.webp'
 ].map(x=>new URL(x,ROOT).href);
 const ART=new Set(ARTWORK);
 const ALLOWED=new Set([...STATIC,...ARTWORK]);
 function validType(key,response){
  const type=response.headers.get('content-type')||'';
- return ART.has(key)?type.split(';')[0].trim().toLowerCase()==='image/webp':['text/html','text/css','application/javascript','text/javascript'].includes(type.split(';')[0].trim().toLowerCase());
+ return ART.has(key)?type.split(';')[0].trim().toLowerCase()===(key.endsWith('.png')?'image/png':'image/webp'):['text/html','text/css','application/javascript','text/javascript'].includes(type.split(';')[0].trim().toLowerCase());
 }
 const ROOT_DOC=ROOT.href;
 const STREAM_DOC=new URL('streaming.html',ROOT).href;
