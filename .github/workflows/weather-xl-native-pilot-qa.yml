@@ -1,0 +1,48 @@
+name: Weather XL native pilot QA (no OTA)
+on:
+  push:
+    branches: [feat/weather-xl-native-build50]
+    paths:
+      - 'healthhub/android-bridge/**'
+      - 'sh9/weather-xl-open/**'
+      - '.github/workflows/weather-xl-native-pilot-qa.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Install Android SDK
+        run: |
+          SDKMANAGER="$(find "$ANDROID_HOME/cmdline-tools" -type f -name sdkmanager | head -1)"
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" "platforms;android-36" "build-tools;35.0.0"
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.13'
+      - name: Compile standard debug Kotlin only (no signed release)
+        working-directory: healthhub/android-bridge
+        run: gradle :app:compileDebugKotlin --stacktrace
+      - name: Guard narrow app launcher and web fallback
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import xml.etree.ElementTree as ET
+          root=Path('healthhub/android-bridge/app/src/main')
+          s=(root/'java/hu/zsoltmonika/healthhubbridge/Sh9WebActivity.kt').read_text()
+          m=ET.parse(root/'AndroidManifest.xml').getroot()
+          ns='{http://schemas.android.com/apk/res/android}'
+          assert 'com.exovoid.weather.app' in [x.get(ns+'name') for x in m.findall('./queries/package')]
+          assert 'getLaunchIntentForPackage(WEATHER_XL_PACKAGE)' in s
+          assert 'request.hasGesture()' in s and 'u.path == WEATHER_XL_ROUTE' in s
+          assert 'source.host == HOST && source.port == -1' in s
+          assert 'Intent.parseUri' not in s and 'addJavascriptInterface' not in s
+          assert 'https://www.metnet.hu/' in Path('sh9/weather-xl-open/index.html').read_text()
+          PY
