@@ -152,20 +152,20 @@
   const s=norm(raw);
   if(!s)return labelFromCode(code);
   if(/zivatar|thunder|storm/.test(s))return'Zivatar';
-  if(/ho|snow|sleet|blizzard/.test(s))return/havaseso|sleet/.test(s)?'Havas eső':'Havazás';
+  if(s.startsWith('ho')||/havaz|havas|snow|sleet|blizzard/.test(s))return/havaseso|sleet/.test(s)?'Havas eső':'Havazás';
   if(/szital|drizzle/.test(s))return'Szitálás';
   if(/zapor|shower/.test(s))return'Zápor';
   if(/eso|rain/.test(s))return/eros|heavy/.test(s)?'Erős eső':'Eső';
   if(/kod|fog|mist|haze/.test(s))return'Köd';
   if(/borult|overcast/.test(s))return'Borult';
   if(/derult|sunny|clear/.test(s))return'Derült';
-  if(/felhos|cloud/.test(s))return raw;
+  if(/felhos/.test(s))return raw;\n  if(/partly|broken|variable/.test(s))return'Változóan felhős';\n  if(/cloud/.test(s))return'Felhős';
   return raw.length<=30?raw:labelFromCode(code);
  }
  function iconFor(text,code,day){
   const s=norm(text),n=Number(code);
   if(/zivatar|thunder|storm/.test(s)||[95,96,99,200,386,389,392,395].includes(n))return'⛈️';
-  if(/ho|snow|sleet|blizzard/.test(s)||[71,73,75,77,85,86,179,182,227,230,317,320,323,326,329,332,335,338,362,365,368,371,374,377].includes(n))return'🌨️';
+  if(s.startsWith('ho')||/havaz|havas|snow|sleet|blizzard/.test(s)||[71,73,75,77,85,86,179,182,227,230,317,320,323,326,329,332,335,338,362,365,368,371,374,377].includes(n))return'🌨️';
   if(/szital|drizzle/.test(s)||[51,53,55,56,57,176,263,266,281,284].includes(n))return'🌦️';
   if(/zapor|shower/.test(s)||[80,81,82,353,356,359].includes(n))return'🌧️';
   if(/eso|rain/.test(s)||[61,63,65,66,67,293,296,299,302,305,308,311,314].includes(n))return'🌧️';
