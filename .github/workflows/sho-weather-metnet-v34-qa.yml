@@ -37,6 +37,29 @@ jobs:
         run: |
           node --check sh9/metnet-weather-adapter-v1.js
           node --check sh9/sho-preview/sho-wiring-v2.js
+      - name: Live MetNet API and browser-CORS smoke test
+        run: |
+          node - <<'NODE'
+          const weather=require('./sh9/metnet-weather-adapter-v1.js');
+          (async()=>{
+            const url='https://www.metnet.hu/api/widget/v1/most?hely=Budapest%20III.';
+            const response=await fetch(url,{headers:{accept:'application/json'}});
+            if(!response.ok) throw new Error('MetNet HTTP '+response.status);
+            const cors=response.headers.get('access-control-allow-origin');
+            if(!cors) throw new Error('MetNet API did not return an Access-Control-Allow-Origin header');
+            const payload=await response.json();
+            const result=weather.parseMetnetWeather(payload);
+            if(!result) throw new Error('MetNet response could not be parsed into a valid current temperature');
+            console.log(JSON.stringify({
+              source:result.source,
+              temperatureC:result.temp,
+              condition:result.condition,
+              nearestStation:result.stationName,
+              observedAt:result.observedAt,
+              cors
+            },null,2));
+          })().catch(error=>{console.error(error);process.exit(1)});
+          NODE
       - name: SHO regression and weather adapter tests
         run: node --test sh9/tests/sho-start-v27.test.cjs sh9/tests/sho-weather-metnet-v34.test.cjs
       - name: Verify adapter loads before the SHO wiring on both entry points
