@@ -47,6 +47,11 @@ class Sh9WebActivity : ComponentActivity() {
             "https://zsoltandmonika-cloud.github.io/berlet-app/sh9/?sh9native=1"
         private const val HOST = "zsoltandmonika-cloud.github.io"
         private const val BASE = "/berlet-app/"
+        private const val WEATHER_XL_PACKAGE = "com.exovoid.weather.app"
+        private const val WEATHER_XL_FALLBACK =
+            "https://www.metnet.hu/szamitogepes-elorejelzes/Budapest%20III."
+        private const val WEATHER_XL_ROUTE = "/berlet-app/sh9/weather-xl-open/"
+
         const val EXTRA_GOOGLE_AUTH_CODE_V1063 = "hh_google_pkce_code_v1063"
         const val EXTRA_DROPBOX_AUTH_CODE_V1063 = "hh_dropbox_pkce_code_v1063"
         const val EXTRA_DROPBOX_AUTH_STATE_V1063 = "hh_dropbox_pkce_state_v1063"
@@ -79,6 +84,28 @@ class Sh9WebActivity : ComponentActivity() {
     private var googleAuthDispatchRetries = 0
     private var dropboxAuthDispatchRetries = 0
     private var mainPageRecoveryShown = false
+
+
+    // Fixed-package launch, never an arbitrary intent or a JavaScript privilege bridge.
+    private fun launchWeatherXL() {
+        try {
+            val launch = packageManager.getLaunchIntentForPackage(WEATHER_XL_PACKAGE)
+            if (launch != null) {
+                startActivity(launch)
+                return
+            }
+        } catch (_: ActivityNotFoundException) {
+        } catch (_: SecurityException) {
+        }
+        try {
+            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(WEATHER_XL_FALLBACK))
+                .addCategory(Intent.CATEGORY_BROWSABLE))
+        } catch (_: ActivityNotFoundException) {
+            android.widget.Toast.makeText(this, "Weather XL nem elérhető", android.widget.Toast.LENGTH_SHORT).show()
+        } catch (_: SecurityException) {
+            android.widget.Toast.makeText(this, "Weather XL nem elérhető", android.widget.Toast.LENGTH_SHORT).show()
+        }
+    }
 
     private fun launchDropboxOAuth(url: Uri) {
         val state = url.getQueryParameter("state") ?: ""
@@ -512,6 +539,23 @@ class Sh9WebActivity : ComponentActivity() {
                 // REORDER_TO_FRONT resumes the existing HH One settings activity,
                 // avoiding a stack of duplicate apps or an SH9 startup loop.
                 val source = Uri.parse(view.url ?: "")
+                // Only an explicit user tap on the SHO home or isolated sandbox
+                // can open this single allowlisted external app.
+                if (request.isForMainFrame && u.scheme == "https" &&
+                    u.host == HOST && u.port == -1 && u.path == WEATHER_XL_ROUTE) {
+                    if (request.hasGesture() && source.scheme == "https" &&
+                        source.host == HOST && source.port == -1 &&
+                        source.path in setOf(
+                            "/berlet-app/sh9/", "/berlet-app/sh9/index.html",
+                            "/berlet-app/sh9/weather-sandbox-v34/",
+                            "/berlet-app/sh9/weather-sandbox-v34/index.html"
+                        )) {
+                        launchWeatherXL()
+                        return true
+                    }
+                    // Non-gesture navigations may only load the public web fallback.
+                }
+
                 if (request.isForMainFrame && u.scheme == "healthhubconnect" &&
                     u.host == "settings" &&
                     source.scheme == "https" && source.host == HOST &&
