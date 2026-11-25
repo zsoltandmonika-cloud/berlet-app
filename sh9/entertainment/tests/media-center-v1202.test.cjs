@@ -32,7 +32,7 @@ test('Media Center keeps existing media modules but removes the separate TV shor
  assert.match(media,/class="grid"/);
  assert.match(media,/https:\/\/mediaradar\.pages\.dev\//);
  assert.doesNotMatch(media,/class="media-inline-remote"|sho-family-tv\/remote\.html/);
- assert.match(media,/id="mediaLibrary"/);
+ assert.doesNotMatch(media,/id="mediaLibrary"/);
  assert.equal((media.match(/class="tile (?:cinema|photos|videos|music)"/g)||[]).length,4);
 });
 test('V2 includes real read-only OneDrive album, HomeVideo, Full Albums catalogues',()=>{
@@ -46,10 +46,10 @@ test('V2 includes real read-only OneDrive album, HomeVideo, Full Albums catalogu
  assert.match(logic,/OneDrive.*HTTP/);
  assert.doesNotMatch(logic,/SHO%20Media%20Center%20Assets/);
  assert.match(logic,/\.tile\[data-library\]/);
- assert.match(media,/id="mediaLibrary"/);
- assert.match(media,/id="mediaFiles"/);
- assert.match(media,/id="mediaAudio"/);
- assert.match(media,/id="mediaViewer"/);
+ assert.doesNotMatch(media,/id="mediaLibrary"/);
+ assert.doesNotMatch(media,/id="mediaFiles"/);
+ assert.doesNotMatch(media,/id="mediaAudio"/);
+ assert.doesNotMatch(media,/id="mediaViewer"/);
  assert.match(media,/id="mediaFullScreen"/);
  assert.match(logic,/requestFullscreen/);
  assert.match(logic,/orientation\.lock/);
@@ -200,4 +200,20 @@ test('Three personal media tiles use the exact approved OneDrive direct links, w
  tiles.push({getAttribute:k=>k==='href'?'#mediaLibrary':'legacy',addEventListener:()=>bound.push('legacy')});
  vm.runInNewContext(setup,{d:{querySelectorAll:()=>tiles}});
  assert.deepEqual(bound,['legacy']);
+});
+
+
+test('Direct-only landing removes obsolete browser, OAuth loader and personal media viewer entirely',()=>{
+ const ui=read('sh9/entertainment/media-center/media-center-direct-v8.js');
+ assert.match(media,/src="\.\/media-center-direct-v8\.js\?v=8"/);
+ assert.doesNotMatch(media,/<script[^>]+(?:onedrive-session|onedrive-media-v2\.js)/);
+ assert.doesNotMatch(media,/id="(?:mediaLibrary|mediaViewer|mediaRefresh|odMediaConnect|mediaAudio|mediaPlayer)"/);
+ assert.doesNotMatch(ui,/fetch\s*\(|graph\.microsoft|sessionStorage|localStorage|preventDefault|setInterval|SHOMediaV2/);
+ const vm=require('node:vm');
+ const tiles=Array.from({length:4},()=>({style:{setProperty(){}},classList:{add(){}}}));
+ let n=0;const button={};
+ class Image{set src(url){assert.match(url,/\/assets\/sho-tile-/);this.onload()}}
+ const document={baseURI:'https://sho.test/berlet-app/sh9/entertainment/media-center/',querySelector:()=>tiles[n++],getElementById:()=>button};
+ vm.runInNewContext(ui,{document,window:{},Image,URL});
+ assert.equal(n,4);assert.equal(typeof button.onclick,'function');
 });
