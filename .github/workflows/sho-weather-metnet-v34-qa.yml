@@ -1,0 +1,54 @@
+name: SHO MetNet Weather v34 QA
+on:
+  push:
+    branches:
+      - feat/sho-weather-metnet-v34
+    paths:
+      - 'sh9/metnet-weather-adapter-v1.js'
+      - 'sh9/sho-preview/sho-wiring-v2.js'
+      - 'sh9/index.html'
+      - 'sh9/sho-preview/index.html'
+      - 'sh9/tests/sho-start-v27.test.cjs'
+      - 'sh9/tests/sho-weather-metnet-v34.test.cjs'
+      - '.github/workflows/sho-weather-metnet-v34-qa.yml'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'sh9/metnet-weather-adapter-v1.js'
+      - 'sh9/sho-preview/sho-wiring-v2.js'
+      - 'sh9/index.html'
+      - 'sh9/sho-preview/index.html'
+      - 'sh9/tests/sho-start-v27.test.cjs'
+      - 'sh9/tests/sho-weather-metnet-v34.test.cjs'
+      - '.github/workflows/sho-weather-metnet-v34-qa.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  weather:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: JavaScript syntax
+        run: |
+          node --check sh9/metnet-weather-adapter-v1.js
+          node --check sh9/sho-preview/sho-wiring-v2.js
+      - name: SHO regression and weather adapter tests
+        run: node --test sh9/tests/sho-start-v27.test.cjs sh9/tests/sho-weather-metnet-v34.test.cjs
+      - name: Verify adapter loads before the SHO wiring on both entry points
+        run: |
+          node - <<'NODE'
+          const fs=require('node:fs');
+          for (const [file,adapter,wiring] of [
+            ['sh9/index.html','./metnet-weather-adapter-v1.js','./sho-preview/sho-wiring-v2.js'],
+            ['sh9/sho-preview/index.html','../metnet-weather-adapter-v1.js','./sho-wiring-v2.js']
+          ]) {
+            const html=fs.readFileSync(file,'utf8');
+            const a=html.indexOf(adapter), w=html.indexOf(wiring);
+            if(a<0||w<0||a>w) throw new Error('Adapter must load before wiring: '+file);
+          }
+          NODE
