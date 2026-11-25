@@ -1,13 +1,13 @@
 /* SHO Media Center · UI-only offline shell v1.
- * Persistent cache: local HTML/CSS/JavaScript ONLY, exact allowlist.
- * NEVER cache images, thumbnails, artwork, photos, music, video, posters,
+ * Persistent cache: exact local HTML/CSS/JS and four approved decorative WebPs.
+ * NEVER cache personal images, thumbnails, photos, music, video, posters,
  * OneDrive/Graph content, signed download URLs, media bytes or OAuth responses.
  * Media streaming remains native/network-driven; its transient browser playback
  * buffer is not an application-managed persistent media cache.
  * Separate scope prevents changes to Book Studio and the main SHO shell.
  */
 'use strict';
-const CACHE='sho-media-center-ui-shell-v1';
+const CACHE='sho-media-center-ui-shell-v2';
 const PREFIX='sho-media-center-ui-shell-';
 const ROOT=new URL('./',self.registration.scope);
 const STATIC=[
@@ -16,11 +16,22 @@ const STATIC=[
  './onedrive-media-v2.css?v=5-no-legacy-flash',
  './golden-six-glass-v1.css?v=20261121-six-golden-glass',
  './reference-art-v1.css?v=20261121-crop-fix-v2',
- './onedrive-media-v2.js?v=5-no-legacy-flash',
+ './onedrive-media-v2.js?v=6-static-art',
  './ui-shell-register-v1.js?v=1',
  '../book-studio/onedrive-session-v3.js'
 ].map(x=>new URL(x,ROOT).href);
-const ALLOWED=new Set(STATIC);
+const ARTWORK=[
+ './assets/sho-tile-homecinema-v2.webp',
+ './assets/sho-tile-photos-v2.webp',
+ './assets/sho-tile-homevideos-approved-v3.webp',
+ './assets/sho-tile-music-v2.webp'
+].map(x=>new URL(x,ROOT).href);
+const ART=new Set(ARTWORK);
+const ALLOWED=new Set([...STATIC,...ARTWORK]);
+function validType(key,response){
+ const type=response.headers.get('content-type')||'';
+ return ART.has(key)?/^image\\/webp(?:;|$)/i.test(type):/^(text\\/html|text\\/css|application\\/javascript|text\\/javascript)/i.test(type);
+}
 const ROOT_DOC=ROOT.href;
 const INDEX_DOC=new URL('index.html',ROOT).href;
 function keyOf(request){
@@ -38,7 +49,7 @@ function keyOf(request){
 async function updateStatic(key,request,cache){
  const response=await fetch(new Request(request,{cache:'no-store'}));
  if(response.ok&&response.type==='basic'&&
-   /^(text\/html|text\/css|application\/javascript|text\/javascript)/i.test(response.headers.get('content-type')||'')){
+   validType(key,response)){
   await cache.put(key,response.clone());
  }
  return response;
@@ -46,11 +57,11 @@ async function updateStatic(key,request,cache){
 self.addEventListener('install',event=>{
  event.waitUntil((async()=>{
   const cache=await caches.open(CACHE);
-  // No images/audio/video here, including decorative OneDrive artwork.
+  // Only four named, synthetic UI backgrounds; no personal media or arbitrary images.
   // Missing static dependencies abort installation instead of a partial shell.
-  await Promise.all(STATIC.filter(x=>x!==INDEX_DOC).map(async key=>{
+  await Promise.all([...STATIC.filter(x=>x!==INDEX_DOC),...ARTWORK].map(async key=>{
    const result=await fetch(key,{cache:'no-store',credentials:'omit'});
-   if(!result.ok||result.type!=='basic'||!/^(text\/html|text\/css|application\/javascript|text\/javascript)/i.test(result.headers.get('content-type')||'')){
+   if(!result.ok||result.type!=='basic'||!validType(key,result)){
     throw Error('Media Center UI shell file unavailable: '+new URL(key).pathname);
    }
    await cache.put(key,result);
