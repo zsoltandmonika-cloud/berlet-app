@@ -162,7 +162,7 @@ test('Media Center keeps all four primary cards and removes the standalone TV sh
 
 test('Five approved UI WebPs match the original OneDrive SHA-1 and are preloaded',()=>{
  const crypto=require('node:crypto');
- const expected={"sho-media-center-hero-approved-v3.webp":"8D5F4A9860970D40A70AC8BB70272E3B18DE9474","sho-tile-homecinema-v2.webp":"D3DA38865E02A402E9EA75FAF38524E3754CF632","sho-tile-photos-v2.webp":"D670071392993566B4FBBD4D2F70259A09A27690","sho-tile-homevideos-approved-v3.webp":"AE8A9B79464A39E2BA98E84A78301AD0BB6FF4B9","sho-tile-music-v2.webp":"9137D574B5588DE625BEFCC8F474453EBB4DA"};
+ const expected={"sho-media-center-hero-approved-v3.webp":"8D5F4A9860970D40A70AC8BB70272E3B18DE9474","sho-tile-homecinema-v2.webp":"D3DA38865E02A402E9EA75FAF38524E3754CF632","sho-tile-photos-v2.webp":"D670071392993566B4FBBD4D2F70259A09A27690","sho-tile-homevideos-approved-v3.webp":"AE8A9B79464A39E2BA98E84A78301AD0BB6FF4B9","sho-tile-music-v2.webp":"9137D574B5588DE625BEFCC8F474844453EBB4DA"};
  for(const [name,hash] of Object.entries(expected)){
   const bytes=fs.readFileSync(path.join(root,'sh9/entertainment/media-center/assets',name));
   assert.equal(bytes.toString('ascii',0,4),'RIFF');
