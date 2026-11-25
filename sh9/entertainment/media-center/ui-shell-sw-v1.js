@@ -7,7 +7,7 @@
  * Separate scope prevents changes to Book Studio and the main SHO shell.
  */
 'use strict';
-const CACHE='sho-media-center-ui-shell-v3';
+const CACHE='sho-media-center-ui-shell-v4';
 const PREFIX='sho-media-center-ui-shell-';
 const ROOT=new URL('./',self.registration.scope);
 const STATIC=[
@@ -16,9 +16,8 @@ const STATIC=[
  './onedrive-media-v2.css?v=5-no-legacy-flash',
  './golden-six-glass-v1.css?v=20261121-six-golden-glass',
  './reference-art-v1.css?v=20261121-crop-fix-v2',
- './onedrive-media-v2.js?v=7-direct-links',
- './ui-shell-register-v1.js?v=1',
- '../book-studio/onedrive-session-v3.js'
+ './media-center-direct-v8.js?v=8',
+ './ui-shell-register-v1.js?v=1'
 ].map(x=>new URL(x,ROOT).href);
 const ARTWORK=[
  './assets/sho-tile-homecinema-v2.webp',
