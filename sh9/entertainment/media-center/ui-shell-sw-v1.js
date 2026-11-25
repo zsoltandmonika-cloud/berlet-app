@@ -7,7 +7,7 @@
  * Separate scope prevents changes to Book Studio and the main SHO shell.
  */
 'use strict';
-const CACHE='sho-media-center-ui-shell-v4';
+const CACHE='sho-media-center-ui-shell-v5';
 const PREFIX='sho-media-center-ui-shell-';
 const ROOT=new URL('./',self.registration.scope);
 const STATIC=[
@@ -82,6 +82,16 @@ self.addEventListener('fetch',event=>{
  event.respondWith((async()=>{
   const cache=await caches.open(CACHE);
   const hit=await cache.match(key);
+  // A stale navigation can launch retired code. Revalidate HTML first when online;
+  // decorative assets still load cache-first, and offline navigation keeps the shell.
+  if(request.mode==='navigate'){
+   try{
+    const fresh=await updateStatic(key,request,cache);
+    if(fresh.ok&&fresh.type==='basic'&&validType(key,fresh))return fresh;
+   }catch(_){}
+   if(hit)return hit;
+   return Response.error();
+  }
   if(hit){
    // Cache First: return UI immediately; only THIS approved source file updates.
    event.waitUntil(updateStatic(key,request,cache).catch(()=>{}));
