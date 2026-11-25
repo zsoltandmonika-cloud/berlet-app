@@ -169,32 +169,30 @@ async function nameday(){
  }catch(_){$('nameDay').textContent='Névnap nem elérhető'}
 }
 
-/* SHO Weather v33: real providers, short failure retry, bounded cache.
-   The cache only reuses a verified, timestamped Budapest forecast. */
-let weatherInFlight=null,weatherRetryTimer=null;
-const WEATHER_CACHE='sho-weather-budapest-v33',WEATHER_FRESH_MS=60*60*1000;
-const WX_OPENMETEO='https://api.open-meteo.com/v1/forecast?latitude=47.4979&longitude=19.0402&current=temperature_2m,weather_code,is_day&timezone=Europe%2FBudapest&forecast_days=1';
+/* SHO Weather v34: MetNet local observations first, wttr.in as a bounded fallback.
+   MetNet's public widget API is CORS-enabled and cached by the provider. */
+let weatherInFlight=null,weatherRetryTimer=null,weatherSourceUrl='https://www.metnet.hu/szamitogepes-elorejelzes/Budapest%20III.';
+const WEATHER_CACHE='sho-weather-budapest-v34',WEATHER_FRESH_MS=60*60*1000,WEATHER_REFRESH_MS=10*60*1000;
+const WX_METNET='https://www.metnet.hu/api/widget/v1/most?hely=Budapest%20III.';
 const WX_WTTR='https://wttr.in/Budapest?format=j1';
-function weatherIcon(code,day){
- if([0,113].includes(code))return day?'☀️':'🌙';
- if([1,2,116].includes(code))return day?'🌤️':'☁️';
- if([3,119,122].includes(code))return '☁️';
- if([45,48,143,248,260].includes(code))return '🌫️';
- if([71,73,75,77,85,86,179,182,185,227,230,323,326,329,332,335,338,368,371,374,377,392,395].includes(code))return '🌨️';
- if([95,96,99,200,386,389].includes(code))return '⛈️';
- if([51,53,55,56,57,61,63,65,66,67,80,81,82,176,263,266,281,284,293,296,299,302,305,308,311,314,317,320,350,353,356,359,362,365].includes(code))return '🌧️';
- return '🌤️';
-}
+const METNET_FORECAST_URL='https://www.metnet.hu/szamitogepes-elorejelzes/Budapest%20III.';
 function showWeather(data,cached){
  if(!data||!Number.isFinite(data.temp)||data.temp< -70||data.temp>65)return false;
  const at=Date.parse(data.at||'');
  if(!Number.isFinite(at)||Date.now()-at>WEATHER_FRESH_MS||at>Date.now()+60000)return false;
- $('wxValue').textContent=weatherIcon(data.code,data.day)+' '+Math.round(data.temp)+' °C';
- $('wxSub').textContent='Budapest · '+(cached?'korábbi · ':'')+data.source;
+ const condition=String(data.condition||'Változó').slice(0,30);
+ const icon=String(data.icon||'🌤️');
+ $('wxValue').textContent=icon+' '+Math.round(data.temp)+'°C · '+condition;
+ $('wxSub').textContent='Budapest III. · '+(data.sourceLabel||data.source||'Időjárás')+(cached?' · cache':'');
  const cell=$('wxValue').closest('button');
+ weatherSourceUrl=data.sourceUrl||METNET_FORECAST_URL;
  if(cell){
   cell.dataset.weatherStatus=cached?'cached':'ready';
-  cell.title=data.source+' · '+new Intl.DateTimeFormat('hu-HU',{timeZone:'Europe/Budapest',hour:'2-digit',minute:'2-digit'}).format(new Date(at))+(cached?' (korábbi adat)':'');
+  cell.dataset.weatherProvider=data.source||'unknown';
+  const observed=data.observedAt&&Number.isFinite(Date.parse(data.observedAt))?
+   ' · mérés '+new Intl.DateTimeFormat('hu-HU',{timeZone:'Europe/Budapest',hour:'2-digit',minute:'2-digit'}).format(new Date(data.observedAt)):'';
+  const station=data.stationName?' · '+data.stationName:'';
+  cell.title=(data.source||'Időjárás')+observed+station+(cached?' · helyi gyorsítótár':'');
  }
  return true;
 }
@@ -222,44 +220,42 @@ function queueWeatherRetry(){
 }
 async function weather(force=false){
  if(weatherInFlight)return weatherInFlight;
- if(!force&&weatherAt&&Date.now()-weatherAt<10*60*1000)return;
+ if(!force&&weatherAt&&Date.now()-weatherAt<WEATHER_REFRESH_MS)return;
  weatherInFlight=(async()=>{
+  const adapter=w.SH9MetNetWeatherV1;
   let data=null;
   try{
-   const response=await requestWeather(WX_OPENMETEO),v=response.current||{};
-   if(v.temperature_2m===null||v.weather_code===null)throw Error('Missing Open-Meteo measurements');
-   const temp=Number(v.temperature_2m),code=Number(v.weather_code);
-   if(!Number.isFinite(temp)||!Number.isFinite(code)||![0,1,true,false].includes(v.is_day))throw Error('Invalid Open-Meteo response');
-   data={temp,code,day:v.is_day===1||v.is_day===true,source:'Open-Meteo',at:new Date().toISOString()};
-  }catch(_){
+   if(!adapter||typeof adapter.parseMetnetWeather!=='function')throw Error('MetNet adapter unavailable');
+   const payload=await requestWeather(WX_METNET);
+   data=adapter.parseMetnetWeather(payload);
+   if(!data)throw Error('MetNet response contains no valid current temperature');
+  }catch(primaryError){
    try{
-    const response=await requestWeather(WX_WTTR),v=response.current_condition?.[0];
-    if(v?.temp_C==null||v?.weatherCode==null||v.temp_C===''||v.weatherCode==='')throw Error('Missing wttr.in measurements');
-    const temp=Number(v.temp_C),code=Number(v.weatherCode);
-    if(!Number.isFinite(temp)||!Number.isFinite(code))throw Error('Invalid wttr.in response');
-    // WWO weatherCode and WMO codes are mapped explicitly in weatherIcon.
-    const hr=Number(new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/Budapest',hour:'numeric',hourCycle:'h23'}).format(new Date()));
-    data={temp,code,day:hr>=7&&hr<18,source:'wttr.in',at:new Date().toISOString()};
-   }catch(_){}
+    if(!adapter||typeof adapter.parseWttrWeather!=='function')throw Error('Weather adapter unavailable');
+    const payload=await requestWeather(WX_WTTR);
+    data=adapter.parseWttrWeather(payload);
+    if(!data)throw Error('wttr.in response contains no valid current temperature');
+   }catch(fallbackError){
+    console.warn('SHO weather providers unavailable',primaryError,fallbackError);
+   }
   }
   if(data&&showWeather(data,false)){
    weatherAt=Date.now();
    if(weatherRetryTimer){w.clearTimeout(weatherRetryTimer);weatherRetryTimer=null}
    try{w.localStorage.setItem(WEATHER_CACHE,JSON.stringify(data))}catch(_){}
   }else{
-   weatherAt=0; // A failed request must NOT suppress retries for ten minutes.
+   weatherAt=0;
    if(!cachedWeather()){
     $('wxValue').textContent=lang==='en'?'Unavailable':'Nem elérhető';
-    $('wxSub').textContent='Budapest · nincs friss adat';
+    $('wxSub').textContent='Budapest III. · nincs friss adat';
     const cell=$('wxValue').closest('button');
-    if(cell){cell.dataset.weatherStatus='error';cell.title='Az időjárási szolgáltatók nem elérhetők. Újrapróbálkozás 1 perc múlva.'}
+    if(cell){cell.dataset.weatherStatus='error';cell.title='A MetNet és a tartalék időjárási szolgáltató sem érhető el. Újrapróbálkozás 1 perc múlva.'}
    }
    queueWeatherRetry();
   }
  })();
  try{return await weatherInFlight}finally{weatherInFlight=null}
 }
-
 function openAsk(){
  const api=w.HH_CHATGPT_PROJECT_SHORTCUT_V712;
  if(api&&typeof api.openProject==='function')api.openProject();
@@ -287,7 +283,7 @@ d.querySelectorAll('[data-demo]').forEach(el=>el.onclick=()=>{
  const kind=el.dataset.demo;
  if(kind==='date')w.open('https://outlook.live.com/calendar/0/view/month','_blank','noopener,noreferrer');
  if(kind==='calendar')w.location.assign('https://outlook.live.com/calendar/0/view/month');
- if(kind==='weather')w.open('https://www.meteoblue.com/en/weather/week/budapest_hungary_3054643','_blank','noopener,noreferrer');
+ if(kind==='weather')w.open(weatherSourceUrl||METNET_FORECAST_URL,'_blank','noopener,noreferrer');
 });
 $('home').onclick=top;$('ask').onclick=openAsk;$('back').onclick=back;
 $('alerts').onclick=()=>goto(SH9+'notification-center/');
@@ -317,6 +313,7 @@ w.addEventListener('pageshow',()=>{
 });
 d.addEventListener('visibilitychange',()=>{if(d.visibilityState==='visible'){refreshDate();void weather()}});
 lang=get(LANG,'hu')==='en'?'en':'hu';paintProfile();paintLang();cachedWeather();void nameday();void weather();
+w.setInterval(()=>{if(!d.hidden)void weather()},WEATHER_REFRESH_MS);
 // Shared four-button dock opens the canonical SHO Wallet view from any module.
 try{
  const params=new URLSearchParams(w.location.search);
