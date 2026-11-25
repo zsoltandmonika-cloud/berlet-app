@@ -11,8 +11,8 @@
  'use strict';
  const METNET_URL='https://www.metnet.hu/szamitogepes-elorejelzes/Budapest%20III.';
  const WTTR_URL='https://wttr.in/Budapest';
- const EXCLUDED_TEMP=/(^|_)(min|max)(_|$)|feels|apparent|dew|harmat|wind|szel|humidity|para|pressure|nyomas|precip|rain|csapad|gust|uv|soil|talaj/;
- const TEMP_KEYS=['temperature','temp','temperaturec','tempc','airtemperature','homerseklet','homersekletc','t'];
+ const EXCLUDED_TEMP=/(min|max|feels|apparent|dew|harmat|wind|szel|humidity|para|pressure|nyomas|precip|rain|csapad|gust|uv|soil|talaj)/;
+ const TEMP_KEYS=['temperature','temp','temperaturec','tempc','airtemperature','airtemp','homerseklet','homersekletc','t','t2m'];
  const CONDITION_KEYS=['condition','weatherdescription','weathertext','description','leiras','weather','idokep','jelenseg','phenomenon','text','symbol','icon','state'];
  const TIME_KEYS=['observedat','observationtime','measuredat','timestamp','updatedat','lastupdate','frissitve','frissites','time','date','validtime'];
  function norm(value){
@@ -62,7 +62,7 @@
    if(EXCLUDED_TEMP.test(key))continue;
    let keyScore=-1;
    if(TEMP_KEYS.includes(key))keyScore=70;
-   else if(/(air)?temperaturec?$/.test(key)||/^homersekletc?$/.test(key))keyScore=60;
+   else if(/(temperature|temp|homerseklet)(c|value)?$/.test(key))keyScore=60;
    else if(/(^|_)temp(c)?$/.test(entry.rawKey.toLowerCase()))keyScore=55;
    else if(key==='t'&&/weather|current|station|allomas/.test(entry.path))keyScore=35;
    if(keyScore<0)continue;
