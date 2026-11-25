@@ -44,7 +44,7 @@ test('V2 includes real read-only OneDrive album, HomeVideo, Full Albums catalogu
  assert.match(logic,/verified=true/);
  assert.match(logic,/me\?\$select=mail,userPrincipalName,otherMails/);
  assert.match(logic,/OneDrive.*HTTP/);
- assert.match(logic,/SHO%20Media%20Center%20Assets/);
+ assert.doesNotMatch(logic,/SHO%20Media%20Center%20Assets/);
  assert.match(logic,/\.tile\[data-library\]/);
  assert.match(media,/id="mediaLibrary"/);
  assert.match(media,/id="mediaFiles"/);
@@ -121,7 +121,7 @@ test('V4 approved Media Center & Home Videók hero art: order, visual integrity 
  assert.match(skin,/\.mc-feature-card\.mc-v4-approved/);
  assert.match(skin,/\.mc-caption\{display:none!important\}/);
  assert.match(art,/sho-media-center-hero-approved-v3\.webp/);
- assert.match(art,/SH9_BOOK_ONEDRIVE_PERSIST_V3/);
+ assert.doesNotMatch(art,/SH9_BOOK_ONEDRIVE_PERSIST_V3|graph\.microsoft\.com/);
  assert.match(art,/\.classList\.add\('mc-v4-approved'\)/);
  assert.match(media,/<strong>🎥 Home Videók<\/strong>/);
  assert.match(homeArt,/Home Videók/);
@@ -144,7 +144,8 @@ test('V5 approved artwork stays intact; the mini TV remote is absent',()=>{
  for(const tile of ['cinema','photos','videos','music'])assert.ok(media.includes('.tile.'+tile+'{--image:linear-gradient'),tile);
  assert.equal(script.includes('Designer assets can be supplied'),false);
  assert.equal(script.includes('./assets/sho-tile-'),false);
- assert.ok(script.includes('async function updateTileArt()'));
+ assert.ok(script.includes('function updateTileArt()'));
+ assert.match(script,/new URL\('\.\/assets\/'\+names\[slug\],d\.baseURI\)/);
  assert.ok(script.includes('art.onload=function()'));
  assert.ok(fallback.includes('stable dark gradient'));
  assert.doesNotMatch(media,/class="media-inline-remote"/);
@@ -156,4 +157,27 @@ test('Media Center keeps all four primary cards and removes the standalone TV sh
  assert.doesNotMatch(media,/sho-family-tv\/remote\.html/);
  for(const name of ['cinema','photos','videos','music'])assert.match(media,new RegExp('class="tile '+name+'"'));
  assert.match(media,/id="mediaFullScreen"/);
+});
+
+
+test('Five approved UI WebPs match the original OneDrive SHA-1 and are preloaded',()=>{
+ const crypto=require('node:crypto');
+ const expected={"sho-media-center-hero-approved-v3.webp":"8D5F4A9860970D40A70AC8BB70272E3B18DE9474","sho-tile-homecinema-v2.webp":"D3DA38865E02A402E9EA75FAF38524E3754CF632","sho-tile-photos-v2.webp":"D670071392993566B4FBBD4D2F70259A09A27690","sho-tile-homevideos-approved-v3.webp":"AE8A9B79464A39E2BA98E84A78301AD0BB6FF4B9","sho-tile-music-v2.webp":"9137D574B5588DE625BEFCC8F474844453EBB4DA"};
+ for(const [name,hash] of Object.entries(expected)){
+  const bytes=fs.readFileSync(path.join(root,'sh9/entertainment/media-center/assets',name));
+  assert.equal(bytes.toString('ascii',0,4),'RIFF');
+  assert.equal(bytes.toString('ascii',8,12),'WEBP');
+  assert.equal(crypto.createHash('sha1').update(bytes).digest('hex').toUpperCase(),hash,name);
+  assert.ok((name.includes('hero')?page:media).includes('assets/'+name));
+ }
+});
+test('Media Center hero artwork loads without any Microsoft session or API calls',()=>{
+ const vm=require('node:vm');
+ const state={};
+ const tile={style:{setProperty:(k,v)=>state[k]=v},classList:{add:x=>state.className=x}};
+ class Image{set src(url){state.src=url;this.onload()}}
+ const document={baseURI:'https://sho.test/berlet-app/sh9/entertainment/',querySelector:()=>tile};
+ vm.runInNewContext(read('sh9/entertainment/media-center-approved-v4.js'),{window:{},document,URL,Image});
+ assert.match(state.src,/assets\/sho-media-center-hero-approved-v3\.webp$/);
+ assert.equal(state.className,'mc-v4-approved');
 });
