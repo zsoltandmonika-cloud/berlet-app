@@ -18,8 +18,8 @@ function harness(){
   put:async(key,response)=>{store.set(typeof key==='string'?key:key.url,response)}
  };
  const caches={
-  open:async name=>{assert.equal(name,'sho-media-center-ui-shell-v2');return cache},
-  keys:async()=>['sho-media-center-ui-shell-v2'],
+  open:async name=>{assert.equal(name,'sho-media-center-ui-shell-v3');return cache},
+  keys:async()=>['sho-media-center-ui-shell-v3'],
   delete:async()=>true
  };
  class Request {
@@ -84,6 +84,7 @@ test('OneDrive Graph, signed media, thumbnails and unlisted local images bypass 
  const before=h.store.size;
  const urls=[
   'https://graph.microsoft.com/v1.0/me/drive/items/abcdef/content',
+  'https://onedrive.live.com/my?id=private-folder',
   'https://public.dm.files.1drv.com/signed/Movie.mp4?token=private',
   'https://sho.test/berlet-app/sh9/entertainment/media-center/cover.jpg',
   'https://sho.test/berlet-app/sh9/entertainment/media-center/hero.webp',
@@ -105,7 +106,7 @@ test('navigation and known versioned UI JS are cache-first, with network refresh
  const nav=await h.fire('fetch',h.request(SCOPE,'navigate'));
  assert.equal(nav.intercepted,true);
  assert.equal(nav.result.url,SCOPE);
- const code=await h.fire('fetch',h.request(SCOPE+'onedrive-media-v2.js?v=6-static-art','no-cors'));
+ const code=await h.fire('fetch',h.request(SCOPE+'onedrive-media-v2.js?v=7-direct-links','no-cors'));
  assert.equal(code.intercepted,true);
  assert.equal(h.store.size,base);
  assert.ok(h.requests.every(x=>x.url.startsWith('https://sho.test/')));
