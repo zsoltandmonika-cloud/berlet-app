@@ -7,7 +7,7 @@
  * Separate scope prevents changes to Book Studio and the main SHO shell.
  */
 'use strict';
-const CACHE='sho-media-center-ui-shell-v5';
+const CACHE='sho-media-center-ui-shell-v6';
 const PREFIX='sho-media-center-ui-shell-';
 const ROOT=new URL('./',self.registration.scope);
 const STATIC=[
@@ -17,21 +17,30 @@ const STATIC=[
  './golden-six-glass-v1.css?v=20261121-six-golden-glass',
  './reference-art-v1.css?v=20261121-crop-fix-v2',
  './media-center-direct-v8.js?v=8',
- './ui-shell-register-v1.js?v=1'
+ './ui-shell-register-v1.js?v=1',
+ './streaming.html',
+ './streaming-golden-v1.css?v=1',
+ './streaming-nav-v1.js?v=1'
 ].map(x=>new URL(x,ROOT).href);
 const ARTWORK=[
  './assets/sho-tile-homecinema-v2.webp',
  './assets/sho-tile-photos-v2.webp',
  './assets/sho-tile-homevideos-approved-v3.webp',
- './assets/sho-tile-music-v2.webp'
+ './assets/sho-tile-music-v2.webp',
+ './assets/streaming-hero-approved-b.png',
+ './assets/streaming-facebook.webp',
+ './assets/streaming-youtube.webp',
+ './assets/streaming-tiktok.webp',
+ './assets/streaming-spotify.webp'
 ].map(x=>new URL(x,ROOT).href);
 const ART=new Set(ARTWORK);
 const ALLOWED=new Set([...STATIC,...ARTWORK]);
 function validType(key,response){
  const type=response.headers.get('content-type')||'';
- return ART.has(key)?type.split(';')[0].trim().toLowerCase()==='image/webp':['text/html','text/css','application/javascript','text/javascript'].includes(type.split(';')[0].trim().toLowerCase());
+ return ART.has(key)?type.split(';')[0].trim().toLowerCase()===(key.endsWith('.png')?'image/png':'image/webp'):['text/html','text/css','application/javascript','text/javascript'].includes(type.split(';')[0].trim().toLowerCase());
 }
 const ROOT_DOC=ROOT.href;
+const STREAM_DOC=new URL('streaming.html',ROOT).href;
 const INDEX_DOC=new URL('index.html',ROOT).href;
 function keyOf(request){
  if(request.method!=='GET')return null;
@@ -41,7 +50,7 @@ function keyOf(request){
  // parameters, media query URLs or arbitrary URL variants.
  if(request.mode==='navigate'){
   if(url.search||url.hash)return null;
-  return url.href===ROOT_DOC||url.href===INDEX_DOC?ROOT_DOC:null;
+  return url.href===STREAM_DOC?STREAM_DOC:(url.href===ROOT_DOC||url.href===INDEX_DOC?ROOT_DOC:null);
  }
  return ALLOWED.has(url.href)?url.href:null;
 }

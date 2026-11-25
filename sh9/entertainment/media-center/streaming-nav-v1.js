@@ -1,0 +1,1 @@
+(function(){'use strict';function sync(){var sub=location.hash==='#youtube';document.getElementById('home').hidden=sub;document.getElementById('youtube').hidden=!sub;}window.addEventListener('hashchange',sync);sync();})();
