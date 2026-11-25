@@ -7,7 +7,7 @@
  * Separate scope prevents changes to Book Studio and the main SHO shell.
  */
 'use strict';
-const CACHE='sho-media-center-ui-shell-v3';
+const CACHE='sho-media-center-ui-shell-v5';
 const PREFIX='sho-media-center-ui-shell-';
 const ROOT=new URL('./',self.registration.scope);
 const STATIC=[
@@ -16,9 +16,8 @@ const STATIC=[
  './onedrive-media-v2.css?v=5-no-legacy-flash',
  './golden-six-glass-v1.css?v=20261121-six-golden-glass',
  './reference-art-v1.css?v=20261121-crop-fix-v2',
- './onedrive-media-v2.js?v=7-direct-links',
- './ui-shell-register-v1.js?v=1',
- '../book-studio/onedrive-session-v3.js'
+ './media-center-direct-v8.js?v=8',
+ './ui-shell-register-v1.js?v=1'
 ].map(x=>new URL(x,ROOT).href);
 const ARTWORK=[
  './assets/sho-tile-homecinema-v2.webp',
@@ -83,6 +82,16 @@ self.addEventListener('fetch',event=>{
  event.respondWith((async()=>{
   const cache=await caches.open(CACHE);
   const hit=await cache.match(key);
+  // A stale navigation can launch retired code. Revalidate HTML first when online;
+  // decorative assets still load cache-first, and offline navigation keeps the shell.
+  if(request.mode==='navigate'){
+   try{
+    const fresh=await updateStatic(key,request,cache);
+    if(fresh.ok&&fresh.type==='basic'&&validType(key,fresh))return fresh;
+   }catch(_){}
+   if(hit)return hit;
+   return Response.error();
+  }
   if(hit){
    // Cache First: return UI immediately; only THIS approved source file updates.
    event.waitUntil(updateStatic(key,request,cache).catch(()=>{}));
