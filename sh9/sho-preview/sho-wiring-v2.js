@@ -171,7 +171,7 @@ async function nameday(){
 
 /* SHO Weather v34: MetNet local observations first, wttr.in as a bounded fallback.
    MetNet's public widget API is CORS-enabled and cached by the provider. */
-let weatherInFlight=null,weatherRetryTimer=null,weatherSourceUrl='https://www.metnet.hu/szamitogepes-elorejelzes/Budapest%20III.';
+let weatherInFlight=null,weatherRetryTimer=null;
 const WEATHER_CACHE='sho-weather-budapest-v34',WEATHER_FRESH_MS=60*60*1000,WEATHER_REFRESH_MS=10*60*1000;
 const WX_METNET='https://www.metnet.hu/api/widget/v1/most?hely=Budapest%20III.';
 const WX_WTTR='https://wttr.in/Budapest?format=j1';
@@ -185,7 +185,6 @@ function showWeather(data,cached){
  $('wxValue').textContent=icon+' '+Math.round(data.temp)+'°C · '+condition;
  $('wxSub').textContent='Budapest III. · '+(data.sourceLabel||data.source||'Időjárás')+(cached?' · cache':'');
  const cell=$('wxValue').closest('button');
- weatherSourceUrl=data.sourceUrl||METNET_FORECAST_URL;
  if(cell){
   cell.dataset.weatherStatus=cached?'cached':'ready';
   cell.dataset.weatherProvider=data.source||'unknown';
@@ -283,7 +282,7 @@ d.querySelectorAll('[data-demo]').forEach(el=>el.onclick=()=>{
  const kind=el.dataset.demo;
  if(kind==='date')w.open('https://outlook.live.com/calendar/0/view/month','_blank','noopener,noreferrer');
  if(kind==='calendar')w.location.assign('https://outlook.live.com/calendar/0/view/month');
- if(kind==='weather')w.open(weatherSourceUrl||METNET_FORECAST_URL,'_blank','noopener,noreferrer');
+ if(kind==='weather')w.location.assign(METNET_FORECAST_URL);
 });
 $('home').onclick=top;$('ask').onclick=openAsk;$('back').onclick=back;
 $('alerts').onclick=()=>goto(SH9+'notification-center/');
