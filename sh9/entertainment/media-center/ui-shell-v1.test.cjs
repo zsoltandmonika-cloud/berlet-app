@@ -18,8 +18,8 @@ function harness(){
   put:async(key,response)=>{store.set(typeof key==='string'?key:key.url,response)}
  };
  const caches={
-  open:async name=>{assert.equal(name,'sho-media-center-ui-shell-v1');return cache},
-  keys:async()=>['sho-media-center-ui-shell-v1'],
+  open:async name=>{assert.equal(name,'sho-media-center-ui-shell-v2');return cache},
+  keys:async()=>['sho-media-center-ui-shell-v2'],
   delete:async()=>true
  };
  class Request {
@@ -34,7 +34,7 @@ function harness(){
   const url=typeof req==='string'?req:req.url;
   requests.push({url,cache:opts?.cache||req.cache||'default'});
   const extension=new URL(url).pathname.split('.').at(-1);
-  const contentType=extension==='css'?'text/css':extension==='js'?'text/javascript':'text/html';
+  const contentType=extension==='css'?'text/css':extension==='js'?'text/javascript':extension==='webp'?'image/webp':'text/html';
   const response={
    type:'basic',ok:true,url,headers:{get:k=>k==='content-type'?contentType:null},
    clone(){return this}
@@ -68,17 +68,17 @@ test('Media Center registers a private UI-only SW without modifying other module
  assert.doesNotMatch(sw,/mediaCache|indexedDB|localStorage|caches\.open\('all-/i);
  assert.doesNotMatch(sw,/caches\.delete\('sh9-|caches\.delete\('sho-book/);
 });
-test('install precaches ONLY seven UI shell files; never photos, music, thumbnails or videos',async()=>{
+test('install precaches seven UI files and four exact decorative WebPs; no personal media',async()=>{
  const h=harness();
  await h.fire('install');
- assert.equal(h.store.size,7);
+ assert.equal(h.store.size,11);
  const keys=[...h.store.keys()];
  assert.ok(keys.every(x=>x.startsWith('https://sho.test/')));
- assert.ok(keys.every(x=>/\/$|\.css\?|\.js(\?|$)/.test(x)));
- assert.ok(keys.every(x=>!/\.(jpg|jpeg|png|webp|gif|svg|mp3|flac|mp4|mkv|heic)(\?|$)/i.test(x)));
+ assert.ok(keys.every(x=>/\/$|\.css\?|\.js(\?|$)|\/assets\/sho-tile-[a-z0-9-]+\.webp$/.test(x)));
+ assert.deepEqual(keys.filter(x=>x.endsWith('.webp')).map(x=>x.split('/').at(-1)).sort(),["sho-tile-homecinema-v2.webp","sho-tile-homevideos-approved-v3.webp","sho-tile-music-v2.webp","sho-tile-photos-v2.webp"]);
  assert.ok(keys.every(x=>!x.includes('graph.microsoft.com')));
 });
-test('OneDrive Graph, signed media, thumbnails and local image files bypass persistent cache completely',async()=>{
+test('OneDrive Graph, signed media, thumbnails and unlisted local images bypass persistent cache',async()=>{
  const h=harness();
  await h.fire('install');
  const before=h.store.size;
@@ -105,9 +105,15 @@ test('navigation and known versioned UI JS are cache-first, with network refresh
  const nav=await h.fire('fetch',h.request(SCOPE,'navigate'));
  assert.equal(nav.intercepted,true);
  assert.equal(nav.result.url,SCOPE);
- const code=await h.fire('fetch',h.request(SCOPE+'onedrive-media-v2.js?v=5-no-legacy-flash','no-cors'));
+ const code=await h.fire('fetch',h.request(SCOPE+'onedrive-media-v2.js?v=6-static-art','no-cors'));
  assert.equal(code.intercepted,true);
  assert.equal(h.store.size,base);
  assert.ok(h.requests.every(x=>x.url.startsWith('https://sho.test/')));
- assert.ok(h.requests.every(x=>!/\.(mp4|mp3|jpg|jpeg|png|webp|gif)(\?|$)/i.test(x.url)));
+ assert.ok(h.requests.every(x=>!/\.(mp4|mp3|jpg|jpeg|png|gif)(\?|$)/i.test(x.url)));
+});
+
+test('approved WebP is available from the isolated cache',async()=>{
+ const h=harness();await h.fire('install');
+ const r=await h.fire('fetch',h.request(SCOPE+'assets/sho-tile-music-v2.webp'));
+ assert.equal(r.intercepted,true);assert.equal(r.result.headers.get('content-type'),'image/webp');
 });
