@@ -30,7 +30,7 @@ const ART=new Set(ARTWORK);
 const ALLOWED=new Set([...STATIC,...ARTWORK]);
 function validType(key,response){
  const type=response.headers.get('content-type')||'';
- return ART.has(key)?/^image\\/webp(?:;|$)/i.test(type):/^(text\\/html|text\\/css|application\\/javascript|text\\/javascript)/i.test(type);
+ return ART.has(key)?type.split(';')[0].trim().toLowerCase()==='image/webp':['text/html','text/css','application/javascript','text/javascript'].includes(type.split(';')[0].trim().toLowerCase());
 }
 const ROOT_DOC=ROOT.href;
 const INDEX_DOC=new URL('index.html',ROOT).href;
