@@ -186,7 +186,7 @@ main{padding:9px 10px 112px}
 .pixel-hero .pixel-eyebrow{font-size:12px;letter-spacing:.19em;font-weight:850;color:#fbd783}
 .pixel-hero p{margin:0 0 17px;font-size:clamp(9px,2.7vw,12px);letter-spacing:.11em;color:#e7d7ac;font-weight:750}
 .pixel-address{display:inline-flex;align-items:center;padding:8px 12px;border:1px solid #e3b459;border-radius:99px;background:rgba(7,13,22,.65);color:#f8e4b7;font-size:clamp(11px,3.4vw,16px);font-weight:800;box-shadow:0 0 13px rgba(209,149,59,.21);max-width:100%}
-.pixel-ai-caption{position:absolute;right:12px;top:8px;z-index:3;background:rgba(6,14,25,.6);border-radius:10px;padding:4px 7px;color:#eee2c8;font-size:9px;letter-spacing:.02em}
+
 .pixel-gold-wave{z-index:3;position:absolute;bottom:-1px;left:0;width:100%;height:28px;filter:drop-shadow(0 0 9px rgba(255,190,74,.44))}
 .pixel-shortcuts{margin-top:11px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
 .pixel-shortcut{position:relative;min-width:0;min-height:111px;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:3px;padding:10px 5px 11px;overflow:hidden;background:radial-gradient(circle at 50% -12%,rgba(255,220,144,.22),transparent 65%),linear-gradient(145deg,rgba(57,57,59,.97),rgba(16,27,39,.97));border:1px solid rgba(233,185,96,.78);border-radius:17px;box-shadow:inset 0 1px rgba(255,238,204,.29),0 4px 16px rgba(0,0,0,.42),0 0 13px rgba(221,157,58,.23);color:#fff;cursor:pointer}
@@ -232,6 +232,8 @@ main{padding:9px 10px 112px}
 .pixel-featured-copy small{font-size:clamp(10px,2.75vw,12px);color:#e6d0a8;line-height:1.2;font-weight:650}
 .pixel-featured-total{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;align-items:flex-end;gap:3px;text-align:right}
 .pixel-featured-total small{font-size:11px;font-weight:800;color:#efcb87;letter-spacing:.02em}
+.pixel-paid-status{display:inline-flex;align-items:center;gap:5px;border:1px solid rgba(103,220,155,.58);border-radius:99px;padding:3px 9px;color:#a2f0ba;background:rgba(24,108,61,.25);font-size:11px;line-height:1.2;font-weight:800;box-shadow:0 0 10px rgba(72,210,132,.16);white-space:nowrap}
+.pixel-paid-status[hidden]{display:none}.pixel-paid-status[data-partial="true"]{color:#ffe09b;border-color:#d9aa58;background:rgba(144,101,31,.22);box-shadow:none}
 .pixel-featured-total strong{font-size:clamp(24px,7.3vw,34px);line-height:1.08;letter-spacing:-.045em;white-space:nowrap;font-variant-numeric:tabular-nums;color:#ffe19a;text-shadow:0 0 15px rgba(244,176,66,.42)}
 .pixel-shortcuts-secondary{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:9px}
 .pixel-shortcuts-secondary .pixel-shortcut{grid-column:auto!important;min-height:84px;padding:8px 6px}
@@ -268,14 +270,13 @@ main{padding:9px 10px 112px}
           <p>KÖLTSÉGKÖVETÉS ÉS KIADÁSKEZELÉS</p>
           <div class="pixel-address">⌖ &nbsp; Kocsis Sándor út 6/A</div>
         </div>
-        <span class="pixel-ai-caption">AI-illusztráció</span>
         <svg class="pixel-gold-wave" viewBox="0 0 800 62" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="goldWave" x1="0" x2="1"><stop stop-color="#9c5815"/><stop offset=".45" stop-color="#ffe6a2"/><stop offset="1" stop-color="#a86b22"/></linearGradient></defs><path d="M0 36 Q175 80 390 38 T800 35 L800 62 L0 62Z" fill="#0c1420"/><path d="M0 35 Q175 79 390 37 T800 34" fill="none" stroke="url(#goldWave)" stroke-width="7"/></svg>
       </div>
       <!-- Primary financial action: above the secondary tiles, directly under the hero. -->
       <button type="button" class="pixel-featured-payment" onclick="switchTab('payments')" aria-label="Havi fizetnivalók megnyitása">
         <span class="pixel-featured-icon" aria-hidden="true">▣</span>
         <span class="pixel-featured-copy"><strong>Fizetnivalók</strong><small id="dashboardMonthLabel">—</small></span>
-        <span class="pixel-featured-total"><small>Havi összesen</small><strong id="heroTotal" aria-live="polite">—</strong></span>
+        <span class="pixel-featured-total"><span class="pixel-paid-status" id="dashboardPaidStatus" hidden aria-live="polite"></span><small>Havi összesen</small><strong id="heroTotal" aria-live="polite">—</strong></span>
       </button>
       <div class="pixel-shortcuts pixel-shortcuts-secondary" aria-label="Lakásfizetnivalók további funkciók">
         <button class="pixel-shortcut" onclick="switchTab('budget')" aria-label="Kiadások megnyitása"><span class="pixel-icon" aria-hidden="true">▥</span><strong>Kiadások</strong><small>Költségkövetés</small></button>
@@ -284,7 +285,7 @@ main{padding:9px 10px 112px}
         <button class="pixel-shortcut" onclick="switchTab('report')" aria-label="Riportok megnyitása"><span class="pixel-icon" aria-hidden="true">▤</span><strong>Riportok</strong><small>Havi összesítők</small></button>
       </div>
       <div class="pixel-budget pixel-budget-standalone" aria-label="Keretfelhasználás">
-        <span class="pixel-budget-title">Keretfelhasználás: <b id="dashboardBudgetPct">—</b></span>
+        <span class="pixel-budget-title">Keretfelhasználás · 500 000 Ft <b id="dashboardBudgetPct">—</b></span>
         <div class="pixel-track"><div id="dashboardBudgetBar"></div></div>
       </div>
       <div class="pixel-bills-head"><h2>Havi fizetnivalók</h2><button type="button" onclick="switchTab('payments')">＋ Tételek szerkesztése</button></div>
@@ -447,6 +448,7 @@ const CURRENT_MONTH_KEY = getCurrentMonthKey();
 
 const EXPENSE_STORAGE_VERSION = "1.5.0";
 const EXPENSE_BUDGET_LIMIT = 740000;
+const HOUSING_MONTHLY_BUDGET = 500000;
 const EXPENSE_CATEGORIES_DEFAULT = {
   "Lakhatás": ["Lakás fizetnivaló"],
   "Élelmiszer": ["Tesco", "Auchan", "Lidl", "Spar", "Aldi", "Kifli", "Étterem"],
@@ -932,11 +934,20 @@ function renderGoldenDashboard(){
   const r=current();
   const month=el('dashboardMonthLabel');
   if(month) month.textContent=r.label;
-  const spent=sumExpensesForMonth(currentKey);
-  const pct=EXPENSE_BUDGET_LIMIT>0?Math.round(100*spent/EXPENSE_BUDGET_LIMIT):0;
+  const monthlyTotal=total(r);
+  const paidAmount=parseNum(r.paid);
+  const paidBadge=el('dashboardPaidStatus');
+  if(paidBadge){
+    const recorded=paidAmount>0;
+    const partial=recorded && paidAmount<monthlyTotal;
+    paidBadge.hidden=!recorded;
+    paidBadge.dataset.partial=String(partial);
+    paidBadge.textContent=recorded?(partial?'Részben befizetve':'✓ Befizetve'):'';
+  }
+  const pct=Math.round(100*monthlyTotal/HOUSING_MONTHLY_BUDGET);
   const pctEl=el('dashboardBudgetPct'),bar=el('dashboardBudgetBar');
   if(pctEl) pctEl.textContent=`${pct}%`;
-  if(bar) bar.style.width=Math.max(0,Math.min(100,pct))+'%';
+  if(bar) bar.style.width=Math.max(0,Math.min(100,100*monthlyTotal/HOUSING_MONTHLY_BUDGET))+'%';
   const container=el('dashboardBillRows');
   if(!container)return;
   const icon={rent:'⌂',common:'▥',electricity:'ϟ',heat:'♨',water:'≈',parking:'▣'};
