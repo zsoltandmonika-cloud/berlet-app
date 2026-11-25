@@ -64,13 +64,13 @@ test('Sleep and Activity bridge opens only canonical HealthHub modules, on expli
  assert.doesNotMatch(js.replace(/\/\/[^\n]*|\/\*[\s\S]*?\*\//g,''),/fetch\(|supabase|\.from\(/i);
 });
 
-test('SHO production unified glass dock preserves four canonical controls and critical integrations',()=>{
+test('SHO production unified glass dock preserves five canonical cells and critical integrations',()=>{
  const html=src('sh9/index.html');
  const js=src('sh9/sho-preview/sho-wiring-v2.js');
  const preview=src('sh9/sho-preview/index.html');
  assert.match(html,/class="sho-unified-dock"/);
  assert.match(html,/background:rgba\(8,42,80,\.60\)/);
- assert.equal((html.match(/class="sho-dock-cell/g)||[]).length,4);
+ assert.equal((html.match(/class="sho-dock-cell/g)||[]).length,5);
  for(const id of ['profile','tasks','heroWallet','hu','en']){
   assert.equal((html.match(new RegExp('id="'+id+'"','g'))||[]).length,1,id);
  }
@@ -96,7 +96,7 @@ test('SHO v33 hero lift and info label spacing do not touch the golden dock',()=
  const html=src('sh9/index.html');
  assert.match(html,/\.head\{background-position:50% -30px;\}/);
  assert.match(html,/\.info>button:nth-child\(-n\+2\)>strong\{margin-top:5px;\}/);
- assert.equal((html.match(/class="sho-dock-cell/g)||[]).length,4);
+ assert.equal((html.match(/class="sho-dock-cell/g)||[]).length,5);
  assert.equal((html.match(/class="tile" data-module=/g)||[]).length,12);
  assert.match(html,/id="sh9OtaIndicatorV1043"/);
  assert.match(html,/sh9-golden-bottom-nav-v924\.js/);
