@@ -25,7 +25,7 @@ test('New tiles open existing supported apps without leaking private data',()=>{
  assert.match(html,/class="tile security" href="\.\.\/\.\.\/\.\.\/healthhub\/guardian\/"/);
  assert.doesNotMatch(html,/\?token=|\?gps=|readwrite|bearer/i);
  for(const library of ['photos','videos','music'])assert.match(html,new RegExp('data-library="'+library+'"'));
- assert.match(html,/id="mediaViewer"/);
+ assert.doesNotMatch(html,/id="mediaViewer"/);
 });
 test('Media Center glass retains six cards but no separate mini TV remote',()=>{
  assert.equal((html.match(/class="media-inline-remote"/g)||[]).length,0);
