@@ -149,3 +149,11 @@ test('SHO core tiles respond before deferred JS wiring is ready',()=>{
  assert.match(wiring,/el\.onclick=\(\)=>navModule\(el\.dataset\.module\)/,
   'once ready, existing canonical click handler still replaces the native fallback');
 });
+
+
+test('weather tile always opens the requested MetNet forecast using native-compatible HTTPS navigation',()=>{
+ const js=src('sh9/sho-preview/sho-wiring-v2.js');
+ assert.ok(js.includes("const METNET_FORECAST_URL='https://www.metnet.hu/szamitogepes-elorejelzes/Budapest%20III.';"));
+ assert.ok(js.includes("if(kind==='weather')w.location.assign(METNET_FORECAST_URL);"));
+ assert.doesNotMatch(js,/weatherSourceUrl/);
+});
