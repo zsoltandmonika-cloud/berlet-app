@@ -102,15 +102,17 @@ test('SHO v33 hero lift and info label spacing do not touch the golden dock',()=
  assert.match(html,/sh9-golden-bottom-nav-v924\.js/);
 });
 
-test('SHO weather v33 retries failures and never fabricates stale readings',()=>{
+test('SHO weather v34 uses MetNet first, wttr.in fallback and bounded freshness',()=>{
  const js=src('sh9/sho-preview/sho-wiring-v2.js');
- assert.match(js,/weatherAt=0; \/\/ A failed request/);
- assert.match(js,/WX_OPENMETEO/);
+ assert.match(js,/weatherAt=0;/);
+ assert.match(js,/WX_METNET/);
  assert.match(js,/WX_WTTR/);
+ assert.doesNotMatch(js,/WX_OPENMETEO|api\\.open-meteo\\.com/);
+ assert.match(js,/WEATHER_CACHE='sho-weather-budapest-v34'/);
  assert.match(js,/WEATHER_FRESH_MS=60\*60\*1000/);
+ assert.match(js,/WEATHER_REFRESH_MS=10\*60\*1000/);
  assert.match(js,/queueWeatherRetry\(\)/);
- assert.match(js,/data\.temp>65/);
- assert.match(js,/v\.temperature_2m===null/);
+ assert.match(js,/SH9MetNetWeatherV1/);
  assert.match(js,/AbortController/);
 });
 
