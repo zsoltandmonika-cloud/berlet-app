@@ -184,7 +184,7 @@ test('Media Center hero artwork loads without any Microsoft session or API calls
 
 
 test('Three personal media tiles use the exact approved OneDrive direct links, without JavaScript interception',()=>{
- const expected={"photos":"https://onedrive.live.com/my?id=%2Fpersonal%2Fbc1ff24af37ea2b0%2FDocuments%2FK%C3%A9pek&viewid=eea57816%2D1182%2D48b0%2Da1cf%2D972d7f1f0041","videos":"https://onedrive.live.com/my?id=%2Fpersonal%2Fbc1ff24af37ea2b0%2FDocuments%2FVideos%2FHomeVideo&viewid=eea57816%2D1182%2D48b0%2Da1cf%2D972d7f1f0041","music":"https://onedrive.live.com/my?id=%2Fpersonal%2Fbc1ff24af37ea2b0%2FDocuments%2FZene%2FFull%20Albums&sortField=LinkFilename&isAscending=true&viewid=eea57816%2D1182%2D48b0%2Da1cf%2D972d7f1f0041"};
+ const expected={"photos":"https://onedrive.live.com?cid=BC1FF24AF37EA2B0&id=BC1FF24AF37EA2B0!106","videos":"https://onedrive.live.com?cid=BC1FF24AF37EA2B0&id=BC1FF24AF37EA2B0!111","music":"https://onedrive.live.com?cid=BC1FF24AF37EA2B0&id=BC1FF24AF37EA2B0!146"};
  const logic=read('sh9/entertainment/media-center/onedrive-media-v2.js');
  for(const [kind,url] of Object.entries(expected)){
   const tag=media.match(new RegExp('<a class="tile '+kind+'"[^>]*>'))[0];
