@@ -1,225 +1,226 @@
 {
   "schemaVersion": 1,
-  "date": "2026-11-23",
-  "generatedAt": "2026-11-23T15:48:11+01:00",
-  "headline": "A reggel fő témái: Russian warship hit by Ukrainian drones in Libya, Zelensky says; Longest-ever UN climate talks end with no deal as deep divisions exposed",
+  "date": "2026-11-25",
+  "generatedAt": "2026-11-25T15:30:34+01:00",
+  "headline": "A reggel fő témái: Russia's own figures show it has lost nearly 500,000 people in Ukraine war; My family were killed in Ukraine. My mum blamed Zelensky's troops - the truth is complicated",
   "sections": [
     {
       "id": "executive",
       "title": "Vezetői összefoglaló",
       "items": [
-        "BBC World: Russian warship hit by Ukrainian drones in Libya, Zelensky says",
-        "BBC World: Longest-ever UN climate talks end with no deal as deep divisions exposed",
-        "BBC World: Israeli attacks have turned Gaza into 'toxic wasteland', Oxfam says",
-        "BBC World: Boy, 7, pulled alive from rubble hours after Russian strike on Ukraine, rescuers say"
+        "BBC World: Russia's own figures show it has lost nearly 500,000 people in Ukraine war",
+        "BBC World: My family were killed in Ukraine. My mum blamed Zelensky's troops - the truth is complicated",
+        "BBC World: US attorney general dodges questions about Nvidia investigation",
+        "BBC World: Close-up images to be revealed of asteroid deliberately hit to test ability to protect Earth"
       ]
     },
     {
       "id": "overnight",
       "title": "Éjszakai fejlemények",
       "items": [
-        "BBC World: Russian warship hit by Ukrainian drones in Libya, Zelensky says",
-        "BBC World: Longest-ever UN climate talks end with no deal as deep divisions exposed",
-        "BBC World: Israeli attacks have turned Gaza into 'toxic wasteland', Oxfam says"
+        "BBC World: Russia's own figures show it has lost nearly 500,000 people in Ukraine war",
+        "BBC World: US attorney general dodges questions about Nvidia investigation",
+        "BBC World: Close-up images to be revealed of asteroid deliberately hit to test ability to protect Earth"
       ]
     },
     {
       "id": "geopolitics",
       "title": "Külpolitika / Geopolitika",
       "items": [
-        "BBC World: Russian warship hit by Ukrainian drones in Libya, Zelensky says",
-        "BBC World: Longest-ever UN climate talks end with no deal as deep divisions exposed",
-        "BBC World: Israeli attacks have turned Gaza into 'toxic wasteland', Oxfam says"
+        "BBC World: Russia's own figures show it has lost nearly 500,000 people in Ukraine war",
+        "BBC World: My family were killed in Ukraine. My mum blamed Zelensky's troops - the truth is complicated",
+        "BBC World: US attorney general dodges questions about Nvidia investigation"
       ]
     },
     {
       "id": "hungary",
       "title": "Magyarország",
       "items": [
-        "Magyarország Kormánya: Magyar Péter: Ukrajna felé és Brüsszelben is szót emelünk a magyarokért - Magyarország Kormánya",
-        "Facebook: Magyarország Kormánya. . Miniszterelnöki viszontválasz – napirend előtt - Facebook",
-        "Economx: Magyar Péter: Magyarország nem tudja elfogadni az uniós költségvetést - Economx"
+        "Qubit: Elkészült Magyarország melegedési térképe - Qubit",
+        "Magyarország Kormánya: A nők elleni erőszak visszaszorítása: az átfogó intézkedésekig vezető út - Magyarország Kormánya",
+        "| hvg.hu: Gazdaság: Vízügyi fordulatra készül Magyarország, az izraeli sivatagból hozzák a tudást - | hvg.hu"
       ]
     },
     {
       "id": "economy",
       "title": "Gazdaság / Piacok",
       "items": [
-        "BBC Business: Capita shares plunge 70% as boss quits after civil service pensions failure",
-        "BBC Business: Catering giant to switch main share listing to US in further blow to UK",
-        "BBC Business: Next data accessed in cyber breach"
+        "BBC Business: Energy bills to rise by 26% from January after gas prices surge",
+        "BBC Business: Energy bills will soar - here's how you can ease the pain",
+        "BBC Business: What will the energy cap changes mean for my bills?"
       ]
     },
     {
       "id": "technology",
       "title": "Technológia / AI",
       "items": [
-        "BBC Technology: GTA 6 hacker released on licence with warning 'don't let this happen again'",
-        "BBC Technology: San Francisco is enjoying an AI boom, but worries about a crash are growing"
+        "BBC Technology: Huawei found guilty of stealing US trade secrets but acquitted of racketeering",
+        "BBC Technology: EA adds AI-generated John Motson to FC 27 video game",
+        "BBC Technology: Zoe Kleinman: Nobody is irreplaceable - unless you're Jensen Huang"
       ]
     },
     {
       "id": "risks",
       "title": "Mai kockázatok",
       "items": [
-        "Figyelmi pont: Russian warship hit by Ukrainian drones in Libya, Zelensky says (BBC World).",
-        "Figyelmi pont: Israeli attacks have turned Gaza into 'toxic wasteland', Oxfam says (BBC World).",
-        "Figyelmi pont: Boy, 7, pulled alive from rubble hours after Russian strike on Ukraine, rescuers say (BBC World)."
+        "Figyelmi pont: Russia's own figures show it has lost nearly 500,000 people in Ukraine war (BBC World).",
+        "Figyelmi pont: Close-up images to be revealed of asteroid deliberately hit to test ability to protect Earth (BBC World).",
+        "Figyelmi pont: EA adds AI-generated John Motson to FC 27 video game (BBC Technology)."
       ]
     },
     {
       "id": "watch",
       "title": "Mi számít igazán / Figyelmi szint",
       "items": [
-        "BBC World: Russian warship hit by Ukrainian drones in Libya, Zelensky says",
-        "BBC World: Longest-ever UN climate talks end with no deal as deep divisions exposed"
+        "BBC World: Russia's own figures show it has lost nearly 500,000 people in Ukraine war",
+        "BBC World: My family were killed in Ukraine. My mum blamed Zelensky's troops - the truth is complicated"
       ]
     }
   ],
   "sources": [
     {
-      "title": "Russian warship hit by Ukrainian drones in Libya, Zelensky says",
+      "title": "Russia's own figures show it has lost nearly 500,000 people in Ukraine war",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cr894gjz0j0yo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-23"
+      "url": "https://www.bbc.co.uk/news/articles/cmx27g533zwyo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-25"
     },
     {
-      "title": "Longest-ever UN climate talks end with no deal as deep divisions exposed",
+      "title": "My family were killed in Ukraine. My mum blamed Zelensky's troops - the truth is complicated",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cqwy06zrd26lo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-23"
+      "url": "https://www.bbc.co.uk/news/articles/cw24e17v9e51o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-25"
     },
     {
-      "title": "Israeli attacks have turned Gaza into 'toxic wasteland', Oxfam says",
+      "title": "US attorney general dodges questions about Nvidia investigation",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/c8r4gzzxvxl3o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-23"
+      "url": "https://www.bbc.co.uk/news/articles/crpdw1qx7jgxo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-25"
     },
     {
-      "title": "Boy, 7, pulled alive from rubble hours after Russian strike on Ukraine, rescuers say",
+      "title": "Close-up images to be revealed of asteroid deliberately hit to test ability to protect Earth",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cqdr15l32d3go?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-23"
+      "url": "https://www.bbc.co.uk/news/articles/cw8dv112r5gmo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-25"
     },
     {
-      "title": "Flights and train services cancelled in Belgium due to strike",
+      "title": "Thomas Markle charged in US for possessing child sex abuse images",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cwdr155e2d05o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-23"
+      "url": "https://www.bbc.co.uk/news/articles/crwy4egxn592o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-25"
     },
     {
-      "title": "Mexican soldiers attacked in wake of drug lord's arrest",
+      "title": "Colombian police storm supermarket to free 20 held hostage for 17 hours",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/c5rmgkv2lk73o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-23"
+      "url": "https://www.bbc.co.uk/news/articles/ckp80mjr9emyo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-25"
     },
     {
-      "title": "Miley Cyrus marries Maxx Morando in California ceremony",
+      "title": "Huawei found guilty of stealing US trade secrets but acquitted of racketeering",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cq8e0p87l89lo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-22"
+      "url": "https://www.bbc.co.uk/news/articles/cmy49ngydqzpo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-25"
     },
     {
-      "title": "Kenya and DR Congo agree to restore ties after tensions over conflict",
+      "title": "Veteran Nigerian Nollywood actor Pete Edochie dies aged 79",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cmvg2qnn95vro?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-23"
+      "url": "https://www.bbc.co.uk/news/articles/cqwy0rr4rr4yo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-25"
     },
     {
-      "title": "Magyar Péter: Ukrajna felé és Brüsszelben is szót emelünk a magyarokért - Magyarország Kormánya",
+      "title": "Elkészült Magyarország melegedési térképe - Qubit",
+      "publisher": "Qubit",
+      "url": "https://news.google.com/rss/articles/CBMieEFVX3lxTE5paGw5bXlSSHpJTzM2SnZtN1pwNmlpWURubk9fd19HTlJCVU81UklITjdXYlUyRk9OX2ZYSDkzVWN0S2U1ZEVrR1JuTXZTVWVHX2tqV3I2TEpuX1JCcW5WV3d4R2NQYV9IenZuOXJvLW56UDZ2SGJRMQ?oc=5",
+      "publishedAt": "2026-11-25"
+    },
+    {
+      "title": "A nők elleni erőszak visszaszorítása: az átfogó intézkedésekig vezető út - Magyarország Kormánya",
       "publisher": "Magyarország Kormánya",
-      "url": "https://news.google.com/rss/articles/CBMimwFBVV95cUxQOFpXNS1uakZ2Yjl3RVpYMTkyclZkLVFuVHFUNWp1UEN4SXpNQ3RDNW95YjdhblNUcG9BX3RrM2ZMTUZidUk0RnNZX2VUbk9EZzVtWEd6ODNRaU9qVEdZUzRzNkxaRnVzM2MyM1cyalN4Q2RpRVliVWpGZnFtcFFva2oyX3JsZy1Ca3dVUU4wbk40VWROdTVMendyVQ?oc=5",
-      "publishedAt": "2026-11-23"
+      "url": "https://news.google.com/rss/articles/CBMinAFBVV95cUxPRXZoeHRKRVd4blh4d0tVcTNmYzEzSUFFTUFreGIwSDVEb1A1M3d4SHBLZlNraHlWU09VZk1IUXBrVG9zVmdPa2xyZWFSTHJUUkxmQ3oyVDB3Z2xTVXdCZ1d0WVc3ZVNpS0tmYkE1MkRpTXM2YXVYYjlYZm1ILTNpNWh2Z3dRNEFVdnEzY19SUnZpWHdDTTdQZ1Jnblk?oc=5",
+      "publishedAt": "2026-11-25"
     },
     {
-      "title": "Magyarország Kormánya. . Miniszterelnöki viszontválasz – napirend előtt - Facebook",
+      "title": "Gazdaság: Vízügyi fordulatra készül Magyarország, az izraeli sivatagból hozzák a tudást - | hvg.hu",
+      "publisher": "| hvg.hu",
+      "url": "https://news.google.com/rss/articles/CBMiygFBVV95cUxQWUx6Um1ndTRaNjY5NHJWOE83cWZETDVXN19Wa1FfYWFrUFc3NVN0NS01RHRRTlFZUnNHeElYZ21CbnpBQUFjdFFIV0o0c3VnR0tvUTNhR0tYemtlMEFMSldxWWFNN1lyT3Z0Uk5yNmxNUnJMdGwzWEZueHQ0RDhwNk9NbDZBRmhXQmpUSVFBYXpvSHVkT3dULS1ZSFduQmxGX0s2cF9MWWduZWRIQ3k5eDZ3XzRxTllnS2dpU09KWXVjNUxIYlhWcFB3?oc=5",
+      "publishedAt": "2026-11-25"
+    },
+    {
+      "title": "Járvány ütötte fel a fejét Kárpátalján, azonnal lépett Magyarország - Economx.hu",
+      "publisher": "Economx.hu",
+      "url": "https://news.google.com/rss/articles/CBMiowFBVV95cUxQQTZVNFktaWF6Wlo1blJFaVR4UEdacnVfN3Q5QnNQdDk1OFp1MlNnYWg0X1h5QXpSeWVTeXFjcXRIYWZtS2R4b3RuT3djeWJXM3NvbU9kQmFfU24zWmJKU3V3dVE2T0VNOERVVl9HbDZHVWZRRG51UEZIWThMeG1qOF9CWG1UYUxxQ3h4YTRadUpwcGdMTVNKbURnenZlOTBzVUdZ?oc=5",
+      "publishedAt": "2026-11-25"
+    },
+    {
+      "title": "Visszatér Magyarország ikonikus népautója, a Suzuki Ignis: teljesen új köntösben éled újjá a legendás kisautó - Pénzcentrum",
+      "publisher": "Pénzcentrum",
+      "url": "https://news.google.com/rss/articles/CBMi7AFBVV95cUxOSy1MS09Jb0lDay1FRmRwX1pMbE5QTXpTVGh1YXNnQXRSdmRZeXI1b1hnR3htN1cxSzhkUXJxVnJrZmJlWGswSjZ6WFdzRUx3S3I1Wm1SRy14d0pkQ0dtSVRNV0FyRDhxd2MteXI4VnllTnN1UWJzX242ZXJoUHg5RWZRQlZZSlRLUGxOZlhseHRpUEdpQVIwNko4el9VbGxzamNWdVRXVVNZTXQ4c1psQzd6WXFSejVOWjRreFpwM3NLUm8tbTBFWE10cUZMSTItdW1RYmxIN0hJLWl4VkZ3YUZMZlBPXzFqNUxXZQ?oc=5",
+      "publishedAt": "2026-11-25"
+    },
+    {
+      "title": "Magyarország Kormánya - Facebook",
       "publisher": "Facebook",
-      "url": "https://news.google.com/rss/articles/CBMivAFBVV95cUxOSEhJQzFGdkY3d01rQnNrSVZrMXItRE1RRlZva1o2cU03UXd2QWRRZ1V4cUNYbTFOblpHTklQV2dNMi1KeFVYNkxPVVdoQ2FVMjFKcWh5T01GajFnQm1CQ2ZKR1k3NS1WaXM1UnFsWERvWTNtaWtvbzA0Tl9qNGhwcldkcy01WGxpdHpYbzk4b3VST1NfR2JVYUZ2VXZOanBzTlludFAwX1dvQk94bEV0ZVIwck9xZzVuanVtUg?oc=5",
-      "publishedAt": "2026-11-23"
+      "url": "https://news.google.com/rss/articles/CBMia0FVX3lxTFBOYmJuUGxiaHZXU2Z1UEVSdVJtT2I4cjhsMjRSQlVPWFhnV05mQS0xeS1lRUVuakU0bW9iQTE4REl3Y190eTItcElZczhseU1JSWFTOUdHRHdhQWIzbmNWX3hPUjZtdTF4NWlj?oc=5",
+      "publishedAt": "2026-11-25"
     },
     {
-      "title": "Magyar Péter: Magyarország nem tudja elfogadni az uniós költségvetést - Economx",
-      "publisher": "Economx",
-      "url": "https://news.google.com/rss/articles/CBMipgFBVV95cUxQbmVreWdURkYyWkFCYlBmQWg1MTVmWjh0S0lfcTktUWp1bHBjd3pDZmwtNm5FRDhsc1JzT3VNQjB1NklQc2x6VnVEdUVkOXM0MkZ1QmNodjNlYU1qY2taclA4emxvcTgwb3R5Ym9zQmQteXBtaDVLN1ZHdmNnTDduRWtVbThORDJoV3pyVGFXRlpJWXllbW4wbXRQVVVtYnBrRUo4bllR?oc=5",
-      "publishedAt": "2026-11-23"
+      "title": "A Spar vezetője szerint az árrésstop kivezetése még nem jelenti, hogy fellélegezhetnének - Telex",
+      "publisher": "Telex",
+      "url": "https://news.google.com/rss/articles/CBMiowFBVV95cUxNWExCRTNuaVdhSjRYRllhUHpPc2VnOGo3NUZRUEJibWphcFhDbjVfcER6OUxSZDB1cXJEdDJNa1ozMjltMkJ3QmdMb0Z0V3hqREZKdk1Lb1Vxa3lmNEo2WVpRcUpYQnEtZWZWSmNMelF6NVdSQ3ZTY0E4bkhOd0FVSFNIWVdYRHNFWXpGVFg3bE5oM1lqNG5XemU2TTBOb3ladmxJ?oc=5",
+      "publishedAt": "2026-11-25"
     },
     {
-      "title": "Már a saját bőrünkön érezzük: megváltozott Magyarország éghajlata? - Agroinform",
-      "publisher": "Agroinform",
-      "url": "https://news.google.com/rss/articles/CBMihAFBVV95cUxNUVhreWNFNDJhLUtrakpTWThVNzBDbHliOWpqblJjclBuY3dCVUk0ZTZRQ1ZaYXFxTlVYeDAzc3hzSElUOW5hOXMzVnhPaGd6OWlkZ1VQQ1gxMHk4Y1BXcWNzeHBYSzNiRmd0MkpRWE1iQm9FYUNPaVZYVzU4WFY1ZzlCTkrSAYoBQVVfeXFMT0MxeTh2WkdTTGhKVVg3ekQ0ZFFVcXJCendWYTVEMkVtazR5TzhMT2lVM2pYeFJETlFrZUhaYWtXZXJXSEZjbUluWjlLUmpHWk9ZMjI4NXY1cEpOd082V2hKT19yRktUUHlVbmZCeUwwUXZGanBrN3BRWXpIa3dCRUJPcXI2ZEFsNUR3?oc=5",
-      "publishedAt": "2026-11-23"
+      "title": "Személyes találkozások, új üzleti lehetőségek – magyar részvétel az IBTM World kiállításon - Turizmus.com",
+      "publisher": "Turizmus.com",
+      "url": "https://news.google.com/rss/articles/CBMiyAFBVV95cUxPZUxTb05wV1NyWXJUTEt2bmlkbFlKM3hHS0ZndlJoQUxDNTMxcndzbEUxOVlXOEhBa3hURXJGc19rdUZpTTRacDRMTTVmdjB0ckIyajVxUENFZnBPSWI3LVp2MG5xS0Q0WEJiWWt0M3JBdTJEV1RXUjJZRnJhT2U4UzBhMkJXNk9FT2VVc1FYMmN5alhFMDBjOE1mSC00TE55TFRtZExfZ1VRRl9PTUZsRVlIZHowc2pjTHFRbEY0N0JsX3ZGemQyVQ?oc=5",
+      "publishedAt": "2026-11-25"
     },
     {
-      "title": "Hatalmas meglepetést hozott a podcast piac globális felmérése, Afrika tarolt, Magyarország a 39. - Piac&Profit",
-      "publisher": "Piac&Profit",
-      "url": "https://news.google.com/rss/articles/CBMi1gFBVV95cUxPWGZyZGNpdHFDb1pjcnNuZWJ1enpSZk9XZ25SeVg3dUlpWTByRzRfQUxQSGVoaVVhc0psbXJfd2lJUzBUSWNBYzg1OUhLeW1xZ3U4X1FFb0x5amdoTGNKeWtlSlVjTjV2c2djbEJnR0lPdHEtWS1OakJWVmFfMVEwNDg0U3o3SERWNzBPenM1aHMwS1c5RUVBWk9IalBXQzRQdDR6U083SU1FRGN1VTZNY0xKcGNueTVyMTNWQzduR2tIWEk3cXRuaVl6Tkh6Vk1aaEo1LU1B?oc=5",
-      "publishedAt": "2026-11-23"
-    },
-    {
-      "title": "Magyarország az autóiparra tette fel a jövője egy részét – most jön az igazi próbatétel - Autoszektor",
-      "publisher": "Autoszektor",
-      "url": "https://news.google.com/rss/articles/CBMivgFBVV95cUxONnFzeGkyY0o3eUNTdm5fOVJDSkRVMGJWZFhYVXl2cWRaYk5rQmd4S01XMU1BRnZBUE9RekhrWDJ6TmIyNHpmTHpvLV81d1VNd3E1THVueTlHX0tjWTE5MHRMS2xlVEppYkhQWEZnYS1pOFJDcVFEbFE0bHk2bmIwQWQ3ZUFPeTNiandBOE1QNExJYllDbG03aWhvZ1luRkVUd1dPN0lCTjdrUXgteTVIM0c5aGNNZWxyV1ZKbmxB?oc=5",
-      "publishedAt": "2026-11-23"
-    },
-    {
-      "title": "Ezek lettek Magyarország legjobb munkahelyei - MMOnline",
-      "publisher": "MMOnline",
-      "url": "https://news.google.com/rss/articles/CBMiekFVX3lxTE1GaVZvbllxUndHRkd5TTM5dlhRTU1hWWYyNnptdnNHbkhTUkVKSS1HTnFyME1wRzNYMFVGTVh3a0ZLQkU3SVc2Tnh0LVZJMklLd1VPTzR1bXlJeXdNU2NZVHJNOFN0endmeHkzTWFfTXk3VWI1QVlWS05B?oc=5",
-      "publishedAt": "2026-11-23"
-    },
-    {
-      "title": "Továbbra is veretlen a magyar női kosárlabda válogatott az Eb selejtező csoportjában. - Magyar Olimpiai Bizottság",
-      "publisher": "Magyar Olimpiai Bizottság",
-      "url": "https://news.google.com/rss/articles/CBMipwFBVV95cUxOVXROXzJJUi1HUUFheVFQN3RxblNGQklnWGRMX0tOQTlYZXloTFJiVnU4YVlIYlYzWFFJb2tHQS1TWWtNY1lTMDdDN0k0UTVZUkdwWFRZMUZMYlZZNmlxVVptd29WTWhTMzZVamtNSHNfTHZqazNyV1dORV8zc05CVlJjYVp1dVFRcHZDQTdXTTZhbzhuRGNUT090N3lzaHNjRW9WVkN4SQ?oc=5",
-      "publishedAt": "2026-11-23"
-    },
-    {
-      "title": "Capita shares plunge 70% as boss quits after civil service pensions failure",
+      "title": "Energy bills to rise by 26% from January after gas prices surge",
       "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/c65y1qqw3kjxo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-23"
-    },
-    {
-      "title": "Catering giant to switch main share listing to US in further blow to UK",
-      "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/ckz74098jq5po?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-23"
-    },
-    {
-      "title": "Next data accessed in cyber breach",
-      "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/cqj3kjr7ez3vo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-23"
+      "url": "https://www.bbc.co.uk/news/articles/cm20qnq33e90o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-25"
     },
     {
       "title": "Energy bills will soar - here's how you can ease the pain",
       "publisher": "BBC Business",
       "url": "https://www.bbc.co.uk/news/articles/crm4rygl4m3o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-23"
+      "publishedAt": "2026-11-25"
     },
     {
-      "title": "San Francisco is enjoying an AI boom, but worries about a crash are growing",
+      "title": "What will the energy cap changes mean for my bills?",
       "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/cqe9k09j9jv4o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-23"
+      "url": "https://www.bbc.co.uk/news/articles/cdd29v8mp9jo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-25"
     },
     {
-      "title": "Poundland is facing collapse - what's gone wrong?",
+      "title": "'I only use the washing machine on a Sunday' - how we're keeping our energy bills down",
       "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/cm4g10p2r0g9o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-23"
+      "url": "https://www.bbc.co.uk/news/articles/c820qnznkrn4o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-25"
     },
     {
-      "title": "Pip assessments need 'fundamental overhaul', report to say",
+      "title": "Why tiny cars are taking off across Europe",
       "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/cvlyj3rn201xo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-23"
+      "url": "https://www.bbc.co.uk/news/articles/cmwy9jne0g7qo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-25"
     },
     {
-      "title": "South East Water reports loss after supply issues",
+      "title": "Zoe Kleinman: Nobody is irreplaceable - unless you're Jensen Huang",
       "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/c6n90j1qxel8o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-23"
+      "url": "https://www.bbc.co.uk/news/articles/c3rrgqj2zx5yo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-25"
+    },
+    {
+      "title": "US announces new tariffs on host of countries including China",
+      "publisher": "BBC Business",
+      "url": "https://www.bbc.co.uk/news/articles/c893r9ke5p97o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-25"
+    },
+    {
+      "title": "Trump's rescue of Nvidia's Huang brings political risks",
+      "publisher": "BBC Business",
+      "url": "https://www.bbc.co.uk/news/articles/ckj05m2zdyryo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-25"
     }
   ]
 }
