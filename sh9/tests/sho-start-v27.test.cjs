@@ -107,7 +107,7 @@ test('SHO weather v34 uses MetNet first, wttr.in fallback and bounded freshness'
  assert.match(js,/weatherAt=0;/);
  assert.match(js,/WX_METNET/);
  assert.match(js,/WX_WTTR/);
- assert.doesNotMatch(js,/WX_OPENMETEO|api\\.open-meteo\\.com/);
+ assert.doesNotMatch(js,/WX_OPENMETEO|open-meteo/);
  assert.match(js,/WEATHER_CACHE='sho-weather-budapest-v34'/);
  assert.match(js,/WEATHER_FRESH_MS=60\*60\*1000/);
  assert.match(js,/WEATHER_REFRESH_MS=10\*60\*1000/);
