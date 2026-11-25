@@ -159,7 +159,9 @@
   if(/kod|fog|mist|haze/.test(s))return'Köd';
   if(/borult|overcast/.test(s))return'Borult';
   if(/derult|sunny|clear/.test(s))return'Derült';
-  if(/felhos/.test(s))return raw;\n  if(/partly|broken|variable/.test(s))return'Változóan felhős';\n  if(/cloud/.test(s))return'Felhős';
+  if(/felhos/.test(s))return raw;
+  if(/partly|broken|variable/.test(s))return'Változóan felhős';
+  if(/cloud/.test(s))return'Felhős';
   return raw.length<=30?raw:labelFromCode(code);
  }
  function iconFor(text,code,day){
