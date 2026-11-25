@@ -158,3 +158,26 @@ test('Media Center keeps all four primary cards and removes the standalone TV sh
  for(const name of ['cinema','photos','videos','music'])assert.match(media,new RegExp('class="tile '+name+'"'));
  assert.match(media,/id="mediaFullScreen"/);
 });
+
+
+test('Five approved UI WebPs match the original OneDrive SHA-1 and are preloaded',()=>{
+ const crypto=require('node:crypto');
+ const expected={"sho-media-center-hero-approved-v3.webp":"8D5F4A9860970D40A70AC8BB70272E3B18DE9474","sho-tile-homecinema-v2.webp":"D3DA38865E02A402E9EA75FAF38524E3754CF632","sho-tile-photos-v2.webp":"D670071392993566B4FBBD4D2F70259A09A27690","sho-tile-homevideos-approved-v3.webp":"AE8A9B79464A39E2BA98E84A78301AD0BB6FF4B9","sho-tile-music-v2.webp":"9137D574B5588DE625BEFCC8F474453EBB4DA"};
+ for(const [name,hash] of Object.entries(expected)){
+  const bytes=fs.readFileSync(path.join(root,'sh9/entertainment/media-center/assets',name));
+  assert.equal(bytes.toString('ascii',0,4),'RIFF');
+  assert.equal(bytes.toString('ascii',8,12),'WEBP');
+  assert.equal(crypto.createHash('sha1').update(bytes).digest('hex').toUpperCase(),hash,name);
+  assert.ok((name.includes('hero')?page:media).includes('assets/'+name));
+ }
+});
+test('Media Center hero artwork loads without any Microsoft session or API calls',()=>{
+ const vm=require('node:vm');
+ const state={};
+ const tile={style:{setProperty:(k,v)=>state[k]=v},classList:{add:x=>state.className=x}};
+ class Image{set src(url){state.src=url;this.onload()}}
+ const document={baseURI:'https://sho.test/berlet-app/sh9/entertainment/',querySelector:()=>tile};
+ vm.runInNewContext(read('sh9/entertainment/media-center-approved-v4.js'),{window:{},document,URL,Image});
+ assert.match(state.src,/assets\/sho-media-center-hero-approved-v3\.webp$/);
+ assert.equal(state.className,'mc-v4-approved');
+});
