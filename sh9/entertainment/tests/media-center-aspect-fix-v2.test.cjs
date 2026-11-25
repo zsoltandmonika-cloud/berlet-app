@@ -23,7 +23,7 @@ test('Card geometry, existing photos and OneDrive routes remain unchanged',()=>{
  }
  assert.match(html,/reference-art-v1\.css\?v=20261121-crop-fix-v2/);
  assert.match(html,/class="media-tiles-glass"/);
- assert.match(html,/id="mediaViewer"/);
+ assert.doesNotMatch(html,/id="mediaViewer"/);
  assert.match(od,/sho-tile-homevideos-approved-v3\.webp/);
  for(const name of ['photos','videos','music'])assert.match(html,new RegExp('data-library="'+name+'"'));
 });
