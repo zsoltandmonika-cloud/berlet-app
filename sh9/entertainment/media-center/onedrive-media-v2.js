@@ -130,7 +130,7 @@ async function select(kind){
  $('odMediaConnect').hidden=true;crumbs=[{id:'',name:PATHS[kind].label}];entries=[];folder='';
  $('mediaLibrary').scrollIntoView({behavior:'smooth',block:'start'});
  if(!config){status('Microsoft-kapcsolat szükséges. Nyisd meg a Book Studiót.',true);showConnect();return}
- await Promise.all([list(''),updateTileArt()]);
+ await list('');
 }
 async function open(item){
  viewer=item;$('mediaViewer').hidden=false;
@@ -169,36 +169,24 @@ d.addEventListener('keydown',function(e){if(e.key==='Escape'&&!$('mediaViewer').
 Array.prototype.forEach.call(d.querySelectorAll('.tile[data-library]'),function(tile){
  tile.addEventListener('click',function(e){e.preventDefault();void select(tile.getAttribute('data-library'))});
 });
-// V5: no intermediate/stale tile art probe. Start from stable glass gradients.
-// The approved, authenticated OneDrive artwork is installed only after full image load.
-async function updateTileArt(){
- // The approved synthetic tile artwork remains private in OneDrive.
- // Pull transient signed URLs only after a verified Microsoft session.
- if(!config)return;
- try{
-  await verify();
-  var j=await graph('me/drive/root:/SHO%20Media%20Center%20Assets:/children?$top=30');
-  var list=j.value||[];
-  var names={homecinema:'sho-tile-homecinema-v2.webp',photos:'sho-tile-photos-v2.webp',
-   videos:'sho-tile-homevideos-approved-v3.webp',music:'sho-tile-music-v2.webp'};
-  for(let slug in names){
-   var file=list.find(function(x){return x.name===names[slug]&&x.file});
-   if(!file)continue;
-   try{
-    var item=await graph('me/drive/items/'+encodeURIComponent(file.id));
-    var link=item['@microsoft.graph.downloadUrl'];
-    if(typeof link==='string'&&link.indexOf('https://')===0){
-     let tile=d.querySelector(slug==='homecinema'?'.tile.cinema':'.tile[data-library="'+slug+'"]');
-     if(tile){var art=new Image();art.onload=function(){tile.style.setProperty('--image','url("'+link.replace(/"/g,'%22')+'")');if(slug==='videos')tile.classList.add('tile-art-baked-v4');};art.src=link;}
-    }
-   }catch(_){}
-  }
- }catch(_){/* Keep public fallback image when OneDrive is unavailable. */}
+// Approved decorative UI artwork: same-origin static WebP, no OneDrive access.
+function updateTileArt(){
+ var names={homecinema:'sho-tile-homecinema-v2.webp',photos:'sho-tile-photos-v2.webp',
+  videos:'sho-tile-homevideos-approved-v3.webp',music:'sho-tile-music-v2.webp'};
+ for(let slug in names){
+  let tile=d.querySelector(slug==='homecinema'?'.tile.cinema':'.tile[data-library="'+slug+'"]');
+  if(!tile)continue;
+  let link=new URL('./assets/'+names[slug],d.baseURI).href;
+  var art=new Image();
+  art.onload=function(){
+   tile.style.setProperty('--image','url("'+link.replace(/"/g,'%22')+'")');
+   if(slug==='videos')tile.classList.add('tile-art-baked-v4');
+  };
+  art.src=link;
+ }
 }
-// Paint the approved premium artwork on the landing page whenever the previously
-// authorized Microsoft session is available. Never force an OAuth redirect.
 config=readConfig();
-if(config)void updateTileArt();
+updateTileArt();
 // Foreground-only, lightweight refresh, keeping OneDrive as source of truth.
 var lastAutoSync=Date.now();
 function liveSync(){
