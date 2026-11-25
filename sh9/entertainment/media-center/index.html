@@ -92,5 +92,16 @@ footer{margin-top:27px;padding:16px 3px;border-top:1px solid #bb87d433;color:#98
 </main>
 <script src="./media-center-direct-v8.js?v=8"></script>
 <script src="./ui-shell-register-v1.js?v=1"></script>
+<script>
+/* Android-only OneDrive app-first trial for Photos. Desktop keeps the original HTTPS link. */
+(function shoPhotosAppFirst(){
+ if(!/Android/i.test(navigator.userAgent))return;
+ var tile=document.querySelector('a.tile.photos[data-library="photos"]');
+ if(!tile)return;
+ var web=new URL(tile.href);
+ var app='intent://'+web.host+web.pathname+web.search+'#Intent;scheme=https;package=com.microsoft.skydrive;action=android.intent.action.VIEW;S.browser_fallback_url='+encodeURIComponent(web.href)+';end';
+ tile.setAttribute('href',app);
+})();
+</script>
 </body>
 </html>
