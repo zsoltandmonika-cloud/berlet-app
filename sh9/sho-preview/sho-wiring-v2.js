@@ -283,7 +283,7 @@ d.querySelectorAll('[data-demo]').forEach(el=>el.onclick=()=>{
  const kind=el.dataset.demo;
  if(kind==='date')w.open('https://outlook.live.com/calendar/0/view/month','_blank','noopener,noreferrer');
  if(kind==='calendar')w.location.assign('https://outlook.live.com/calendar/0/view/month');
- if(kind==='weather')w.open('https://www.meteoblue.com/en/weather/week/budapest_hungary_3054643','_blank','noopener,noreferrer');
+ if(kind==='weather')w.open(weatherSourceUrl||METNET_FORECAST_URL,'_blank','noopener,noreferrer');
 });
 $('home').onclick=top;$('ask').onclick=openAsk;$('back').onclick=back;
 $('alerts').onclick=()=>goto(SH9+'notification-center/');
@@ -313,6 +313,7 @@ w.addEventListener('pageshow',()=>{
 });
 d.addEventListener('visibilitychange',()=>{if(d.visibilityState==='visible'){refreshDate();void weather()}});
 lang=get(LANG,'hu')==='en'?'en':'hu';paintProfile();paintLang();cachedWeather();void nameday();void weather();
+w.setInterval(()=>{if(!d.hidden)void weather()},WEATHER_REFRESH_MS);
 // Shared four-button dock opens the canonical SHO Wallet view from any module.
 try{
  const params=new URLSearchParams(w.location.search);
