@@ -19,7 +19,7 @@ button{font:inherit;color:inherit;cursor:pointer}button:focus-visible{outline:2p
 html,body{height:auto;min-height:100%;}main{width:min(100%,420px);margin:auto;padding:18px 7px 30px;background:#071329}h1{font-size:22px;margin:8px 0}p{color:#b8cce4;font-size:13px;margin:8px 0 15px}.badge{color:#ffd98b;font-weight:800;letter-spacing:.08em;font-size:11px}.info{height:67px;min-height:67px;flex:none}.controls{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}.controls button{padding:10px 12px;border-radius:10px;border:1px solid var(--border);background:#0b2443;font-size:13px}.status{margin-top:15px;padding:12px;background:#0b1b34;border:1px solid var(--border);border-radius:12px;font-size:12px;overflow-wrap:anywhere;white-space:pre-wrap;color:#cce2f7}.muted{opacity:.65}@media(max-height:740px){.info{height:63px;min-height:63px}}
 </style></head><body><main><span class="badge">SANDBOX · NEM ÉLES</span><h1>SHO Weather v34</h1><p>Az új időjárás-csempe a SHO főoldal méretében. A két szomszédos mező csak szemléltetés.</p>
 <section class="info" aria-label="Teszt információs sáv"><button type="button" disabled class="muted"><b>DÁTUM</b><strong id="demoDate">—</strong><small>Teszt</small></button><button type="button" data-demo="weather"><b id="weatherHeading">IDŐJÁRÁS</b><strong id="wxValue">Betöltés…</strong><small id="wxSub">Budapest</small></button><button type="button" disabled class="muted"><b>NAPTÁR</b><strong>Előnézet</strong><small>Teszt</small></button></section>
-<div class="controls"><button id="refresh" type="button">↻ Élő frissítés</button><button id="blue" type="button">💙 Kék</button><button id="pink" type="button">🩷 Rózsaszín</button></div><div id="diagnostic" class="status" role="status" aria-live="polite">Élő adatok betöltése…</div><p>Kizárólag nyilvános időjárási adatot használ. Az éles SHO és annak gyorsítótára változatlan.</p></main>
+<div class="controls"><button id="weatherXL" type="button">📲 Weather XL megnyitása</button><button id="metnetLink" type="button">MetNet web</button><button id="refresh" type="button">↻ Élő frissítés</button><button id="blue" type="button">💙 Kék</button><button id="pink" type="button">🩷 Rózsaszín</button></div><p id="xlStatus" role="status">Deep link teszt: koppints az időjárás-csempére vagy a Weather XL gombra. Ha nem nyílik meg az app, a tesztoldal jelzi a sikertelen indítást.</p><div id="diagnostic" class="status" role="status" aria-live="polite">Élő adatok betöltése…</div><p>Kizárólag nyilvános időjárási adatot használ. Az éles SHO és annak gyorsítótára változatlan.</p></main>
 <script>/* SHO Weather Adapter v1 · MetNet primary, wttr.in fallback.
  * Public browser-callable JSON endpoints only; no API keys or private credentials.
  * MetNet attribution is displayed in the SHO weather card and links to its Budapest III forecast.
@@ -323,7 +323,18 @@ const cell=$('wxValue').closest('button');
 function status(){const state=cell.dataset.weatherStatus||'pending';$('diagnostic').textContent='Állapot: '+({ready:'Élő adat',cached:'Korábbi adat (cache)',error:'Nem elérhető',pending:'Betöltés…'}[state]||state)+'\nForrás: '+(cell.dataset.weatherProvider||'—')+'\n'+(cell.title||'');}
 async function refresh(force){const start=performance.now();await weather(force);status();$('diagnostic').textContent+='\nLekérés: '+Math.round(performance.now()-start)+' ms';}
 new MutationObserver(status).observe(cell,{attributes:true,attributeFilter:['data-weather-status','data-weather-provider','title']});
-cell.onclick=()=>w.open(weatherSourceUrl||METNET_FORECAST_URL,'_blank','noopener,noreferrer');
+// Experimental launcher intent: confirmed Play Store package, no documented custom URI scheme.
+const xlFallback=new URL(w.location.href);xlFallback.searchParams.set('xl','fallback');
+const xlIntent='intent://#Intent;action=android.intent.action.MAIN;category=android.intent.category.LAUNCHER;package=com.exovoid.weather.app;S.browser_fallback_url='+encodeURIComponent(xlFallback.href)+';end';
+function openWeatherXL(){
+ if(!/Android/i.test(w.navigator.userAgent)){$('xlStatus').textContent='A teszt Android telefonon használható.';return;}
+ $('xlStatus').textContent='Weather XL indítási kísérlet… Ha az alkalmazás nem nyílik meg, a böngésző nem támogatja ezt az indítási módot vagy az app nincs telepítve.';
+ w.location.href=xlIntent;
+}
+if(new URL(w.location.href).searchParams.get('xl')==='fallback')$('xlStatus').textContent='A böngésző nem tudta megnyitni a Weather XL alkalmazást ezzel az intenttel. Ez önmagában nem jelenti azt, hogy az app nincs telepítve.';
+cell.onclick=openWeatherXL;
+$('weatherXL').onclick=openWeatherXL;
+$('metnetLink').onclick=()=>w.open(weatherSourceUrl||METNET_FORECAST_URL,'_blank','noopener,noreferrer');
 $('refresh').onclick=()=>refresh(true);
 $('blue').onclick=()=>d.documentElement.setAttribute('data-sh9-golden-profile','z');
 $('pink').onclick=()=>d.documentElement.setAttribute('data-sh9-golden-profile','m');
