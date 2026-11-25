@@ -167,6 +167,8 @@ $('odMediaConnect').onclick=function(){w.location.href='../book-studio/'};
 $('mediaViewer').addEventListener('click',function(e){if(e.target===$('mediaViewer'))close()});
 d.addEventListener('keydown',function(e){if(e.key==='Escape'&&!$('mediaViewer').hidden)close()});
 Array.prototype.forEach.call(d.querySelectorAll('.tile[data-library]'),function(tile){
+ // Legacy SHO browser stays available for rollback, but native direct links never invoke it.
+ if(tile.getAttribute('href')!=='#mediaLibrary')return;
  tile.addEventListener('click',function(e){e.preventDefault();void select(tile.getAttribute('data-library'))});
 });
 // Approved decorative UI artwork: same-origin static WebP, no OneDrive access.
