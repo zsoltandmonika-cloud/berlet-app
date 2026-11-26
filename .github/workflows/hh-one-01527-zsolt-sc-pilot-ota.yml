@@ -1,0 +1,129 @@
+name: HH One 0.15.27 · Zsolt-only SC pilot OTA
+
+# One-shot promotion of the exact signed artifact already validated in CI.
+# No APK rebuild, no automatic installation, no Monika rollout.
+on:
+  push:
+    paths:
+      - '.github/workflows/hh-one-01527-zsolt-sc-pilot-ota.yml'
+permissions:
+  actions: read
+  contents: write
+concurrency:
+  group: hh-one-01527-zsolt-sc-pilot-ota
+  cancel-in-progress: false
+jobs:
+  publish-zsolt-only:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      GH_TOKEN: ${{ github.token }}
+      SOURCE_RUN: "45798404159"
+      SOURCE_HEAD: "485add278d6adc5532eed628fd6cf220e2c64c68"
+      ARTIFACT_ID: "15105842885"
+      ARTIFACT_NAME: "HH-One-SC-SAMSUNG-v0.15.27-SIGNED-NOT-LIVE"
+      ARTIFACT_SHA: "0235788cee90d402ff1e05978cde6b133b93980ff9b19d460b4ac84d964ea798"
+      BASE_SHA: "da838c6467dd3fe37fffb9a886a01b357b3455e498e14533a02595a1366bd155"
+      BASE_MANIFEST_BLOB: "7965f6bdbee3175e97ec5de09002068e28870e63"
+      SC_WEB_BLOB: "2259179ec8272a33a11cc7a984b652e89bc96337"
+      SIGNER_SHA: "1045e5cc520eded12ebdec76eaf946cda0888f8cbccc7a2cdfc62a6aec92eb1e"
+      VERSION: "0.15.27"
+      CODE: "54"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: true
+      - name: Check exact baseline and native web handoff
+        run: |
+          set -euo pipefail
+          test "$(git hash-object healthhub/data/bridge-ota.json)" = "$BASE_MANIFEST_BLOB"
+          test "$(git hash-object staging/smart-connect/index.html)" = "$SC_WEB_BLOB"
+          python3 - <<'PY'
+          import json,os
+          x=json.load(open('healthhub/data/bridge-ota.json'))
+          assert x['schema']=='healthhub.connect.ota/1' and x['channel']=='signed-release'
+          assert x['applicationId']=='hu.zsoltmonika.healthhubbridge'
+          assert x['version']=='0.15.23' and x['versionCode']==50 and x['sha256']==os.environ['BASE_SHA']
+          assert set(x['rolloutProfiles'])=={'zsolt','monika'}
+          PY
+      - name: Retrieve and verify exact successful CI artifact
+        run: |
+          set -euo pipefail
+          gh run view "$SOURCE_RUN" --repo "$GITHUB_REPOSITORY" --json headSha,conclusion,status | python3 -c 'import json,os,sys;x=json.load(sys.stdin);assert x["status"]=="completed" and x["conclusion"]=="success" and x["headSha"]==os.environ["SOURCE_HEAD"]'
+          gh api "repos/$GITHUB_REPOSITORY/actions/artifacts/$ARTIFACT_ID" | python3 -c 'import json,os,sys;x=json.load(sys.stdin);assert not x["expired"] and x["name"]==os.environ["ARTIFACT_NAME"] and x["digest"]=="sha256:"+os.environ["ARTIFACT_SHA"];assert str(x["workflow_run"]["id"])==os.environ["SOURCE_RUN"] and x["workflow_run"]["head_sha"]==os.environ["SOURCE_HEAD"]'
+          mkdir -p "$RUNNER_TEMP/sc-pilot"
+          curl --fail --silent --show-error --location --header "Authorization: Bearer $GH_TOKEN" "https://api.github.com/repos/$GITHUB_REPOSITORY/actions/artifacts/$ARTIFACT_ID/zip" --output "$RUNNER_TEMP/sc-pilot/artifact.zip"
+          test "$(sha256sum "$RUNNER_TEMP/sc-pilot/artifact.zip" | cut -d' ' -f1)" = "$ARTIFACT_SHA"
+          python3 - <<'PY'
+          import os,pathlib,zipfile
+          p=pathlib.Path(os.environ['RUNNER_TEMP'])/'sc-pilot'
+          with zipfile.ZipFile(p/'artifact.zip') as z:
+              name='HH-One-SC-SAMSUNG-v0.15.27-SIGNED-NOT-LIVE.apk'
+              assert z.namelist()==[name], 'Unexpected artifact contents'
+              assert z.getinfo(name).file_size<120*1024*1024
+              (p/'HealthHub-Connect-v0.15.27-ota.apk').write_bytes(z.read(name))
+          PY
+          echo "PILOT_APK=$RUNNER_TEMP/sc-pilot/HealthHub-Connect-v0.15.27-ota.apk" >> "$GITHUB_ENV"
+      - name: Recheck APK identity, contact permission, original signer and SDK
+        run: |
+          set -euo pipefail
+          SIGNER="$ANDROID_HOME/build-tools/35.0.0/apksigner"
+          AAPT="$ANDROID_HOME/build-tools/35.0.0/aapt"
+          test -x "$SIGNER" && test -x "$AAPT"
+          "$SIGNER" verify --verbose "$PILOT_APK"
+          BADGE="$("$AAPT" dump badging "$PILOT_APK" | head -1)"
+          [[ "$BADGE" == *"name='hu.zsoltmonika.healthhubbridge'"* && "$BADGE" == *"versionCode='54'"* && "$BADGE" == *"versionName='0.15.27'"* ]]
+          "$AAPT" dump permissions "$PILOT_APK" | grep -F 'android.permission.READ_CONTACTS'
+          mkdir -p "$RUNNER_TEMP/sc-baseline"
+          gh release download healthhub-connect-ota-v0.15.23 --repo "$GITHUB_REPOSITORY" --pattern HealthHub-Connect-v0.15.23-ota.apk --dir "$RUNNER_TEMP/sc-baseline"
+          BASE="$RUNNER_TEMP/sc-baseline/HealthHub-Connect-v0.15.23-ota.apk"
+          test "$(sha256sum "$BASE" | cut -d' ' -f1)" = "$BASE_SHA"
+          "$SIGNER" verify "$BASE"
+          OLD_CERT="$("$SIGNER" verify --print-certs "$BASE" | awk -F': ' '/Signer #1 certificate SHA-256 digest/{print $2;exit}' | tr 'A-F' 'a-f' | tr -d '\r\n')"
+          NEW_CERT="$("$SIGNER" verify --print-certs "$PILOT_APK" | awk -F': ' '/Signer #1 certificate SHA-256 digest/{print $2;exit}' | tr 'A-F' 'a-f' | tr -d '\r\n')"
+          test "$NEW_CERT" = "$OLD_CERT"
+          test "$NEW_CERT" = "$SIGNER_SHA"
+          python3 - "$PILOT_APK" "$BASE" <<'PY'
+          import os,sys,zipfile
+          apk,base=sys.argv[1:]
+          assert os.path.getsize(apk)>os.path.getsize(base)*0.70
+          with zipfile.ZipFile(apk) as z:
+              dex=b''.join(z.read(n) for n in z.namelist() if n.startswith('classes') and n.endswith('.dex'))
+              for marker in (b'SamsungHealthDirectPilot',b'SamsungDirectBackgroundSync',b'com/samsung/android/sdk/health/data',b'FamilyGuardNativeRelay',b'ScNativeContacts'):
+                  assert marker in dex, marker
+          PY
+          echo "PILOT_SHA=$(sha256sum "$PILOT_APK" | cut -d' ' -f1)" >> "$GITHUB_ENV"
+      - name: Publish immutable signed prerelease asset
+        run: |
+          set -euo pipefail
+          TAG="healthhub-connect-ota-v$VERSION"
+          APK="HealthHub-Connect-v$VERSION-ota.apk"
+          if ! gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release create "$TAG" "$PILOT_APK" --repo "$GITHUB_REPOSITORY" --target main --prerelease --title "HH One 0.15.27 · Zsolt SC pilot" --notes "Exact signed Samsung-integrated build54 artifact. Zsolt-only owner-filtered pilot; Android installation consent required. Existing unrelated historical QA failures audited; phone validation pending. No Monika rollout."
+          fi
+          mkdir -p "$RUNNER_TEMP/sc-published"
+          gh release download "$TAG" --repo "$GITHUB_REPOSITORY" --pattern "$APK" --dir "$RUNNER_TEMP/sc-published"
+          test "$(sha256sum "$RUNNER_TEMP/sc-published/$APK" | cut -d' ' -f1)" = "$PILOT_SHA"
+      - name: Offer Zsolt-only OTA after every gate passes
+        run: |
+          set -euo pipefail
+          git fetch origin main
+          git checkout --detach origin/main
+          test "$(git hash-object healthhub/data/bridge-ota.json)" = "$BASE_MANIFEST_BLOB"
+          test "$(git hash-object staging/smart-connect/index.html)" = "$SC_WEB_BLOB"
+          python3 - <<'PY'
+          import json,os,pathlib
+          p=pathlib.Path('healthhub/data/bridge-ota.json')
+          old=json.loads(p.read_text())
+          assert old['versionCode']==50 and old['sha256']==os.environ['BASE_SHA']
+          v=os.environ['VERSION']
+          p.write_text(json.dumps({'schema':'healthhub.connect.ota/1','channel':'signed-release','applicationId':'hu.zsoltmonika.healthhubbridge','version':v,'versionCode':54,'rolloutProfiles':['zsolt'],'downloadUrl':'https://github.com/zsoltandmonika-cloud/berlet-app/releases/download/healthhub-connect-ota-v'+v+'/HealthHub-Connect-v'+v+'-ota.apk','sha256':os.environ['PILOT_SHA']},indent=2)+'\n')
+          PY
+          git config user.name healthhub-ota-bot
+          git config user.email healthhub-ota-bot@users.noreply.github.com
+          git add healthhub/data/bridge-ota.json
+          git commit -m "release: signed HH One 0.15.27 build54 Zsolt-only SC pilot"
+          git push origin HEAD:main
+          echo "PASS: exact verified signed build54 offered to Zsolt only. No automatic installation." >> "$GITHUB_STEP_SUMMARY"
