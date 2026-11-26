@@ -1,4 +1,4 @@
-name: HH One Guardian GPS · Private Samsung signed candidate (NO OTA)
+name: HH One 0.15.27 · SC Samsung signed candidate (NO OTA)
 
 on:
   pull_request:
@@ -20,7 +20,7 @@ jobs:
     name: Sign and inspect Samsung SDK integrated GPS-fix APK (STAGING ONLY)
     if: >-
       github.event.pull_request.head.repo.full_name == github.repository &&
-      github.event.pull_request.head.ref == 'fix/guardian-gps-ota-01524-qa-20261122'
+      github.event.pull_request.head.ref == 'feature/sc-native-01527-samsung-pilot'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
@@ -97,9 +97,10 @@ jobs:
           "$SIGNER" verify --verbose "$APK"
           BADGE="$("$AAPT" dump badging "$APK" | head -1)"
           [[ "$BADGE" == *"name='hu.zsoltmonika.healthhubbridge'"* ]]
-          [[ "$BADGE" == *"versionCode='53'"* ]]
-          [[ "$BADGE" == *"versionName='0.15.26'"* ]]
-          echo "Candidate Samsung APK has correct identity."
+          [[ "$BADGE" == *"versionCode='54'"* ]]
+          [[ "$BADGE" == *"versionName='0.15.27'"* ]]
+          "$AAPT" dump permissions "$APK" | grep -F 'android.permission.READ_CONTACTS'
+          echo "Candidate Samsung APK has correct identity and contact permission."
           mkdir -p "$RUNNER_TEMP/hh-previous"
           gh release download healthhub-connect-ota-v0.15.23 --repo "$GITHUB_REPOSITORY" --pattern "HealthHub-Connect-v0.15.23-ota.apk" --dir "$RUNNER_TEMP/hh-previous"
           PREV="$RUNNER_TEMP/hh-previous/HealthHub-Connect-v0.15.23-ota.apk"
@@ -119,22 +120,23 @@ jobs:
               assert b'SamsungDirectBackgroundSync' in dex, 'Samsung background sync missing'
               assert b'com/samsung/android/sdk/health/data' in dex, 'Proprietary Samsung SDK classes missing'
               assert b'FamilyGuardNativeRelay' in dex, 'Family Guard GPS sender missing'
+              assert b'ScNativeContacts' in dex, 'SC native contact search missing'
           print('PASS: same-signer candidate, Samsung SDK + GPS classes present, content-size sanity checked.')
           PY
-          DEST="$GITHUB_WORKSPACE/HH-One-Guardian-SAMSUNG-GPS-FIX-v0.15.26-SIGNED-NOT-LIVE.apk"
+          DEST="$GITHUB_WORKSPACE/HH-One-SC-SAMSUNG-v0.15.27-SIGNED-NOT-LIVE.apk"
           cp "$APK" "$DEST"
           {
             echo '### Signed Samsung-integrated GPS fix candidate'
             echo '- Proprietary Samsung SDK from encrypted secrets: PASS'
             echo '- Same signing certificate as installed release baseline: PASS'
-            echo '- Correct package and monotonic versionCode 52: PASS'
+            echo '- Correct package and monotonic versionCode 54: PASS'
             echo '- Native GPS sender + Samsung SDK classes present: PASS'
             echo '- **ARTIFACT ONLY. No OTA, no deployment, no install.**'
           } >> "$GITHUB_STEP_SUMMARY"
       - uses: actions/upload-artifact@v4
         with:
-          name: HH-One-Guardian-SAMSUNG-GPS-FIX-v0.15.26-SIGNED-NOT-LIVE
-          path: HH-One-Guardian-SAMSUNG-GPS-FIX-v0.15.26-SIGNED-NOT-LIVE.apk
+          name: HH-One-SC-SAMSUNG-v0.15.27-SIGNED-NOT-LIVE
+          path: HH-One-SC-SAMSUNG-v0.15.27-SIGNED-NOT-LIVE.apk
           if-no-files-found: error
           retention-days: 3
           compression-level: 0
