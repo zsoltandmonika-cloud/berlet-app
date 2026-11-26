@@ -11,7 +11,7 @@ const $=id=>document.getElementById(id), ids=['z','zm','m','mm'], storage='sho-s
 function activeProfile(){try{return localStorage.getItem('hh-profile')==='m'?'m':'z'}catch(e){return 'z'}}
 const targetFor=p=>p==='m'?'z':'m';
 let displayedProfile=activeProfile(),manualTarget=false,expandedFavorite=null,importedPhoto='',importBusy=false;
-function syncProfile(){const p=activeProfile();if(p!==displayedProfile){displayedProfile=p;manualTarget=false;expandedFavorite=null;importedPhoto='';$('confirmImport').classList.add('hidden');$('name').value='';$('tel').value='';$('ms').value='';$('importPreview').classList.add('hidden')}return p}
+function syncProfile(){const p=activeProfile();if(p!==displayedProfile){$('vcfChoice').classList.add('hidden');displayedProfile=p;manualTarget=false;expandedFavorite=null;importedPhoto='';$('confirmImport').classList.add('hidden');$('name').value='';$('tel').value='';$('ms').value='';$('importPreview').classList.add('hidden')}return p}
 const profileName=p=>p==='m'?'Mónika':'Zsolt';
 const svg=p=>'<svg viewBox="0 0 24 24" aria-hidden="true">'+p+'</svg>';
 const icons={wa:svg('<path d="M7 3a9 9 0 0 1 13 12c-2 5-8 7-12 5l-5 1 1-5A9 9 0 0 1 7 3Z"/><path d="m8 7 2 3-1 1 4 4 1-1 3 1-1 2c-4 1-9-4-9-8Z"/>'),video:svg('<rect x="3" y="6" width="13" height="12" rx="2"/><path d="m16 10 5-3v10l-5-3"/>'),phone:svg('<path d="M5 4h4l2 5-3 2a13 13 0 0 0 5 5l2-3 5 2v4a2 2 0 0 1-2 2C10 21 3 14 3 6a2 2 0 0 1 2-2Z"/>'),msg:svg('<path d="M21 11a9 9 0 0 1-9 9l-4-1-4 2 1-5a9 9 0 1 1 16-5Z"/><path d="m7 13 4-4 2 3 4-3"/>')};
@@ -123,7 +123,7 @@ function vcfValue(meta,v){
 }
 function parseVcards(raw){
  if(typeof raw!=='string'||raw.length>5000000)throw Error('size');
- const lines=raw.replace(/^\uFEFF/,'').replace(/\r\n|\r/g,'\n').replace(/=\n(?=[^\n])/g,'').replace(/\n[ \t]/g,'').split('\n'),out=[];let c=null,photoLine=false;
+ const physical=raw.replace(/^\uFEFF/,'').replace(/\r\n|\r/g,'\n').split('\n'),lines=[],out=[];let c=null,photoLine=false;for(const l of physical){const last=lines[lines.length-1];if(last&&/ENCODING=QUOTED-PRINTABLE/i.test(last.split(':')[0])&&last.endsWith('='))lines[lines.length-1]=last.slice(0,-1)+l.replace(/^[ \t]/,'');else if(last&&/^[ \t]/.test(l))lines[lines.length-1]=last+l.slice(1);else lines.push(l)}
  for(const line of lines){
   if(/^BEGIN:VCARD\s*$/i.test(line)){c={name:'',fallback:'',tels:[],photo:'',mime:''};photoLine=false;continue}
   if(/^END:VCARD\s*$/i.test(line)){if(c){c.name=(c.name||c.fallback).slice(0,120);c.tels=[...new Set(c.tels.map(number).filter(Boolean))].slice(0,30);if(c.name&&c.tels.length)out.push(c)}c=null;photoLine=false;if(out.length>=500)break;continue}
@@ -144,7 +144,7 @@ let vcfSequence=0;
 async function previewVcard(c,p,seq){
  $('contact').open=true;$('name').value=c.name;$('tel').value=c.tels[0];$('ms').value='';importedPhoto='';showImport(c.name,c.tels,'');showConfirm(true);render();importNotice(c.tels.length>1?'Válaszd ki a telefonszámot, majd mentsd a Kedvencekhez.':'Névjegy beolvasva. A mentéshez nyomd meg a zöld gombot.');
  trace('fields','Helyi vCard beolvasva · '+c.tels.length+' szám');
- if(c.photo){try{const raw=atob(c.photo),data=Uint8Array.from(raw,x=>x.charCodeAt(0));const photo=await thumbnail(new Blob([data],{type:'image/'+c.mime}));if(photo&&p===activeProfile()&&seq===vcfSequence&&$('name').value===c.name&&c.tels.includes(number($('tel').value))){importedPhoto=photo;const av=$('importPreview').querySelector('.fav-initial');if(av)av.replaceWith(contactAvatar(c.name,photo));trace('fields','Profilkép beolvasva')}}catch(e){}}
+ if(c.photo){$('confirmImport').disabled=true;$('addFavorite').disabled=true;try{const raw=atob(c.photo),data=Uint8Array.from(raw,x=>x.charCodeAt(0));const photo=await thumbnail(new Blob([data],{type:'image/'+c.mime}));if(photo&&p===activeProfile()&&seq===vcfSequence&&$('name').value===c.name&&c.tels.includes(number($('tel').value))){importedPhoto=photo;const av=$('importPreview').querySelector('.fav-initial');if(av)av.replaceWith(contactAvatar(c.name,photo));trace('fields','Profilkép beolvasva')}}catch(e){}finally{$('confirmImport').disabled=false;$('addFavorite').disabled=false}}
 }
 $('vcfOpen').onclick=()=>{$('vcfFile').value='';$('vcfFile').click()};
 $('vcfFile').onchange=async()=>{
@@ -162,7 +162,7 @@ let nativeAvailable=false,nativeRequest=null,nativeProfile=null,nativeToken='';
 function freshToken(){const a=new Uint8Array(16);crypto.getRandomValues(a);return Array.from(a,x=>x.toString(16).padStart(2,'0')).join('')}
 function armNative(){nativeToken=freshToken();for(const id of ['pick','openFavorite'])$(id).href='healthhubconnect://sc-contacts?request='+nativeToken}
 window.addEventListener('sho-native-contacts-ready',()=>{nativeAvailable=true;if(!nativeRequest)armNative();$('pickStatus').textContent='Natív HH One névjegykeresés elérhető. Az adatok helyben maradnak.'});
-function contactClick(e){$('contact').open=true;if(nativeAvailable){if(nativeRequest){e.preventDefault();return}nativeRequest=nativeToken;nativeProfile=syncProfile();showConfirm(false);traceEntries=[];trace('picker','Natív névjegykereső megnyitva');importNotice('Válassz egy telefonszámot a natív keresőben.');return}e.preventDefault();if(navigator.contacts?.select)void importContact();else {$('name').focus({preventScroll:true});importNotice('A natív kereséshez új HH One APK szükséges. Kézi bevitel használható.')}}
+function contactClick(e){vcfSequence++;$('vcfChoice').classList.add('hidden');$('contact').open=true;if(nativeAvailable){if(nativeRequest){e.preventDefault();return}nativeRequest=nativeToken;nativeProfile=syncProfile();showConfirm(false);traceEntries=[];trace('picker','Natív névjegykereső megnyitva');importNotice('Válassz egy telefonszámot a natív keresőben.');return}e.preventDefault();if(navigator.contacts?.select)void importContact();else {$('name').focus({preventScroll:true});importNotice('A natív kereséshez új HH One APK szükséges. Kézi bevitel használható.')}}
 $('pick').onclick=contactClick;
 window.addEventListener('sho-native-contact-result',e=>{
  const d=e.detail;if(!nativeAvailable||!nativeRequest||d?.request!==nativeRequest)return;
