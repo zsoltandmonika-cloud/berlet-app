@@ -220,6 +220,63 @@ class Sh9WebActivity : ComponentActivity() {
     private fun trustedPage(url: Uri?): Boolean =
         url?.scheme == "https" && url.host == HOST && url.path?.startsWith(BASE) == true
 
+    // No JavaScript privilege bridge. A user-tapped, exact first-party SC link
+    // opens the native dialog; only its selected record is returned.
+    private fun scPage(uri: Uri?): Boolean =
+        uri?.scheme == "https" && uri.host == HOST && uri.port == -1 &&
+            (uri.path == "/berlet-app/staging/smart-connect/" ||
+                uri.path == "/berlet-app/staging/smart-connect/index.html")
+
+    private val scContacts by lazy { ScNativeContacts(this) }
+    private var scPending: String? = null
+    private var scDocument = 0
+    private var scPendingDocument = 0
+    private var scPermissionInFlight = false
+
+    private fun scResult(status: String, selection: ScNativeContacts.Selection? = null) {
+        val token = scPending ?: return
+        scPending = null
+        val view = web ?: return
+        if (scPendingDocument != scDocument || !scPage(Uri.parse(view.url ?: ""))) return
+        val payload = JSONObject().put("request", token).put("status", status)
+        if (selection != null) {
+            payload.put("name", selection.name).put("tel", selection.tel)
+                .put("photo", selection.photo)
+        }
+        val literal = JSONObject.quote(payload.toString())
+        view.evaluateJavascript(
+            "if(location.origin==='https://$HOST'&&" +
+                "(location.pathname==='/berlet-app/staging/smart-connect/'||" +
+                "location.pathname==='/berlet-app/staging/smart-connect/index.html')){" +
+                "window.dispatchEvent(new CustomEvent('sho-native-contact-result',{detail:JSON.parse($literal)}));}",
+            null
+        )
+    }
+
+    private val scPermission = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        scPermissionInFlight = false
+        if (scPending != null && scPendingDocument == scDocument &&
+            scPage(Uri.parse(web?.url ?: ""))) {
+            if (granted) scContacts.show { status, selection -> scResult(status, selection) }
+            else scResult("denied")
+        } else scPending = null
+    }
+
+    private fun startScContacts(token: String) {
+        if (scPending != null || scPermissionInFlight) return
+        scPending = token
+        scPendingDocument = scDocument
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS)
+            == PackageManager.PERMISSION_GRANTED) {
+            scContacts.show { status, selection -> scResult(status, selection) }
+        } else {
+            scPermissionInFlight = true
+            scPermission.launch(Manifest.permission.READ_CONTACTS)
+        }
+    }
+
     // The HTML Food Scanner uses getUserMedia, NOT an Android native camera
     // button. Grant ONLY the requested video resource to the approved origin.
     private val cameraPermission = registerForActivityResult(
@@ -486,8 +543,14 @@ class Sh9WebActivity : ComponentActivity() {
                 }
             }
 
+            override fun onPageStarted(view: WebView, url: String, favicon: android.graphics.Bitmap?) {
+                super.onPageStarted(view, url, favicon)
+                scDocument++
+            }
+
             override fun onPageFinished(view: WebView, url: String) {
                 super.onPageFinished(view, url)
+                if (scPage(Uri.parse(url))) view.evaluateJavascript("window.dispatchEvent(new Event('sho-native-contacts-ready'));", null)
                 if (pendingGoogleCode != null) dispatchGoogleCode(view)
                 if (pendingDropboxCode != null) dispatchDropboxCode(view)
             }
@@ -512,6 +575,14 @@ class Sh9WebActivity : ComponentActivity() {
                 // REORDER_TO_FRONT resumes the existing HH One settings activity,
                 // avoiding a stack of duplicate apps or an SH9 startup loop.
                 val source = Uri.parse(view.url ?: "")
+                if (u.scheme == "healthhubconnect" && u.host == "sc-contacts") {
+                    val token = u.getQueryParameter("request")
+                    if (request.isForMainFrame && request.hasGesture() && scPage(source) &&
+                        token != null && Regex("[a-zA-Z0-9_-]{16,80}").matches(token)) {
+                        startScContacts(token)
+                    }
+                    return true
+                }
                 if (request.isForMainFrame && u.scheme == "healthhubconnect" &&
                     u.host == "settings" &&
                     source.scheme == "https" && source.host == HOST &&
@@ -636,6 +707,8 @@ class Sh9WebActivity : ComponentActivity() {
     }
 
     override fun onDestroy() {
+        scPending = null
+        scContacts.close()
         web?.let {
             it.stopLoading()
             it.destroy()
