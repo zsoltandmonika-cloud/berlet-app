@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="hu">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#08120f"><title>Léna Capital · Használati útmutató</title>
+<style>
+:root{color-scheme:dark;--bg:#07100f;--gold:#e9c681;--green:#8de3bd;--muted:#b5c5c0;--ink:#f4f7f4}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:radial-gradient(ellipse at 85% 0,#28523c 0,transparent 36%),radial-gradient(ellipse at 0 45%,#173c3a 0,transparent 42%),var(--bg);color:var(--ink);font:14px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif;padding-bottom:calc(88px + env(safe-area-inset-bottom))}
+main{width:min(100%,760px);margin:auto;padding:12px 13px 28px}a{color:var(--gold)}
+header{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 2px 15px}
+.back{color:var(--gold);font-size:11px;font-weight:850;text-decoration:none;letter-spacing:.06em}
+.badge{border:1px solid #e9c68170;color:var(--gold);background:#e9c68112;border-radius:99px;padding:5px 9px;font-size:10px;font-weight:850;white-space:nowrap}
+.hero{padding:20px 18px;border:1px solid #9bd6b44a;border-radius:21px;background:radial-gradient(ellipse at 90% 0,#2b987347,transparent 60%),linear-gradient(135deg,#193b34,#132333);box-shadow:inset 0 1px #fff2,0 12px 28px #0007}
+.kicker{font-size:10px;color:var(--green);font-weight:850;letter-spacing:.14em}
+h1{font-size:clamp(26px,6vw,39px);line-height:1.05;letter-spacing:-.04em;margin:8px 0 10px}
+.hero p{margin:0;color:#d8e6df;max-width:600px}
+.hero-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:40px;padding:8px 13px;border-radius:12px;border:1px solid #a3dfbf88;background:linear-gradient(135deg,#24654f,#163d38);color:#effff7;text-decoration:none;font-size:12px;font-weight:850;cursor:pointer}
+.btn.secondary{background:#0d1a1ddc;border-color:#e9c68170;color:#f5dda9}
+.quick{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;margin:10px 0}
+.quick div{padding:10px 8px;border:1px solid #9fcbb42c;border-radius:13px;background:#12221fdc;text-align:center}
+.quick strong{display:block;color:var(--green);font-size:clamp(13px,3vw,18px);line-height:1.2}
+.quick small{display:block;color:var(--muted);font-size:9px;line-height:1.25;margin-top:4px}
+.card{margin-top:10px;padding:15px 15px 14px;border:1px solid #8fc9b532;border-radius:17px;background:linear-gradient(140deg,#1a2d2be8,#101c26f2);box-shadow:inset 0 1px #fff1,0 6px 18px #0005}
+h2{font-size:16px;line-height:1.25;margin:0 0 9px;color:#f2d99e}h3{font-size:13px;margin:13px 0 5px;color:var(--green)}
+p{margin:6px 0;color:#d9e5df}ul,ol{margin:7px 0 2px;padding-left:21px;color:#d9e5df}li{padding:2px 0}
+.note{padding:10px 12px;margin-top:10px;border-left:3px solid var(--gold);border-radius:8px;background:#e9c68112;color:#f1e4c9;font-size:12px}
+.warn{border-left-color:#f0a16c;background:#f0a16c12;color:#f6dccd}.good{border-left-color:var(--green);background:#8de3bd10}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.mini{padding:10px 11px;border:1px solid #9fcbb42a;border-radius:12px;background:#0b181bd9}
+.mini b{display:block;color:#f0d59b;font-size:12px;margin-bottom:3px}.mini span{display:block;color:#c6d5d0;font-size:11px;line-height:1.4}
+table{width:100%;border-collapse:collapse;font-size:11px;margin-top:8px}
+th,td{text-align:left;padding:8px 7px;border-bottom:1px solid #9fcbb42a;vertical-align:top}th{color:var(--green);font-weight:850}td{color:#d8e4df}
+code{font-family:ui-monospace,monospace;color:#b8f0d3;background:#081613;padding:2px 5px;border-radius:5px}
+.pill{display:inline-block;border:1px solid #8de3bd55;border-radius:99px;padding:2px 7px;color:#b9f4d7;font-size:10px;font-weight:800}
+details{border-top:1px solid #9fcbb42a;padding:9px 0}details:first-of-type{border-top:0}summary{cursor:pointer;color:#f0d59b;font-weight:800}
+.small{font-size:11px;color:var(--muted)}.links{display:flex;gap:8px;flex-wrap:wrap;margin-top:9px}.links a{font-size:11px;font-weight:750}
+.bottom{position:fixed;z-index:10;bottom:calc(8px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);width:min(calc(100% - 16px),734px);display:grid;grid-template-columns:1fr 1.2fr 1fr;gap:7px;padding:7px;border:1px solid #a3d8bb60;border-radius:17px;background:#0c1a1af2;box-shadow:0 8px 24px #000a;backdrop-filter:blur(16px)}
+.bottom a{min-height:42px;display:grid;place-items:center;text-decoration:none;border-radius:11px;background:#152b29;color:#e5f4ec;font-size:11px;font-weight:850}
+.bottom a.ask{background:linear-gradient(135deg,#236b51,#153d36);border:1px solid #9be3bd80;color:#f3fff7}
+@media(max-width:420px){main{padding:8px 9px 22px}.hero{padding:17px 14px}.quick{grid-template-columns:repeat(2,minmax(0,1fr))}.card{padding:13px 12px}.grid{grid-template-columns:1fr}table{font-size:10px}th,td{padding:7px 5px}}
+</style>
+</head>
+<body>
+<main>
+<header><a class="back" href="./">‹ VISSZA A LÉNA CAPITALHOZ</a><span class="badge">PAPER ONLY · 90 NAP</span></header>
+<section class="hero">
+<div class="kicker">LÉNA CAPITAL · QUICK USER GUIDE</div>
+<h1>Használati útmutató</h1>
+<p>Egyszerűen, lépésről lépésre: mit csinál a szimuláció, mit jelentenek a számok, mit érdemes naponta figyelni, és mikor kell megállni.</p>
+<div class="hero-actions"><a class="btn" href="./">↗ Portfólió megnyitása</a><button class="btn secondary" type="button" onclick="openCapitalAskLena()">✦ Ask Léna</button></div>
+</section>
+<section class="quick" aria-label="A teszt fő paraméterei">
+<div><strong>100 000 Ft</strong><small>virtuális kezdőtőke</small></div><div><strong>90 nap</strong><small>naptári napos pilot</small></div><div><strong>3 ETF</strong><small>SPY · QQQ · IWM</small></div><div><strong>0 Ft</strong><small>valós befizetés</small></div>
+</section>
+<section class="card" id="start">
+<h2>1. Mi ez, és hogyan indul?</h2>
+<p>A Léna Capital jelenleg egy <b>szabályalapú, kizárólag virtuális szimuláció</b>. A 100 000 Ft nem valódi pénz, nem utaljuk be brókerhez, és a rendszer nem küld vételi vagy eladási megbízást.</p>
+<ol>
+<li>Nyisd meg a Léna Capital portfólióoldalát.</li>
+<li>Az első engedélyezett sikeres futás létrehozza a privát portfóliónaplót.</li>
+<li>A 90 napos időszak ettől az első sikeres inicializálástól indul, nem a korábbi kapcsolódási teszttől.</li>
+<li>Amikor már létezik a <code>state/paper.json</code> napló, töltsd le a privát GitHub-repozitóriumból, majd a portfólióoldalon válaszd a <b>Napló import</b> gombot.</li>
+</ol>
+<div class="note good"><b>Fontos:</b> a SHO-portfólióoldal jelenleg manuális JSON-importtal frissül. Automatikus, hitelesített távoli szinkron még nincs. Az importált pillanatkép nem élő adat.</div>
+<p class="small">Ha a privát napló még nem létezik, nézd meg a Futási státuszt. Az első sikeres indulás előtt ez normális; ne hozz létre kézzel üres naplót, és ne töröld a START_PAPER jelölőt.</p>
+</section>
+<section class="card" id="strategy">
+<h2>2. Mibe fektet Léna?</h2>
+<p>Három amerikai ETF-et figyel. Az ETF egy tőzsdén kereskedett befektetési alap: egyetlen értékpapírral sok vállalat részvényeihez lehet kitettséget szerezni.</p>
+<div class="grid">
+<div class="mini"><b>SPY · S&amp;P 500</b><span>Nagy amerikai vállalatok széles kosara. A benchmark is ezt használja.</span></div>
+<div class="mini"><b>QQQ · Nasdaq-100</b><span>Nagy, nem pénzügyi Nasdaq-vállalatok; erősebb technológiai és növekedési súly.</span></div>
+<div class="mini"><b>IWM · Russell 2000</b><span>Kisebb amerikai vállalatok, jellemzően változékonyabb árfolyammozgással.</span></div>
+<div class="mini"><b>Készpénz</b><span>Ha egyik ETF sem teljesíti a szabályokat, a szimuláció nem erőltet vételt.</span></div>
+</div>
+<h3>A választási szabály: 20/50 momentum</h3>
+<ul>
+<li><b>20 napos momentum:</b> az aktuális záróárat összeveti a 20 kereskedési nappal korábbi záróárral.</li>
+<li><b>50 napos trend:</b> az árnak az 50 napos egyszerű mozgóátlag fölött kell lennie.</li>
+<li>A pozitív momentummal és 50 napos átlag fölötti árral rendelkező ETF-ek közül a legerősebb kap jelzést.</li>
+<li>Ha egyik sem alkalmas, a célpozíció készpénz.</li>
+<li>A kiválasztott ETF megvásárlására a rendelkezésre álló készpénz legfeljebb 50%-át használja fel.</li>
+</ul>
+<div class="note">Ez jelenleg <b>nem előrejelző AI</b>: rögzített, determinisztikus matematikai szabály. A „Strategy Intelligence” a szabály eredményét magyarázza, nem jósolja meg biztosan a piacot.</div>
+</section>
+<section class="card" id="dashboard">
+<h2>3. A portfólió képernyő olvasása</h2>
+<table><thead><tr><th>Mező</th><th>Mit jelent?</th></tr></thead><tbody>
+<tr><td><b>Virtuális portfólió</b></td><td>A teljes szimulált vagyon aktuális, forintra átszámított értéke.</td></tr>
+<tr><td><b>Nettó eredmény</b></td><td>A portfólióérték és a 100 000 Ft indulótőke különbsége, modellezett költségek után, adó előtt.</td></tr>
+<tr><td><b>Hozam</b></td><td>A nettó eredmény százalékban, az indulótőkéhez mérve.</td></tr>
+<tr><td><b>S&amp;P 500 ETF</b></td><td>A külön SPY benchmark hozama. Árfolyamhozam, az osztalékok nincsenek beleszámítva.</td></tr>
+<tr><td><b>Piac feletti hozam</b></td><td>Léna hozama mínusz a SPY benchmark hozama, százalékpontban.</td></tr>
+<tr><td><b>Grafikon</b></td><td>A Léna-portfólió és a SPY benchmark eddigi értéktörténete.</td></tr>
+<tr><td><b>Strategy Intelligence</b></td><td>A következő modellezett nyitásra rögzített céljelzés. A „Pozíció” sor mutatja a jelenlegi virtuális állományt.</td></tr>
+<tr><td><b>Financial Guard</b></td><td>A portfólió korábbi csúcsához viszonyított visszaesés, az 5%-os küszöbhöz képest.</td></tr>
+<tr><td><b>Adatnap</b></td><td>Az utolsó feldolgozott, lezárt amerikai kereskedési nap. Nem feltétlenül a mai naptári nap.</td></tr>
+</tbody></table>
+<div class="note warn"><b>Benchmark-korlát:</b> a jelenlegi SPY benchmark 100%-ban befektetett SPY-t tart, miközben Léna legfeljebb 50%-ot tesz egy ETF-be, a többi készpénz. Ez hasznos piaci viszonyítás, de nem azonos kockázatú összehasonlítás. A kockázattal és befektetési aránnyal korrigált, 50%-os SPY-összevetés későbbi fejlesztés.</div>
+</section>
+<section class="card" id="daily">
+<h2>4. Mit érdemes naponta figyelni?</h2>
+<div class="grid">
+<div class="mini"><b>① Futási státusz</b><span>A GitHub Actions futás zöld / sikeres legyen. Hiba esetén ne tekintsd frissnek a portfóliót.</span></div>
+<div class="mini"><b>② Adatnap</b><span>Ellenőrizd, hogy a legutóbbi lezárt amerikai kereskedési nap szerepel-e.</span></div>
+<div class="mini"><b>③ Pozíció és jelzés</b><span>Nézd meg, melyik ETF a jelenlegi állomány, és mi a következő rögzített cél.</span></div>
+<div class="mini"><b>④ Hozam és Financial Guard</b><span>Figyeld a nettó eredményt, a SPY-hoz viszonyított teljesítményt és a visszaesést.</span></div>
+</div>
+<p>A GitHub Actions ütemezése naponta 06:15 UTC. Ez Budapesten télen 07:15, nyáron 08:15. Az ütemezés legjobb erőfeszítésű, nem garantált percre pontos futás. Hétvégén és amerikai tőzsdei szünnapon nem keletkezik új kereskedési nap.</p>
+<p>Az adatforrás az Alpaca IEX napi ETF-árfolyamadata és az Európai Központi Bank USD/HUF referenciaárfolyama. A rendszer ellenőrzi a tőzsdenaptárat, az adatok teljességét és frissességét. Hiányzó nap, hibás vagy elavult adat esetén megáll; nem talál ki kötést és nem pótol visszamenőleg.</p>
+<div class="note good">Nem kell percenként figyelni. A napi egyszeri státusz- és adatnap-ellenőrzés elég a pilot követéséhez. <b>Nincs fix napi kamat vagy garantált napi hozam:</b> egy nap lehet nyereséges, veszteséges vagy változatlan, és nem minden nap történik kötés. A külön napi P&amp;L kártya még fejlesztendő; a mostani Hozam mező az indulás óta összesített eredményt mutatja.</div>
+</section>
+<section class="card" id="risk">
+<h2>5. Kockázat, költség és deviza</h2>
+<h3>Financial Guard · 5%-os küszöb</h3>
+<p>Ha a portfólió a korábbi csúcsához képest legalább 5%-ot esik, vagy az indulótőke 95%-a alá kerül, a motor kockázati stopot állít be. Nem nyit új pozíciót, és a következő modellezett nyitáskor készpénzre vált.</p>
+<div class="note warn">Az 5% <b>nem garantált maximális veszteség</b>. Piaci rés, nyitási árugrás, devizaárfolyam és költségek miatt a tényleges szimulált veszteség nagyobb is lehet.</div>
+<h3>Modellezett költségek</h3>
+<ul><li>Tranzakciónként 0,2% változó költség és 0,50 USD fix költség.</li><li>0,25%-os modellezett devizaköltség.</li><li>Nincs külön fizetős adat-előfizetés vagy valódi befizetés. A GitHub Actions a fiókban elérhető futtatási keretet használja; a fizetős túllépést érdemes kikapcsolva tartani.</li><li>Ezek szimulációs feltételezések, nem egy tényleges brókerszámla számlázott díjai.</li></ul>
+<h3>Miért számít a dollár?</h3>
+<p>A portfólió amerikai ETF-eket és USD-kitettséget tartalmaz, az eredményt viszont forintban látod. A dollár erősödése növelheti, gyengülése csökkentheti a forintban kimutatott értéket, az ETF árfolyamától függetlenül is. A devizahatás külön bontása még nincs a dashboardon.</p>
+<h3>STOP és újraindítás</h3>
+<p>A <b>STOP kezelése</b> a GitHub Actions munkafolyamat oldalára visz. A jövőbeni futásokat ott lehet letiltani, vagy a privát repó gyökerében PAUSE fájllal lehet szüneteltetni. Ez nem szakít félbe egy már futó munkát.</p>
+<div class="note warn">A <code>state/paper.json</code> naplót vagy a <code>START_PAPER</code> jelölőt ne töröld újraindítási kísérletként. A meglévő állapot védelmi elem; ha megáll a folyamat, előbb nézzük meg a hibát.</div>
+</section>
+<section class="card" id="limits">
+<h2>6. Mi van már, és mi készül még?</h2>
+<table><thead><tr><th>Funkció</th><th>Állapot</th></tr></thead><tbody>
+<tr><td>Virtuális portfólió, nettó eredmény, hozam</td><td><span class="pill">Dashboardon</span></td></tr>
+<tr><td>SPY benchmark és összehasonlító grafikon</td><td><span class="pill">Dashboardon</span></td></tr>
+<tr><td>Stratégiai jelzés és Financial Guard</td><td><span class="pill">Dashboardon</span></td></tr>
+<tr><td>Privát JSON napló importja és futási státusz</td><td><span class="pill">Elérhető</span></td></tr>
+<tr><td>Automatikus, hitelesített dashboard-szinkron</td><td>Fejlesztendő</td></tr>
+<tr><td>Napi P&amp;L külön kártya</td><td>Tervezett</td></tr>
+<tr><td>USD/HUF hatás külön bontása</td><td>Tervezett</td></tr>
+<tr><td>Azonos kitettségű, 50%-os SPY benchmark</td><td>Tervezett</td></tr>
+<tr><td>Kockázattal korrigált teljesítménymutatók</td><td>Tervezett</td></tr>
+</tbody></table>
+</section>
+<section class="card" id="glossary">
+<h2>7. Mini tőzsdei szótár</h2>
+<details><summary>ETF</summary><p>Tőzsdén kereskedett alap. Egyetlen vásárlással egy értékpapír-kosárhoz kapsz kitettséget. Az árfolyama eshet, ezért a veszteség lehetősége megmarad.</p></details>
+<details><summary>NAV / portfólióérték</summary><p>A teljes szimulált vagyon értéke: készpénz plusz a tartott ETF piaci értéke, forintra átszámítva és a modellköltségekkel korrigálva.</p></details>
+<details><summary>P&amp;L</summary><p>Profit and Loss, vagyis nyereség és veszteség. A pozitív érték nyereséget, a negatív veszteséget jelent.</p></details>
+<details><summary>Benchmark</summary><p>Összehasonlítási alap. Itt a SPY azt mutatja, hogyan alakult volna a külön benchmark-portfólió teljesítménye.</p></details>
+<details><summary>Momentum</summary><p>Árfolyamlendület: mennyit változott az ár egy adott múltbeli időszak alatt. A modell a 20 kereskedési napos lendületet vizsgálja.</p></details>
+<details><summary>50 napos mozgóátlag</summary><p>Az utolsó 50 kereskedési nap záróárának egyszerű átlaga. A stratégia csak az átlag fölötti ETF-et engedi jelöltnek.</p></details>
+<details><summary>Drawdown</summary><p>Visszaesés a portfólió korábbi legmagasabb értékéhez képest. Nem ugyanaz, mint az indulótőkéhez viszonyított teljes veszteség.</p></details>
+<details><summary>Százalékpont (pp)</summary><p>Két százalékos hozam különbségének mértéke. Például 4% és 2% között 2 százalékpont a különbség.</p></details>
+<div class="links"><a href="https://www.investor.gov/introduction-investing/investing-basics/investment-products/mutual-funds-and-exchange-traded-2" target="_blank" rel="noopener noreferrer">Investor.gov · ETF alapok ↗</a><a href="https://www.investor.gov/introduction-investing/getting-started/asset-allocation" target="_blank" rel="noopener noreferrer">Investor.gov · Kockázat és diverzifikáció ↗</a></div>
+</section>
+<section class="card">
+<h2>8. Kérdezd Lénát</h2>
+<p>Nem kell ismerned a tőzsdei szakkifejezéseket. Kérdezhetsz hétköznapi nyelven is, például:</p>
+<ul><li>„Miért ezt az ETF-et választotta most a stratégia?”</li><li>„Magyarázd el a mai hozamot egyszerűen.”</li><li>„Mennyit számított a dollár árfolyama?”</li><li>„Mit jelent a mostani visszaesés, és mit csinál a Financial Guard?”</li></ul>
+<div class="note">Az Ask Léna gomb a beállított ChatGPT-projektet nyitja meg. A portfólió JSON-naplót nem továbbítja automatikusan; ha konkrét napi számokról kérsz elemzést, csatold a legfrissebb naplót a beszélgetéshez.</div>
+<div class="hero-actions"><button class="btn" type="button" onclick="openCapitalAskLena()">✦ Ask Léna megnyitása</button><a class="btn secondary" href="./">Vissza a portfólióhoz</a></div>
+</section>
+<p class="small" style="text-align:center;margin:17px 5px 4px">Léna Capital · belső használati útmutató · 2026. november 26. · PAPER ONLY</p>
+</main>
+<nav class="bottom" aria-label="Léna Capital útmutató navigáció"><a href="./">‹ Portfólió</a><a class="ask" href="#" onclick="event.preventDefault();openCapitalAskLena()">✦ Ask Léna</a><a href="#start">↑ Tetejére</a></nav>
+<script defer src="/berlet-app/healthhub/chatgpt-project-shortcut-v712.js?v=capital-guide-1"></script>
+<script>
+function openCapitalAskLena(){
+ const api=window.HH_CHATGPT_PROJECT_SHORTCUT_V712;
+ if(api&&typeof api.openProject==='function'){api.openProject();return}
+ location.assign('/berlet-app/healthhub/index.html?sh9nav=admin&sh9cfg=asklena');
+}
+</script>
+</body></html>

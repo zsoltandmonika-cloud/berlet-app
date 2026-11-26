@@ -50,6 +50,11 @@
  .actions .action-link,.actions .upload{min-height:36px}
 }
 
+</style><style id="capital-guide-actions">
+.actions{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.actions .action-link,.actions .upload{min-height:36px;padding:4px 5px;font-size:10.5px;line-height:1.15;overflow-wrap:anywhere;border-radius:10px}
+.actions .action-link{font-weight:800}
+@media(max-width:355px){.actions{gap:4px}.actions .action-link,.actions .upload{font-size:9.5px;min-height:34px;padding:3px}}
 </style><meta name="referrer" content="no-referrer"></head><body><main>
 <header class="top"><div><a href="../">‹ ÉLETMÓD / SHO FINANCE</a><div class="heading"><h1>Léna Capital</h1><button type="button" id="refresh-page" class="refresh-page" title="Csak a Léna Capital oldal frissítése" aria-label="Léna Capital oldal frissítése"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7v5h-5M4 17v-5h5M5.3 9A7.5 7.5 0 0 1 18 6l2 2M4 16l2 2a7.5 7.5 0 0 0 12.7-3"/></svg></button></div></div><span class="badge">PAPER ONLY · 0 Ft</span></header>
 <section class="hero glass"><div class="row"><span class="label">Virtuális portfólió</span><span id="status" class="badge">NAPLÓRA VÁR</span></div><div id="nav" class="big">100 000 Ft</div><div class="row small"><span>90 nap · 100% szimuláció</span><span id="asof">Nincs betöltött napló</span></div></section>
@@ -57,7 +62,22 @@
 <section class="chart glass"><div class="row"><span class="label">Portfólió vs. benchmark</span><span id="count" class="small">0 megfigyelés</span></div><svg viewBox="0 0 320 70" preserveAspectRatio="none" aria-label="Virtuális portfólió és benchmark története"><path d="M0 14H320 M0 35H320 M0 56H320" stroke="#92b1cd" opacity=".16"/><polyline id="p1" fill="none" stroke="#7ce9c4" stroke-width="2.4" vector-effect="non-scaling-stroke"/><polyline id="p2" fill="none" stroke="#eac78b" stroke-width="1.7" vector-effect="non-scaling-stroke"/></svg><div class="legend"><span><i class="dot"></i>Léna Capital</span><span><i class="dot gold"></i>SPY benchmark</span></div></section>
 <section class="glass decision"><div class="row"><h2>✦ Léna Strategy Intelligence</h2><span id="target" class="small">NINCS JELZÉS</span></div><p id="reason">20 napos momentum · 50 napos trend. Jelzés csak ellenőrzött, lezárt napi árfolyamokból.</p><p id="position">Pozíció: — · virtuális kötések: 0</p></section>
 <section class="glass guard"><div class="row"><h2>◈ Financial Guard</h2><span class="small">ÉLES KERESKEDÉS TILTVA</span></div><div class="riskline"><span>Csúcstól mért veszteség</span><b id="dd">— / 5%</b></div><div class="track"><i id="bar"></i></div><div class="small">Max. 50% kezdeti pozíció · nincs short, hitel vagy tőkeáttétel. Az 5% nem garantált veszteségkorlát.</div></section>
-<div class="actions"><label class="upload">↥ Privát napló betöltése<input type="file" id="file" accept=".json,application/json"></label><a class="action-link" href="https://github.com/zsoltandmonika-cloud/Lena-Capital-/blob/main/state/paper.json" target="_blank" rel="noopener noreferrer">↗ Privát napló</a><a class="action-link" href="https://github.com/zsoltandmonika-cloud/Lena-Capital-/actions/workflows/paper-pilot.yml" target="_blank" rel="noopener noreferrer">◷ Futási státusz</a><a class="action-link" style="background:#311e29;border-color:#df778066;color:#ffb1b8" href="https://github.com/zsoltandmonika-cloud/Lena-Capital-/actions/workflows/paper-pilot.yml" target="_blank" rel="noopener noreferrer" title="A GitHub Actions felületen tiltható le a workflow">■ STOP kezelése ↗</a></div><div id="notice" class="footer" role="status">Beállított virtuális kezdőtőke, nem friss egyenleg. Az első sikeres futás után a privát napló importálható. Automatikus szinkron még nincs.</div></main>
+<div class="actions">
+<label class="upload" title="Legfrissebb privát JSON napló importálása">↥ Napló import<input type="file" id="file" accept=".json,application/json"></label>
+<a class="action-link" href="https://github.com/zsoltandmonika-cloud/Lena-Capital-/blob/main/state/paper.json" target="_blank" rel="noopener noreferrer">↗ Privát JSON</a>
+<a class="action-link" href="https://github.com/zsoltandmonika-cloud/Lena-Capital-/actions/workflows/paper-pilot.yml" target="_blank" rel="noopener noreferrer">◷ Futási státusz</a>
+<a class="action-link" style="background:#311e29;border-color:#df778066;color:#ffb1b8" href="https://github.com/zsoltandmonika-cloud/Lena-Capital-/actions/workflows/paper-pilot.yml" target="_blank" rel="noopener noreferrer" title="A GitHub Actions felületen tiltható le a workflow">■ STOP ↗</a>
+<a class="action-link" href="./guide.html">ⓘ Használati útmutató</a>
+<button class="action-link" type="button" onclick="openCapitalAskLena()">✦ Ask Léna</button>
+</div><div id="notice" class="footer" role="status">Beállított virtuális kezdőtőke, nem friss egyenleg. Az első sikeres futás után a privát napló importálható. Automatikus szinkron még nincs.</div></main>
+<script defer src="/berlet-app/healthhub/chatgpt-project-shortcut-v712.js?v=capital-guide-1"></script>
+<script>
+function openCapitalAskLena(){
+ const api=window.HH_CHATGPT_PROJECT_SHORTCUT_V712;
+ if(api&&typeof api.openProject==='function'){api.openProject();return}
+ location.assign('/berlet-app/healthhub/index.html?sh9nav=admin&sh9cfg=asklena');
+}
+</script>
 <script>
 const $=x=>document.getElementById(x),money=x=>Math.round(x).toLocaleString('hu-HU')+' Ft',pct=x=>x.toLocaleString('hu-HU',{maximumFractionDigits:2,minimumFractionDigits:2})+'%',num=x=>typeof x==='number'&&Number.isFinite(x);
 function set(id,v,negative=false){$(id).textContent=v;$(id).classList.toggle('negative',negative)}
