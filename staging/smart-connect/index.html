@@ -10,7 +10,7 @@
 <section class="card"><h2>Telefonos validáció</h2><p class="note">A két zöld gomb jelenleg a WhatsApp-beszélgetést nyitja meg. Ott a telefon vagy kamera ikon indítja a hívást. Közvetlen hívásindítás még nincs igazolva. A Telefon a tárcsázót nyitja, a Messenger a megadott kontakt beszélgetését. Névjegyválasztás: támogatott Android böngészőben, HTTPS-en. Ez nem elérhetőség-ellenőrző és nem helyettesíti a 112-t.</p></section><footer>SHO · izolált fejlesztési teszt · nincs éles rendszerkapcsolat</footer></main>
 <script>
 const $=id=>document.getElementById(id), ids=['z','zm','m','mm'], storage='sho-smart-connect-staging-v2';
-let profile='m',view='guard';
+let profile='m',view=new URLSearchParams(location.search).get('view')==='connect'?'connect':'guard';
 const svg=p=>'<svg viewBox="0 0 24 24" aria-hidden="true">'+p+'</svg>';
 const icons={wa:svg('<path d="M7 3a9 9 0 0 1 13 12c-2 5-8 7-12 5l-5 1 1-5A9 9 0 0 1 7 3Z"/><path d="m8 7 2 3-1 1 4 4 1-1 3 1-1 2c-4 1-9-4-9-8Z"/>'),video:svg('<rect x="3" y="6" width="13" height="12" rx="2"/><path d="m16 10 5-3v10l-5-3"/>'),phone:svg('<path d="M5 4h4l2 5-3 2a13 13 0 0 0 5 5l2-3 5 2v4a2 2 0 0 1-2 2C10 21 3 14 3 6a2 2 0 0 1 2-2Z"/>'),msg:svg('<path d="M21 11a9 9 0 0 1-9 9l-4-1-4 2 1-5a9 9 0 1 1 16-5Z"/><path d="m7 13 4-4 2 3 4-3"/>')};
 function number(s){s=s.trim().replace(/[\s().-]/g,'');if(s.startsWith('00'))s='+'+s.slice(2);else if(s.startsWith('06'))s='+36'+s.slice(2);return /^\+[1-9]\d{6,14}$/.test(s)?s:''}
@@ -26,5 +26,6 @@ try{const d=JSON.parse(localStorage.getItem(storage)||'{}');ids.forEach(i=>$(i).
 $('save').onclick=()=>{try{localStorage.setItem(storage,JSON.stringify(Object.fromEntries(ids.map(i=>[i,$(i).value]))));$('status').textContent='Helyben mentve.'}catch(e){$('status').textContent='A helyi tárolás nem elérhető.'}};
 $('clear').onclick=()=>{try{localStorage.removeItem(storage);$('status').textContent='Helyi tároló és űrlap törölve.'}catch(e){$('status').textContent='A tároló nem elérhető; az űrlap törölve.'}[...ids,'name','tel','ms'].forEach(i=>$(i).value='');render()};
 $('pick').onclick=async()=>{try{if(!navigator.contacts?.select)throw Error();const r=await navigator.contacts.select(['name','tel'],{multiple:false});if(r.length){$('name').value=r[0].name?.[0]||'';$('tel').value=r[0].tel?.[0]||'';$('pickStatus').textContent='Névjegy kiválasztva.';render()}}catch(e){$('pickStatus').textContent='Nem érhető el vagy megszakítva. Használd a kézi bevitelt.'}};
+document.querySelectorAll('[data-view]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.view===view)));
 render();
 </script></body></html>
