@@ -49,7 +49,7 @@ async function readCloud(){
 async function initCloud(){
  if(busy)return;const seq=++epoch;busy=true;controls();
  try{const {u,row}=await readCloud();if(seq!==epoch)return;owner=u;remote=row;$('cloudLogin').classList.add('hidden');
- if(marker()&&marker()!==u){applyValues({});if(row){applyValues(fromRow(row));localSave(values());bindOwner()}else {localSave({});bindOwner();notice('Másik fiók: a korábbi helyi adatok nem kerülnek feltöltésre.');}}
+ if(marker()&&marker()!==u){try{const prior=localStorage.getItem(storage);if(prior)localStorage.setItem(storage+'-backup-'+marker(),prior)}catch(e){}applyValues({});if(row){applyValues(fromRow(row));localSave(values());bindOwner()}else {localSave({});bindOwner();notice('Másik fiók: a korábbi helyi adatok nem kerülnek feltöltésre.');}}
  else if(row){const v=fromRow(row);if(!ids.some(i=>$(i).value.trim())||same(values(),v)){applyValues(v);localSave(v);bindOwner();notice('Felhőmentés betöltve.')}else notice('Eltérő helyi és felhőadatok. Válaszd a mentést vagy a visszaállítást.');}
  else notice('Még nincs felhőmentés. A Mentés gombbal átviheted a helyi adatokat.');
  }catch(e){if(seq===epoch){owner=null;remote=null;notice(e.message+' A helyi mentés továbbra is használható.');$('cloudLogin').classList.remove('hidden')}}finally{busy=false;controls()}
