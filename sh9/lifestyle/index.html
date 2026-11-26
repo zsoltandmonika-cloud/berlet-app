@@ -96,6 +96,13 @@
 @media(max-width:600px){.content{flex:1 1 auto;display:flex;flex-direction:column;min-height:0;padding-bottom:8px;overflow:auto}.tiles{flex:1 0 auto;height:auto;min-height:310px;max-height:none;grid-template-rows:repeat(2,minmax(96px,1fr)) minmax(104px,1.1fr);gap:8px}.tile.capital{padding:9px 10px}.tile.capital strong{font-size:clamp(15px,4.2vw,19px)}.tile.capital .description{font-size:clamp(11px,2.9vw,13px)}}
 @media(min-width:601px){.tiles{grid-template-rows:repeat(2,285px) 195px}.tile.capital{padding:18px 27px}.tile.capital strong small{font-size:14px}.broker-board{font-size:13px}.broker-caption{font-size:13px}.broker-lapel{font-size:12px}}
 </style>
+<style id="lifestyle-pull-refresh">
+/* Only this screen. Keep normal scrolling when the content has overflow. */
+.lifestyle-pull-status{position:fixed;z-index:100;top:calc(63px + env(safe-area-inset-top,0px));left:50%;transform:translate(-50%,-12px);opacity:0;pointer-events:none;display:flex;align-items:center;gap:8px;padding:8px 13px;border:1px solid #efc47799;border-radius:22px;background:#271e18f5;color:#ffe2a8;box-shadow:0 4px 18px #0008;font:700 12px system-ui;white-space:nowrap;transition:opacity .14s,transform .14s}
+.lifestyle-pull-status[data-active="true"]{opacity:1;transform:translate(-50%,0)}
+.lifestyle-pull-status .pull-arrow{font-size:18px;line-height:1}
+.lifestyle-pull-status[data-ready="true"]{border-color:#8ad8b2;color:#c3f6df}
+</style>
 </head><body><main class="shell">
 <header class="top">
  <a class="back" href="/berlet-app/sh9/" aria-label="Vissza"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14.5 3.5-8 8.5 8 8.5"/></svg></a>
@@ -146,6 +153,60 @@ function refreshLifestyleOnly(){
   url.searchParams.set('refresh',refresh);
   node.href=url.toString();
  }
+})();
+</script>
+<script id="lifestyle-pull-refresh-script">
+(function(){
+ 'use strict';
+ const shell=document.querySelector('main.shell'),content=document.querySelector('.content');
+ if(!shell||!content)return;
+ const indicator=document.createElement('div');
+ indicator.className='lifestyle-pull-status';
+ indicator.setAttribute('aria-hidden','true');
+ const arrow=document.createElement('span'),caption=document.createElement('span');
+ arrow.className='pull-arrow';arrow.textContent='↓';caption.textContent='Húzd le a frissítéshez';
+ indicator.append(arrow,caption);document.body.append(indicator);
+ const THRESHOLD=72, DEADZONE=10;
+ let start=null,active=false,distance=0,refreshing=false,blockClickUntil=0;
+ const atTop=()=>content.scrollTop<=1&&shell.scrollTop<=1&&(window.scrollY||0)<=1;
+ function show(ready){
+  indicator.dataset.active='true';indicator.dataset.ready=String(ready);
+  arrow.textContent=ready?'↻':'↓';caption.textContent=ready?'Engedd el a frissítéshez':'Húzd le a frissítéshez';
+ }
+ function reset(){
+  start=null;active=false;distance=0;indicator.dataset.active='false';indicator.dataset.ready='false';
+ }
+ shell.addEventListener('touchstart',e=>{
+  reset();
+  if(refreshing||e.touches.length!==1||!atTop()||e.target.closest('button,input,select,textarea,[contenteditable],.dock'))return;
+  const t=e.touches[0];start={id:t.identifier,x:t.clientX,y:t.clientY};
+ },{passive:true});
+ shell.addEventListener('touchmove',e=>{
+  if(!start)return;
+  if(e.touches.length!==1){reset();return}
+  const t=e.touches[0];if(t.identifier!==start.id){reset();return}
+  const dx=t.clientX-start.x,dy=t.clientY-start.y;
+  if(!active){
+   if(!atTop()||dy< -DEADZONE||(Math.abs(dx)>DEADZONE&&Math.abs(dx)>Math.max(0,dy)*.75)){reset();return}
+   if(dy<DEADZONE)return;
+   active=true;
+  }
+  if(e.cancelable)e.preventDefault();
+  distance=Math.max(0,dy);show(distance>=THRESHOLD);
+ },{passive:false});
+ shell.addEventListener('touchend',e=>{
+  if(!start)return;
+  const fire=active&&distance>=THRESHOLD&&e.touches.length===0&&atTop();
+  if(active)blockClickUntil=Date.now()+700;
+  reset();
+  if(fire&&!refreshing){
+   refreshing=true;indicator.dataset.active='true';indicator.dataset.ready='true';
+   arrow.textContent='↻';caption.textContent='Életmód frissítése…';
+   refreshLifestyleOnly();
+  }
+ },{passive:true});
+ shell.addEventListener('touchcancel',()=>{if(active)blockClickUntil=Date.now()+700;reset()},{passive:true});
+ shell.addEventListener('click',e=>{if(Date.now()<blockClickUntil){e.preventDefault();e.stopImmediatePropagation()}},true);
 })();
 </script>
 </body></html>
