@@ -33,6 +33,23 @@
  .decision p{font-size:10.5px}.footer{font-size:9px}
 }
 
+
+/* Snug fit: distribute free viewport space to the portfolio, KPI grid and chart.
+   Preserve normal overflow at accessibility zoom or unusually small heights. */
+@media(max-width:600px) and (orientation:portrait){
+ main{display:flex;flex-direction:column;min-height:var(--capital-viewport,100dvh);align-content:normal;gap:clamp(4px,.68dvh,7px)}
+ main>*{flex-shrink:0;min-width:0}
+ .hero{flex:0.5 0 auto;display:flex;flex-direction:column;justify-content:space-between}
+ .stats{flex:0.8 0 auto;grid-auto-rows:1fr}
+ .stats .glass{display:flex;flex-direction:column;justify-content:center}
+ .chart{flex:1.7 0 auto;display:flex;flex-direction:column}
+ .chart svg{flex:1 0 auto;min-height:32px}
+ .footer{margin-top:0}
+ .top .badge{flex-shrink:0}
+ .hero .row,.decision .row,.guard .row{flex-wrap:wrap}
+ .actions .action-link,.actions .upload{min-height:36px}
+}
+
 </style><meta name="referrer" content="no-referrer"></head><body><main>
 <header class="top"><div><a href="../">‹ ÉLETMÓD / SHO FINANCE</a><div class="heading"><h1>Léna Capital</h1><button type="button" id="refresh-page" class="refresh-page" title="Csak a Léna Capital oldal frissítése" aria-label="Léna Capital oldal frissítése"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7v5h-5M4 17v-5h5M5.3 9A7.5 7.5 0 0 1 18 6l2 2M4 16l2 2a7.5 7.5 0 0 0 12.7-3"/></svg></button></div></div><span class="badge">PAPER ONLY · 0 Ft</span></header>
 <section class="hero glass"><div class="row"><span class="label">Virtuális portfólió</span><span id="status" class="badge">NAPLÓRA VÁR</span></div><div id="nav" class="big">100 000 Ft</div><div class="row small"><span>90 nap · 100% szimuláció</span><span id="asof">Nincs betöltött napló</span></div></section>
@@ -56,4 +73,19 @@ function render(s){
 }
 $('file').onchange=async e=>{try{const f=e.target.files[0];if(!f)return;if(f.size>2000000)throw Error('Túl nagy napló.');render(JSON.parse(await f.text()))}catch(err){set('notice','Nem sikerült betölteni: '+err.message,true)}};
 $('refresh-page').addEventListener('click',()=>{if(snapshotLoaded&&!confirm('Az oldal újratöltése törli a megjelenített helyi pillanatképet. A privát napló és a szimuláció változatlan marad. Frissíted az oldalt?'))return;const u=new URL(location.href);u.searchParams.set('refresh',String(Date.now()));location.replace(u.href)});
+
+/* Use the actual visible WebView height when the page is at normal zoom.
+   Do not interfere with pinch zoom, the system keyboard, or other SHO modules. */
+(function(){
+ const fit=()=>{
+  if(!window.matchMedia('(max-width:600px) and (orientation:portrait)').matches|| (window.visualViewport&&Math.abs(window.visualViewport.scale-1)>.01)){
+   document.documentElement.style.removeProperty('--capital-viewport');return;
+  }
+  const h=Math.floor(window.visualViewport?.height||window.innerHeight);
+  if(h>0)document.documentElement.style.setProperty('--capital-viewport',h+'px');
+ };
+ fit();window.addEventListener('resize',fit,{passive:true});
+ window.visualViewport?.addEventListener('resize',fit,{passive:true});
+})();
+
 </script></body></html>
