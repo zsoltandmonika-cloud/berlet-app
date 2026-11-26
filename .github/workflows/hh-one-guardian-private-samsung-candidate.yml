@@ -2,6 +2,7 @@ name: HH One 0.15.27 · SC Samsung signed candidate (NO OTA)
 
 on:
   pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
     branches: [fix/guardian-gps-ota-01524-qa-20261122]
     paths:
       - ".github/workflows/hh-one-guardian-private-samsung-candidate.yml"
