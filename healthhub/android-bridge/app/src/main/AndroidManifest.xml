@@ -62,15 +62,6 @@
         </receiver>
         <!-- SH9 visual shell and native GPS share this application's existing signed OTA identity. -->
         <activity android:name=".Sh9WebActivity" android:exported="false" />
-        <!-- External browser handoff: never returns contact data to the caller without explicit selection and copy. -->
-        <activity android:name=".ScExternalContactActivity" android:exported="true" android:excludeFromRecents="true">
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="healthhubconnect" android:host="sc-external" />
-            </intent-filter>
-        </activity>
         <!-- SH9 owner-only signed update, no direct public intent filter. -->
         <activity android:name=".OneTapOtaActivity" android:exported="false" />
         <service android:name=".Sh9GpsService"
