@@ -1,226 +1,226 @@
 {
   "schemaVersion": 1,
-  "date": "2026-11-25",
-  "generatedAt": "2026-11-25T15:30:34+01:00",
-  "headline": "A reggel fő témái: Russia's own figures show it has lost nearly 500,000 people in Ukraine war; My family were killed in Ukraine. My mum blamed Zelensky's troops - the truth is complicated",
+  "date": "2026-11-26",
+  "generatedAt": "2026-11-26T14:58:17+01:00",
+  "headline": "A reggel fő témái: German boat dealer suspected of supplying Channel smuggling gangs, BBC finds; Watch: BBC confronts German man suspected of supplying migrant gangs with small boats",
   "sections": [
     {
       "id": "executive",
       "title": "Vezetői összefoglaló",
       "items": [
-        "BBC World: Russia's own figures show it has lost nearly 500,000 people in Ukraine war",
-        "BBC World: My family were killed in Ukraine. My mum blamed Zelensky's troops - the truth is complicated",
-        "BBC World: US attorney general dodges questions about Nvidia investigation",
-        "BBC World: Close-up images to be revealed of asteroid deliberately hit to test ability to protect Earth"
+        "BBC World: German boat dealer suspected of supplying Channel smuggling gangs, BBC finds",
+        "BBC World: Watch: BBC confronts German man suspected of supplying migrant gangs with small boats",
+        "BBC World: Myanmar refuses to comply with parts of ICJ genocide ruling",
+        "BBC World: Desperate appeals from women on death row in Iran after protests"
       ]
     },
     {
       "id": "overnight",
       "title": "Éjszakai fejlemények",
       "items": [
-        "BBC World: Russia's own figures show it has lost nearly 500,000 people in Ukraine war",
-        "BBC World: US attorney general dodges questions about Nvidia investigation",
-        "BBC World: Close-up images to be revealed of asteroid deliberately hit to test ability to protect Earth"
+        "BBC World: German boat dealer suspected of supplying Channel smuggling gangs, BBC finds",
+        "BBC World: Watch: BBC confronts German man suspected of supplying migrant gangs with small boats",
+        "BBC World: Myanmar refuses to comply with parts of ICJ genocide ruling"
       ]
     },
     {
       "id": "geopolitics",
       "title": "Külpolitika / Geopolitika",
       "items": [
-        "BBC World: Russia's own figures show it has lost nearly 500,000 people in Ukraine war",
-        "BBC World: My family were killed in Ukraine. My mum blamed Zelensky's troops - the truth is complicated",
-        "BBC World: US attorney general dodges questions about Nvidia investigation"
+        "BBC World: German boat dealer suspected of supplying Channel smuggling gangs, BBC finds",
+        "BBC World: Watch: BBC confronts German man suspected of supplying migrant gangs with small boats",
+        "BBC World: Myanmar refuses to comply with parts of ICJ genocide ruling"
       ]
     },
     {
       "id": "hungary",
       "title": "Magyarország",
       "items": [
-        "Qubit: Elkészült Magyarország melegedési térképe - Qubit",
-        "Magyarország Kormánya: A nők elleni erőszak visszaszorítása: az átfogó intézkedésekig vezető út - Magyarország Kormánya",
-        "| hvg.hu: Gazdaság: Vízügyi fordulatra készül Magyarország, az izraeli sivatagból hozzák a tudást - | hvg.hu"
+        "Agroinform: Magyarország továbbra is áfarekorder: sehol Európában nem adóztatják ennyire a zöldségeket és gyümölcsöket - Agroinform",
+        "Turizmus.com: A svéd utazók meghódítására készül Magyarország - Turizmus.com",
+        "Portfolio.hu: Bejelentést tett Ukrajnáról a külügyminiszter: Magyarország is csatlakozik a nemzetközi koalícióhoz, amely az elhurcolt gyerekeket segíti - Portfolio.hu"
       ]
     },
     {
       "id": "economy",
       "title": "Gazdaság / Piacok",
       "items": [
-        "BBC Business: Energy bills to rise by 26% from January after gas prices surge",
-        "BBC Business: Energy bills will soar - here's how you can ease the pain",
-        "BBC Business: What will the energy cap changes mean for my bills?"
+        "BBC Business: Simon Jack: Is Poundland's US owner to blame for its collapse?",
+        "BBC Business: Norse Atlantic suspends all flights as it faces potential collapse",
+        "BBC Business: Drivers over 70 face eye tests every three years under new plans"
       ]
     },
     {
       "id": "technology",
       "title": "Technológia / AI",
       "items": [
+        "BBC Technology: Musk's plan to send a million SpaceX data satellites into space approved",
         "BBC Technology: Huawei found guilty of stealing US trade secrets but acquitted of racketeering",
-        "BBC Technology: EA adds AI-generated John Motson to FC 27 video game",
-        "BBC Technology: Zoe Kleinman: Nobody is irreplaceable - unless you're Jensen Huang"
+        "BBC Technology: EA adds AI-generated John Motson to FC 27 video game"
       ]
     },
     {
       "id": "risks",
       "title": "Mai kockázatok",
       "items": [
-        "Figyelmi pont: Russia's own figures show it has lost nearly 500,000 people in Ukraine war (BBC World).",
-        "Figyelmi pont: Close-up images to be revealed of asteroid deliberately hit to test ability to protect Earth (BBC World).",
-        "Figyelmi pont: EA adds AI-generated John Motson to FC 27 video game (BBC Technology)."
+        "Figyelmi pont: Desperate appeals from women on death row in Iran after protests (BBC World).",
+        "Figyelmi pont: Seven injured, four critically, after Bangkok oil refinery explosion (BBC World).",
+        "Figyelmi pont: UK signs £8bn deal to ensure submarines are 'warfighting ready' (BBC Business)."
       ]
     },
     {
       "id": "watch",
       "title": "Mi számít igazán / Figyelmi szint",
       "items": [
-        "BBC World: Russia's own figures show it has lost nearly 500,000 people in Ukraine war",
-        "BBC World: My family were killed in Ukraine. My mum blamed Zelensky's troops - the truth is complicated"
+        "BBC World: German boat dealer suspected of supplying Channel smuggling gangs, BBC finds",
+        "BBC World: Watch: BBC confronts German man suspected of supplying migrant gangs with small boats"
       ]
     }
   ],
   "sources": [
     {
-      "title": "Russia's own figures show it has lost nearly 500,000 people in Ukraine war",
+      "title": "German boat dealer suspected of supplying Channel smuggling gangs, BBC finds",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cmx27g533zwyo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-25"
+      "url": "https://www.bbc.co.uk/news/articles/cqlymky8kpzjo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-26"
     },
     {
-      "title": "My family were killed in Ukraine. My mum blamed Zelensky's troops - the truth is complicated",
+      "title": "Watch: BBC confronts German man suspected of supplying migrant gangs with small boats",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cw24e17v9e51o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-25"
+      "url": "https://www.bbc.co.uk/news/videos/cvglrz5yr79go?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-26"
     },
     {
-      "title": "US attorney general dodges questions about Nvidia investigation",
+      "title": "Myanmar refuses to comply with parts of ICJ genocide ruling",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/crpdw1qx7jgxo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-25"
+      "url": "https://www.bbc.co.uk/news/articles/c61wr87wyg5wo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-26"
     },
     {
-      "title": "Close-up images to be revealed of asteroid deliberately hit to test ability to protect Earth",
+      "title": "Desperate appeals from women on death row in Iran after protests",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cw8dv112r5gmo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-25"
+      "url": "https://www.bbc.co.uk/news/articles/cm8x0ve4yd7wo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-26"
     },
     {
-      "title": "Thomas Markle charged in US for possessing child sex abuse images",
+      "title": "Diesel tanker carrying up to 7,000 tonnes sinks near Ibiza, killing one",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/crwy4egxn592o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-25"
+      "url": "https://www.bbc.co.uk/news/articles/c9gklryvj24do?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-26"
     },
     {
-      "title": "Colombian police storm supermarket to free 20 held hostage for 17 hours",
+      "title": "Hope for millions as cheaper HIV prevention jab reaches Africa",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/ckp80mjr9emyo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-25"
+      "url": "https://www.bbc.co.uk/news/articles/cmly7jve72r2o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-26"
     },
     {
-      "title": "Huawei found guilty of stealing US trade secrets but acquitted of racketeering",
+      "title": "Tributes for Duran Duran guitarist Andy Taylor after his death aged 65",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cmy49ngydqzpo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-25"
+      "url": "https://www.bbc.co.uk/news/articles/cmp3vk6vr44po?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-26"
     },
     {
-      "title": "Veteran Nigerian Nollywood actor Pete Edochie dies aged 79",
+      "title": "Seven injured, four critically, after Bangkok oil refinery explosion",
       "publisher": "BBC World",
-      "url": "https://www.bbc.co.uk/news/articles/cqwy0rr4rr4yo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-25"
+      "url": "https://www.bbc.co.uk/news/articles/crx209kwk4kzo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-26"
     },
     {
-      "title": "Elkészült Magyarország melegedési térképe - Qubit",
-      "publisher": "Qubit",
-      "url": "https://news.google.com/rss/articles/CBMieEFVX3lxTE5paGw5bXlSSHpJTzM2SnZtN1pwNmlpWURubk9fd19HTlJCVU81UklITjdXYlUyRk9OX2ZYSDkzVWN0S2U1ZEVrR1JuTXZTVWVHX2tqV3I2TEpuX1JCcW5WV3d4R2NQYV9IenZuOXJvLW56UDZ2SGJRMQ?oc=5",
-      "publishedAt": "2026-11-25"
+      "title": "Magyarország továbbra is áfarekorder: sehol Európában nem adóztatják ennyire a zöldségeket és gyümölcsöket - Agroinform",
+      "publisher": "Agroinform",
+      "url": "https://news.google.com/rss/articles/CBMi5gFBVV95cUxPZFRHd1Q0R0dra2hqeWk3MDFuTmllXzcxMGJFMS12aU9rS3ZjeFdOWHkxd2tnczVyTDJGUzdybnN0d0RZSlYzYWRyT2cyMHkycGlXbXhSVWg3VkJDZUNOT1BJME4xMnFuaEw4ZERjZGJvZHQ3Zi0wX3pvaGZteGViOG9va3R4bWlUVWgxUUFtVlNmdTVIRmt6eldOQ2ZPMEFjV2E5T2c2WlF5MjBIX1duNngtZ3pja0NkZXU4bTE5WVdtT1JEaUVmTHNnb3ZQVElGdW5KSHpYRWRxRnVrcGE0WWZ2clQ2UdIB6wFBVV95cUxOZFpITC1JRUkwbk56RUVvZDQ1WGQ4ZHNYVW1zY2ttYmhqWWFxWFZDcXN2T1drbVN3TjN1MWN4SC1wZjlQX0VNWk02Y0w5RURYT1BkWXFZYnY0TjdoX1FvWU8tcWJBdGZkTDhhRzFTOUd5V05UTkxlbEZ3WDFkZjNYYTJoYi04SzlBaXZTRWJGUGNOVWRTc2VsU09ZX0JOa3ZKT1NqMUJISWROZ3E4SGR3SWtGOEJfblNFSlIzdmt3dGVWVlJqcjgxSTZrWUxLQkk1ZHdZTUh0M1BUekk1aHJCd0lqMTJzLVBuZmFZ?oc=5",
+      "publishedAt": "2026-11-26"
     },
     {
-      "title": "A nők elleni erőszak visszaszorítása: az átfogó intézkedésekig vezető út - Magyarország Kormánya",
-      "publisher": "Magyarország Kormánya",
-      "url": "https://news.google.com/rss/articles/CBMinAFBVV95cUxPRXZoeHRKRVd4blh4d0tVcTNmYzEzSUFFTUFreGIwSDVEb1A1M3d4SHBLZlNraHlWU09VZk1IUXBrVG9zVmdPa2xyZWFSTHJUUkxmQ3oyVDB3Z2xTVXdCZ1d0WVc3ZVNpS0tmYkE1MkRpTXM2YXVYYjlYZm1ILTNpNWh2Z3dRNEFVdnEzY19SUnZpWHdDTTdQZ1Jnblk?oc=5",
-      "publishedAt": "2026-11-25"
-    },
-    {
-      "title": "Gazdaság: Vízügyi fordulatra készül Magyarország, az izraeli sivatagból hozzák a tudást - | hvg.hu",
-      "publisher": "| hvg.hu",
-      "url": "https://news.google.com/rss/articles/CBMiygFBVV95cUxQWUx6Um1ndTRaNjY5NHJWOE83cWZETDVXN19Wa1FfYWFrUFc3NVN0NS01RHRRTlFZUnNHeElYZ21CbnpBQUFjdFFIV0o0c3VnR0tvUTNhR0tYemtlMEFMSldxWWFNN1lyT3Z0Uk5yNmxNUnJMdGwzWEZueHQ0RDhwNk9NbDZBRmhXQmpUSVFBYXpvSHVkT3dULS1ZSFduQmxGX0s2cF9MWWduZWRIQ3k5eDZ3XzRxTllnS2dpU09KWXVjNUxIYlhWcFB3?oc=5",
-      "publishedAt": "2026-11-25"
-    },
-    {
-      "title": "Járvány ütötte fel a fejét Kárpátalján, azonnal lépett Magyarország - Economx.hu",
-      "publisher": "Economx.hu",
-      "url": "https://news.google.com/rss/articles/CBMiowFBVV95cUxQQTZVNFktaWF6Wlo1blJFaVR4UEdacnVfN3Q5QnNQdDk1OFp1MlNnYWg0X1h5QXpSeWVTeXFjcXRIYWZtS2R4b3RuT3djeWJXM3NvbU9kQmFfU24zWmJKU3V3dVE2T0VNOERVVl9HbDZHVWZRRG51UEZIWThMeG1qOF9CWG1UYUxxQ3h4YTRadUpwcGdMTVNKbURnenZlOTBzVUdZ?oc=5",
-      "publishedAt": "2026-11-25"
-    },
-    {
-      "title": "Visszatér Magyarország ikonikus népautója, a Suzuki Ignis: teljesen új köntösben éled újjá a legendás kisautó - Pénzcentrum",
-      "publisher": "Pénzcentrum",
-      "url": "https://news.google.com/rss/articles/CBMi7AFBVV95cUxOSy1MS09Jb0lDay1FRmRwX1pMbE5QTXpTVGh1YXNnQXRSdmRZeXI1b1hnR3htN1cxSzhkUXJxVnJrZmJlWGswSjZ6WFdzRUx3S3I1Wm1SRy14d0pkQ0dtSVRNV0FyRDhxd2MteXI4VnllTnN1UWJzX242ZXJoUHg5RWZRQlZZSlRLUGxOZlhseHRpUEdpQVIwNko4el9VbGxzamNWdVRXVVNZTXQ4c1psQzd6WXFSejVOWjRreFpwM3NLUm8tbTBFWE10cUZMSTItdW1RYmxIN0hJLWl4VkZ3YUZMZlBPXzFqNUxXZQ?oc=5",
-      "publishedAt": "2026-11-25"
-    },
-    {
-      "title": "Magyarország Kormánya - Facebook",
-      "publisher": "Facebook",
-      "url": "https://news.google.com/rss/articles/CBMia0FVX3lxTFBOYmJuUGxiaHZXU2Z1UEVSdVJtT2I4cjhsMjRSQlVPWFhnV05mQS0xeS1lRUVuakU0bW9iQTE4REl3Y190eTItcElZczhseU1JSWFTOUdHRHdhQWIzbmNWX3hPUjZtdTF4NWlj?oc=5",
-      "publishedAt": "2026-11-25"
-    },
-    {
-      "title": "A Spar vezetője szerint az árrésstop kivezetése még nem jelenti, hogy fellélegezhetnének - Telex",
-      "publisher": "Telex",
-      "url": "https://news.google.com/rss/articles/CBMiowFBVV95cUxNWExCRTNuaVdhSjRYRllhUHpPc2VnOGo3NUZRUEJibWphcFhDbjVfcER6OUxSZDB1cXJEdDJNa1ozMjltMkJ3QmdMb0Z0V3hqREZKdk1Lb1Vxa3lmNEo2WVpRcUpYQnEtZWZWSmNMelF6NVdSQ3ZTY0E4bkhOd0FVSFNIWVdYRHNFWXpGVFg3bE5oM1lqNG5XemU2TTBOb3ladmxJ?oc=5",
-      "publishedAt": "2026-11-25"
-    },
-    {
-      "title": "Személyes találkozások, új üzleti lehetőségek – magyar részvétel az IBTM World kiállításon - Turizmus.com",
+      "title": "A svéd utazók meghódítására készül Magyarország - Turizmus.com",
       "publisher": "Turizmus.com",
-      "url": "https://news.google.com/rss/articles/CBMiyAFBVV95cUxPZUxTb05wV1NyWXJUTEt2bmlkbFlKM3hHS0ZndlJoQUxDNTMxcndzbEUxOVlXOEhBa3hURXJGc19rdUZpTTRacDRMTTVmdjB0ckIyajVxUENFZnBPSWI3LVp2MG5xS0Q0WEJiWWt0M3JBdTJEV1RXUjJZRnJhT2U4UzBhMkJXNk9FT2VVc1FYMmN5alhFMDBjOE1mSC00TE55TFRtZExfZ1VRRl9PTUZsRVlIZHowc2pjTHFRbEY0N0JsX3ZGemQyVQ?oc=5",
-      "publishedAt": "2026-11-25"
+      "url": "https://news.google.com/rss/articles/CBMisgFBVV95cUxNSC1NWGVzTnl3Tkl3SDlEb0lxaXFSNGFKalRzMHhqWGxqX09QQkhmeTVnX0dUV2lfQXh4MGdySE9tWUprbGJMQkJyczV0Slh0WVNHNTI1azBhYTRlUnU2TENucFZIT3lvSHA0OExMT1RjWGdwTG5YRnNfbkcyMG42YW5EeFRqb1diNFJNcllsVFJkS0NoTlRpQkk5M0VHMElsNm81V2tuX0twTTE1QnR1VFl3?oc=5",
+      "publishedAt": "2026-11-26"
     },
     {
-      "title": "Energy bills to rise by 26% from January after gas prices surge",
-      "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/cm20qnq33e90o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-25"
+      "title": "Bejelentést tett Ukrajnáról a külügyminiszter: Magyarország is csatlakozik a nemzetközi koalícióhoz, amely az elhurcolt gyerekeket segíti - Portfolio.hu",
+      "publisher": "Portfolio.hu",
+      "url": "https://news.google.com/rss/articles/CBMikAJBVV95cUxQeWVkUEpJRzMtcHZ3MWkxMDBRS2R0ZXFXRlFUeUxuMkEtUHBmdkt2MExnUWxjWnFvY3RWeGdwaC1JMzBWLUdUUkZUaVBWRXQtVEtXQzI4VTYwMmFja19hVTBRTlI3eTFBTDNvNno1S0NPMjZyLW9ISWVDZ3A5c2lpVnBUTVBKY0JEV2lpN19IcndfSFhkVk1CMzRxd3hubjJtUGJBZ01KNjFqRkFENkx5cEtaeVgtQ01KRF9IOTZSVThXOE1pUDZPZ1dNWEp0eGFyNTBTdk91Z2F1d3BvUzNaeWdmTmQwMUdrTENwVXhZRkE4UkgyU01Wd18tWFVhbUlBNDdGX2lEVkpmLVlmUEtoZ9IBlgJBVV95cUxQTWc3bGl5ZFF2aGtJdHVtVnA3eXdtUVB6a3dTLTluNEZWbTlmVG93Zy1SazQ5bDgyRjRzbTRPVDhHVkgtb09QSlRzeUVlTlc4eEZDenpST2M2LWxaLWhaaTVOR2RaYldPeEwzanJtT0hDWXgwVWJnLVcxcnctcWJzODdSSXJjTUlTVmQ1VjEwSWZKNlRaeGFvX3NkTTBqdTlGWS10SDY5cTdCM0Z2ZW9ESUllTjI3QkZNRGlMTUNEMEl3SVdfU21tN0VrUXdBZ3ZFN3ZER3hPMG9teHhGZFVJRktSSDBGQU4zdnF2bTkzbmpRSXBRR3RBSlJWOEhHOGY4dndGU1VwYTcxQy1LN2JsNHowa3VSZw?oc=5",
+      "publishedAt": "2026-11-26"
     },
     {
-      "title": "Energy bills will soar - here's how you can ease the pain",
-      "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/crm4rygl4m3o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-25"
+      "title": "Kína kezében a zöldipar, Magyarország is egyre jobban függ tőle - Autopro.hu",
+      "publisher": "Autopro.hu",
+      "url": "https://news.google.com/rss/articles/CBMioAFBVV95cUxNOUJXenVkZGpvTnRKRzhTdFhyQ2Y2UVRzQXVmSFo1UkhxWkUwX2lRbGtWX0tTZ190Wk1nRlRsTndXUm9jSDBFODlia2FjM1FSdXpuQUVmVHRVNmd5VjFBckVVaXo3S0hHT0hKamxfWXI3eHl2UTA2VGhrUzdwdDgxTDhxVlFqdkxNZW9uWjA2MUR5UGlKZEVudlE0X0szYVNz?oc=5",
+      "publishedAt": "2026-11-26"
     },
     {
-      "title": "What will the energy cap changes mean for my bills?",
-      "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/cdd29v8mp9jo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-25"
+      "title": "Print Hetilap | Magyarország 7 nap - | hvg.hu",
+      "publisher": "| hvg.hu",
+      "url": "https://news.google.com/rss/articles/CBMiZEFVX3lxTE15bk5Qa24tcGdpaVNDSklYd0VwRjRnYjI0eG0tbTZyLW9yT0xhMGh4OG1GM0RDM3pwRUxNbzVvR3V6bUVXekRJYlJPSWs3RGJPRWdDaVd3ZTNtRTBlM0RrOXI5OFA?oc=5",
+      "publishedAt": "2026-11-26"
     },
     {
-      "title": "'I only use the washing machine on a Sunday' - how we're keeping our energy bills down",
-      "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/c820qnznkrn4o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-25"
+      "title": "Társadalmi és Családpolitikai Stratégiai Intézet néven folytatja munkáját a KINCS - Magyarország Kormánya",
+      "publisher": "Magyarország Kormánya",
+      "url": "https://news.google.com/rss/articles/CBMiqgFBVV95cUxQRU5SNU5LYmtTSW1qVVlteE1EVVllbzBDMUUxbXlQN1hjZmh0aFcxZVZMWWZmU3M4dzJGbGRSbURaRlpBSzNwdkxQS1NUQVlkQXRIcUdHM2IwY3pnVjhMTTFmMEhwdWZKSVdGVTZwaFpwQ3pmSnNsV19lcTIteVBZbkVUc0ZJd2xKWWF0VXpGOFRDZ2RpRWRCVVAtRVZwZTI2X01QTmtoMjM2Zw?oc=5",
+      "publishedAt": "2026-11-26"
     },
     {
-      "title": "Why tiny cars are taking off across Europe",
-      "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/cmwy9jne0g7qo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-25"
+      "title": "Ebben továbbra is verhetetlen Magyarország Európában - Mezőhír",
+      "publisher": "Mezőhír",
+      "url": "https://news.google.com/rss/articles/CBMidEFVX3lxTE1jVkNwZXFpQ0hGRWRhU0hsd3doRUh3ZUVJdGUtbTR6RF9PN2Jyem9YSC1JVVB4ZFl2U21uNDFhNU9uWnlHUjVQSkJycnpEcDk5V1c2el9kVnZGRmZiWU1ZU1hUejAzMm92VUpMMFZBenQzM0lx?oc=5",
+      "publishedAt": "2026-11-26"
     },
     {
-      "title": "Zoe Kleinman: Nobody is irreplaceable - unless you're Jensen Huang",
-      "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/c3rrgqj2zx5yo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-25"
+      "title": "Debreciner. . Magyarország jobban látszik közelről – Médiaszemle a független helyi sajtóból – 2026 negyvenhetedik hete - Facebook",
+      "publisher": "Facebook",
+      "url": "https://news.google.com/rss/articles/CBMikwJBVV95cUxNOVZzZ2RPekhxWXR0a2RnX3gxMHcxMGljTWlIWUlJbjNFRDY5NFVHVUwyODh2VHB4RnM4cGJ0UVR1cENGN0RnTEdLRWd1TDE2Q1lLSkswMUF5OGdvb0JvRGdaanFQTzNyMk5xd1RCR0t4ZjcxVWVGVm91RlVxZUgycW9MZmMzczZxYkktWnJIZ1ppeFNQTTBhSTcxbWNvWm43ZzVQVHpwVjd6WFVNTkY4cHZvS1dmWUpzMXl4c2UtU3Foa0Y3WWQxMVVqdjlqS09ZZWRyU0VqQ0laVHB1cHB5czlHeW1RWEU4VHR2Wi1ZMW0tUDJ5bGJ4VTduVjB5RlI5VjRQYzVTS0x0WllRUjdkX3ROQQ?oc=5",
+      "publishedAt": "2026-11-26"
     },
     {
-      "title": "US announces new tariffs on host of countries including China",
+      "title": "Simon Jack: Is Poundland's US owner to blame for its collapse?",
       "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/c893r9ke5p97o?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-25"
+      "url": "https://www.bbc.co.uk/news/articles/c62klzxvyzyqo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-26"
     },
     {
-      "title": "Trump's rescue of Nvidia's Huang brings political risks",
+      "title": "Norse Atlantic suspends all flights as it faces potential collapse",
       "publisher": "BBC Business",
-      "url": "https://www.bbc.co.uk/news/articles/ckj05m2zdyryo?at_medium=RSS&at_campaign=rss",
-      "publishedAt": "2026-11-25"
+      "url": "https://www.bbc.co.uk/news/articles/c9kgmd0ldy0lo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-26"
+    },
+    {
+      "title": "Drivers over 70 face eye tests every three years under new plans",
+      "publisher": "BBC Business",
+      "url": "https://www.bbc.co.uk/news/articles/cjqlqerzv1eyo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-26"
+    },
+    {
+      "title": "New UK-EU treaty has 10-year termination clause",
+      "publisher": "BBC Business",
+      "url": "https://www.bbc.co.uk/news/articles/c98r7p65edvgo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-26"
+    },
+    {
+      "title": "Car finance compensation payments explained",
+      "publisher": "BBC Business",
+      "url": "https://www.bbc.co.uk/news/articles/c2l9vvj097lo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-26"
+    },
+    {
+      "title": "UK signs £8bn deal to ensure submarines are 'warfighting ready'",
+      "publisher": "BBC Business",
+      "url": "https://www.bbc.co.uk/news/articles/cq39gz99l1pyo?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-26"
+    },
+    {
+      "title": "Guitar wars - the transatlantic battle over the Stratocaster",
+      "publisher": "BBC Business",
+      "url": "https://www.bbc.co.uk/news/articles/cqd01l9x8k48o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-26"
+    },
+    {
+      "title": "Poundland collapses putting 11,000 jobs at risk",
+      "publisher": "BBC Business",
+      "url": "https://www.bbc.co.uk/news/articles/cm3vgdn037z4o?at_medium=RSS&at_campaign=rss",
+      "publishedAt": "2026-11-26"
     }
   ]
 }
