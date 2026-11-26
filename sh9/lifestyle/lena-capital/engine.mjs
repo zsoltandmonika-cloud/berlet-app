@@ -40,6 +40,7 @@ function createEngine(){
   const s=sessions.at(-1);assert(s.date<nyTime(now).slice(0,10),"Csak lezárt, előző kereskedési nap használható.");
   assert(days(s.date,nyTime(now).slice(0,10))<=5,"Elavult piaci adat; szimuláció nem frissíthető.");
   if(!old){
+   assert(nyTime(now).slice(11)<"09:30","Az első futás az amerikai nyitás előtt indítható.");
    const cash=INITIAL*(1-FX_FEE)/s.fx;
    const p={cash,symbol:null,qty:0};
    return {schema:1,mode:"PAPER_ONLY",strategy:"v1 ETF momentum 20/50",initial:INITIAL,createdAt:now,lastDate:s.date,asOf:now,status:"WAITING",pending:{target:signal(sessions),recordedAt:now},portfolio:{...p},benchmark:{...p},benchmarkStarted:false,peak:huf(p,s),nav:huf(p,s),benchmarkNav:huf(p,s),drawdown:0,history:[{date:s.date,nav:huf(p,s),benchmark:huf(p,s)}],trades:[],decisions:[{date:s.date,recordedAt:now,target:signal(sessions),reason:"Első előre rögzített jelzés"}]};
