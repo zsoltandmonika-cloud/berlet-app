@@ -65,7 +65,16 @@
 
 </style><link rel="stylesheet" href="./assets/embedded-golden.css?v=20261123">
 <link rel="stylesheet" href="./assets/s24-reference-fit-v1.css?v=20261123-page-refresh">
-</head><body><main class="shell">
+<style id="crypto-lab-layout">
+.tile.crypto{grid-column:1/-1;background:radial-gradient(ellipse at 90% 30%,#2064548c,transparent 67%),linear-gradient(115deg,#122732,#102035);border-color:#8ad8b2;box-shadow:inset 0 1px #b8ffe221,0 7px 19px #0009,0 0 14px #42d9ae29}
+.tile.crypto:after{background:linear-gradient(90deg,#142d37a8,transparent)}
+.tile.crypto:before{clip-path:none;background:repeating-linear-gradient(120deg,transparent 0 24px,#64d9a810 24px 26px)}
+.tile.crypto .icon{background:linear-gradient(140deg,#3cae8d,#15544b);border-color:#8ad8b27c}
+.tile.crypto strong small{display:inline-block;margin-left:7px;color:#b9f5d4;font-size:10px;letter-spacing:.02em}
+.tile.crypto .description{padding-right:32px}
+@media(max-width:600px){.hero{height:clamp(135px,24dvh,230px)}.hero-text{padding-top:clamp(15px,3dvh,30px)}.tiles{height:auto;max-height:none;flex:1;grid-template-rows:repeat(2,minmax(105px,1fr)) minmax(78px,.72fr);gap:9px}.content{min-height:0;overflow:auto;padding-bottom:8px}.tile{padding:9px;gap:4px}.tile .icon{width:32px;height:32px}.tile .icon svg{width:22px;height:22px}.tile .description{font-size:clamp(10px,2.6vw,12px)}.tile.crypto .tile-top{align-items:center}}
+@media(min-width:601px){.tiles{grid-template-rows:repeat(2,285px) 165px}}
+</style></head><body><main class="shell">
 <header class="top">
  <a class="back" href="/berlet-app/sh9/" aria-label="Vissza"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14.5 3.5-8 8.5 8 8.5"/></svg></a>
  <a class="brand" href="/berlet-app/sh9/" aria-label="SHO főoldal"><svg viewBox="0 0 48 46" aria-hidden="true"><path d="M3 19 24 4l21 15"/><path d="M10 19v22h28V19"/></svg><b>SHO</b></a>
@@ -83,6 +92,7 @@
 <a class="tile home" href="./lakas-fizetnivalok/"><div class="tile-top"><span class="icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 11 12 3l10 8M5 10v11h14V10M9 21v-8h6v8"/></svg></span><strong>Lakás-<br>fizetnivalók</strong></div><span class="description">Rezsi, közüzemi és<br>egyéb lakáskiadások<br>áttekintése és kezelése.</span><span class="go" aria-hidden="true">›</span></a>
 <a class="tile budget" href="./lakas-fizetnivalok/?view=budget"><div class="tile-top"><span class="icon"><svg viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="8" cy="7" rx="6" ry="2.8"/><path d="M2 7v8c0 4 12 4 12 0V7M2 11c0 4 12 4 12 0"/><ellipse cx="18" cy="15" rx="5" ry="2.5"/><path d="M13 15v5c0 3 10 3 10 0v-5"/></svg></span><strong>Családi<br>költségvetés</strong></div><span class="description">Bevételek, kiadások,<br>tervezés és megtakarítás<br>egy helyen.</span><span class="go" aria-hidden="true">›</span></a>
 <a class="tile shop" href="/berlet-app/sh9/shopping/smart-list.html"><div class="tile-top"><span class="icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 4h3l2.2 12h12.4L22 8H6M9 21h.01M18 21h.01"/></svg></span><strong>Smart<br>Shopping Lista</strong></div><span class="description">Okos bevásárlólista,<br>tervezés és gördülékeny<br>bevásárlás.</span><span class="go" aria-hidden="true">›</span></a>
+<a class="tile crypto" href="./crypto-lab/" aria-label="SHO Crypto Lab szimuláció megnyitása"><div class="tile-top"><span class="icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 19h18M4 15l5-5 4 3 7-8M15 5h5v5"/></svg></span><strong>SHO Crypto Lab <small>DEMO · 0 Ft</small></strong></div><span class="description">AI profitfigyelés és virtuális szimuláció.</span><span class="go" aria-hidden="true">›</span></a>
 </div></section></main>
 <nav class="dock" aria-label="SHO navigáció">
 <a href="/berlet-app/sh9/"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 11 9-8 9 8v10h-7v-7h-4v7H3z"/></svg><small>Főoldal</small></a>
