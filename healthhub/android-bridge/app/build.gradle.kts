@@ -69,8 +69,8 @@ android {
         // Signed OTA promotion is separately approved and certificate-gated.
         // Proprietary Samsung candidate gets a distinct higher upgrade number and is NEVER published by this flag.
         if (hhSamsungIntegratedCandidateEnabled) {
-            versionCode = 53
-            versionName = "0.15.26"
+            versionCode = 54
+            versionName = "0.15.27"
         }
         // Actual signed publication remains separately approved and certificate-gated.
         // No signed OTA is published by merging: release requires manual approval.
