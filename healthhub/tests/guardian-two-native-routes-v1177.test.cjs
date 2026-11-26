@@ -57,8 +57,12 @@ test('both map and peer viewer and GPS status tile bypass Supabase GPS coordinat
  assert.doesNotMatch(follow,/l\.readSharedLocation\(|client\.from\('hh_guardian_live_locations'\)/);
  assert.doesNotMatch(trio,/live\.readSharedLocation\(|client\.from\('hh_guardian_live_locations'\)/);
  assert.doesNotMatch(peer,/await readSharedLocation\(k\)/);
- assert.match(peer,/const selected=nativeFix&&peerSnapshot\(nativeFix\)\?\.live\?nativeFix:null/);
- assert.match(own,/!w\.HH_GUARDIAN_GPS_ROUTER_V1177/);
+ assert.match(peer,/const selected=nativeFix&&peerSnapshot\(nativeFix\)\?nativeFix:null/);
+ assert.match(peer,/NEM ÉLŐ/);
+ assert.match(peer,/guardian-last-known-v807/);
+ assert.match(own,/if\(w\.HH_GUARDIAN_GPS_ROUTER_V1177\)/);
+ assert.match(own,/if\(!ownGpsBlockReason\(\)\)/);
+ assert.match(own,/remote\?\.requestFollow\?\.\(\)/);
  assert.match(html,/guardian-gps-routes-v1177\.js/);
  assert.match(html,/guardian-gps-router-v1177\.js/);
  const idx=html.indexOf('guardian-gps-routes-v1177.js'),

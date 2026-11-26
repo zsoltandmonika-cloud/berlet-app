@@ -31,6 +31,8 @@ test('web device registry identifies exact web Dropbox account and missing Andro
 test('native app identity remains unchanged and release is a newer OTA candidate',()=>{
  const gradle=read('app/build.gradle.kts');
  assert.match(gradle,/applicationId = "hu\.zsoltmonika\.healthhubbridge"/);
- assert.match(gradle,/versionCode = 47/);
- assert.match(gradle,/versionName = "0\.15\.20"/);
+ const manifest=JSON.parse(fs.readFileSync(path.resolve(root,"../data/bridge-ota.json"),"utf8"));
+ const versionCode=Number(gradle.match(/versionCode = (\d+)/)?.[1]);
+ assert.ok(Number.isInteger(versionCode)&&versionCode>manifest.versionCode);
+ assert.match(gradle,/versionName = "0\.15\.24"/);
 });

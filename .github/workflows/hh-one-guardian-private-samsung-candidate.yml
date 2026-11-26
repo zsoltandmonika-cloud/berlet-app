@@ -1,0 +1,140 @@
+name: HH One Guardian GPS · Private Samsung signed candidate (NO OTA)
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - ".github/workflows/hh-one-guardian-private-samsung-candidate.yml"
+      - "healthhub/android-bridge/scripts/load-samsung-sdk-secrets.py"
+      - "healthhub/android-bridge/app/build.gradle.kts"
+      - "healthhub/android-bridge/app/src/main/java/hu/zsoltmonika/healthhubbridge/DropboxVaultClient.kt"
+      - "healthhub/android-bridge/app/src/main/java/hu/zsoltmonika/healthhubbridge/FamilyGuardNativeRelay.kt"
+      - "healthhub/android-bridge/app/src/main/java/hu/zsoltmonika/healthhubbridge/OrchestratorWorker.kt"
+      - "healthhub/android-bridge/tests/dropbox-uploader-recovery-20261122.test.cjs"
+
+permissions:
+  contents: read
+
+jobs:
+  safe-integrated-candidate:
+    name: Sign and inspect Samsung SDK integrated GPS-fix APK (STAGING ONLY)
+    if: >-
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      github.event.pull_request.head.ref == 'fix/guardian-gps-ota-01524-qa-20261122'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      HH_OTA_KEYSTORE_B64: ${{ secrets.HH_OTA_KEYSTORE_B64 }}
+      HH_OTA_KEYSTORE_PASSWORD: ${{ secrets.HH_OTA_KEYSTORE_PASSWORD }}
+      HH_OTA_KEY_ALIAS: ${{ secrets.HH_OTA_KEY_ALIAS }}
+      HH_OTA_KEY_PASSWORD: ${{ secrets.HH_OTA_KEY_PASSWORD }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: GPS uploader and privacy safety contract
+        run: node --test healthhub/android-bridge/tests/dropbox-uploader-recovery-20261122.test.cjs
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Install Android SDK
+        shell: bash
+        run: |
+          set -euo pipefail
+          SDKMANAGER="$(find "$ANDROID_HOME/cmdline-tools" -type f -name sdkmanager | head -1)"
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" "platforms;android-36" "build-tools;35.0.0"
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.13'
+      - name: Load original licensed Samsung SDK v1.1.0 from encrypted CI secrets
+        env:
+          HH_SAMSUNG_SDK_AAR_B64_00: ${{ secrets.HH_SAMSUNG_SDK_AAR_B64_00 }}
+          HH_SAMSUNG_SDK_AAR_B64_01: ${{ secrets.HH_SAMSUNG_SDK_AAR_B64_01 }}
+          HH_SAMSUNG_SDK_AAR_B64_02: ${{ secrets.HH_SAMSUNG_SDK_AAR_B64_02 }}
+          HH_SAMSUNG_SDK_AAR_B64_03: ${{ secrets.HH_SAMSUNG_SDK_AAR_B64_03 }}
+          HH_SAMSUNG_SDK_AAR_B64_04: ${{ secrets.HH_SAMSUNG_SDK_AAR_B64_04 }}
+          HH_SAMSUNG_SDK_AAR_B64_05: ${{ secrets.HH_SAMSUNG_SDK_AAR_B64_05 }}
+          HH_SAMSUNG_SDK_AAR_B64_06: ${{ secrets.HH_SAMSUNG_SDK_AAR_B64_06 }}
+          HH_SAMSUNG_SDK_AAR_B64_07: ${{ secrets.HH_SAMSUNG_SDK_AAR_B64_07 }}
+          HH_SAMSUNG_SDK_AAR_B64_08: ${{ secrets.HH_SAMSUNG_SDK_AAR_B64_08 }}
+          HH_SAMSUNG_SDK_AAR_B64_09: ${{ secrets.HH_SAMSUNG_SDK_AAR_B64_09 }}
+          HH_SAMSUNG_SDK_AAR_B64_10: ${{ secrets.HH_SAMSUNG_SDK_AAR_B64_10 }}
+          HH_SAMSUNG_SDK_AAR_B64_11: ${{ secrets.HH_SAMSUNG_SDK_AAR_B64_11 }}
+          HH_SAMSUNG_SDK_AAR_B64_12: ${{ secrets.HH_SAMSUNG_SDK_AAR_B64_12 }}
+          HH_SAMSUNG_SDK_AAR_B64_13: ${{ secrets.HH_SAMSUNG_SDK_AAR_B64_13 }}
+          HH_SAMSUNG_SDK_AAR_B64_14: ${{ secrets.HH_SAMSUNG_SDK_AAR_B64_14 }}
+          HH_SAMSUNG_SDK_AAR_B64_15: ${{ secrets.HH_SAMSUNG_SDK_AAR_B64_15 }}
+          HH_SAMSUNG_SDK_AAR_B64_16: ${{ secrets.HH_SAMSUNG_SDK_AAR_B64_16 }}
+        run: |
+          set -euo pipefail
+          python3 healthhub/android-bridge/scripts/load-samsung-sdk-secrets.py
+          test -s healthhub/android-bridge/app/private-samsung-sdk/samsung-health-data-api.aar
+          # No vendor AAR bytes enter repository, job logs, or artifacts.
+      - name: Build verified production-signer-compatible Samsung GPS-fix candidate
+        shell: bash
+        working-directory: healthhub/android-bridge
+        run: |
+          set -euo pipefail
+          for x in HH_OTA_KEYSTORE_B64 HH_OTA_KEYSTORE_PASSWORD HH_OTA_KEY_ALIAS HH_OTA_KEY_PASSWORD; do
+            test -n "${!x:-}" || { echo "::error::Existing production signing secret unavailable."; exit 1; }
+          done
+          export HH_OTA_KEYSTORE_PATH="$RUNNER_TEMP/hh-one-guardian-original-signing.jks"
+          trap 'rm -f "$HH_OTA_KEYSTORE_PATH"' EXIT
+          printf '%s' "$HH_OTA_KEYSTORE_B64" | base64 --decode > "$HH_OTA_KEYSTORE_PATH"
+          chmod 600 "$HH_OTA_KEYSTORE_PATH"
+          gradle :app:assembleRelease -PhhSamsungIntegratedCandidate=true --no-daemon --stacktrace
+          APK="app/build/outputs/apk/release/app-release.apk"
+          test -s "$APK"
+          SIGNER="$ANDROID_HOME/build-tools/35.0.0/apksigner"
+          AAPT="$ANDROID_HOME/build-tools/35.0.0/aapt"
+          "$SIGNER" verify --verbose "$APK"
+          BADGE="$("$AAPT" dump badging "$APK" | head -1)"
+          [[ "$BADGE" == *"name='hu.zsoltmonika.healthhubbridge'"* ]]
+          [[ "$BADGE" == *"versionCode='53'"* ]]
+          [[ "$BADGE" == *"versionName='0.15.26'"* ]]
+          echo "Candidate Samsung APK has correct identity."
+          mkdir -p "$RUNNER_TEMP/hh-previous"
+          gh release download healthhub-connect-ota-v0.15.23 --repo "$GITHUB_REPOSITORY" --pattern "HealthHub-Connect-v0.15.23-ota.apk" --dir "$RUNNER_TEMP/hh-previous"
+          PREV="$RUNNER_TEMP/hh-previous/HealthHub-Connect-v0.15.23-ota.apk"
+          test -s "$PREV"
+          EXPECTED="$(python3 -c 'import json; print(json.load(open("../data/bridge-ota.json"))["sha256"])')"
+          [[ "$(sha256sum "$PREV" | cut -d' ' -f1)" == "$EXPECTED" ]]
+          OLD_CERT="$("$SIGNER" verify --print-certs "$PREV" | awk -F': ' '/Signer #1 certificate SHA-256 digest/{print $2; exit}')"
+          NEW_CERT="$("$SIGNER" verify --print-certs "$APK" | awk -F': ' '/Signer #1 certificate SHA-256 digest/{print $2; exit}')"
+          [[ -n "$OLD_CERT" && "$OLD_CERT" == "$NEW_CERT" ]]
+          python3 - "$APK" "$PREV" <<'PY'
+          import sys, zipfile, os
+          apk, baseline=sys.argv[1:]
+          assert os.path.getsize(apk)>os.path.getsize(baseline)*0.70, 'Unexpected major APK content shrinkage; block'
+          with zipfile.ZipFile(apk) as z:
+              dex=b''.join(z.read(n) for n in z.namelist() if n.startswith('classes') and n.endswith('.dex'))
+              assert b'SamsungHealthDirectPilot' in dex, 'Samsung Health Direct classes missing'
+              assert b'SamsungDirectBackgroundSync' in dex, 'Samsung background sync missing'
+              assert b'com/samsung/android/sdk/health/data' in dex, 'Proprietary Samsung SDK classes missing'
+              assert b'FamilyGuardNativeRelay' in dex, 'Family Guard GPS sender missing'
+          print('PASS: same-signer candidate, Samsung SDK + GPS classes present, content-size sanity checked.')
+          PY
+          DEST="$GITHUB_WORKSPACE/HH-One-Guardian-SAMSUNG-GPS-FIX-v0.15.26-SIGNED-NOT-LIVE.apk"
+          cp "$APK" "$DEST"
+          {
+            echo '### Signed Samsung-integrated GPS fix candidate'
+            echo '- Proprietary Samsung SDK from encrypted secrets: PASS'
+            echo '- Same signing certificate as installed release baseline: PASS'
+            echo '- Correct package and monotonic versionCode 52: PASS'
+            echo '- Native GPS sender + Samsung SDK classes present: PASS'
+            echo '- **ARTIFACT ONLY. No OTA, no deployment, no install.**'
+          } >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: HH-One-Guardian-SAMSUNG-GPS-FIX-v0.15.26-SIGNED-NOT-LIVE
+          path: HH-One-Guardian-SAMSUNG-GPS-FIX-v0.15.26-SIGNED-NOT-LIVE.apk
+          if-no-files-found: error
+          retention-days: 3
+          compression-level: 0

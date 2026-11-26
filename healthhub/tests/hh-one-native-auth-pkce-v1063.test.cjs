@@ -87,11 +87,12 @@ test('Android callback requires pending 5-minute intent and a code, and accepts 
  const callback=main.slice(main.indexOf('private fun completeNativeOAuth'),main.indexOf('override fun onCreate'));
  assert.doesNotMatch(callback,/refresh_token|access_token/i);
 });
-test('published signed OTA baseline stays v0.15.20/build47',()=>{
+test('signed OTA remains compatible with newer Android GPS repair candidate',()=>{
  assert.ok(Number(gradle.match(/versionCode = (\d+)/)[1]) >= release.versionCode);
  assert.match(gradle,/versionName = "0\.15\.\d+"/);
- assert.equal(release.versionCode,47);
- assert.equal(release.version,'0.15.20');
+ assert.equal(release.versionCode,50);
+ assert.equal(release.version,'0.15.23');
+ assert.equal(release.applicationId,'hu.zsoltmonika.healthhubbridge');
 });
 
 test('WebView Dropbox PKCE state remains inside app; Chrome and native Dropbox modes are unchanged',()=>{

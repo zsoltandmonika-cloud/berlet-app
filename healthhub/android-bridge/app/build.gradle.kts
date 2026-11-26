@@ -63,14 +63,14 @@ android {
             minSdk = 29
         }
         targetSdk = 35
-        versionCode = 47
-        versionName = "0.15.20"
-        // v0.15.20/build47: opt-in Hungarian Dropbox account review request (NO remote token switch).
+        versionCode = 51
+        versionName = "0.15.24"
+        // v0.15.24/build51: candidate with guarded native GPS and Dropbox uploader repairs.
         // Signed OTA promotion is separately approved and certificate-gated.
-        // Integrated candidate gets a distinct upgrade number but is NEVER published by this flag.
+        // Proprietary Samsung candidate gets a distinct higher upgrade number and is NEVER published by this flag.
         if (hhSamsungIntegratedCandidateEnabled) {
-            versionCode = 48
-            versionName = "0.15.21"
+            versionCode = 53
+            versionName = "0.15.26"
         }
         // Actual signed publication remains separately approved and certificate-gated.
         // No signed OTA is published by merging: release requires manual approval.

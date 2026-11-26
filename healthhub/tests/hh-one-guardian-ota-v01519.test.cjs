@@ -9,12 +9,15 @@ const gradle=read('android-bridge/app/build.gradle.kts');
 const register=read('device-registry-v401.js');
 const html=read('index.html');
 const manifest=JSON.parse(read('data/bridge-ota.json'));
-test('signed 0.15.20 build47 preserves package identity and supports both family profiles',()=>{
+test('new GPS repair candidate preserves signed identity, version monotonicity and both family profiles',()=>{
  assert.match(gradle,/applicationId = "hu\.zsoltmonika\.healthhubbridge"/);
- assert.match(gradle,/versionCode = 47/);
- assert.match(gradle,/versionName = "0\.15\.20"/);
- assert.equal(manifest.version,'0.15.20');
- assert.equal(manifest.versionCode,47);
+ const code=Number(gradle.match(/versionCode = (\d+)/)?.[1]);
+ const version=gradle.match(/versionName = "([^"]+)"/)?.[1];
+ assert.ok(Number.isSafeInteger(code) && code>manifest.versionCode);
+ assert.match(version,/^0\.15\.\d+$/);
+ assert.equal(manifest.applicationId,'hu.zsoltmonika.healthhubbridge');
+ assert.equal(manifest.version,'0.15.23');
+ assert.equal(manifest.versionCode,50);
  assert.deepEqual(manifest.rolloutProfiles,['zsolt','monika']);
 });
 test('Existing GPS and battery consent and ownership remain mandatory',()=>{
@@ -26,7 +29,7 @@ test('Existing GPS and battery consent and ownership remain mandatory',()=>{
  assert.match(relay,/Sh9GpsService\.active/);
  assert.match(relay,/isSelectedPhysicalPhone\(app, profile\)/);
  assert.match(relay,/if \(!batteryEnabled\(app\)\)/);
- const fallback=relay.slice(relay.indexOf('private suspend fun isSelectedPhysicalPhone('),relay.indexOf('private suspend fun ensureFolder('));
+ const fallback=relay.slice(relay.indexOf('private suspend fun isSelectedPhysicalPhone('),relay.indexOf('fun publish('));
  assert.doesNotMatch(fallback,/putBoolean\(KEY_SHARE, true\)|enable\(context\)/);
 });
 test('Only an absent/unassigned legacy device may use live central owner proof',()=>{

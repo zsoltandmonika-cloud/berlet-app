@@ -161,6 +161,34 @@ object DropboxVaultClient {
         }
     }
 
+    /**
+     * Dropbox 409 is not one error: the endpoint returns a trusted structural
+     * error_summary (e.g. path/no_write_permission/..). Only show allowlisted
+     * TAGS, never the raw response, account IDs, OAuth data, GPS, or arbitrary
+     * server-provided strings. A diagnostic must never change consent or retry
+     * a denied upload under a different account/path.
+     */
+    internal fun safeUpload409Reason(message: String): String? {
+        val prefix = "Dropbox upload HTTP 409: "
+        if (!message.startsWith(prefix)) return null
+        val summary = try {
+            JSONObject(message.removePrefix(prefix)).optString("error_summary")
+        } catch (_: Exception) { return null }
+        // Most specific first. Dropbox may append random dots after these tags.
+        val allowed = listOf(
+            "path/conflict/file_ancestor", "path/conflict/file",
+            "path/conflict/folder", "path/conflict",
+            "path/no_write_permission", "path/not_found",
+            "path/insufficient_space", "path/too_many_write_operations",
+            "path/operation_suppressed", "path/access_restricted",
+            "path/disallowed_name", "path/malformed_path", "path/locked",
+            "path/team_folder"
+        )
+        return allowed.firstOrNull {
+            summary == it || summary.startsWith("$it/") || summary.startsWith("$it.")
+        }
+    }
+
     /** Diagnostic only. No OAuth secrets, response bodies or GPS data exposed. */
     fun safeDiagnosticCode(e: Exception): String {
         val message = e.message.orEmpty()
@@ -172,7 +200,8 @@ object DropboxVaultClient {
             else -> "network"
         }
         val http = Regex("""HTTP ([1-5][0-9]{2})""").find(message)?.groupValues?.get(1)
-        return if (http != null) "$stage-http-$http"
+        val detail = if (stage == "upload" && http == "409") safeUpload409Reason(message) else null
+        return if (http != null) "$stage-http-$http" + (detail?.let { "-$it" } ?: "")
             else "$stage-" + e.javaClass.simpleName.take(32)
     }
 
