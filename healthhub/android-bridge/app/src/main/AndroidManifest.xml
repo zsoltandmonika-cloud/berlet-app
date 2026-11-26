@@ -3,6 +3,8 @@
     <!-- Special access granted separately by each phone owner in Android settings. -->
     <uses-permission android:name="android.permission.PACKAGE_USAGE_STATS" />
     <uses-permission android:name="android.permission.INTERNET" />
+    <!-- Smart Connect: requested only when the user opens native contact search. -->
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
     <!-- Read-only transport state for owner-consented native service diagnostics. -->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <!-- Optional read of Bluetooth ON/OFF; Android 12+ needs explicit Nearby Devices approval.
