@@ -268,6 +268,7 @@ function top(){
 function back(){
  if(!$('viewer').hidden){$('viewer').hidden=true;return}
  if(!$('overlay').hidden){close();return}
+ if($('back').dataset.shoSmartConnect==='1'){goto('../staging/smart-connect/?view=connect');return}
  if(w.history.length>1)w.history.back();else goto(SH9);
 }
 $('profile').onclick=switchProfile;
