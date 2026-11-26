@@ -109,7 +109,7 @@ details{border-top:1px solid #9fcbb42a;padding:9px 0}details:first-of-type{borde
 </div>
 <p>A GitHub Actions ütemezése naponta 06:15 UTC. Ez Budapesten télen 07:15, nyáron 08:15. Az ütemezés legjobb erőfeszítésű, nem garantált percre pontos futás. Hétvégén és amerikai tőzsdei szünnapon nem keletkezik új kereskedési nap.</p>
 <p>Az adatforrás az Alpaca IEX napi ETF-árfolyamadata és az Európai Központi Bank USD/HUF referenciaárfolyama. A rendszer ellenőrzi a tőzsdenaptárat, az adatok teljességét és frissességét. Hiányzó nap, hibás vagy elavult adat esetén megáll; nem talál ki kötést és nem pótol visszamenőleg.</p>
-<div class="note good">Nem kell percenként figyelni. A napi egyszeri státusz- és adatnap-ellenőrzés elég a pilot követéséhez.</div>
+<div class="note good">Nem kell percenként figyelni. A napi egyszeri státusz- és adatnap-ellenőrzés elég a pilot követéséhez. <b>Nincs fix napi kamat vagy garantált napi hozam:</b> egy nap lehet nyereséges, veszteséges vagy változatlan, és nem minden nap történik kötés. A külön napi P&amp;L kártya még fejlesztendő; a mostani Hozam mező az indulás óta összesített eredményt mutatja.</div>
 </section>
 <section class="card" id="risk">
 <h2>5. Kockázat, költség és deviza</h2>
@@ -117,7 +117,7 @@ details{border-top:1px solid #9fcbb42a;padding:9px 0}details:first-of-type{borde
 <p>Ha a portfólió a korábbi csúcsához képest legalább 5%-ot esik, vagy az indulótőke 95%-a alá kerül, a motor kockázati stopot állít be. Nem nyit új pozíciót, és a következő modellezett nyitáskor készpénzre vált.</p>
 <div class="note warn">Az 5% <b>nem garantált maximális veszteség</b>. Piaci rés, nyitási árugrás, devizaárfolyam és költségek miatt a tényleges szimulált veszteség nagyobb is lehet.</div>
 <h3>Modellezett költségek</h3>
-<ul><li>Tranzakciónként 0,2% változó költség és 0,50 USD fix költség.</li><li>0,25%-os modellezett devizaköltség.</li><li>Ezek szimulációs feltételezések, nem egy tényleges brókerszámla számlázott díjai.</li></ul>
+<ul><li>Tranzakciónként 0,2% változó költség és 0,50 USD fix költség.</li><li>0,25%-os modellezett devizaköltség.</li><li>Nincs külön fizetős adat-előfizetés vagy valódi befizetés. A GitHub Actions a fiókban elérhető futtatási keretet használja; a fizetős túllépést érdemes kikapcsolva tartani.</li><li>Ezek szimulációs feltételezések, nem egy tényleges brókerszámla számlázott díjai.</li></ul>
 <h3>Miért számít a dollár?</h3>
 <p>A portfólió amerikai ETF-eket és USD-kitettséget tartalmaz, az eredményt viszont forintban látod. A dollár erősödése növelheti, gyengülése csökkentheti a forintban kimutatott értéket, az ETF árfolyamától függetlenül is. A devizahatás külön bontása még nincs a dashboardon.</p>
 <h3>STOP és újraindítás</h3>
