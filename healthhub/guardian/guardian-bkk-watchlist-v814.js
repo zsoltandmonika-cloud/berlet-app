@@ -58,7 +58,11 @@
  // No camera movement, GPS request or additional BKK live polling.
  const sessionHidden={zsolt:new Set(),monika:new Set()};
  const managed={zsolt:new Set(),monika:new Set()};
- let autoBusy=false,autoQueued=false,autoAgain=false,observedMap=null;
+ let autoBusy=false,autoQueued=false,autoAgain=false,observedMap=null,idleMap=null;
+ function afterMapIdle(map){
+  if(!map?.once||idleMap===map)return;
+  idleMap=map;map.once('idle',()=>{if(idleMap===map)idleMap=null;queueAuto()});
+ }
  function autoMap(){
   const m=w.HH_GUARDIAN_V761?.map;
   if(!m||typeof m.isStyleLoaded!=='function'||!m.isStyleLoaded()||d.hidden)return null;
@@ -75,7 +79,10 @@
    if(map&&map!==observedMap&&map.on){
     observedMap=map;map.on('style.load',queueAuto);map.on('load',queueAuto);
    }
-   if(!autoMap()||!catalog()?.loaded)return;
+   if(!autoMap()||!catalog()?.loaded){
+    if(map&&!d.hidden&&d.documentElement?.dataset?.sh9Transit!=='on'&&map.isStyleLoaded&&!map.isStyleLoaded())afterMapIdle(map);
+    return;
+   }
    autoBusy=true;
    try{await restoreWatchlist()}finally{
     autoBusy=false;
@@ -91,7 +98,7 @@
   const wanted=new Set(keys.filter(key=>!sessionHidden[profile].has(key)));
   const transit=w.HH_GUARDIAN_TRANSIT_V790,extra=w.HH_BKK_EXTRA_ROUTE_V912;
   const live=w.HH_BKK_LIVE_PER_LINE_V909;
-  const stillCurrent=()=>currentProfile()===profile&&autoMap()===map;
+  const stillCurrent=()=>currentProfile()===profile&&w.HH_GUARDIAN_V761?.map===map&&!d.hidden;
   for(const key of [...managed[profile]]){
    if(!stillCurrent())return;
    if(wanted.has(key))continue;
@@ -100,7 +107,8 @@
    else await extra?.setLineVisible?.(key,false);
    managed[profile].delete(key);
   }
-  let extraCount=0;
+  // Enable all watched live filters and native static routes first. Extra
+  // shapes may need one asynchronous shared snapshot and a ready map style.
   for(const key of wanted){
    if(!stillCurrent())return;
    if(sessionHidden[profile].has(key)||!api.favoriteIds.includes(key))continue;
@@ -109,15 +117,25 @@
    if(FEATURED.has(key)){
     const id=key.split(':')[1];
     if(transit?.hasMapRoute?.(id)&&!transit.isLineVisible?.(id))transit.setLineVisible?.(id,true);
-   }else if(extraCount++<12&&extra?.setLineVisible&&!extra.isLineVisible?.(key)){
-    await extra.setLineVisible(key,true);
-    if(!stillCurrent())return;
-    if(sessionHidden[profile].has(key)||!api.favoriteIds.includes(key)){
-     await extra.setLineVisible(key,false);live?.setEnabled(key,false,profile);
-    }
    }
   }
-  if(stillCurrent()){extra?.refresh?.();render()}
+  let extraCount=0;
+  for(const key of wanted){
+   if(!stillCurrent())return;
+   if(FEATURED.has(key)||sessionHidden[profile].has(key)||!api.favoriteIds.includes(key))continue;
+   if(extraCount++>=12||!extra?.setLineVisible||extra.isLineVisible?.(key))continue;
+   if(!map.isStyleLoaded()){afterMapIdle(map);break}
+   const ok=await extra.setLineVisible(key,true);
+   if(!stillCurrent())return;
+   if(sessionHidden[profile].has(key)||!api.favoriteIds.includes(key)){
+    await extra.setLineVisible(key,false);live?.setEnabled(key,false,profile);
+   }else if(!ok&&!map.isStyleLoaded()){afterMapIdle(map);break}
+  }
+  if(stillCurrent()){
+   if(map.isStyleLoaded())extra?.refresh?.();
+   else if(extraCount)afterMapIdle(map);
+   render();
+  }
  }
  function render(){
   const api=catalog(),host=$('hhBkkWatchRowsV814'),section=$('hhBkkWatchlistV814');
