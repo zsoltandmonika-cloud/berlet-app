@@ -5,7 +5,7 @@
   "sourceSha256": "87e3993525f65d48617c891d0851ad81edb4635458e625e15d641d9a711285ea",
   "bytes": 6759447,
   "maxBytes": 9437184,
-  "validatedAt": "2026-11-27T09:02:03.554258Z",
+  "validatedAt": "2026-11-27T09:23:33.954683Z",
   "capacity": {
     "selectedStopTimeRows": 264816,
     "allocatedRows": 400000,
