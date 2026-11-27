@@ -5,7 +5,7 @@ const guardian=path.resolve(__dirname,'../guardian');
 const script=fs.readFileSync(path.join(guardian,'guardian-bkk-watchlist-v814.js'),'utf8');
 const html=fs.readFileSync(path.join(guardian,'index.html'),'utf8');
 const style=fs.readFileSync(path.join(guardian,'guardian-bkk-watch-unified-v1.css'),'utf8');
-function fixture(){
+function fixture(auto=false){
  const all={},listeners={},operations=[];
  function element(id=''){
   return {id,dataset:{},children:[],attrs:{},value:'zsolt',hidden:false,open:false,disabled:false,
@@ -21,7 +21,7 @@ function fixture(){
   'hhSmartHubFavoritesV806','hhTransitShow260'])all[id]=element(id);
  all.hhBkkCatalogV801.nextElementSibling=all.hhSmartHubFavoritesV806;
  const doc={readyState:'complete',getElementById:id=>all[id]||null,createElement:element,addEventListener(){}};
- let shown=false,live=true;
+ let shown=false,live=!auto;
  const root={localStorage:{getItem(){return null}},addEventListener(t,fn){(listeners[t]??=[]).push(fn)},
   dispatchEvent(e){for(const f of listeners[e.type]||[])f(e)},
   setTimeout(){return 1},clearTimeout(){},
@@ -31,10 +31,15 @@ function fixture(){
    setLineVisible(_id,value){shown=!!value;operations.push('route:'+value);root.dispatchEvent({type:'hh-bkk-line-visibility-v855'});return true},
    showLine(){shown=true;operations.push('route:true');root.dispatchEvent({type:'hh-bkk-line-visibility-v855'});return true}}
  };
+ const mapEvents={};
+ if(auto){
+  root.HH_GUARDIAN_V761={map:{isStyleLoaded:()=>true,on(k,fn){mapEvents[k]=fn}}};
+  root.HH_BKK_CATALOG_V801.loaded=true;
+ }
  vm.runInNewContext(script,{window:root,document:doc,Date,Set});
  const button=()=>all.hhBkkWatchRowsV814.children[0].children[2].children[0];
  const actions=()=>all.hhBkkWatchRowsV814.children[0].children[2].children;
- return {button,actions,root,operations,state:()=>({shown,live})};
+ return {button,actions,root,operations,mapEvents,state:()=>({shown,live})};
 }
 test('one Watchlist control replaces independent LIVE/route buttons without losing route actions',async()=>{
  const f=fixture();
@@ -65,4 +70,24 @@ test('standalone premium CSS and single button loaded after Golden hero, without
  assert.match(style,/hh-bkk-watch-unified-v1/);
  assert.match(script,/hh-bkk-live-verified-v815/);
  assert.doesNotMatch(script,/navigator\.geolocation|fetch\(|sendBeacon\(/);
+});
+
+test('fresh map automatically restores watched static and live route without camera zoom; manual hide survives redraw',async()=>{
+ const f=fixture(true);
+ const flush=()=>new Promise(resolve=>setImmediate(resolve));
+ await flush();
+ assert.deepEqual(f.state(),{shown:true,live:true});
+ assert.equal(f.button().textContent,'Elrejt');
+ const first=f.operations.length;
+ f.mapEvents['style.load']();
+ await flush();
+ assert.deepEqual(f.state(),{shown:true,live:true});
+ await f.button().click();
+ await flush();
+ assert.deepEqual(f.state(),{shown:false,live:false});
+ f.mapEvents['style.load']();
+ f.root.dispatchEvent({type:'pageshow'});
+ await flush();
+ assert.deepEqual(f.state(),{shown:false,live:false});
+ assert.ok(f.operations.length>=first);
 });

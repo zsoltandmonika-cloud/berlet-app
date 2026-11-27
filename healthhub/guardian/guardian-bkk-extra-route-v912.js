@@ -1,6 +1,6 @@
 /* Family Guard v912 · BKK favorite static stop-pattern overlay on the ORIGINAL map.
  * Official GTFS stop locations + ORDER, not roadway/rail track geometry.
- * Load 1 existing shared v806 BKK network snapshot only if user taps Mutasd.
+ * Load one shared v806 BKK network snapshot when a watched additional line needs it.
  * Never touch family GPS, profile map controls, realtime feed, or existing 5 accurate shapes.
  */
 (function(root,factory){
@@ -105,9 +105,9 @@
    windowPop.setLngLat(coord).setDOMContent(root).addTo(m);
   }catch(_){}
  }
- function draw(key){
-  const m=mapApi();if(!validMap(m)||!routes?.has(key)||m.isStyleLoaded&&!m.isStyleLoaded())return false;
-  if(currentMap&&currentMap!==m){activeLayer.clear()}
+ function draw(key,batchMap=null){
+  const m=mapApi();if(!validMap(m)||!routes?.has(key)||(batchMap!==m&&m.isStyleLoaded&&!m.isStyleLoaded()))return false;
+  if(currentMap&&currentMap!==m){for(const old of [...activeLayer])remove(old)}
   currentMap=m;
   const id=layerId(key),geo=features(key),mode=key.split(':')[0];
   const color={bus:'#148ee0',tram:'#e4ab00',trolley:'#d95078',metro:'#4f8ede',hev:'#28b381',other:'#a2bfd8'}[mode]||'#a2bfd8';
@@ -119,6 +119,7 @@
      layout:{visibility:'visible','line-cap':'round','line-join':'round'},
      paint:{'line-color':color,'line-opacity':.9,'line-width':3.2,'line-dasharray':[2,2]}});
     if(m.on){
+     const old=boundClicks.get(key)?.line;if(old&&m.off)m.off('click',id+'-line',old);
      const fn=e=>{if(STORE[profile()].has(key))status(key+' · menetrendi vonal, nem élő jármű');};
      m.on('click',id+'-line',fn);
      boundClicks.set(key,{...(boundClicks.get(key)||{}),line:fn});
@@ -129,6 +130,7 @@
      layout:{visibility:'visible'},paint:{'circle-color':'#fff','circle-radius':4,
      'circle-stroke-color':color,'circle-stroke-width':2}});
     if(m.on){
+     const old=boundClicks.get(key)?.stops;if(old&&m.off)m.off('click',id+'-stops',old);
      const fn=e=>{
       const f=e?.features?.[0],c=f?.geometry?.coordinates;
       if(STORE[profile()].has(key)&&Array.isArray(c))status(key+' · '+String(f?.properties?.stop||'megálló')+' · menetrendi megálló');
@@ -147,20 +149,24 @@
   for(const key of [...activeLayer]){
    if(!STORE[profiles].has(key))remove(key);
   }
-  for(const key of STORE[profiles])draw(key);
+  const m=mapApi();if(!validMap(m)||m.isStyleLoaded&&!m.isStyleLoaded())return;
+  // One ready style can receive the entire batch, even while newly added
+  // GeoJSON sources themselves are loading. Never add duplicate click handlers.
+  for(const key of STORE[profiles])draw(key,m);
  }
  async function setLineVisible(key,enabled){
   if(!KEY.test(key))return false;
-  profiles=profile();
-  if(!enabled){STORE[profiles].delete(key);remove(key);notify();return true}
+  const requestedProfile=profile();profiles=requestedProfile;
+  if(!enabled){STORE[requestedProfile].delete(key);remove(key);notify();return true}
   if(!STORE[profiles].has(key)&&STORE[profiles].size>=MAX_OPEN){
    status('Legfeljebb '+MAX_OPEN+' további sematikus járat mutatható egyszerre.');return false;
   }
   try{await load()}catch(e){status(e.message);return false}
+  if(profile()!==requestedProfile)return false;
   if(!routes.has(key)){status(key+' · nincs ellenőrizhető megállósorrend');return false}
   if(!validMap(mapApi())){status('A Family Guard térkép még betöltődik');return false}
-  STORE[profiles].add(key);
-  if(!draw(key)){STORE[profiles].delete(key);return false}
+  STORE[requestedProfile].add(key);
+  if(!draw(key)){STORE[requestedProfile].delete(key);return false}
   notify();return true;
  }
  async function showLine(key){
@@ -178,6 +184,6 @@
   w.addEventListener('hh-bkk-watchlist-v814-changed',refresh);
   w.addEventListener('pagehide',()=>{for(const key of [...activeLayer])remove(key)});
  }
- return {parse,features,load,setLineVisible,showLine,isLineVisible:key=>KEY.test(key)&&STORE[profile()].has(key),
+ return {parse,features,load,refresh,setLineVisible,showLine,isLineVisible:key=>KEY.test(key)&&STORE[profile()].has(key),
   hasMapRoute:key=>KEY.test(key)&&!!routes?.has(key),get loaded(){return !!routes},version:'912'};
 });

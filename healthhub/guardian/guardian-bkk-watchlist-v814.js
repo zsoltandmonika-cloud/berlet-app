@@ -53,6 +53,90 @@
   }
   render();
  }
+ // A fresh map session starts with the saved profile's Watchlist ON.
+ // A manual hide remains authoritative until the next full page opening.
+ // No camera movement, GPS request or additional BKK live polling.
+ const sessionHidden={zsolt:new Set(),monika:new Set()};
+ const managed={zsolt:new Set(),monika:new Set()};
+ let autoBusy=false,autoQueued=false,autoAgain=false,observedMap=null,idleMap=null;
+ function afterMapIdle(map){
+  if(!map?.once||idleMap===map)return;
+  idleMap=map;map.once('idle',()=>{if(idleMap===map)idleMap=null;queueAuto()});
+ }
+ function autoMap(){
+  const m=w.HH_GUARDIAN_V761?.map;
+  if(!m||typeof m.isStyleLoaded!=='function'||!m.isStyleLoaded()||d.hidden)return null;
+  if(d.documentElement?.dataset?.sh9Transit==='on')return null;
+  return m;
+ }
+ function queueAuto(){
+  if(autoBusy){autoAgain=true;return}
+  if(autoQueued)return;
+  autoQueued=true;
+  Promise.resolve().then(async()=>{
+   autoQueued=false;
+   const map=w.HH_GUARDIAN_V761?.map;
+   if(map&&map!==observedMap&&map.on){
+    observedMap=map;map.on('style.load',queueAuto);map.on('load',queueAuto);
+   }
+   if(!autoMap()||!catalog()?.loaded){
+    if(map&&!d.hidden&&d.documentElement?.dataset?.sh9Transit!=='on'&&map.isStyleLoaded&&!map.isStyleLoaded())afterMapIdle(map);
+    return;
+   }
+   autoBusy=true;
+   try{await restoreWatchlist()}finally{
+    autoBusy=false;
+    if(autoAgain){autoAgain=false;queueAuto()}
+   }
+  }).catch(()=>{autoBusy=false});
+ }
+ async function restoreWatchlist(){
+  const api=catalog(),profile=currentProfile(),map=autoMap();
+  if(!map||!api?.loaded)return;
+  api.setProfile?.(profile);
+  const keys=api.favoriteIds.filter(key=>!!api.routeByKey(key));
+  const wanted=new Set(keys.filter(key=>!sessionHidden[profile].has(key)));
+  const transit=w.HH_GUARDIAN_TRANSIT_V790,extra=w.HH_BKK_EXTRA_ROUTE_V912;
+  const live=w.HH_BKK_LIVE_PER_LINE_V909;
+  const stillCurrent=()=>currentProfile()===profile&&w.HH_GUARDIAN_V761?.map===map&&!d.hidden;
+  for(const key of [...managed[profile]]){
+   if(!stillCurrent())return;
+   if(wanted.has(key))continue;
+   live?.setEnabled(key,false,profile);
+   if(FEATURED.has(key))transit?.setLineVisible?.(key.split(':')[1],false);
+   else await extra?.setLineVisible?.(key,false);
+   managed[profile].delete(key);
+  }
+  // Enable all watched live filters and native static routes first. Extra
+  // shapes may need one asynchronous shared snapshot and a ready map style.
+  for(const key of wanted){
+   if(!stillCurrent())return;
+   if(sessionHidden[profile].has(key)||!api.favoriteIds.includes(key))continue;
+   live?.setEnabled(key,true,profile);
+   managed[profile].add(key);
+   if(FEATURED.has(key)){
+    const id=key.split(':')[1];
+    if(transit?.hasMapRoute?.(id)&&!transit.isLineVisible?.(id))transit.setLineVisible?.(id,true);
+   }
+  }
+  let extraCount=0;
+  for(const key of wanted){
+   if(!stillCurrent())return;
+   if(FEATURED.has(key)||sessionHidden[profile].has(key)||!api.favoriteIds.includes(key))continue;
+   if(extraCount++>=12||!extra?.setLineVisible||extra.isLineVisible?.(key))continue;
+   if(!map.isStyleLoaded()){afterMapIdle(map);break}
+   const ok=await extra.setLineVisible(key,true);
+   if(!stillCurrent())return;
+   if(sessionHidden[profile].has(key)||!api.favoriteIds.includes(key)){
+    await extra.setLineVisible(key,false);live?.setEnabled(key,false,profile);
+   }else if(!ok&&!map.isStyleLoaded()){afterMapIdle(map);break}
+  }
+  if(stillCurrent()){
+   if(map.isStyleLoaded())extra?.refresh?.();
+   else if(extraCount)afterMapIdle(map);
+   render();
+  }
+ }
  function render(){
   const api=catalog(),host=$('hhBkkWatchRowsV814'),section=$('hhBkkWatchlistV814');
   const panel=$('hhTransitPanel');
@@ -100,6 +184,7 @@
     const toggle=action(displayed?'Elrejt':'Mutasd',
      (MODE[mode]||'Járat')+' '+id+(displayed?' útvonalának és élő járműveinek elrejtése':' útvonalának és élő járműveinek megjelenítése'),async()=>{
       if(displayed){
+       sessionHidden[profile].add(key);
        // Hide verified live markers first; then remove the static route.
        if(liveFilter)liveFilter.setEnabled(key,false,profile);
        if(shown){
@@ -108,6 +193,7 @@
        }
        render();return;
       }
+      sessionHidden[profile].delete(key);
       // Only enable the LIVE overlay if the requested map line loaded.
       let visible=false;
       if(supported){
@@ -176,16 +262,19 @@
   if(w.addEventListener){
    w.addEventListener('hh-bkk-live-verified-v815',onVerified);
    d.addEventListener('visibilitychange',render);
-   w.addEventListener('hh-bkk-watchlist-v814-changed',render);
-   w.addEventListener('hh-bkk-static-map-ready-v817',render);
+   w.addEventListener('hh-bkk-watchlist-v814-changed',()=>{render();queueAuto()});
+   w.addEventListener('hh-bkk-static-map-ready-v817',()=>{render();queueAuto()});
+   w.addEventListener('hh-guardian-map-ready-v839',queueAuto);
+   w.addEventListener('pageshow',queueAuto);
+   d.addEventListener('visibilitychange',()=>{if(!d.hidden)queueAuto()});
    w.addEventListener('hh-bkk-line-visibility-v855',render);
    w.addEventListener('hh-bkk-extra-route-v912-changed',render);
    w.addEventListener('hh-bkk-live-per-line-v909-changed',render);
-   w.addEventListener('storage',e=>{if(e.key==='hh-profile')render()});
+   w.addEventListener('storage',e=>{if(e.key==='hh-profile'){render();queueAuto()}});
   }
   const profile=$('hhTransitProfileV791');
-  if(profile)profile.addEventListener('change',render);
-  render();
+  if(profile)profile.addEventListener('change',()=>{render();queueAuto()});
+  render();queueAuto();
  }
  if(d.readyState==='loading')d.addEventListener('DOMContentLoaded',init);
  else init();

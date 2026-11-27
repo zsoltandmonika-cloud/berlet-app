@@ -1,0 +1,31 @@
+name: SHO BKK Watchlist auto-map QA
+on:
+  pull_request:
+    paths:
+      - 'healthhub/guardian/guardian-bkk-watchlist-v814.js'
+      - 'healthhub/guardian/guardian-bkk-extra-route-v912.js'
+      - 'healthhub/tests/guardian-bkk-watch-unified-v1.test.cjs'
+      - '.github/workflows/sho-bkk-watchlist-auto-map.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'healthhub/guardian/guardian-bkk-watchlist-v814.js'
+      - 'healthhub/guardian/guardian-bkk-extra-route-v912.js'
+      - 'healthhub/tests/guardian-bkk-watch-unified-v1.test.cjs'
+      - '.github/workflows/sho-bkk-watchlist-auto-map.yml'
+permissions:
+  contents: read
+jobs:
+  watchlist-auto-map:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Watchlist overlay syntax and lifecycle regression
+        run: |
+          node --check healthhub/guardian/guardian-bkk-watchlist-v814.js
+          node --check healthhub/guardian/guardian-bkk-extra-route-v912.js
+          node --test healthhub/tests/guardian-bkk-watchlist-v814.test.cjs healthhub/tests/guardian-bkk-watch-unified-v1.test.cjs healthhub/tests/guardian-bkk-extra-route-v912.test.cjs
