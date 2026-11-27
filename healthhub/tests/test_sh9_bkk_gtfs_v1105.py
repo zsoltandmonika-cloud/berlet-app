@@ -1,6 +1,7 @@
 """SH9 BKK official GTFS ZIP offline converter tests, no external network."""
 import importlib.util
 import pathlib
+import os
 import tempfile
 import unittest
 from unittest.mock import patch
@@ -96,6 +97,26 @@ class BkkSnapshotTests(unittest.TestCase):
             with patch.object(builder, "INITIAL_STOP_TIMES", 2), patch.object(builder, "MAX_STOP_TIMES", 4):
                 with self.assertRaisesRegex(ValueError, "5 > 4"):
                     builder.build(file, {"17", "260"}, "2026-11-01T12:00:00Z")
+
+    @unittest.skipUnless(os.environ.get("SHO_BKK_STRESS_TEST") == "1", "isolated CI stress only")
+    def test_two_million_input_rows_respect_independent_mobile_budget(self):
+        # Real streaming CSV / ZIP parsing at the approved input ceiling.
+        # This deliberately cannot fit the separate 9 MiB mobile JSON gate.
+        with tempfile.TemporaryDirectory() as temp:
+            path = pathlib.Path(temp) / "stress.zip"
+            with zipfile.ZipFile(path, "w", zipfile.ZIP_DEFLATED) as z:
+                z.writestr("agency.txt", "agency_id,agency_name,agency_url,agency_timezone\nbkk,BKK,https://bkk.hu,Europe/Budapest\n")
+                z.writestr("routes.txt", "route_id,route_short_name,route_type\nr17,17,0\n")
+                z.writestr("trips.txt", "route_id,service_id,trip_id,trip_headsign\n" +
+                           "".join(f"r17,daily,t{i},Test\n" for i in range(4000)))
+                z.writestr("stops.txt", "stop_id,stop_name,stop_lat,stop_lon\ns1,Test stop,47.5,19.02\n")
+                z.writestr("calendar.txt", "service_id,monday,tuesday,wednesday,thursday,friday,saturday,sunday,start_date,end_date\ndaily,1,1,1,1,1,1,1,20261101,20261231\n")
+                with z.open("stop_times.txt", "w") as stream:
+                    stream.write(b"trip_id,arrival_time,departure_time,stop_id,stop_sequence\n")
+                    for i in range(4000):
+                        stream.write("".join(f"t{i},00:00:00,00:00:00,s1,{j}\n" for j in range(1,501)).encode())
+            with self.assertRaisesRegex(ValueError, "mobile budget retained"):
+                builder.build(path, {"17"}, "2026-11-27T12:00:00Z")
 
     def test_missing_selected_line_fails(self):
         with tempfile.TemporaryDirectory() as temp:
