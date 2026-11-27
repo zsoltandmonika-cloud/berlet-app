@@ -4,7 +4,7 @@
  * existing user-saved home/office favorites. Fail closed when ambiguous.
  */
 export const ROUTES=Object.freeze({home:"monika-home-to-office",work:"monika-260"});
-export const MAX_AGE_MS=75000,MAX_ACCURACY_M=70,RADIUS_M=250;
+export const MAX_AGE_MS=75000,MAX_ACCURACY_M=150,RADIUS_M=250;
 // Duplicated household favorites can refer to the SAME physical home/office.
 // A narrow cluster tolerance allows these aliases without accepting two
 // genuinely different locations as one. This never accesses a GPS sensor.
@@ -54,7 +54,11 @@ export function chooseLocation(fix,slots,now=Date.now()){
   !Number.isFinite(fix?.accuracy)||fix.accuracy<0||fix.accuracy>MAX_ACCURACY_M)return null;
  const places=namedPlaces(slots);if(!places)return null;
  const dh=meters(p,places.home),dw=meters(p,places.work);
- if(dh<=RADIUS_M&&dw>RADIUS_M+100)return {zone:"home",routeId:ROUTES.home};
- if(dw<=RADIUS_M&&dh>RADIUS_M+100)return {zone:"work",routeId:ROUTES.work};
+ // Preserve the established policy for precise fixes. For lower precision,
+ // require the reported uncertainty circle to fit inside the target zone
+ // and stay clear of the other zone. No expansion of the geofence.
+ const uncertainty=fix.accuracy>70?fix.accuracy:0;
+ if(dh+uncertainty<=RADIUS_M&&dw-uncertainty>RADIUS_M+100)return {zone:"home",routeId:ROUTES.home};
+ if(dw+uncertainty<=RADIUS_M&&dh-uncertainty>RADIUS_M+100)return {zone:"work",routeId:ROUTES.work};
  return null;
 }
