@@ -22,9 +22,19 @@ SOURCE_URL = "https://bkk.hu/gtfs/budapest_gtfs.zip"
 REQUIRED = {"agency.txt", "routes.txt", "trips.txt", "stop_times.txt", "stops.txt"}
 MAX_ZIP_BYTES = 90 * 1024 * 1024
 MAX_OUTPUT = 9 * 1024 * 1024
-MAX_STOP_TIMES = 400000  # Seasonal GTFS variants; independent 9 MiB output gate remains.
+INITIAL_STOP_TIMES = 400000
+MAX_STOP_TIMES = 2000000  # Absolute input-processing ceiling; not a mobile payload budget.
+STOP_TIME_WARNING = 1600000
 ROUTE_ID = re.compile(r"^[^\x00-\x1f<>]{1,60}$")
 GTFS_MODES = {"0": "tram", "1": "metro", "2": "train", "3": "bus", "11": "bus"}
+
+
+def capacity_for(count: int, capacity: int = INITIAL_STOP_TIMES) -> int:
+    if count > MAX_STOP_TIMES:
+        raise ValueError(f"Too many selected stop-time rows: {count} > {MAX_STOP_TIMES}")
+    while count > capacity:
+        capacity = min(MAX_STOP_TIMES, capacity * 3 // 2)
+    return capacity
 
 
 def table(zf: zipfile.ZipFile, filename: str):
@@ -102,13 +112,17 @@ def build(zip_path: pathlib.Path, route_names: set[str], generated_at: str) -> d
             raise ValueError("Selected lines contain no trips")
         # stop_times.txt can be >1M rows, but retained rows capped.
         n = 0
+        capacity = INITIAL_STOP_TIMES
         for row in table(zf, "stop_times.txt"):
             trip = trips.get(row.get("trip_id"))
             if trip is None:
                 continue
             n += 1
-            if n > MAX_STOP_TIMES:
-                raise ValueError(f"Too many selected stop-time rows: {n} > {MAX_STOP_TIMES}")
+            if n > capacity:
+                capacity = capacity_for(n, capacity)
+                print(f"BKK adaptive processing capacity: {capacity} rows", file=sys.stderr)
+            if n == STOP_TIME_WARNING:
+                print(f"::warning::BKK selected stop-time rows reached {STOP_TIME_WARNING} of {MAX_STOP_TIMES}", file=sys.stderr)
             arr, dep = secs(row.get("arrival_time", "")), secs(row.get("departure_time", ""))
             seq = int(row.get("stop_sequence") or 0)
             if arr > dep or seq <= 0 or not row.get("stop_id"):
@@ -198,10 +212,12 @@ def build(zip_path: pathlib.Path, route_names: set[str], generated_at: str) -> d
             "routes": sorted(set(value[0] for value in route_ids.values())),
             "stops": stops, "searchStops": search_stops,
             "services": services, "trips": trip_list,
+            "capacity": {"selectedStopTimeRows": n, "allocatedRows": capacity,
+                         "hardCapRows": MAX_STOP_TIMES},
         }
         encoded = json.dumps(snapshot, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
         if len(encoded) > MAX_OUTPUT:
-            raise ValueError("Filtered GTFS output too large; reduce route names")
+            raise ValueError(f"Filtered GTFS output too large: {len(encoded)} > {MAX_OUTPUT} bytes; mobile budget retained")
         return snapshot
 
 

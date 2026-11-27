@@ -1,7 +1,8 @@
 name: SH9 Lena BKK Verified Scheduled Feed v1106
 on:
   schedule:
-    - cron: "23 3,15 * * *"
+    - cron: "15 4,10,16,22 * * *"
+      timezone: "Europe/Budapest"
   workflow_dispatch:
   push:
     branches: [main]
@@ -11,6 +12,7 @@ on:
       - "sh9/smart-travel/lena-native/bkk/validate_bkk_snapshot_v1106.py"
       - "sh9/smart-travel/lena-native/bkk/bkk-gtfs-core-v1105.mjs"
       - "healthhub/tests/test_sh9_bkk_publication_v1106.py"
+      - "healthhub/tests/test_sh9_bkk_gtfs_v1105.py"
       - "healthhub/tests/sh9-bkk-feed-client-v1106.test.mjs"
       - "healthhub/tests/sh9-bkk-official-snapshot-smoke-v1105.mjs"
 
@@ -24,7 +26,7 @@ jobs:
   validate-and-publish:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 150
     env:
       TARGET_DIR: sh9/smart-travel/lena-native/bkk/data
       DATA_NAME: bkk-selected-routes-v1106.json
@@ -49,11 +51,15 @@ jobs:
           python -m unittest discover -s healthhub/tests -p 'test_sh9_bkk_publication_v1106.py' -v
           node --test healthhub/tests/sh9-lena-bkk-v1105.test.mjs
           node --test healthhub/tests/sh9-bkk-feed-client-v1106.test.mjs
-      - name: Fetch a single official BKK GTFS archive
+      - name: Fetch, validate and retry official timetable
         shell: bash
         run: |
           set -euo pipefail
+          script="$RUNNER_TEMP/bkk-adaptive-refresh.sh"
+          cat > "$script" <<'BKK_REFRESH'
+          set -euo pipefail
           mkdir -p "$RUNNER_TEMP/sh9-bkk-v1106"
+          rm -rf "$RUNNER_TEMP/sh9-bkk-v1106/out"
           zip="$RUNNER_TEMP/sh9-bkk-v1106/budapest_gtfs.zip"
           if ! curl --fail --show-error --silent --location \
               --retry 2 --connect-timeout 15 --max-time 150 \
@@ -75,9 +81,6 @@ jobs:
               if not required.issubset(files) or z.testzip() is not None:
                   raise SystemExit("BKK ZIP missing records or failed CRC")
           PY
-      - name: Reuse unchanged official feed or convert new ZIP
-        shell: bash
-        run: |
           set -euo pipefail
           mkdir -p "$RUNNER_TEMP/sh9-bkk-v1106/out"
           sha="$(sha256sum "$RUNNER_TEMP/sh9-bkk-v1106/budapest_gtfs.zip" | cut -d ' ' -f 1)"
@@ -89,8 +92,12 @@ jobs:
           full_index_ready=false
           if [[ -s "$TARGET_DIR/$DATA_NAME" ]]; then
             if python - "$TARGET_DIR/$DATA_NAME" <<'PY'
-          import json,sys
-          d=json.load(open(sys.argv[1],encoding="utf-8"))
+          import json,sys,datetime as dt,hashlib,pathlib
+          f=pathlib.Path(sys.argv[1]); raw=f.read_bytes(); d=json.loads(raw)
+          m=json.loads(f.with_name("bkk-feed-manifest-v1106.json").read_bytes())
+          age=dt.datetime.now(dt.timezone.utc)-dt.datetime.fromisoformat(d["generatedAt"].replace("Z","+00:00"))
+          if not d.get("capacity") or age>=dt.timedelta(days=13) or hashlib.sha256(raw).hexdigest()!=m.get("sha256"):
+              raise SystemExit(1)
           names=d.get("searchStops")
           stops=d.get("stops") or {}
           if not isinstance(names,list) or len(names)<=len(stops) or len(names)>12000:
@@ -107,9 +114,6 @@ jobs:
               --routes 17 19 41 260 \
               --output "$RUNNER_TEMP/sh9-bkk-v1106/out/$DATA_NAME"
           fi
-      - name: Reject outdated, incomplete, inconsistent or distorted GTFS
-        shell: bash
-        run: |
           set -euo pipefail
           args=()
           if [[ -f "$TARGET_DIR/$DATA_NAME" ]]; then
@@ -122,6 +126,37 @@ jobs:
             "${args[@]}"
           node healthhub/tests/sh9-bkk-official-snapshot-smoke-v1105.mjs \
             "$RUNNER_TEMP/sh9-bkk-v1106/out/$DATA_NAME"
+          python - "$RUNNER_TEMP/sh9-bkk-v1106/out/$MANIFEST_NAME" <<'PY'
+          import json,sys,os
+          m=json.load(open(sys.argv[1],encoding="utf8"))
+          c=m["capacity"]
+          rows=c["selectedStopTimeRows"]
+          size=m["bytes"]
+          lines=[f"BKK capacity: {rows:,} / {c['hardCapRows']:,} selected stop-time rows",
+                 f"Dynamic processing tier: {c['allocatedRows']:,}",
+                 f"Retained rows: {m['retainedStopTimeRows']:,}",
+                 f"Mobile JSON: {size:,} / {m['maxBytes']:,} bytes"]
+          if rows*5>=c["hardCapRows"]*4:
+              print("::warning::BKK processing hard cap at 80% or above")
+          if size*5>=m["maxBytes"]*4:
+              print("::warning::BKK mobile payload budget at 80% or above")
+          print("\n".join(lines))
+          with open(os.environ["GITHUB_STEP_SUMMARY"],"a",encoding="utf8") as f:
+              f.write("### BKK Adaptive Capacity\n"+"\n".join("- "+line for line in lines)+"\n")
+          PY
+          BKK_REFRESH
+          # Each retry starts from a clean temporary candidate. Never publish an unvalidated feed.
+          for delay in 0 15 30 60; do
+            if [[ "$delay" != 0 ]]; then
+              echo "::warning::BKK refresh failed; retry after $delay minutes"
+              sleep "$((delay * 60))"
+            fi
+            if timeout 9m bash "$script"; then
+              exit 0
+            fi
+          done
+          echo "::error::BKK refresh exhausted all retry attempts; last verified feed retained"
+          exit 1
       - name: Publish ONLY verified open timetable data
         shell: bash
         run: |

@@ -44,6 +44,16 @@ class PublishGateTests(unittest.TestCase):
         self.assertEqual(result["stopCount"],51)
         self.assertEqual(result["routes"],list(gate.LINES))
 
+    def test_capacity_metadata_validated(self):
+        data=fixture()
+        data["capacity"]={"selectedStopTimeRows":2400,"allocatedRows":400000,"hardCapRows":2000000}
+        result=gate.check_data(data,NOW)
+        self.assertEqual(result["retainedStopTimeRows"],2400)
+        self.assertEqual(result["capacity"],data["capacity"])
+        data["capacity"]["selectedStopTimeRows"]=2000001
+        with self.assertRaisesRegex(ValueError,"capacity"):
+            gate.check_data(data,NOW)
+
     def test_expired_data_fails_even_if_recently_generated(self):
         data=fixture()
         data["feedEnd"]="2026-11-01"
