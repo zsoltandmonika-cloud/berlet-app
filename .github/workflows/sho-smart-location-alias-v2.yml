@@ -30,5 +30,6 @@ jobs:
         run: |
           node --check healthhub/guardian/guardian-smart-location-v1.mjs
           node --check healthhub/guardian/guardian-smart-match-pin-v1.mjs
+          node --test healthhub/tests/sho-smart-location-refresh-v1.test.cjs
       - name: Full Smart Match core and deterministic Smart Location route tests
         run: node --test healthhub/guardian/smart-260-connect/core.test.mjs
