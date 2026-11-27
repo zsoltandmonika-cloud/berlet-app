@@ -1,6 +1,6 @@
 /* Family Guard v912 · BKK favorite static stop-pattern overlay on the ORIGINAL map.
  * Official GTFS stop locations + ORDER, not roadway/rail track geometry.
- * Load 1 existing shared v806 BKK network snapshot only if user taps Mutasd.
+ * Load one shared v806 BKK network snapshot when a watched additional line needs it.
  * Never touch family GPS, profile map controls, realtime feed, or existing 5 accurate shapes.
  */
 (function(root,factory){
@@ -151,16 +151,17 @@
  }
  async function setLineVisible(key,enabled){
   if(!KEY.test(key))return false;
-  profiles=profile();
-  if(!enabled){STORE[profiles].delete(key);remove(key);notify();return true}
+  const requestedProfile=profile();profiles=requestedProfile;
+  if(!enabled){STORE[requestedProfile].delete(key);remove(key);notify();return true}
   if(!STORE[profiles].has(key)&&STORE[profiles].size>=MAX_OPEN){
    status('Legfeljebb '+MAX_OPEN+' további sematikus járat mutatható egyszerre.');return false;
   }
   try{await load()}catch(e){status(e.message);return false}
+  if(profile()!==requestedProfile)return false;
   if(!routes.has(key)){status(key+' · nincs ellenőrizhető megállósorrend');return false}
   if(!validMap(mapApi())){status('A Family Guard térkép még betöltődik');return false}
-  STORE[profiles].add(key);
-  if(!draw(key)){STORE[profiles].delete(key);return false}
+  STORE[requestedProfile].add(key);
+  if(!draw(key)){STORE[requestedProfile].delete(key);return false}
   notify();return true;
  }
  async function showLine(key){
@@ -178,6 +179,6 @@
   w.addEventListener('hh-bkk-watchlist-v814-changed',refresh);
   w.addEventListener('pagehide',()=>{for(const key of [...activeLayer])remove(key)});
  }
- return {parse,features,load,setLineVisible,showLine,isLineVisible:key=>KEY.test(key)&&STORE[profile()].has(key),
+ return {parse,features,load,refresh,setLineVisible,showLine,isLineVisible:key=>KEY.test(key)&&STORE[profile()].has(key),
   hasMapRoute:key=>KEY.test(key)&&!!routes?.has(key),get loaded(){return !!routes},version:'912'};
 });
