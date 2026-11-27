@@ -31,6 +31,10 @@ jobs:
           chrome-version: stable
       - name: Install isolated Playwright Chromium driver
         run: npm --prefix healthhub/guardian/smart-260-connect install --no-audit --no-fund --no-save --no-package-lock playwright-core@1.56.1
+      - name: Test current verified timetable retry and recovery (desktop + mobile)
+        env:
+          CHROME_PATH: "${{ steps.chrome.outputs.chrome-path }}"
+        run: node healthhub/guardian/smart-260-connect/feed-retry-smoke.cjs
       - name: Test responsive page, BKK loading, saved templates, pinned mode, countdown
         env:
           CHROME_PATH: "${{ steps.chrome.outputs.chrome-path }}"
