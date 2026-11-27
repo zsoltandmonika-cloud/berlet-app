@@ -43,12 +43,22 @@ jobs:
         with:
           python-version: "3.12"
       - name: Validate BKK engine + TripPack strict contract
+        env:
+          SHO_BKK_STRESS_TEST: '1'
         run: |
           node --check sh9/smart-travel/lena-native/bkk/bkk-gtfs-core-v1105.mjs
           node --test healthhub/tests/sh9-lena-bkk-v1105.test.mjs
           python -m unittest discover -s healthhub/tests -p 'test_sh9_bkk_gtfs_v1105.py' -v
           python -m unittest discover -s healthhub/tests -p 'test_sh9_bkk_publication_v1106.py' -v
           node --test healthhub/tests/sh9-bkk-feed-client-v1106.test.mjs
+          python - <<'PY'
+          import pathlib, subprocess
+          text=pathlib.Path('.github/workflows/sh9-lena-bkk-v1106-feed.yml').read_text()
+          section=text.split('          cat > "$script" <<\'BKK_REFRESH\'\n',1)[1].split('\n          BKK_REFRESH\n',1)[0]
+          script='\n'.join(line[10:] for line in section.splitlines())+'\n'
+          subprocess.run(['bash','-n'],input=script,text=True,check=True)
+          print('Adaptive retry script syntax PASS')
+          PY
 
   official-feed-review:
     if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.check_live_feed)
@@ -117,6 +127,11 @@ jobs:
           set -euo pipefail
           node healthhub/tests/sh9-bkk-official-snapshot-smoke-v1105.mjs \
             "$RUNNER_TEMP/bkk-out/bkk-selected-routes-v1105.json"
+          python sh9/smart-travel/lena-native/bkk/validate_bkk_snapshot_v1106.py \
+            --snapshot "$RUNNER_TEMP/bkk-out/bkk-selected-routes-v1105.json" \
+            --manifest "$RUNNER_TEMP/bkk-out/manifest.json" \
+            --previous sh9/smart-travel/lena-native/bkk/data/bkk-selected-routes-v1106.json \
+            --source-sha256 "$(sha256sum "$RUNNER_TEMP/bkk-pilot/budapest_gtfs.zip" | cut -d ' ' -f 1)"
       - name: Archive for HUMAN review only (not automatically published)
         uses: actions/upload-artifact@v4
         with:
