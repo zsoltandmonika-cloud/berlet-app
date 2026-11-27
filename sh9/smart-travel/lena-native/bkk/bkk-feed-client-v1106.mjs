@@ -46,22 +46,28 @@ async function getFile(url,fetcher,signal,maxBytes){
  if(bytes.byteLength>maxBytes)throw Error("bkk_feed_too_large");
  return bytes;
 }
-async function readOfficialSnapshot({fetcher=fetch,now=Date.now(),root=RESOURCE_ROOT}={}){
+async function readOfficialSnapshot({fetcher=fetch,now=Date.now(),root=RESOURCE_ROOT,retryTransient=false}={}){
  if(cache&&now-cachedAt<15*60000&&isValidManifest(cache.manifest,now)&&
   validateGtfs(cache.data,now))return cache;
+ const base=new URL(root);
+ if(base.origin!==new URL(import.meta.url).origin||!base.pathname.endsWith("/bkk/data/"))
+  throw Error("untrusted_bkk_feed_origin");
+ const attempts=retryTransient?2:1;
+ for(let attempt=0;attempt<attempts;attempt++){
  const controller=new AbortController();
  const timer=setTimeout(()=>controller.abort(),TIMEOUT_MS);
  try{
-  const base=new URL(root);
-  // Enforce the configured same-origin GitHub Pages location.
-  if(base.origin!==new URL(import.meta.url).origin||!base.pathname.endsWith("/bkk/data/"))
-   throw Error("untrusted_bkk_feed_origin");
   const mUrl=new URL(MANIFEST,base);
+  // A Pages publication can briefly expose different manifest/snapshot versions.
+  // Retry both files together, never trust an unchecked snapshot.
+  const retryKey=attempt?String(Date.now()):"";
+  if(retryKey)mUrl.searchParams.set("retry",retryKey);
   const manifest=JSON.parse(new TextDecoder().decode(
    await getFile(mUrl.toString(),fetcher,controller.signal,16000)));
   if(!isValidManifest(manifest,now))throw Error("stale_or_invalid_bkk_manifest");
   const snapshotUrl=new URL(SNAPSHOT,base);
   snapshotUrl.searchParams.set("sha",manifest.sha256.slice(0,20));
+  if(retryKey)snapshotUrl.searchParams.set("retry",retryKey);
   const bytes=await getFile(snapshotUrl.toString(),fetcher,controller.signal,MAX_BYTES);
   if(bytes.byteLength!==manifest.bytes||await sha256(bytes)!==manifest.sha256)
    throw Error("bkk_feed_integrity_mismatch");
@@ -72,6 +78,10 @@ async function readOfficialSnapshot({fetcher=fetch,now=Date.now(),root=RESOURCE_
   cache=Object.freeze({data,manifest});
   cachedAt=now;
   return cache;
+ }catch(error){
+  if(attempt+1===attempts)throw error;
+  if(["bkk_feed_too_large","cryptographic_digest_unavailable","invalid_or_stale_bkk_timetable"].includes(error?.message))throw error;
  }finally{clearTimeout(timer)}
+ }
 }
 export {isValidManifest,readOfficialSnapshot,sha256};
