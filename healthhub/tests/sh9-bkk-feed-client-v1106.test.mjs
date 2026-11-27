@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { webcrypto } from 'node:crypto';
-import {isValidManifest,sha256}
+import {isValidManifest,sha256,readOfficialSnapshot}
  from '../../sh9/smart-travel/lena-native/bkk/bkk-feed-client-v1106.mjs';
 
 const NOW=Date.parse('2026-11-01T17:00:00Z');
@@ -33,4 +33,23 @@ test('SHA256 content hash matches standard SHA256 implementation',async()=>{
  const digest=await sha256(bytes,webcrypto.subtle);
  assert.match(digest,/^[0-9a-f]{64}$/);
  assert.equal(digest,'0dd57383c8bf91d68185d1c1b2f1ab285f9990331a6707b91ad0cc2d9a04c1c0');
+});
+
+test('Smart Match retries an inconsistent publication but never accepts unverified content',async()=>{
+ const data={schema:'sh9.bkk.gtfs/1',source:'BKK Zrt., CC BY 4.0',sourceUrl:'https://bkk.hu/gtfs/budapest_gtfs.zip',
+ license:'CC-BY-4.0',coverage:'stop-to-stop',live:false,generatedAt:'2026-10-29T12:00:00Z',feedStart:'2026-10-30',feedEnd:'2026-12-01',
+ routes:['17','19','41','260'],stops:{a:['A',47.5,19],b:['B',47.51,19]},services:{daily:{start:'2026-10-30',end:'2026-12-01',days:[1,1,1,1,1,1,1],exceptions:{}}},
+ trips:Array.from({length:50},()=>['17','daily','Test',[['a',36000,36000],['b',36600,36600]],'tram'])};
+ const bytes=new TextEncoder().encode(JSON.stringify(data));
+ const m={...manifest(),bytes:bytes.byteLength,sha256:await sha256(bytes,webcrypto.subtle)};
+ const calls=[];
+ const fetcher=async url=>{
+  calls.push(String(url));
+  const isManifest=String(url).includes('manifest');
+  return new Response(isManifest?JSON.stringify(m):String(url).includes('retry=')?bytes:new Uint8Array(bytes.byteLength));
+ };
+ const result=await readOfficialSnapshot({fetcher,now:NOW,retryTransient:true});
+ assert.equal(result.manifest.sha256,m.sha256);
+ assert.equal(calls.length,4);
+ assert.ok(calls.slice(2).every(url=>url.includes('retry=')));
 });
