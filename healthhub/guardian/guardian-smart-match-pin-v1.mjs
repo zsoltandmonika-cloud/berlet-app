@@ -20,7 +20,20 @@ const holder=document.getElementById("hhTransitPanel");
 const state={item:null,id:null,entries:[],day:null,loaded:null,loading:false,visible:false,lastLoadAt:0,
  autoId:null,autoSince:0,pendingZone:null,pendingAt:0,pendingFixTs:0,confirmedZone:null,
  autoEnabled:true};
-try{state.autoEnabled=localStorage.getItem(AUTO_KEY)!=="off"}catch(_){}
+// An explicit Family Guard reload re-arms Smart Location for Mónika.
+// Normal navigation/back and in-page refresh preserve the manual override.
+function restoreAutoEnabled(storage,navigationType,profile){
+ try{
+  if(navigationType==="reload"&&profile==="monika"){
+   if(storage.getItem(AUTO_KEY)==="off")storage.removeItem(AUTO_KEY);
+   return true;
+  }
+  return storage.getItem(AUTO_KEY)!=="off";
+ }catch(_){return true}
+}
+const navigationType=globalThis.performance?.getEntriesByType?.("navigation")?.[0]?.type||
+ (globalThis.performance?.navigation?.type===1?"reload":"navigate");
+state.autoEnabled=restoreAutoEnabled(localStorage,navigationType,activeProfile());
 
 if(holder)start();
 
