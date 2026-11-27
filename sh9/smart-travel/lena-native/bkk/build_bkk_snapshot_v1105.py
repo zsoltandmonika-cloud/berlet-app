@@ -22,7 +22,7 @@ SOURCE_URL = "https://bkk.hu/gtfs/budapest_gtfs.zip"
 REQUIRED = {"agency.txt", "routes.txt", "trips.txt", "stop_times.txt", "stops.txt"}
 MAX_ZIP_BYTES = 90 * 1024 * 1024
 MAX_OUTPUT = 9 * 1024 * 1024
-MAX_STOP_TIMES = 240000
+MAX_STOP_TIMES = 400000  # Seasonal GTFS variants; independent 9 MiB output gate remains.
 ROUTE_ID = re.compile(r"^[^\x00-\x1f<>]{1,60}$")
 GTFS_MODES = {"0": "tram", "1": "metro", "2": "train", "3": "bus", "11": "bus"}
 
@@ -108,7 +108,7 @@ def build(zip_path: pathlib.Path, route_names: set[str], generated_at: str) -> d
                 continue
             n += 1
             if n > MAX_STOP_TIMES:
-                raise ValueError("Too many selected stop-time rows")
+                raise ValueError(f"Too many selected stop-time rows: {n} > {MAX_STOP_TIMES}")
             arr, dep = secs(row.get("arrival_time", "")), secs(row.get("departure_time", ""))
             seq = int(row.get("stop_sequence") or 0)
             if arr > dep or seq <= 0 or not row.get("stop_id"):

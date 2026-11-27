@@ -3,6 +3,7 @@ import importlib.util
 import pathlib
 import tempfile
 import unittest
+from unittest.mock import patch
 import zipfile
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
@@ -73,6 +74,19 @@ class BkkSnapshotTests(unittest.TestCase):
         self.assertEqual(result["routes"], ["17"])
         self.assertEqual({t[4] for t in result["trips"]}, {"tram", "bus"})
         self.assertEqual(len(result["trips"]), 2)
+
+    def test_seasonal_capacity_and_hard_stop_time_limit(self):
+        self.assertEqual(builder.MAX_STOP_TIMES, 400000)
+        self.assertEqual(builder.MAX_OUTPUT, 9 * 1024 * 1024)
+        with tempfile.TemporaryDirectory() as temp:
+            file = pathlib.Path(temp) / "gtfs.zip"
+            fixture(file)
+            with patch.object(builder, "MAX_STOP_TIMES", 5):
+                result = builder.build(file, {"17", "260"}, "2026-11-01T12:00:00Z")
+                self.assertEqual(sum(len(t[3]) for t in result["trips"]), 5)
+            with patch.object(builder, "MAX_STOP_TIMES", 4):
+                with self.assertRaisesRegex(ValueError, "5 > 4"):
+                    builder.build(file, {"17", "260"}, "2026-11-01T12:00:00Z")
 
     def test_missing_selected_line_fails(self):
         with tempfile.TemporaryDirectory() as temp:
