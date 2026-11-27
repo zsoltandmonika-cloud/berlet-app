@@ -204,7 +204,12 @@ test("Smart Location reads only fresh, authorized native Monika fix near saved h
  assert.equal(chooseLocation(office,slots,now).routeId,"monika-260");
  assert.equal(chooseLocation({...home,profile:"zsolt"},slots,now),null);
  assert.equal(chooseLocation({...home,source:"Family Live"},slots,now),null);
- assert.equal(chooseLocation({...home,accuracy:90},slots,now),null);
+ assert.equal(chooseLocation({...home,accuracy:90},slots,now)?.routeId,"monika-home-to-office");
+ assert.equal(chooseLocation({...office,accuracy:100},slots,now)?.routeId,"monika-260");
+ assert.equal(chooseLocation({...office,accuracy:150},slots,now)?.routeId,"monika-260");
+ assert.equal(chooseLocation({...office,accuracy:151},slots,now),null);
+ assert.equal(chooseLocation({...office,lat:47.5118,accuracy:100},slots,now),null,
+  "Uncertain edge fix cannot activate a new zone");
  assert.equal(chooseLocation({...home,ts:now-76000},slots,now),null);
  assert.equal(chooseLocation({...home,lat:47.53,lng:19.015},slots,now),null);
  // Identical Home/Work aliases from the synced 40-place family catalog
