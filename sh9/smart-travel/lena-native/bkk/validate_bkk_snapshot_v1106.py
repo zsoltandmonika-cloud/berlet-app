@@ -127,7 +127,22 @@ def check_data(data: dict, now: dt.datetime, previous: dict | None = None) -> di
             old_stops = previous.get("stops") or {}
             if len(trips) < len(old) * 0.55 or len(stops) < len(old_stops) * 0.55:
                 raise ValueError("New official snapshot lost more than 45% of coverage")
+    retained = sum(len(t[3]) for t in trips)
+    capacity = data.get("capacity")
+    if capacity is not None:
+        if not isinstance(capacity, dict):
+            raise ValueError("Invalid capacity diagnostics")
+        selected = capacity.get("selectedStopTimeRows")
+        allocated = capacity.get("allocatedRows")
+        hard = capacity.get("hardCapRows")
+        if (type(selected) is not int or type(allocated) is not int or hard != 2000000
+                or not retained <= selected <= allocated <= hard
+                or allocated not in (400000, 600000, 900000, 1350000, 2000000)
+                or allocated != next(x for x in (400000, 600000, 900000, 1350000, 2000000) if selected <= x)):
+            raise ValueError("Invalid capacity diagnostics")
     return {
+        "capacity": capacity,
+        "retainedStopTimeRows": retained,
         "source": SOURCE, "license": LICENSE,
         "routes": list(LINES), "lineTripCounts": dict(sorted(by_line.items())),
         "stopCount": len(stops),
@@ -154,6 +169,7 @@ def validate_file(file: pathlib.Path, now: dt.datetime, previous_file: pathlib.P
         "sha256": hashlib.sha256(content).hexdigest(),
         "sourceSha256": source_sha256,
         "bytes": len(content),
+        "maxBytes": MAX_BYTES,
         "validatedAt": now.astimezone(dt.timezone.utc).isoformat().replace("+00:00", "Z"),
         **info,
     }
