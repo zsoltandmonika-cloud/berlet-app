@@ -76,15 +76,24 @@ class BkkSnapshotTests(unittest.TestCase):
         self.assertEqual(len(result["trips"]), 2)
 
     def test_seasonal_capacity_and_hard_stop_time_limit(self):
-        self.assertEqual(builder.MAX_STOP_TIMES, 400000)
+        self.assertEqual(builder.INITIAL_STOP_TIMES, 400000)
+        self.assertEqual(builder.MAX_STOP_TIMES, 2000000)
+        self.assertEqual(builder.STOP_TIME_WARNING, 1600000)
         self.assertEqual(builder.MAX_OUTPUT, 9 * 1024 * 1024)
+        for count, expected in [(400000, 400000), (400001, 600000),
+                                (600001, 900000), (900001, 1350000),
+                                (1350001, 2000000), (2000000, 2000000)]:
+            self.assertEqual(builder.capacity_for(count), expected)
+        with self.assertRaisesRegex(ValueError, "2000001 > 2000000"):
+            builder.capacity_for(2000001)
         with tempfile.TemporaryDirectory() as temp:
             file = pathlib.Path(temp) / "gtfs.zip"
             fixture(file)
-            with patch.object(builder, "MAX_STOP_TIMES", 5):
+            with patch.object(builder, "INITIAL_STOP_TIMES", 2), patch.object(builder, "MAX_STOP_TIMES", 5):
                 result = builder.build(file, {"17", "260"}, "2026-11-01T12:00:00Z")
                 self.assertEqual(sum(len(t[3]) for t in result["trips"]), 5)
-            with patch.object(builder, "MAX_STOP_TIMES", 4):
+                self.assertEqual(result["capacity"], {"selectedStopTimeRows": 5, "allocatedRows": 5, "hardCapRows": 5})
+            with patch.object(builder, "INITIAL_STOP_TIMES", 2), patch.object(builder, "MAX_STOP_TIMES", 4):
                 with self.assertRaisesRegex(ValueError, "5 > 4"):
                     builder.build(file, {"17", "260"}, "2026-11-01T12:00:00Z")
 
