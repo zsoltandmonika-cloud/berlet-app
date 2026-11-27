@@ -1,7 +1,7 @@
 /* SHO Smart Match · two ready-to-use examples + expandable templates.
  * Browser-local saves, read-only BKK GTFS, no GPS/Dropbox/Supabase mutation.
  */
-import {readOfficialSnapshot} from "../../../sh9/smart-travel/lena-native/bkk/bkk-feed-client-v1106.mjs";
+import {readOfficialSnapshot} from "../../../sh9/smart-travel/lena-native/bkk/bkk-feed-client-v1106.mjs?v=20261127-retry";
 import {DEFAULT,HOME,REVERSE,FAMILY_OUTBOUND,FAMILY_RETURN,SAMPLES,compute,bus260DirectionForTemplate,full260Timetable,pair260Connections} from "./core.mjs?v=943-family-verified-stops";
 import {wallEpoch} from "../../../sh9/smart-travel/lena-native/bkk/bkk-gtfs-core-v1105.mjs";
 import {ringDirection} from "./ring-direction-v941.mjs?v=950-morgan-compact";
@@ -1111,10 +1111,10 @@ function renderResults(item){
  updateTimeline(Date.now(),true);
 }
 async function loadFeed(){
- if(state.data&&state.manifest)return;
- const v=await readOfficialSnapshot();
+ const v=await readOfficialSnapshot({retryTransient:true});
+ const changed=state.data!==v.data;
  state.data=v.data;state.manifest=v.manifest;
- populateStops();
+ if(changed)populateStops();
 }
 // V950: Plan only. 12:05 is a conservative HOME departure suggestion based on
 // the published 12:22 Citronella departure. 13:40 is a GOAL, never an ETA.
@@ -1289,7 +1289,18 @@ async function computeRoute({useForm=false}={}){
   const box=document.createElement("div");box.className="empty";
   box.textContent="Nem jelenítek meg ellenőrizetlen indulási időpontokat.";
   $("timeline").append(box);
-  $("status").textContent="⚠️ "+(e?.message||"A BKK menetrend nem érhető el.");
+  const details={
+   stale_or_invalid_bkk_manifest:"A BKK menetrendi állapotfájl elavult vagy érvénytelen.",
+   bkk_feed_integrity_mismatch:"A menetrend és az állapotfájl nem egyezik.",
+   bkk_feed_unavailable:"A BKK menetrendi fájl nem érhető el.",
+   invalid_or_stale_bkk_timetable:"A letöltött menetrend nem ment át az ellenőrzésen.",
+   bkk_feed_too_large:"A menetrendi fájl meghaladja a biztonsági méretkorlátot."
+  };
+  $("status").textContent="⚠️ "+(details[e?.message]||(e?.name==="AbortError"?"A menetrend letöltése időtúllépés miatt megszakadt.":e?.message||"A BKK menetrend nem érhető el."));
+  const retry=document.createElement("button");retry.type="button";retry.className="btn secondary";
+  retry.textContent="↻ Menetrend újratöltése";
+  retry.addEventListener("click",()=>void computeRoute());
+  $("timeline").append(retry);
  }finally{
   state.loading=false;if(current())updateTitle(current());
   if(state.recomputePending){
