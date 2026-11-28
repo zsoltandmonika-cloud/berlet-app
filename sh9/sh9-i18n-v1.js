@@ -9,9 +9,9 @@ const dict=Object.freeze({
  hu:Object.freeze({
   'module.health':'Egészség','module.guard':'Biztonság','module.travel':'Utazás',
   'module.entertainment':'Szórakozás','module.ask':'Kérdezd Lénát','module.shopping':'Bevásárlás','module.sports':'Sport',
-  'module.daily':'Családi aktualitások','module.people':'Kapcsolatok','module.lifestyle':'Életmód',
+  'module.daily':'Családi aktualitások','module.people':'Kapcsolatok','module.lifestyle':'Smart Household',
   'module.ariaHealth':'Egészség megnyitása','module.ariaGuard':'Biztonság megnyitása','module.ariaTravel':'Utazás megnyitása','module.ariaSports':'Sport megnyitása',
-  'module.ariaPeople':'Kapcsolatok megnyitása','module.ariaLifestyle':'Életmód megnyitása',
+  'module.ariaPeople':'Kapcsolatok megnyitása','module.ariaLifestyle':'Smart Household megnyitása',
   'module.ariaEntertainment':'Szórakozás megnyitása','module.ariaDaily':'Családi aktualitások megnyitása','module.ariaShopping':'Bevásárlás megnyitása',
   'travel.pageTitle':'SH9 · Utazás',
   'travel.heroAria':'Utazás · Róma, Párizs, Dubai · Léna, Mónika, Zsolt, Corky és Buddy',
@@ -50,9 +50,9 @@ const dict=Object.freeze({
  en:Object.freeze({
   'module.health':'Health','module.guard':'Safety','module.travel':'Travel',
   'module.entertainment':'Entertainment','module.ask':'Ask Léna','module.shopping':'Shopping','module.sports':'Sports',
-  'module.daily':'Family Updates','module.people':'People','module.lifestyle':'Lifestyle',
+  'module.daily':'Family Updates','module.people':'People','module.lifestyle':'Smart Household',
   'module.ariaHealth':'Open Health','module.ariaGuard':'Open Safety','module.ariaTravel':'Open Travel','module.ariaSports':'Open Sports',
-  'module.ariaPeople':'Open People','module.ariaLifestyle':'Open Lifestyle',
+  'module.ariaPeople':'Open People','module.ariaLifestyle':'Open Smart Household',
   'module.ariaEntertainment':'Open Entertainment','module.ariaDaily':'Open Family Updates','module.ariaShopping':'Open Shopping',
   'travel.pageTitle':'SH9 · Travel',
   'travel.heroAria':'Travel · Rome, Paris and Dubai · Léna, Mónika, Zsolt, Corky and Buddy',
