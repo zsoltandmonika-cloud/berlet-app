@@ -1,0 +1,819 @@
+<!doctype html>
+<html lang="hu">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#173a2e">
+<meta name="application-name" content="Léna Recepttár Studio">
+<meta name="mobile-web-app-capable" content="yes">
+<title>Léna Recepttár Studio</title>
+<link rel="manifest" href="manifest.webmanifest?v=1">
+<link rel="icon" type="image/svg+xml" href="favicon.svg?v=1">
+<link rel="shortcut icon" href="favicon.svg?v=1">
+<link rel="apple-touch-icon" href="icon-192.png?v=1">
+<link rel="stylesheet" href="styles.css?v=42">
+<link rel="stylesheet" href="hh-nutri-golden-standard-v1155.css?v=1155-golden-nutri">
+
+<link rel="stylesheet" href="hh-cookbook-one-tap-v1160.css?v=1160">
+<style>
+.hh-nutri-weight-v1154{margin-top:14px;padding:12px;border-radius:15px;background:linear-gradient(130deg,rgba(23,69,82,.55),rgba(18,30,46,.66));border:1px solid rgba(118,227,211,.35);display:grid;gap:8px}
+.hh-nutri-weight-v1154 label{font-size:13px;font-weight:800;color:#e6fff8}
+.hh-nutri-weight-entry-v1154{display:flex;gap:9px;align-items:center}
+.hh-nutri-weight-entry-v1154 input{min-width:0;width:100%;background:#0b2337;color:#f8ffff;border:1px solid #82d5c2a1;border-radius:11px;font-size:17px;min-height:42px;padding:8px 11px}
+.hh-nutri-weight-entry-v1154 button{flex:0 0 auto;min-height:42px}
+.hh-nutri-weight-v1154 small{font-size:11px;line-height:1.45;color:#c3e0d9}
+</style>
+<link rel="stylesheet" href="/berlet-app/sh9/shared/sh9-golden-bottom-nav-v924.css?v=924-unified">
+<style id="lenaSpiceStyleV1">
+.lena-master-banner-final #lenaSpiceOpenV1{position:absolute!important;z-index:9;left:3.1%;top:5%;width:13.2%;height:34%;min-width:44px;min-height:44px;margin:0;padding:0;border:0;background:transparent;box-shadow:none;line-height:0;cursor:pointer;transform:rotate(-1deg);-webkit-tap-highlight-color:transparent}
+#lenaSpiceOpenV1 svg{display:block;width:100%;height:100%;overflow:visible;filter:drop-shadow(2px 3px 4px #000b)}
+#lenaSpiceOpenV1:hover svg{filter:drop-shadow(0 0 5px #ecc48588)}
+#lenaSpiceOpenV1:focus-visible{outline:2px solid #f3d9a3;outline-offset:3px;border-radius:4px}
+
+/* Reference-derived board: decorative elements are the original artwork, text is live. */
+#lenaSpiceGuideV1{width:min(97vw,50.35dvh,580px);height:auto;aspect-ratio:640/1220;max-width:97vw;max-height:96dvh;margin:auto;padding:0!important;border:0!important;border-radius:10px;overflow:hidden;background:#171713 url("assets/spice-board-frame-v4.svg?v=4") center/100% 100% no-repeat;box-shadow:0 12px 50px #000b;color:#f6f0df}
+#lenaSpiceGuideV1::backdrop{background:#090806d9}
+#lenaSpiceGuideV1 .spice-inner{position:absolute;inset:0;display:block;padding:0;max-height:none;min-height:0;background:none;border:0}
+#lenaSpiceGuideV1 .spice-head{position:absolute;inset:0 0 auto;height:15.5%;pointer-events:none}
+#lenaSpiceGuideV1 .spice-sr{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;overflow:hidden!important;clip-path:inset(50%);white-space:nowrap!important;border:0!important}
+#lenaSpiceGuideV1 .spice-tool{position:absolute;top:0;width:44px!important;height:44px!important;min-width:44px!important;min-height:44px!important;display:grid;place-items:center;background:transparent!important;border:0!important;padding:0!important;color:#fff4dc;pointer-events:auto;font:normal 20px/1 system-ui,sans-serif;z-index:5}
+#lenaSpiceGuideV1 .spice-tool span{display:grid;place-items:center;width:22px;height:22px;border-radius:50%;background:#151613bb;text-shadow:0 1px 3px #000}
+#lenaSpiceSearchToggleV4{left:1.8%}#lenaSpiceCloseV1{right:1.8%}
+#lenaSpiceGuideV1 .spice-list{position:absolute;top:15.55%;bottom:12.45%;left:10.1%;right:10.1%;overflow:auto;overscroll-behavior:contain;scrollbar-width:thin}
+#lenaSpiceGuideV1 table{border-collapse:collapse;table-layout:fixed;width:100%;margin:0;color:#f5eee0;font:600 var(--spice-font-size,12px)/1.02 Georgia,"Times New Roman",serif}
+#lenaSpiceGuideV1 tr{height:var(--spice-row-h,14px)}
+#lenaSpiceGuideV1 td{height:var(--spice-row-h,14px);padding:0 3px!important;vertical-align:middle;border-bottom:1px solid #e8dfc958;line-height:1.02;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#lenaSpiceGuideV1 td:first-child{border-right:1px solid #e8dfc9a0;width:50%}
+#lenaSpiceGuideV1 td:nth-child(2){width:50%;padding-left:6px!important}
+#lenaSpiceGuideV1 .spice-en{display:flex;align-items:center;gap:3px;min-width:0}
+#lenaSpiceGuideV1 .spice-en-text{min-width:0;overflow:hidden;text-overflow:ellipsis}
+#lenaSpiceGuideV1 .spice-storage{display:none!important}
+#lenaSpiceGuideV1 .spice-storage-note{font:italic 600 .8em/1 Georgia,serif;color:#b8c589;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:48%}
+#lenaSpiceGuideV1 .spice-row-button{display:block;width:100%;min-height:0!important;height:auto!important;background:none!important;border:0!important;box-shadow:none!important;border-radius:0!important;padding:0!important;text-align:left;color:inherit;font:inherit;line-height:inherit;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer}
+#lenaSpiceGuideV1 tr:focus-within,#lenaSpiceGuideV1 tr:hover{background:#ffffff0b}
+#lenaSpiceGuideV1 .spice-short{font-size:.77em}
+#lenaSpiceGuideV1 .spice-search-panel,#lenaSpiceGuideV1 .spice-edit{position:absolute;z-index:6;left:8%;right:8%;top:15.5%;padding:10px;display:grid;gap:8px;background:#1a1b17f7;border:1px solid #c9ab78;border-radius:7px;box-shadow:0 5px 25px #000b}
+#lenaSpiceGuideV1 .spice-search-panel[hidden],#lenaSpiceGuideV1 .spice-edit[hidden]{display:none!important}
+#lenaSpiceGuideV1 .spice-search-panel{top:7.5%}
+#lenaSpiceGuideV1.search-active .spice-list{top:28%}
+#lenaSpiceGuideV1 input{min-width:0;width:100%;background:#181b16;border:1px solid #b1aa8d8a;border-radius:7px;color:#fff4e3;padding:9px 10px;font:inherit;min-height:44px}
+#lenaSpiceGuideV1 input::placeholder{color:#bab6a6}
+#lenaSpiceGuideV1 button:focus-visible,#lenaSpiceGuideV1 input:focus-visible{outline:2px solid #e8c889;outline-offset:1px}
+#lenaSpiceGuideV1 .spice-footer{font:12px/1.35 system-ui,sans-serif;color:#c7c3b4}
+#lenaSpiceGuideV1 .spice-edit-actions{display:flex;gap:8px;justify-content:flex-end}
+#lenaSpiceGuideV1 .spice-edit-actions button{min-height:44px;padding:8px 12px;border-radius:7px;border:1px solid #b1aa8d80;background:#363c2d;color:#fff}
+@media(max-width:500px){.lena-master-banner-final #lenaSpiceOpenV1{left:3%;top:4%;width:14%;height:37%}}
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <div class="brand">
+    <div class="eyebrow">ZSOLT & MÓNIKA</div>
+    <div class="brand-title">Léna Recepttár</div>
+  </div>
+  <button id="topHome" class="square-btn brand-line-icon" title="Főoldal" aria-label="Főoldal"><svg viewBox="0 0 48 48"><path d="M7 22 24 8l17 14"/><path d="M11 20v21h26V20M20 41V28h8v13"/></svg></button>
+</header>
+
+<main id="homeView">
+  <section class="search-section">
+    <div class="searchbox"><span>🔎</span><input id="search" placeholder="Recept keresése…" autocomplete="off"><button id="clearSearch">×</button></div>
+    <div id="chips" class="chips"></div>
+  </section>
+  <section class="what-cook-home">
+    <div class="lena-master-banner lena-master-banner-final" role="group" aria-label="Léna, mit főzzünk? Gyors konyhai műveletek">
+      <img src="assets/lena-kitchen-banner-master.png?v=1" alt="Léna, mit főzzünk? Személyre szabott receptötletek 4 főre">
+      <button id="lenaSpiceOpenV1" class="lenaSpiceBoardV2" type="button" aria-label="Fűszerek / Spices megnyitása" title="Fűszerek / Spices" aria-haspopup="dialog"><svg viewBox="0 0 144 114" aria-hidden="true" focusable="false"><defs><linearGradient id="spiceWoodV2" x2="0.8" y2="1"><stop stop-color="#b98048"/><stop offset=".25" stop-color="#e2aa66"/><stop offset=".5" stop-color="#875026"/><stop offset=".78" stop-color="#b97536"/><stop offset="1" stop-color="#6c3c20"/></linearGradient><radialGradient id="spiceSlateV2"><stop stop-color="#2e2c26"/><stop offset="1" stop-color="#13130f"/></radialGradient></defs><rect x="1" y="1" width="142" height="112" rx="3" fill="url(#spiceWoodV2)" stroke="#4b2b16" stroke-width="2"/><path d="M4 5H140M3 109H141M5 8V107M139 8V107" stroke="#f1bc7d" stroke-opacity=".5" fill="none"/><rect x="8" y="8" width="128" height="98" rx="2" fill="url(#spiceSlateV2)" stroke="#4b2c18"/><g fill="#f3eddb" text-anchor="middle" font-family="Georgia,serif"><text x="72" y="30" font-size="21" font-style="italic" font-weight="bold" letter-spacing="-1">Fűszerek</text><path d="M18 37Q72 43 126 37" fill="none" stroke="#d4c7a8" stroke-width=".8"/><text x="72" y="48" font-size="10">Spices</text><text x="72" y="63" font-size="11" font-style="italic">Bay leaf · Paprika</text><text x="72" y="77" font-size="11" font-style="italic">Basil · Rosemary</text><path d="M24 89h96" stroke="#c8b892" stroke-opacity=".65"/><text x="72" y="99" font-size="10">✧</text></g></svg></button>
+      <button id="homeTimerBtn" type="button" class="home-timer-launch" aria-label="Léna Golden Timer megnyitása" title="Golden Timer">
+        <span class="home-timer-launch-icon" aria-hidden="true"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADYAAAA7CAYAAAAw23kDAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAABAJSURBVGhD3Zp7kNxVlcc/595fd88rmTycSUJgSUImBoEgwRBCJIABFVjXoDxUdMvHWrXqIgsY1F2wrK1ViS+iFmvtgkBRFLWI6wNBiO66PgAFXBNIgGQTQkh45MUk6WQyPd2/e8/+ce+v+zc9PWES0ar1mzqZmV//fr97zz3nnvM957ZMmzhO+SNAVUGHv1pEQCR87v2IaxmyzwDEmGGfjRVH9tT/A8hRk8b/wRbTJsuMBYey2KtBMqsfYtw/W4sZUQiiI4XRV+QPhYgckbWIljqUtQCMAA0JymTyR9QrKHQESo0Vf76u2HzhSJC5VV5aQVVR74dJc0p4rfCaKNYKCvgm+VOirpgiqAwXyAeVEGTQsW3esIV0mCAjrfuH7LNsHq1kmMWGh44YE6MyWYAZa0SRuGrDReoiROWaHzwcZOymhfzRXFFUMGqiCKISrW6QeF28QbyAyljXa8yQ6RMCV1TC+4d9GC2VR6v78jASLS0GFJxzpGkaF1LpaO+kva0NBYaqQxwcrOB8CqoUS0USa/HehYUQAQm7M88fM7TaDlngek0Uk/h+lfifMVRdSi11dI3vYsniJZy6YAGz+/ronTKViRMnUjCWSqXC7t272fL8Flb/7n9Y9dMH2bVrF9ZaLKAxBBk82qSXFxA/UrEMMn1CV34rhYt5deKvmn9JvNa4T8NfAqkDKVjmnnACb7/wQpYuXcpRU4+i1NZGef9++vv7qVaHACgV25jQ3U33+G5Sl7JnTz+//e2j3HfvD/ndY49TLpcpWMGIR3LFQvCI4SucLa6P8VemT+gMiuWIhpGw9fLWGVZKNN0XlBKcd/ROncY7L343l7znPRx9zF+wa+dOnnnqGdY+uZann17HSy+9xL7yXlDo7Oxk2rSjmDlzFnPf8AbmnTyPWbNmMXhwgO9///vceccdbHl2EwZFvQu6IDkXjOPnPMvjwowOV7G8F1pjUVVELLW0Rt+cOXz1xhs5Yd5JVIaq3Hbb7dx91128/OJL1KpVCkmwKihGDF49zitiEhzKxMmTePv553PV1VfR09PLS9te4HPXX89PV/2MYkFQFxJ6XrHMUhkyxez4tuLnIcsvBhHBq0fjv3oIjRAEE+9TD0YSqmmNc887l2/edBPHHDuTX/ziF3z62mv5wfe+y95XXkG8p2AEK6AuJU09RqBgLdZISAUGBg8eYO2TT/CT++6jOlRl4emLOO/ct7Fj13bWrXsKYwSJcwn7vzkCZPsyp1iwRbgx+7AZ4Y4GZRIMNe9Zeu55fHHFCnqnT+e2W27luuuuY8tzz2GNoOowRjBGUFHau7p44ymnUiiWKO/fh0ERfHAyUYzAQHk/D//qIV7Yto03n3UWi888k/UbNrBp4yYKiQWvo5KmumLj2kufD/4R9A+uNZL71ZlCeBowpF7pnTKFr31jJdOPOYZ//fa3WfmNlZTL+zGA9x6DwYggVnDOM3/BAr72zW8x75RTeOThhzm4/0B4twejBotgMRiBZzZsYOvWFzj/wgtZtGgxa9as5uUXX4zTFRAdabPIbkzGMohKKZrxgpb/jAiJtTj1tHV0sOKrX2HmcbN48MEH+MbKlezftw/U4zXuh3ruDTQtsUWmTT+aSZMmIWIjdRO8glfFe8V7j/eBxj34wAN85ctf5XWv6+Gaa5ZTLLUTuLMG+2Q8ry4BOa4Y99SrwKvi1FOpVnnLuUtZeMYiNm3ayIobbqBcDkqFWs7XeaCSebkyWBlEgbSWkqa18HlU3nmH847UpXjv8OoR9Xzv7rv59a9+yemLFvG+yy+PhmjYqjmvklcsWMPUo1WzZFBVnCoTJ05k2bsuotTezj13383/rl9PKTEYUQyeRKJbZcp5X2cfRM9wzpE6T5pCzSupF1IPTgWnwZWdcxwol7nzjjvZ07+HD37oI/RMnYpXH1w8I+e5+Y0gwWOBGIP3nnknz+P00xfyyo7t/PhH91JIEgSDNYaCsVhjMEbwMbEH9wpC/Om84jxRgjJBwuJ5VdSH4PLrX/43q9es5tiZM3njKfMRE6j0yE0WYPAOvENbWCc4SL6iCpnQeZh/6gLaOzq547bb2dvfT6mQgHqMMRhjohd6jAmKqQrOaRgDj0sd6pVa6qi6Gql3+MyqNHKVESUxgndVfvrgAyTFAqcuOI1SqS2UV5krN/HowFSbNt7oUIwIpfZ2Fi5cyFBliJ///OeBxKIhzzAsc4SnVFFl2Kb3GpQIamT/Bwj5lBLqOmuEdWufZKhSYf78+Uzq6QGRfIod9o7DdkXvPRPGjWPOnDns7e9n+/btgYzmR4jIp4hWTDyD0SD1mjN6mMnSDFAqFunv7+e5zc8yZ+7rmdzbi2YMqUXha7KA8WqSwatn0uTJtHd18dRTTzFwYCCG9jiAV7zzeOdJnSN1LkdeQyoJ7xMwULAJiRFKBUtihMRAIobEWBJjA8OJFqxUKmzctJHx48fT2dEeyiFpvWiHbzGnjBs3jsRayvvKVCqVoIz3jZ8x6jVDROjq6kKM0D2hmwkTJyJGSKxB8FgDiSHQLBNcMO/S3jkO7B/AiFBICiEQKZgW/f1cHvN4Dbkjk/zkGtcVW0hQJdBNI6Te1cWp4prUylZUECZPfh3GFJh7/Al84YYbOO64mbi0GvanSDiEkMZ46kPJ5FxYrGIhQTXzChcSO4Kvr4AAJmexuJGHYeSiAyG6ZVN1TkFMLgQNfyjbZ9YaCoWEJ9as4cc/+AEDAwOcsXgxK7/5Lc58y7moSfBiQh7zoGrwXiIhUGreUaulpLWhEMG9q48U1i2v2BG4Iqrs27uXtObo7OykVCy2LNvJDWWtYIylYC3bnn+eq//+SpZfczW7d+zkpDfO56Z/u4WPfvwKTLGNmkKaE6fgUVLnsNbS2dlJrValWgusZTSYVm53KNjE8uL27ZTL++jr66OtvT1SnFDK2Mg4sgBQMDaS1lCqWGNQ51l1/09476WX8pP776dQLHL18uV8acWXmdk3hyHnqHmHU48TxRHadG3t7bz+DcezY+cO9pbLGJuEBOZHMo3mv18VibUMVSps3ryZo6ZP57jZs8N1MSSSRMZhMDb8JO4bo0Qe6UOpop4NG9bzySv+ji/88z+x8+UXufjSi7ntOzfzsY//LZN7e0i9D+4tMDSUMmPmDI6dMYM1q3/Pju0v152/FYwRS0NCuZAxjRBQGmxEIgMfPDjAb37zMG1tRS644AI6OzpJrA3WshZrg+WMBIplNAYDPE5Taq6G9zUSUWpDg9x+63d4+1vfys03/QtTp03jqquuYfaMmbhqikUQNSTFhLPPPoeSLfL7xx5nYE8/Rj0iPnaysjkG4hxCUD6mHgoCqp62QoHHfvsb9uzpZ9lFyzhq+nRUBJskjdqt6a1ZYFEUxON8FOfwLmX37p186YYV/M1HPsJnP30tTz25jo5SicSECDdt6lSWLDmLA+Uya9eswdXSQzaRD8sVg9GVpGBY/8zTPPTQw0zu6eHCd76DqvfxUKoJeU/JWtBeY2SLZNg5vFeGhgZZtepn3HPPPQwMhALUGkuSFHjnsos48aSTePyxR3nm6acpFMwhzdEIHi2yd76UaYgAnmplkB/98D+oVoe47L3v5bTTTwOBxNhAj3wghxprLM2x9TBWjg9K2I+qUCoVSJIEYyzGCNVajWNnHMv7LruMyuBBblx5I5WhwdhuCPMRCWnB53Q4LIt5CQkZDYny0Uce4b57f8jRR0/nE1d+klJnB6kPXSKnjlRTXEazfKMNppEfDkcjEGiM0s47uid2c/XyTzGrr48777iDxx59HGNs88MjYMe1JZ8fvgMaI+ZZNhkpza4jKMqvHnqYBQsXcuabl9Dd3c0jjzzCUHWwnlidKp5IjTT29GOXy0joUMWoFJmkxRpLmno6Orq47nOf46J3v5sH7v8xN37963jnwsihl1Dfy9lhh8YLdlxbIXapRqJZsfB7VE2CK9SqNTZtepYTTzqRc84+h96pvTy5dh179pXxxLIiNlhiOoruE4xvjAmnL2JCD0TDvbNmzeK6669n2bsuYvXq33P9P/xjqCQkpA2vLRo5NCLWoRWTYJn835liEDicMYYXt77AunVrOe20BSw6YzHz3/Qmtmzdyss7dkVLBIsJAnGvSrZHMLFgDIp1do1n0Rmn84UvfZG3vPU8Nm3cyJVXfILnnt1MsVgM+zZLP/WZ5RAvyrTudg1/D7fO6MgpFlm8V8V5Zcbs2Vy9/Fre8VfL6N+zm//62X+y6sFV/O7xR9mxY1dIzGKwJjiyEMpeEUPPlCksOets3nb++SxeciaFpMD999/LV25Ywbatz2MlPAOhezUassbOESsWmHfclbHNVql5Jk6exAV/+Q4+/OEP0zfn9QxWBnl240bWr1/PE088wZYtWymX92HE0Nvbw/Fz53LiiScyc9YsZs+eg0ks27Zt4zu33My/33UXB/eXKVibLeXYFTu6O/buGc22ARn7aHZFYtjx8aWqQs05OrvGcell7+HSSy+hr6+PrnHjEDGoD1W42BBAJAaOgYEDbH95O9+95x5uveVmhgYHKRiLS1OE1unoUHjNFAtrGbvPsSDFGjo6Ojh53jzmHn88U6dMpXfK1FBsWkt/fz+7dm6nf/dunt28mQ0bNvDKK7tDfz42XANTGln6vxpGVSwf9iFffg/fY8T0lN2f3ae5tlHogCltbSUKhSKlUhFVqFSGqFYr9SiXJIFlpGk44UQCcx8+/tjQUrGGdVqhoViGEEQimiYioY+OWFO3bBY0rI0ljfrGcZVq3eqQ84o8q4i/+kN42GExj7Gg3uMTxUtoN7hYKDoXAg6ERJ06T805at5Tcz52gxtufXg2Go76wV8eR2Kx5lm0cp38teYIrDHPNRtBIrHOFiSPVmNkeM0tNlY0Tykcmhx+kBgNh69Y3k8O118iraJFS3pUHO4YEWNWTLNaqoW0GjjkqGbJlAsH5KN1WprfP5oV8+9uxpgVGzPEI0ZzMnLQ1wpmxG5voKViRgyYSE61UR4QN3mdthgJE4/uFb4M1jyUjx3dRt8ko0SNCDoGabKeiQGlfi3OJRu/ZVQk79qq2Zwa+yI+UY9YkcgaGw7TA/sOTD7cG49tc19PdAR+ySiunCFU7KHeyiCxjgtcNeQzzbw8vqulxbLAKxq+8qASzogRU//KRBATDuCsRawNiogBYxFjETGh6IrPZcEjjB1+Uc04e16iCyDDPs8eq+soghohKZVo7+oK748YVTEQvPe0d3bw0Y99jGWXXBK+bILEFpvFJpZCqZ33f+CvufwD78cWiqGHLtGNJS4jEo58YuAILXEBTL3kycRrdtAeFKzHjWwL5AKGSSypKucsXcqnrr2WyT09wSWzynw0iLEUOzq5/EMf5JrPfJYTTj4ZDxiT1E84li5dyvJPf4aLL74MaxK8hzSNTMKFo9h6k6U5KavWFyBzc6cOp6ETXHNpiJzxsfz+9RK+WQfh/QcHBsLpS8T/Ac4lC9NJOcRzAAAAAElFTkSuQmCC" alt=""></span>
+        <span>TIMER</span>
+      </button>
+      <button id="whatCookBtn" type="button" class="banner-hotspot banner-hotspot-main" aria-label="Mutasd a javaslatokat"></button>
+      <button id="bannerHomeStock" type="button" class="banner-hotspot banner-hotspot-stock" aria-label="Ami van otthon: nyisd meg a Recept Studiót"></button>
+      <button id="bannerTime" type="button" class="banner-hotspot banner-hotspot-time" aria-label="Mennyi időtök van: gyors receptjavaslat"></button>
+      <button id="bannerAvoid" type="button" class="banner-hotspot banner-hotspot-avoid" aria-label="Mit kerüljünk: add meg, mit ne ajánljak"></button>
+      <button id="bannerPersonal" type="button" class="banner-hotspot banner-hotspot-personal" aria-label="Személyre szabott ötletek"></button>
+    </div>
+  </section>
+  <section class="health-home">
+    <button id="healthBannerBtn" type="button" class="health-banner" aria-label="Health és Nutri Info">
+      <span class="health-banner-icon" aria-hidden="true">
+        <svg viewBox="0 0 48 48"><path d="M24 41S7 31 7 18c0-6 4.4-10 10-10 3.4 0 5.8 1.6 7 4 1.2-2.4 3.6-4 7-4 5.6 0 10 4 10 10 0 13-17 23-17 23Z"/><path d="M15 24h6l3-7 4 13 3-6h4"/></svg>
+      </span>
+      <span class="health-banner-copy">
+        <small>HEALTH · NUTRI INFO</small>
+        <b>Mi van a tányéron?</b>
+        <span>Kalória · fehérje · szénhidrát · zsír · rost, adagonként</span>
+      </span>
+      <span class="health-banner-badge">AI becslés</span>
+      <span class="health-banner-arrow">›</span>
+    </button>
+  </section>
+  
+  <section class="nutri-golden-batch-v1155" aria-label="Golden Standard Nutri Info automatizálás">
+    <div class="nutri-golden-head-v1155">
+      <b>🥗 Golden Standard · Nutri Info</b>
+      <small>Automatikus az új receptkártyákhoz</small>
+    </div>
+    <p class="nutri-golden-info-v1155">Hiányzó receptek: kalória · fehérje · szénhidrát · zsír · rost, valamint a készétel teljes súlyának AI-becslése. A becsült súly később mérleggel felülírható.</p>
+    <div class="nutri-golden-actions-v1155">
+      <button id="nutriBulkStartV1155" type="button">✨ Hiányzó Nutri Info pótlása minden recepthez</button>
+      <button id="nutriSingleStartV1165" type="button" aria-label="Egy hiányzó recept Nutri Info pótlása próbából">🧪 1 próbarecept</button>
+      <button id="nutriBulkStopV1155" type="button" hidden>⏸ Megállítás</button>
+      <button id="nutriPuterCheckV1164" type="button">🔎 AI kapcsolat</button>
+
+      <span id="nutriBulkCountsV1155">Receptek ellenőrzése…</span>
+    </div>
+    <div id="nutriBulkStatusV1155" role="status" aria-live="polite">Cloudflare AI = tápértékbecslés, HealthHub = saját mentés. A napi keret elérésekor a feldolgozás megáll. Először 1 próbareceptet futtass.</div>
+  </section>
+  <div class="count-row">
+    <span><b id="count">0</b> recept</span>
+    <div class="count-actions">
+      <button id="studioBtn" class="studio-launch-btn">✨ Recept Studio</button>
+      <button id="addRecipeBtn" class="add-recipe-btn">＋ Kártya feltöltése</button>
+      <button id="favFilter" class="small-pill">☆ Kedvencek</button>
+    </div>
+  </div>
+  <section id="grid" class="grid"></section>
+</main>
+
+<main id="recipeView" hidden>
+  <section class="recipe-toolbar">
+    <button id="homeBtn" class="nav-btn recipe-home-standard" aria-label="Home">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 11 9-8 9 8"/><path d="M5 10v10h14V10M9 20v-6h6v6"/></svg>
+      <span>Home</span>
+    </button>
+    <button id="backBtn" class="nav-btn">← Vissza</button>
+    <button id="shareBtn" class="nav-btn recipe-icon-btn" title="Megosztás" aria-label="Recept megosztása">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.7 10.7 6.6-4.2M8.7 13.3l6.6 4.2"/></svg>
+    </button>
+    <button id="editBtn" class="nav-btn" title="Alapadatok és videó szerkesztése">✏️</button>
+    <button id="favBtn" class="nav-btn" title="Kedvenc">☆</button>
+  </section>
+  <div class="recipe-editor-actions" role="group" aria-label="Recept szerkesztési műveletek">
+    <button id="hhAdd320ButtonV1160" class="hh-cookbook-add-v1160" type="button" aria-label="Egy 320 grammos adag hozzáadása a HealthHub Napi naplójához">➕ 320 g · Napi naplóba</button>
+    <button id="editFullRecipeBtn" class="recipe-edit-main" type="button" title="Minden recept szerkeszthető; a módosítások a HealthHub saját tárhelyére kerülnek.">✏️ Teljes recept szerkesztése</button>
+    <button id="replaceCardImageBtn" class="recipe-image-replace" type="button" title="Receptkártyakép cseréje és mentése a privát HealthHub tárhelyre.">🖼️ Kártyakép cseréje</button>
+    <input id="replaceCardImageInput" type="file" accept="image/png,image/jpeg,image/webp" hidden>
+  </div>
+  <section class="recipe-head">
+    <div class="eyebrow" id="recipeCategory"></div>
+    <h1 id="recipeTitle"></h1>
+    <div id="recipeNutriStrip" class="recipe-nutri-strip" hidden>
+      <span>🔥 <b id="recipeNutriKcal">–</b> kcal</span>
+      <i>·</i>
+      <span>🥩 <b id="recipeNutriProtein">–</b> fehérje</span>
+      <i>·</i>
+      <span>🍚 <b id="recipeNutriCarbs">–</b> szénhidrát</span>
+      <i>·</i>
+      <span>🥑 <b id="recipeNutriFat">–</b> zsír</span>
+      <i>·</i>
+      <span>🌾 <b id="recipeNutriFiber">–</b> rost</span>
+    </div>
+    <div class="mode-row">
+      <button id="originalMode" class="mode active">Eredeti kártya</button>
+      <button id="readableMode" class="mode" hidden>Recept elkészítése</button>
+    </div>
+    <div class="readable-status-row">
+      <span id="readableStatusBadge" class="status-badge status-unprocessed">○ Nincs feldolgozva</span>
+      <button id="prepareReadable" class="status-edit-btn">✏️ Recept elkészítése</button>
+    </div>
+    <button id="healthRadarExportBtn" type="button" class="health-radar-export" title="Jövőbeli funkció: recept export HealthRadarba">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 27S5 21 5 12.5C5 8.5 8 6 11.5 6c2.2 0 3.8 1 4.5 2.6C16.7 7 18.3 6 20.5 6 24 6 27 8.5 27 12.5 27 21 16 27 16 27Z"/><path d="M10 16h4l2-5 3 9 2-4h3"/></svg>
+      <span><b>Export to HealthRadar</b><small>Future feature · később aktiváljuk</small></span>
+      <em>HAMAROSAN</em>
+    </button>
+  </section>
+  <section id="originalPanel" class="original-panel">
+    <img id="recipeImage" class="zoomable-recipe-image" alt="" title="Kattints a teljes képernyős nézethez">
+    <div id="recipeImageHint" class="recipe-image-hint">🔍 Kattints a képre a teljes képernyős ételfotóhoz</div>
+    <iframe id="recipePdf" hidden></iframe>
+  </section>
+  <section id="readablePanel" class="readable-panel" hidden>
+    <div class="readable-tools">
+      <div class="font-tools">
+        <button id="fontMinus" class="font-btn" title="Kisebb betű">A−</button>
+        <span id="fontSizeLabel">18</span>
+        <button id="fontPlus" class="font-btn" title="Nagyobb betű">A+</button>
+      </div>
+      <button id="resetChecks" class="outline-btn compact-btn">☐ Pipák törlése</button>
+    </div>
+    <div class="readable-action-row">
+      <button id="cookModeBtn" type="button" class="cook-launch-btn" hidden>👨‍🍳 Főzés mód</button>
+      <button id="recipeTimerBtn" type="button" class="recipe-timer-launch" aria-label="Golden Timer megnyitása" title="Golden Timer">
+        <svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="27" r="16"/><path d="M24 27V16M24 27l8 5M18 5h12M24 5v6"/></svg>
+        <span>Timer</span>
+      </button>
+    </div>
+    <div id="readableContent" class="structured-recipe">
+      <section class="structured-section">
+        <h2>Hozzávalók</h2>
+        <div id="ingredientsList" class="ingredients-list"></div>
+      </section>
+      <section class="structured-section">
+        <h2>Elkészítés</h2>
+        <ol id="stepsList" class="steps-list"></ol>
+      </section>
+      <section id="notesSection" class="structured-section notes-section" hidden>
+        <h2>Megjegyzés</h2>
+        <div id="notesList"></div>
+      </section>
+      <section id="nutriCard" class="nutri-card" hidden>
+        <div class="nutri-card-head">
+          <div>
+            <div class="nutri-eyebrow">HEALTH · NUTRI INFO</div>
+            <h2>🥗 Becsült tápérték</h2>
+          </div>
+          <span id="nutriServings" class="nutri-serving-pill">4 fő</span>
+        </div>
+        <div id="nutriEmpty" class="nutri-empty">
+          <p>Még nincs tápérték-becslés ehhez a recepthez.</p>
+          <button id="nutriAnalyzeRecipe" type="button" class="primary-btn">✨ Nutri Info készítése</button>
+        </div>
+        <div id="nutriValues" hidden>
+          <div class="nutri-grid">
+            <div><strong id="nutriKcal">–</strong><small>kcal</small></div>
+            <div><strong id="nutriProtein">–</strong><small>fehérje</small></div>
+            <div><strong id="nutriCarbs">–</strong><small>szénhidrát</small></div>
+            <div><strong id="nutriFat">–</strong><small>zsír</small></div>
+            <div><strong id="nutriFiber">–</strong><small>rost</small></div>
+          </div>
+          <div class="nutri-footer">
+            <span>Adagonként · becsült érték</span>
+            <button id="nutriRefreshRecipe" type="button" class="outline-btn compact-btn">↻ Frissítés</button>
+          </div>
+          <div class="hh-nutri-weight-v1154">
+            <label for="nutriFinishedWeightV1154">⚖️ Az egész elkészült étel tömege (g)</label>
+            <div class="hh-nutri-weight-entry-v1154">
+              <input id="nutriFinishedWeightV1154" type="number" min="50" max="50000" step="1" inputmode="numeric" placeholder="pl. 1600" aria-describedby="nutriWeightStatusV1154">
+              <button type="button" id="nutriSaveWeightV1154" class="outline-btn compact-btn">☁ Mentés</button>
+            </div>
+            <small id="nutriWeightStatusV1154" role="status">Egyszer add meg a teljes készétel-tömeget, utána egy kattintás a HealthHub naplóba.</small>
+          </div>
+        </div>
+      </section>
+    </div>
+    <button id="editReadable" class="outline-btn full-width-btn">✏️ Strukturált recept szerkesztése</button>
+  </section>
+  <section id="recipeVideoSection" class="recipe-video-section" hidden>
+    <div class="recipe-video-heading">
+      <div><small>LÉNA · VIDEÓSEGÍTSÉG</small><h2>🎬 Kapcsolódó elkészítési videó</h2></div>
+      <span>YouTube</span>
+    </div>
+    <button id="recipeVideoCard" type="button" class="recipe-video-card">
+      <span class="recipe-video-thumb-wrap">
+        <img id="recipeVideoThumb" alt="YouTube-videó előképe">
+        <span class="recipe-video-play" aria-hidden="true">▶</span>
+      </span>
+      <span class="recipe-video-copy"><b id="recipeVideoName"></b><small>Kattints a videó lejátszásához az alkalmazáson belül</small></span>
+      <span class="recipe-video-arrow" aria-hidden="true">›</span>
+    </button>
+  </section>
+  <section id="recipeFeedback" class="recipe-feedback">
+    <div class="feedback-title-row">
+      <div>
+        <div class="feedback-eyebrow">SAJÁT ÍZLÉSETEK</div>
+        <h2>⭐ Értékelés és megjegyzés</h2>
+      </div>
+      <span id="feedbackSaveState" class="feedback-save-state">helyi</span>
+    </div>
+    <div id="feedbackStars" class="feedback-stars" aria-label="Recept értékelése">
+      <button type="button" data-rating="1" aria-label="1 csillag">☆</button>
+      <button type="button" data-rating="2" aria-label="2 csillag">☆</button>
+      <button type="button" data-rating="3" aria-label="3 csillag">☆</button>
+      <button type="button" data-rating="4" aria-label="4 csillag">☆</button>
+      <button type="button" data-rating="5" aria-label="5 csillag">☆</button>
+    </div>
+    <textarea id="feedbackNote" rows="3" placeholder="pl. Nagyon jó, legközelebb több fokhagyma."></textarea>
+    <button id="saveFeedback" type="button" class="feedback-save-btn">💾 Értékelés mentése</button>
+    <p class="feedback-help">Léna ezt a későbbi receptjavaslatoknál és generálásnál ízlési jelzésként használja.</p>
+  </section>
+</main>
+
+<dialog id="youtubeDialog" class="youtube-dialog">
+  <div class="youtube-shell">
+    <div class="youtube-dialog-head">
+      <div><small>LÉNA · VIDEÓSEGÍTSÉG</small><h2 id="youtubePlayerTitle">Kapcsolódó videó</h2></div>
+      <button id="closeYoutube" type="button" class="youtube-close" aria-label="Videó bezárása">×</button>
+    </div>
+    <div class="youtube-player-frame">
+      <iframe id="youtubePlayer" title="Kapcsolódó YouTube-videó" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+    </div>
+    <a id="youtubeOpenExternal" class="youtube-external" href="#" target="_blank" rel="noopener noreferrer">Megnyitás a YouTube-on ↗</a>
+  </div>
+</dialog>
+
+<dialog id="healthDialog" class="health-dialog">
+  <div class="dialog-card health-shell">
+    <div class="dialog-title-row">
+      <div>
+        <div class="health-kicker">HEALTH · NUTRI INFO</div>
+        <h2>🥗 Mi van a tányéron?</h2>
+      </div>
+      <button id="closeHealth" type="button" class="icon-close" aria-label="Bezárás">×</button>
+    </div>
+    <p class="health-intro">Válassz egy strukturált receptet, és Léna készít egy adagonkénti tápérték-becslést.</p>
+    <label class="field-label" for="healthRecipeSelect">Recept</label>
+    <select id="healthRecipeSelect" class="field-input"></select>
+    <button id="healthAnalyzeBtn" type="button" class="primary-btn health-analyze-btn">✨ Nutri Info készítése</button>
+    <section id="healthResult" class="health-result" hidden>
+      <div class="health-result-title">
+        <b id="healthResultName"></b>
+        <span id="healthResultServing"></span>
+      </div>
+      <div class="nutri-grid health-grid">
+        <div><strong id="healthKcal">–</strong><small>kcal</small></div>
+        <div><strong id="healthProtein">–</strong><small>fehérje</small></div>
+        <div><strong id="healthCarbs">–</strong><small>szénhidrát</small></div>
+        <div><strong id="healthFat">–</strong><small>zsír</small></div>
+        <div><strong id="healthFiber">–</strong><small>rost</small></div>
+      </div>
+      <p class="health-disclaimer">Becsült tápérték az összetevők és mennyiségek alapján. Nem laboreredmény és nem orvosi étrendi számítás.</p>
+    </section>
+  </div>
+</dialog>
+
+<dialog id="whatCookDialog" class="what-cook-dialog">
+  <div class="what-cook-shell">
+    <div class="dialog-title-row">
+      <div>
+        <div class="feedback-eyebrow">SZEMÉLYRE SZABOTT ÖTLETEK</div>
+        <h2>🧠 Léna, mit főzzünk?</h2>
+      </div>
+      <button id="closeWhatCook" type="button" class="icon-close" aria-label="Bezárás">×</button>
+    </div>
+    <p class="what-cook-intro">Írd le röviden, mi van otthon, mit kellene elhasználni, mennyi időtök van, és mit ne ajánljak.</p>
+    <textarea id="whatCookPrompt" rows="4" placeholder="pl. Van csirkemell és tejföl, 30 percünk van, ma ne legyen tészta."></textarea>
+    <div class="what-cook-examples">
+      <button type="button" data-what="30 percünk van, valami gyors vacsora kell.">⏱ 30 perc</button>
+      <button type="button" data-what="Használjuk el, ami hamarosan megromolhat.">♻️ Használjuk el</button>
+      <button type="button" data-what="Ma valami könnyebb ételt szeretnénk.">🥗 Könnyebb</button>
+    </div>
+    <button id="generateWhatCook" type="button" class="primary-btn what-cook-generate">✨ Adj 3 ötletet</button>
+    <div id="whatCookContext" class="what-cook-context"></div>
+    <div id="whatCookResults" class="what-cook-results"></div>
+  </div>
+</dialog>
+
+<dialog id="homeTimerDialog" class="home-timer-dialog">
+  <div class="home-timer-shell">
+    <header class="home-timer-header">
+      <div>
+        <div class="home-timer-eyebrow">LÉNA · GOLDEN STANDARD</div>
+        <h2>Golden Timer</h2>
+      </div>
+      <button id="closeHomeTimer" type="button" class="home-timer-close" aria-label="Timer bezárása">×</button>
+    </header>
+
+    <section class="home-stopwatch" aria-label="Analóg és digitális visszaszámláló">
+      <div class="home-stopwatch-crown" aria-hidden="true"></div>
+      <div id="homeTimerDial" class="home-timer-dial">
+        <div class="home-timer-hand" aria-hidden="true"></div>
+        <div class="home-timer-hub" aria-hidden="true"></div>
+        <div class="home-timer-dial-inner">
+          <small id="homeTimerCaption">válassz időt vagy indítsd el</small>
+          <div id="homeTimerDisplay" class="home-timer-display" aria-live="polite">10:00</div>
+          <span id="homeTimerStatus" class="home-timer-status">KÉSZEN</span>
+        </div>
+      </div>
+    </section>
+
+    <div id="homeTimerPresets" class="home-timer-presets" aria-label="Gyors időválasztás">
+      <button type="button" data-home-timer-minutes="5">5 perc</button>
+      <button type="button" data-home-timer-minutes="10">10 perc</button>
+      <button type="button" data-home-timer-minutes="15">15 perc</button>
+      <button type="button" data-home-timer-minutes="30">30 perc</button>
+    </div>
+    <div class="home-timer-adjust" aria-label="Idő módosítása">
+      <button id="homeTimerMinus1" type="button">−1 perc</button>
+      <button id="homeTimerPlus1" type="button">+1 perc</button>
+      <button id="homeTimerPlus5" type="button">+5 perc</button>
+    </div>
+    <div class="home-timer-actions">
+      <button id="homeTimerStart" type="button" class="home-timer-primary">▶ Indítás</button>
+      <button id="homeTimerReset" type="button" class="home-timer-secondary">↺ Újrakezdés</button>
+    </div>
+    <button id="homeTimerStopAlarm" type="button" class="home-timer-stop" hidden>🔇 Riasztás leállítása</button>
+    <p class="home-timer-note">🔔 Erős Léna-riasztás 5 másodpercig</p>
+  </div>
+</dialog>
+
+<dialog id="cookModeDialog" class="cook-mode-dialog">
+  <div class="cook-shell">
+    <header class="cook-header">
+      <div>
+        <div class="cook-eyebrow">👨‍🍳 FŐZÉS MÓD</div>
+        <h2 id="cookRecipeTitle"></h2>
+      </div>
+      <button id="closeCookMode" type="button" class="cook-close" aria-label="Bezárás">×</button>
+    </header>
+
+    <div class="cook-progress-row">
+      <strong id="cookStepCount">1 / 1</strong>
+      <div class="cook-progress"><span id="cookProgressBar"></span></div>
+    </div>
+
+    <main class="cook-step-card">
+      <div id="cookStepNumber" class="cook-step-number">1</div>
+      <div id="cookStepText" class="cook-step-text"></div>
+    </main>
+
+    <section id="cookTimerBox" class="cook-timer-box">
+      <div class="cook-timer-brand">
+        <span class="cook-timer-brand-icon" aria-hidden="true">
+          <svg viewBox="0 0 48 48"><circle cx="24" cy="26" r="16"/><path d="M24 26V15M24 26l8 5M18 5h12M24 5v5"/></svg>
+        </span>
+        <div><b>Léna Timer</b><small>Időzítő a főzési lépésekhez</small></div>
+      </div>
+      <button id="cookTimerStart" type="button" class="cook-timer-suggest">⏱ Időzítő indítása</button>
+      <div id="cookTimerPresets" class="cook-timer-presets">
+        <button type="button" data-cook-minutes="5">5 perc</button>
+        <button type="button" data-cook-minutes="10">10 perc</button>
+        <button type="button" data-cook-minutes="15">15 perc</button>
+        <button type="button" data-cook-minutes="30">30 perc</button>
+      </div>
+      <div id="cookTimerRunning" class="cook-timer-running" hidden>
+        <div id="cookTimerLabel" class="cook-timer-label">Időzítő</div>
+        <div id="cookTimerDial" class="cook-timer-dial">
+          <div class="cook-timer-dial-inner">
+            <div id="cookTimerDisplay" class="cook-timer-display" aria-live="polite">00:00</div>
+            <small id="cookTimerStateText">hátralévő idő</small>
+          </div>
+        </div>
+        <div class="cook-timer-add">
+          <button type="button" id="cookTimerPlus1">+1 perc</button>
+          <button type="button" id="cookTimerPlus5">+5 perc</button>
+        </div>
+        <div class="cook-timer-actions">
+          <button id="cookTimerPause" type="button" class="outline-btn">⏸ Szünet</button>
+          <button id="cookTimerReset" type="button" class="outline-btn">↺ Nullázás</button>
+        </div>
+        <div class="cook-timer-sound-note">🔔 A végén dupla Léna-beep + rezgés</div>
+      </div>
+    </section>
+
+    <footer class="cook-nav">
+      <button id="cookPrev" type="button" class="cook-nav-btn secondary">← Előző</button>
+      <button id="cookNext" type="button" class="cook-nav-btn primary">Következő →</button>
+    </footer>
+  </div>
+</dialog>
+
+<dialog id="photoLightbox" class="photo-lightbox">
+  <button id="closePhotoLightbox" type="button" class="photo-lightbox-close" aria-label="Bezárás">×</button>
+  <div class="photo-lightbox-stage">
+    <div id="photoLightboxLoading" class="photo-lightbox-loading" hidden>Ételkép betöltése…</div>
+    <img id="photoLightboxImage" alt="">
+  </div>
+  <div id="photoLightboxCaption" class="photo-lightbox-caption"></div>
+</dialog>
+
+<nav class="bottom-nav">
+  <button id="navHome"><svg viewBox="0 0 48 48"><path d="M7 22 24 8l17 14"/><path d="M11 20v21h26V20M20 41V28h8v13"/></svg><small>Home</small></button>
+  <button id="navFav"><svg viewBox="0 0 48 48"><path d="m24 6 5.4 11 12.1 1.8-8.8 8.5 2.1 12.1L24 33.7l-10.8 5.7 2.1-12.1-8.8-8.5L18.6 17 24 6Z"/></svg><small>Kedvencek</small></button>
+  <button id="navAdmin"><svg viewBox="0 0 48 48"><path d="M8 13h15M31 13h9M8 24h6M22 24h18M8 35h20M36 35h4"/><circle cx="27" cy="13" r="4"/><circle cx="18" cy="24" r="4"/><circle cx="32" cy="35" r="4"/></svg><small>Admin</small></button>
+  <button id="navAsk" class="nav-lena"><svg viewBox="0 0 48 48"><path d="M22 7c-1 10-5 14-15 16 10 2 14 6 16 16 2-10 6-14 16-16-10-2-14-6-17-16Z"/><path d="M38 5v8M34 9h8"/></svg><small>Kérdezd Lénát</small></button>
+</nav>
+
+<dialog id="addDialog">
+<form method="dialog" class="dialog-card">
+  <h2>＋ Új recept</h2>
+  <button type="button" id="chooseImageBtn" class="photo-btn">📷 Kép kiválasztása / fotózás</button>
+  <input id="newImageInput" type="file" accept="image/*" hidden>
+  <div id="newPreviewWrap" class="new-preview" hidden><img id="newPreview" alt="Új recept előnézet"></div>
+  <label class="field-label" for="newTitle">Recept neve</label>
+  <input id="newTitle" class="field-input" autocomplete="off" placeholder="pl. Sajtos pogácsa">
+  <label class="field-label" for="newCategory">Kategória</label>
+  <input id="newCategory" class="field-input" list="categoryList" autocomplete="off" placeholder="Válassz vagy írj újat">
+  <label class="sync-choice"><input id="newCentralSync" type="checkbox" checked disabled> <span><b>☁ Automatikus felhőmentés</b><small>Minden recept és kép a HealthHub saját privát tárhelyére kerül; offline helyi másolat is megmarad a szinkronizálásig.</small></span></label>
+  <div class="dialog-actions">
+    <button value="cancel" class="outline-btn">Mégse</button>
+    <button type="button" id="saveNewRecipe" class="primary-btn">Mentés</button>
+  </div>
+</form>
+</dialog>
+
+<dialog id="editDialog">
+<form method="dialog" class="dialog-card">
+  <h2>Recept szerkesztése</h2>
+  <label class="field-label" for="editTitle">Név</label>
+  <input id="editTitle" class="field-input" autocomplete="off">
+  <label class="field-label" for="editCategory">Kategória</label>
+  <select id="editCategory" class="field-input"></select>
+  <datalist id="categoryList"></datalist>
+  <label class="field-label" for="editYoutubeUrl">Kapcsolódó YouTube-videó linkje <span class="optional-label">(opcionális)</span></label>
+  <div class="youtube-edit-row">
+    <input id="editYoutubeUrl" class="field-input" type="url" inputmode="url" autocomplete="off" placeholder="https://www.youtube.com/watch?v=…">
+    <button id="editYoutubeClear" type="button" class="outline-btn compact-btn">Törlés</button>
+  </div>
+  <p id="editYoutubeInvalid" class="youtube-invalid" hidden>Nem felismerhető YouTube-link.</p>
+  <div id="editYoutubePreview" class="youtube-edit-preview" hidden>
+    <img id="editYoutubeThumb" alt="A kiválasztott YouTube-videó előképe">
+    <span><b>Videó felismerve</b><small>Mentés után megjelenik a receptoldalon.</small></span>
+  </div>
+  <button type="button" id="editRegenerateCard" class="golden-regenerate-btn">
+    <span aria-hidden="true">🎨</span>
+    <span><b>Kép és receptkártya újragenerálása</b><small>A recept a Léna Golden Standard szerkesztőben nyílik meg.</small></span>
+  </button>
+  <p class="local-note">Az alapadatok és a videólink felhőbe szinkronizálódnak. Sikertelen hálózati mentés esetén figyelmeztetés jelenik meg.</p>
+  <div class="danger-row">
+    <button type="button" id="resetRecipe" class="outline-btn">Alapadatok visszaállítása</button>
+    <button type="button" id="deleteRecipe" class="danger-btn">🗑️ Törlés</button>
+  </div>
+  <div class="dialog-actions">
+    <button value="cancel" class="outline-btn">Mégse</button>
+    <button type="button" id="saveRecipe" class="primary-btn">Mentés</button>
+  </div>
+</form>
+</dialog>
+
+<dialog id="adminDialog">
+<div class="dialog-card">
+  <div class="dialog-title-row"><h2>Admin</h2><button id="closeAdmin" class="icon-close">×</button></div>
+  <div class="admin-actions">
+    <button id="adminStudio" class="primary-btn">✨ Recept Studio</button>
+    <button id="adminAddRecipe" class="outline-btn">＋ Kártya feltöltése</button>
+    <button id="syncSettingsBtn" class="outline-btn">☁ Központi tárhely</button>
+  </div>
+  <p class="local-note">A központi tárhely a privát HealthHub felhő. A saját receptek offline is elmentődnek, majd a HealthHubba szinkronizálódnak. Az AI-generálás a HealthHub saját AI-kapcsolatán keresztül történik.</p>
+
+  <section class="category-admin-box">
+    <div class="category-admin-head">
+      <div><h3>📚 Kategóriák kezelése</h3><p>Új kategóriát adhatsz hozzá, meglévőt átnevezhetsz vagy elrejthetsz. A recepteket továbbra is egyenként is átteheted másik kategóriába.</p></div>
+    </div>
+    <div class="category-add-row">
+      <input id="newCategoryName" class="field-input" autocomplete="off" placeholder="pl. Air fryer">
+      <button id="addCategoryBtn" type="button" class="primary-btn">＋ Hozzáadás</button>
+    </div>
+    <div id="categoryManagerList" class="category-manager-list"></div>
+  </section>
+
+  <h3>Helyi / szinkronra váró receptek</h3>
+  <div id="pendingList" class="deleted-list"></div>
+  <h3>Törölt receptek</h3>
+  <div id="deletedList" class="deleted-list"></div>
+</div>
+</dialog>
+
+<dialog id="syncDialog">
+<div class="dialog-card">
+  <div class="dialog-title-row"><h2>☁ Központi tárhely</h2><button id="closeSync" class="icon-close">×</button></div>
+  <p class="local-note">A saját receptek a <b>HealthHub-Core privát tárhelyén</b> élnek. Zsolt és Mónika jogosult HealthHub-fiókja látja a közös recepteket. A mentéshez nem kell AI-kredit.</p>
+  <div id="cloudAccountStatus" class="cloud-account-status">Kapcsolat ellenőrzése…</div>
+  <div class="dialog-actions cloud-actions">
+    <button id="cloudSignIn" type="button" class="primary-btn">🔐 HealthHub belépés</button>
+    <button id="cloudSwitchAccount" type="button" class="outline-btn">⇄ HealthHub fiók</button>
+    <button id="cloudRefresh" type="button" class="outline-btn">↻ Frissítés</button>
+  </div>
+  <style>#syncLoginFormV1164[hidden]{display:none!important}#syncLoginFormV1164:not([hidden]){display:grid}</style>
+  <form id="syncLoginFormV1164" hidden style="gap:10px;margin:14px 0 9px;padding:15px;border:1px solid rgba(172,223,225,.28);border-radius:16px;background:rgba(15,36,44,.45)">
+    <label for="syncEmailV1164" style="font-weight:700">HealthHub e-mail</label>
+    <input id="syncEmailV1164" name="email" class="field-input" type="email" autocomplete="username" required placeholder="E-mail-cím">
+    <label for="syncPasswordV1164" style="font-weight:700">Jelszó</label>
+    <input id="syncPasswordV1164" name="password" class="field-input" type="password" autocomplete="current-password" required placeholder="HealthHub-jelszó">
+    <label style="display:flex;gap:8px;align-items:center"><input name="remember" type="checkbox" checked> Jegyezzen meg ezen a saját készüléken</label>
+    <small>Másik fiókra váltáskor a jelenlegi kapcsolat megmarad, amíg az új fiók sikeresen be nem jelentkezik.</small>
+    <div class="dialog-actions">
+      <button id="syncLoginSubmitV1164" type="submit" class="primary-btn">🔐 Belépés</button>
+      <button id="syncLoginCancelV1164" type="button" class="outline-btn">Mégse</button>
+    </div>
+  </form>
+  <div id="syncLoginStateV1164" class="cloud-account-status" role="status" aria-live="polite"></div>
+  <button id="importLegacyPuterV1" type="button" class="outline-btn" style="width:100%;margin-top:12px">📦 Régi Puter-receptek biztonságos átvétele</button>
+  <p class="local-note">A helyben már elmentett receptek HealthHub-belépés után szinkronizálódnak. A régi Puter-adatok külön, visszaellenőrzött másolással vehetők át; az eredeti fájlokat nem töröljük.</p>
+</div>
+</dialog>
+
+<dialog id="structuredDialog">
+<form method="dialog" class="dialog-card">
+  <div class="dialog-title-row"><h2>Olvasható recept szerkesztése</h2><button value="cancel" class="icon-close">×</button></div>
+  <label class="field-label" for="structuredStatus">Állapot</label>
+  <select id="structuredStatus" class="field-input">
+    <option value="unprocessed">○ Nincs feldolgozva</option>
+    <option value="review">⚠️ Ellenőrzésre vár</option>
+    <option value="verified">✅ Ellenőrzött</option>
+  </select>
+  <label class="field-label" for="ingredientsEditor">Hozzávalók</label>
+  <p class="editor-help">Egy hozzávaló egy sor. Az app ezekből készíti a kipipálható listát.</p>
+  <textarea id="ingredientsEditor" rows="9" placeholder="50 dkg liszt&#10;2 tojás&#10;20 dkg sajt"></textarea>
+  <label class="field-label" for="stepsEditor">Elkészítés</label>
+  <p class="editor-help">Egy elkészítési lépés egy sor.</p>
+  <textarea id="stepsEditor" rows="10" placeholder="A hozzávalókat összekeverjük.&#10;A tésztát pihentetjük.&#10;Megsütjük."></textarea>
+  <label class="field-label" for="notesEditor">Megjegyzés / tippek</label>
+  <textarea id="notesEditor" rows="4" placeholder="Opcionális tippek, tálalás, variációk…"></textarea>
+  <p class="local-note">Csak az <b>✅ Ellenőrzött</b> változat jelenik meg automatikusan az „Olvasható recept” nézetben. A bizonytalan felismerést nem engedjük kész receptként megjelenni.</p>
+  <div class="dialog-actions">
+    <button type="button" id="clearStructured" class="outline-btn">Helyi javítás törlése</button>
+    <button value="cancel" class="outline-btn">Mégse</button>
+    <button type="button" id="saveStructured" class="primary-btn">Mentés</button>
+  </div>
+</form>
+</dialog>
+
+<dialog id="textDialog">
+<form method="dialog" class="dialog-card">
+  <h2>Olvasható receptszöveg</h2>
+  <p>Itt csak a valóban javított szöveget tároljuk. Ha üres, az app az eredeti kártyát mutatja alapból.</p>
+  <textarea id="textEditor" rows="16" placeholder="Írd vagy illeszd be a javított receptszöveget…"></textarea>
+  <div class="dialog-actions">
+    <button value="cancel" class="outline-btn">Mégse</button>
+    <button type="button" id="saveText" class="primary-btn">Mentés</button>
+  </div>
+</form>
+</dialog>
+
+
+<dialog id="studioDialog" class="studio-dialog">
+<div class="dialog-card studio-shell">
+  <div class="dialog-title-row">
+    <div>
+      <div class="eyebrow">LÉNA RECEPT STUDIO · GOLDEN STANDARD</div>
+      <h2 id="studioDialogTitle">✨ Új recept készítése</h2>
+    </div>
+    <button id="closeStudio" class="icon-close" type="button">×</button>
+  </div>
+
+  <section class="studio-stage">
+    <div class="studio-step"><span>1</span><b>Ötlet</b></div>
+    <div class="studio-step"><span>2</span><b>Javaslat</b></div>
+    <div class="studio-step"><span>3</span><b>Véglegesítés</b></div>
+  </section>
+
+  <section class="fridge-scan-box">
+    <div class="fridge-scan-head">
+      <div><b>📷 Mi van itthon?</b><small>Fotózd le a hűtőt, kamrát vagy az alapanyagokat. Léna felismeri, amit lát, és receptötleteket ad.</small></div>
+      <span>VISION</span>
+    </div>
+    <div class="fridge-scan-actions">
+      <button id="studioFridgeCameraBtn" type="button" class="primary-btn">📷 Fotó készítése</button>
+      <button id="studioFridgeGalleryBtn" type="button" class="outline-btn">🖼 Kép kiválasztása</button>
+    </div>
+    <input id="studioFridgeCamera" type="file" accept="image/*" capture="environment" hidden>
+    <input id="studioFridgeGallery" type="file" accept="image/*" hidden>
+    <div id="studioFridgeResult" class="fridge-result" hidden>
+      <img id="studioFridgePreview" alt="Alapanyag fotó">
+      <label class="field-label" for="studioDetectedItems">Felismert alapanyagok</label>
+      <textarea id="studioDetectedItems" rows="5" placeholder="Itt javíthatod, ha valamit félrenézett."></textarea>
+      <div id="studioUncertain" class="fridge-uncertain" hidden></div>
+      <div>
+        <div class="field-label">Mit főzhetnénk?</div>
+        <div id="studioFridgeIdeas" class="fridge-ideas"></div>
+      </div>
+      <button id="studioUseInventory" type="button" class="primary-btn studio-main-action">🍳 Recept készítése ezekből</button>
+    </div>
+  </section>
+
+  <div class="studio-or"><span>vagy</span></div>
+  <label class="field-label" for="studioPrompt">Írd le, mit szeretnél főzni</label>
+  <textarea id="studioPrompt" rows="5" placeholder="Pl. Van 500 g csirkemell, brokkoli, tejszín és Gouda. Egyedényes, gyors vacsorát szeretnék 4 főre."></textarea>
+  <button id="studioGenerate" type="button" class="primary-btn studio-main-action">✨ Javaslat készítése</button>
+  <p id="studioStatus" class="studio-status">A Studio közvetlenül tud AI-receptet és ételfotót készíteni, saját fizetős API-kulcs nélkül.</p>
+
+  <section id="studioPreview" class="studio-preview" hidden>
+    <div class="studio-preview-tabs">
+      <button id="studioCardTab" type="button" class="mode active">🖼 Golden kártya</button>
+      <button id="studioReadableTab" type="button" class="mode">📖 Olvasható recept</button>
+    </div>
+    <section id="studioCardPanel" class="studio-card-panel">
+    <div class="studio-card-preview">
+      <div id="studioHero" class="studio-hero"><span id="studioHeroEmoji">🍲</span><small>RECEPT STUDIO ELŐNÉZET</small></div>
+      <div class="studio-card-copy">
+        <div id="studioPreviewCategory" class="eyebrow"></div>
+        <h3 id="studioPreviewTitle"></h3>
+        <div id="studioPreviewMeta" class="studio-meta"></div>
+        <div class="studio-preview-columns">
+          <div><b>Hozzávalók</b><ul id="studioPreviewIngredients"></ul></div>
+          <div><b>Elkészítés</b><ol id="studioPreviewSteps"></ol></div>
+        </div>
+      </div>
+    </div>
+    <div id="studioExactCardWrap" class="studio-exact-card-wrap" hidden>
+      <div class="studio-exact-head"><b>Végleges kártya előnézet</b><small>Ezt a képet mentjük a Recepttárba.</small></div>
+      <img id="studioExactCard" alt="Golden receptkártya előnézet">
+    </div>
+    </section>
+
+    <section id="studioReadablePreview" class="studio-readable-preview" hidden>
+      <div class="structured-section">
+        <h2 id="studioReadableTitle"></h2>
+        <div id="studioReadableMeta" class="studio-meta"></div>
+      </div>
+      <div class="structured-section">
+        <h2>Hozzávalók</h2>
+        <div id="studioReadableIngredients" class="ingredients-list"></div>
+      </div>
+      <div class="structured-section">
+        <h2>Elkészítés</h2>
+        <ol id="studioReadableSteps" class="steps-list"></ol>
+      </div>
+      <div id="studioReadableNotesBox" class="structured-section notes-section" hidden>
+        <h2>Tippek</h2>
+        <div id="studioReadableNotes"></div>
+      </div>
+    </section>
+
+    <details class="studio-editor" open>
+      <summary>✏️ Recept finomítása</summary>
+      <div class="studio-edit-grid">
+        <label><span>Recept neve</span><input id="studioTitle" class="field-input"></label>
+        <label><span>Kategória</span><input id="studioCategory" class="field-input" list="categoryList"></label>
+        <label><span>Adag</span><input id="studioServings" class="field-input" placeholder="4 fő"></label>
+        <label><span>Idő</span><input id="studioTime" class="field-input" placeholder="30 perc"></label>
+      </div>
+      <label class="field-label" for="studioIngredients">Hozzávalók</label>
+      <textarea id="studioIngredients" rows="8"></textarea>
+      <label class="field-label" for="studioSteps">Elkészítés</label>
+      <textarea id="studioSteps" rows="8"></textarea>
+      <label class="field-label" for="studioNotes">Tippek / megjegyzések</label>
+      <textarea id="studioNotes" rows="4"></textarea>
+
+      <div class="studio-refine-row">
+        <input id="studioRefineText" class="field-input" placeholder="Pl. legyen csípősebb / legyen 6 adag / laktózmentesen">
+        <button id="studioRefine" type="button" class="outline-btn">✨ Finomítás</button>
+      </div>
+    </details>
+
+    <section class="studio-photo-box">
+      <div>
+        <b>📸 Golden Standard illusztrációk</b>
+        <p>Léna részletes címlapfotót és lépésről lépésre képsort készít, a klasszikus Fusilli-kártya stílusában.</p>
+      </div>
+      <div class="studio-photo-actions">
+        <button id="studioGenerateImage" type="button" class="primary-btn">✨ Golden kép újragenerálása</button>
+        <button id="studioChoosePhoto" type="button" class="outline-btn">Saját kép</button>
+      </div>
+      <input id="studioPhotoInput" type="file" accept="image/*" hidden>
+      <img id="studioPhotoPreview" class="studio-photo-preview" alt="Ételfotó előnézet" hidden>
+    </section>
+
+    <div id="nutriAutoStatusV1155" role="status">🥗 Golden Standard: véglegesítéskor automatikusan elkészül a Nutri Info és a készétel tömegének jelölt AI-becslése. A tényleges készétel-tömeg később mérleggel felülírható.</div>
+    <label class="sync-choice">
+      <input id="studioCentralSync" type="checkbox" checked disabled>
+      <span><b>☁ Automatikus felhőmentés bekapcsolva</b><small>A recept, a címlapfotó és a képes kártya automatikusan a privát HealthHub-felhőbe szinkronizálódik. Hálózati hiba esetén a helyi példány megmarad.</small></span>
+    </label>
+
+    <div class="studio-provider-note">
+      <div><b>✨ AI mód: Cloudflare</b><small>A meglévő HealthHub-belépéssel működik. Az ingyenes keret elérésekor megáll; nincs fizetős tartalék szolgáltató.</small></div>
+      <span id="studioProviderBadge">ELLENŐRZÉS…</span>
+    </div>
+
+    <div class="studio-final-actions">
+      <button id="studioRegenerateCard" type="button" class="outline-btn">🎨 Kártya frissítése</button>
+      <button id="studioFinalize" type="button" class="primary-btn">✅ Véglegesítés és mentés</button>
+    </div>
+  </section>
+</div>
+</dialog>
+
+<dialog id="lenaSpiceGuideV1" aria-labelledby="lenaSpiceTitleV1"><div class="spice-inner"><div class="spice-head"><h2 class="spice-sr" id="lenaSpiceTitleV1">Fűszerek / Spices</h2><button type="button" class="spice-tool" id="lenaSpiceSearchToggleV4" aria-label="Keresés" aria-expanded="false"><span aria-hidden="true">⌕</span></button><button type="button" class="spice-tool" id="lenaSpiceCloseV1" aria-label="Bezárás"><span aria-hidden="true">×</span></button></div><div class="spice-search-panel" id="lenaSpiceSearchPanelV4" hidden><input id="lenaSpiceSearchV1" type="search" placeholder="Fűszer vagy tároló keresése…" aria-label="Fűszer keresése magyarul vagy angolul" autocomplete="off"><div class="spice-footer" id="lenaSpiceCountV1" role="status" aria-live="polite"></div></div><div class="spice-edit" id="lenaSpiceEditV1" hidden><label for="lenaSpiceStorageInputV1" id="lenaSpiceEditLabelV1">Saját tároló</label><input id="lenaSpiceStorageInputV1" maxlength="100" placeholder="Tároló felirata"><div class="spice-footer">A módosítás ezen az eszközön tárolódik.</div><div class="spice-edit-actions"><button type="button" id="lenaSpiceCancelV1">Mégse</button><button type="button" id="lenaSpiceSaveV1">Mentés</button></div></div><div class="spice-list"><table aria-label="Magyar és angol fűszernevek"><thead class="spice-sr"><tr><th scope="col">Magyar</th><th scope="col">English</th></tr></thead><tbody id="lenaSpiceRowsV1"></tbody></table></div></div></dialog>
+
+<div id="busyOverlay" class="busy-overlay" hidden><div class="spinner"></div><div id="busyText">Feldolgozás…</div></div>
+<div id="toast" class="toast"></div>
+
+<script src="../healthhub/central-vault/config.js"></script>
+<script src="hh-recipe-own-cloud-cf-preview.js?v=1168-cookbook-ai"></script>
+<script src="hh-cookbook-ai-cf-preview.js?v=2"></script>
+
+
+<script src="../recepttar/data.js?v=25"></script>
+<script src="../recepttar/readable-data.js?v=35"></script>
+<script src="stangli-2026.js?v=1"></script>
+<script src="tonhalas-penne-500g-2026.js?v=2"></script>
+<script src="csabai-burgonyaleves-2026.js?v=1"></script>
+<script src="../healthhub/nutrition/hh-cookbook-portion-math-v1154.js?v=1154"></script>
+<script src="recipe-asset-cache-v1.js?v=1-local-first"></script>
+<script src="app-cf-preview.js?v=1168-cloudflare-pilot"></script>
+<script src="hh-nutrition-export-v1154.js?v=1160-visible-button"></script>
+<script src="hh-nutri-cf-preview.js?v=1168-cloudflare-pilot"></script>
+
+
+<script defer src="/berlet-app/sh9/shared/sh9-golden-bottom-nav-v924.js?v=924-unified&notv=20261122"></script>
+<script defer src="/berlet-app/sh9/shared/sh9-language-bridge-v1.js?v=2-module-names"></script>
+<script async src="/berlet-app/sh9/shared/sho-refresh-sound-v1.js?v=1"></script>
+<script id="lenaSpiceScriptV1">
+(function(){"use strict";
+const rows=[["anise","Ánizs","Anise"],["bay","Babérlevél","Bay leaf","Old Bay feliratú tároló"],["basil","Bazsalikom","Basil"],["pepper","Bors","Pepper"],["juniper","Boróka","Juniper"],["savory","Borsikafű (csombor, csombord)","Savory"],["peppermint","Borsmenta","Peppermint"],["chili","Chilipaprika","Chili pepper"],["star-anise","Csillagánizs","Star anise"],["fennel","Édeskömény","Fennel"],["fennel-seeds","Édesköménymag","Fennel seeds"],["cinnamon","Fahéj","Cinnamon"],["paprika","Fűszerpaprika","Paprika"],["ginger","Gyömbér","Ginger"],["thyme","Kakukkfű","Thyme"],["dill","Kapor","Dill"],["cardamom","Kardamom","Cardamom"],["caraway","Kömény","Caraway"],["caraway-seeds","Köménymag","Caraway seeds"],["coriander","Koriander","Coriander / Cilantro"],["turmeric","Kurkuma","Turmeric"],["lavender","Levendula","Lavender"],["marjoram","Majoránna","Marjoram"],["mint","Menta","Mint"],["chives","Metélőhagyma","Chives"],["oregano","Oregánó","Oregano"],["parsley","Petrezselyem","Parsley"],["rosemary","Rozmaring","Rosemary"],["cumin","Római kömény","Cumin"],["saffron","Sáfrány","Saffron"],["clove","Szegfűszeg","Clove"],["nutmeg","Szerecsendió","Nutmeg"],["tarragon","Tárkony","Tarragon"],["horseradish","Torma","Horseradish"],["chervil","Turbolya","Chervil"],["vanilla","Vaníliarúd","Vanilla bean"],["sage","Zsálya","Sage"]];
+const key="lena:spice-guide:storage:v1",by=id=>document.getElementById(id);
+const dialog=by("lenaSpiceGuideV1"),search=by("lenaSpiceSearchV1"),body=by("lenaSpiceRowsV1"),editor=by("lenaSpiceEditV1"),input=by("lenaSpiceStorageInputV1"),count=by("lenaSpiceCountV1"),panel=by("lenaSpiceSearchPanelV4"),toggle=by("lenaSpiceSearchToggleV4"),list=dialog?.querySelector(".spice-list");
+if(!dialog||!search||!body||!editor||!panel||!toggle||!list)return;
+let local=Object.create(null),editing=null;
+try{const saved=JSON.parse(localStorage.getItem(key)||"{}");if(saved&&typeof saved==="object")for(const row of rows)if(typeof saved[row[0]]==="string")local[row[0]]=saved[row[0]].slice(0,100)}catch{}
+const norm=s=>String(s||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"");
+const label=r=>Object.prototype.hasOwnProperty.call(local,r[0])?local[r[0]]:r[3]||"";
+function size(){if(!dialog.open)return;const h=list.clientHeight;if(!h)return;const row=Math.max(11,Math.floor(h/rows.length*100)/100);dialog.style.setProperty("--spice-row-h",row+"px");dialog.style.setProperty("--spice-font-size",Math.max(9.4,Math.min(21,row*.86))+"px")}
+function edit(r){editing=r;by("lenaSpiceEditLabelV1").textContent=r[1]+" · saját tároló";input.value=label(r);editor.hidden=false;input.focus()}
+function render(){const q=norm(search.value.trim()),filtered=rows.filter(r=>norm([r[1],r[2],label(r)].join(" ")).includes(q));body.replaceChildren();for(const r of filtered){const tr=document.createElement("tr"),hu=document.createElement("td"),hb=document.createElement("button");hb.type="button";hb.className="spice-row-button";hb.textContent=r[1];hb.title=r[1];hb.setAttribute("aria-label",r[1]+" tároló szerkesztése");if(r[1].length>22)hb.classList.add("spice-short");hb.addEventListener("click",()=>edit(r));hu.append(hb);tr.append(hu);const td=document.createElement("td"),b=document.createElement("button"),en=document.createElement("span"),name=document.createElement("span");b.type="button";b.className="spice-row-button";b.setAttribute("aria-label",r[2]+" · "+r[1]+" tároló szerkesztése");b.title=r[2]+(label(r)?" · "+label(r):"");en.className="spice-en";name.className="spice-en-text";name.textContent=r[2];if(r[2].length>22)name.classList.add("spice-short");en.append(name);if(label(r)){const note=document.createElement("small");note.className="spice-storage-note";note.textContent=label(r)==="Old Bay feliratú tároló"?"Old Bay":label(r);en.append(note)}b.append(en);b.addEventListener("click",()=>edit(r));td.append(b);tr.append(td);body.append(tr)}count.textContent=filtered.length+" / "+rows.length+" fűszer"+(filtered.length?"":" · Nincs találat");size()}
+function cancel(){editing=null;editor.hidden=true}
+function showSearch(on){panel.hidden=!on;toggle.setAttribute("aria-expanded",String(on));dialog.classList.toggle("search-active",on);if(!on){search.value="";render()}else{size();search.focus()}}
+by("lenaSpiceOpenV1").addEventListener("click",()=>{search.value="";cancel();showSearch(false);render();if(!dialog.open)dialog.showModal();requestAnimationFrame(size)});
+by("lenaSpiceCloseV1").addEventListener("click",()=>dialog.close());
+toggle.addEventListener("click",()=>{cancel();showSearch(panel.hidden)});
+dialog.addEventListener("close",()=>{cancel();showSearch(false)});search.addEventListener("input",()=>{cancel();render()});
+by("lenaSpiceCancelV1").addEventListener("click",()=>{cancel();if(!panel.hidden)search.focus();else toggle.focus()});
+by("lenaSpiceSaveV1").addEventListener("click",()=>{if(!editing)return;local[editing[0]]=input.value.trim().slice(0,100);let ok=true;try{localStorage.setItem(key,JSON.stringify(local))}catch{ok=false}cancel();render();if(!ok){showSearch(true);count.textContent+=" · Csak az aktuális munkamenetben mentve"}if(!panel.hidden)search.focus();else toggle.focus()});
+input.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();by("lenaSpiceSaveV1").click()}});
+if(typeof ResizeObserver==="function")new ResizeObserver(size).observe(list);else window.addEventListener("resize",size);
+render();
+})();</script>
+</body>
+</html>
