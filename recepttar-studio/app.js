@@ -259,7 +259,7 @@ async function estimateNutrition(id){
  if(standard?.generateOne){
   busy(true,'Golden Standard Nutri Info és készétel-tömeg számítása…');
   try{
-   await ensurePuterSignIn();
+   await cookbookAI().ensureReady();
    const r=await standard.generateOne(id,{force:true});
    if(currentId===id)renderNutriCard(id);
    toast(r.record?.finishedWeightGrams?'🥗 Nutri Info és készétel-tömeg becslése kész.':'🥗 Nutri Info kész · a készétel-tömeg mérésre vár.');
@@ -282,7 +282,7 @@ async function estimateNutrition(id){
  ].join("\n");
  busy(true,"Nutri Info számítása…");
  try{
-  let resp;try{resp=await puter.ai.chat(req,{model:STUDIO_TEXT_MODEL,normalize:true,verbosity:"low"})}catch(e){resp=await puter.ai.chat(req,{normalize:true})}
+  const resp=await cookbookAI().text(req)
   const v=normalizeNutrition(parseRecipeJson(puterText(resp)),id,r.title);v.servings=servings;
    const old=getNutrition(id);
    if(old?.servings===servings&&Number.isInteger(Number(old.finishedWeightGrams))&&Number(old.finishedWeightGrams)>=50)
@@ -838,63 +838,18 @@ async function saveNew(){
 }
 
 
-const STUDIO_TEXT_MODEL="gpt-5.6-luna";
-const STUDIO_IMAGE_MODEL="gpt-image-2";
-
-function puterChatAvailable(){return !!(window.puter&&puter.ai&&typeof puter.ai.chat==="function")}
-function puterImageAvailable(){return !!(window.puter&&puter.ai&&typeof puter.ai.txt2img==="function")}
-function puterAvailable(){return puterChatAvailable()}
-function ensurePuterAiSession(){
- if(!puterChatAvailable())throw new Error("A Puter AI könyvtár nem töltődött be.");
- // A Puter AI-hívások saját maguk kezelik a szükséges hitelesítést. A kézi
- // signIn() itt külön felugró ablakot nyitott, és egyes böngészőkben a
- // generálás látható visszajelzés nélkül ezen a lépésen maradt.
- return true
-}
-function puterErrorCode(error){
- const nested=error&&typeof error.error==="object"?error.error:null;
- return String(error&&(
-   error.code||error.errorCode||(nested&&(nested.code||nested.errorCode))||
-   (typeof error.error==="string"?error.error:"")
- )||"").toLowerCase()
-}
-function puterErrorText(error){
- const nested=error&&typeof error.error==="object"?error.error:null;
- const value=error&&(
-   error.message||error.msg||(nested&&(nested.message||nested.msg))||
-   (typeof error.error==="string"?error.error:"")||error.code||error.errorCode
- );
- return String(value||"Ismeretlen Puter AI-hiba.")
-}
-function puterImageErrorMessage(error){
- const code=puterErrorCode(error),text=puterErrorText(error);
- if(code.includes("popup_blocked"))return"A böngésző blokkolta a Puter engedélyező ablakát. Engedélyezd a felugró ablakokat, majd próbáld újra.";
- if(code.includes("auth_window_closed"))return"A Puter AI engedélyezése megszakadt. Indítsd újra a generálást, és fejezd be a megjelenő engedélyezést.";
- if(code.includes("unauthorized")||code.includes("auth_required"))return"A Puter AI használatát előbb engedélyezni kell a megjelenő ablakban.";
- if(code.includes("insufficient_funds"))return"A Puter-fiók elérhető AI-kerete nem elegendő ehhez a képgeneráláshoz.";
- if(code.includes("moderation_flagged"))return"A képgenerátor tartalmi szűrője elutasította ezt a leírást. Módosítsd kissé a recept nevét vagy a hozzávalókat.";
- return text
-}
-function canRetryImageWithFallback(error){
- const code=puterErrorCode(error);
- return !["popup_blocked","auth_window_closed","unauthorized","auth_required","insufficient_funds","moderation_flagged"].some(x=>code.includes(x))
-}
-function updateStudioProviderBadge(){
+const cookbookAI=()=>window.LENA_COOKBOOK_AI_V2;
+function puterAvailable(){return !!cookbookAI()?.available()}
+function ensurePuterAiSession(){if(!puterAvailable())throw Error("A Cookbook AI kapcsolat nem töltődött be.");return true}
+function puterImageErrorMessage(error){return String(error?.message||"A képgenerálás sikertelen.")}
+async function updateStudioProviderBadge(){
  const b=$("#studioProviderBadge");if(!b)return;
- if(puterAvailable()){b.textContent="AI READY";b.classList.remove("provider-offline");b.classList.add("provider-ready")}
- else{b.textContent="HELYI MÓD";b.classList.remove("provider-ready");b.classList.add("provider-offline")}
+ b.textContent="ELLENŐRZÉS…";b.classList.remove("provider-ready");b.classList.add("provider-offline");
+ try{const r=await cookbookAI().status();if(!r.ready){b.textContent="HELYI MÓD";return}b.textContent="CLOUDFLARE";b.classList.remove("provider-offline");b.classList.add("provider-ready")}catch{b.textContent="HELYI MÓD"}
 }
-function puterText(resp){
- let c=resp&&resp.message?resp.message.content:resp;
- if(Array.isArray(c))c=c.map(x=>typeof x==="string"?x:(x&&x.text)||"").join("");
- if(c&&typeof c==="object"&&typeof c.text==="string")c=c.text;
- return String(c||"").trim()
-}
-async function puterVisionChat(prompt,file){
- if(!await canCloudIOV1159())throw new Error('Puter AI-keret alacsony; generálás most leállítva. A kézi mentés továbbra is működik.');
- try{return await puter.ai.chat(prompt,file,false,{model:STUDIO_TEXT_MODEL,normalize:true,verbosity:"low"})}
- catch(first){console.warn("Vision preferred model fallback",first);return puter.ai.chat(prompt,file,false,{normalize:true})}
-}
+function puterText(resp){return String(resp||"").trim()}
+async function puterVisionChat(prompt,file){return cookbookAI().vision(prompt,file)}
+
 function parseRecipeJson(text){
  let s=String(text||"").trim();
  s=s.replace(/^\s*\`\`\`(?:json)?\s*/i,"").replace(/\s*\`\`\`\s*$/,"").trim();
@@ -951,14 +906,8 @@ function studioAiPrompt(userText,currentRecipe=null){
  return p
 }
 async function puterRecipe(prompt,currentRecipe=null){
- if(!await canCloudIOV1159())throw new Error('Puter AI-keret alacsony; generálás most leállítva. A kézi mentés továbbra is működik.');
- if(!puterAvailable())throw new Error("A Puter AI könyvtár nem töltődött be.");
  const req=studioAiPrompt(prompt,currentRecipe);
- async function ask(text,usePreferred=true){
-   if(usePreferred){try{return await puter.ai.chat(text,{model:STUDIO_TEXT_MODEL,normalize:true,verbosity:"low"})}catch(first){console.warn("Studio preferred model fallback",first)}}
-   return puter.ai.chat(text,{normalize:true})
- }
- let resp=await ask(req,true),raw=puterText(resp);
+ let resp=await cookbookAI().text(req),raw=puterText(resp);
  try{return normalizeStudioDraft(parseRecipeJson(raw))}
  catch(firstQuality){
    console.warn("Studio quality retry",firstQuality);
@@ -966,12 +915,10 @@ async function puterRecipe(prompt,currentRecipe=null){
    const retry=req+"\n\nFONTOS MINŐSÉGI JAVÍTÁS: Az előző válasz nem ment át az ellenőrzésen. Hibák: "+issues.join(" | ")+
      "\nAz előző válasz: "+raw+
      "\nKészítsd újra a TELJES JSON receptet. Ne ismételd a felhasználó kérőmondatát hozzávalóként. A cím legyen konkrét, természetes magyar receptnév, ne általános jelző.";
-   resp=await ask(retry,false);return normalizeStudioDraft(parseRecipeJson(puterText(resp)))
+   resp=await cookbookAI().text(retry);return normalizeStudioDraft(parseRecipeJson(puterText(resp)))
  }
 }
 async function puterFoodImage(recipe,kind="hero"){
- if(!await canCloudIOV1159())throw new Error('Puter AI-keret alacsony; generálás most leállítva. A kézi mentés továbbra is működik.');
- if(!puterImageAvailable())throw new Error("A Puter képgenerátor nem érhető el.");
  const isSteps=kind==="steps";
  const prompt=isSteps?[
    "Create a detailed culinary process photo storyboard for a premium illustrated Hungarian recipe card.",
@@ -986,15 +933,8 @@ async function puterFoodImage(recipe,kind="hero"){
    "Generous appetizing portion in the correct cookware, clearly visible ingredients, natural proportions, warm side light, elegant rustic home-kitchen setting, extremely detailed food texture.",
    "Landscape-friendly composition with the main dish centered, no text, no lettering, no labels, no watermark, no hands, no people."
  ].join(" ");
- let img;
- const ratio=isSteps?{w:2,h:3}:{w:4,h:3};
- try{img=await puter.ai.txt2img(prompt,{model:STUDIO_IMAGE_MODEL,ratio,quality:"high"})}
- catch(first){
-   if(!canRetryImageWithFallback(first))throw first;
-   console.warn("Studio primary image model fallback",first);
-   img=await puter.ai.txt2img(prompt,{model:"gemini-3.1-flash-image",ratio,quality:"1K"})
- }
- return generatedImageBlob(img)
+ return cookbookAI().image(prompt,kind)
+
 }
 
 let studioFridgeFile=null,studioFridgeUrl=null,studioFridgeIdeas=[];
@@ -1041,7 +981,7 @@ async function analyzeFridgePhoto(file){
  $("#studioFridgeResult").hidden=false;$("#studioDetectedItems").value="";$("#studioFridgeIdeas").innerHTML="";$("#studioUncertain").hidden=true;
  busy(true,"Léna körbenéz a hűtőben…");
  try{
-   if(!puterAvailable())throw new Error("A Puter Vision nem érhető el.");
+   if(!puterAvailable())throw new Error("A Cookbook képelemző AI nem érhető el.");
    const resp=await puterVisionChat(fridgeVisionPrompt(),file);
    const vision=cleanFridgeVision(parseRecipeJson(puterText(resp)));
    if(!vision.items.length)throw new Error("Nem sikerült biztosan felismerhető alapanyagot találni.");
@@ -1139,7 +1079,7 @@ function studioLocalDraft(prompt){
 function resetStudio(){
  studioCardDirty=false;studioDraft=null;studioPhotoBlob=null;studioProcessBlob=null;if(studioPhotoUrl){URL.revokeObjectURL(studioPhotoUrl);studioPhotoUrl=null}if(studioProcessUrl){URL.revokeObjectURL(studioProcessUrl);studioProcessUrl=null}if(studioFridgeUrl){URL.revokeObjectURL(studioFridgeUrl);studioFridgeUrl=null}studioFridgeFile=null;studioFridgeIdeas=[];$("#studioHero").style.backgroundImage="";$("#studioHero").classList.remove("has-photo")
  $("#studioPrompt").value="";$("#studioFridgeCamera").value="";$("#studioFridgeGallery").value="";$("#studioFridgeResult").hidden=true;$("#studioDetectedItems").value="";$("#studioFridgeIdeas").innerHTML="";$("#studioUncertain").hidden=true;$("#studioPreview").hidden=true;$("#studioPhotoPreview").hidden=true;$("#studioPhotoPreview").removeAttribute("src");$("#studioPhotoInput").value="";$("#studioExactCardWrap").hidden=true;$("#studioExactCard").removeAttribute("src");setStudioPreviewMode("card");
- $("#studioStatus").textContent="A Studio AI-receptet és ételfotót készít fizetős API-kulcs nélkül.";
+ $("#studioStatus").textContent="AI-recept és ételfotó a HealthHub-kapcsolaton keresztül.";
  $("#studioCentralSync").checked=true;$("#studioDialogTitle").textContent="✨ Új recept készítése";$("#studioFinalize").textContent="✅ Véglegesítés és mentés"
 }
 function openStudio(){studioEditingId=null;fillCategoryList();resetStudio();updateStudioProviderBadge();$("#studioDialog").showModal()}
@@ -1278,7 +1218,7 @@ async function studioRefine(){
 async function studioGenerateImage(){
  if(!studioDraft||studioImageGenerating)return;studioPullEditor();
  studioImageGenerating=true;$("#studioStatus").textContent="⏳ A Golden címlapkép generálása elindult…";
- busy(true,"Puter AI előkészítése…");
+ busy(true,"Cookbook AI előkészítése…");
  try{
    ensurePuterAiSession();busy(true,"Golden címlapkép generálása…");
    const raw=await puterFoodImage(studioDraft,"hero");studioPhotoBlob=await processImage(raw);studioCardDirty=true;
@@ -1541,10 +1481,24 @@ async function cloudRefresh(){
    toast(n?'☁ '+n+' recept saját tárhelyre szinkronizálva.':'✓ HealthHub recepttár frissítve.');
  }catch(e){console.warn('HealthHub recepttár frissítési hiba',e);s.textContent='⚠ A kapcsolat jelenleg nem érhető el. Helyi receptek megmaradtak.'}
 }
+let legacyPuterLoading=null;
+function loadLegacyPuterSDK(){
+ if(puterCloudReady()&&window.LENA_PUTER_CREDIT_GATE_V1159)return Promise.resolve();
+ if(legacyPuterLoading)return legacyPuterLoading;
+ function load(src){return new Promise((resolve,reject)=>{const script=document.createElement("script");script.src=src;script.onload=resolve;script.onerror=()=>{script.remove();reject(Error("Betöltési hiba"))};document.head.appendChild(script)})}
+ legacyPuterLoading=(async()=>{if(!puterCloudReady())await load("https://js.puter.com/v2/");if(!window.LENA_PUTER_CREDIT_GATE_V1159)await load("hh-puter-credit-gate-v1159.js?v=1159-cloud-safe");if(!puterCloudReady())throw Error("Régi import nem elérhető")})().finally(()=>{legacyPuterLoading=null});return legacyPuterLoading;
+}
 async function importLegacyPuterV1(){
  const status=$("#cloudAccountStatus");
  if(!await HH_OWN_RECIPE_CLOUD_V1?.available?.()){status.textContent='A régi Puter-adatok átvételéhez HealthHub-belépés szükséges.';return}
- if(!puterCloudReady()||!puter.auth.isSignedIn()){status.textContent='Előbb jelentkezz be a régi Puter-fiókodba is az átvételhez.';return}
+ if(!puterCloudReady()){
+   status.textContent='Régi adatok átvétele: a Puter-importmodul betöltése…';
+   try{await loadLegacyPuterSDK();status.textContent='A régi Puter-importmodul betöltődött. Kattints ismét az átvétel gombra a régi fiók belépéséhez.'}catch(e){status.textContent='A régi importmodul nem érhető el: '+e.message}return
+ }
+ if(!puter.auth.isSignedIn()){
+   status.textContent='A régi Puter-fiók belépése az adatátvételhez…';
+   try{await ensurePuterSignIn();status.textContent='Régi fiók csatlakoztatva. Kattints ismét az átvétel gombra.'}catch(e){status.textContent='A régi fiók belépése nem sikerült: '+e.message}return
+ }
  await loadSharedRecipes(true,true);
  const legacy=sharedRecipes.filter(r=>r.storage==='puter'),own=new Set(
    (await HH_OWN_RECIPE_CLOUD_V1.listRecipes()).map(r=>r.id)
@@ -2063,8 +2017,8 @@ async function generateWhatCook(){
  const q=$("#whatCookPrompt").value.trim();if(!q){alert("Írd le legalább röviden, mire vágytok vagy mi van otthon.");return}
  busy(true,"Léna összerak 4 személyre szabott ötletet…");
  try{
-  if(!puterAvailable())throw new Error("A Puter AI nem érhető el.");
-  let resp;try{resp=await puter.ai.chat(whatCookPromptText(q),{model:STUDIO_TEXT_MODEL,normalize:true,verbosity:"low"})}catch(e){resp=await puter.ai.chat(whatCookPromptText(q),{normalize:true})}
+  if(!puterAvailable())throw new Error("A Cookbook AI nem érhető el.");
+  const resp=await cookbookAI().text(whatCookPromptText(q))
   whatCookIdeas=cleanWhatCookIdeas(parseRecipeJson(puterText(resp)));if(!whatCookIdeas.length)throw new Error("Nem érkezett használható ötlet.");
   renderWhatCookIdeas()
  }catch(e){console.error(e);$("#whatCookResults").innerHTML='<div class="empty-admin">Most nem sikerült AI-javaslatot kérni. A Recept Studio ettől még működik.</div>'}
@@ -2187,7 +2141,7 @@ async function clearStructuredOverride(){
  if(!currentId||!confirm("Visszaállítsuk a recept eredeti feldolgozott adatait a felhőben is?"))return;
  const id=currentId;
  try{
-   if(!await ensurePuterSignIn())throw new Error("Puter bejelentkezés szükséges");
+   if(!await HH_OWN_RECIPE_CLOUD_V1?.available?.())throw new Error("HealthHub bejelentkezés szükséges");
    const fallback=baseReadable[id]||{status:"unprocessed",ingredients:[],steps:[],notes:[]};
    const data={...fallback,updatedAt:new Date().toISOString()};
    const ok=await saveStructuredReadableToCloud(id,data);
@@ -2243,19 +2197,9 @@ $("#saveText").onclick=()=>{if(!currentId)return;setText(currentId,$("#textEdito
  * Puter is retained only for optional AI generation and legacy read-only import. */
 window.LENA_NUTRI_STANDARD_CONTEXT_V1155=Object.freeze({
  allRecipes,getRecipe,getReadable,getNutrition,recipeServingText,
- puterAvailable,ensureSignedIn:ensurePuterSignIn,loadNutritionCache,
+ puterAvailable,ensureSignedIn:()=>cookbookAI().ensureReady(),loadNutritionCache,providerStatus:()=>cookbookAI().status(),
  healthHubReady:()=>HH_OWN_RECIPE_CLOUD_V1?.available?.(),
- getMonthlyUsage:()=>puter.auth.getMonthlyUsage(),
- chatNutrition:async prompt=>{
-  let response;
-  try{response=await puter.ai.chat(prompt,{model:STUDIO_TEXT_MODEL,normalize:true,verbosity:'low'})}
-  catch(error){
-   const code=puterErrorCode(error),message=puterErrorText(error).toLowerCase();
-   if(/auth|insufficient_funds|subscription_required|quota|rate_limit|too_many_requests|payment|billing|(^|\\D)(402|429)(\\D|$)/.test(code+' '+message+' '+String(error?.status||error?.httpStatus||'')))throw error;
-   response=await puter.ai.chat(prompt,{normalize:true});
-  }
-  return parseRecipeJson(puterText(response));
- },
+ chatNutrition:async prompt=>parseRecipeJson(await cookbookAI().text(prompt)),
  setCloudNutrition:async(id,value)=>HH_OWN_RECIPE_CLOUD_V1.putValue(NUTRI_KEY_PREFIX+id,value),
  getCloudNutrition:async id=>HH_OWN_RECIPE_CLOUD_V1.getValue(NUTRI_KEY_PREFIX+id),
  cacheNutrition:(id,value)=>{localStorage.setItem(nutriLocalKey(id),JSON.stringify(value));nutritionCache[id]=value;},
