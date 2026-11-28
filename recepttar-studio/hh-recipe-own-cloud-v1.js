@@ -206,7 +206,18 @@
    }
    return true;
  }
+ async function cookbookAi(payload){
+   const token=await access();
+   const res=await fetch(BASE+'/functions/v1/cookbook-ai-pilot-v1',{method:'POST',
+    headers:{apikey:KEY,Authorization:'Bearer '+token,'Content-Type':'application/json'},
+    body:JSON.stringify(payload),cache:'no-store',signal:AbortSignal.timeout(70000)});
+   const value=await res.json().catch(()=>({ok:false,error:'provider_unavailable'}));
+   if(!res.ok||value?.ok!==true){
+    const code=String(value?.error||'http_'+res.status).slice(0,120),e=Error(code+' (HTTP '+res.status+')');e.code=code;e.status=res.status;throw e;
+   }
+   return value;
+ }
  w.HH_RECIPE_OWN_CLOUD_V1=Object.freeze({
-   account,available,user,signIn,download,putRecipe,listRecipes,getValue,putValue,listValues,deleteValue,deleteRecipe
+   account,available,user,signIn,download,putRecipe,listRecipes,getValue,putValue,listValues,deleteValue,deleteRecipe,cookbookAi
  });
 })(window);
