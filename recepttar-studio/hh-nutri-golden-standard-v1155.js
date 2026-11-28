@@ -1,6 +1,6 @@
 /* Léna Recept Stúdió v1155 · Golden Standard Nutri Info.
  * Existing recipe nutrition backfill and automatic new-Golden-card nutrition.
- * Uses the current signed-in Puter account. No fake precise cooked weights:
+ * Uses the existing authenticated HealthHub AI gateway. No fake precise cooked weights:
  * an AI-predicted finished yield is marked 'ai_estimate', manually weighed
  * values remain 'measured'. No AI call occurs merely by loading this script.
  */
@@ -10,14 +10,6 @@ const api=()=>w.LENA_NUTRI_STANDARD_CONTEXT_V1155;
 const byId=id=>d.getElementById(id);
 let running=false,stopRequested=false;
 const required=['kcal','protein_g','carbs_g','fat_g'];
-// v1167: getMonthlyUsage().allowanceInfo.remaining tracks MONTHLY allowance only.
-// Purchased Puter credits are spent AFTER that monthly allowance is exhausted.
-// Zero MONTHLY allowance must never be treated as proof of AI-credit rejection.
-async function guardPuterBudget(){
- const auth=w.puter?.auth;
- if(auth?.isSignedIn&&auth.isSignedIn()===false)
-   throw Error('A Puter AI nincs bejelentkezve. Kattints a 🔐 Puter újrabelépés gombra.');
-}
 function providerErrorCode(error){
  const raw=error?.code||error?.error?.code||(typeof error?.error==='string'?error.error:null)||error?.statusCode||error?.status||error?.httpStatus||'';
  return String(raw).toLowerCase().slice(0,48)
@@ -29,17 +21,17 @@ function providerErrorMessage(error){
 function classifyProviderError(error){
  const code=providerErrorCode(error),message=providerErrorMessage(error),combined=(code+' '+message).toLowerCase();
  if(/insufficient[_ -]?funds/.test(combined))
-   return {kind:'credit',text:'A Puter tényleges AI-hívása insufficient_funds hibával elutasította a kérést ('+(code||'keret')+'). '+message};
+   return {kind:'credit',text:'A Cloudflare tényleges AI-hívása insufficient_funds hibával elutasította a kérést ('+(code||'keret')+'). '+message};
  if(/subscription_required/.test(combined))
-   return {kind:'plan',text:'Puter előfizetés/hozzáférés nem igazolt az aktív fiókon ('+code+'). '+message};
+   return {kind:'plan',text:'Cloudflare előfizetés/hozzáférés nem igazolt az aktív fiókon ('+code+'). '+message};
  if(/\b402\b/.test(combined))
-   return {kind:'billing',text:'A Puter HTTP 402 fizetési/hozzáférési hibát jelzett, de nem tudjuk, hogy a keret vagy az előfizetés állapota okozta. '+message};
+   return {kind:'billing',text:'A Cloudflare HTTP 402 fizetési/hozzáférési hibát jelzett, de nem tudjuk, hogy a keret vagy az előfizetés állapota okozta. '+message};
  if(/request_timeout|upstream_timeout|timed.?out/.test(combined))
-   return {kind:'timeout',text:'Puter AI-időtúllépés. A kérés akár feldolgozásra és elszámolásra is kerülhetett. '+message};
- if(/too_many_requests|rate.?limit|429/.test(combined))
-   return {kind:'rate',text:'Puter sebességkorlát ('+(code||'429')+'). '+message};
- if(/auth|sign.?in|unauthorized|forbidden|401|403/.test(combined))
-   return {kind:'auth',text:'Puter bejelentkezési/jogosultsági probléma ('+(code||'auth')+'). '+message};
+   return {kind:'timeout',text:'Cloudflare AI-időtúllépés. A kérés akár feldolgozásra és elszámolásra is kerülhetett. '+message};
+ if(/too_many_requests|rate.?limit|quota|pilot_limit|429/.test(combined))
+   return {kind:'rate',text:'Cloudflare sebességkorlát ('+(code||'429')+'). '+message};
+ if(/auth|sign.?in|unauthorized|forbidden|401|403|pilot_disabled|provider_not_configured|free_plan_unconfirmed/.test(combined))
+   return {kind:'auth',text:'Cloudflare bejelentkezési/jogosultsági probléma ('+(code||'auth')+'). '+message};
  return {kind:'other',text:'AI-hívás vagy mentés sikertelen'+(code?' ['+code+']':'')+': '+message};
 }
 function isCreditFailure(error){
@@ -161,8 +153,8 @@ async function generateOne(id,opts={}){
  if(typeof c.healthHubReady==='function'&&!await c.healthHubReady())
    throw Error('A Nutri Info mentéséhez HealthHub-belépés kell: Admin → Központi tárhely.');
  await c.ensureSignedIn();
- if(!c.puterAvailable())throw Error('A Puter Nutri Info AI nem érhető el.');
- await guardPuterBudget();
+ if(!c.puterAvailable())throw Error('A Cookbook Nutri Info AI nem érhető el.');
+ 
  const mode=!opts.ingredientsChanged&&hasMacro(old)&&!hasWeight(old)&&(!old.ingredientsSignature||old.ingredientsSignature===signature(id))?'yield':'full';
  const raw=await c.chatNutrition(makePrompt(id,mode));
  const row=normalizeEstimation(raw,id,mode,opts);
@@ -196,7 +188,7 @@ async function batch(limit=Infinity){
  running=true;stopRequested=false;refresh();
  let done=0,failed=0,consecutive=0,skipped=0,creditStopped=false;
  try{
-  status('☁ HealthHub mentés és Puter AI kapcsolat ellenőrzése…');
+  status('☁ HealthHub mentés és Cloudflare AI kapcsolat ellenőrzése…');
   if(typeof c.healthHubReady==='function'&&!await c.healthHubReady())
     throw Error('A Nutri Info mentéséhez jelentkezz be: Admin → Központi tárhely.');
   await c.ensureSignedIn();
@@ -240,86 +232,22 @@ async function batch(limit=Infinity){
   refresh();
  }
 }
-async function inspectPuterAiV1164(){
+async function inspectCloudflareAiV1164(){
  const button=byId('nutriPuterCheckV1164');
- if(button){button.disabled=true;button.textContent='🔎 Ellenőrzés…'}
+ if(button){button.disabled=true;button.textContent='Ellenőrzés…'}
  try{
-   const client=api();if(!client)throw Error('A Nutri Info nem töltődött be.');
-   const auth=w.puter?.auth;
-   if(!auth?.isSignedIn?.()){
-     status('⚠ A Puter AI nincs bejelentkezve. Kattints a 🔐 Puter újrabelépés gombra. A HealthHub-fiók ettől különböző.',true);return;
-   }
-   const [user,quota]=await Promise.allSettled([
-     auth.getUser?.(),auth.getMonthlyUsage?.()
-   ]);
-   const profile=user.status==='fulfilled'?user.value:null;
-   const name=String(profile?.username||profile?.email||'azonosítatlan fiók').slice(0,85);
-   const allowance=quota.status==='fulfilled'?quota.value?.allowanceInfo:null;
-   const total=Number.isFinite(allowance?.monthUsageAllowance)
-     ?' / havi $'+(allowance.monthUsageAllowance/100000000).toFixed(2):'';
-   if(Number.isFinite(allowance?.remaining)){
-     const value=(allowance.remaining/100000000).toFixed(2);
-     status('ℹ Aktív Puter-fiók: '+name+' · havi keretből maradék $'+value+total+'. A külön vásárolt kreditek itt nem látszanak, a havi $0.00 nem jelenti azt, hogy az AI elutasít. Használd az 1 próbarecept gombot.');
-   }else{
-     status('ℹ Aktív Puter-fiók: '+name+'. A havi keret most nem olvasható ki; a vásárolt kreditek ettől még rendelkezésre állhatnak. Használd az 1 próbarecept gombot.');
-   }
- }catch(e){status('⚠ Puter kapcsolat: '+providerErrorMessage(e),true)}
- finally{if(button){button.disabled=false;button.textContent='🔎 Puter AI kapcsolat'}}
+  const c=api();if(!c)throw Error('A Nutri Info nem töltődött be.');
+  const r=await c.providerStatus();
+  status(r.ready?'✓ Cloudflare AI pilot konfigurálva. Az 1 próbarecept gombbal ténylegesen ellenőrizhető.':'⚠ AI pilot nem aktív: '+String(r.reason||'konfiguráció szükséges'),!r.ready);
+ }catch(e){status('⚠ Cookbook AI kapcsolat: '+providerErrorMessage(e),true)}
+ finally{if(button){button.disabled=false;button.textContent='AI kapcsolat'}}
 }
-
-let puterReconnectInProgress=false;
-async function reconnectPuterV1166(){
- if(puterReconnectInProgress)return false;
- const button=byId('nutriPuterReconnectV1166');
- const auth=w.puter?.auth;
- if(!auth||typeof auth.signIn!=='function'){
-   status('⚠ A Puter.js hitelesítési modulja nem töltődött be. Frissítsd a Recept Stúdió oldalát.',true);
-   return false;
- }
- // IMPORTANT: No await before this call. Puter opens its popup only on
- // explicit user activation; a prior session/HealthHub check would block it.
- let signInResult;
- try{
-   signInResult=auth.signIn({request_auth:true,attempt_temp_user_creation:false});
- }catch(e){
-   status('⚠ Puter belépési ablak: '+puterAuthErrorV1166(e),true);return false;
- }
- puterReconnectInProgress=true;
- if(button){button.disabled=true;button.textContent='🔐 Puter belépés folyamatban…'}
- status('🔐 A Puter saját belépési ablakában válaszd ki a fiókodat, és add meg az új jelszót. A receptjeid nem változnak.');
- try{
-   await signInResult;
-   const user=await auth.getUser();
-   if(!auth.isSignedIn?.()||!user)
-     throw Error('A Puter még nem erősítette meg a bejelentkezett fiókot.');
-   w.LENA_PUTER_CREDIT_GATE_V1159?.reset?.();
-   status('✓ Új Puter-munkamenet: '+String(user.username||user.email||'Puter felhasználó').slice(0,90)+'. A HealthHub saját tárhely és a receptek változatlanok.');
-   await inspectPuterAiV1164();
-   return true;
- }catch(e){
-   status('⚠ Puter újrabelépés: '+puterAuthErrorV1166(e),true);
-   return false;
- }finally{
-   puterReconnectInProgress=false;
-   if(button){button.disabled=false;button.textContent='🔐 Puter újrabelépés'}
- }
-}
-function puterAuthErrorV1166(error){
- const code=String(error?.error||error?.code||'').toLowerCase();
- const msg=String(error?.msg||error?.message||'').replace(/\s+/g,' ').slice(0,160);
- if(code==='popup_blocked')return 'A böngésző blokkolta a felugró ablakot. Engedélyezd a Puter bejelentkezési ablakát ennél az oldalnál.';
- if(code==='auth_window_closed')return 'A belépési ablakot bezártad vagy megszakítottad. Az eddigi adatok megmaradtak.';
- if(code==='not_available_in_app')return 'Puter-alkalmazáson belül a fiókot a Puter nyitófelületén lehet váltani.';
- if(code==='unsupported_origin')return 'Az alkalmazás beágyazott ablaka nem engedélyezi a Puter-hitelesítést. Nyisd meg a Recept Stúdiót közvetlen böngészőben.';
- return [code,msg].filter(Boolean).join(' · ')||'A Puter bejelentkezés nem sikerült. Próbáld meg a böngészőben.';
-}
-
 const start=byId('nutriBulkStartV1155'),stop=byId('nutriBulkStopV1155'),one=byId('nutriSingleStartV1165');
 start?.addEventListener('click',()=>void batch());
 one?.addEventListener('click',()=>void batch(1));
 stop?.addEventListener('click',()=>{stopRequested=true;status('⏸ Megállítás a most futó recept elkészülte után…');});
-byId('nutriPuterCheckV1164')?.addEventListener('click',()=>void inspectPuterAiV1164());
-byId('nutriPuterReconnectV1166')?.addEventListener('click',()=>void reconnectPuterV1166());
-w.LENA_NUTRI_STANDARD_V1155=Object.freeze({version:1167,generateOne,afterGoldenSave,refresh,stats,needs,signature,diagnoseError:classifyProviderError,runOne:()=>batch(1),reconnectPuter:reconnectPuterV1166});
+byId('nutriPuterCheckV1164')?.addEventListener('click',()=>void inspectCloudflareAiV1164());
+
+w.LENA_NUTRI_STANDARD_V1155=Object.freeze({version:1168,generateOne,afterGoldenSave,refresh,stats,needs,signature,diagnoseError:classifyProviderError,runOne:()=>batch(1)});
 refresh();
 })(window,document);
