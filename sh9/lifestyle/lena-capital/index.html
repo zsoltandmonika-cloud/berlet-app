@@ -56,7 +56,7 @@
 .actions .action-link{font-weight:800}
 @media(max-width:355px){.actions{gap:4px}.actions .action-link,.actions .upload{font-size:9.5px;min-height:34px;padding:3px}}
 </style><meta name="referrer" content="no-referrer"></head><body><main>
-<header class="top"><div><a href="../">‹ ÉLETMÓD / SHO FINANCE</a><div class="heading"><h1>Léna Capital</h1><button type="button" id="refresh-page" class="refresh-page" title="Csak a Léna Capital oldal frissítése" aria-label="Léna Capital oldal frissítése"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7v5h-5M4 17v-5h5M5.3 9A7.5 7.5 0 0 1 18 6l2 2M4 16l2 2a7.5 7.5 0 0 0 12.7-3"/></svg></button></div></div><span class="badge">PAPER ONLY · 0 Ft</span></header>
+<header class="top"><div><a href="../">‹ ÉLETMÓD / SHO FINANCE</a><div class="heading"><h1>Léna Capital</h1><button type="button" id="refresh-page" class="refresh-page" title="Privát portfólióadatok frissítése" aria-label="Léna Capital adatok frissítése"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7v5h-5M4 17v-5h5M5.3 9A7.5 7.5 0 0 1 18 6l2 2M4 16l2 2a7.5 7.5 0 0 0 12.7-3"/></svg></button></div></div><span class="badge">PAPER ONLY · 0 Ft</span></header>
 <section class="hero glass"><div class="row"><span class="label">Virtuális portfólió</span><span id="status" class="badge">NAPLÓRA VÁR</span></div><div id="nav" class="big">100 000 Ft</div><div class="row small"><span>90 nap · 100% szimuláció</span><span id="asof">Nincs betöltött napló</span></div></section>
 <section class="stats"><div class="glass"><span class="label">Nettó eredmény</span><strong id="profit">—</strong><span class="small">Költségek után · adó előtt</span></div><div class="glass"><span class="label">Hozam</span><strong id="roi">—</strong><span class="small">Indulótőkéhez mérve</span></div><div class="glass"><span class="label">S&P 500 ETF</span><strong id="bench">—</strong><span class="small">SPY · árfolyamhozam</span></div><div class="glass"><span class="label">Piac feletti hozam</span><strong id="alpha">—</strong><span class="small">Százalékpont</span></div></section>
 <section class="chart glass"><div class="row"><span class="label">Portfólió vs. benchmark</span><span id="count" class="small">0 megfigyelés</span></div><svg viewBox="0 0 320 70" preserveAspectRatio="none" aria-label="Virtuális portfólió és benchmark története"><path d="M0 14H320 M0 35H320 M0 56H320" stroke="#92b1cd" opacity=".16"/><polyline id="p1" fill="none" stroke="#7ce9c4" stroke-width="2.4" vector-effect="non-scaling-stroke"/><polyline id="p2" fill="none" stroke="#eac78b" stroke-width="1.7" vector-effect="non-scaling-stroke"/></svg><div class="legend"><span><i class="dot"></i>Léna Capital</span><span><i class="dot gold"></i>SPY benchmark</span></div></section>
@@ -69,7 +69,8 @@
 <a class="action-link" style="background:#311e29;border-color:#df778066;color:#ffb1b8" href="https://github.com/zsoltandmonika-cloud/Lena-Capital-/actions/workflows/paper-pilot.yml" target="_blank" rel="noopener noreferrer" title="A GitHub Actions felületen tiltható le a workflow">■ STOP ↗</a>
 <a class="action-link" href="./guide.html">ⓘ Használati útmutató</a>
 <button class="action-link" type="button" onclick="openCapitalAskLena()">✦ Ask Léna</button>
-</div><div id="notice" class="footer" role="status">Beállított virtuális kezdőtőke, nem friss egyenleg. Az első sikeres futás után a privát napló importálható. Automatikus szinkron még nincs.</div></main>
+</div><div id="notice" class="footer" role="status">Beállított virtuális kezdőtőke, nem friss egyenleg. Az első sikeres futás után a privát napló importálható. Privát szinkron ellenőrzése…</div></main>
+<script src="/berlet-app/healthhub/central-vault/config.js"></script>
 <script defer src="/berlet-app/healthhub/chatgpt-project-shortcut-v712.js?v=capital-guide-1"></script>
 <script>
 function openCapitalAskLena(){
@@ -92,7 +93,46 @@ function render(s){
  set('notice','Importált pillanatkép · '+new Date(s.asOf).toLocaleString('hu-HU')+' · nem élő adat. Frissítés: új privát fájl.');
 }
 $('file').onchange=async e=>{try{const f=e.target.files[0];if(!f)return;if(f.size>2000000)throw Error('Túl nagy napló.');render(JSON.parse(await f.text()))}catch(err){set('notice','Nem sikerült betölteni: '+err.message,true)}};
-$('refresh-page').addEventListener('click',()=>{if(snapshotLoaded&&!confirm('Az oldal újratöltése törli a megjelenített helyi pillanatképet. A privát napló és a szimuláció változatlan marad. Frissíted az oldalt?'))return;const u=new URL(location.href);u.searchParams.set('refresh',String(Date.now()));location.replace(u.href)});
+
+const CAPITAL_SESSION='hh-supabase-health-session-v1',CAPITAL_TRUSTED='hh-health-vault-trusted-device-v332',CAPITAL_CACHE='sho-lena-capital-cache-v1';
+function capitalSession(){
+ let a=null,b=null;
+ try{a=JSON.parse(sessionStorage.getItem(CAPITAL_SESSION)||'null')}catch(_){}
+ try{if(localStorage.getItem(CAPITAL_TRUSTED)==='yes')b=JSON.parse(localStorage.getItem(CAPITAL_SESSION)||'null')}catch(_){}
+ const s=[a,b].filter(x=>x&&typeof x.access_token==='string'&&/^eyJ[A-Za-z0-9._-]{30,}$/.test(x.access_token)&&Number(x.expires_at)>Date.now()/1000+30).sort((a,b)=>b.expires_at-a.expires_at)[0];
+ return s||null;
+}
+let capitalBusy=false;
+async function capitalSync(){
+ if(capitalBusy)return;
+ const s=capitalSession(),cfg=window.HH_CENTRAL_VAULT;
+ if(!s||!cfg?.enabled){
+  try{sessionStorage.removeItem(CAPITAL_CACHE)}catch(_){}
+  if(!snapshotLoaded)set('notice','🔐 A privát automatikus szinkronhoz jelentkezz be a Health Vaultba, majd frissíts. A kézi import továbbra is használható.');
+  return;
+ }
+ capitalBusy=true;$('refresh-page').disabled=true;
+ const cacheKey=s.access_token;
+ try{
+  try{const c=JSON.parse(sessionStorage.getItem(CAPITAL_CACHE)||'null');if(c?.session===cacheKey&&Date.now()-c.saved<900000&&!snapshotLoaded){render(c.snapshot);set('notice','Helyi gyorsítótár · frissítés folyamatban…')}}catch(_){}
+  const u=new URL(cfg.supabaseUrl+'/rest/v1/lena_capital_paper_snapshot');u.searchParams.set('select','snapshot');u.searchParams.set('order','as_of.desc');u.searchParams.set('limit','1');
+  const response=await fetch(u,{headers:{apikey:cfg.publishableKey,Authorization:'Bearer '+s.access_token},cache:'no-store',signal:AbortSignal.timeout(12000)});
+  if(!response.ok)throw Error('HTTP '+response.status);
+  const rows=await response.json();
+  if(!Array.isArray(rows)||!rows[0]?.snapshot)throw Error('Nincs engedélyezett privát napló');
+  if(capitalSession()?.access_token!==cacheKey)throw Error('A munkamenet megváltozott');
+  const data=rows[0].snapshot;render(data);
+  set('notice','Privát automatikus szinkron · '+new Date(data.asOf).toLocaleString('hu-HU')+' · lezárt napi szimuláció');
+  try{sessionStorage.setItem(CAPITAL_CACHE,JSON.stringify({session:cacheKey,saved:Date.now(),snapshot:data}))}catch(_){}
+ }catch(err){
+  set('notice',(snapshotLoaded?'Korábbi pillanatkép · ':'')+'Szinkron nem sikerült: '+err.message,true);
+ }finally{capitalBusy=false;$('refresh-page').disabled=false}
+}
+$('refresh-page').addEventListener('click',capitalSync);
+window.addEventListener('pageshow',capitalSync);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)capitalSync()});
+window.addEventListener('healthhub:central-auth-changed',capitalSync);
+capitalSync();
 
 /* Use the actual visible WebView height when the page is at normal zoom.
    Do not interfere with pinch zoom, the system keyboard, or other SHO modules. */
