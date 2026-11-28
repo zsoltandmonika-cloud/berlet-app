@@ -102,10 +102,10 @@ function capitalSession(){
  const s=[a,b].filter(x=>x&&typeof x.access_token==='string'&&/^eyJ[A-Za-z0-9._-]{30,}$/.test(x.access_token)&&Number(x.expires_at)>Date.now()/1000+30).sort((a,b)=>b.expires_at-a.expires_at)[0];
  return s||null;
 }
-let capitalBusy=false,capitalCloudLoaded=false;
+let capitalBusy=false,capitalCloudLoaded=false,capitalCloudToken=null;
 function clearCapitalCloud(){
  if(!capitalCloudLoaded)return;
- capitalCloudLoaded=false;snapshotLoaded=false;
+ capitalCloudLoaded=false;capitalCloudToken=null;snapshotLoaded=false;
  set('nav','100 000 Ft');for(const id of ['profit','roi','bench','alpha'])set(id,'—');
  set('status','NAPLÓRA VÁR');set('asof','Nincs betöltött napló');set('count','0 megfigyelés');set('target','NINCS JELZÉS');set('reason','A privát naplóhoz Health Vault belépés szükséges.');set('position','Pozíció: — · virtuális kötések: 0');set('dd','— / 5%');$('bar').style.width='0';for(const id of ['p1','p2'])$(id).removeAttribute('points');
 }
@@ -119,16 +119,18 @@ async function capitalSync(){
   return;
  }
  capitalBusy=true;$('refresh-page').disabled=true;
- const token=s.access_token,cacheKey=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(token)).then(b=>Array.from(new Uint8Array(b),x=>x.toString(16).padStart(2,'0')).join('')).catch(()=>null);
+ const token=s.access_token;let cacheKey=null;
  try{
-  try{const c=JSON.parse(sessionStorage.getItem(CAPITAL_CACHE)||'null');if(cacheKey&&c?.session===cacheKey&&Date.now()-c.saved<900000&&!snapshotLoaded){render(c.snapshot);capitalCloudLoaded=true;set('notice','Helyi gyorsítótár · frissítés folyamatban…')}}catch(_){}
+  if(capitalCloudLoaded&&capitalCloudToken!==token)clearCapitalCloud();
+  try{const hash=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(token));cacheKey=Array.from(new Uint8Array(hash),x=>x.toString(16).padStart(2,'0')).join('')}catch(_){}
+  try{const c=JSON.parse(sessionStorage.getItem(CAPITAL_CACHE)||'null');if(cacheKey&&c?.session===cacheKey&&Date.now()-c.saved<900000&&!snapshotLoaded){render(c.snapshot);capitalCloudLoaded=true;capitalCloudToken=token;set('notice','Helyi gyorsítótár · frissítés folyamatban…')}}catch(_){}
   const u=new URL(cfg.supabaseUrl+'/rest/v1/lena_capital_paper_snapshot');u.searchParams.set('select','snapshot');u.searchParams.set('order','as_of.desc');u.searchParams.set('limit','1');
   const response=await fetch(u,{headers:{apikey:cfg.publishableKey,Authorization:'Bearer '+s.access_token},cache:'no-store',signal:AbortSignal.timeout(12000)});
   if(!response.ok){if([401,403].includes(response.status)){clearCapitalCloud();try{sessionStorage.removeItem(CAPITAL_CACHE)}catch(_){}}throw Error('HTTP '+response.status);}
   const rows=await response.json();
   if(!Array.isArray(rows)||!rows[0]?.snapshot){clearCapitalCloud();try{sessionStorage.removeItem(CAPITAL_CACHE)}catch(_){}throw Error('Nincs engedélyezett privát napló');}
   if(capitalSession()?.access_token!==token){clearCapitalCloud();throw Error('A munkamenet megváltozott');}
-  const data=rows[0].snapshot;render(data);capitalCloudLoaded=true;
+  const data=rows[0].snapshot;render(data);capitalCloudLoaded=true;capitalCloudToken=token;
   set('notice','Privát automatikus szinkron · '+new Date(data.asOf).toLocaleString('hu-HU')+' · lezárt napi szimuláció');
   try{if(cacheKey)sessionStorage.setItem(CAPITAL_CACHE,JSON.stringify({session:cacheKey,saved:Date.now(),snapshot:data}))}catch(_){}
  }catch(err){
