@@ -24,6 +24,32 @@
 .hh-nutri-weight-v1154 small{font-size:11px;line-height:1.45;color:#c3e0d9}
 </style>
 <link rel="stylesheet" href="/berlet-app/sh9/shared/sh9-golden-bottom-nav-v924.css?v=924-unified">
+<style id="lenaSpiceStyleV1">
+.lena-spice-home{width:min(100%,1540px);margin:0 auto;padding:3px 8px 8px}
+.lena-spice-launch{width:100%;display:flex;align-items:center;text-align:left;gap:12px;padding:11px 15px;min-height:64px;border:1px solid #536a55;border-radius:18px;background:linear-gradient(130deg,#263a2d,#1a251e);color:#f2e9d8;box-shadow:0 6px 16px #132a2222}
+.lena-spice-launch svg{width:28px;height:28px;flex:none;fill:none;stroke:#d9bd87;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.lena-spice-launch b{display:block;font:700 19px/1.2 Georgia,serif}.lena-spice-launch small{display:block;color:#c5cabb;font-size:12px;margin-top:3px}.lena-spice-launch .spice-arrow{margin-left:auto;font-size:24px;color:#d9bd87}
+#lenaSpiceGuideV1{width:min(94vw,620px);max-width:94vw;max-height:88dvh;margin:auto;border:1px solid #66775f;border-radius:20px;overflow:hidden;background:#192b22;color:#f5eee0;box-shadow:0 14px 50px #0006}
+#lenaSpiceGuideV1::backdrop{background:#10221bcc}
+#lenaSpiceGuideV1 .spice-inner{display:flex;flex-direction:column;max-height:86dvh;min-height:0;padding:14px;gap:10px}
+#lenaSpiceGuideV1 .spice-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
+#lenaSpiceGuideV1 h2{margin:0;font:700 24px/1.15 Georgia,serif;color:#f4dfb4}
+#lenaSpiceGuideV1 .spice-sub{font-size:12px;color:#becbbd;margin:4px 0 0}
+#lenaSpiceGuideV1 input{min-width:0;width:100%;background:#10241b;border:1px solid #718775;border-radius:12px;color:#fff4e3;padding:10px;font:inherit;min-height:44px}
+#lenaSpiceGuideV1 input::placeholder{color:#b4c1b4}
+#lenaSpiceGuideV1 button:focus-visible,#lenaSpiceGuideV1 input:focus-visible{outline:2px solid #e8c889;outline-offset:2px}
+#lenaSpiceGuideV1 .spice-list{overflow:auto;min-height:0;overscroll-behavior:contain}
+#lenaSpiceGuideV1 table{border-collapse:collapse;width:100%;table-layout:fixed;font-size:14px}
+#lenaSpiceGuideV1 th{position:sticky;top:0;background:#253d2e;color:#e8c88c;text-align:left;padding:9px 7px;z-index:1}
+#lenaSpiceGuideV1 td{padding:10px 7px;vertical-align:middle;border-bottom:1px solid #ffffff15;overflow-wrap:anywhere}
+#lenaSpiceGuideV1 tbody tr:nth-child(odd){background:#23382c}
+#lenaSpiceGuideV1 td:nth-child(2){color:#e5c992}
+#lenaSpiceGuideV1 .spice-storage{background:none;border:1px solid #71877580;border-radius:8px;min-height:44px;width:100%;color:#e2eadb;font:inherit;font-size:12px;padding:6px;overflow-wrap:anywhere;text-align:left}
+#lenaSpiceGuideV1 .spice-footer{font-size:11px;color:#c0cbbd;line-height:1.4}
+#lenaSpiceGuideV1 .spice-edit{display:grid;gap:8px;padding:10px;background:#23382c;border-radius:10px}
+#lenaSpiceGuideV1 .spice-edit-actions{display:flex;gap:8px;justify-content:flex-end}
+#lenaSpiceGuideV1 .spice-edit-actions button{min-height:44px;padding:8px 12px;border-radius:9px;border:1px solid #718775;background:#304b39;color:#fff}
+</style>
 </head>
 <body>
 <button id="lenaPuterBalanceV1158" type="button" hidden aria-label="Puter AI-keret állapota" title="Alacsony Puter-keret">💳</button>
@@ -68,6 +94,7 @@
       <span class="health-banner-arrow">›</span>
     </button>
   </section>
+  <section class="lena-spice-home"><button id="lenaSpiceOpenV1" class="lena-spice-launch" type="button" aria-haspopup="dialog"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21v-9M12 15C4 15 3 8 3 5c5 0 9 2 9 10ZM12 12c0-7 5-9 9-9 0 5-3 9-9 9Z"/></svg><span><b>Fűszerlexikon</b><small>Spice Guide · magyar / English</small></span><span class="spice-arrow" aria-hidden="true">›</span></button></section>
   <section class="nutri-golden-batch-v1155" aria-label="Golden Standard Nutri Info automatizálás">
     <div class="nutri-golden-head-v1155">
       <b>🥗 Golden Standard · Nutri Info</b>
@@ -723,6 +750,8 @@
 </div>
 </dialog>
 
+<dialog id="lenaSpiceGuideV1" aria-labelledby="lenaSpiceTitleV1"><div class="spice-inner"><div class="spice-head"><div><h2 id="lenaSpiceTitleV1">Fűszerlexikon</h2><p class="spice-sub">Spice Guide · Magyar / English</p></div><button type="button" id="lenaSpiceCloseV1" class="icon-close" aria-label="Bezárás">×</button></div><input id="lenaSpiceSearchV1" type="search" placeholder="Fűszer vagy tároló keresése…" aria-label="Fűszer keresése magyarul vagy angolul" autocomplete="off"><div class="spice-edit" id="lenaSpiceEditV1" hidden><label for="lenaSpiceStorageInputV1" id="lenaSpiceEditLabelV1">Saját tároló</label><input id="lenaSpiceStorageInputV1" maxlength="100" placeholder="Tároló felirata"><div class="spice-edit-actions"><button type="button" id="lenaSpiceCancelV1">Mégse</button><button type="button" id="lenaSpiceSaveV1">Mentés</button></div></div><div class="spice-list"><table><thead><tr><th scope="col">Magyar</th><th scope="col">English</th><th scope="col">Saját tároló</th></tr></thead><tbody id="lenaSpiceRowsV1"></tbody></table></div><div class="spice-footer" id="lenaSpiceCountV1" role="status" aria-live="polite"></div><div class="spice-footer">A tároló mezőre koppintva szerkeszthető. A módosítás ezen az eszközön tárolódik.</div></div></dialog>
+
 <div id="busyOverlay" class="busy-overlay" hidden><div class="spinner"></div><div id="busyText">Feldolgozás…</div></div>
 <div id="toast" class="toast"></div>
 
@@ -745,5 +774,25 @@
 <script defer src="/berlet-app/sh9/shared/sh9-golden-bottom-nav-v924.js?v=924-unified&notv=20261122"></script>
 <script defer src="/berlet-app/sh9/shared/sh9-language-bridge-v1.js?v=2-module-names"></script>
 <script async src="/berlet-app/sh9/shared/sho-refresh-sound-v1.js?v=1"></script>
+<script id="lenaSpiceScriptV1">
+(function(){"use strict";
+const rows=[["anise","Ánizs","Anise"],["bay","Babérlevél","Bay leaf","Old Bay feliratú tároló"],["basil","Bazsalikom","Basil"],["pepper","Bors","Pepper"],["juniper","Boróka","Juniper"],["savory","Borsikafű (csombor, csombord)","Savory"],["peppermint","Borsmenta","Peppermint"],["chili","Chilipaprika","Chili pepper"],["star-anise","Csillagánizs","Star anise"],["fennel","Édeskömény","Fennel"],["fennel-seeds","Édesköménymag","Fennel seeds"],["cinnamon","Fahéj","Cinnamon"],["paprika","Fűszerpaprika","Paprika"],["ginger","Gyömbér","Ginger"],["thyme","Kakukkfű","Thyme"],["dill","Kapor","Dill"],["cardamom","Kardamom","Cardamom"],["caraway","Kömény","Caraway"],["caraway-seeds","Köménymag","Caraway seeds"],["coriander","Koriander","Coriander / Cilantro"],["turmeric","Kurkuma","Turmeric"],["lavender","Levendula","Lavender"],["marjoram","Majoránna","Marjoram"],["mint","Menta","Mint"],["chives","Metélőhagyma","Chives"],["oregano","Oregánó","Oregano"],["parsley","Petrezselyem","Parsley"],["rosemary","Rozmaring","Rosemary"],["cumin","Római kömény","Cumin"],["saffron","Sáfrány","Saffron"],["clove","Szegfűszeg","Clove"],["nutmeg","Szerecsendió","Nutmeg"],["tarragon","Tárkony","Tarragon"],["horseradish","Torma","Horseradish"],["chervil","Turbolya","Chervil"],["vanilla","Vaníliarúd","Vanilla bean"],["sage","Zsálya","Sage"]];
+const key="lena:spice-guide:storage:v1",by=id=>document.getElementById(id);
+const dialog=by("lenaSpiceGuideV1"),search=by("lenaSpiceSearchV1"),body=by("lenaSpiceRowsV1"),editor=by("lenaSpiceEditV1"),input=by("lenaSpiceStorageInputV1"),count=by("lenaSpiceCountV1");
+if(!dialog||!search||!body||!editor)return;
+let local=Object.create(null),editing=null;
+try{const saved=JSON.parse(localStorage.getItem(key)||"{}");if(saved&&typeof saved==="object")for(const row of rows)if(typeof saved[row[0]]==="string")local[row[0]]=saved[row[0]].slice(0,100)}catch{}
+const norm=s=>String(s||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"");
+const label=r=>Object.prototype.hasOwnProperty.call(local,r[0])?local[r[0]]:r[3]||"";
+function render(){const q=norm(search.value.trim()),filtered=rows.filter(r=>norm([r[1],r[2],label(r)].join(" ")).includes(q));body.replaceChildren();for(const r of filtered){const tr=document.createElement("tr");for(const v of [r[1],r[2]]){const td=document.createElement("td");td.textContent=v;tr.append(td)}const td=document.createElement("td"),b=document.createElement("button");b.type="button";b.className="spice-storage";b.textContent=label(r)||"＋ Megadás";b.setAttribute("aria-label",r[1]+" tároló szerkesztése");b.addEventListener("click",()=>{editing=r;by("lenaSpiceEditLabelV1").textContent=r[1]+" · saját tároló";input.value=label(r);editor.hidden=false;input.focus()});td.append(b);tr.append(td);body.append(tr)}count.textContent=filtered.length+" / "+rows.length+" fűszer"+(filtered.length?"":" · Nincs találat")}
+function cancel(){editing=null;editor.hidden=true}
+by("lenaSpiceOpenV1").addEventListener("click",()=>{search.value="";cancel();render();if(!dialog.open)dialog.showModal()});
+by("lenaSpiceCloseV1").addEventListener("click",()=>dialog.close());
+dialog.addEventListener("close",cancel);search.addEventListener("input",()=>{cancel();render()});
+by("lenaSpiceCancelV1").addEventListener("click",()=>{cancel();search.focus()});
+by("lenaSpiceSaveV1").addEventListener("click",()=>{if(!editing)return;local[editing[0]]=input.value.trim().slice(0,100);let ok=true;try{localStorage.setItem(key,JSON.stringify(local))}catch{ok=false}cancel();render();if(!ok)count.textContent+=" · Csak az aktuális munkamenetben mentve";search.focus()});
+input.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();by("lenaSpiceSaveV1").click()}});render();
+})();
+</script>
 </body>
 </html>
