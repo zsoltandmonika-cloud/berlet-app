@@ -7,7 +7,11 @@ function textResult(data){
  const r=data?.result??data;
  let value=r?.choices?.[0]?.message?.content??r?.response;
  if(Array.isArray(value))value=value.map(x=>typeof x==="string"?x:x?.text||"").join("");
- if(typeof value!=="string"||!value.trim())throw providerError("empty_provider_response");
+ if(typeof value!=="string"||!value.trim()){
+  const reason=r?.choices?.[0]?.finish_reason;
+  if(reason==="length")throw providerError("completion_token_limit");
+  throw providerError("empty_provider_response");
+ }
  return value.trim();
 }
 function imageResult(data){
@@ -31,11 +35,12 @@ async function cloudflareCookbook({accountId,apiToken,operation,prompt,photo,kin
    content=[{type:"text",text:prompt},{type:"image_url",image_url:{url:"data:"+photo.mime+";base64,"+photo.base64}}];
   }
   headers["Content-Type"]="application/json";
-  body=JSON.stringify({messages:[{role:"user",content}],max_completion_tokens:2800,temperature:0.3,stream:false,store:false});
+  body=JSON.stringify({messages:[{role:"user",content}],max_completion_tokens:2800,temperature:0.3,stream:false,store:false,chat_template_kwargs:{enable_thinking:false}});
  }
- const response=await fetcher("https://api.cloudflare.com/client/v4/accounts/"+accountId+"/ai/run/"+model,{method:"POST",headers,body,signal:AbortSignal.timeout(operation==="image"?55000:35000)});
+ let response;
+ try{response=await fetcher("https://api.cloudflare.com/client/v4/accounts/"+accountId+"/ai/run/"+model,{method:"POST",headers,body,signal:AbortSignal.timeout(55000)});}catch(e){throw providerError(e?.name==="TimeoutError"||e?.name==="AbortError"?"provider_timeout":"provider_network_error");}
  if(!response.ok)throw providerError("provider_http_"+response.status,response.status);
- const data=await response.json();
+ let data;try{data=await response.json()}catch{throw providerError("provider_invalid_json")}
  if(data?.success===false)throw providerError("provider_rejected");
  return operation==="image"?{kind:"image",...imageResult(data),model}:{kind:"text",text:textResult(data),model};
 }
