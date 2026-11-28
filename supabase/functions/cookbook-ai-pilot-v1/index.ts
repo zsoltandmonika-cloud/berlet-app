@@ -59,7 +59,8 @@ Deno.serve(async req=>{
   return reply({ok:true,...result});
  }catch(e){
   const code=String(e?.message||"");
-  const safe=/^(provider_not_configured|invalid_request|invalid_photo|empty_provider_response|invalid_provider_image|unknown_provider_image_format|provider_rejected|provider_http_[0-9]{3})$/.test(code)?code:"provider_unavailable";
-  return reply({ok:false,error:safe},safe.startsWith("invalid_")?400:e?.status===429?429:502);
+  const safe=/^(provider_not_configured|invalid_request|invalid_photo|empty_provider_response|completion_token_limit|provider_timeout|provider_network_error|provider_invalid_json|invalid_provider_image|unknown_provider_image_format|provider_rejected|provider_http_[0-9]{3})$/.test(code)?code:"provider_unavailable";
+  console.warn("cookbook_ai_failure",JSON.stringify({operation:body.operation,code:safe,status:Number(e?.status)||0}));
+  return reply({ok:false,error:safe},safe.startsWith("invalid_")?400:safe==="provider_timeout"?504:e?.status===429?429:502);
  }
 });
