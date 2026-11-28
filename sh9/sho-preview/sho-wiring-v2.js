@@ -21,8 +21,8 @@ const REAL_ROUTES=Object.freeze({
  'Alvás':HH+'sleep-one/?source=sho'
 });
 const LABELS={
- hu:Object.freeze({Életmód:'Smart Household',Wallet:'Smart Wallet',Táplálkozás:'Táplálkozás',Aktivitás:'Aktivitás',Alvás:'Alvás'}),
- en:Object.freeze({Egészség:'Health',Biztonság:'Safety',Utazás:'Travel',Szórakozás:'Entertainment',Bevásárlás:'Shopping',Sport:'Sport',Wallet:'Smart Wallet',Kapcsolatok:'People',Életmód:'Smart Household',Táplálkozás:'Nutrition',Aktivitás:'Activity',Alvás:'Sleep'})
+ hu:Object.freeze({Életmód:'Household',Wallet:'Smart Wallet',Táplálkozás:'Táplálkozás',Aktivitás:'Aktivitás',Alvás:'Alvás'}),
+ en:Object.freeze({Egészség:'Health',Biztonság:'Safety',Utazás:'Travel',Szórakozás:'Entertainment',Bevásárlás:'Shopping',Sport:'Sport',Wallet:'Smart Wallet',Kapcsolatok:'People',Életmód:'Household',Táplálkozás:'Nutrition',Aktivitás:'Activity',Alvás:'Sleep'})
 };
 const demo={
  z:[{id:'zbkk',name:'Budapest-bérlet',provider:'BKK',date:'Mintabérlet',icon:'🚌',front:null,back:null},{id:'zvonat',name:'Vonatjegy',provider:'MÁV',date:'Mintajegy',icon:'🚆',front:null,back:null}],
