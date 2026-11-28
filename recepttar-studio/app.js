@@ -2076,12 +2076,7 @@ async function forceReadableProcessing(){
    toast("⚡ Feldolgozva. Nézd át, majd jelöld Ellenőrzöttnek.");
  }catch(e){
    console.error("Recept feldolgozás hiba",e);
-   const code=String(e&&((e.error||e.code)||"")).toLowerCase();
-   const msg=code==="popup_blocked"
-     ?"A Puter belépési ablakát blokkolta a böngésző. Engedélyezd a felugró ablakot, majd próbáld újra. Addig megnyitom a kézi szerkesztőt."
-     :code==="auth_window_closed"
-       ?"A receptfeldolgozáshoz szükséges belépés megszakadt. Próbáld újra, amikor készen állsz; addig megnyitom a kézi szerkesztőt."
-       :"A recept automatikus feldolgozása most nem sikerült. Megnyitom a kézi szerkesztőt, így a recept hibakód nélkül javítható.";
+   const msg="A recept automatikus feldolgozása most nem sikerült ("+String(e?.code||e?.message||"AI-hiba").slice(0,120)+"). Megnyitom a kézi szerkesztőt, a recept megmarad.";
    alert(msg);
    openReadableEditor();
  }finally{busy(false)}
