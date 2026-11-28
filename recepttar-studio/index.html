@@ -115,16 +115,13 @@
       <b>🥗 Golden Standard · Nutri Info</b>
       <small>Automatikus az új receptkártyákhoz</small>
     </div>
-    <p class="nutri-golden-info-v1155">Hiányzó receptek: kalória · fehérje · szénhidrát · zsír · rost, valamint a készétel teljes súlyának AI-becslése. A becsült súly később mérleggel felülírható.</p>
     <div class="nutri-golden-actions-v1155">
       <button id="nutriBulkStartV1155" type="button">✨ Hiányzó Nutri Info pótlása minden recepthez</button>
-      <button id="nutriSingleStartV1165" type="button" aria-label="Egy hiányzó recept Nutri Info pótlása próbából">🧪 1 próbarecept</button>
       <button id="nutriBulkStopV1155" type="button" hidden>⏸ Megállítás</button>
-      <button id="nutriPuterCheckV1164" type="button">🔎 AI kapcsolat</button>
 
       <span id="nutriBulkCountsV1155">Receptek ellenőrzése…</span>
     </div>
-    <div id="nutriBulkStatusV1155" role="status" aria-live="polite">Cloudflare AI = tápértékbecslés, HealthHub = saját mentés. A napi keret elérésekor a feldolgozás megáll. Először 1 próbareceptet futtass.</div>
+    <div id="nutriBulkStatusV1155" role="status" aria-live="polite"></div>
   </section>
   <div class="count-row">
     <span><b id="count">0</b> recept</span>
@@ -553,6 +550,23 @@
     <button id="syncSettingsBtn" class="outline-btn">☁ Központi tárhely</button>
   </div>
   <p class="local-note">A központi tárhely a privát HealthHub felhő. A saját receptek offline is elmentődnek, majd a HealthHubba szinkronizálódnak. Az AI-generálás a HealthHub saját AI-kapcsolatán keresztül történik.</p>
+
+  <section class="nutri-golden-batch-v1155" aria-label="Nutri Info diagnosztika">
+    <div class="nutri-golden-head-v1155"><b>Nutri Info · Diagnosztika</b></div>
+    <div class="nutri-golden-actions-v1155">
+      <button id="nutriSingleStartV1165" type="button" aria-label="Egy hiányzó recept Nutri Info pótlása próbából">🧪 1 próbarecept</button>
+      <button id="nutriPuterCheckV1164" type="button">🔎 AI kapcsolat</button>
+    </div>
+    <div id="nutriAdminStatusV20261128" role="status" aria-live="polite"></div>
+  </section>
+  <script>
+  (function(){
+    const source=document.getElementById("nutriBulkStatusV1155"),target=document.getElementById("nutriAdminStatusV20261128");
+    if(!source||!target)return;
+    const sync=()=>{target.textContent=source.textContent;target.className=source.className;};
+    new MutationObserver(sync).observe(source,{childList:true,subtree:true,characterData:true,attributes:true,attributeFilter:["class"]});sync();
+  })();
+  </script>
 
   <section class="category-admin-box">
     <div class="category-admin-head">
