@@ -26,7 +26,7 @@ function classifyProviderError(error){
    return {kind:'plan',text:'Cloudflare előfizetés/hozzáférés nem igazolt az aktív fiókon ('+code+'). '+message};
  if(/\b402\b/.test(combined))
    return {kind:'billing',text:'A Cloudflare HTTP 402 fizetési/hozzáférési hibát jelzett, de nem tudjuk, hogy a keret vagy az előfizetés állapota okozta. '+message};
- if(/request_timeout|upstream_timeout|timed.?out/.test(combined))
+ if(/request_timeout|upstream_timeout|provider_timeout|provider_network_error|provider_invalid_json|timed.?out/.test(combined))
    return {kind:'timeout',text:'Cloudflare AI-időtúllépés. A kérés akár feldolgozásra és elszámolásra is kerülhetett. '+message};
  if(/too_many_requests|rate.?limit|quota|pilot_limit|429/.test(combined))
    return {kind:'rate',text:'Cloudflare sebességkorlát ('+(code||'429')+'). '+message};
