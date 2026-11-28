@@ -342,14 +342,31 @@
       </div>
       <button id="closeWhatCook" type="button" class="icon-close" aria-label="Bezárás">×</button>
     </div>
-    <p class="what-cook-intro">Írd le röviden, mi van otthon, mit kellene elhasználni, mennyi időtök van, és mit ne ajánljak.</p>
+    <section class="fridge-scan-box" aria-label="Mi van a hűtőben?">
+      <div class="fridge-scan-head"><div><b>📷 Mi van a hűtőben?</b><small>Fotózd le a hűtőt, kamrát vagy az alapanyagokat.</small></div><span>AI VISION</span></div>
+      <div class="fridge-scan-actions">
+        <button id="whatCookFridgeCameraBtn" type="button" class="primary-btn">📷 Fotó készítése</button>
+        <button id="whatCookFridgeGalleryBtn" type="button" class="outline-btn">🖼 Kép kiválasztása</button>
+      </div>
+      <input id="whatCookFridgeCamera" type="file" accept="image/*" capture="environment" hidden>
+      <input id="whatCookFridgeGallery" type="file" accept="image/*" hidden>
+      <div id="whatCookFridgeResult" class="fridge-result" hidden>
+        <img id="whatCookFridgePreview" alt="Alapanyagfotó">
+        <label class="field-label" for="whatCookFridgeItems">Felismert alapanyagok (szerkeszthető)</label>
+        <textarea id="whatCookFridgeItems" rows="3" placeholder="Ellenőrizd vagy egészítsd ki a listát."></textarea>
+        <div id="whatCookFridgeUncertain" class="fridge-uncertain" role="status" hidden></div>
+        <div id="whatCookFridgeIdeas" class="fridge-ideas"></div>
+        <button id="whatCookFridgeClear" type="button" class="outline-btn">Kép és lista törlése</button>
+      </div>
+    </section>
+    <p class="what-cook-intro">Írd le, mire vágytok, vagy egészítsd ki a felismert alapanyagokat időkerettel és egyéb igényekkel.</p>
     <textarea id="whatCookPrompt" rows="4" placeholder="pl. Van csirkemell és tejföl, 30 percünk van, ma ne legyen tészta."></textarea>
     <div class="what-cook-examples">
       <button type="button" data-what="30 percünk van, valami gyors vacsora kell.">⏱ 30 perc</button>
       <button type="button" data-what="Használjuk el, ami hamarosan megromolhat.">♻️ Használjuk el</button>
       <button type="button" data-what="Ma valami könnyebb ételt szeretnénk.">🥗 Könnyebb</button>
     </div>
-    <button id="generateWhatCook" type="button" class="primary-btn what-cook-generate">✨ Adj 3 ötletet</button>
+    <button id="generateWhatCook" type="button" class="primary-btn what-cook-generate">✨ Adj 4 ötletet</button>
     <div id="whatCookContext" class="what-cook-context"></div>
     <div id="whatCookResults" class="what-cook-results"></div>
   </div>
@@ -782,7 +799,7 @@
 <script src="csabai-burgonyaleves-2026.js?v=1"></script>
 <script src="../healthhub/nutrition/hh-cookbook-portion-math-v1154.js?v=1154"></script>
 <script src="recipe-asset-cache-v1.js?v=1-local-first"></script>
-<script src="app-cf-preview.js?v=1168-cloudflare-pilot"></script>
+<script src="app-cf-whatcook-v3.js?v=20261128-1"></script>
 <script src="hh-nutrition-export-v1154.js?v=1160-visible-button"></script>
 <script src="hh-nutri-cf-preview.js?v=1168-cloudflare-pilot"></script>
 
